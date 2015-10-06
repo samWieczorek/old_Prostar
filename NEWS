@@ -1,0 +1,40 @@
+CHANGES IN VERSION 1.1.4
+------------------------
+
+BUG FIXES
+
+    o Better error handling, error messages and conditions for missing data.
+
+CHANGES IN VERSION 1.1.3
+------------------------
+
+BUG FIXES
+
+    o Corrected problems arising from incompatibility between data.table
+      and data.frame subsetting syntaxes.
+
+CHANGES IN VERSION 1.1.2
+-------------------------
+
+NEW FEATURES
+
+    o MS2 spectra can now be visualized.
+    o The 'Result Statistics' and 'Peptides view' tab are now ready.
+
+BUG FIXES
+
+    o Corrected a bug in the selection of proteins by number of peptides.
+    
+
+CHANGES IN VERSION 0.99.1
+-------------------------
+
+NEW FEATURES
+
+    o It is now possible to use a rTResult object from the
+    R session as a parameter to the shinyTANDEM function.
+
+CHANGES IN VERSION 0.99.0 
+-------------------------
+
+    o First submission of shinyTANDEM to Bioconductor

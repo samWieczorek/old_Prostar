@@ -1,0 +1,607 @@
+%\VignetteIndexEntry{Prostar user manual}
+%\VignetteKeywords{MassSpectrometry, Proteomics, DAPAR}
+%\VignettePackage{Prostar}
+
+\documentclass[12pt]{article}
+\usepackage{soul}
+
+\newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
+
+<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
+
+\bioctitle{\Biocpkg{DAPAR} and \Biocpkg{ProStaR} user manual}
+
+
+\author{Samuel Wieczorek\footnote{samuel.wieczorek@cea.fr}, Florence Combes,
+Alexia Dorffer, Thomas Burger}
+
+
+
+\begin{document}
+
+\SweaveOpts{concordance=TRUE, eval=FALSE}
+
+\maketitle
+
+
+
+%% Abstract and keywords %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip 0.3in minus 0.1in
+\hrule
+\begin{abstract}
+\Biocpkg{DAPAR} (Differential Analysis of Protein Abundance with R) and \Biocpkg{ProStaR} (Proteomics and Statistics with R) are two 
+Bioconductor packages that contain the necessary functions to analyze proteomics data (\Biocpkg{DAPAR}), as well as the corresponding graphical user interfaces (\Biocpkg{ProStaR}). This document guides the practitioner through the use of \Biocpkg{DAPAR} (R command lines) and \Biocpkg{ProStaR} (click-button interface, so that no programming skill is required).
+\end{abstract}
+\vskip 0.1in minus 0.05in
+\hrule
+\vskip 0.2in minus 0.1in
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\tableofcontents
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}\label{sec:intro}
+
+
+
+\Biocpkg{DAPAR} and \Biocpkg{ProStaR} are a series of software dedicated to the processing of proteomics data. More precisely, they are devoted to the analysis of quantitative datasets produced in bottom-up discovery proteomics with a LC-MS/MS pipe-line (Liquid Chromatography and Tandey Mass spectrometry).\newline
+
+\Biocpkg{DAPAR} (Differential Analysis of Protein Abundance with R) is an R package that contains all the necessary functions to:
+\begin{itemize}
+\item {Import/export a quantitative dataset.} Here, a quantitative dataset denotes a table where each protein is represented by a line and and each replicate is represented by a column; each cell of the table contain the abundance of a given protein in a given sample; the replicates are clustered into different conditions (or groups), and the purpose of the analysis is to isolate the few proteins the abundance of which significantly differ between the conditions (or groups).
+\item {Compute and display meaningful statistics regarding the quantitative dataset.}
+\item {Perform the various processing steps of a complete data analysis}: (i) filtering and data cleaning; (ii) cross-replicate normalization; (iii) missing value imputation; (iv) statistical tests and false discovery rate computation.
+\end{itemize}
+
+This package can be used on its own; or as a complement to the numerous Bioconductor packages (https://www.bioconductor.org/) it is compliant with; or through the \Biocpkg{ProStaR} interface.
+\Biocpkg{ProStaR} (Proteomics and Statistics with R) is a web-interface based on Shiny (http://shiny.rstudio.com/) that provides Graphical User Interfaces (GUI) to all the \Biocpkg{DAPAR} functionalities, so as to guide any practitioner that is not comfortable with R programming through the complete data analysis process.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Installation}\label{sec:install}
+
+%The installations of the two packages \Biocpkg{DAPAR} and \Biocpkg{ProStaR} are made separately since \Biocpkg{DAPAR} can be run directly from a R console. 
+There are 3 ways to use \Biocpkg{DAPAR}:
+\begin{itemize}
+\item The first one is to use \Biocpkg{DAPAR} alone, through command lines or scripts. To do so, the user simply has to install \Biocpkg{DAPAR} on his/her own work station, as instructed in Section~\ref{sec:daparalone};
+\item The second one is to use \Biocpkg{DAPAR} along with its graphical interface \Biocpkg{ProStaR}, and to have them running on the user's station (referred to as stand-alone install). In such case, it necessary to install \Biocpkg{DAPAR} first, as instructed in Section~\ref{sec:daparalone}, and \Biocpkg{ProStaR} then, as instructed in Section~\ref{sec:daparProstarstandalone};
+\item In the case where several \Biocpkg{ProStaR} users who are not confortable with R (programming or installing), it is best to have a single version of \Biocpkg{DAPAR} and \Biocpkg{ProStaR} running on a Unix/Linux server. The users will use \Biocpkg{ProStaR} through a web browser, exactly if it were locally installed, yet, a single install has to be administrated. In that case, \Biocpkg{DAPAR} has to be classically installed (Section~\ref{sec:daparalone}), while on the other hand,  the install of \Biocpkg{ProStaR} is slightly different on a server (Section~\ref{sec:daparProstarserver}).
+\end{itemize}
+For a stand-alone use, both \Biocpkg{DAPAR} and \Biocpkg{ProStaR} can run on any operating system (Unix/Linux, Mac OS X and Windows) as long as R is installed. 
+In any case (stand-alone or server), a recent version of R ($\geq$ 3.2) is needed.
+
+
+\subsection{DAPAR}\label{sec:daparalone}
+
+
+To install the package \Biocpkg{DAPAR} from the source file with administrator rights, start R and enter:
+
+<< installDAPARBiocond>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DAPAR")
+@
+
+This step will automatically install the following packages:
+\begin{itemize}
+\item {From CRAN}: \CRANpkg{RColorBrewer}, \CRANpkg{Cairo}, \CRANpkg{png}, \CRANpkg{lattice}, \CRANpkg{reshape2}, \CRANpkg{tmvtnorm}, \CRANpkg{norm}, \CRANpkg{ggplot2}, \CRANpkg{imputeLCMD}, \CRANpkg{gplots}, \CRANpkg{XLConnect}, \CRANpkg{knitr}
+\item {From Bioconductor}: \Biocpkg{MSnbase}, \Biocpkg{preprocessCore}, \Biocpkg{impute}, \Biocpkg{limma}, \Biocpkg{pcaMethods}
+\end{itemize}
+
+\subsection{DAPAR with ProStaR}\label{sec:daparProstar}
+
+\Biocpkg{ProStaR} can be run in two differents ways: standalone or server. The pre-requested packages described above have to be installed on the server if the user run a shiny-server to distribute \Biocpkg{ProStaR} or on a local machine if \Biocpkg{ProStaR} is run locally.
+
+
+
+\subsubsection{Stand-alone version}\label{sec:daparProstarstandalone}
+
+To run the stand-alone version, it is necessary to install the package in a directory where the user have read/write permissions. If the user have administrator privileges, then in a R console, enter:
+<< installProstaRBiocond>>=
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("Prostar")
+@
+
+This step will automatically install the following packages: \Githubpkg{rstudio/shinyIncubator}, \Githubpkg{rstudio/shinySky}, \Githubpkg{jrowen/rhandsontable}, \Githubpkg{rstudio/shinyTree}.
+
+Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
+<< runProstarStandalone>>=
+library(Prostar)
+Prostar()
+@
+
+A new window of the default web browser opens. 
+
+
+\subsubsection{Server version} \label{sec:daparProstarserver}
+This version uses a Shiny Server (\url{https://github.com/rstudio/shiny-server}). It is a server program that makes Shiny applications available over the web. Please follow installation instructions if you do not have a server yet.
+
+The first step is to install \Biocpkg{Prostar} as described in section~\ref{sec:daparProstarstandalone} in order to have the dependencies installed.
+
+
+In the sequel, we suppose the directory of shiny-server is \Rcode{/srv/shiny-server} (this is the default configuration of a Shiny Server). In the home directory, unzip the package tarball and move to the R directory.\newline
+\shellcmd{unzip Prostar\_0.99.1.tar.gz}
+\shellcmd{cd Prostar/R}\newline
+
+Create a directory named Prostar in the Shiny Server directory and then copy the 3 files: ui.R, global.R and server.R.\newline
+\shellcmd{sudo mkdir /srv/shiny-server/Prostar}
+\shellcmd{sudo cp R/ui.R /srv/shiny-server/Prostar/.}
+\shellcmd{sudo cp R/global.R /srv/shiny-server/Prostar/.}
+\shellcmd{sudo cp R/server.R /srv/shiny-server/Prostar/.}\newline
+
+Then, complete the installation by copying the 'www' directory of \Biocpkg{ProStaR}:\newline
+\shellcmd{sudo cp -R inst/extdata/www /srv/shiny-server/Prostar/.}\newline
+\newline
+Check if the configuration file of shiny-server is correct.\newline
+For more details, please visit \url{http://rstudio.github.io/shiny-server/latest/}.
+
+Now, the application should be available via a web browser at http://\emph{servername}:\emph{port}/Prostar.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Navigating through the ProStaR interface}
+
+\subsection{Overview of the interface}
+As illustrated on Fig.~\ref{fig:vuegal}, the interface has a classic Shiny layout with two panels:
+\begin {itemize}
+  \item \textbf {Left panel}: The menu to navigate throught the DAPAR functionalities and to run them;
+  \item \textbf {Right panel}: The place where the inputs and outputs of the various processing are dispayed.
+\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=0.65\textwidth]{images/accueil.png}
+\caption{Default screen of ProStaR}\label{fig:vuegal}
+\end{figure}
+More precisely (see Fig.~\ref{fig:left}), the main menu on the upper part of left panel takes the form of a tree, which is divided into four submenus\footnote{Please note that to expand or hide the content of the sub-menus ("Dataset manager"  or "Data processing"), it is necessary to click on the tiny triangles on the left hand side, which depict the nodes of the tree.}:
+\begin{itemize}
+  \item \textbf {Dataset manager}: contains the tools to import and export datasets;
+  \item \textbf {Descriptive statistics}: provides different plots that are helpful to understand the dataset, and to picture the influence of the various processing;
+  \item \textbf {Data processing}: This is the heart of ProStaR, as it contains the interfaces to DAPAR functions; 
+  \item \textbf {Help}: A serie of informations about the sofware, associated communications, etc.
+\end{itemize}
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{images/arbre.png}
+\caption{Detailed menu of ProStaR}\label{fig:left}
+\end {figure}
+
+Below the main menu, a drop-down menu referred to as "Available datasets" makes it possible to navigate back through the history of the processing. Its use is detailed in Section~\ref{sec:availabledatasets}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Data processing}\label{dataprocessing}
+
+To expand the "Data processing" menu, click on the small triangle on the left.
+It contains the 4 predefined steps of a data analysis. They are designed to be used in a specific order:
+\begin{enumerate}
+\item {Filtering}
+\item{Normalization}
+\item{Missing values imputation}
+\item{Differential analysis}
+\end{enumerate}
+For each step, several algorithms or parameters are available. They are detailed in Section~\ref{sec:processingadataset}. 
+During each of these 4 steps, it is possible to test several options, and to observe the influence of the processing in the descriptive statistics menu (see Section~\ref{sec:descriptivestatistics}), which is dynamically updated. 
+Finally, once the ultimate tuning is chosen, the processing is applied to the dataset. In order to finalize the step, it is possible to save the result, so that another dataset appears in the "Available datasets" list (see Section~\ref{sec:availabledatasets}).
+
+\subsection{Dataset manager}
+The "Dataset manager" allows the user to open, import or export quantitative datasets. \Biocpkg{ProStaR} and \Biocpkg{DAPAR} use the MSnSet format which is part of the package \Biocpkg{MSnbase}.
+%~\cite{}.
+The user can load previously existing MSnSet files (see Section~\ref{sec:load}) or text (-tabulated) files (see Section~\ref{sec:import}).
+
+
+\subsubsection{Open MSnset} \label{sec:load}
+The user can upload a dataset that is already formated as an MSnset file, by clicking on "OpenMSnset File" (see Fig.~\ref{fig:open}). This action opens a pop-up window, so as to let the user choose the appropriate file. Once the file is uploaded, a short summary of the dataset is shown, which includes the number of samples, the number of proteins in the dataset, the percentage of missing values and the number of lines which only contain missing values.\newline
+\begin {figure}
+\centering
+\includegraphics{images/open_msnset.png}
+\caption{Open a MSnSet file}\label{fig:open}
+\end {figure}
+Once done, all the plots in the "Descriptive statistics" submenu (see Section~\ref{sec:descriptivestatistics}) become accessible and all the widgets to interact with \Biocpkg{ProStaR} are preloaded.
+
+\hl{\bf Command line:} It is possible to open an MSnset dataset directly in command line (\emph{i.e.} without \Biocpkg{ProStaR} interface), using function \Rfunction{readRDS()}.
+
+The user can find an example of MSnset file in the installation directory of \Biocpkg{DAPAR} in:\newline
+\Rcode{inst/extdata/UPSprotx2.MSnset}
+% 
+% Any user who wants to directly use \Biocpkg{DAPAR} in command line, without \Biocpkg{ProStaR} interface, may upload an MSnset file with the \Rfunction{readRDS()} function:
+% << runProstarStandalone>>=
+% file <- "my_msnset_file"
+% obj <- readRDS(file)
+% @
+
+
+\subsubsection{Import data}\label{sec:import}
+Alternatively, the user can create a quantitative dataset in the MSnset format, on the basis of CSV (Comma Separated Values) files that contains the results of a proteomics analysis. To do so, one has to click on "Convert data to MSnset". Then, the right panel splits into 5 tabs that guide the user through the various creation of the MSnset object:
+
+\textbf {Select file}: Select the CSV file to import (see Fig.~\ref{fig:imp1}). This file must contain a table where each line corresponds to a protein, except the first one which must contain the names of the colums. Among the colums, one must contain an ID that uniquely defines the proteins, as well as a series of columns containing the abundance values (either log-transformed or not). As it appears in Fig.~\ref{fig:imp1}, some options allows for the log2 transformation the abundance values, as well as for automatically replacing the $0$ and $NaN$ values by \textbf{NA}. %These options are checked by default.
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/convert_selectfile.png}
+\caption{Importing a CSV file, tab 1.}\label{fig:imp1}
+\end {figure}
+
+\textbf {Data ID}: A drop-down menu provides the list of the column names. Select the column corresponding to the unique ID of the proteins (see Fig.~\ref{fig:imp2}).
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/convert_dataID.png}
+\caption{Importing a CSV file, tab 2.}\label{fig:imp2}
+\end {figure}
+
+\textbf {Exp. and Feat. data}: In the "Quantitative data" list, select the columns that correspond to the quantitative data. Each time the user selects an item in the list, it is moved up to the field above (see Fig.~\ref{fig:imp3}). If an item is selected by mistake, it can be removed by pressing on the SUPPR key.
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/convert_exp_featdata.png}
+\caption{Importing a CSV file, tab 3.}\label{fig:imp3}
+\end {figure}
+
+\textbf {Sample metadata}: In this tab, the user fills the informations related to the samples. The colum named \emph{Experiment} is filled by default with the name of the different samples. The user fills the other columns: \emph{Label} correspond to the conditions of the experiment that will be compared during the differential analysis; \emph{Bio.Rep},\emph{Tech.rep} et \emph{Analyt.Rep.} correspond respectively to the biological, technical and analytical replicates (Fig.~\ref{fig:imp4}). The column Label is mandatory (for the subsequent differential analysis), the other ones are optional.
+\begin {figure}
+\centering
+\includegraphics[width=0.67\textwidth]{images/convert_sampledata.png}
+\caption{Importing a CSV file, tab 4.}\label{fig:imp4}
+\end {figure}
+
+\textbf {Convert}: Finally, enter the name of the MSnset to be created (Fig.~\ref{fig:imp5}) and click on "Convert data". The data are converted and automatically loaded in \Biocpkg{ProStaR}. The name of the file appears on the top of the left panel, above the menu.
+\begin {figure}
+\centering
+\includegraphics[width=0.9\textwidth]{images/convert_convert.png}
+\caption{Importing a CSV file, tab 5.}\label{fig:imp5}
+\end {figure}
+
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function to create an MSnset from a CSV file is \Rfunction{createMSnset()}.
+
+
+\subsubsection{Export}
+Once an MSnset has been created, it is possible to save it as an MSnset binary object (so that next time, it is not nessary to create it, and a simple uploads makes it, as described in Section~\ref{sec:load}). It is also possible to export it as an Excel spreadsheet. To do so, one simply goes on the corresponding tab and select the appropriate option.
+
+%In case of Excel files, the user has to choose first the ID of the proteins. The result is a file containing three sheets, one sheet per tab in the MSnSet: expression data (quantitative data in our case), Feature Data and Samples Data (see \Biocpkg{MSnbase} documentation~\cite{xxxxxx}).
+%XXX The user chooses the format of the file and enter the name of the file. Then, he clicks on the "Download" button XXX.
+
+\hl{\bf Command line:} When working exclusively with \Biocpkg{DAPAR}, the functions are \Rfunction{writeMSnsetToExcel()} (to export in Excel format) and \Rfunction{saveRDS()} (to export in MSnset format).
+
+\subsubsection{Session log}\label{sec:sessionlog}
+
+Each time the user validates a processing step (by clicking on the "Save <\emph{the\_step}>" button, see Section~\ref{sec:processingadataset}), the entire related information  (such as the method name and its parameters) is added to the table shown in the "Session log" tab (see Figure~\ref{fig:sessionlog}). Hence, this table is a history of how the data were processed during the session. 
+Let us note that, if a dataset is processed, then saved and reloaded in a new session, the session log is naturally empty. To have a complete view on the previous processing applied to a given dataset, pelase refer to Section~\ref{sec:dataexplorer}).
+
+\begin{figure}[b]
+\centering
+\includegraphics[width=0.75\textwidth]{images/SessionLog.png}
+\caption{Example of the log of a session in ProStaR}\label{fig:sessionlog}
+\end {figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Descriptive statistics}\label{sec:descriptivestatistics}
+
+Several plots (one plot per tab) are proposed to help the user to have a quick and as complete as possible overview of his/her dataset. This menu is an essentiel element for the user to check that each processing step indeed  gave the expected result.
+%It is a crucial step to choose the statistical methods further.
+
+
+\subsubsection{Missing value summary}
+
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/desc_missValues.png}
+\caption{Histrograms for the overview of the missing values}\label{fig:sdmv}
+\end {figure}
+
+The barplot on the left represents the number of missing values in each sample. The different colors correspond to the different conditions (or label).
+The histogramm on the right displays the distribution of missing values. The red bin counts the protein lines that only contains missing values (Fig.~\ref{fig:sdmv}).
+%case where a line contains only missing values is colored in red. In this example, there are 3 lines that contains 6 missing values.
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the functions for these two plots are \Rfunction{mvPerLinesHisto()} and \Rfunction{mvHisto()}.
+
+
+
+\subsubsection {Data explorer}\label{sec:dataexplorer}
+This panel allows viewing the content of the msnset structure. It is made of four tables, that are represented in a tab each. %by the three tables of the MSnSet format.
+The first one, named "Quantitative data" contains quantitative values (see Fig.~\ref{fig:sdqv1}). The missing values are represented by empty cells.
+
+\begin {figure}
+\centering
+\includegraphics[width=0.80\textwidth]{images/desc_quantiData.png}
+\caption{View of quantitative data in the MSnSet dataset}\label{fig:sdqv1}
+\end {figure}
+
+
+The second tab is named "Analyte metadata". It contains the metadata of the proteins (see Fig.~\ref{fig:sdqv2}).
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/desc_fdata.png}
+\caption{View of feature meta-data in the MSnSet dataset}\label{fig:sdqv2}
+\end {figure}
+
+The thrid tab is named "Replicate metadata". The information displayed here is the one entered by the user during the import step (see Fig.~\ref{fig:sdqv3}).
+
+\begin {figure}
+\centering
+\includegraphics{images/desc_pdata.png}
+\caption{View of samples meta-data in the MSnSet dataset}\label{fig:sdqv3}
+\end {figure}
+
+The last tab, named "Dataset history" contains the log of the previous processing. Contrarily to the "Session log" panel (see Section~\ref{sec:sessionlog}), the information here does not relate to the session, and is saved from a session to the next one.
+
+\hl{\bf Command line:}  The \Biocpkg{DAPAR} functions to get the three first tables are in fact those from the \Biocpkg{MSnbase} package: \Rfunction{exprs()} (Quantitative data), \Rfunction{fData()} (Analyte metadata) and \Rfunction{pData()} (Replicate metadata). % for \emph{Expression data}, \emph{Feature Meta Data} and \emph{Samples Meta Data}.
+Similarly, the "Dataset history" information is also accessible. In fact, it is stored in a specific slot (\Rcode{processingData@processing}) of the current MSnSet object. In a R console, if \Rcode{obj} is the current dataset, it can be accessed by entering:
+<<sessionLog, echo=TRUE, cache=FALSE, tidy=FALSE>>=
+obj@processingData@processing
+@
+%% $
+
+
+\subsubsection {Heatmap}
+A heatmap is drawn with the associated dendrogram (see Fig.~\ref{fig:sdhm}). The colors represent the intensities: red for high intensities and green for low intensities. White color is reserved for missing values.
+The dendrogram shows the hierarchical classification of the samples. This classification can be tuned by two parameters:
+\begin {itemize}
+  \item \textbf{Distance}: Euclidean or Manhattan
+  \item \textbf{Linkage}: Ward.D or mean
+\end {itemize}
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/desc_heatmap.png}
+\caption{Heatmap and dendrogram for the quantitative data.}\label{fig:sdhm}
+\end {figure}
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{heatmapD()}.
+
+
+\subsubsection {Correlation matrix}
+
+In this tab, it is possible to visualize the extent to which the replicates correlate or not (see Fig.~\ref{fig:sdcm}).
+
+\begin {figure}
+\centering
+\includegraphics{images/desc_corrmatrix.png}
+\caption{Correlation matrix for the quantitative data.}\label{fig:sdcm}
+\end {figure}
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{corrMatrixD()}.
+
+\subsubsection {Boxplot}\label{sec:boxplot}
+
+The protein distribution by replicates is summarized with boxplots (see Fig.~\ref{fig:boxplot}). The user can change the legend of the samples (X-axis) by checking items in the checkboxes group. The colors of the boxes correspond to the different conditions (column \textbf{Label} in the table of \emph {Samples Meta Data}).
+
+\begin {figure}
+\centering
+\includegraphics[width=0.6\textwidth]{images/desc_boxplot.png}
+\caption{Boxplot for the quantitative data.}\label{fig:boxplot}
+\end {figure}
+
+
+
+
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{boxPlotD()}.
+
+\subsubsection{Variance distribution}
+This plot shows the distribution of the variance of the log-intensity of proteins for each condition (see Fig.~\ref{fig:sdvd}).
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/desc_varDist.png}
+\caption{Variance distribution for the quantitative data.}\label{fig:sdvd}
+\end {figure}
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{varianceDistD()}.
+
+\subsubsection{Density plot}\label{sec:densityplot}
+This plots shows the distribution of the log-intensity of proteins for each condition (see Fig.~\ref{fig:sddp}).
+
+\begin {figure}
+\centering
+\includegraphics[width=0.67\textwidth]{images/desc_density.png}
+\caption{Densityplot the quantitative data.}\label{fig:sddp}
+\end {figure}
+
+Two options are available to custom the plot. Theye useful when to many lines superimpose:
+\begin{itemize}
+  \item \textbf{Highlight a condition} among the others. By default, no condition is highlighted,
+  \item \textbf{Show conditions} Select the conditions to display. By default, all the conditions are showed.
+\end {itemize}
+
+\hl{\bf Command line:}
+In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{densityPlotD()}.
+
+\subsection{Help}
+The Help screen offers various information through three panels:
+\begin{itemize}
+\item\textbf{{About}}. This gives the version of the two packages \Biocpkg{DAPAR} and \Biocpkg{ProStaR} and a link to this document,
+\item\textbf{{The MSnSet format}}. On this screen, there is a link to an article about the MSnSet format in order to explain its architecture to the user,
+\item\textbf{{Refs}}. The references associated and/or related to the packages \Biocpkg{DAPAR} and \Biocpkg{ProStaR}.
+
+\end{itemize}
+
+\subsection{Available datasets}\label{sec:availabledatasets}
+A major element of the "Dataset manager" is detached from the menus, for it is convenient to have a continuous view on it. This the drop-down menu entitled "Available datasets" that lists between 1 and 6 different datasets, depending on the progress of the data analysis.
+Basically, each time the modifications of the current dataset are saved, the new dataset does not overwrite the previous dataset. On the contrary, the different versions are stored in memory. Thus, \Biocpkg{ProStaR} keeps a history of all processing performed on a dataset. Concretely, right after creating or uploading a dataset, only a single dataset is available: it is named "Original". After the filtering step, if the user saves his/her results, another dataset becomes available, named "Filtered". Similarly, after the saving of the normalization, of the imputation of missing values and the differential analysis, a new dataset is created and stored. Each time a new dataset is created, it is by default the one on which the processing goes on. However, the previous one is accessible through the "Available datasets" drop-down menu.
+
+At any time, the name of the current dataset is displayed. If the user needs to return to a previous dataset (for example, the current dataset is "Imputed" and the user wants to return to "Filtered"), he/she chooses it in the select field, then click on "Refresh dataset". The dataset is then automatically loaded in memory and becomes the current one; the new dataset becomes the new current one. Naturally, all the plots that are displayed throughout the various panels of \Biocpkg{ProStaR} are dynamically updated without any action from the user.
+
+\textbf{Remark:}
+\begin{itemize}
+\item If the user chooses a dataset within those available, the dataset is not directly reloaded as the working one. To do so, it is mandatory to click on "Refresh dataset". %After this, the dataset which is highlighted in the menu is the one which is worked on in the current session.
+\item Moreover, let us note that if the user saves the current step (let us say the imputation step), then goes back to a previous step (say the normalization step) and start working on this older dataset (for instance, by performing another imputation) and then saves it, the new version of the processing overwrites the previous version (the older imputation is lost and only the newest one is stored in memory): In fact, only a single version of the dataset can be saved for a given processing step.
+\item For a refined analysis regarding the influence of a processing step, it also possible to switch from an older to a newer dataset (that has been saved before) with the "Available dataset" drop-down menu, and to observe the variations in the "Descriptive statistics" menu.
+\end{itemize}
+
+The "Clear all" button deletes all the Available datasets. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Processing a dataset}\label{sec:processingadataset}
+
+In this section, the four steps of a quantitative data analysis are detailed. At the end of each step, it is advised to save the processing, so that another dataset shows up in the "Available datasets" menu, and so that it is possible to go back to a previous step of the analysis if necessary, without starting back the analysis from scratch.
+
+After applying any processing, it is advised to check the "Descriptive Statistics" menu and to observe the influence of the processing (all the graphics are dynamically updated). 
+
+\subsection{Filtering}\label{sec:filtering}
+In this step, the user may decide to delete proteins where the amount of missing values is too important to expect confident processing.
+%This tool allows the user to deal with missing values in quantitative data by deleting lines that contain a certain amount of quantitative values. 
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/filter.png}
+\caption{Interface of the filtering tool.}\label{fig:filter}
+\end {figure}
+
+The choice of the lines to be deleted is made by different options (see Fig.~\ref{fig:filter}):
+\begin {itemize}
+  \item\textbf{None}: No filtering, the quantitative data is left unchanged. This is the default option;
+  \item\textbf{Whole Matrix}: The lines (across all conditions) in the quantitative dataset which contain less non-missing value than a user-defined threshold are deleted;
+  \item\textbf{All conditions}: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;
+  \item\textbf{At least one condition}: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted;
+\end {itemize}
+
+Once the the filtering is appropriately tuned, the user clicks on "Apply filter" so as to validate his/her choice and to apply it to the dataset. Then, a new dataset is created. The informations related to the type of filtering and the options choosen appear in the Session log tab (see section~\ref{sec:sessionlog}). This latter becomes the new current dataset and its name appears in the menu \textbf{Datasets available} at the bottom left of the screen. All plots and tables are automatically updated in \Biocpkg{ProStaR}.
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{mvFilter()}.
+
+\subsection{Normalization}\label{sec:normalization}
+
+The next step is to normalize the replicates so as to have more accurate comparisons. \Biocpkg{ProStaR} offers a number of different normalization routines that are described below.
+
+In order to vizualize the data after normalization, two plots are displayed: a boxplot and a densityplot (see Fig.~\ref{fig:norma}). Those plots are the same as the one showed in \textbf{Descriptive Statistics}, thus they have the same options (see Sections~\ref{sec:boxplot}~and~\ref{sec:densityplot}).
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/normalisation.png}
+\caption{Interface of the normalization tool.}\label{fig:norma}
+\end {figure}
+
+If no normalization is necessary, it is possible to skip this step.
+If the user wants to compare the influence of several normalization methods, it is possible to select them in a row, and to alternate between this menu and the "Descriptive statistics" one. It is possible to go back to the original dataset by selecting "None".
+%They are grouped into two families: "global adjustments" and adjustments by centering:
+Several methods are implemented:
+\begin {description}
+%  \item \textbf{Global adjustment}:
+%    \begin {itemize}
+    \item[Sum by column] The abundance of each protein is divided by the total abundance of all the proteins in the same replicates. This normalization is interesting to compare the proportions of a given protein in different samples that do not necessarily contain the same amount of biological material. Contrarily to the others, this normalization is not performed on the log2 scale, for it would not have any interpretation (the data are thus exponentiated and re-log2-transformed as pre-and post-processing).
+    \item[Quantiles] The protein abundance are roughly replaced by the order statics on their abundance (from package \Biocpkg{preprocessCore}). This is the strongest normalization method available, and it should be use carefully, for it erazes most of the difference between the samples.
+%    \end {itemize}
+%  \item \textbf {Adjustment by centering}:
+%  \begin {itemize}
+    \item[Mean / median centering] The central tendancies of the samples are aligned. To do so, one computes first the central tendancy (either the mean of the median, depending on the user choice) for each replicates. Then, to each abundance value, one subtracts the corresponding central tendancy. Finally, one adds to this abundance value, an offset in order to find roughly back the original range of values. Depending on the user's choice, this offset can be the mean of all the central tendancies, whatever the conditions (then, any global difference between the conditions will disappear);  or it can be the mean of all the central tendancies within each conditions (then, any global difference between the conditions is preserved).
+Note that all these computations are performed on values that were originaly log2-transformed.
+    \item[Mean centering and scaling] The spirit of this normalization is the same as the previous one, yet, it is stronger, and it only applies to log2-tranformed abundance values that distributes roughly normaly for each sample. Basically, a mean centering as described above is applied. Then, the variance of the distribution is re-scaled to 1. Let us note that median centering is not really adapted to a rescaling the variance; this is why such combination of parameters is not available. Once again, the centering can operate over the entire dataset, or over each condition.
+%     on all conditions,
+%     \item Centering over median on each condition,
+%     \item Centering over mean on all conditions,
+%     \item Centering over mean on each condition,
+%     \end {itemize}
+% %    \item \textbf {Adjustment by centering}
+%     \begin {itemize}
+%     \item Centering and reduction by mean and standard deviation.
+%     \end {itemize}
+\end {description}
+
+The user can vizualize the effect of a normalization method without changing the current dataset. If the normalization does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform normalization". The plots are automatically updated. This action does not modify the dataset but offers a preview of the normalized quantitative data.
+The user can vizualize as many times he/she wants several normalization methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save normalization". Then, a new "normalized" dataset is created and loaded in memory. The method of normalization that has been used is added to the Session log tab (see section~\ref{sec:sessionlog}). It becomes the new current dataset and the name "Normalized" appears in "Available datasets". All plots and tables in other menus are automatically updated.
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{normalizeD()}.
+
+
+\subsection{Imputation}\label{imputation}
+
+Two plots are available in order to help the user to choose the right imputation method for his dataset (see Fig.~\ref{fig:impu}).
+
+
+The scatter plot on the left hand side displays the proteins in a space spanned by the mean abundance ($x$ axis) and the number of missing values ($y$ axis). Note that for each protein, as many points (of different colors) as conditions are displayed, for each condition is processed independently of the others. As a result, the maximum value on the $y$ axis is given by the number of replicates in a condition (depending on the filtering step). Let us note that the points have been slightly jittered on the $y$ axis to enhance a better visualization.
+
+%shows the distribution of the mean of intensity of proteins (X-axis) in function of the number of missing values contained in the line (Y-axis) of the corresponding protein. The different conditions are colored by different colors. The points in the Y-axis have been jittered to an easier view.
+This plots indicates how the missing values are distributed over the range of intensity: if there are lots of missing values in the low intensity region (indicating a censoring mechanism produced the missing values) or if they are uniformly distributed. %In the first case, that means the missing values are likely MNAR and in the second case, they might be MCAR.
+
+
+The heatmap on the right hand side clusters the proteins according to their distribution of missing values across the conditions. Each line of the map depicts a protein. On the contrary, the columns do not depicts the replicates anymore, as the abundance values have been reordered so as to cluster the missing values together. Similarly, the proteins have been reordered, so as to cluster the proteins that have a similar amount of missing values distributed in the same way over the conditions. Each line is colored so as to depicts the mean abundance value within each condition. This heatmap is also helpful to decide what is the main origin of missing values (random missingness or censoring of the low intensities).
+
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/imputation.png}
+\caption{Interface of the imputation of missing values tool.}\label{fig:impu}
+\end {figure}
+
+
+The user can choose one of the several available imputation methods, depending on the type of missing values:
+\begin{itemize}
+  \item If the missing values are mainly due to a censoring process of the low intensity proteins, it is advised to use the QRILC (Quantile Regression for the Imputation of Left Censored data) imputation method (function \Rfunction{impute.QRILC()} of from package \CRANpkg{imputeLCMD}).
+  \item Alternatively, if the missing values are roughly uniformly distributed, it is advised to use BPCA (Bayesian Principal Component Analysis) from package \Biocpkg{pcaMethods}, KNN ($K$ Nearest Neighbors) from package \Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package \Biocpkg{norm}.
+\end{itemize}
+
+The user can vizualize the effect of an imputation method without changing the current dataset. If the imputation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform imputation". The plots are automatically updated. This action does not modify the dataset but offers a preview of the imputed quantitative data.
+The user can vizualize as many times he/she wants several imputation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save imputation". Then, a new "imputed" dataset is created and loaded in memory. The method of imputation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Imputed" appears in "Available datasets". All plots and tables in other menus are automatically updated.
+
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with the functions \Rfunction{mvTypePlot()} and \Rfunction{mvImage()}, respectively.
+
+
+\subsection{Differential analysis}\label{diffana}
+
+This step cannot be conducted if the dataset still contains some missing values: They must be imputed before.
+%In the case of mising values, the user have to proceed to the imputation before the differential analysis.
+
+Two statistical tests are available in \Biocpkg{DAPAR}: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
+
+First, the user chooses the test  (see Fig.~\ref{fig:anadiff}). As an option it is possible to redefined the sets of conditions that are tested one against the other. 
+Then, the $p$-values are computed and a volcanoplot is displayed. It shows on the $x$ axis the Fold Change (FC) between the two conditions, and on the $y$ axis, -log10($p$-value). 
+
+\begin {figure}
+\centering
+\includegraphics[width=0.6\textwidth]{images/volcanoplot.png}
+\caption{Volcanoplot of the differential analysis tool.}\label{fig:anadiff}
+\end {figure}
+
+Two thresholds 'one on each axis) can be tuned by the used, so as to discriminate the differentially abondant proteins (which are colored in orange). 
+Two straight lines (resp. horizontal and vertical) are drawn to vizualize these thresholds.
+
+The False Discovery Rate (FDR) is computed on the basis of selected proteins in the volcanoplot. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
+
+Below the volcanoplot, a table shows the results of the statistical test (see Fig.~\ref{fig:anadiff2}): the value of -log10(p-value) and the Fold Change (\emph{i.e.} the log2 of the ratio of the mean values per condition).
+
+When the user has selected the proteins of interest, he/she can save them by clicking on "Save diff analysis". Then, a new "AnaDiff" dataset is created and loaded in memory. This dataset is the same as the previsous one except that 3 columns have been added in the "Quantitative data" table: "-log10(p-value)",  "Fold Change" and "Significant". The two first contain the coordinates of the proteins on the volcano plot, and the third one contains a boolean value indicating whether each protein is differentially abondant or not. As with the other processing steps, the information related to the user's choices is added to the "Session log" tab (see section~\ref{sec:sessionlog}) of this new dataset.
+It becomes the new current dataset and its name, "DiffAnalysis.<test>" (where <test> indicates the test performed), appears in "Available datasets". All plots and tables in other menus are automatically updated.
+
+
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/tableau_pval_logFC.png}
+\caption{Table of the results of statistical test in the differential analysis tool.}\label{fig:anadiff2}
+\end {figure}
+
+
+
+\hl{\bf Command line:} The \Biocpkg{DAPAR} functions for the Welch $t$-test and moderated $t$-test are \Rfunction{diffAnaWelch()} and \Rfunction{diffAnaLimma()}, respectively. These functions return a \Rcode{data.frame} which contains 2 columns: the p-values and the Fold Change of the test. These columns can be added to the current MSnSet object \Robject{imputed\_dataset} (as explained earlier) with the function \Rfunction{diffAnaSave()}:
+<< diffAnalysis>>=
+res <- diffAnaLimma(imputed_dataset, condition1, condition2)
+obj <- diffAnaSave(imputed_dataset, res, "limma", condition1, condition2)
+@
+Moreover, \Rfunction{diffAnaSave()} adds the aforementioned third column named "Significant" to the MSnset object. Two optional arguments allows the user defining the thresholds on the $p$-values and on the Fold Change, so has to be more or less stringent on the number of proteins called "Significant".
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Session information}\label{sec:sessionInfo}
+<<sessioninfo, results=tex, echo=FALSE, eval=TRUE, cache=FALSE>>=
+toLatex(sessionInfo())
+@
+
+%\bibliography{\Biocpkg{ProStaR}}
+
+
+\end{document}

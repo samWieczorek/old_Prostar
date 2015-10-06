@@ -1,0 +1,18 @@
+
+
+
+library(prostar)
+prostar()
+
+
+Install of the standalone version
+
+cd ~; mkdir rlib
+mkdir rlib/www
+chmod -R 777 rlib/www
+
+R CMD INSTALL Prostar_0.97.0.tar.gz --library=rlib
+If you would prefer to install the package from R, do this:
+
+## From CRAN
+install.packages("Prostar", lib="~/rlib")
