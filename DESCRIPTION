@@ -1,13 +1,21 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 0.99.1
-Date: 2015-09-17
-Author@R: c(person("Samuel", "Wieczorek",
-        email="samuel.wieczorek@cea.fr"), person("Florence", "Combes",
-        email="florence.combes@cea.fr"),person("Thomas", "Burger",
-        email="thomas.burger@cea.fr"))
-Author: Samuel Wieczorek <samuel.wieczorek@cea.fr>
+Version: 0.99.3
+Date: 2015-10-01
+Authors@R: c(person(given = "Samuel", family = "Wieczorek",
+	            email = "samuel.wieczorek@cea.fr",
+ 		    role = c("aut","cre")),
+             person(given = "Florence", family ="Combes",
+	            email = "florence.combes@cea.fr",
+		    role = "aut"),
+             person(given = "Thomas", family ="Burger",
+	            email = "thomas.burger@cea.fr",
+		    role = "aut"))
+Author: 
+    Samuel Wieczorek [cre,aut],
+    Florence Combes [aut],
+    Thomas Burger [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: MassSpectrometry, Proteomics, GUI
