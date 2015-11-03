@@ -3,7 +3,7 @@ export("Prostar")
 
 import(shinyTree)
 import(rhandsontable)
-#importFrom(shinysky,actionButton)
+import(data.table)
 import(shiny)
 import(DAPAR)
 import(quantmod)

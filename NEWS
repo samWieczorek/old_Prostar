@@ -1,5 +1,12 @@
 
-CHANGES IN VERSION 0.99.0 
+CHANGES IN VERSION 1.1.1
+-------------------------
+
+    o Add the package data.table in dependencies
+    
+    
+    
+    CHANGES IN VERSION 0.99.0 
 -------------------------
 
     o First submission of Prostar to Bioconductor
