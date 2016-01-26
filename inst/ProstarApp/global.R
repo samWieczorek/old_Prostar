@@ -6,11 +6,14 @@ gFileExtension <- list(txt = ".txt",
                         excel = ".xls",
                         zip = ".zip")
 
+gAgregateMethod <- list(sum = "sum overall",
+                        mean = "mean",
+                        topn = "sum on top n")
 
 gFiltersList <- list()
 gFiltersList[["None"]] <- "none"
 gFiltersList[["Whole matrix"]] <- "wholeMatrix"
-gFiltersList[["All conditions"]] <- "allCond"
+gFiltersList[["For every condition"]] <- "allCond"
 gFiltersList[["At least one condition"]] <- "atLeastOneCond"
 
 gDatasets <- list()
@@ -18,7 +21,7 @@ gDatasets[["NA"]] <- "none"
 
 gFilterNone <- gFiltersList[["None"]]
 gFilterWholeMat <- gFiltersList[["Whole matrix"]]
-gFilterAllCond <- gFiltersList[["All conditions"]]
+gFilterAllCond <- gFiltersList[["For every condition"]]
 gFilterOneCond <- gFiltersList[["At least one condition"]]
 
 # variables for filtering the data

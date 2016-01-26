@@ -18,9 +18,11 @@ library(data.table)
 shinyUI <- function(){
     pageWithSidebar(
 
-    headerPanel(
-        list("ProStaR"),windowTitle="ProStaR"
-    ),
+      uiOutput("headerpanel"),
+#     headerPanel(
+#         list("ProStaR"),windowTitle="ProStaR"
+#         
+#     ),
 
     # Add custom CSS & Javascript;
     sidebarPanel(
@@ -38,9 +40,11 @@ shinyUI <- function(){
 
         hr(),
         h5("Available datasets"),
-        selectInput("datasets", "", choices = "none", width = '200px'),
-        actionButton("GetDataset","Refresh dataset", styleclass = "primary"),
-        actionButton("ClearDataset", "Clear all", styleclass = "primary")
+        selectInput("datasets", "", choices = "none", width = '200px')
+
+        
+        #actionButton("GetDataset","Refresh dataset", styleclass = "primary"),
+        #actionButton("ClearDataset", "Clear all", styleclass = "primary")
         ),
 
     #  ---    MAIN PANEL     ----

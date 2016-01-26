@@ -549,6 +549,34 @@ The user can vizualize as many times he/she wants several imputation methods. On
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with the functions \Rfunction{mvTypePlot()} and \Rfunction{mvImage()}, respectively.
 
 
+\subsection{Agregation}\label{agregation}
+
+
+When working on a peptide datasets, one wants to go to the protein level. This can be done with the agregation tool which will agregate the peptides into proteins.
+
+First, the user chooses the protein id of the dataset, i.e. the column that contains the ids of proteins fort each peptides. 
+
+The two barplots represent the number of proteins that are identified by x peptides, respectively for the unique peptides only and with shared peptides. These are a view for the adjacency matrix computed to agregate the peptides.
+
+
+
+\begin {figure}
+\centering
+\includegraphics[width=\textwidth]{images/agregation}
+\caption{Interface of the agregation tool.}\label{fig:agreg}
+\end {figure}
+
+
+
+The checkbox allows to select if the shared peptides must be taken into account or not in the agreagation process.
+The user can vizualize the effect of an agregation method without changing the current dataset. If the agregation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform agregation". The plot is automatically updated. This action does not modify the dataset but offers a preview of the agregated data.
+The user can vizualize as many times he/she wants several agregation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save agregation". Then, a new "agregated" dataset is created and loaded in memory. The method of agregation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Agregated" appears in "Available datasets". All plots and tables in other menus are automatically updated.
+From this step, note that the dataset has been largely changed and contain proteins rather than peptides.
+
+Once the peptides were agregated into proteins and the result saved, the plot dissapear because there are no data to show.
+ 
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to compute the adjacency matrix peptides-proteins si \Rfunction{BuildAdjacencyMatrix()} and the one used to agregate the peptides into proteins is \Rfunction{AggregatePeptides()}. The aforementioned plot is obtained with the functions \Rfunction{GraphPepProt()}.
+
 \subsection{Differential analysis}\label{diffana}
 
 This step cannot be conducted if the dataset still contains some missing values: They must be imputed before.

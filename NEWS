@@ -1,12 +1,27 @@
 
-CHANGES IN VERSION 1.1.1
+
+CHANGES IN VERSION 1.1.1 
 -------------------------
 
-    o Add the package data.table in dependencies
-    
-    
-    
-    CHANGES IN VERSION 0.99.0 
+Updates to be compliant with DAPAR >=1.1.1 and Proline (xxx)
+This version is a major update of DAPAR which contains wrappers for all functions and the agregation functions were added
+
+The memory management in the function mvImage has been optimized
+
+A new plot has been added for the missing values filter tools
+Added a function to remove contaminants
+
+
+
+1.1.1 :
+* To change the current dataset, tue user has only to select te desired one in the menu
+* it is possible to modify the gradient of colors for the correlation matrix
+A new barplot to show the proportion of contaminants and reverse. The computation of these proportions has been debugged
+* adding a function to create new columns in the protein dataset when the peptides one has been aggregated
+* feature to build automatically an ID for the MSnset
+
+
+CHANGES IN VERSION 0.99.0 
 -------------------------
 
     o First submission of Prostar to Bioconductor

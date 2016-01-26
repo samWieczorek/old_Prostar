@@ -20,7 +20,7 @@ Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: MassSpectrometry, Proteomics, GUI
 License: Artistic-2.0
-Depends: DAPAR, shiny
+Depends: DAPAR (>= 1.1.1), shiny
 Imports: shinyTree,rhandsontable, quantmod, data.table
 Suggests: BiocStyle
 NeedsCompilation: no
