@@ -6,6 +6,7 @@
 \usepackage{soul}
 
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
+\newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
 
 <<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
 BiocStyle::latex()
@@ -55,12 +56,16 @@ Bioconductor packages that contain the necessary functions to analyze proteomics
 \begin{itemize}
 \item {Import/export a quantitative dataset.} Here, a quantitative dataset denotes a table where each protein is represented by a line and and each replicate is represented by a column; each cell of the table contain the abundance of a given protein in a given sample; the replicates are clustered into different conditions (or groups), and the purpose of the analysis is to isolate the few proteins the abundance of which significantly differ between the conditions (or groups).
 \item {Compute and display meaningful statistics regarding the quantitative dataset.}
-\item {Perform the various processing steps of a complete data analysis}: (i) filtering and data cleaning; (ii) cross-replicate normalization; (iii) missing value imputation; (iv) statistical tests and false discovery rate computation.
+\item {Perform the various processing steps of a complete data analysis}: (i) filtering and data cleaning; (ii) cross-replicate normalization; (iii) missing value imputation; \textcolor{red}{(iv) aggregation of peptides into proteins;} (v) statistical tests and false discovery rate computation.
 \end{itemize}
 
 This package can be used on its own; or as a complement to the numerous Bioconductor packages (https://www.bioconductor.org/) it is compliant with; or through the \Biocpkg{ProStaR} interface.
 \Biocpkg{ProStaR} (Proteomics and Statistics with R) is a web-interface based on Shiny (http://shiny.rstudio.com/) that provides Graphical User Interfaces (GUI) to all the \Biocpkg{DAPAR} functionalities, so as to guide any practitioner that is not comfortable with R programming through the complete data analysis process.
 
+
+In DAPAR, a serie of functions may be called from two types of variables : a dataframe that contains quantitative data and an object of class MSnset. Th first case has been developped to make DAPAR easier to use (in command line) for users who do not want to work with MSnset files and to be compliant with the Proline Suite (http://proline.profiproteomics.fr/).
+
+\textcolor{red}{The package DAPAR is also used by the Proline Suite (http://proline.profiproteomics.fr/) to perform statistical analysis.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Installation}\label{sec:install}
@@ -156,20 +161,21 @@ As illustrated on Fig.~\ref{fig:vuegal}, the interface has a classic Shiny layou
 \end{itemize}
 \begin{figure}
 \centering
-\includegraphics[width=0.65\textwidth]{images/accueil.png}
+\fbox{\includegraphics[width=0.65\textwidth]{images/defaultProstar1.png}}
 \caption{Default screen of ProStaR}\label{fig:vuegal}
 \end{figure}
-More precisely (see Fig.~\ref{fig:left}), the main menu on the upper part of left panel takes the form of a tree, which is divided into four submenus\footnote{Please note that to expand or hide the content of the sub-menus ("Dataset manager"  or "Data processing"), it is necessary to click on the tiny triangles on the left hand side, which depict the nodes of the tree.}:
+More precisely (see Fig.~\ref{fig:expandedMenu}), the main menu on the upper part of left panel takes the form of a tree, which is divided into four submenus\footnote{Please note that to expand or hide the content of the sub-menus ("Dataset manager"  or "Data processing"), it is necessary to click on the tiny triangles on the left hand side, which depict the nodes of the tree.}:
 \begin{itemize}
   \item \textbf {Dataset manager}: contains the tools to import and export datasets;
   \item \textbf {Descriptive statistics}: provides different plots that are helpful to understand the dataset, and to picture the influence of the various processing;
   \item \textbf {Data processing}: This is the heart of ProStaR, as it contains the interfaces to DAPAR functions; 
   \item \textbf {Help}: A serie of informations about the sofware, associated communications, etc.
 \end{itemize}
+
 \begin{figure}
 \centering
-\includegraphics[width=0.5\textwidth]{images/arbre.png}
-\caption{Detailed menu of ProStaR}\label{fig:left}
+\fbox{\includegraphics[width=0.5\textwidth]{images/defaultProstar2.png}}
+\caption{Detailed menu of ProStaR}\label{fig:expandedMenu}
 \end {figure}
 
 Below the main menu, a drop-down menu referred to as "Available datasets" makes it possible to navigate back through the history of the processing. Its use is detailed in Section~\ref{sec:availabledatasets}.
@@ -180,36 +186,39 @@ Below the main menu, a drop-down menu referred to as "Available datasets" makes 
 \subsection{Data processing}\label{dataprocessing}
 
 To expand the "Data processing" menu, click on the small triangle on the left.
-It contains the 4 predefined steps of a data analysis. They are designed to be used in a specific order:
+It contains the 4 predefined steps of a data analysis (see Fig.~\ref{fig:expandedMenu}). They are designed to be used in a specific order:
 \begin{enumerate}
 \item {Filtering}
 \item{Normalization}
 \item{Missing values imputation}
+\item{Aggregation}
 \item{Differential analysis}
 \end{enumerate}
 For each step, several algorithms or parameters are available. They are detailed in Section~\ref{sec:processingadataset}. 
 During each of these 4 steps, it is possible to test several options, and to observe the influence of the processing in the descriptive statistics menu (see Section~\ref{sec:descriptivestatistics}), which is dynamically updated. 
 Finally, once the ultimate tuning is chosen, the processing is applied to the dataset. In order to finalize the step, it is possible to save the result, so that another dataset appears in the "Available datasets" list (see Section~\ref{sec:availabledatasets}).
 
+
+
 \subsection{Dataset manager}
 The "Dataset manager" allows the user to open, import or export quantitative datasets. \Biocpkg{ProStaR} and \Biocpkg{DAPAR} use the MSnSet format which is part of the package \Biocpkg{MSnbase}.
 %~\cite{}.
-The user can load previously existing MSnSet files (see Section~\ref{sec:load}) or text (-tabulated) files (see Section~\ref{sec:import}).
+\textcolor{red}{The user can load previously existing MSnSet files (see Section~\ref{sec:load}) or  text (-tabulated) and Excel files (see Section~\ref{sec:import}).}
 
 
 \subsubsection{Open MSnset} \label{sec:load}
 The user can upload a dataset that is already formated as an MSnset file, by clicking on "OpenMSnset File" (see Fig.~\ref{fig:open}). This action opens a pop-up window, so as to let the user choose the appropriate file. Once the file is uploaded, a short summary of the dataset is shown, which includes the number of samples, the number of proteins in the dataset, the percentage of missing values and the number of lines which only contain missing values.\newline
 \begin {figure}
 \centering
-\includegraphics{images/open_msnset.png}
+\fbox{\includegraphics{images/open_msnset.png}}
 \caption{Open a MSnSet file}\label{fig:open}
 \end {figure}
 Once done, all the plots in the "Descriptive statistics" submenu (see Section~\ref{sec:descriptivestatistics}) become accessible and all the widgets to interact with \Biocpkg{ProStaR} are preloaded.
 
 \hl{\bf Command line:} It is possible to open an MSnset dataset directly in command line (\emph{i.e.} without \Biocpkg{ProStaR} interface), using function \Rfunction{readRDS()}.
 
-The user can find an example of MSnset file in the installation directory of \Biocpkg{DAPAR} in:\newline
-\Rcode{inst/extdata/UPSprotx2.MSnset}
+\textcolor{red}{The user can find an example of MSnset file in the installation directory of \Biocpkg{DAPAR} in:\newline
+\Rcode{inst/extdata/UPSpepx2.MSnset}}
 % 
 % Any user who wants to directly use \Biocpkg{DAPAR} in command line, without \Biocpkg{ProStaR} interface, may upload an MSnset file with the \Rfunction{readRDS()} function:
 % << runProstarStandalone>>=
@@ -219,40 +228,40 @@ The user can find an example of MSnset file in the installation directory of \Bi
 
 
 \subsubsection{Import data}\label{sec:import}
-Alternatively, the user can create a quantitative dataset in the MSnset format, on the basis of CSV (Comma Separated Values) files that contains the results of a proteomics analysis. To do so, one has to click on "Convert data to MSnset". Then, the right panel splits into 5 tabs that guide the user through the various creation of the MSnset object:
+\textcolor{red}{Alternatively, the user can create a quantitative dataset in the MSnset format, on the basis of CSV (Comma Separated Values) or Excel files that contains the results of a proteomics analysis. To do so, one has to click on "Convert data to MSnset". Then, the right panel splits into 5 tabs that guide the user through the various creation of the MSnset object:}
 
-\textbf {Select file}: Select the CSV file to import (see Fig.~\ref{fig:imp1}). This file must contain a table where each line corresponds to a protein, except the first one which must contain the names of the colums. Among the colums, one must contain an ID that uniquely defines the proteins, as well as a series of columns containing the abundance values (either log-transformed or not). As it appears in Fig.~\ref{fig:imp1}, some options allows for the log2 transformation the abundance values, as well as for automatically replacing the $0$ and $NaN$ values by \textbf{NA}. %These options are checked by default.
+\textcolor{red}{\textbf {Select file}: Select the CSV/txt or Excel file to import (see Fig.~\ref{fig:imp1}). These files must contain a table where each line corresponds to a peptide or protein, except the first one which must contain the names of the colums. Among the colums, one must contain an ID that uniquely defines the peptides or proteins, as well as a series of columns containing the abundance values (either log-transformed or not). As it appears in Fig.~\ref{fig:imp1}, some options allows for specifying if the data are related to peptides or proteins, the log2 transformation the abundance values, as well as for automatically replacing the $0$ and $NaN$ values by \textbf{NA}.} %These options are checked by default.
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/convert_selectfile.png}
+\fbox{\includegraphics[width=\textwidth]{images/convert_convert.png}}
 \caption{Importing a CSV file, tab 1.}\label{fig:imp1}
 \end {figure}
 
-\textbf {Data ID}: A drop-down menu provides the list of the column names. Select the column corresponding to the unique ID of the proteins (see Fig.~\ref{fig:imp2}).
+\textcolor{red}{\textbf {Data ID}: This step if to set the column that correspond to the unique ID of peptides or proteins. The user has two options : let Prostar create such an ID by itself or choose among the columns available in the data file. If he choose the second option, then a drop-down menu appears and provides the list of the column names. Select the column corresponding to the unique ID of the peptides or proteins (see Fig.~\ref{fig:imp2}). If the column contains non unique IDs, a warning tells the user he has to choose another column.}
 \begin {figure}
 \centering
-\includegraphics[width=0.75\textwidth]{images/convert_dataID.png}
+\fbox{\includegraphics[width=0.75\textwidth]{images/convert_dataID.png}}
 \caption{Importing a CSV file, tab 2.}\label{fig:imp2}
 \end {figure}
 
 \textbf {Exp. and Feat. data}: In the "Quantitative data" list, select the columns that correspond to the quantitative data. Each time the user selects an item in the list, it is moved up to the field above (see Fig.~\ref{fig:imp3}). If an item is selected by mistake, it can be removed by pressing on the SUPPR key.
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/convert_exp_featdata.png}
+\fbox{\includegraphics[width=\textwidth]{images/convert_exp_featdata.png}}
 \caption{Importing a CSV file, tab 3.}\label{fig:imp3}
 \end {figure}
 
 \textbf {Sample metadata}: In this tab, the user fills the informations related to the samples. The colum named \emph{Experiment} is filled by default with the name of the different samples. The user fills the other columns: \emph{Label} correspond to the conditions of the experiment that will be compared during the differential analysis; \emph{Bio.Rep},\emph{Tech.rep} et \emph{Analyt.Rep.} correspond respectively to the biological, technical and analytical replicates (Fig.~\ref{fig:imp4}). The column Label is mandatory (for the subsequent differential analysis), the other ones are optional.
 \begin {figure}
 \centering
-\includegraphics[width=0.67\textwidth]{images/convert_sampledata.png}
+\fbox{\includegraphics[width=0.67\textwidth]{images/convert_sampledata.png}}
 \caption{Importing a CSV file, tab 4.}\label{fig:imp4}
 \end {figure}
 
 \textbf {Convert}: Finally, enter the name of the MSnset to be created (Fig.~\ref{fig:imp5}) and click on "Convert data". The data are converted and automatically loaded in \Biocpkg{ProStaR}. The name of the file appears on the top of the left panel, above the menu.
 \begin {figure}
 \centering
-\includegraphics[width=0.9\textwidth]{images/convert_convert.png}
+\fbox{\includegraphics[width=0.9\textwidth]{images/convert_convert.png}}
 \caption{Importing a CSV file, tab 5.}\label{fig:imp5}
 \end {figure}
 
@@ -275,7 +284,7 @@ Let us note that, if a dataset is processed, then saved and reloaded in a new se
 
 \begin{figure}[b]
 \centering
-\includegraphics[width=0.75\textwidth]{images/SessionLog.png}
+\fbox{\includegraphics[width=0.75\textwidth]{images/SessionLog.png}}
 \caption{Example of the log of a session in ProStaR}\label{fig:sessionlog}
 \end {figure}
 
@@ -294,16 +303,21 @@ Several plots (one plot per tab) are proposed to help the user to have a quick a
 
 \begin {figure}
 \centering
-\includegraphics[width=0.75\textwidth]{images/desc_missValues.png}
+\fbox{\includegraphics[width=0.75\textwidth]{images/desc_missValues.png}}
 \caption{Histrograms for the overview of the missing values}\label{fig:sdmv}
 \end {figure}
 
 The barplot on the left represents the number of missing values in each sample. The different colors correspond to the different conditions (or label).
-The histogramm on the right displays the distribution of missing values. The red bin counts the protein lines that only contains missing values (Fig.~\ref{fig:sdmv}).
+The histogramm in the middle displays the distribution of missing values. The red bin counts the protein lines that only contains missing values (Fig.~\ref{fig:sdmv}).
+\textcolor{red}{The barplot on the right shows the distribution of missing values per condition.}
 %case where a line contains only missing values is colored in red. In this example, there are 3 lines that contains 6 missing values.
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the functions for these two plots are \Rfunction{mvPerLinesHisto()} and \Rfunction{mvHisto()}.
-
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the functions for these three plots are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{mvPerLinesHisto()}, \Rfunction{mvHisto()} and \Rfunction{mvPerLinesHistoPerCondition()},
+\item for an object of class MSnset: \Rfunction{wrapper.mvPerLinesHisto()}, \Rfunction{wrapper.mvHisto()} and \Rfunction{wrapper.mvPerLinesHistoPerCondition()}.
+\end{itemize}
+% end textcolor
 
 
 \subsubsection {Data explorer}\label{sec:dataexplorer}
@@ -312,7 +326,7 @@ The first one, named "Quantitative data" contains quantitative values (see Fig.~
 
 \begin {figure}
 \centering
-\includegraphics[width=0.80\textwidth]{images/desc_quantiData.png}
+\fbox{\includegraphics[width=0.80\textwidth]{images/desc_quantiData.png}}
 \caption{View of quantitative data in the MSnSet dataset}\label{fig:sdqv1}
 \end {figure}
 
@@ -321,7 +335,7 @@ The second tab is named "Analyte metadata". It contains the metadata of the prot
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/desc_fdata.png}
+\fbox{\includegraphics[width=\textwidth]{images/desc_fdata.png}}
 \caption{View of feature meta-data in the MSnSet dataset}\label{fig:sdqv2}
 \end {figure}
 
@@ -329,7 +343,7 @@ The thrid tab is named "Replicate metadata". The information displayed here is t
 
 \begin {figure}
 \centering
-\includegraphics{images/desc_pdata.png}
+\fbox{\includegraphics{images/desc_pdata.png}}
 \caption{View of samples meta-data in the MSnSet dataset}\label{fig:sdqv3}
 \end {figure}
 
@@ -353,24 +367,34 @@ The dendrogram shows the hierarchical classification of the samples. This classi
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/desc_heatmap.png}
+\fbox{\includegraphics[width=\textwidth]{images/desc_heatmap.png}}
 \caption{Heatmap and dendrogram for the quantitative data.}\label{fig:sdhm}
 \end {figure}
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{heatmapD()}.
-
+%%\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{heatmapD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{heatmapD()},
+\item for an object of class MSnset: \Rfunction{wrapper.heatmapD()}.
+\end{itemize}
 
 \subsubsection {Correlation matrix}
 
-In this tab, it is possible to visualize the extent to which the replicates correlate or not (see Fig.~\ref{fig:sdcm}).
+\textcolor{red}{In this tab, it is possible to visualize the extent to which the replicates correlate or not (see Fig.~\ref{fig:sdcm}). The contrast in the matrix may be changed by modifying the gradient of color.}
 
 \begin {figure}
 \centering
-\includegraphics{images/desc_corrmatrix.png}
+\fbox{\includegraphics{images/desc_corrmatrix.png}}
 \caption{Correlation matrix for the quantitative data.}\label{fig:sdcm}
 \end {figure}
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{corrMatrixD()}.
+%%\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{corrMatrixD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{heatmapD()},
+\item for an object of class MSnset: \Rfunction{wrapper.heatmapD()}.
+\end{itemize}
+
 
 \subsubsection {Boxplot}\label{sec:boxplot}
 
@@ -378,33 +402,38 @@ The protein distribution by replicates is summarized with boxplots (see Fig.~\re
 
 \begin {figure}
 \centering
-\includegraphics[width=0.6\textwidth]{images/desc_boxplot.png}
+\fbox{\includegraphics[width=0.6\textwidth]{images/desc_boxplot.png}}
 \caption{Boxplot for the quantitative data.}\label{fig:boxplot}
 \end {figure}
 
 
 
+%%\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{boxPlotD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{boxPlotD()},
+\item for an object of class MSnset: \Rfunction{wrapper.boxPlotD()}.
+\end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{boxPlotD()}.
-
-\subsubsection{Variance distribution}
-This plot shows the distribution of the variance of the log-intensity of proteins for each condition (see Fig.~\ref{fig:sdvd}).
-
-\begin {figure}
-\centering
-\includegraphics[width=0.75\textwidth]{images/desc_varDist.png}
-\caption{Variance distribution for the quantitative data.}\label{fig:sdvd}
-\end {figure}
-
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{varianceDistD()}.
+% \subsubsection{Variance distribution}
+% This plot shows the distribution of the variance of the log-intensity of proteins for each condition (see Fig.~\ref{fig:sdvd}).
+% 
+% \begin {figure}
+% \centering
+% \includegraphics[width=0.75\textwidth]{images/desc_varDist.png}
+% \caption{Variance distribution for the quantitative data.}\label{fig:sdvd}
+% \end {figure}
+% 
+% \hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{varianceDistD()}.
 
 \subsubsection{Density plot}\label{sec:densityplot}
 This plots shows the distribution of the log-intensity of proteins for each condition (see Fig.~\ref{fig:sddp}).
 
 \begin {figure}
 \centering
-\includegraphics[width=0.67\textwidth]{images/desc_density.png}
+\fbox{\includegraphics[width=0.67\textwidth]{images/desc_density.png}}
 \caption{Densityplot the quantitative data.}\label{fig:sddp}
 \end {figure}
 
@@ -415,7 +444,14 @@ Two options are available to custom the plot. Theye useful when to many lines su
 \end {itemize}
 
 \hl{\bf Command line:}
-In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{densityPlotD()}.
+%In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{densityPlotD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{densityPlotD()},
+\item for an object of class MSnset: \Rfunction{wrapper.densityPlotD()}.
+\end{itemize}
+
+
 
 \subsection{Help}
 The Help screen offers various information through three panels:
@@ -423,55 +459,75 @@ The Help screen offers various information through three panels:
 \item\textbf{{About}}. This gives the version of the two packages \Biocpkg{DAPAR} and \Biocpkg{ProStaR} and a link to this document,
 \item\textbf{{The MSnSet format}}. On this screen, there is a link to an article about the MSnSet format in order to explain its architecture to the user,
 \item\textbf{{Refs}}. The references associated and/or related to the packages \Biocpkg{DAPAR} and \Biocpkg{ProStaR}.
-
 \end{itemize}
 
-\subsection{Available datasets}\label{sec:availabledatasets}
-A major element of the "Dataset manager" is detached from the menus, for it is convenient to have a continuous view on it. This the drop-down menu entitled "Available datasets" that lists between 1 and 6 different datasets, depending on the progress of the data analysis.
-Basically, each time the modifications of the current dataset are saved, the new dataset does not overwrite the previous dataset. On the contrary, the different versions are stored in memory. Thus, \Biocpkg{ProStaR} keeps a history of all processing performed on a dataset. Concretely, right after creating or uploading a dataset, only a single dataset is available: it is named "Original". After the filtering step, if the user saves his/her results, another dataset becomes available, named "Filtered". Similarly, after the saving of the normalization, of the imputation of missing values and the differential analysis, a new dataset is created and stored. Each time a new dataset is created, it is by default the one on which the processing goes on. However, the previous one is accessible through the "Available datasets" drop-down menu.
 
-At any time, the name of the current dataset is displayed. If the user needs to return to a previous dataset (for example, the current dataset is "Imputed" and the user wants to return to "Filtered"), he/she chooses it in the select field, then click on "Refresh dataset". The dataset is then automatically loaded in memory and becomes the current one; the new dataset becomes the new current one. Naturally, all the plots that are displayed throughout the various panels of \Biocpkg{ProStaR} are dynamically updated without any action from the user.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Available datasets}\label{sec:availabledatasets}
+\textcolor{red}{A major element of the "Dataset manager" is detached from the menus, for it is convenient to have a continuous view on it. This is the drop-down menu entitled "Available datasets" that lists between 1 and 7 different datasets, depending on the progress of the data analysis. Basically, each time the modifications of the current dataset are saved, the new dataset does not overwrite the previous dataset. On the contrary, the different versions are stored in memory. Thus, \Biocpkg{ProStaR} keeps a history of all processing performed on a dataset. Concretely, right after creating or uploading a dataset, only a single dataset is available: it is named "Original". After the filtering step, if the user saves his/her results, another dataset becomes available, named "Filtered". Similarly, after the saving of the normalization, of the imputation of missing values, the agregation into proteins and the differential analysis, a new dataset is created and stored. Each time a new dataset is created, it is by default the one on which the processing goes on. However, the previous one is accessible through the "Available datasets" drop-down menu.}
+
+\textcolor{red}{At any time, the name of the current dataset is displayed. If the user needs to return to a previous dataset (for example, the current dataset is "Imputed" and the user wants to return to "Filtered"), he/she chooses it in the select field. The dataset is then automatically loaded in memory and becomes the current one; the new dataset becomes the new current one. Naturally, all the plots that are displayed throughout the various panels of \Biocpkg{ProStaR} are dynamically updated without any action from the user.}
 
 \textbf{Remark:}
 \begin{itemize}
-\item If the user chooses a dataset within those available, the dataset is not directly reloaded as the working one. To do so, it is mandatory to click on "Refresh dataset". %After this, the dataset which is highlighted in the menu is the one which is worked on in the current session.
-\item Moreover, let us note that if the user saves the current step (let us say the imputation step), then goes back to a previous step (say the normalization step) and start working on this older dataset (for instance, by performing another imputation) and then saves it, the new version of the processing overwrites the previous version (the older imputation is lost and only the newest one is stored in memory): In fact, only a single version of the dataset can be saved for a given processing step.
+%\item If the user chooses a dataset within those available, the dataset is not directly reloaded as the working one. To do so, it is mandatory to click on "Refresh dataset". %After this, the dataset which is highlighted in the menu is the one which is worked on in the current session.
+\item Let us note that if the user saves the current step (let us say the imputation step), then goes back to a previous step (say the normalization step) and start working on this older dataset (for instance, by performing another imputation) and then saves it, the new version of the processing overwrites the previous version (the older imputation is lost and only the newest one is stored in memory): in fact, only a single version of the dataset can be saved for a given processing step.
 \item For a refined analysis regarding the influence of a processing step, it also possible to switch from an older to a newer dataset (that has been saved before) with the "Available dataset" drop-down menu, and to observe the variations in the "Descriptive statistics" menu.
 \end{itemize}
 
-The "Clear all" button deletes all the Available datasets. 
+%The "Clear all" button deletes all the Available datasets. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Processing a dataset}\label{sec:processingadataset}
 
-In this section, the four steps of a quantitative data analysis are detailed. At the end of each step, it is advised to save the processing, so that another dataset shows up in the "Available datasets" menu, and so that it is possible to go back to a previous step of the analysis if necessary, without starting back the analysis from scratch.
+In this section, the five steps of a quantitative data analysis are detailed. At the end of each step, it is advised to save the processing, so that another dataset shows up in the "Available datasets" menu, and so that it is possible to go back to a previous step of the analysis if necessary, without starting back the analysis from scratch.
 
 After applying any processing, it is advised to check the "Descriptive Statistics" menu and to observe the influence of the processing (all the graphics are dynamically updated). 
 
 \subsection{Filtering}\label{sec:filtering}
-In this step, the user may decide to delete proteins where the amount of missing values is too important to expect confident processing.
+\textcolor{red}{In this step, the user may decide to delete peptides or proteins where the amount of missing values is too important to expect confident processing and the peptides or proteins tagged as Contaminants or Reverse.}
 %This tool allows the user to deal with missing values in quantitative data by deleting lines that contain a certain amount of quantitative values. 
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/filter.png}
-\caption{Interface of the filtering tool.}\label{fig:filter}
+\fbox{\includegraphics[width=\textwidth]{images/filter1.png}}
+\caption{Interface of the filtering tool - 1.}\label{fig:filter1}
 \end {figure}
 
-The choice of the lines to be deleted is made by different options (see Fig.~\ref{fig:filter}):
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=\textwidth]{images/filter2.png}}
+\caption{Interface of the filtering tool - 2.}\label{fig:filter2}
+\end {figure}
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=\textwidth]{images/filter3.png}}
+\caption{Interface of the filtering tool - 3.}\label{fig:filter3}
+\end {figure}
+
+To filter the missing values (first tab called "Missing values"), the choice of the lines to be deleted is made by different options (see Fig.~\ref{fig:filter}):
 \begin {itemize}
   \item\textbf{None}: No filtering, the quantitative data is left unchanged. This is the default option;
   \item\textbf{Whole Matrix}: The lines (across all conditions) in the quantitative dataset which contain less non-missing value than a user-defined threshold are deleted;
-  \item\textbf{All conditions}: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;
+  \item\textbf{For every condition}: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;
   \item\textbf{At least one condition}: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted;
 \end {itemize}
 
-Once the the filtering is appropriately tuned, the user clicks on "Apply filter" so as to validate his/her choice and to apply it to the dataset. Then, a new dataset is created. The informations related to the type of filtering and the options choosen appear in the Session log tab (see section~\ref{sec:sessionlog}). This latter becomes the new current dataset and its name appears in the menu \textbf{Datasets available} at the bottom left of the screen. All plots and tables are automatically updated in \Biocpkg{ProStaR}.
+\textcolor{red}{The user can vizualize the effect of filter options without changing the current dataset by clicking on "Perform filtering". If the filtering does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click again on "Perform filtering". The plots are automatically updated. This action does not modify the dataset but offers a preview of the filtered data. The user can vizualize as many times he/she wants several filtering options. Once he finds the correct one, he/she can choose to remove contaminants and Reverse in the second tab (called "Contaminants").}
 
+\textcolor{red}{The user can choose to remove Contaminants and/or Reverse peptides or proteins. To do so, he/she selects the appropriate columns of the metadata listed in the dorpdown menus. Then, he/she specify the prefix present in each of these columns that mark the lines to remove. If he has no idea of what are the prefixes, he can switch to the Data Explorer in the Descriptive Statistics menu. For each fullfilled option, the barplot below is updated: it shows the proportion of quantitative data, Contaminants and Reverse. Once the choices are made, the user click on "Perform filtering contaminants" to remove corresponding lines.}
+
+Once the the filtering is appropriately tuned, the user goes to the last tab (called "Vizualize and Validate"). here, he clicks on "Apply filter" so as to validate his/her choice and to apply it to the dataset. Then, a new dataset is created. The informations related to the type of filtering and the options choosen appear in the Session log tab (see section~\ref{sec:sessionlog}). This latter becomes the new current dataset and its name appears in the menu \textbf{Datasets available} at the bottom left of the screen. All plots and tables are automatically updated in \Biocpkg{ProStaR}.
+
+At this time, there is no version that works directly on dataframes.
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{mvFilter()}.
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Normalization}\label{sec:normalization}
 
 The next step is to normalize the replicates so as to have more accurate comparisons. \Biocpkg{ProStaR} offers a number of different normalization routines that are described below.
@@ -480,7 +536,7 @@ In order to vizualize the data after normalization, two plots are displayed: a b
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/normalisation.png}
+\fbox{\includegraphics[width=\textwidth]{images/normalisation.png}}
 \caption{Interface of the normalization tool.}\label{fig:norma}
 \end {figure}
 
@@ -510,11 +566,15 @@ Note that all these computations are performed on values that were originaly log
 %     \end {itemize}
 \end {description}
 
-The user can vizualize the effect of a normalization method without changing the current dataset. If the normalization does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform normalization". The plots are automatically updated. This action does not modify the dataset but offers a preview of the normalized quantitative data.
+Each time the user selects a method, the explanation above is displayed. The user can vizualize the effect of a normalization method without changing the current dataset. If the normalization does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform normalization". The plots are automatically updated. This action does not modify the dataset but offers a preview of the normalized quantitative data.
 The user can vizualize as many times he/she wants several normalization methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save normalization". Then, a new "normalized" dataset is created and loaded in memory. The method of normalization that has been used is added to the Session log tab (see section~\ref{sec:sessionlog}). It becomes the new current dataset and the name "Normalized" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{normalizeD()}.
-
+%\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{normalizeD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{normalizeD()},
+\item for an object of class MSnset: \Rfunction{wrapper.normalizeD()}.
+\end{itemize}
 
 \subsection{Imputation}\label{imputation}
 
@@ -532,7 +592,7 @@ The heatmap on the right hand side clusters the proteins according to their dist
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/imputation.png}
+\fbox{\includegraphics[width=\textwidth]{images/imputation.png}}
 \caption{Interface of the imputation of missing values tool.}\label{fig:impu}
 \end {figure}
 
@@ -546,70 +606,110 @@ The user can choose one of the several available imputation methods, depending o
 The user can vizualize the effect of an imputation method without changing the current dataset. If the imputation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform imputation". The plots are automatically updated. This action does not modify the dataset but offers a preview of the imputed quantitative data.
 The user can vizualize as many times he/she wants several imputation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save imputation". Then, a new "imputed" dataset is created and loaded in memory. The method of imputation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Imputed" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with the functions \Rfunction{mvTypePlot()} and \Rfunction{mvImage()}, respectively.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with respectively:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{mvTypePlot()} and \Rfunction{mvImage()},
+\item for an object of class MSnset: \Rfunction{wrapper.mvTypePlot()} and \Rfunction{wrapper.mvImage()}.
+\end{itemize}
 
 
-\subsection{Agregation}\label{agregation}
+\subsection{Aggregation}\label{aggregation}
 
 
+\textcolor{red}{
 When working on a peptide datasets, one wants to go to the protein level. This can be done with the agregation tool which will agregate the peptides into proteins.
-
 First, the user chooses the protein id of the dataset, i.e. the column that contains the ids of proteins fort each peptides. 
-
-The two barplots represent the number of proteins that are identified by x peptides, respectively for the unique peptides only and with shared peptides. These are a view for the adjacency matrix computed to agregate the peptides.
+The two barplots represent the number of proteins that are identified by x peptides, respectively for the unique peptides only and with shared peptides. These are a view for the adjacency matrix computed to agregate the peptides.}
 
 
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/agregation}
-\caption{Interface of the agregation tool.}\label{fig:agreg}
+\fbox{\includegraphics[width=\textwidth]{images/agregation1.png}}
+\caption{Interface of the agregation tool - 1.}\label{fig:agreg1}
+\end {figure}
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=\textwidth]{images/agregation2.png}}
+\caption{Interface of the agregation tool - 2.}\label{fig:agreg2}
 \end {figure}
 
 
-
+\textcolor{red}{
 The checkbox allows to select if the shared peptides must be taken into account or not in the agreagation process.
 The user can vizualize the effect of an agregation method without changing the current dataset. If the agregation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform agregation". The plot is automatically updated. This action does not modify the dataset but offers a preview of the agregated data.
 The user can vizualize as many times he/she wants several agregation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save agregation". Then, a new "agregated" dataset is created and loaded in memory. The method of agregation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Agregated" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 From this step, note that the dataset has been largely changed and contain proteins rather than peptides.
-
 Once the peptides were agregated into proteins and the result saved, the plot dissapear because there are no data to show.
+}
  
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to compute the adjacency matrix peptides-proteins si \Rfunction{BuildAdjacencyMatrix()} and the one used to agregate the peptides into proteins is \Rfunction{AggregatePeptides()}. The aforementioned plot is obtained with the functions \Rfunction{GraphPepProt()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to compute the adjacency matrix peptides-proteins is \Rfunction{BuildAdjacencyMatrix()} and the one used to agregate the peptides into proteins is \Rfunction{AggregatePeptides()}. The aforementioned plot is obtained with the functions \Rfunction{GraphPepProt()}.
 
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Differential analysis}\label{diffana}
 
 This step cannot be conducted if the dataset still contains some missing values: They must be imputed before.
 %In the case of mising values, the user have to proceed to the imputation before the differential analysis.
 
-Two statistical tests are available in \Biocpkg{DAPAR}: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
+The differential analysis is divided into four steps, each step correspond to a different tab:
+\begin{itemize}
+\item Selection of the statistical test and setting of a threshold on log Fold Change,
+\item A calibration step,
+\item Selection differential peptides or proteins by their p-Value. Computation of FDR,
+\item Tab with significant peptides or proteins
+\end{itemize}
+
+
+\textbf {Selection of statistical test, logFC}:Two statistical tests are available in \Biocpkg{DAPAR}: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
 
 First, the user chooses the test  (see Fig.~\ref{fig:anadiff}). As an option it is possible to redefined the sets of conditions that are tested one against the other. 
 Then, the $p$-values are computed and a volcanoplot is displayed. It shows on the $x$ axis the Fold Change (FC) between the two conditions, and on the $y$ axis, -log10($p$-value). 
 
 \begin {figure}
 \centering
-\includegraphics[width=0.6\textwidth]{images/volcanoplot.png}
-\caption{Volcanoplot of the differential analysis tool.}\label{fig:anadiff}
+\fbox{\includegraphics[width=0.6\textwidth]{images/anaDiff1.png}}
+\caption{Volcanoplot of the differential analysis tool - 1.}\label{fig:anadiff1}
 \end {figure}
 
-Two thresholds 'one on each axis) can be tuned by the used, so as to discriminate the differentially abondant proteins (which are colored in orange). 
-Two straight lines (resp. horizontal and vertical) are drawn to vizualize these thresholds.
+A threshold along the Fold Change axis can be tuned by the user, so as to discriminate the differentially abondant proteins (which are colored in orange). Two vertical straight lines are drawn to vizualize this threshold.
 
-The False Discovery Rate (FDR) is computed on the basis of selected proteins in the volcanoplot. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
 
-Below the volcanoplot, a table shows the results of the statistical test (see Fig.~\ref{fig:anadiff2}): the value of -log10(p-value) and the Fold Change (\emph{i.e.} the log2 of the ratio of the mean values per condition).
+\textbf {Calibration step}. TO DO
 
-When the user has selected the proteins of interest, he/she can save them by clicking on "Save diff analysis". Then, a new "AnaDiff" dataset is created and loaded in memory. This dataset is the same as the previsous one except that 3 columns have been added in the "Quantitative data" table: "-log10(p-value)",  "Fold Change" and "Significant". The two first contain the coordinates of the proteins on the volcano plot, and the third one contains a boolean value indicating whether each protein is differentially abondant or not. As with the other processing steps, the information related to the user's choices is added to the "Session log" tab (see section~\ref{sec:sessionlog}) of this new dataset.
-It becomes the new current dataset and its name, "DiffAnalysis.<test>" (where <test> indicates the test performed), appears in "Available datasets". All plots and tables in other menus are automatically updated.
-
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=0.6\textwidth]{images/anaDiff2.png}}
+\caption{Calibration plot of the differential analysis tool - 2.}\label{fig:anadiff2}
+\end {figure}
 
 
 \begin {figure}
 \centering
-\includegraphics[width=\textwidth]{images/tableau_pval_logFC.png}
-\caption{Table of the results of statistical test in the differential analysis tool.}\label{fig:anadiff2}
+\fbox{\includegraphics[width=0.6\textwidth]{images/anaDiff3.png}}
+\caption{p-Value threshold of the differential analysis tool - 3.}\label{fig:anadiff3}
 \end {figure}
+
+\textbf {Selection of statistical test, p-Value}: A threshold along the p-Value axis can be tuned by the used, so as to discriminate the differentially abondant proteins (which are colored in orange). A horizontal straight line is drawn to vizualize the threshold.
+
+The False Discovery Rate (FDR) is computed on the basis of selected proteins in the volcanoplot. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
+
+
+\textbf {Table of results}
+Below the volcanoplot, a table shows the results of the statistical test (see Fig.~\ref{fig:anadiff4}): the value of -log10(p-value) and the Fold Change (\emph{i.e.} the log2 of the ratio of the mean values per condition).
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=\textwidth]{images/anaDiff4.png}}
+\caption{Table of the results of statistical test in the differential analysis tool.}\label{fig:anadiff4}
+\end {figure}
+
+When the user has selected the proteins of interest, he/she can save them by clicking on "Save diff analysis". Then, a new "AnaDiff" dataset is created and loaded in memory. This dataset is the same as the previsous one except that 3 columns have been added in the "Quantitative data" table: "-log10(p-value)",  "Fold Change" and "Significant". The two first contain the coordinates of the proteins on the volcano plot, and the third one contains a boolean value indicating whether each protein is differentially abondant or not. As with the other processing steps, the information related to the user's choices is added to the "Session log" tab (see section~\ref{sec:sessionlog}) of this new dataset.
+It becomes the new current dataset and its name, "DiffAnalysis.<test>" (where <test> indicates the test performed), appears in "Available datasets". All plots and tables in other menus are automatically updated.
 
 
 

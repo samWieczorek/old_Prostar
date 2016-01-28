@@ -2242,7 +2242,10 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
     if (!is.null(tree)){
       selected.leaf <- unlist(get_selected(tree), use.names = FALSE)
-      l <- list(paste("ProStaR", selected.leaf, sep = "     -    ")) }
+      if (length(selected.leaf) >0) {
+        l <- list(paste("ProStaR", selected.leaf, sep = " - "))
+      } else { l <- list("ProStaR")}
+       }
     else { l <- list("ProStaR")}
     
       headerPanel(l,windowTitle="ProStaR"  )
