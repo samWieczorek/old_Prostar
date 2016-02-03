@@ -21,9 +21,6 @@ port <- data.table(Experiment=list(),
 shinyServer(function(input, output, session) {
   
   output$hot <- renderRHandsontable({
-    #input$eData.box
-    
-    #if (is.null(input$hot)) {
     if (is.null(input$eData.box)) {
       DT <- rv$hot
     } else {
@@ -64,7 +61,8 @@ shinyServer(function(input, output, session) {
     hot = port, 
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
-    errMsgcalibrationPlotALL = NULL)
+    errMsgcalibrationPlotALL = NULL,
+    typeOfDataset = "")
   
   env <- environment()
   
@@ -100,10 +98,7 @@ shinyServer(function(input, output, session) {
       {return (NULL)}
       if (selected.leaf == "Open MSnset File") { openFile_tabPanel()}
       else if (selected.leaf == "Convert Data To MSnset") {import_tabPanel()}
-      else if (selected.leaf == "Filtering") { 
-                       # filter_tabPanel()
-        filter_Complete_tabPanel()
-        }
+      else if (selected.leaf == "Filtering") { filter_Complete_tabPanel()}
       else if (selected.leaf == "Export MSnset") {export_tabPanel()}
       
       else if (selected.leaf == "Descriptive Statistics") 
@@ -118,12 +113,8 @@ shinyServer(function(input, output, session) {
       else if (selected.leaf == "Help") {help_tabPanel()}
       
       else if (selected.leaf == "Differential Analysis") {diffAnaTabPanelComplete()}
-       
     }
-    
-    
-    
-    
+
   })
   
   # shinyFileChoose(input, 'files', root='/', filetypes=c('', '.txt'))
@@ -134,6 +125,7 @@ shinyServer(function(input, output, session) {
     return(tags)
   })
   
+  ########################################################
   ComputeAdjacencyMatrix <- reactive({
     #       input$proteinId
     #       rv$current.obj
@@ -150,6 +142,7 @@ shinyServer(function(input, output, session) {
                 matWithUniquePeptides=matUniquePeptides))
   })
   
+  ########################################################
   RunAggregation <- reactive({
     mat <- ComputeAdjacencyMatrix()
     n <- NULL
@@ -183,6 +176,7 @@ shinyServer(function(input, output, session) {
     return(data)
   })
   
+  ########################################################
   RunDiffAna <- reactive({
     input$diffAnaMethod
     rv$current.obj
@@ -200,6 +194,7 @@ shinyServer(function(input, output, session) {
   })
   
   
+  ########################################################
   # Update the global variable og log
   UpdateLog <- function(text, name){
     rv$text.log <- rbind(c(Date=date(), 
@@ -218,14 +213,16 @@ shinyServer(function(input, output, session) {
   ######################################
   loadObjectInMemoryFromConverter <- reactive({
     
-    rv$dataset[["Original"]] <- rv$current.obj
+    rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+    name <- paste ("Original", " (", rv$TypeOfDataset, ")", sep="")
+    rv$dataset[[name]] <- rv$current.obj
     UpdateFilterWidgets()
     updateSelectInput(session, "datasets", 
                       choices = names(rv$dataset),
-                      selected = "Original")
+                      selected = name)
     
     #log update
-    UpdateLog(paste("Open : file ",input$file$name, " opened"),"Original")
+    UpdateLog(paste("Open : file ",input$file$name, " opened"),name)
   })
   
   #---------------------------------------------------- 
@@ -265,27 +262,34 @@ shinyServer(function(input, output, session) {
       ClearMemory()
       rv$current.obj <- readRDS(input$file$datapath)
       rv$current.obj.name <- DeleteFileExtension(input$file$name)
+      rv$TypeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+       
       loadObjectInMemoryFromConverter()
     })
   })
+  
+  
   
   ##' -- Validate the normalization ---------------------------------------
   ##' @author Samuel Wieczorek
   observe({ 
     input$valid.normalization
     input$normalization.method
-    if (is.null(input$valid.normalization) || 
-        (input$valid.normalization == 0)) 
-    {return(NULL)}
+    if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
+        {return(NULL)}
     
     isolate({
       if (input$normalization.method != "None") {
-        rv$dataset[["Normalized"]] <- rv$current.obj
-        updateSelectInput(session, "datasets", 
+        
+        rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+        name <- paste ("Normalized", " (", rv$TypeOfDataset, ")", sep="")
+        rv$dataset[[name]] <- rv$current.obj
+        
+         updateSelectInput(session, "datasets", 
                           choices = names(rv$dataset),
-                          selected = "Normalized")
+                          selected = name)
         UpdateLog(paste("Normalization : data normalized with the method",
-                        input$normalization.method, sep=" "), "Normalized")
+                        input$normalization.method, sep=" "), name)
       }
     } )
   })
@@ -321,21 +325,23 @@ shinyServer(function(input, output, session) {
         cnames <- colnames(fData(rv$temp.aggregate))
         fData(rv$temp.aggregate) <- data.frame(fData(rv$temp.aggregate), newCol)
         colnames(fData(rv$temp.aggregate)) <- c(cnames, c)
-        
       }
+      
       rv$current.obj <- rv$temp.aggregate
-      rv$dataset[["Aggregated"]] <- rv$current.obj
+      rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      name <- paste ("Aggregated", " (", rv$TypeOfDataset, ")", sep="")
+      rv$dataset[[name]] <- rv$current.obj
       
       
       updateSelectInput(session, "datasets", 
                         choices = names(rv$dataset),
-                        selected = "Aggregated")
+                        selected = name)
       UpdateLog(
         paste("Aggregation : peptides were aggregated into proteins with method =",
               input$aggregationMethod,
               ", include Shared Peptides = ", input$checkSharedPeptides,
               ", protein id = ", input$proteinId, sep=" "),
-        "Aggregated")
+        name)
       rv$temp.aggregate <- NULL
       
     } )
@@ -350,13 +356,16 @@ shinyServer(function(input, output, session) {
     {return(NULL)}
     
     isolate({
-      rv$dataset[["Imputed"]] <- rv$current.obj
+      rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      name <- paste ("Imputed", " (", rv$TypeOfDataset, ")", sep="")
+      
+      rv$dataset[[name]] <- rv$current.obj
       updateSelectInput(session, "datasets", 
                         choices = names(rv$dataset),
-                        selected = "Imputed")
+                        selected = name)
       UpdateLog(paste("Imputation with" ,
                       input$missing.value.algorithm,sep=" "),
-                "Imputed")
+                name)
     })
   })
   
@@ -431,9 +440,7 @@ shinyServer(function(input, output, session) {
     if (input$calibrationMethod == "numeric value"){
       numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
                   value = 0, min=0, max=1, step=0.05)
-      
     }
-    
   })
   
   
@@ -659,12 +666,15 @@ shinyServer(function(input, output, session) {
                                   input$condition2,
                                   rv$seuilPVal, rv$seuilLogFC, fdr,
                                   input$calibrationMethod)
-    txt <- paste("DiffAnalysis.", input$diffAnaMethod, sep="")
     
-    rv$dataset[[txt]] <- rv$current.obj
+    
+    rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+    name <- paste("DiffAnalysis.", input$diffAnaMethod, " (", rv$TypeOfDataset, ")", sep="")
+    
+    rv$dataset[[name]] <- rv$current.obj
     updateSelectInput(session, "datasets", 
                       choices = names(rv$dataset),
-                      selected = txt)
+                      selected = name)
     
     
     cMethod <- NULL
@@ -672,7 +682,7 @@ shinyServer(function(input, output, session) {
 hypotheses was set to", input$numericValCalibration, sep= " ")}
     else {cMethod <-input$calibrationMethod }
     
-    text <- paste("Differential analysis with", input$diffAnaMethod, 
+    text <- paste("Dataset of ", rv$TypeOfDataset, ": differential analysis with", input$diffAnaMethod, 
                   "Selection with the following threshold values :logFC =",
                   rv$seuilLogFC,
                    "The calibration was made with the method", cMethod,
@@ -1446,7 +1456,6 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     rv$current.obj
     if (is.null(rv$current.obj)){return(plot.new())}
     if (is.null(input$expGradientRate)){return(NULL)}
-    print(input$expGradientRate)
     wrapper.corrMatrixD(rv$current.obj, rate = input$expGradientRate)
   })
   
@@ -2072,13 +2081,18 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
       if((input$ChooseFilters != gFilterNone) 
          || !is.null(input$idBoxContaminants) 
          || !is.null(input$idBoxReverse)){
-        rv$dataset[["Filtered"]] <- rv$current.obj
+        
+        rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+        name <- paste ("Filtered", " (", rv$TypeOfDataset, ")", sep="")
+        rv$dataset[[name]] <- rv$current.obj
+        
+        
         updateSelectInput(session, "datasets", 
-                          choices = names(rv$dataset), selected = "Filtered")
+                          choices = names(rv$dataset), selected = name)
         txtFilterMV <- paste("Filtering :",
                      GetFilterText(input$ChooseFilters, input$seuilNA), sep="")
         txt <- paste(txtFilterMV, "Contaminants deleted", "Reverse deleted", sep=" ")
-        UpdateLog(txt,"Filtered")
+        UpdateLog(txt,name)
       }
       
     })
@@ -2248,7 +2262,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
        }
     else { l <- list("ProStaR")}
     
-      headerPanel(l,windowTitle="ProStaR"  )
+      headerPanel(l,windowTitle="ProStaR - DEV"  )
  })
   
   output$aggregationStats <- renderUI ({
@@ -2659,6 +2673,23 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   }
   
   
+ViewCorrMatrixTabPanel <- reactive({
+  tabPanel(title="Corr. matrix",
+           value="tabCorrMatrix",
+           #helpText("TODO"),
+           sliderInput("expGradientRate", 
+                       "Modify the rate to modify the gradient of color", 
+                       min = 0, 
+                       max = 10, 
+                       value = 5, 
+                       step=0.05),
+           #uiOutput("ChooseLegendForAxis2"),
+           plotOutput("corrMatrix",
+                      height="500px", 
+                      width="800px"))
+})
+
+
   ViewHeatmapTabPanel <- reactive({
     tabPanel(title="Heatmap",value="tabheatmap",
              #helpText("TODO"),
@@ -2728,42 +2759,37 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
                          OverviewTabPanel(),
                          ViewMSnsetTabPanel(),
                          ViewHeatmapTabPanel(),
-                         tabPanel(title="Corr. matrix",
-                                  value="tabCorrMatrix",
-                                  #helpText("TODO"),
-                                  sliderInput("expGradientRate", 
-                                              "Modify the rate to modify the gradient of color", 
-                                              min = 0, 
-                                              max = 10, 
-                                              value = 5, 
-                                              step=0.05),
-                                  #uiOutput("ChooseLegendForAxis2"),
-                                  plotOutput("corrMatrix",
-                                             height="500px", 
-                                             width="800px")),
-                         
-                         tabPanel(title = "Boxplot", 
-                                  value="tabboxplot",
-                                  # helpText("TODO"),
-                                  uiOutput("ChooseLegendForAxis"),
-                                  plotOutput("viewBoxPlot", 
-                                             height= "500px", 
-                                             width="600px")
-                         ),
-                         
-                         tabPanel(title="Variance distr.", value="tabDistVar",
-                                  p("This graphics shows, for each condition, 
-                                    the distribution of the variance of the 
-                                    log-intensities."),
-                                  plotOutput("viewDistVariance",
-                                             height="500px", 
-                                             width="800px")
-                                  ),
-                         
+                         ViewCorrMatrixTabPanel(),
+                         ViewBoxPlotTabPanel(),
+                         ViewVarDistTabPanel(),
                          DensityPlotTabPanel()
              )
   )   
   }
+  
+  
+  ViewBoxPlotTabPanel <- reactive({
+    tabPanel(title = "Boxplot", 
+             value="tabboxplot",
+             # helpText("TODO"),
+             uiOutput("ChooseLegendForAxis"),
+             plotOutput("viewBoxPlot", 
+                        height= "500px", 
+                        width="600px")
+    )
+  })
+  
+  ViewVarDistTabPanel <- reactive({
+    tabPanel(title="Variance distr.", value="tabDistVar",
+             p("This graphics shows, for each condition, 
+               the distribution of the variance of the 
+               log-intensities."),
+             plotOutput("viewDistVariance",
+                        height="500px", 
+                        width="800px")
+             )
+  })
+  
   
   #-----------------------------------------------------------------------
   NormalizationTabPanel <- reactive({
