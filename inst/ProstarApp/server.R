@@ -491,6 +491,7 @@ shinyServer(function(input, output, session) {
   output$calibrationPlot <- renderPlot({
     input$calibrationMethod
     input$numericValCalibration
+    rv$seuilLogFC
     
     if (
         is.null(rv$seuilPVal) ||
