@@ -377,6 +377,13 @@ shinyServer(function(input, output, session) {
     input$condition2
     rv$seuilPVal
     rv$seuilLogFC
+    input$numericValCalibration
+    input$calibrationMethod
+      
+      
+      
+      
+      
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return(NULL)}
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -528,8 +535,7 @@ shinyServer(function(input, output, session) {
           ll <-catchToList(wrapperCalibrationPlot(t, 1))
           rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
         }else { 
-        print("methode xxx")
-          ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
+        ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
         rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
         }
  
