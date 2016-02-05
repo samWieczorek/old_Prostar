@@ -158,3 +158,49 @@ return(strsplit(name,'.', fixed=T)[[1]][1])}
 #--------------------------------------------------------
 GetExtension <- function(name){
 return(strsplit(name,'.', fixed=T)[[1]][2])}
+
+
+
+#' busyIndicator
+#' 
+#' A busy indicator
+#' 
+#' @param text The text to show
+#' @param img An anitmated gif
+#' @param wait The amount of time to wait before showing the busy indicator. The
+#'   default is 1000 which is 1 second.
+#'   
+#' @export
+# busyIndicator <- function(text = "Calculation in progress..",img = "ajax-loader.gif", wait=1000) {
+#   
+#   conditionalPanel(
+#     condition="($('html').hasClass('shiny-busy'))",
+#     strong(div(text, style = "color:blue")),
+#    # h4(text,style="color:red"),
+#     img(src="images/ajax-loader.gif")
+#   )
+#   }
+
+busyIndicator <- function(text = "Calculation in progress..",img = "images/ajax-loader.gif", wait=1000) {
+  tagList(
+    singleton(tags$head(
+      tags$link(rel="stylesheet", type="text/css",href="busyIndicator/busyIndicator.css")
+    ))
+    ,div(class="busy-indicator",p(text),img(src=img))
+    ,tags$script(sprintf(
+      "	setInterval(function(){
+      if ($('html').hasClass('shiny-busy')) {
+      setTimeout(function() {
+      if ($('html').hasClass('shiny-busy')) {
+      $('div.busy-indicator').show()
+      }
+      }, %d)  		    
+      } else {
+      $('div.busy-indicator').hide()
+      }
+},100)
+      ",wait)
+    )
+  )	
+}
+

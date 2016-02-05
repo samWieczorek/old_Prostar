@@ -690,7 +690,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
                   rv$seuilPVal,
                   "corresponding to a FDR = ", round(100*fdr, digits=2),
                   sep=" ")
-    UpdateLog(text,txt)
+    UpdateLog(text,name)
    
     updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
       }) 
@@ -702,7 +702,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     input$datasets
     rv$current.obj
     if (is.null(input$datasets) || (length(grep("DiffAnalysis.",input$datasets)) !=1) ) {return(NULL)  }
-    else if (grep("DiffAnalysis.",input$datasets) ==1 ) {
+    else if (grep("DiffAnalysis.",input$datasets) == 1 ) {
       h4("The differential analysis has been saved.")
     }
   })
@@ -1475,10 +1475,10 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
 #   })
 #   
   
-#   buildHeatmapPlot <- reactive({
-#     wrapper.heatmapD(rv$current.obj,input$distance, input$linkage)
-#   })
-#   
+  # buildHeatmapPlot <- reactive({
+  #   wrapper.heatmapD(rv$current.obj,input$distance, input$linkage, input$showDendro)
+  # })
+
   ##' Draw a heatmap of current data
   ##' 
   ##' @author Samuel Wieczorek
@@ -1486,6 +1486,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     rv$current.obj
     input$linkage
     input$distance
+    input$showDendro
     
     if (is.null(rv$current.obj) || is.null(input$linkage) || is.null(input$distance)) {return(NULL)
   #return(plot.new())
@@ -1497,8 +1498,8 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
       }
     else {  
       plot.new()
-      wrapper.heatmapD(rv$current.obj,input$distance, input$linkage) 
-      #buildHeatmapPlot()
+      wrapper.heatmapD(rv$current.obj,input$distance, input$linkage, input$showDendro) 
+     # buildHeatmapPlot()
     }
   })  
   
@@ -2182,6 +2183,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
                    column(width=6, h4("All (unique & shared) peptides"))
                  ),
                  
+                 busyIndicator("Calculation In progress",wait = 0),
                  fluidRow(
                    column(width=6, plotOutput("aggregationPlotUnique")),
                    column(width=6, plotOutput("aggregationPlotShared"))
@@ -2700,8 +2702,7 @@ ViewCorrMatrixTabPanel <- reactive({
                       style = "color:black"),
              
              uiOutput("heatmapOptions"),
-             
-             
+             busyIndicator("Calculation In progress",wait = 0),
              plotOutput("heatmap")
     )
   })
@@ -2726,8 +2727,11 @@ ViewCorrMatrixTabPanel <- reactive({
              radioButtons("linkage","Linkage for clustering",
                           choices=list(average="average",
                                        ward.D="ward.D"))
+      ),
+      column(width = 3,
+             radioButtons("showDendro", "Build the dendrogram", 
+                          choices = list(yes = TRUE, no = FALSE), selected = FALSE))
       )
-    )
   })
   #------------------------------------------------------------------------
   ViewMSnsetTabPanel <- function(){
@@ -2927,6 +2931,7 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
                                    styleclass = "primary"))
              ),
              
+             busyIndicator("Calculation In progress",wait = 0),
              fluidRow(
                column(width = 4, plotOutput("viewNAbyMean")),
                column(width = 8, plotOutput("showImageNA"))
@@ -3044,6 +3049,7 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
                 value = "Calibrate Ana Diff",
                 
                 htmlOutput("errMsgCalibrationPlotAll"),
+                busyIndicator("Calculation In progress",wait = 0),
                 plotOutput("calibrationPlotAll"),
                 fluidRow(
                   column(width = 3, selectInput("calibrationMethod", "Choose the calibration method", 
@@ -3055,6 +3061,7 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
                 )),
          
                 uiOutput("errMsgCalibrationPlot"),
+                busyIndicator("Calculation In progress",wait = 0),
                 plotOutput("calibrationPlot")
                 ),
        
@@ -3110,6 +3117,7 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
             (.temp[1] == "RandomOccurence")) 
         {
           
+          busyIndicator("Calculation In progress",wait = 0)
           rv$current.obj <- wrapper.mvImputation(rv$current.obj, .temp[2])
           
           updateSelectInput(session, 

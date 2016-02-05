@@ -464,7 +464,7 @@ The Help screen offers various information through three panels:
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Available datasets}\label{sec:availabledatasets}
-\textcolor{red}{A major element of the "Dataset manager" is detached from the menus, for it is convenient to have a continuous view on it. This is the drop-down menu entitled "Available datasets" that lists between the different datasets, depending on the progress of the data analysis. Basically, each time the modifications of the current dataset are saved, the new dataset does not overwrite the previous dataset. On the contrary, the different versions are stored in memory. Thus, \Biocpkg{ProStaR} keeps a history of all processing performed on a dataset. Concretely, right after creating or uploading a dataset, only a single dataset is available: it is named "Original (peptide)" or "Original (protein)" whether the data are related to peptides or proteins.  This information in registered in the MSnSet file (the slot "typeOfData" of the function \Rfunction{experimentData(object)}).
+\textcolor{red}{A major element of the "Dataset manager" is detached from the menus, for it is convenient to have a continuous view on it. This is the drop-down menu entitled "Available datasets" that lists between the different datasets, depending on the progress of the data analysis. Basically, each time the modifications of the current dataset are saved, the new dataset does not overwrite the previous dataset. On the contrary, the different versions are stored in memory. Thus, \Biocpkg{ProStaR} keeps a history of all processing performed on a dataset. Concretely, right after creating or uploading a dataset, only a single dataset is available: it is named "Original (peptide)" or "Original (protein)" whether the data are related to peptides or proteins.  This information is registered in the MSnSet file (the slot "typeOfData" of the function \Rfunction{experimentData(object)}).
 After the filtering step, if the user saves his/her results, another dataset becomes available, named "Filtered (peptide)" or "Filtered (protein)". Similarly, after the saving of the normalization, of the imputation of missing values, of the agregation into proteins and the differential analysis, a new dataset is created and stored. Each time a new dataset is created, it is by default the one on which the processing goes on. However, the previous one is accessible through the "Available datasets" drop-down menu.}
 
 \textcolor{red}{At any time, the name of the current dataset and the type of data are displayed. If the user needs to return to a previous dataset (for example, the current dataset is "Imputed" and the user wants to return to "Filtered"), he/she chooses it in the select field. The dataset is then automatically loaded in memory and becomes the current one; the new dataset becomes the new current one. Naturally, all the plots that are displayed throughout the various panels of \Biocpkg{ProStaR} are dynamically updated without any action from the user.}
@@ -488,7 +488,7 @@ In this section, the five steps of a quantitative data analysis are detailed. At
 After applying any processing, it is advised to check the "Descriptive Statistics" menu and to observe the influence of the processing (all the graphics are dynamically updated). 
 
 \subsection{Filtering}\label{sec:filtering}
-\textcolor{red}{In this step, the user may decide to delete peptides or proteins where the amount of missing values is too important to expect confident processing and if they are tagged as Contaminants or Reverse.}
+\textcolor{red}{In this step, the user may decide to delete peptides or proteins where the amount of missing values is too important to expect confident processing and/or if they are identified as Contaminants or Reverse.}
 %This tool allows the user to deal with missing values in quantitative data by deleting lines that contain a certain amount of quantitative values. 
 
 \begin {figure}
@@ -519,11 +519,15 @@ To filter the missing values (first tab called "Missing values"), the choice of 
 
 \textcolor{red}{The user can vizualize the effect of filter options without changing the current dataset by clicking on "Perform filtering". If the filtering does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click again on "Perform filtering". The plots are automatically updated. This action does not modify the dataset but offers a preview of the filtered data. The user can vizualize as many times he/she wants several filtering options. Once he finds the correct one, he/she can choose to remove contaminants and Reverse in the second tab (called "Contaminants").}
 
-\textcolor{red}{The user can choose to remove Contaminants and/or Reverse peptides or proteins. To do so, he/she selects the appropriate columns of the metadata listed in the dorpdown menus. Then, he/she specify the prefix present in each of these columns that mark the lines to remove. If he has no idea of what are the prefixes, he can switch to the Data Explorer in the Descriptive Statistics menu. For each fullfilled option, the barplot below is updated: it shows the proportion of quantitative data, Contaminants and Reverse. Once the choices are made, the user click on "Perform filtering contaminants" to remove corresponding lines.}
+\textcolor{red}{The user can choose to remove Contaminants and/or Reverse peptides or proteins. To do so, he/she selects the appropriate columns of the metadata listed in the dropdown menus. Then, he/she specifies the prefix present in each of these columns that mark the lines to remove.}
+
+\textbf{Remark:} If he/she has no idea of the prefixes, he/she can switch to the Data Explorer in the Descriptive Statistics menu. 
+
+\textcolor{red}{For each fullfilled option, the barplot below is updated: it shows the proportion of quantitative data, Contaminants and Reverse. Once the choices are made, the user click on "Perform filtering contaminants" to remove corresponding lines.}
 
 Once the the filtering is appropriately tuned, the user goes to the last tab (called "Vizualize and Validate"). here, he clicks on "Apply filter" so as to validate his/her choice and to apply it to the dataset. Then, a new dataset is created. The informations related to the type of filtering and the options choosen appear in the Session log tab (see section~\ref{sec:sessionlog}). This latter becomes the new current dataset and its name appears in the menu \textbf{Datasets available} at the bottom left of the screen. All plots and tables are automatically updated in \Biocpkg{ProStaR}.
 
-At this time, there is no version that works directly on dataframes.
+\textcolor{red}{At this time, there is no version that works directly on dataframes.}
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{mvFilter()}.
 
 
@@ -571,11 +575,11 @@ Each time the user selects a method, the explanation above is displayed. The use
 The user can vizualize as many times he/she wants several normalization methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save normalization". Then, a new "normalized" dataset is created and loaded in memory. The method of normalization that has been used is added to the Session log tab (see section~\ref{sec:sessionlog}). It becomes the new current dataset and the name "Normalized" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 
 %\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is \Rfunction{normalizeD()}.
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
+\textcolor{red}{\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
 \begin{itemize}
 \item for the dataframe parameter: \Rfunction{normalizeD()},
 \item for an object of class MSnSet: \Rfunction{wrapper.normalizeD()}.
-\end{itemize}
+\end{itemize}}
 
 \subsection{Imputation}\label{imputation}
 
@@ -607,20 +611,20 @@ The user can choose one of the several available imputation methods, depending o
 The user can vizualize the effect of an imputation method without changing the current dataset. If the imputation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform imputation". The plots are automatically updated. This action does not modify the dataset but offers a preview of the imputed quantitative data.
 The user can vizualize as many times he/she wants several imputation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save imputation". Then, a new "imputed" dataset is created and loaded in memory. The method of imputation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Imputed" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 
-\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with respectively:
+\textcolor{red}{\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to impute the missing values is \Rfunction{mvImputation()}. The two aforementioned plots are obtained with respectively:
 \begin{itemize}
 \item for the dataframe parameter: \Rfunction{mvTypePlot()} and \Rfunction{mvImage()},
 \item for an object of class MSnSet: \Rfunction{wrapper.mvTypePlot()} and \Rfunction{wrapper.mvImage()}.
-\end{itemize}
+\end{itemize}}
 
 
 \subsection{Aggregation}\label{aggregation}
 
 
 \textcolor{red}{
-When working on a peptide datasets, one wants to go to the protein level. This can be done with the agregation tool which will agregate the peptides into proteins.
-First, the user chooses the protein id of the dataset, i.e. the column that contains the ids of proteins fort each peptides. 
-The two barplots represent the number of proteins that are identified by x peptides, respectively for the unique peptides only and with shared peptides. These are a view for the adjacency matrix computed to agregate the peptides.}
+When working on a peptide datasets, one wants to switch to the protein level. This can be done with the agregation tool which aggregate the peptides into proteins. Thus, the peptide dataset become a protein dataset.
+First, the user chooses the protein id of the dataset, i.e. the column that contains the IDs of proteins for each peptide. 
+The two barplots represent the number of proteins that are identified by x peptides, respectively for the unique peptides only and with shared peptides. These are a view for the adjacency matrix used to aggregate the peptides.}
 
 
 
@@ -637,13 +641,11 @@ The two barplots represent the number of proteins that are identified by x pepti
 \end {figure}
 
 
-\textcolor{red}{
-The checkbox allows to select if the shared peptides must be taken into account or not in the agreagation process.
-The user can vizualize the effect of an agregation method without changing the current dataset. If the agregation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform agregation". The plot is automatically updated. This action does not modify the dataset but offers a preview of the agregated data.
-The user can vizualize as many times he/she wants several agregation methods. Once he finds the correct one, he/she validates his/her choice by clicking on "Save agregation". Then, a new "agregated" dataset is created and loaded in memory. The method of agregation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Agregated" appears in "Available datasets". All plots and tables in other menus are automatically updated.
+\textcolor{red}{The checkbox allows to select if the shared peptides must be taken into account or not in the aggregation process. The user can vizualize the effect of an aggregation method without changing the current dataset. If the aggregation does not produce the expected effect, the user can test another one. To do so, one simply has to choose another method in the list and click on "Perform agregation". The plot is automatically updated. This action does not modify the dataset but offers a preview of the agregated data. The user can vizualize as many times he/she wants several agregation methods. Once he finds the correct one, he/she can switch to the next tab called "Configure protein dataset".} 
+
+\textcolor{red}{In this tab, he/she selects the columns of the peptide dataset that are of interest to be kept in the protein dataset (e.g. the sequence of the peptides). The effect of this action is to compile, for a given protein, the information of all of his peptides ; those informations are written in a colum of the protein dataset. Once done, he/she validates his/her choice by clicking on "Save agregation". Then, a new "agregated" dataset is created and loaded in memory. The method of agregation used is added to the Session log tab (see section~\ref{sec:sessionlog}). This new dataset becomes the new current dataset and the name "Agregated" appears in "Available datasets". All plots and tables in other menus are automatically updated.
 From this step, note that the dataset has been largely changed and contain proteins rather than peptides.
-Once the peptides were agregated into proteins and the result saved, the plot dissapear because there are no data to show.
-}
+Once the peptides were agregated into proteins and the result saved, the plot dissapear because there are no data to show.}
  
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to compute the adjacency matrix peptides-proteins is \Rfunction{BuildAdjacencyMatrix()} and the one used to agregate the peptides into proteins is \Rfunction{AggregatePeptides()}. The aforementioned plot is obtained with the functions \Rfunction{GraphPepProt()}.
 
@@ -657,13 +659,13 @@ Once the peptides were agregated into proteins and the result saved, the plot di
 This step cannot be conducted if the dataset still contains some missing values: They must be imputed before.
 %In the case of mising values, the user have to proceed to the imputation before the differential analysis.
 
-The differential analysis is divided into four steps, each step correspond to a different tab:
+\textcolor{red}{The differential analysis is divided into four steps, each step correspond to a different tab:
 \begin{itemize}
-\item Selection of the statistical test and setting of a threshold on log Fold Change,
+\item Selection of the statistical test and setting of a threshold on theFold Change,
 \item A calibration step,
 \item Selection differential peptides or proteins by their p-Value. Computation of FDR,
 \item Tab with significant peptides or proteins
-\end{itemize}
+\end{itemize}}
 
 
 \textbf {Selection of statistical test, logFC}: Two statistical tests are available in \Biocpkg{DAPAR}: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
@@ -680,7 +682,7 @@ Then, the $p$-values are computed and a volcanoplot is displayed. It shows on th
 A threshold along the Fold Change axis can be tuned by the user, so as to discriminate the differentially abondant proteins (which are colored in orange). Two vertical straight lines are drawn to vizualize this threshold.
 
 
-\textbf {Calibration step}. TO DO
+\textcolor{red}{\textbf {Calibration step}. TO DO}
 
 \begin {figure}
 \centering
@@ -695,7 +697,7 @@ A threshold along the Fold Change axis can be tuned by the user, so as to discri
 \caption{p-Value threshold of the differential analysis tool - 3.}\label{fig:anadiff3}
 \end {figure}
 
-\textbf {Selection of statistical test, p-Value}: A threshold along the p-Value axis can be tuned by the used, so as to discriminate the differentially abondant proteins (which are colored in orange). A horizontal straight line is drawn to vizualize the threshold.
+\textbf {Selection of statistical test, p-Value}: A threshold along the p-Value axis can be tuned by the user, so as to discriminate the differentially abondant proteins (which are colored in orange). A horizontal straight line is drawn to vizualize the threshold.
 
 The False Discovery Rate (FDR) is computed on the basis of selected proteins in the volcanoplot. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
 
