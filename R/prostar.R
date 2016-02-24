@@ -8,10 +8,7 @@
 Prostar <-
   function(){
           G <- .GlobalEnv
-#          assign("dataset", X, envir=G)
-#          assign("objName", name, envir=G)
-          
-          
+         
     options(shiny.maxRequestSize=1024^3)
     a=shiny::runApp(system.file("ProstarApp",package="Prostar"),
                     launch.browser = TRUE)

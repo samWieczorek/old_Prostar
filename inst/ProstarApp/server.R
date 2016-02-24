@@ -1,11 +1,13 @@
 options(shiny.maxRequestSize=30*1024^2) 
 options(shiny.trace=TRUE)
+options(shiny.reactlog=TRUE)
 
 library(shiny)
 library(rhandsontable)
 library(data.table)
 library(reshape2)
 library(quantmod)
+library(DT)
 
 
 # initialize data with colnames
@@ -19,7 +21,7 @@ port <- data.table(Experiment=list(),
                    Analyt.Rep=list())
 
 shinyServer(function(input, output, session) {
-  
+  cat(file=stderr())
   output$hot <- renderRHandsontable({
     if (is.null(input$eData.box)) {
       DT <- rv$hot
@@ -46,6 +48,9 @@ shinyServer(function(input, output, session) {
     # variable to handle the current object that will be showed
     current.obj = NULL,
     current.obj.name = NULL,
+    deleted.mvLines = NULL,
+    deleted.contaminants = NULL,
+    deleted.reverse = NULL,
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),
@@ -62,61 +67,277 @@ shinyServer(function(input, output, session) {
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
-    typeOfDataset = "")
+    typeOfDataset = "",
+    widthSidebar = 3)
   
   env <- environment()
   
   
-  #Tree in the sidebar panel
-  output$tree <- renderTree({
-    list(
-      "Dataset manager" = list(
-        "Open MSnset File" = "Open MSnset File",
-        "Convert Data To MSnset" = "Convert Data To MSnset",
-        "Export MSnset" = "Export",
-        "Session Log" = "Session Log"),
-      "Descriptive Statistics" = "Descriptive Statistics",
-      "Data processing" = list(
-        Filtering = "Filtering",
-        Normalization = "Normalization", 
-        Imputation = "Imputation",
-        Aggregation = "Aggregation",
-        "Differential Analysis" = "Differential Analysis"),
-      Help = "Help"
+  output$test <- renderUI({
+    #txt <- paste("Current dataset :",input$datasets, sep=" ")
+    navbarMenu("txt", 
+               tabPanel("toto"),
+               tabPanel("tutu"),
+               tabPanel("titi")
     )
   })
   
-  # Show panels with leaves selected 
-  output$test <- renderUI({
-    tree <- input$tree
-    rv$current.obj
-    
-    if (is.null(tree)){return(NULL)
-    } else{
-      selected.leaf <- unlist(get_selected(tree), use.names = FALSE)
-      if (is.null(selected.leaf))
-      {return (NULL)}
-      if (selected.leaf == "Open MSnset File") { openFile_tabPanel()}
-      else if (selected.leaf == "Convert Data To MSnset") {import_tabPanel()}
-      else if (selected.leaf == "Filtering") { filter_Complete_tabPanel()}
-      else if (selected.leaf == "Export MSnset") {export_tabPanel()}
-      
-      else if (selected.leaf == "Descriptive Statistics") 
-      { ViewGraphicsTabPanel()}
-      
-      else if (selected.leaf == "Data processing") { ProcessStepsTabPanel()}
-      else if (selected.leaf == "Normalization") { NormalizationTabPanel()}
-      else if (selected.leaf == "Imputation") {ImputationTabPanel()}
-      else if (selected.leaf == "Aggregation") {AggregationTabPanel()}
-      
-      else if (selected.leaf == "Session Log") { LogTabPanel()}
-      else if (selected.leaf == "Help") {help_tabPanel()}
-      
-      else if (selected.leaf == "Differential Analysis") {diffAnaTabPanelComplete()}
+  output$diffAnalysis_sidebarPanel <- renderUI({
+    input$diffAnalysis_tabSetPanel
+    if (input$diffAnalysis_tabSetPanel == "DiffAnalysis_Volcanoplot"){
+      conditionalPanel(condition=TRUE,
+                       uiOutput("RenderLimmaCond1"),
+                       uiOutput("RenderLimmaCond2"),
+                       selectInput("diffAnaMethod",
+                                   "Choose the statistical test",
+                                   choices = c("None","Limma", "Welch")),
+                       numericInput("seuilLogFC", "log(FC)",min = 0,value = 0,step=0.1)
+      )
+    } else if (input$diffAnalysis_tabSetPanel == "DiffAnalysis_Calibrate")
+    {
+      conditionalPanel(condition=TRUE,
+                      selectInput("calibrationMethod", "Choose the calibration method",
+                                    choices = c("st.boot", "st.spline", "langaas",
+                                                "jiang", "histo", "pounds", "abh","slim", "Benjamini-Hochberg", "numeric value"),
+                                    selected = "pounds"),
+      uiOutput("numericalValForCalibrationPlot")
+      )}
+    else if (input$diffAnalysis_tabSetPanel == "DiffAnalysis_viewFDR")
+    {
+      conditionalPanel(condition=TRUE,
+                       numericInput("seuilPVal", "-log10(p.value)",
+                                    min = 0,
+                                    value = 0,
+                                    step=0.1)
+                       )
     }
-
+    else if (input$diffAnalysis_tabSetPanel == "DiffAnalysis_ValidateAndSave")
+    {actionButton("ValidDiffAna","Save diff analysis")}
+    
+    
+    
+    
+    
   })
   
+  
+  
+  #----------------------------------------------
+  #----------SidebarPanel for Filtering tool--------
+  
+  output$DP_Filtering_sidebarPanel <- renderUI({
+    input$DP_Filtering_tabSetPanel
+    if (input$DP_Filtering_tabSetPanel == "DP_FilterMissingValues"){
+      conditionalPanel(condition=TRUE,
+                       h4("Filtering options"),
+      radioButtons("ChooseFilters","", choices = gFiltersList),
+     conditionalPanel(condition='input.ChooseFilters != "None"',uiOutput("seuilNADelete"))
+      )
+      } 
+    
+    else if (input$DP_Filtering_tabSetPanel == "DP_FilterContaminants"){
+      conditionalPanel(condition=TRUE,
+                        h4("Filter contaminants"),
+                        uiOutput("id_Contaminants"),
+                        uiOutput("choosePrefixContaminants"),
+                        br(),
+                        h4("Filter reverse"),
+                        uiOutput("id_Reverse"),
+                        uiOutput("choosePrefixReverse")
+                        )
+      
+    } 
+    
+    else if (input$DP_Filtering_tabSetPanel == "DP_FilterValidate"){
+      
+    conditionalPanel(condition=TRUE,
+                     radioButtons("ChooseTabAfterFiltering", "Choose the data to display", choices=
+                   list("Quantitative data" = "quantiData",
+                        "Meta data" = "MetaData")),
+                   radioButtons("ChooseViewAfterFiltering", "Choose the type of filtered data", choices=
+                                  list("Deleted on missing values" = "MissingValues",
+                                       "Deleted contaminants" = "Contaminants",
+                                       "Deleted reverse" = "Reverse"))
+    ) }
+  })
+  
+  
+  #----------------------------------------------
+  output$VizualizeFilteredData <- renderDataTable({
+    rv$current.obj
+    input$nDigits
+    input$ChooseViewAfterFiltering
+    input$ChooseTabAfterFiltering
+    
+    if (is.null(input$ChooseTabAfterFiltering)) {return(NULL)}
+    if (is.null(input$ChooseViewAfterFiltering)) {return(NULL)}
+    
+    if (is.null(rv$current.obj)) {return(NULL)}
+    #if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
+    print(input$ChooseViewAfterFiltering)
+    print(input$ChooseTabAfterFiltering)
+    print("delete.mvLines")
+    print(rv$delete.mvLines)
+    
+    data <- NULL
+    if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
+        {
+        obj <- rv$deleted.mvLines
+        if(input$ChooseTabAfterFiltering == "quantiData" )
+        {
+          data <- cbind(ID = rownames(fData(obj)),round(exprs(obj), digits=4))
+        }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+    } else if ((input$ChooseViewAfterFiltering == "Contaminants") && !is.null(rv$deleted.contaminants)) { 
+      obj <- rv$deleted.contaminants
+      if(input$ChooseTabAfterFiltering == "quantiData" )
+        {data <- cbind(ID = rownames(fData(obj)),round(exprs(obj), digits=4))
+        }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+      } else if ((input$ChooseViewAfterFiltering == "Reverse") && !is.null(rv$deleted.reverse)){
+        obj <- rv$deleted.reverse
+        if(input$ChooseTabAfterFiltering == "quantiData" )
+          {data <- cbind(ID = rownames(fData(obj)),round(exprs(obj), digits=4))
+          }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+    }
+    
+    #data <- cbind(ID = rownames(fData(obj)),round(exprs(obj), digits=4))
+    
+    dat <- DT::datatable(data, 
+                         options=list(pageLength=25,
+                                      orderClasses = TRUE,
+                                      autoWidth=FALSE)
+    )
+    
+     return(dat)
+    
+  })
+  
+#----------------------------------------------
+output$DS_sidebarPanel <- renderUI({
+  input$DS_tabSetPanel
+  rv$typeOfDataset
+  
+  
+  .choices<- NULL
+  if (rv$typeOfDataset == "protein") {
+    .choices <- list("Quantitative data" = "tabExprs",
+                  "Proteins metadata" = "tabfData",
+                  "Replicate metadata" = "tabpData",
+                  "Dataset history" = "processingData")
+    } else if (rv$typeOfDataset == "peptide"){
+      .choices <- list("Quantitative data" = "tabExprs",
+                      "Peptides metadata" = "tabfData",
+                      "Replicate metadata" = "tabpData",
+                      "Dataset history" = "processingData")
+      }
+  
+  
+  if (input$DS_tabSetPanel == "DS_tabCorrMatrix"){
+    sliderInput("expGradientRate",
+                "Tune the rate to modify the gradient of color",
+                min = 2,max = 6,value = 5,step=0.05)
+  } 
+  
+  else if (input$DS_tabSetPanel == "DS_DataExplorer"){
+    conditionalPanel(condition='TRUE',
+                     
+      radioButtons("DS_TabsChoice", "Choose the tab to print",
+                 choices = .choices),
+      br(),
+    checkboxInput("nDigits", "Show full length intensities", value = FALSE)
+    )
+  }
+  else if (input$DS_tabSetPanel == "DS_tabHeatmap"){
+    conditionalPanel(condition='TRUE',
+                     h3("Clustering Options"),
+                     radioButtons("distance","Distance",choices = list(euclidean ="euclidean",manhattan="manhattan")),
+                     br(),
+                      radioButtons("linkage","Linkage for clustering",choices=list(average="average",ward.D="ward.D")),
+                      br(),
+                      radioButtons("showDendro", "Build the dendrogram", choices = list(yes = TRUE, no = FALSE), selected = FALSE))
+  }
+  else if (input$DS_tabSetPanel == "DS_tabDensityplot"){
+    conditionalPanel(condition='TRUE',
+                     uiOutput("nGroup_DS"),
+                     br(),
+                     uiOutput("nShow_DS"))
+  }
+  
+  else if (input$DS_tabSetPanel == "DS_tabBoxplot"){
+    conditionalPanel(condition='TRUE',
+                     uiOutput("ChooseLegendForAxis_DS"))
+  }
+  
+  
+})
+  
+
+
+#----------------------------------------------
+output$tabToShow <- renderUI({
+  input$DS_TabsChoice
+  
+  if (input$DS_TabsChoice == "tabExprs"){dataTableOutput("viewExprs")}
+  else if (input$DS_TabsChoice == "tabfData"){dataTableOutput("viewfData")}
+  else if (input$DS_TabsChoice == "tabpData"){dataTableOutput("viewpData")}
+  else if (input$DS_TabsChoice == "processingData"){
+    helpText("Previous operations made on the original dataset :")
+    dataTableOutput("viewProcessingData")}
+  
+})
+
+
+
+
+  #Tree in the sidebar panel
+  # output$tree <- renderTree({
+  #   list(
+  #     "Dataset manager" = list(
+  #       "Open MSnset File" = "Open MSnset File",
+  #       "Convert Data To MSnset" = "Convert Data To MSnset",
+  #       "Export MSnset" = "Export",
+  #       "Session Log" = "Session Log"),
+  #     "Descriptive Statistics" = "Descriptive Statistics",
+  #     "Data processing" = list(
+  #       Filtering = "Filtering",
+  #       Normalization = "Normalization", 
+  #       Imputation = "Imputation",
+  #       Aggregation = "Aggregation",
+  #       "Differential Analysis" = "Differential Analysis"),
+  #     Help = "Help"
+  #   )
+  # })
+  
+  # Show panels with leaves selected 
+  # output$test <- renderUI({
+  #   tree <- input$tree
+  #   rv$current.obj
+  #   
+  #   if (is.null(tree)){return(NULL)
+  #   } else{
+  #     selected.leaf <- unlist(get_selected(tree), use.names = FALSE)
+  #     if (is.null(selected.leaf))
+  #     {return (NULL)}
+  #     if (selected.leaf == "Open MSnset File") { openFile_tabPanel()}
+  #     else if (selected.leaf == "Convert Data To MSnset") {import_tabPanel()}
+  #     else if (selected.leaf == "Filtering") { filter_Complete_tabPanel()}
+  #     else if (selected.leaf == "Export MSnset") {export_tabPanel()}
+  #     
+  #     else if (selected.leaf == "Descriptive Statistics") 
+  #     { ViewGraphicsTabPanel()}
+  #     
+  #     else if (selected.leaf == "Data processing") { ProcessStepsTabPanel()}
+  #     else if (selected.leaf == "Normalization") { NormalizationTabPanel()}
+  #     else if (selected.leaf == "Imputation") {ImputationTabPanel()}
+  #     else if (selected.leaf == "Aggregation") {AggregationTabPanel()}
+  #     
+  #     else if (selected.leaf == "Session Log") { LogTabPanel()}
+  #     else if (selected.leaf == "Help") {help_tabPanel()}
+  #     
+  #     else if (selected.leaf == "Differential Analysis") {diffAnaTabPanelComplete()}
+  #   }
+  # 
+  # })
+  # 
   # shinyFileChoose(input, 'files', root='/', filetypes=c('', '.txt'))
   ComputeMVTags <- reactive({
     tags <- TaggingMissingValues(rv$current.obj, 
@@ -213,8 +434,8 @@ shinyServer(function(input, output, session) {
   ######################################
   loadObjectInMemoryFromConverter <- reactive({
     
-    rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-    name <- paste ("Original", " (", rv$TypeOfDataset, ")", sep="")
+    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+    name <- paste ("Original", " (", rv$typeOfDataset, ")", sep="")
     rv$dataset[[name]] <- rv$current.obj
     UpdateFilterWidgets()
     updateSelectInput(session, "datasets", 
@@ -262,7 +483,7 @@ shinyServer(function(input, output, session) {
       ClearMemory()
       rv$current.obj <- readRDS(input$file$datapath)
       rv$current.obj.name <- DeleteFileExtension(input$file$name)
-      rv$TypeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
        
       loadObjectInMemoryFromConverter()
     })
@@ -281,8 +502,8 @@ shinyServer(function(input, output, session) {
     isolate({
       if (input$normalization.method != "None") {
         
-        rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-        name <- paste ("Normalized", " (", rv$TypeOfDataset, ")", sep="")
+        rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+        name <- paste ("Normalized", " (", rv$typeOfDataset, ")", sep="")
         rv$dataset[[name]] <- rv$current.obj
         
          updateSelectInput(session, "datasets", 
@@ -328,8 +549,8 @@ shinyServer(function(input, output, session) {
       }
       
       rv$current.obj <- rv$temp.aggregate
-      rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-      name <- paste ("Aggregated", " (", rv$TypeOfDataset, ")", sep="")
+      rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      name <- paste ("Aggregated", " (", rv$typeOfDataset, ")", sep="")
       rv$dataset[[name]] <- rv$current.obj
       
       
@@ -356,8 +577,8 @@ shinyServer(function(input, output, session) {
     {return(NULL)}
     
     isolate({
-      rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-      name <- paste ("Imputed", " (", rv$TypeOfDataset, ")", sep="")
+      rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      name <- paste ("Imputed", " (", rv$typeOfDataset, ")", sep="")
       
       rv$dataset[[name]] <- rv$current.obj
       updateSelectInput(session, "datasets", 
@@ -608,12 +829,11 @@ shinyServer(function(input, output, session) {
     input$datasets
     
     isolate({
-      rv$current.obj <- rv$dataset[[input$datasets]]
-      UpdateLog(
-        paste("Current dataset has changed. Now, it is ",
-              input$datasets, 
-              sep=" "),
-        input$datasets)
+     if (!is.null(input$datasets))x = {
+       rv$current.obj <- rv$dataset[[input$datasets]]
+        UpdateLog(
+        paste("Current dataset has changed. Now, it is ",input$datasets, sep=" "),input$datasets)
+     }
     })
     
   })
@@ -621,29 +841,30 @@ shinyServer(function(input, output, session) {
   
   ##' show intensity values of the MSnset object in a table
   ##' @author Samuel Wieczorek
-  output$viewExprs <- renderDataTable({
+  output$viewExprs <- DT::renderDataTable({
     rv$current.obj
     input$nDigits
     if (is.null(rv$current.obj)) {return(NULL)}
     if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
-    as.data.frame(cbind(ID = 
-                          rownames(fData(rv$current.obj)),
-                        round(exprs(rv$current.obj), 
-                              digits=nDigits)))
-  },
-  option=list(pageLength=25,
-              orderClasses = TRUE,
-              autoWidth=FALSE,
-              dom = 'R<"clear">lfrtip',
-              columnDefs = list(
-                list(
-                  columns.width=c("60px"),
-                  columnDefs.targets=c(list(0),list(1),list(2))))
-  )
-  )
+    data <- cbind(ID = rownames(fData(rv$current.obj)),
+                         round(exprs(rv$current.obj), 
+                               digits=nDigits))
+   dat <- DT::datatable(data, 
+                    options=list(pageLength=25,
+                                orderClasses = TRUE,
+                                autoWidth=FALSE)
+                    )
+   
+   # %>% formatStyle(
+   #                              colnames(data)[1:3],
+   #                              valueColumns = 4,
+   #                              backgroundColor = styleInterval( 0, c('orange','white'))
+   #                            )
+    return(dat)
+  } )
   
-  
-  
+
+ 
   observe({ 
     input$ValidDiffAna
     # input$diffAnaMethod
@@ -675,8 +896,8 @@ shinyServer(function(input, output, session) {
                                   input$calibrationMethod)
     
     
-    rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-    name <- paste("DiffAnalysis.", input$diffAnaMethod, " (", rv$TypeOfDataset, ")", sep="")
+    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+    name <- paste("DiffAnalysis.", input$diffAnaMethod, " (", rv$typeOfDataset, ")", sep="")
     
     rv$dataset[[name]] <- rv$current.obj
     updateSelectInput(session, "datasets", 
@@ -689,7 +910,7 @@ shinyServer(function(input, output, session) {
 hypotheses was set to", input$numericValCalibration, sep= " ")}
     else {cMethod <-input$calibrationMethod }
     
-    text <- paste("Dataset of ", rv$TypeOfDataset, ": differential analysis with", input$diffAnaMethod, 
+    text <- paste("Dataset of ", rv$typeOfDataset, ": differential analysis with", input$diffAnaMethod, 
                   "Selection with the following threshold values :logFC =",
                   rv$seuilLogFC,
                    "The calibration was made with the method", cMethod,
@@ -790,7 +1011,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     labels <- unique(pData(rv$current.obj)[,"Label"])
     labels <- setNames(as.list(labels),labels)
     #else{rv$conditions$cond1 <- input$condition1.sam}
-    radioButtons("condition1", label = h3("Condition 1"), 
+    radioButtons("condition1", label = h4("Choose condition 1"), 
                  choices = labels, 
                  selected = labels[[1]], 
                  inline=F)
@@ -806,7 +1027,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     isolate({
       labels <- unique(pData(rv$current.obj)[,"Label"])
       labels <- setNames(as.list(labels),labels)
-      radioButtons("condition2", label = h3("Condition 2"), 
+      radioButtons("condition2", label = h4("Choose condition 2"), 
                    choices = labels , 
                    selected = labels[[2]],
                    inline=F)
@@ -1177,60 +1398,81 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
          ")
   })
   
+  
+  
+  output$helpTextDataID <- renderUI({
+    input$typeOfData
+    
+    t <- ""
+    if (input$typeOfData == "protein") {t <- "proteins"}
+    else if (input$typeOfData == "peptide") {t <- "peptides"}
+    txt <- paste ("Please select among the columns ofyour data the one that corresponds 
+             to a unique ID of the ", t, ".", sep=" ")
+    helpText(txt)
+    
+  })
+  
+  
   ##' Quick overview of the MSnbase object
   ##' @author Florence Combes
   output$overview <- renderUI({
     rv$current.obj
+    rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)    }
     
     isolate({
       rv$current.obj
+      rv$typeOfDataset
       NA.count <- apply(data.frame(exprs(rv$current.obj)), 
                         2, 
                         function(x) length(which(is.na(data.frame(x))==TRUE)) )
       pourcentage <- 100 * round(sum(NA.count)/
                                    (dim(exprs(rv$current.obj))[1]*
                                       dim(exprs(rv$current.obj))[2]), digits=4)
+      d <- "lines"
+      print(rv$typeOfDataset)
+      if (rv$typeOfDataset == "peptide") {d <- "peptides"}
+      else if (rv$typeOfDataset == "protein") {d <- "proteins"}
       
       nb.empty.lines <- sum(apply(
         is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-      #tags$code(
       tags$ul(
-        tags$li(paste("There is", dim(exprs(rv$current.obj))[2], 
-                      "samples in your data.", sep=" ")), 
-        tags$li(paste("There is", dim(exprs(rv$current.obj))[1], 
-                      "lines in your data.", sep=" ")), 
+        # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
+        #                                            "dataset.", sep=" "))}, 
+        tags$li(paste("There are", dim(exprs(rv$current.obj))[2], 
+                      "samples in your data.", sep=" ")),
+        
+        tags$li(paste("There are", dim(exprs(rv$current.obj))[1], d,
+                      "in your data.", sep=" ")), 
         tags$li(paste("Percentage of missing values:",
                       pourcentage , "%", sep=" ")),
         tags$li(paste("Number of lines with only NA values =",
                       nb.empty.lines , sep=" "))
       )
-      #)
-      
-      
+
     })
   })
   
   
-  output$overviewNewData <- renderPrint({
+  output$overviewNewData <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
     isolate({
-      print(paste("There is", dim(exprs(rv$current.obj))[2], 
-                  "samples in your data."))
-      print(paste("There is", dim(exprs(rv$current.obj))[1], 
-                  "lines in your data."))
+      txt1 <- paste("There is", dim(exprs(rv$current.obj))[2],"samples in your data.")
+      txt2 <- paste("There is", dim(exprs(rv$current.obj))[1], "lines in your data.")
+      
       NA.count<-apply(data.frame(exprs(rv$current.obj)), 
                       2, 
                       function(x) length(which(is.na(data.frame(x))==TRUE)) )
       pourcentage <- 100 * round(sum(NA.count)/
                                    (dim(exprs(rv$current.obj))[1]*
                                       dim(exprs(rv$current.obj))[2]), digits=4)
-      print(paste("Percentage of missing values:",pourcentage , "%"))
+      txt3 <- paste("Percentage of missing values:",pourcentage , "%")
       
       nb.empty.lines <- sum(apply(
         is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+      txt4 <- NULL
       if (nb.empty.lines > 0){
         
         if( nb.empty.lines > 1){
@@ -1239,9 +1481,16 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
             verb <- "is"
             plurial <- ""}
         
-        print(paste("There ", verb, " : ",nb.empty.lines , 
-                    " line",plurial," with only NA values !!"))
+        txt4 <- paste("There ", verb, " : ",nb.empty.lines ," line",plurial," with only NA values !!")
       }
+      
+      tags$ul(
+        tags$li(txt1), 
+        tags$li(txt2), 
+        tags$li(txt3),
+        if (!is.null(txt4)){tags$li(txt4)}
+      )
+
     })
   })
   
@@ -1265,20 +1514,54 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
              input$prefixReverse)
   })
   
+  
+  ##' distribution of missing values in current.obj
+  ##' @author Samuel Wieczorek
+  output$histoMV_DS <- renderPlot({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    
+    wrapper.mvHisto(rv$current.obj)
+  })
+  
+  
+  
+  ##' distribution of missing values in current.obj
+  ##' @author Samuel Wieczorek
+  output$histo.missvalues.per.lines_DS <- renderPlot({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    wrapper.mvPerLinesHisto(rv$current.obj, 
+                            c(2:length(colnames(pData(rv$current.obj)))))
+  })
+  
+  ##' distribution of missing values in current.obj
+  ##' @author Samuel Wieczorek
+  output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+                                        c(2:length(colnames(pData(rv$current.obj)))))
+  })
+  
+  
+  
   ##' distribution of missing values in current.obj
   ##' @author Samuel Wieczorek
   output$histoMV <- renderPlot({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(plot.new())}
+    if (is.null(rv$current.obj)){return(NULL)}
     
     wrapper.mvHisto(rv$current.obj)
   })
+  
+
   
   ##' distribution of missing values in current.obj
   ##' @author Samuel Wieczorek
   output$histo.missvalues.per.lines <- renderPlot({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(plot.new())}
+    if (is.null(rv$current.obj)){return(NULL)}
     wrapper.mvPerLinesHisto(rv$current.obj, 
                     c(2:length(colnames(pData(rv$current.obj)))))
   })
@@ -1287,7 +1570,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   ##' @author Samuel Wieczorek
   output$histo.missvalues.per.lines.per.conditions <- renderPlot({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(plot.new())}
+    if (is.null(rv$current.obj)){return(NULL)}
     wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
                             c(2:length(colnames(pData(rv$current.obj)))))
   })
@@ -1301,29 +1584,8 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     wrapper.mvImage(rv$current.obj)
   })
   
-  ##' Distribution of intensities in current.obj
-  ##' @author Samuel Wieczorek
-  output$viewDensityplot<- renderPlot({
-    rv$current.obj
-    input$labToHighlight
-    input$lab2Show
-    if (is.null(rv$current.obj) || (length(input$lab2Show) == 0))
-    {return(plot.new())}
-    wrapper.densityPlotD(rv$current.obj, input$lab2Show, input$labToHighlight)
-  })
   
-  
-  output$viewComparisonNorm<- renderPlot({
-    rv$current.obj
-    input$perform.normalization
-    
-    compareNormalizationD(exprs(rv$dataset[[input$datasets]]), 
-                          exprs(rv$current.obj), 
-                          labels = pData(rv$current.obj)[,"Label"])
-   
-  })
-  
-  
+  ##########################
   output$ChooseLegendForNormTabPanel <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
@@ -1416,21 +1678,135 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
                        selected = .names[1])
   })
   
+  
+  #------------------------------------------------------
+  output$ChooseLegendForAxis_DS <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    isolate(rv$current.obj)
+    .names <- colnames(pData(rv$current.obj))[-1]
+    tags$head(tags$link(rel="stylesheet", type="text/css", 
+                        href="css/overrides.css"))
+    
+    checkboxGroupInput("legendXAxis_DS",
+                       label = "Choose data to show in legend",
+                       choices = .names,
+                       selected = .names[1])
+  })
+  
+  
+  
+  ##' boxplot of intensities in current.obj
+  ##' @author Samuel Wieczorek
+  output$viewBoxPlot_DS <- renderPlot({
+    input$legendXAxis_DS
+    rv$current.obj
+    #input$whichGroup2Color
+    
+    if (is.null(rv$current.obj)){return(NULL)}
+    print(input$legendXAxis_DS)
+    print(str(input$legendXAxis_DS))
+    wrapper.boxPlotD(rv$current.obj,  input$legendXAxis_DS)
+    
+    
+  })
+  
+  
+  ##' Distribution of intensities in current.obj
+  ##' @author Samuel Wieczorek
+  output$viewDensityplot_DS <- renderPlot({
+    rv$current.obj
+    input$lab2Show
+    input$whichGroup2Color
+    if (is.null(rv$current.obj) || (length(input$lab2Show) == 0))
+    {return(plot.new())}
+    
+    
+    if (input$whichGroup2Color == "Condition"){
+      labs <- pData(rv$current.obj)[,"Label"]
+    }else {
+      labs <- paste(pData(rv$current.obj)[,"Label"],
+                    pData(rv$current.obj)[,"Bio.Rep"],
+                    pData(rv$current.obj)[,"Tech.Rep"],
+                    pData(rv$current.obj)[,"Analyt.Rep"],
+                    sep= "_")
+    }
+    
+    wrapper.densityPlotD(rv$current.obj, labs, as.numeric(input$lab2Show), input$whichGroup2Color)
+  })
+  
+  
+  
+  
+  
   ##' boxplot of intensities in current.obj
   ##' @author Samuel Wieczorek
   output$viewBoxPlot <- renderPlot({
-    input$legendXAxis
+    #input$legendXAxis
     rv$current.obj
+    #input$whichGroup2Color
+    #input$lab2Show
+    
     if (is.null(rv$current.obj)){return(plot.new())}
     
-    isolate({
-      input$legendXAxis
-      rv$current.obj
-      .axis <- input$legendXAxis
-      wrapper.boxPlotD(rv$current.obj,  .axis)
-    })
+    .axis <- input$legendXAxis
+      #wrapper.boxPlotD(rv$current.obj,  .axis)
+      wrapper.boxPlotD(rv$current.obj,  input$legendXAxis,input$whichGroup2Color)
+      
     
   })
+  
+  
+  ##' Distribution of intensities in current.obj
+  ##' @author Samuel Wieczorek
+  output$viewDensityplot<- renderPlot({
+    rv$current.obj
+    input$lab2Show
+    input$whichGroup2Color
+    if (is.null(rv$current.obj) || (length(input$lab2Show) == 0))
+    {return(plot.new())}
+    
+    
+    if (input$whichGroup2Color == "Condition"){
+      labs <- pData(rv$current.obj)[,"Label"]
+    }else {
+      labs <- paste(pData(rv$current.obj)[,"Label"],
+                    pData(rv$current.obj)[,"Bio.Rep"],
+                    pData(rv$current.obj)[,"Tech.Rep"],
+                    pData(rv$current.obj)[,"Analyt.Rep"],
+                    sep= "_")
+    }
+    
+    wrapper.densityPlotD(rv$current.obj, labs, as.numeric(input$lab2Show), input$whichGroup2Color)
+  })
+  
+  #######################
+  output$viewComparisonNorm<- renderPlot({
+    rv$current.obj
+    input$perform.normalization
+    input$whichGroup2Color
+    
+    if (input$whichGroup2Color == "Condition"){
+      labs <- pData(rv$current.obj)[,"Label"]
+    }else {
+      labs <- paste(pData(rv$current.obj)[,"Label"],
+                    pData(rv$current.obj)[,"Bio.Rep"],
+                    pData(rv$current.obj)[,"Tech.Rep"],
+                    pData(rv$current.obj)[,"Analyt.Rep"],
+                    sep= "_")
+    }
+    
+    compareNormalizationD(exprs(rv$dataset[[input$datasets]]), 
+                          exprs(rv$current.obj), 
+                          labs,
+                          as.numeric(input$lab2Show), 
+                          input$whichGroup2Color)
+    
+  })
+  
+  
+ 
+  
   
   
   ##' boxplot of intensities in current.obj
@@ -1514,33 +1890,81 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   ##' @author Samuel Wieczorek
   output$nGroup <- renderUI({
     rv$current.obj
-    input$lab2Show
     if (is.null(rv$current.obj) ) {return(NULL) }
     
-    #label.names <- unique(pData(rv$current.obj)[,"Label"])
-    #setNames(as.list(label.names),label.names)
-    # if (length(input$lab2Show) != 0){ 
-    l <- setNames(as.list(c("none",input$lab2Show)),c("none",input$lab2Show))
-    radioButtons("labToHighlight", "Condition to highlight", choices=l)
-    # }
+    radioButtons("whichGroup2Color", "Plot to show", choices=list("By condition" = "Condition",
+                                                                  "By replicate" = "Replicate"))
+  
   })
+  
+  ##' Select the labels to be highlighted in densityplots
+  ##' @author Samuel Wieczorek
+  output$nGroup_DS <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj) ) {return(NULL) }
+    
+    radioButtons("whichGroup2Color", "Plot to show", choices=list("By condition" = "Condition",
+                                                                  "By replicate" = "Replicate"))
+    
+  })
+  
+  
+  
+  ##' Select the labels to show in densityplots
+  ##' @author Samuel Wieczorek
+  output$nShow_DS <- renderUI({
+    rv$current.obj
+    #input$whichGroup2Color
+    if (is.null(rv$current.obj) ) {return(NULL) }
+    
+    isolate({
+      rv$current.obj
+      labs <- paste(pData(rv$current.obj)[,"Label"],
+                    pData(rv$current.obj)[,"Bio.Rep"],
+                    pData(rv$current.obj)[,"Tech.Rep"],
+                    pData(rv$current.obj)[,"Analyt.Rep"],
+                    sep= "_")
+      
+      #label.names <- unique(pData(rv$current.obj)[,"Label"])
+      label.names <- setNames(as.list(c(1:length(labs))),labs)
+      
+      
+      checkboxGroupInput("lab2Show"
+                         , label = "Select data to show"
+                         , choices = label.names
+                         , selected = unlist(label.names))
+      
+    })
+  })
+  
+  
   
   
   ##' Select the labels to show in densityplots
   ##' @author Samuel Wieczorek
   output$nShow <- renderUI({
     rv$current.obj
+    #input$whichGroup2Color
     if (is.null(rv$current.obj) ) {return(NULL) }
     
-    isolate(
-      rv$current.obj)
-    label.names <- unique(pData(rv$current.obj)[,"Label"])
-    label.names <- setNames(as.list(label.names),label.names)
+    isolate({
+      rv$current.obj
+    labs <- paste(pData(rv$current.obj)[,"Label"],
+                              pData(rv$current.obj)[,"Bio.Rep"],
+                              pData(rv$current.obj)[,"Tech.Rep"],
+                              pData(rv$current.obj)[,"Analyt.Rep"],
+                              sep= "_")
+    
+    #label.names <- unique(pData(rv$current.obj)[,"Label"])
+    label.names <- setNames(as.list(c(1:length(labs))),labs)
+    
+    
     checkboxGroupInput("lab2Show"
-                       , label = "Condition to show"
+                       , label = "Select data to show"
                        , choices = label.names
-                       , selected = unlist(label.names)
-    )
+                       , selected = unlist(label.names))
+    
+    })
   })
   
   output$equivPVal <- renderText ({
@@ -1785,9 +2209,6 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
         p <- RunDiffAna()
         cond <- c(input$condition1, input$condition2)
         
-        print(rv$seuilPVal)
-        print(rv$seuilLogFC)
-        
         diffAnaVolcanoplot(p$logFC, 
                            p$P.Value, 
                            rv$seuilPVal, 
@@ -2023,10 +2444,27 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
         rv$current.obj <- rv$dataset[[input$datasets]]
       } else {
        
-        rv$current.obj <- mvFilter(rv$dataset[[input$datasets]],
-                                   input$ChooseFilters,
-                                   input$seuilNA,
-                                   GetFilterText(input$ChooseFilters, input$seuilNA) )
+        
+        keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
+                                       input$ChooseFilters,
+                                       input$seuilNA)
+print("keepThat")
+print(length(keepThat))
+print(nrow(exprs(rv$dataset[[input$datasets]])))
+
+        if (!is.null(keepThat))
+            {
+              rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
+              rv$current.obj <- mvFilterFromIndices(rv$dataset[[input$datasets]],
+                                       keepThat,
+                                       GetFilterText(input$ChooseFilters, input$seuilNA) )
+              
+        }
+
+print(nrow(exprs(rv$deleted.mvLines)))
+print(nrow(exprs(rv$current.obj)))
+print(exprs(rv$current.obj))
+
         updateSelectInput(session, "ChooseFilters", 
                           selected = input$ChooseFilters)
         updateSelectInput(session, "seuilNA", 
@@ -2044,19 +2482,29 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
     isolate({
       
-      if (input$idBoxContaminants == "" && input$idBoxReverse ==""  ){
+      if (input$idBoxContaminants == "" && input$idBoxReverse == ""  ){
         rv$current.obj <- rv$dataset[[input$datasets]]
       } else {
-        temp <-rv$dataset[[input$datasets]]
+        temp <- rv$current.obj
         
-        if (!is.null(input$idBoxContaminants)) {
-          temp <- removeLines(temp,input$idBoxContaminants, input$prefixContaminants)
-           
+        if (!is.null(input$idBoxContaminants)|| (input$idBoxContaminants != "")) {
+          ind <- getIndicesOfLinesToRemove(temp,input$idBoxContaminants, input$prefixContaminants)
+          #temp <- temp[]
+          if (!is.null(ind))  {
+            rv$deleted.contaminants <- temp[ind]
+            temp <- temp[-ind]
+            }
         }
         
-        if (!is.null(input$idBoxReverse)){
-         temp <- removeLines(temp,input$idBoxReverse, input$prefixReverse)
-          
+        print(input$idBoxReverse)
+        
+        if (!is.null(input$idBoxReverse) || (input$idBoxReverse != "")){
+         ind <- getIndicesOfLinesToRemove(temp,input$idBoxReverse, input$prefixReverse)
+         if (!is.null(ind))  {
+           rv$deleted.reverse <- temp[ind]
+           temp <- temp[-ind]
+         }
+
         }
         
         rv$current.obj <- temp
@@ -2090,8 +2538,8 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
          || !is.null(input$idBoxContaminants) 
          || !is.null(input$idBoxReverse)){
         
-        rv$TypeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-        name <- paste ("Filtered", " (", rv$TypeOfDataset, ")", sep="")
+        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        name <- paste ("Filtered", " (", rv$typeOfDataset, ")", sep="")
         rv$dataset[[name]] <- rv$current.obj
         
         
@@ -2111,7 +2559,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     if (is.null(rv$current.obj)) {return (NULL)}
     
     selectInput("proteinId", 
-                "Prot ID",
+                "Choose the protein ID",
                 choices = c("None",colnames(fData(rv$current.obj))))
   })
   
@@ -2128,38 +2576,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
   })
   
-  #---------------------------------------
-  help_tabPanel <- function(){
-    tabsetPanel(id = "tabAbout",
-                AboutTabPanel(),
-                tabPanel(title="The MSnset format",
-                         value = "tabHelpMSnset",
-                         HTML("You can access the package 
-                              and read the document 
-                              <a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
-                              title=\"here\" target=\"_blank\">here</a>. <br>")
-                ),
-                tabPanel(title="Refs", htmlOutput("References")
-                )
-    )
-  }
-  
-  openFile_tabPanel <- function(){
-    tabPanel(
-      #title="Open a MSnset file",
-             #icon = icon("file"),
-             value = "open",
-             h2("Open a MSnset file"),
-             fileInput("file", "", 
-                       multiple=FALSE, 
-                       accept=c("MSnset", "MSnSet")),
-             br(),
-             hr(),
-             h3("Quick overview of the dataset"),
-             uiOutput("overview")
-    )
-    
-  }
+
   
   #         observe({
   #                 if (is.null(rv$current.obj)) {return (NULL)}
@@ -2169,73 +2586,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   # 
   #         })
   
-  AggregationTabPanel <- function(){
-    
-    tabsetPanel(
-      title = "agreagationTabsetPanel",
-      id = "agreagationTabsetPanel",
-      tabPanel(title = "1 - Agregate peptides",
-               value = "aggregation",
-               helpText("Please select first the id of protein in your dataset. Then, the stats
-                        will be showed and it will be possible to perform the aggregation"),
-               conditionalPanel(
-                 condition = 'input.datasets != "Aggregated"',
-                 fluidRow(
-                   column(width=3, uiOutput("chooseProteinId")),
-                   column(width=7, uiOutput("aggregationStats"))
-                 ),
-                 
-                 fluidRow(
-                   column(width=6, h4("Only unique peptides")),
-                   column(width=6, h4("All (unique & shared) peptides"))
-                 ),
-                 
-                 busyIndicator("Calculation In progress",wait = 0),
-                 fluidRow(
-                   column(width=6, plotOutput("aggregationPlotUnique")),
-                   column(width=6, plotOutput("aggregationPlotShared"))
-                 ),
-                 
-                 fluidRow(
-                   column(width=3,
-                          checkboxInput("checkSharedPeptides", 
-                                        "Include shared peptides", 
-                                        value = FALSE)),
-                   column(width=3, 
-                          selectInput("aggregationMethod", 
-                                      "Aggregation methods",
-                                      choices =  gAgregateMethod)),
-                   column(width=4, 
-                          conditionalPanel(
-                            condition='input.aggregationMethod == "sum on top n"',
-                            numericInput("nTopn", "nTopn", 
-                                         value = NULL,
-                                         min = 0)))),
-                 
-                 fluidRow(
-                   column(width=3,
-                          actionButton("perform.aggregation", "Aggregate")),
-                   column(width=3,uiOutput("ObserverAggregationDone"))
-               )
-               
-      )),
-      tabPanel(title = "2 - Configure protein dataset",
-               value = "configureProteinDataset",
-               helpText("Select the columns of the meta-data (related to proteins) that have to be recorded in the new protein dataset."),
-               div(class="row"),
-               div(class="span5", "",
-                   uiOutput("columnsForProteinDataset"),
-                   
-                   fluidRow(
-                 column(width=3,
-                        actionButton("valid.aggregation","Save aggregation", styleclass = "primary"))
-               )
-               )
-      )
-)
-
-  }
-  
+ 
   output$ObserverAggregationDone <- renderUI({
     rv$temp.aggregate
     if (is.null(rv$temp.aggregate) ) 
@@ -2356,7 +2707,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     if (is.null(rv$current.obj)) {return(NULL)  }
     if (is.null(input$idBoxContaminants)) {return(NULL)  }
     
-    textInput("prefixContaminants", label = "Choose prefix for contaminant",value = "")
+    textInput("prefixContaminants", label = "Choose prefix",value = "")
   })
   
   
@@ -2366,7 +2717,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     if (is.null(rv$current.obj)) {return(NULL)  }
     if (is.null(input$idBoxReverse)) {return(NULL)  }
     
-    textInput("prefixReverse", label = "Choose prefix for reverse", value = "" )
+    textInput("prefixReverse", label = "Choose prefix", value = "" )
     
   })
   
@@ -2376,12 +2727,9 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    
     .choices <- c("",colnames(fData(rv$current.obj)))
     names(.choices) <- c("",colnames(fData(rv$current.obj)))
-    selectInput("idBoxContaminants", label = "", choices = .choices , selected = NULL)
-    
-    
+    selectInput("idBoxContaminants", label = "Choose column", choices = .choices , selected = NULL)
   })
   
   
@@ -2389,105 +2737,12 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    
     .choices <- c("",colnames(fData(rv$current.obj)))
     names(.choices) <- c("",colnames(fData(rv$current.obj)))
-    selectInput("idBoxReverse", label = "", choices = .choices , selected = NULL)
-    
+    selectInput("idBoxReverse", label = "Choose column", choices = .choices , selected = NULL)
   })
   
-  
-  filter_Complete_tabPanel <- reactive({
-    tabPanel(
-      title="Convert data",
-     # icon = icon("download"),
-      value = "filtering",
-      tabsetPanel(id = "tabFilter",
-                  tabPanel( "1 - Missing values",
-                            value = "FilterMissingValues",
-                            h4("Filtering options"),
-                            
-                            helpText("The filter below allows keeping the lines that contain 
-                      a certain amount of quantitative data rather than NA values. 
-                                     The threshold to define correponds to the number of quantitative values in a 
-                                     line and means that the lines which contain at least this threshold value 
-                                     are kept. This filtering threshold may be applied on the whole  dataset, on 
-                                     each condition or on at leat one condition."),
-                            
-                            fluidRow(
-                              column(width=4, 
-                                     radioButtons("ChooseFilters","", choices = gFiltersList)),
-                              column(width=4, 
-                                     conditionalPanel(
-                                       condition='input.ChooseFilters != "None"',
-                                       uiOutput("seuilNADelete")))),
-          
-                            
-                            fluidRow(
-                              column(width = 4, plotOutput("histoMV")),
-                              column(width = 4,plotOutput("histo.missvalues.per.lines")),
-                              column(width = 4,plotOutput("histo.missvalues.per.lines.per.conditions"))
-                            )
-                            ,
-                            column(width=4, 
-                                   actionButton("perform.filtering.MV", 
-                                                "Perform filtering MV"))
-                            
-                  
-                            ),
-                  tabPanel( "2 - Contaminants",
-                            value = "FilterContaminants",
-                            
-                            helpText("Please select among the columns of
-                                     your data the one that corresponds 
-                                     to the contaminants"),
-                            
-                            
-                            fluidRow(
-                              column(width=4,uiOutput("id_Contaminants")),
-                              column(width=4,uiOutput("choosePrefixContaminants"))
-                            ),
-                            
-                           
-                            helpText("Please select among the columns of
-                                     your data the one that corresponds 
-                                     to the reverse peptides/proteins"),
-                            
-                            fluidRow(
-                              column(width=4,uiOutput("id_Reverse")),
-                              column(width=4,uiOutput("choosePrefixReverse"))
-                               ),
-                             
-                            plotOutput("GlobalPieChart"),
-                            
-                            column(width=4, 
-                                   actionButton("perform.filtering.Contaminants", 
-                                                "Perform filtering contaminants"))
-                            
-                  ),
-                  tabPanel( "3 - Visualize and Validate",
-                            value = "FilterValidate",
-                            helpText("After checking the data, validate the filters"),
-                            fluidRow(
-                             
-                              column(width=4,
-                                     actionButton("ValidateFilters","Save filtered dataset",  
-                                                  styleclass = "primary")
-                              )
-                            )
-                            
-                            
-                            
-                            )
-                  
-                  )
-    )
-    
-  })
-  
-  
-  
-  
+ 
   
 #   
 #   filter_tabPanel <- function(){
@@ -2537,105 +2792,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
 #     
 #   }
 #   
-  AboutTabPanel <- function(){
-    tabPanel(
-      title="About",
-             value = "tabHelpMSnset",
-             
-             #htmlOutput("aboutText")
-             uiOutput("aboutText")
-    )
-    
-  }
-  
-  import_tabPanel <- function(){
-    tabPanel(
-      #title="Convert data",
-             icon = icon("download"),
-             value = "import",
-             helpText("These steps allow to create a MSnSet file from a tabulated-text file."),
-             tabsetPanel(id = "tabImport",
-                         tabPanel( "1 - Select file",
-                                   value = "SelectFile2Import",
-                                  
-                                   fileInput("file1", "Data file", 
-                                             multiple=FALSE, 
-                                             accept=c(".txt", ".csv",".xls", ".xlsx")),
-                                   uiOutput("ManageXlsFiles"),
-                                   
-                                   helpText("Hint : before importing quantification 
-                                            file data, check the syntax 
-                                            of your text file."),
-                                   br(),
-                                   wellPanel(
-                                     radioButtons("typeOfData", "Is it a peptide or protein dataset ?", 
-                                                  choices=c("peptide dataset" = "peptide", 
-                                                            "protein dataset" = "protein")
-                                                  ),
 
-                                     radioButtons("checkDataLogged", "Check whether the data you want to analyze are already logged or not.
-                                              If not, they will be automatically logged", 
-                                                  choices=c("yes", "no"), 
-                                                  selected="no"),
-                                     br(),
-                                     checkboxInput("replaceAllZeros", 
-                                                   "Replace all 0 and NaN by NA", 
-                                                   value= TRUE)
-                                   )
-                                   ),
-                         tabPanel( "2 - Data Id",
-                                   value = "ID",
-                                   helpText("Please select among the columns of
-                                            your data the one that corresponds 
-                                            to a unique ID of the peptides/proteins.",
-                                            style = "color:black"),
-                                   
-                                    radioButtons("autoID", 
-                                                 "If you choose the automatic ID, Prostar will build an index.", 
-                                                  choices=c("Auto ID" = "Auto ID", 
-                                                            "user ID" = "user ID")),
-                                    
-                                   conditionalPanel(
-                                     condition = 'input.autoID == "user ID"',
-                                     uiOutput("id"),
-                                   uiOutput("warningNonUniqueID"))
-                         ),
-                         tabPanel( "3 - Exp. and feat. data",
-                                   value = "Import1",
-                                   helpText("Select the columns that are quantitation values 
-                                            by clicking in the fiels below."),
-                                   div(class="row"),
-                                   div(class="span5", "Quantitative  Data",
-                                       uiOutput("eData"))
-                                   ),
-                         tabPanel( "4 - Samples metadata",
-                                   value = "Import2",
-                                   #helpText("TODO"),
-                                   helpText("Attention : it is mandatory that the column 
-                                            \"Label\" is filled."),
-                                   br(),
-                                   rHandsontableOutput("hot")
-                         ),
-                         tabPanel( "5 - Convert",
-                                   value = "Convert",
-                                   htmlOutput("msgAlertCreateMSnset"),
-                                   fluidRow(
-                                     column(width = 6, 
-                                            textInput("filenameToCreate",
-                                                      "Enter the name of the study")),
-                                     column(width = 6, 
-                                            actionButton("createMSnsetButton",
-                                                         "Convert data"))
-                                     
-                                   ),
-                                   uiOutput("conversionDone")
-                         )
-                         )
-    )
-    
-  }
-  
-  
   
   output$conversionDone <- renderUI({
     rv$current.obj
@@ -2660,245 +2817,91 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
   })
   
-  #-------------------------------------------------------------
-  export_tabPanel <- function(){
-    tabPanel(
-      #title="Export",
-             value = "export",
-             icon = icon("upload"),
-             helpText("Choose the export format of the dataset and choose a name."),
-             #helpText("TODO"),
-             selectInput("fileformatExport", "File format", 
-                         choices=  c( "MSnset","Excel")),
-             
-             conditionalPanel(
-               condition = "input.fileformatExport == 'Excel'",
-               uiOutput("selectIDforExcelExport")
-             ),
-             
-             textInput("nameExport", "Enter the name of the files to be created"),
-             downloadButton('downloadMSnSet', 'Download')
-    )
-  }
-  
-  
-ViewCorrMatrixTabPanel <- reactive({
-  tabPanel(title="Corr. matrix",
-           value="tabCorrMatrix",
-           #helpText("TODO"),
-           sliderInput("expGradientRate", 
-                       "Modify the rate to modify the gradient of color", 
-                       min = 0, 
-                       max = 10, 
-                       value = 5, 
-                       step=0.05),
-           #uiOutput("ChooseLegendForAxis2"),
-           plotOutput("corrMatrix",
-                      height="500px", 
-                      width="800px"))
-})
 
 
-  ViewHeatmapTabPanel <- reactive({
-    tabPanel(title="Heatmap",value="tabheatmap",
-             #helpText("TODO"),
-             helpText("For this view, it is necessary that your dataset does 
-                      not contains any NA lines
-                      Please check your data and use Filtering options or 
-                      missing values imputation.",
-                      style = "color:black"),
-             
-             uiOutput("heatmapOptions"),
-             busyIndicator("Calculation In progress",wait = 0),
-             plotOutput("heatmap")
-    )
-  })
   
-  
-  
-  output$heatmapOptions <- renderUI({
+  output$DS_PlotHeatmap <- renderUI({
     rv$current.obj
 
     if (is.null(rv$current.obj)) {return(plot.new())}
     if (getNumberOfEmptyLines(exprs(rv$current.obj)) != 0) {return (NULL)}
       
-    h3("Clustering Options")
-    
-    fluidRow(
-      column(width = 3,
-             radioButtons("distance","Distance",
-                          choices = list(euclidean ="euclidean",
-                                         manhattan="manhattan"))
-      ),
-      column(width = 3,
-             radioButtons("linkage","Linkage for clustering",
-                          choices=list(average="average",
-                                       ward.D="ward.D"))
-      ),
-      column(width = 3,
-             radioButtons("showDendro", "Build the dendrogram", 
-                          choices = list(yes = TRUE, no = FALSE), selected = FALSE))
-      )
-  })
-  #------------------------------------------------------------------------
-  ViewMSnsetTabPanel <- function(){
-    tabPanel(title="Data explorer",
-             value = "tabular view",
-             h2("Viewer of the content of a MSnset file"),
-             tabsetPanel(id = "tabViewData",
-                         tabPanel("Quantitative data",value = "tabExprs", 
-                                  checkboxInput("nDigits", "Show full length number", value = FALSE),
-                                  dataTableOutput("viewExprs")),
-                         tabPanel("Analyte metadata",value = "tabfData", 
-                                  dataTableOutput("viewfData")),
-                         tabPanel("Replicate metadata",value = "tabpData",
-                                  dataTableOutput("viewpData")),
-                         tabPanel("Dataset history",value = "processingData",
-                                  helpText("Previous operations made on the original dataset :"),
-                                  dataTableOutput("viewProcessingData"))
-             )
-    )
-  }
-  
-  #----------------------------------------------------------
-  ViewGraphicsTabPanel <- function(){
-    tabPanel("Descriptive statistics",
-             value="tabView",
-             icon = icon("bar-chart-o"),
-             tabsetPanel(id="View1",
-                         GeneralTabPanel(),
-                         OverviewTabPanel(),
-                         ViewMSnsetTabPanel(),
-                         ViewHeatmapTabPanel(),
-                         ViewCorrMatrixTabPanel(),
-                         ViewBoxPlotTabPanel(),
-                         ViewVarDistTabPanel(),
-                         DensityPlotTabPanel()
-             )
-  )   
-  }
-  
-  
-  ViewBoxPlotTabPanel <- reactive({
-    tabPanel(title = "Boxplot", 
-             value="tabboxplot",
-             # helpText("TODO"),
-             uiOutput("ChooseLegendForAxis"),
-             plotOutput("viewBoxPlot", 
-                        height= "500px", 
-                        width="600px")
+    conditionalPanel(
+      condition = TRUE,
+     
+    busyIndicator("Calculation In progress",wait = 0),
+    plotOutput("heatmap")
     )
   })
-  
-  ViewVarDistTabPanel <- reactive({
-    tabPanel(title="Variance distr.", value="tabDistVar",
-             p("This graphics shows, for each condition, 
-               the distribution of the variance of the 
-               log-intensities."),
-             plotOutput("viewDistVariance",
-                        height="500px", 
-                        width="800px")
-             )
-  })
-  
-  
-  #-----------------------------------------------------------------------
-  NormalizationTabPanel <- reactive({
-    rv$current.obj
-    tabPanel(title="1 - Normalization",
-             value = "Normalization",
-             helpText("Select a normalization method before performing normalization on the dataset"),
-             
-             fluidRow(
-               column(width=4, uiOutput("choose_Normalization_Test")),
-               column(width=3, 
-                      actionButton("perform.normalization", 
-                                   "Perform normalization")),
-               column(width=3, 
-                      actionButton("valid.normalization",
-                                   "Save normalization", 
-                                   styleclass = "primary"))),
-             br(),
-             uiOutput("helpForNormalizationMethods"),
-             hr(),
-              fluidRow(
-                column(width=4, uiOutput("ChooseLegendForAxis")),
-                column(width = 4, uiOutput("nShow") ),
-                column(width = 4, uiOutput("nGroup"))),
-             # 
-             fluidRow(
-               column(width=4, plotOutput("viewBoxPlot")),
-               column(width=4, plotOutput("viewDensityplot")),
-               column(width=4, plotOutput("viewComparisonNorm"))
-             )
-    )
-  })
-  
-  
+ 
+  # #----------------------------------------------------------
+  # ViewGraphicsTabPanel <- function(){
+  #   tabPanel("Descriptive statistics",
+  #            value="tabView",
+  #            icon = icon("bar-chart-o"),
+  #            tabsetPanel(id="View1",
+  #                        GeneralTabPanel(),
+  #                        OverviewTabPanel(),
+  #                        ViewMSnsetTabPanel(),
+  #                        ViewHeatmapTabPanel(),
+  #                        ViewCorrMatrixTabPanel(),
+  #                        ViewBoxPlotTabPanel(),
+  #                        ViewVarDistTabPanel(),
+  #                        DensityPlotTabPanel()
+  #            )
+  # )   
+  # }
+  # 
+
+
   
   output$helpForNormalizationMethods <- renderUI({
     input$normalization.method
+    rv$typeOfDataset
     if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
     toto <- input$normalization.method
     
    
     switch(input$normalization.method,
-           "Global Rescaling - sum by columns" = {t <- "The abundance of each protein is divided by the total abundance of all the proteins
-in the same replicates. This normalization is interesting to compare the proportions of a given
-           protein in different samples that do not necessarily contain the same amount of biological material.
-           Contrarily to the others, this normalization is not performed on the log2 scale, for it would not
-           have any interpretation (the data are thus exponentiated and re-log2-transformed as pre-and
-           post-processing)."},
-           "Global Rescaling - quantiles" = {t <- "The protein abundance are roughly replaced by the order statics on their abundance (from
-package preprocessCore). This is the strongest normalization method available, and it should be
-           use carefully, for it erazes most of the difference between the samples."},
+           "Global Rescaling - sum by columns" = {t <- paste("Each abundance value is divided by the total of the abundance values 
+           in the same replicate. This normalization is interesting to compare the proportions of a given", rv$typeOfDataset, "in different 
+           replicates that do not necessarily contain the same amount of biological material. Contrarily to the others, 
+           this normalization is not performed on the log2 scale (for it would not have any interpretation), but on the real
+           intensity scale: the data are thus exponentiated first, normalize, and finally re-log2-transformed.", sep=" ")},
            
-           "Median Centering - overall" = {t <- "The medians of the samples are aligned. To do so, one computes
-first the median for each
-           replicates. Then, to each abundance value, one subtracts the corresponding median.
-           Finally, one adds to this abundance value, an offset in order to find roughly back the original range
-           of values. This offset is the mean of all the medians,
-           whatever the conditions (then, any global difference between the conditions will disappear). Note that all these computations are performed on values
-           that were originaly log2-transformed."},
+           "Global Rescaling - quantiles" = {t <- paste("The log-abundances are normalized by the quantile method 
+           (from R package preprocessCore). Roughly, the abundance values are replaced by their order statics. This normalization 
+            is the strongest one available, and it should be use carefully, for it leads to a strong loss of information, 
+            making all the replicates rather similar.", sep=" ")},
            
-           "Median Centering - within conditions" = {t <- "The medians of the samples are aligned. To do so, one computes
-first the median for each
-           replicates. Then, to each abundance value, one subtracts the corresponding median.
-           Finally, one adds to this abundance value, an offset in order to find roughly back the original range
-           of values. This offset is the mean of all the medians within each conditions (then, any global difference
-           between the conditions is preserved). Note that all these computations are performed on values
-           that were originaly log2-transformed."},
+           "Median Centering - overall" = {t <- "The medians of the replicates are aligned. To do so, the median of each replicate 
+           is computed and subtracted to each abundance value. Then, the means of all the medians (over all the conditions) is added, 
+           so as to roughly find back the original range of values. As a result, any global shift of the abundance range between 
+           the conditions is suppressed. Note that all these computations are performed on the log scale"},
            
-           "Mean Centering - overall" = {t <- "The means of the samples are aligned. To do so, one computes
-first the mean for each
-           replicates. Then, to each abundance value, one subtracts the corresponding mean.
-           Finally, one adds to this abundance value, an offset in order to find roughly back the original range
-           of values. This offset is the mean of all the means,
-           whatever the conditions (then, any global difference between the conditions will disappear). Note that all these computations are performed on values
-           that were originaly log2-transformed."},
+           "Median Centering - within conditions" = {t <- "The medians of the replicates are aligned. To do so, the median of each 
+           replicate is computed and subtracted to each abundance value. Then, the means of all the medians (within each condition) is 
+           added, so as to roughly find back the original range of values. As a result, global shift of the abundance range between the 
+           conditions remains un-normalized. Note that all these computations are performed on the log scale."},
            
-           "Mean Centering - within conditions" = {t <- "The means of the samples are aligned. To do so, one computes
-           first the mean for each
-           replicates. Then, to each abundance value, one subtracts the corresponding mean.
-           Finally, one adds to this abundance value, an offset in order to find roughly back the original range
-           of values. This offset is the mean of all the means within each conditions (then, any global difference
-           between the conditions is preserved). Note that all these computations are performed on values
-           that were originaly log2-transformed."},
+           "Mean Centering - overall" = {t <- "The means of the replicates are aligned. To do so, the mean of each replicate is computed 
+           and subtracted to each abundance value. Then, the means of all the means (over all the conditions) is added, so as to roughly 
+           find back the original range of values. As a result, any global shift of the abundance range between the conditions is suppressed. 
+           Note that all these computations are performed on the log scale."},
+           
+           "Mean Centering - within conditions" = {t <- "The means of the replicates are aligned. To do so, the means of each replicate 
+           is computed and subtracted to each abundance value. Then, the means of all the means (within each condition) is added, so as to 
+           roughly find back the original range of values. As a result, global shift of the abundance range between the conditions remains 
+           un-normalized. Note that all these computations are performed on the log scale."},
            
            
-           "Mean Centering Scaling - overall" = {t <- "The spirit of this normalization is the same as the Mean Centering, yet,
-it is stronger, and it only applies to log2-tranformed abundance values that distributes roughly
-           normaly for each sample. Basically, a mean centering as described above is applied. Then, the
-           variance of the distribution is re-scaled to 1. Let us note that median centering is not really
-           adapted to a rescaling the variance; this is why such combination of parameters is not available.
-           The centering operate over the entire dataset."},
+           "Mean Centering Scaling - overall" = {t <- "Same as \"Mean Centering – overall\", however, in addition, the variance of the 
+distribution of each replicate is re-scaled to 1. This normalization only applies to dataset where log-abundance values are normally 
+distributed along each replicate."},
            
-           "Mean Centering Scaling - within conditions" = {t <- "The spirit of this normalization is the same as the Mean Centering, yet,
-it is stronger, and it only applies to log2-tranformed abundance values that distributes roughly
-           normaly for each sample. Basically, a mean centering as described above is applied. Then, the
-           variance of the distribution is re-scaled to 1. Let us note that median centering is not really
-           adapted to a rescaling the variance; this is why such combination of parameters is not available.
-           The centering operate over each condition."},
+           "Mean Centering Scaling - within conditions" = {t <- "Same as \"Mean Centering – within conditions\", however, in addition, 
+           the variance of the distribution of each replicate is re-scaled to 1. This normalization only applies to dataset where 
+           log-abundance values are normally distributed along each replicate."},
            
            
            
@@ -2908,64 +2911,7 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
     helpText(t)
   })
   
-  #-----------------------------------------------------------
-  DensityPlotTabPanel <- function(){
-    tabPanel(title = "Densityplot",value="tabdensityplot",
-             fluidRow(
-               column(width = 2, uiOutput("nGroup")),
-               column(width = 2, uiOutput("nShow")
-               )),
-             plotOutput("viewDensityplot", height="500px", width="600px")
-    )
-  }
-  
-  #-----------------------------------------------------------
-  ImputationTabPanel <- function(){
-    tabPanel(title="2 - Miss. values imputation",
-             value = "imputation",
-             helpText("Select an imputation method before performing the imputation of missing values."),
-             fluidRow(
-               column(width = 5, 
-                      selectInput("missing.value.algorithm", 
-                                  "Choose algorithm", 
-                                  choices = names(imputationAlgorithms))),
-               column(width = 3, 
-                      actionButton("perform.imputation.button",
-                                   "Perform imputation")),
-               column(width = 3, 
-                      actionButton("ValidImputation",
-                                   "Save imputation", 
-                                   styleclass = "primary"))
-             ),
-             
-             busyIndicator("Calculation In progress",wait = 0),
-             fluidRow(
-               column(width = 4, plotOutput("viewNAbyMean")),
-               column(width = 8, plotOutput("showImageNA"))
-             )
-             
-    )
-  }
-  
-  #--------------------------------------------------------------------
-  GeneralTabPanel <- function(){
-    tabPanel("Overview",
-             value = "tabGeneral",
-             verbatimTextOutput("overviewNewData")
-    )
-  }
-  
-  #--------------------------------------------------------------------
-  OverviewTabPanel <- function(){
-    tabPanel("Miss. values",value = "taboverviewMV",
-             helpText("Those bargraph plots display some information to view the distribution 
-                      of missing values."),
-             fluidRow(
-               column(width = 4, plotOutput("histoMV")),
-               column(width = 4,plotOutput("histo.missvalues.per.lines")),
-             column(width = 4,plotOutput("histo.missvalues.per.lines.per.conditions")))
-    )
-  }
+ 
   
   
   ProcessStepsTabPanel <- function(){
@@ -3011,99 +2957,24 @@ it is stronger, and it only applies to log2-tranformed abundance values that dis
   
   
   # ---------------- diffAna TAB PANEL -----------------
-  diffAnaTabPanelComplete <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)){
-      print("No dataset is loaded. Please open a MSnSet file or create one before.")
-      return(NULL)}
-    
-    
-    
-    tabPanel(title="Limma",
-             value = "tabLimma",
-             if (sum(is.na(exprs(rv$current.obj))==TRUE) > 0){
-               h3("There are some NA in your data. please impute before.")
-               return()
-             },
-             
-     tabsetPanel(
-       title = "abc",
-       id = "abc",
-       tabPanel(title = "1 - Choose groups",
-                value = "Choosegroups",
-                fluidRow(
-                  column(width = 3, uiOutput("RenderLimmaCond1")),
-                  column(width = 3, uiOutput("RenderLimmaCond2")),
-                  column(width = 3, 
-                         selectInput("diffAnaMethod", 
-                                     "Choose test", 
-                                     choices = c("None","Limma", "Welch")))
-                ),
-                br(),
-                
-                fluidRow(
-                  column(width=2, numericInput("seuilLogFC", "log(FC)", 
-                                               min = 0, 
-                                               value = 0, 
-                                               step=0.1)),
-                  
-                  column(width=7, uiOutput("nbSelectedItems") )
-                                               
-                ),
-                plotOutput("volcanoplot", height="500px", width="600px")
- ),
-       tabPanel(title = "2 - Calibrate Ana Diff",
-                value = "Calibrate Ana Diff",
-                
-                htmlOutput("errMsgCalibrationPlotAll"),
-                busyIndicator("Calculation In progress",wait = 0),
-                plotOutput("calibrationPlotAll"),
-                fluidRow(
-                  column(width = 3, selectInput("calibrationMethod", "Choose the calibration method", 
-                            choices = c("st.boot", "st.spline", "langaas", 
-                                        "jiang", "histo", "pounds", "abh","slim", "Benjamini-Hochberg", "numeric value"),
-                            selected = "pounds")),
-                  column(width = 3, 
-                         uiOutput("numericalValForCalibrationPlot")
-                )),
-         
-                uiOutput("errMsgCalibrationPlot"),
-                busyIndicator("Calculation In progress",wait = 0),
-                plotOutput("calibrationPlot")
-                ),
-       
-        tabPanel(title = "3 - Visualize FDR",
-                 value = "viewFDR",
-               # uiOutput("calibrationResults"),
-                uiOutput("nbSelectedItemsStep3"),
-                br(), br(), hr(),
-               fluidRow(
-                      column(width= 4, numericInput("seuilPVal", "-log10(p.value)", 
-                             min = 0, 
-                             value = 0, 
-                             step=0.1)),
-                      column(width= 4, htmlOutput("equivPVal")),
-                      column(width= 4, htmlOutput("showFDR"))
-                      ),
-              plotOutput("volcanoplotStep3", height="500px", width="600px")
-              ),
-        
-       tabPanel(title = "4 - Validate and Save",
-                value = "ValidateAndSaveAnaDiff",
-                
-                dataTableOutput("limmaplot"),
-                br(),
-                fluidRow(
-                  column(width=2, actionButton("ValidDiffAna","Save diff analysis"))
-                ),
-                fluidRow(
-                  column(width=12, uiOutput("DiffAnalysisSaved"))
-                )
-     )
-      )
-    )
-  })
-  
+  # diffAnaTabPanelComplete <- reactive({
+  #   rv$current.obj
+  #   if (is.null(rv$current.obj)){
+  #     print("No dataset is loaded. Please open a MSnSet file or create one before.")
+  #     return(NULL)}
+  #   
+  #   
+  #   
+  #   tabPanel(title="Limma",
+  #            value = "tabLimma",
+  #            if (sum(is.na(exprs(rv$current.obj))==TRUE) > 0){
+  #              h3("There are some NA in your data. please impute before.")
+  #              return()
+  #            },
+  #            
+  #    
+  # })
+  # 
   #------------------------------------------
   ##' Missing values imputation - reactivity behavior
   ##' @author Samuel Wieczorek
