@@ -90,6 +90,9 @@ list(
 )
 }
 
+DT_pagelength <- 15
+
+
 
 reactiveDataTable <- function(func, ...) 
 {

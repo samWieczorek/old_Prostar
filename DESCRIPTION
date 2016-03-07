@@ -21,6 +21,6 @@ Description: This package provides a GUI interface for DAPAR.
 biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics, GUI
 License: Artistic-2.0
 Depends: DAPAR (>= 1.3.6), shiny
-Imports: shinyTree,rhandsontable, quantmod, data.table
+Imports: shinyTree,rhandsontable, quantmod, data.table, DT, shinyjs
 Suggests: BiocStyle
 NeedsCompilation: no
