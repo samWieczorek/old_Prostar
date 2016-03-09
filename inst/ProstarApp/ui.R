@@ -7,8 +7,7 @@ library(shiny)
 library(rhandsontable)
 library(data.table)
 library(shinyjs)
-library(markdown)
-library(rmarkdown)
+
 
 heightSidebarPanel <- "600px"
 test <- "Prostar"
@@ -46,14 +45,18 @@ sidebarCustom <- function(){
     tags$style(type="text/css", "#DS { padding-top:50px;"),
     tags$style(type="text/css", "#sidebar_dataExplorer { padding-top:50px;"),
    
-    tags$style(type="text/css", "#wellPanelMVFilterTab1 { width: 600px; background-color:transparent;"),
-    tags$style(type="text/css", "#condPanelShowOptions {background-color:#f5f5f5; opacity:0.90;"),
+    tags$style(type="text/css", "#wellPanelMVFilterTab1 { width: 800px; background-color:transparent;"),
+    tags$style(type="text/css", "#condPanelShowOptions {background-color:#f5f5f5; 
+                                                        opacity:0.90;
+                                                        border:1px solid #e3e3e3;
+                                                        border-radius:4px;"),
    
     tags$style(type="text/css", "#AbsolusssstePanel { background-color:orange;"),
     tags$style(type="text/css", "#wellPanlNormalization { z-index:-1;overflow: visible;"),
-  
+   tags$style(type="text/css", "#DS_tabOverviewMV { width:800px;"),
+   
     tags$style(type="text/css", "#wellPanelHeatmap { width: 500px;"),
-    tags$style(type="text/css", "#wellPanel_Agregation { width: 500px;"),
+    tags$style(type="text/css", "#wellPanel_Agregation { width: 800px;"),
     tags$style(HTML('.action-button{background-color:lightblue}'))
   )
 }
@@ -105,6 +108,7 @@ shinyUI <- tagList(
                       #     ),
                       # 
                       uiOutput("aboutText")
+                      ,hr()
                       ,h3("Processing tools")
                       ,HTML("<ul style=\"list-style-type:disc;\">
                       <li>
@@ -124,9 +128,9 @@ shinyUI <- tagList(
                       <li>
                       Cross replicate normalisation, with the following methods:
                       <ul style=\"list-style-type:disc;\">
-                      <li>(i) global rescaling (quantiles method, proportion method),</li> 
-                      <li>(ii) median or mean centering (overall orwithin conditions), </li>
-                      <li>(iii) mean centering and scaling (overall or within conditions).</li>
+                      <li> global rescaling (quantiles method, proportion method),</li> 
+                      <li> median or mean centering (overall orwithin conditions), </li>
+                      <li> mean centering and scaling (overall or within conditions).</li>
                       </ul>
                       
                       </li>
@@ -139,7 +143,11 @@ shinyUI <- tagList(
                       <li>for left censored missing values: Quantile Regression for Imputation of Left Censored data.</li>
                       </ul>
                       </li>
-                      <br>                
+                      <br>
+                      <li>
+                      Aggregation: Aggregate peptides into proteins.
+                      </li>
+                      <br>
                       <li>
                       Differential analysis, according to a Welch t-test or a Limma moderated t-test.
                       </li>
@@ -299,6 +307,7 @@ shinyUI <- tagList(
                                    ),
                                    
                                    tabPanel(title = "Miss. values",
+                                            id = "DS_tabOverviewMV",
                                             value = "DS_tabOverviewMV",
                                                helpText("Those bargraph plots display some information to view the distribution
                                                         of missing values."),
@@ -443,7 +452,7 @@ at least this threshold value are kept. This filtering threshold may be applied 
                                                                            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                                                                        wellPanel(id = "sidebar_Filter2",
                                                                                          uiOutput("DP_sidebar_FilterTab2")
-                                                                                         ,actionButton("perform.filtering.Contaminants","Perform filtering contaminants")
+                                                                                         ,actionButton("perform.filtering.Contaminants","Perform string based filtering")
                                                                                        ),
                                                                                        conditionalPanel(id = "wellPanelMVFilterTab2",
                                                                                                         condition = TRUE,

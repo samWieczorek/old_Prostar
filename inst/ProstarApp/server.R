@@ -459,17 +459,7 @@ output$tabToShow <- renderUI({
     
   }
   
- output$extensionWarning <- renderUI({
-   input$file
-   if (is.null(input$file)) {return(NULL)}
-   ext <-GetExtension(input$file$name) 
-   if( ext != "MSnset"){
-     print("toto")
-     #uiOutput("extensionWarning")
-   }
-   h3("toto")
-   shinyjs::info("Hello!")
- })
+
   
   ##-- Open a MSnset File --------------------------------------------
   observe({ 
@@ -477,7 +467,8 @@ output$tabToShow <- renderUI({
     if (is.null(input$file)) {return(NULL)}
     
     isolate({
-      if( GetExtension(input$file$name)  != c("MSnset","MSnSet")) {
+      exts <- c("MSnset","MSnSet")
+      if( is.na(match(GetExtension(input$file$name), exts))) {
          shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
         }
       else {
@@ -1863,25 +1854,6 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     wrapper.corrMatrixD(rv$current.obj, rate = input$expGradientRate)
   })
   
-  
-#   output$ChooseLegendForHeatmap <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)){return(NULL)}
-#     isolate(rv$current.obj)
-#     .names <- colnames(pData(rv$current.obj))[-1]
-#     tags$head(tags$link(rel="stylesheet", type="text/css",
-#                         href="css/overrides.css"))
-#     
-#     checkboxGroupInput("heatmap.legend",
-#                        label = "Choose data to show in legend",
-#                        choices = .names,
-#                        selected = .names[1])
-#   })
-#   
-  
-  # buildHeatmapPlot <- reactive({
-  #   wrapper.heatmapD(rv$current.obj,input$distance, input$linkage, input$showDendro)
-  # })
 
   ##' Draw a heatmap of current data
   ##' 
@@ -2088,11 +2060,11 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
     nbSelected <- length(t)
     
-    txt <- paste("Total number of peptides/proteins = ", 
+    txt <- paste("Total number of ",rv$typeOfDataset, " = ", 
                  nbTotal,"<br>",
-                 "Number of selected peptides/proteins = ", 
+                 "Number of selected ",rv$typeOfDataset, " = ", 
                  nbSelected,"<br>",
-                 "Number of non selected peptides/proteins = ", 
+                 "Number of non selected ",rv$typeOfDataset, " = ", 
                  (nbTotal-nbSelected), sep="")
     HTML(txt)
   })
@@ -2127,11 +2099,11 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
     nbSelected <- length(t)
     
-    txt <- paste("Total number of peptides/proteins = ", 
+    txt <- paste("Total number of ", rv$typeOfDataset, " = ", 
                  nbTotal,"<br>",
-                 "Number of selected peptides/proteins = ", 
+                 "Number of selected ", rv$typeOfDataset, " = ", 
                  nbSelected,"<br>",
-                 "Number of non selected peptides/proteins = ", 
+                 "Number of non selected ", rv$typeOfDataset, " = ", 
                  (nbTotal-nbSelected), sep="")
     HTML(txt)
   })

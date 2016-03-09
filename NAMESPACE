@@ -1,7 +1,5 @@
 export("Prostar")
 
-
-import(shinyTree)
 import(rhandsontable)
 import(data.table)
 import(DT)
