@@ -4,6 +4,7 @@
 
 \documentclass[12pt]{article}
 \usepackage{soul}
+\usepackage[utf8]{inputenc}
 
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
 \newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
@@ -101,10 +102,6 @@ This step will automatically install the following packages:
 
 
 
-\textcolor{red}{Note: the package XLConnect needs the package rJava to be installed. It may happen that the installation of rJava fails because of the configuration of environment variables.  If this arrives, one solution is to set JAVA\_HOME to before installing DAPAR:}
-<< installDAPARBiocondJAVAHOME>>=
-Sys.setenv("JAVA_HOME", "")
-@
 
 
 \subsection{DAPAR with ProStaR}\label{sec:daparProstar}
@@ -290,6 +287,9 @@ Once an MSnSet has been created, it is possible to save it as a MSnSet binary ob
 %XXX The user chooses the format of the file and enter the name of the file. Then, he clicks on the "Download" button XXX.
 
 \hl{\bf Command line:} When working exclusively with \Biocpkg{DAPAR}, the functions are \Rfunction{writeMSnSetToExcel()} (to export in Excel format) and \Rfunction{saveRDS()} (to export in MSnSet format).
+
+
+\textcolor{red}{The user can download the plots showed in \Biocpkg{Prostar} by right-clicking on the plot. A contextual menu appears and let the user choose either "Save image as" or "Copy image". In the latter case, he/she has to paste the image in an appropriate software.}
 
 \subsubsection{Session log}\label{sec:sessionlog}
 
@@ -752,7 +752,24 @@ res <- diffAnaLimma(imputed_dataset, condition1, condition2)
 obj <- diffAnaSave(imputed_dataset, res, "limma", condition1, condition2)
 @
 Moreover, \Rfunction{diffAnaSave()} adds the aforementioned third column named "Significant" to the MSnSet object. Two optional arguments allows the user defining the thresholds on the $p$-values and on the Fold Change, so has to be more or less stringent on the number of proteins called "Significant".
- 
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Section
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Bugs}\label{sec:sessionBugs}
+
+\textcolor{red}{Both packages \Biocpkg{DAPAR} and \Biocpkg{Prostar} are under active development. Despite our efforts to fix bugs, it may still have some cases where a fatal errors. For bugs, typos, suggestions or other questions, you are welcome to contact us by providing as much information as possible, a reproducible example and the output of sessionInfo(). Here are some error messages the user may encounter and the tip to work around.}
+
+\textcolor{red}{\textbf{Unable to load loadWorkbook}. This error may appear if the package \CRANpkg{XLConnect} is not properly installed. First check if this package is well installed. The package \CRANpkg{XLConnect} needs the package \CRANpkg{rJava} to be installed. It may happen that the installation of rJava fails because of the configuration of environment variables (especially on Windows systems). In this case, try to set the variable JAVA\_HOME to an empy string before installing \CRANpkg{rJava} and \Biocpkg{DAPAR}:}
+<< installDAPARBiocondJAVAHOME>>=
+Sys.setenv("JAVA_HOME", "")
+@
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Section
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

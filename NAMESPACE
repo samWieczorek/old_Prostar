@@ -2,8 +2,10 @@ export("Prostar")
 
 import(rhandsontable)
 import(data.table)
-import(DT)
 import(shiny)
 import(DAPAR)
-import(quantmod)
-import(shinyjs)
+
+
+importFrom(shinyjs, info)
+importFrom(DT, dataTableOutput,renderDataTable )
+

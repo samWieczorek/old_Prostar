@@ -6,7 +6,7 @@ library(shiny)
 library(rhandsontable)
 library(data.table)
 library(reshape2)
-library(quantmod)
+#library(quantmod)
 library(DT)
 
 
@@ -94,7 +94,8 @@ shinyServer(function(input, output, session) {
                      uiOutput("RenderLimmaCond2"),
                      selectInput("diffAnaMethod","Choose the statistical test",
                                  choices = c("None","Limma", "Welch")),
-                                 numericInput("seuilLogFC", "log(FC)",min = 0,value = 0,step=0.1)
+                                 numericInput("seuilLogFC", "Define log(FC) threshold",min = 0,value = 0,step=0.1),
+                     HTML("This corresponds to the ratio: <br>Condition 2 / Condition 1.")
   ) })
   
   
@@ -110,15 +111,10 @@ shinyServer(function(input, output, session) {
     
   output$diffAnalysis_sidebarPanelTab3 <- renderUI({
     conditionalPanel(condition=TRUE,
-                      numericInput("seuilPVal", "-log10(p.value)",min = 0,value = 0,step=0.1)
+                      numericInput("seuilPVal", "Define the -log10(p.value) threshold",min = 0,value = 0,step=0.1)
   ) })
   
-  
-  output$diffAnalysis_sidebarPanelTab4 <- renderUI({ 
-    actionButton("ValidDiffAna","Save diff analysis")
-  
-  })
-  
+
   
   
   output$DP_sidebar_FilterTab1 <- renderUI({
@@ -167,7 +163,7 @@ shinyServer(function(input, output, session) {
   
   
   #----------------------------------------------
-  output$VizualizeFilteredData <- renderDataTable({
+  output$VizualizeFilteredData <- DT::renderDataTable({
     rv$current.obj
     input$nDigitsMV
     input$ChooseViewAfterFiltering
@@ -856,7 +852,54 @@ output$tabToShow <- renderUI({
   } )
   
 
+ # observe({
+ #   input$xxxxx
+ #   if (is.null(input$xxxxx)) {return(NULL)}
+ #   
+ #     rv$res.diffAna <- RunDiffAna()
+ #   
+ #   
+ #   
+ # })
+ # 
+ # 
  
+  # 
+  # observe({
+  #   input$perform.DiffAna
+  #   
+  #   input$ValidDiffAna
+  #   # input$diffAnaMethod
+  #   # input$condition1
+  #   # input$condition2
+  #   
+  #   if ((input$perform.DiffAna == 0) ||  is.null(input$perform.DiffAna) ) {return(NULL)}
+  #   if (input$condition1 == input$condition2) {return(NULL)}
+  #   
+  #   isolate({
+  #     
+  #     data <- RunDiffAna()
+  #     
+  #     if (is.null(data)) {return (NULL)}
+  #     m <- NULL
+  #     if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
+  #     else {m <- input$calibrationMethod }
+  #     
+  #     
+  #     fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
+  #     
+  #     rv$current.obj <- diffAnaSave(rv$dataset[[input$datasets]],
+  #                                   data,
+  #                                   input$diffAnaMethod,
+  #                                   input$condition1,
+  #                                   input$condition2,
+  #                                   rv$seuilPVal, rv$seuilLogFC, fdr,
+  #                                   input$calibrationMethod)
+  #   })
+  # })
+  # 
+  
+  #----------------------------------------------
   observe({ 
     input$ValidDiffAna
     # input$diffAnaMethod
@@ -869,17 +912,17 @@ output$tabToShow <- renderUI({
       isolate({
     
     data <- RunDiffAna()
-    
+
     if (is.null(data)) {return (NULL)}
     m <- NULL
     if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
     else {m <- input$calibrationMethod }
-    
-    
-    
+
+
+
     fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
-    
-    rv$current.obj <- diffAnaSave(rv$current.obj,
+
+    temp <- diffAnaSave(rv$dataset[[input$datasets]],
                                   data,
                                   input$diffAnaMethod,
                                   input$condition1,
@@ -888,10 +931,11 @@ output$tabToShow <- renderUI({
                                   input$calibrationMethod)
     
     
-    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+    #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     name <- paste("DiffAnalysis.", input$diffAnaMethod, " - ", rv$typeOfDataset, sep="")
     
-    rv$dataset[[name]] <- rv$current.obj
+    rv$dataset[[name]] <- temp
+    rv$current.obj <- temp
     updateSelectInput(session, "datasets", 
                       choices = names(rv$dataset),
                       selected = name)
@@ -928,7 +972,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   })
   
   
-  output$viewProcessingData <- renderDataTable({
+  output$viewProcessingData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
@@ -948,7 +992,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   
   ##' show pData of the MSnset object
   ##' @author Samuel Wieczorek
-  output$viewpData <- renderDataTable({
+  output$viewpData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     as.data.frame(pData(rv$current.obj))
@@ -962,7 +1006,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   
   ##' show fData of the MSnset object in a table
   ##' @author Samuel Wieczorek
-  output$viewfData <- renderDataTable({
+  output$viewfData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     as.data.frame(fData(rv$current.obj))
@@ -979,7 +1023,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   
   ##' Visualisation of missing values table
   ##' @author Samuel Wieczorek
-  output$viewExprsMissValues <- renderDataTable({
+  output$viewExprsMissValues <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     as.data.frame(cbind(ID = rownames(fData(rv$current.obj)),
@@ -1035,23 +1079,23 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   })
   
   
-  
-  output$toto <- renderDataTable({
-    # mtcars
-  },
-  option=list(pageLength=DT_pagelength,
-              orderClasses = TRUE,
-              autoWidth=FALSE,
-              lengthChange=F,
-              searching=0,
-              info=0,
-              # bCaseInsensitive = TRUE,
-              columnDefs = 
-                list(list(columns.width=c("60px"),
-                          columnDefs.targets=c(list(0),list(1),list(2)))))
-  
-  )
-  
+  # 
+  # output$toto <- renderDataTable({
+  #   # mtcars
+  # },
+  # option=list(pageLength=DT_pagelength,
+  #             orderClasses = TRUE,
+  #             autoWidth=FALSE,
+  #             lengthChange=F,
+  #             searching=0,
+  #             info=0,
+  #             # bCaseInsensitive = TRUE,
+  #             columnDefs = 
+  #               list(list(columns.width=c("60px"),
+  #                         columnDefs.targets=c(list(0),list(1),list(2)))))
+  # 
+  # )
+  # 
   
   output$downloadMSnSet <- downloadHandler(
     filename = function() { 
@@ -1066,6 +1110,7 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
       
       if (input$fileformatExport == gFileFormatExport$excel) {
         fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
+        
         writeMSnsetToExcel(rv$current.obj,input$nameExport, input$ID2XLS)
         file.copy(fname, file)
         file.remove(fname)
@@ -1359,35 +1404,66 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   })
   
   
-  output$log <- renderDataTable({
+  output$logSession <- DT::renderDataTable({
     rv$text.log
     if (is.null(rv$text.log)) {return (NULL)}
-   # print(str(rv$text.log))
-    as.data.frame(rv$text.log)
-  },
-  option=list(pageLength=DT_pagelength,
-              orderClasses = TRUE,
-              autoWidth=FALSE,
-              lengthChange=F,
-              searching=0,
-              info=0,
-              # bCaseInsensitive = TRUE,
-              columnDefs = 
-                list(list(columns.width=c("60px"),
-                          columnDefs.targets=c(list(0),list(1),list(2)))))
+    rv$text.log}, 
+                  options=list(pageLength=DT_pagelength,
+                               orderClasses = TRUE,
+                               autoWidth=FALSE)
   )
   
   #########################################################
   output$References <- renderText({
-    HTML("Laurent Gatto and Kathryn S. Lilley. MSnbase - an R/Bioconductor
-         package for isobaric tagged mass spectrometry data visualization,
-         processing and quantitation. <i>Bioinformatics </i>28, 288-289 (2012).
-         <br><br>
-         Poster : S. Wieczorek, F. Combes, A.-M. Hesse, C. Lazar, 
-         C. Ramus, Y. Coute, C. Bruley, T. Burger,
-         <i>A package R and a web application for the analysis of 
-         quantitative proteomics data</i>, SMAP 2014, Lyon
-         ")
+    HTML("<strong><font size=\"5\">HELP</font></strong>
+          <br><hr color:\"blue\"><br>
+
+          <strong><font size=\"4\">User manual:</font></strong><br>
+          gfdgfghgh<br><br>
+
+          <strong><font size=\"4\">Tutorial:</font></strong><br>
+          qsdfdqgffdgfdgf<br><br>
+
+          <strong><font size=\"4\">Contact:</font></strong><br>
+          If you need any help, but also if you wish to make comments or suggestions, 
+          please contact Samuel Wieczorek, Florence Combes or Thomas Burger 
+          (firstname.lastname@cea.fr)<br><br>
+
+
+          <strong><font size=\"4\">Additional ressources:</font></strong>
+          <ul>
+          <li> ProStaR reference manual:  <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/Prostar.pdf\"
+                                                    title=\"here\" target=\"_blank\">here</a>
+          </li>
+          <li> DAPAR reference manual:  <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\"
+                                                    title=\"here\" target=\"_blank\">here</a>
+
+
+          </li>
+          <li> MSnbase tutorial: 
+          </li>
+          <li> Cp4p tutorial: <a href=\"https://cran.r-project.org/web/packages/cp4p/cp4p.pdf\"
+                                                    title=\"here\" target=\"_blank\">here</a>
+          </li>
+          </ul>
+<br><br>
+
+        <strong><font size=\"4\">References:</font></strong>
+          <ul>
+          <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
+                C. Bruley, T. Burger.  \"DAPAR & ProStaR: software to perform statistical analyses in 
+                quantitative discovery proteomics\", under (minor) revision, <i>Bioinformatics</i>, 2016  
+         </li>
+         <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting for the multiple natures of missing 
+              values in label-free quantitative proteomics datasets to compare imputation strategies. 
+              <i>Journal of Proteome Research</i>, accepted for publication, February 2016. 
+         </li>
+         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Couté, T. Burger. Calibration Plot for Proteomics 
+              (cp4p): A graphical tool to visually check the assumptions underlying FDR control in quantitative 
+              experiments. <i>Proteomics</i>, 16(1):29-32, 2016. 
+         </li>
+         </ul>
+        ")
   })
   
   
@@ -2060,11 +2136,11 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     
     nbSelected <- length(t)
     
-    txt <- paste("Total number of ",rv$typeOfDataset, " = ", 
+    txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ", 
                  nbTotal,"<br>",
-                 "Number of selected ",rv$typeOfDataset, " = ", 
+                 "Number of selected ",rv$typeOfDataset, "(s) = ", 
                  nbSelected,"<br>",
-                 "Number of non selected ",rv$typeOfDataset, " = ", 
+                 "Number of non selected ",rv$typeOfDataset, "(s) = ", 
                  (nbTotal-nbSelected), sep="")
     HTML(txt)
   })
@@ -2221,28 +2297,59 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
     ProstarVersion <- installed.packages()["Prostar","Version"]
     
     
-    text <- paste("<strong>ProstaR</strong> is an interface to several statistical 
-                  tools based on the MSnset format.<br>
-                  It is designed to be helpful in the domain of proteomic 
-                  analysis by mass spectrometry.<br> <br>
+    text <- paste("<strong>DAPAR</strong> and <strong>ProStaR</strong> form a software suite for quantitative 
+                  analysis of mass spectrometry based proteomics, more specifically designed to process 
+                  relative quantitative data from discovery experiments.<br> <br>
                   
                   
-                  It is composed of two parts which are R packages : <br>", 
+                  It is composed of two distinct R packages : <br>", 
                   "<ul style=\"list-style-type:disc;\">
                   <li>
-                  <a href=\"http://www.bioconductor.org/packages/release/bioc/html/Prostar.html\"
-                  title=\"here\" target=\"_blank\">Prostar</a> 
-                  package (version ",ProstarVersion, ") that contains the GUI itself (direct link to the 
-                  <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf\"
-                  title=\"here\" target=\"_blank\">User manual</a>)
+                    <a href=\"http://www.bioconductor.org/packages/release/bioc/html/Prostar.html\"
+                    title=\"here\" target=\"_blank\">Prostar</a> 
+                    package (version ",ProstarVersion, "): the web based graphical user interface to DAPAR 
                   </li>
                   <li>
-                  <a href=\"http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html\"
-                  title=\"here\" target=\"_blank\">DAPAR</a>
-                  (version ",daparVersion, 
-                  ") that is a collection of tools and graphs dedicated to 
-                  proteomic analysis</li>
-                  </ul>" , sep="")
+                    <a href=\"http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html\"
+                    title=\"here\" target=\"_blank\">DAPAR</a>
+                    (version ",daparVersion,"): a collection of tools and graphs dedicated to 
+                    proteomic analysis
+                  </li>
+                  </ul> 
+              
+                  In addition, it is bind numerous other R packages available on <a href=\"the https://cran.r-project.org/\"
+                    title=\"here\" target=\"_blank\">CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
+                    title=\"here\" target=\"_blank\">Bioconductor</a>, 
+                  among which <a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
+                    title=\"here\" target=\"_blank\">MSnbase</a>, which has introduced Msnsets, the data structure on which all the processing are based.
+                  <br>
+                  Here is a brief overview of the available functionalities:
+                  <ul style=\"list-style-type:disc;\">
+                  <li>  
+                  Descriptive statistics are available, for exploration and visualization of the quantitative dataset;
+                   </li>
+
+                  <li>  
+                  Filtering options allows pruning the protein or peptide list according to various criteria (missing values, contaminants, reverse sequences);
+                  </li>
+
+                  <li>
+                  Cross replicate normalization, so as to make the quantitative values comparable between the different analyzed samples;
+                  </li>
+
+                  <li>  
+                  Missing values imputation with different methods, depending on the nature of the missing values;
+                  </li>
+                  
+                  <li>
+                  Differential analysis, which includes null hypothesis significance testing as well as multiple testing correction (for false discovery rate estimation).
+                  </li>
+                  
+                  </ul>
+                  
+                  <br>
+                  <br>
+                  For more details, please refer to the \"Help\" tab.", sep="")
     
     HTML(text)
     
@@ -2259,8 +2366,11 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   })
   
   ########################################################
-  output$limmaplot <- renderDataTable({
+  output$limmaplot <- DT::renderDataTable({
     rv$current.obj
+    input$diffAnaMethod
+    input$seuilLogFC
+    input$seuilPVal
     
     if ( is.null(rv$current.obj) ||
          is.null(input$seuilLogFC)    ||

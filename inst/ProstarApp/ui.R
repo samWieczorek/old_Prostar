@@ -108,51 +108,7 @@ shinyUI <- tagList(
                       #     ),
                       # 
                       uiOutput("aboutText")
-                      ,hr()
-                      ,h3("Processing tools")
-                      ,HTML("<ul style=\"list-style-type:disc;\">
-                      <li>
-                      Descriptive  statistics: Exploration  and  visualization  of  your  dataset  with  a detailed  overview,  which  includes  the  following  functionalities:
-                      <ul style=\"list-style-type:disc;\">
-                      <li>Missing  Valuesexploration, </li>
-                      <li>heatmap and correlation matrices, </li>
-                      <li>boxplots,</li> 
-                      <li>expectation and variancedistribution.</li>
-                      </ul>
-                      </li>
-                      <br> 
-                      <li>
-                      Filtering: alter proteins according to their number of missing values in each condition
-                      </li>
-                      <br> 
-                      <li>
-                      Cross replicate normalisation, with the following methods:
-                      <ul style=\"list-style-type:disc;\">
-                      <li> global rescaling (quantiles method, proportion method),</li> 
-                      <li> median or mean centering (overall orwithin conditions), </li>
-                      <li> mean centering and scaling (overall or within conditions).</li>
-                      </ul>
                       
-                      </li>
-                      
-                      <br> 
-                      <li>
-                      Missing  values imputation:
-                      <ul style=\"list-style-type:disc;\">
-                      <li>(i)  for  random  occurences: k-nearest-neighbors, Bayesian Principal Component Analysis and Maximum Likelihood Estimation;</li>
-                      <li>for left censored missing values: Quantile Regression for Imputation of Left Censored data.</li>
-                      </ul>
-                      </li>
-                      <br>
-                      <li>
-                      Aggregation: Aggregate peptides into proteins.
-                      </li>
-                      <br>
-                      <li>
-                      Differential analysis, according to a Welch t-test or a Limma moderated t-test.
-                      </li>
-                      
-                      </ul>")
                       ),
    
              navbarMenu("Dataset manager",
@@ -291,7 +247,7 @@ shinyUI <- tagList(
                           id = "wellPanel_changeDataset",
                           condition = TRUE,
                           width=widthWellPanel,
-                      dataTableOutput("log")
+                      dataTableOutput("logSession")
                      # )
                       ))
              
@@ -683,14 +639,14 @@ will be showed and it will be possible to perform the aggregation"),
                                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                                           wellPanel(id = "sidebar_DiffAna4",
                                                                     height = "100%",
-                                                                    uiOutput("diffAnalysis_sidebarPanelTab4")
+                                                                    actionButton("ValidDiffAna","Save diff analysis")
                                                           ),
                                                           
                                                           conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",
                                                                     condition = TRUE,
                                                                     dataTableOutput("limmaplot"),
-                                                                    br(),
-                                                                    uiOutput("DiffAnalysisSaved")
+                                                                    br()
+                                                                    ,uiOutput("DiffAnalysisSaved")
                                                                     )
                                                           )
                                               ) # end tabPanel(title = "4 - Validate and Save", 
@@ -708,7 +664,7 @@ will be showed and it will be possible to perform the aggregation"),
                                                     <a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
                                                     title=\"here\" target=\"_blank\">here</a>. <br>")
                                       ),
-                        tabPanel(title="Refs", htmlOutput("References")
+                        tabPanel(id = "Help", title="Help", htmlOutput("References")
                                       )
              )
     
