@@ -292,12 +292,12 @@ output$DS_sidebarPanel_Boxplot <- renderUI({
 output$tabToShow <- renderUI({
   input$DS_TabsChoice
   
-  if (input$DS_TabsChoice == "tabExprs"){dataTableOutput("viewExprs")}
-  else if (input$DS_TabsChoice == "tabfData"){dataTableOutput("viewfData")}
-  else if (input$DS_TabsChoice == "tabpData"){dataTableOutput("viewpData")}
+  if (input$DS_TabsChoice == "tabExprs"){DT::dataTableOutput("viewExprs")}
+  else if (input$DS_TabsChoice == "tabfData"){DT::dataTableOutput("viewfData")}
+  else if (input$DS_TabsChoice == "tabpData"){DT::dataTableOutput("viewpData")}
   else if (input$DS_TabsChoice == "processingData"){
     helpText("Previous operations made on the original dataset :")
-    dataTableOutput("viewProcessingData")
+    DT::dataTableOutput("viewProcessingData")
     }
   
 })
@@ -1979,6 +1979,12 @@ hypotheses was set to", input$numericValCalibration, sep= " ")}
   
   
   
+  output$topNOption <- renderUI({
+    input$aggregationMethod
+    if(input$aggregationMethod == gAgregateMethod$topn)
+      numericInput("nTopn", "nTopn",value = NULL, min = 0)
+  })
+  
   ##' Select the labels to show in densityplots
   ##' @author Samuel Wieczorek
   output$nShow_DS <- renderUI({
@@ -2958,7 +2964,7 @@ t <- "Same as \"Mean Centering – within conditions\", however, in addition, th
     tabPanel(title="logTabPanel",
              value = "tabLogSession",
              h3(paste("R session",Sys.getpid(),sep=" ")),
-             dataTableOutput("log")
+             DT::dataTableOutput("log")
     )
   })
   

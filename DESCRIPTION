@@ -12,15 +12,23 @@ Authors@R: c(person(given = "Samuel", family = "Wieczorek",
              person(given = "Thomas", family ="Burger",
 	            email = "thomas.burger@cea.fr",
 		    role = "aut"))
-Author: 
-    Samuel Wieczorek [cre,aut],
+Author: Samuel Wieczorek [cre,aut],
     Florence Combes [aut],
     Thomas Burger [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics, GUI
 License: Artistic-2.0
-Depends: R (>= 3.3), DAPAR (>= 1.3.8), shiny
-Imports: rhandsontable, data.table, DT, shinyjs
-Suggests: BiocStyle
+Depends:
+    R (>= 3.3),
+    DAPAR (>= 1.3.8)
+Imports:
+    rhandsontable,
+    data.table,
+    shiny,
+    DT,
+    shinyjs
+Suggests:
+    BiocStyle
 NeedsCompilation: no
+RoxygenNote: 5.0.1

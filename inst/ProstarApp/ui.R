@@ -93,8 +93,8 @@ shinyUI <- tagList(
                   cursor = "default",
                   
                   # fluidRow(
-                  #  column(6,p("Version of datasets")),
-                  selectInput("datasets", "Version of datasets", choices = list("None"=""), width = '200px')
+                  #  column(6,p("Dataset versions")),
+                  selectInput("datasets", "Dataset versions", choices = list("None"=""), width = '200px')
                   #  )
     ),
 
@@ -196,7 +196,7 @@ shinyUI <- tagList(
                                                 value = "Import2",
                                                 width = widthWellPanel,
                                                 #helpText("TODO"),
-                                                helpText("Attention : it is mandatory that the column 
+                                                helpText("Warning : it is mandatory that the column 
                                                          \"Label\" is filled."),
                                                 br(),
                                                 rHandsontableOutput("hot"
@@ -524,11 +524,7 @@ at least this threshold value are kept. This filtering threshold may be applied 
                                                                       selectInput("aggregationMethod",
                                                                                   "Aggregation methods",
                                                                                   choices =  gAgregateMethod),
-                                                                      conditionalPanel(
-                                                                        condition='input.aggregationMethod == "sum on top n"',
-                                                                        numericInput("nTopn", "nTopn",
-                                                                                     value = NULL,
-                                                                                     min = 0)),
+                                                                      uiOutput("topNOption"),
                                                                       actionButton("perform.aggregation","Perform aggregation")
                                                                       
                                                             ),
@@ -585,7 +581,7 @@ will be showed and it will be possible to perform the aggregation"),
                                                                     uiOutput("nbSelectedItems"),
                                                                     plotOutput("volcanoplot", height="500px", width="600px")
                                      ))),
-                                     tabPanel(title = "2 - Calibrate Ana Diff",
+                                     tabPanel(title = "2 - P-value calibration",
                                               value = "DiffAnalysis_Calibrate",
                                               
                                               sidebarCustom(),
