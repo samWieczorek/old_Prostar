@@ -6,7 +6,6 @@ library(shiny)
 library(rhandsontable)
 library(data.table)
 library(reshape2)
-#library(quantmod)
 library(DT)
 
 
@@ -421,7 +420,7 @@ output$tabToShow <- renderUI({
     rv$dataset[[name]] <- rv$current.obj
     UpdateFilterWidgets()
     updateSelectInput(session, "datasets", 
-                      label = "Version of datasets",
+                      label = "Dataset versions",
                       choices = names(rv$dataset),
                       selected = name)
     
