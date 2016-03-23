@@ -670,7 +670,7 @@ This step cannot be conducted if the dataset still contains some missing values:
 \end{itemize}}
 
 
-\textcolor{red}{\textbf {Volcano plot} (see Fig.~\ref{fig:anadiff1})}: It is a scatter plot where each analyte is represented by 2 coordinates, namely a $p$-value on the Y-axis (more precisely -log10($p$-value)) and a fold change (FC) on the X-axis. Regarding the computation of the $p$-values, two tests are available in \Biocpkg{DAPAR}, depending on the user's choice: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
+\textbf {Volcano plot} (see Fig.~\ref{fig:anadiff1}): It is a scatter plot where each analyte is represented by 2 coordinates, namely a $p$-value on the Y-axis (more precisely -log10($p$-value)) and a fold change (FC) on the X-axis. Regarding the computation of the $p$-values, two tests are available in \Biocpkg{DAPAR}, depending on the user's choice: the Welch $t$-test (from package \CRANpkg{stats}) and the moderated $t$-test (from package \Biocpkg{limma}).
 As an option, it is possible to redefined the sets of conditions that are tested one against the other. 
 Then, the $p$-values are computed and a volcanoplot is displayed. %It shows on the $x$ axis the Fold Change (FC) between the two conditions, and on the $y$ axis, . 
 Finally, the user can tune a threshold on the FC. It allows discriminating some analytes for which the difference of expression between the condition is not important enough to be biologically relevant.
@@ -682,7 +682,7 @@ Finally, the user can tune a threshold on the FC. It allows discriminating some 
 \end {figure}
 
 
-\textcolor{red}{\textbf{$p$-value calibration} (see Fig.~\ref{fig:anadiff2})}: In this tab, the fonctionalities of \CRANpkg{CP4P} have been wrapped. Future versions of \Biocpkg{ProStaR} will propose a more refined integration. To date, we redirect the reader to the \CRANpkg{CP4P} tutorial: \url{https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf?attredirects=0}. 
+\textbf{$p$-value calibration (see Fig.~\ref{fig:anadiff2})}: In this tab, the fonctionalities of \CRANpkg{CP4P} have been wrapped. Future versions of \Biocpkg{ProStaR} will propose a more refined integration. To date, we redirect the reader to the \CRANpkg{CP4P} tutorial: \url{https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf?attredirects=0}. 
 
 \begin {figure}
 \centering
@@ -697,15 +697,15 @@ Finally, the user can tune a threshold on the FC. It allows discriminating some 
 \caption{p-Value threshold of the differential analysis tool - 3.}\label{fig:anadiff3}
 \end {figure}
 
-\textcolor{red}{\textbf{FDR} (see Fig.~\ref{fig:anadiff3})}: This tab also displays the volcano plot. A threshold along the $p$-value axis can be tuned by the user, so as to discriminate the differentially abondant proteins (which are highlighted). A horizontal straight line is drawn to visualize the threshold. The corresponding FDR is computed. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
+\textbf{FDR} (see Fig.~\ref{fig:anadiff3}): This tab also displays the volcano plot. A threshold along the $p$-value axis can be tuned by the user, so as to discriminate the differentially abondant proteins (which are highlighted). A horizontal straight line is drawn to visualize the threshold. The corresponding FDR is computed. The user can adjust the thresholds in order to select the maximum of proteins by minimizing the FDR.
 
 
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the function used to compute the FDR is \Rfunction{diffAnaComputeFDR()}.
 
 
-\textcolor{red}{\textbf{Validate \& save} (see Fig.~\ref{fig:anadiff4})}: 
-A table shows the results of the statistical test (see Fig.~\ref{fig:anadiff4}): the value of -log10(p-value) and the Fold Change (\emph{i.e.} the log2 of the ratio of the mean values per condition). Finally, it is advised to save the results by clicking on "Save diff analysis". Then, a new "\textcolor{red}{Anadiff}" dataset is created and loaded in memory. This dataset is the same as the previous one, except that three columns have been added in the "Quantitative data" table: "-log10(p-value)",  "Fold Change" and "Significant". The two first contain the coordinates of the proteins on the volcano plot, and the third one contains a boolean value indicating whether each protein is differentially abondant or not. As with the other processing steps, the information related to the user's choices is added to the "Session log" tab (see section~\ref{sec:sessionlog}) of this new dataset.
-It becomes the new current dataset and its name, "DiffAnalysis.<test>" (where <test> indicates the test performed), appears in "Dataset versions". All plots and tables in other menus are automatically updated. \textcolor{red}{Note that it is possible to keep stored in memory different "DiffAnalysis" datasets: one for each type of <test>.}
+\textbf{Validate \& save (see Fig.~\ref{fig:anadiff4})}: 
+A table shows the results of the statistical test (see Fig.~\ref{fig:anadiff4}): the value of -log10(p-value) and the Fold Change (\emph{i.e.} the log2 of the ratio of the mean values per condition). Finally, it is advised to save the results by clicking on "Save diff analysis". Then, a new "DiffAnalysis" dataset is created and loaded in memory. This dataset is the same as the previous one, except that three columns have been added in the "Quantitative data" table: "-log10(p-value)",  "Fold Change" and "Significant". The two first contain the coordinates of the proteins on the volcano plot, and the third one contains a boolean value indicating whether each protein is differentially abondant or not. As with the other processing steps, the information related to the user's choices is added to the "Session log" tab (see section~\ref{sec:sessionlog}) of this new dataset.
+It becomes the new current dataset and its name, "DiffAnalysis.<test>" (where <test> indicates the test performed), appears in "Dataset versions". All plots and tables in other menus are automatically updated. Note that it is possible to keep stored in memory different "DiffAnalysis" datasets: one for each type of <test>.
 
 
 \begin{figure}

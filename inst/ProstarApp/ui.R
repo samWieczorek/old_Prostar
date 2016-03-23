@@ -566,7 +566,7 @@ will be showed and it will be possible to perform the aggregation"),
                                tabsetPanel(
                                        title = "diffAnalysis_tabSetPanel",
                                        id = "diffAnalysis_tabSetPanel",
-                                       tabPanel(title = "1 - Volcanoplot",
+                                       tabPanel(title = "1 - Volcano plot",
                                               value = "DiffAnalysis_Volcanoplot",
                                               sidebarCustom(),
                                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -581,7 +581,7 @@ will be showed and it will be possible to perform the aggregation"),
                                                                     uiOutput("nbSelectedItems"),
                                                                     plotOutput("volcanoplot", height="500px", width="600px")
                                      ))),
-                                     tabPanel(title = "2 - P-value calibration",
+                                     tabPanel(title = "2 - p-value calibration",
                                               value = "DiffAnalysis_Calibrate",
                                               
                                               sidebarCustom(),
@@ -604,7 +604,7 @@ will be showed and it will be possible to perform the aggregation"),
                                                           ))
                                               ),
                                      
-                                     tabPanel(title = "3 - Visualize FDR",
+                                     tabPanel(title = "3 - FDR",
                                               value = "DiffAnalysis_viewFDR",
                                               
                                               sidebarCustom(),
@@ -629,7 +629,7 @@ will be showed and it will be possible to perform the aggregation"),
                                                                     
                                      ), # end tabPanel(title = "3 - Visualize FDR"
                                      
-                                     tabPanel(title = "4 - Validate and Save",
+                                     tabPanel(title = "4 - Validate & save",
                                               value = "DiffAnalysis_ValidateAndSave",
                                               sidebarCustom(),
                                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
