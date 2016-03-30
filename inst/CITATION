@@ -1,7 +1,8 @@
 citHeader("To cite the DAPAR package in publications use:")
 
 citEntry(entry="article",  
-         title  = "DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics.",
+        title  = "DAPAR & ProStaR: software to perform statistical analyses 
+        in quantitative discovery proteomics.",
          author = personList(
            person(given="Samuel", family="Wieczorek"),
            person(given="Florence", family="Combes"),
@@ -14,9 +15,10 @@ citEntry(entry="article",
            person(given="Myriam", family="Ferro"),
            person(given="Christophe", family="Bruley"),
            person(given="Thomas", family="Burger")),
-         journal = "Bioinformatics",
-         year = "2016",
-         textVersion = paste("Samuel Wieczorek et al.",
-           "DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics",
-           "Bioinformatics (28, 288-289)under (minor) revisions (2016).")
+        journal = "Bioinformatics",
+        year = "2016",
+        textVersion = paste("Samuel Wieczorek et al.",
+            "DAPAR & ProStaR: software to perform statistical analyses in 
+            quantitative discovery proteomics",
+            "Bioinformatics (28, 288-289)under (minor) revisions (2016).")
          )

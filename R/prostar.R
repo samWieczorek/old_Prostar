@@ -6,12 +6,11 @@
 ##' @examples
 ##' if(interactive()) {Prostar()}
 Prostar <-
-  function(){
-          G <- .GlobalEnv
-         
+function(){
+        G <- .GlobalEnv
+
     options(shiny.maxRequestSize=1024^3)
     a=shiny::runApp(system.file("ProstarApp",package="Prostar"),
                     launch.browser = TRUE)
     return(invisible(a))
-  }
-
+}
