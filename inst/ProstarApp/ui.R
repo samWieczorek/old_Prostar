@@ -111,7 +111,7 @@ sidebarPanelWidth()
 ,useShinyjs()
 
 ,navbarPage(
-    
+    #id = "navPage",
     absolutePanel(id  = "#AbsolutePanel",
                 top = 10,
                 right = 300,
@@ -132,6 +132,7 @@ sidebarPanelWidth()
 
 
             tabPanel(test,
+                    #id = "about",
                     # img(src="images/cover.jpg"
                     #     , width = "300px"
                     #     , height="300px"
@@ -140,25 +141,26 @@ sidebarPanelWidth()
                     uiOutput("aboutText")
                     ),
     
-navbarMenu("Dataset manager",
-    id = "DS"
+navbarMenu("Dataset manager"
+#           id = "datasetManagerMenu"
     ,tabPanel("Open MSnset file",
-    #title="Open a MSnset file",
-    #icon = icon("file"),
-    value = "open",
-    sidebarCustom(),
-    splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-        wellPanel(id = "wellPanelFileOpen"
-            ,fileInput("file", 
+        #title="Open a MSnset file",
+        #icon = icon("file"),
+        id = "openMSnSet",
+        value = "open",
+        sidebarCustom(),
+        splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+            wellPanel(id = "wellPanelFileOpen"
+                ,fileInput("file", 
                         "Open a MSnset file",
                         multiple = FALSE)
-        ),
-        conditionalPanel(id = "wellPanelOpenFile",
-            condition = TRUE,
-            h3("Quick overview of the dataset"),
-            uiOutput("overview")
+            ),
+            conditionalPanel(id = "wellPanelOpenFile",
+                condition = TRUE,
+                h3("Quick overview of the dataset"),
+                uiOutput("overview")
+            )
         )
-    )
     ),
     tabPanel("Convert data",
         icon = icon("download"),
@@ -237,7 +239,8 @@ navbarMenu("Dataset manager",
             actionButton("createMSnsetButton","Convert data")
             ,uiOutput("conversionDone")
             )
-        ),
+        )
+    ),
 
     tabPanel("Export",
         value = "export",
@@ -267,7 +270,6 @@ navbarMenu("Dataset manager",
             dataTableOutput("logSession")
             )
         )
-    )
     ),
     
     
@@ -587,10 +589,10 @@ tabPanel(title = "2 - Configure protein dataset",
                 actionButton("valid.aggregation",
                             "Save aggregation", 
                             styleclass = "primary")
-            )
+                    )
+                )
         )
     )
-)
 )
 ),
 
@@ -636,6 +638,7 @@ tabPanel("Differential analysis",
             )
         ),
         tabPanel(title = "3 - FDR",
+            id = "DiffAnalysis_viewFDR",
             value = "DiffAnalysis_viewFDR",
             sidebarCustom(),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -660,6 +663,7 @@ tabPanel("Differential analysis",
             )
         ), # end tabPanel(title = "3 - Visualize FDR"
         tabPanel(title = "4 - Validate & save",
+                 id = "panelDiffAnaSave",
             value = "DiffAnalysis_ValidateAndSave",
             sidebarCustom(),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),

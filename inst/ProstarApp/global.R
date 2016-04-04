@@ -1,5 +1,6 @@
 # Declaration of global variables
 
+commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"
 gFileExtension <- list(txt = ".txt",
                         msnset = ".MSnset",
@@ -189,4 +190,57 @@ tagList(
     )
 )	
 }
+
+
+findSequences <- function(v){
+    diff <- v[2:length(v)] - v[1:(length(v)-1)]
+    
+    if (!all(diff != 1)){
+        s <- rle(diff == 1)
+        begin <- c(0, cumsum(s$lengths))[which(s$values)] + 1
+        end <- cumsum(s$lengths)[which(s$values)] +1
+
+        seq <- "c("
+        temp <- NULL
+        i <- 1
+    
+        while(i < begin[1] && i < length(v))
+        {
+            seq <- paste(seq, v[i], ",", sep="")
+            i <- i + 1
+        }
+    
+        for (i in 1:length(begin)){
+         seq <- paste(seq, v[begin[i]], ":", v[end[i]], sep="")
+            if (i < length(begin)) {seq <- paste(seq, ",", sep="")}
+            if (i < length(begin) && ((begin[i+1] - end[i]) > 1)){
+                for(j in c((end[i]+1):(begin[i+1]-1))) {
+                    seq <- paste(seq, v[j], ",", sep="")
+                }
+            }
+        }
+    
+        i <- last(end) +1
+        if (i <= length(v)) {seq <- paste(seq, ",", sep="")}
+        while(i <= length(v))
+        {
+            seq <- paste(seq, v[i])
+            if (i < length(v)) {seq <- paste(seq, ",", sep="")}
+            i <- i +1
+        }
+    
+    
+        seq <- paste(seq, ")", sep="")
+    
+        }
+    else 
+        {
+        seq <- paste("c(", paste(diff, collapse=","),")", sep="")
+        }
+    return(seq)
+}
+
+
+
+
 
