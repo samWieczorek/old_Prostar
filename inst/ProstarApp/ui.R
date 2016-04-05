@@ -512,10 +512,7 @@ tabPanel("Miss. values imputation",
                     height = "100%"
                     ,h4("Miss. values imputation options")
                     ,br()
-                    ,selectInput("missing.value.algorithm",
-                                "Choose algorithm",
-                                choices = names(imputationAlgorithms)
-                    ),
+                    ,uiOutput("chooseImputationMethod"),
                     actionButton("perform.imputation.button",
                                 "Perform imputation"),
                     actionButton("ValidImputation", 

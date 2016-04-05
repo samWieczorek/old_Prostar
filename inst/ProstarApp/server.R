@@ -129,6 +129,12 @@ HTML("This corresponds to the ratio: <br>Condition 2 / Condition 1.")
 
 
 output$diffAnalysis_sidebarPanelTab2 <- renderUI({
+    calibMethod <- "pounds"
+    if ("logFC" %in% names(fData(rv$current.obj) )){
+        calibMethod <- rv$current.obj@experimentData@other$calibrationMethod
+        if (is.null(calibMethod)) calibMethod <- "pounds"
+    }
+    
     conditionalPanel(condition=TRUE,
                     selectInput("calibrationMethod", 
                                 "Choose the calibration method",
@@ -137,25 +143,39 @@ output$diffAnalysis_sidebarPanelTab2 <- renderUI({
                                             "pounds", "abh","slim", 
                                             "Benjamini-Hochberg", 
                                             "numeric value"),
-                                selected = "pounds"),
+                                selected = calibMethod),
                     uiOutput("numericalValForCalibrationPlot"))
     })
 
 output$diffAnalysis_sidebarPanelTab3 <- renderUI({
+    threshold.PVal <- 0
+    if ("logFC" %in% names(fData(rv$current.obj) )){
+        threshold.PVal <- rv$current.obj@experimentData@other$threshold.p.value
+        #cond2 <- rv$current.obj@experimentData@other$condition2
+    }
+    
+    
     conditionalPanel(condition=TRUE,
                     numericInput("seuilPVal", 
                                 "Define the -log10(p.value) threshold",
-                                min = 0,value = 0,step=0.1)
+                                min = 0,value = threshold.PVal,step=0.1)
 ) })
 
 
 
 
 output$DP_sidebar_FilterTab1 <- renderUI({
+    
+    filter <- NULL
+    print(rv$current.obj@experimentData@other$mvFilter.method)
+    tag <- rv$current.obj@experimentData@other$mvFilter.method
+    if (!is.null(tag)) { filter <- tag}
     conditionalPanel(condition=TRUE
                     ,h4("Missing values filtering options")
                     ,hr()
-                    ,radioButtons("ChooseFilters","", choices = gFiltersList)
+                    ,radioButtons("ChooseFilters","", 
+                                choices = gFiltersList,
+                                selected = filter)
                     ,conditionalPanel(
                         condition='input.ChooseFilters != "None"',
                         uiOutput("seuilNADelete"))
@@ -1305,6 +1325,23 @@ output$choixFiltres <- renderUI({
     
 })
 
+
+
+output$chooseImputationMethod <- renderUI({
+    if (is.null(rv$current.obj)) {return(NULL)}
+    m <- NULL
+    tag <- rv$current.obj@experimentData@other$imputation.method
+    if (!is.null(tag)){ m <- tag}
+    print(m)
+    print(tag)
+    print(imputationAlgorithms[[m]])
+    selectInput("missing.value.algorithm",
+                "Choose algorithm",
+                choices = names(imputationAlgorithms),
+                selected = names(which(imputationAlgorithms == tag))
+    )
+    
+})
 #########################################################
 ##' Show the widget (slider input) for filtering
 ##' @author Samuel Wieczorek
@@ -1318,13 +1355,17 @@ output$seuilNADelete <- renderUI({
     vMax <- GetMaxValueThresholdFilter()
     choix[[1]] <- 0
     for (i in 2:(vMax+1)){
-    choix[[i]] <- i-1
+        choix[[i]] <- i-1
     }
-    
+    ch <- NULL
+    tag <- rv$current.obj@experimentData@other$mvFilter.threshold
+    print(tag)
+    if (!is.null(tag)) { ch <- tag}
+    else {ch <- choix[[1]]}
     selectInput(inputId = "seuilNA", 
                 label = "Keep lines with at least x intensity values", 
                 choices = choix, 
-                selected = choix[[1]])
+                selected = ch)
     
 })
 
@@ -1836,6 +1877,15 @@ output$choose_Normalization_Test <- renderUI({
     if (is.null(rv$current.obj)) { return (NULL)}
     
     #isolate({
+    
+    # check if the normalisation has already been performed
+    m <- NULL
+    if( !is.null(rv$current.obj@experimentData@other$normalizationFamily)
+        && !is.null(rv$current.obj@experimentData@other$normalizationMethod)) { 
+        family <- rv$current.obj@experimentData@other$normalizationFamily
+        method <- rv$current.obj@experimentData@other$normalizationMethod
+        m <- paste(family, method, sep=" - ")
+    }
     if (GetNbNA() == 0){
     choices <- normMethods
     } else {
@@ -1844,7 +1894,8 @@ output$choose_Normalization_Test <- renderUI({
     
     selectInput("normalization.method", 
                 "Choose normalization method", 
-                names(choices))
+                names(choices), 
+                selected = m)
 })
 
 
@@ -2341,7 +2392,14 @@ output$nbSelectedItemsStep3 <- renderUI({
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
         return(NULL)}
     
-    p <- RunDiffAna()
+    p <- NULL
+    if ("P.Value"  %in% names(fData(rv$current.obj))){
+        p$P.Value <- fData(rv$current.obj)$P.Value
+        p$logFC <- fData(rv$current.obj)$logFC
+    }else {
+        p <- RunDiffAna()
+    }
+    
     if (is.null(p)) {return (NULL)}
     upItemsPVal <- NULL
     upItemsLogFC <- NULL
@@ -2430,7 +2488,6 @@ output$volcanoplot <- renderPlot({
     #Si on a deja des pVal, alors, ne pas recalculer 
     if ("logFC" %in% names(fData(rv$current.obj) )){
         
-        print("toto")
         cond <- c(rv$current.obj@experimentData@other$condition1,
                   rv$current.obj@experimentData@other$condition2)
         
@@ -2823,16 +2880,11 @@ observe({
             
             #temp <- temp[-ind]
             temp <- deleteLinesFromIndices(temp, ind, 
-                paste("'", length(ind), "contaminants were removed from dataset.'",
+        paste("'", length(ind), "contaminants were removed from dataset.'",
                     sep=" ")
             )
             
             #write command log
-           #l <- paste(ind,",", collapse="")
-           #writeToCommandLogFile(
-            #   paste("indContaminants <- ", findSequences(ind),
-           #          sep=""))
-           
             writeToCommandLogFile(
                 paste(
                 "indContaminants <- getIndicesOfLinesToRemove(",
@@ -2854,6 +2906,9 @@ observe({
                    "deleteLinesFromIndices(current.obj, indContaminants, txt)",
                    sep="")
            )
+           
+           
+           
             }
         }
         
@@ -2905,6 +2960,8 @@ observe({
         
         rv$current.obj <- temp
     }
+        
+        
     updateSelectInput(session, "idBoxReverse",
                     selected = input$idBoxReverse)
     updateSelectInput(session, "idBoxContaminants",

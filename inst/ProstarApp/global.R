@@ -63,17 +63,10 @@ normMethods <- list("None" = "None",
 
 
 imputationAlgorithms <- list("None" = "None",
-                            "LeftCensored - QRILC" = 
-                            "LeftCensored - QRILC",
-
-                            "RandomOccurence - BPCA" = 
-                            "RandomOccurence - BPCA",
-
-                            "RandomOccurence - KNN" = 
-                            "RandomOccurence - KNN",
-
-                            "RandomOccurence - MLE" = 
-                            "RandomOccurence - MLE"
+                            "LeftCensored - QRILC" = "QRILC",
+                            "RandomOccurence - BPCA" = "BPCA",
+                            "RandomOccurence - KNN" = "KNN",
+                            "RandomOccurence - MLE" = "MLE"
 )
 
 JSCSSTags <- function() 
