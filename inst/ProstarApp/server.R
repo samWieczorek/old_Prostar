@@ -623,6 +623,13 @@ observe({
     })
 })
 
+##----------------------------------------------------
+output$chooseImputationMethod <- renderUI({
+  selectInput("missing.value.algorithm", 
+              "Choose algorithm",
+              choices = names(imputationAlgorithms))
+})
+
 
 
 ##' -- Validate the normalization ---------------------------------------
