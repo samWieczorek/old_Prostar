@@ -17,18 +17,13 @@ Author: Samuel Wieczorek [cre,aut],
     Thomas Burger [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
-biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics, GUI
+biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics,
+        GUI
 License: Artistic-2.0
-Depends:
-    R (>= 3.3)
-Imports:
-    DAPAR (>= 1.3.8),
-    rhandsontable,
-    data.table,
-    shinyjs,
-    DT,
-    shiny
-Suggests:
-    BiocStyle
+Depends: R (>= 3.3)
+Imports: DAPAR (>= 1.3.8), rhandsontable, data.table, shinyjs, DT,
+        shiny
+Suggests: BiocStyle
 NeedsCompilation: no
 RoxygenNote: 5.0.1
+Packaged: 2016-04-05 11:29:55 UTC; sw175264

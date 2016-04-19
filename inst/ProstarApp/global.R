@@ -7,9 +7,10 @@ gFileExtension <- list(txt = ".txt",
                         excel = ".xls",
                         zip = ".zip")
 
-gAgregateMethod <- list(sum = "sum overall",
-                        mean = "mean",
-                        topn = "sum on top n")
+gAgregateMethod <- list("none" = "none",
+                        "sum overall" = "sum overall",
+                        "mean" = "mean",
+                        "sum on top n" = "sum on top n")
 
 gFiltersList <- list()
 gFiltersList[["None"]] <- "none"

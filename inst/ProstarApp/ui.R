@@ -125,7 +125,7 @@ sidebarPanelWidth()
                 selectInput("datasets", 
                             "Dataset versions", 
                             choices = list("None"=""), 
-                            width = '200px')
+                            width = '250px')
     ),
 
     "",
@@ -267,7 +267,7 @@ navbarMenu("Dataset manager"
             id = "wellPanel_changeDataset",
             condition = TRUE,
             width=widthWellPanel,
-            dataTableOutput("logSession")
+            DT::dataTableOutput("logSession")
             )
         )
     ),
@@ -335,7 +335,7 @@ tabPanel("Descriptive statistics",
                     ),
                     conditionalPanel(id = "wellPanelHeatmap",
                         condition = TRUE,
-                        width = 300,
+                        width = 800,
                         HTML("For this view, it is necessary that your dataset 
                             does not contains any NA lines. <br> Please check 
                             your data and use Filtering options or missing 
@@ -450,7 +450,7 @@ each condition <br> or on at leat one condition."),
                 ),
                 conditionalPanel(id = "wellPanelMVFilterTab3"
                     ,condition = TRUE
-                    ,dataTableOutput("VizualizeFilteredData")
+                    ,DT::dataTableOutput("VizualizeFilteredData")
                     ,helpText("After checking the data, 
                             validate the filters")
                 )
@@ -536,7 +536,7 @@ tabPanel("Aggregation",
     tabsetPanel(
         title = "agreagationTabsetPanel",
         id = "agreagationTabsetPanel",
-        tabPanel(title = "1 - Agregate peptides",
+        tabPanel(title = "1 - Aggregate peptides",
             value = "aggregation",
             sidebarCustom(),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -669,8 +669,8 @@ tabPanel("Differential analysis",
                     actionButton("ValidDiffAna","Save diff analysis")
                 ),
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",
-                    condition = TRUE,
-                    dataTableOutput("limmaplot"),
+                    condition = "true",
+                    DT::dataTableOutput("limmaplot"),
                     br()
                     ,uiOutput("DiffAnalysisSaved")
                     )

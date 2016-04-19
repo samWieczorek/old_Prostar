@@ -308,7 +308,7 @@ output$DS_sidebarPanel_tab <- renderUI({
                         "Dataset history" = "processingData")
     }
     
-    conditionalPanel(condition='TRUE',
+    conditionalPanel(condition="true",
                     radioButtons("DS_TabsChoice", "Choose the tab to display",
                                 choices = .choices),
                     br(),
@@ -330,11 +330,7 @@ conditionalPanel(condition='TRUE',
                     br(),
                     radioButtons("linkage","Linkage for clustering",
                                 choices=list(average="average",
-                                            ward.D="ward.D")),
-                    br(),
-                    radioButtons("showDendro", "Build the dendrogram", 
-                                choices = list(yes = TRUE, no = FALSE), 
-                                selected = FALSE))
+                                            ward.D="ward.D")))
 })
 
 
@@ -428,7 +424,7 @@ ComputeAdjacencyMatrix <- reactive({
 RunAggregation <- reactive({
     mat <- ComputeAdjacencyMatrix()
     n <- NULL
-    if (input$aggregationMethod == gAgregateMethod$topn) { n <- input$nTopn}
+    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { n <- input$nTopn}
     
     
     tryCatch (
@@ -621,13 +617,6 @@ observe({
         loadObjectInMemoryFromConverter()
 }
     })
-})
-
-##----------------------------------------------------
-output$chooseImputationMethod <- renderUI({
-  selectInput("missing.value.algorithm", 
-              "Choose algorithm",
-              choices = names(imputationAlgorithms))
 })
 
 
@@ -1021,8 +1010,10 @@ observe({
     input$datasets
     
     isolate({
-    if (!is.null(input$datasets))x = {
+    if (!is.null(input$datasets)) {
         rv$current.obj <- rv$dataset[[input$datasets]]
+        if (!is.null( rv$current.obj))
+            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         UpdateLog(
         paste("Current dataset has changed. Now, it is ",
             input$datasets, 
@@ -1339,9 +1330,9 @@ output$chooseImputationMethod <- renderUI({
     m <- NULL
     tag <- rv$current.obj@experimentData@other$imputation.method
     if (!is.null(tag)){ m <- tag}
-    print(m)
-    print(tag)
-    print(imputationAlgorithms[[m]])
+    #print(m)
+    #print(tag)
+    #print(imputationAlgorithms[[m]])
     selectInput("missing.value.algorithm",
                 "Choose algorithm",
                 choices = names(imputationAlgorithms),
@@ -2142,7 +2133,7 @@ output$viewDistVariance <- renderPlot({
 output$corrMatrix <- renderPlot({
     input$expGradientRate
     rv$current.obj
-    if (is.null(rv$current.obj)){return(plot.new())}
+    if (is.null(rv$current.obj)){return(NULL)}
     if (is.null(input$expGradientRate)){return(NULL)}
     wrapper.corrMatrixD(rv$current.obj, rate = input$expGradientRate)
 })
@@ -2155,7 +2146,7 @@ output$heatmap <- renderPlot({
     rv$current.obj
     input$linkage
     input$distance
-    input$showDendro
+
     
     if (is.null(rv$current.obj) 
         || is.null(input$linkage) 
@@ -2163,18 +2154,18 @@ output$heatmap <- renderPlot({
 #return(plot.new())
 }
     
-    if (getNumberOfEmptyLines(exprs(rv$current.obj)) != 0) {
-    return(NULL)
+    # if (getNumberOfEmptyLines(exprs(rv$current.obj)) != 0) {
+    # return(NULL)
+    # # plot.new()
+    # }
+    # else {  
     # plot.new()
-    }
-    else {  
-    plot.new()
     wrapper.heatmapD(rv$current.obj,
                     input$distance, 
                     input$linkage,
-                    input$showDendro) 
+                    TRUE) 
     # buildHeatmapPlot()
-    }
+    #}
 })  
 
 ##' Select the labels to be highlighted in densityplots
@@ -2207,8 +2198,11 @@ output$nGroup_DS <- renderUI({
 
 output$topNOption <- renderUI({
     input$aggregationMethod
-    if(input$aggregationMethod == gAgregateMethod$topn)
-    numericInput("nTopn", "nTopn",value = NULL, min = 0)
+    if(is.null(input$aggregationMethod )) {return(NULL)}
+   
+    if(input$aggregationMethod == gAgregateMethod[["sum on top n"]])
+        numericInput("nTopn", "nTopn",value = NULL, min = 0)
+
 })
 
 ##' Select the labels to show in densityplots
@@ -2871,117 +2865,100 @@ observe({
     if (input$perform.filtering.Contaminants == 0){return(NULL)}
     
     isolate({
-    
-    if (input$idBoxContaminants == "" && input$idBoxReverse == ""  ){
-        rv$current.obj <- rv$dataset[[input$datasets]]
-    } else {
         temp <- rv$current.obj
-        
         if (!is.null(input$idBoxContaminants)
             || (input$idBoxContaminants != "")) {
-        ind <- getIndicesOfLinesToRemove(temp,
-                                        input$idBoxContaminants, 
-                                        input$prefixContaminants)
-        if (!is.null(ind))  {
-            rv$deleted.contaminants <- temp[ind]
-            
-            #temp <- temp[-ind]
-            temp <- deleteLinesFromIndices(temp, ind, 
-        paste("'", length(ind), "contaminants were removed from dataset.'",
-                    sep=" ")
-            )
-            
-            #write command log
-            writeToCommandLogFile(
-                paste(
-                "indContaminants <- getIndicesOfLinesToRemove(",
-                "current.obj",
-                ",'", input$idBoxContaminants,
-                "', '",input$prefixContaminants,"')",
-                sep="")
-            )
-           
-           writeToCommandLogFile(
-               "deleted.contaminants <- current.obj[indContaminants]")
-           writeToCommandLogFile(
-               paste("txt <- '",
-                     length(ind),
-                     "contaminants were removed from dataset.'",
-                     sep=" "))
-           writeToCommandLogFile(
-               paste("current.obj <- ",
-                   "deleteLinesFromIndices(current.obj, indContaminants, txt)",
-                   sep="")
-           )
-           
-           
-           
+            ind <- getIndicesOfLinesToRemove(temp,
+                                             input$idBoxContaminants, 
+                                             input$prefixContaminants)
+            if (!is.null(ind))  {
+                rv$deleted.contaminants <- temp[ind]
+                
+                #temp <- temp[-ind]
+                temp <- deleteLinesFromIndices(temp, ind, 
+                                               paste("'", length(ind), 
+                                                     "contaminants were removed from dataset.'",
+                                                     sep=" ")
+                )
+                
+                #write command log
+                writeToCommandLogFile(
+                    paste(
+                        "indContaminants <- getIndicesOfLinesToRemove(",
+                        "current.obj",
+                        ",'", input$idBoxContaminants,
+                        "', '",input$prefixContaminants,"')",
+                        sep="")
+                )
+                
+                writeToCommandLogFile(
+                    "deleted.contaminants <- current.obj[indContaminants]")
+                writeToCommandLogFile(
+                    paste("txt <- '",
+                          length(ind),
+                          "contaminants were removed from dataset.'",
+                          sep=" "))
+                writeToCommandLogFile(
+                    paste("current.obj <- ",
+                          "deleteLinesFromIndices(current.obj, indContaminants, txt)",
+                          sep="")
+                )
+                
             }
         }
         
-        
         if (!is.null(input$idBoxReverse) || (input$idBoxReverse != "")){
-        ind <- getIndicesOfLinesToRemove(temp,
-                                        input$idBoxReverse,
-                                        input$prefixReverse)
-
-        if (!is.null(ind))  {
-            rv$deleted.reverse <- temp[ind]
-            temp <- deleteLinesFromIndices(temp, ind, 
-                paste(length(ind), "reverse were removed from dataset",
-                    sep=" ")
-            )
+            ind <- getIndicesOfLinesToRemove(temp,
+                                             input$idBoxReverse,
+                                             input$prefixReverse)
             
-            #temp <- temp[-ind]
-            #write command log
-            #l <- paste(ind,",", collapse="")
-            
-            # writeToCommandLogFile(
-            #     paste("indReverse <- ",findSequences(ind),
-            #           sep=""))
-             
-             writeToCommandLogFile(
-                 paste(
-                     "indReverse <- getIndicesOfLinesToRemove(",
-                     "current.obj",
-                     ",'", input$idBoxReverse,
-                     "', '",input$prefixReverse,"')",
-                     sep="")
-             )
-             
-             
-             writeToCommandLogFile(
-                 "deleted.reverse <- current.obj[indReverse]")
-             writeToCommandLogFile(
-                 paste("txt <- '",
-                       length(ind),
-                       "reverse were removed from dataset.'",
-                       sep=" "))
-             writeToCommandLogFile(
-                 paste("current.obj <- ",
-                       "deleteLinesFromIndices(current.obj, indReverse, txt)",
-                       sep="")
-             )
-        }
+            if (!is.null(ind))  {
+                rv$deleted.reverse <- temp[ind]
+                temp <- deleteLinesFromIndices(temp, ind, 
+                                               paste(length(ind), "reverse were removed from dataset",
+                                                     sep=" ")
+                )
+                
+                writeToCommandLogFile(
+                    paste(
+                        "indReverse <- getIndicesOfLinesToRemove(",
+                        "current.obj",
+                        ",'", input$idBoxReverse,
+                        "', '",input$prefixReverse,"')",
+                        sep="")
+                )
+                
+                writeToCommandLogFile(
+                    "deleted.reverse <- current.obj[indReverse]")
+                writeToCommandLogFile(
+                    paste("txt <- '",
+                          length(ind),
+                          "reverse were removed from dataset.'",
+                          sep=" "))
+                writeToCommandLogFile(
+                    paste("current.obj <- ",
+                          "deleteLinesFromIndices(current.obj, indReverse, txt)",
+                          sep="")
+                )
+            }
         }
         
         rv$current.obj <- temp
-    }
         
+        updateSelectInput(session, "idBoxReverse",
+                          selected = input$idBoxReverse)
+        updateSelectInput(session, "idBoxContaminants",
+                          selected = input$idBoxContaminants)
+        updateSelectInput(session, "prefixContaminants", 
+                          selected = input$prefixContaminants)
+        updateSelectInput(session, "prefixReverse",
+                          selected = input$prefixReverse)
         
-    updateSelectInput(session, "idBoxReverse",
-                    selected = input$idBoxReverse)
-    updateSelectInput(session, "idBoxContaminants",
-                    selected = input$idBoxContaminants)
-    updateSelectInput(session, "prefixContaminants", 
-                    selected = input$prefixContaminants)
-    updateSelectInput(session, "prefixReverse",
-                    selected = input$prefixReverse)
-    
-    updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
-    
+        updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
+        
     })
 })
+
 
 
 
@@ -3052,16 +3029,21 @@ observe({
 })
 
 
+#-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
     rv$temp.aggregate
-    if (is.null(rv$temp.aggregate) ) 
+    input$aggregationMethod
+    input$perform.aggregation
+    
+    if (is.null(rv$temp.aggregate) && input$perform.aggregation == 0) 
     {return(NULL)  }
-    else {
-    h3("Aggregation done !")
+    else if (input$aggregationMethod != "none"){
+    h3(paste("Aggregation done with the ", input$aggregationMethod, " method.", sep=""))
     }
 })
 
 
+#-----------------------------------------------
 output$aggregationPlot <- renderPlot({
     input$proteinId
     rv$current.obj
@@ -3164,14 +3146,18 @@ output$aggregationPlotUnique <- renderPlot({
 
 observe({
     input$perform.aggregation
+    input$aggregationMethod
     if (is.null(input$perform.aggregation) 
         || (input$perform.aggregation == 0))
     {return(NULL)}
     
     isolate({
-    rv$temp.aggregate <- RunAggregation()
     
-    writeToCommandLogFile("temp.aggregate <- data")
+        if (input$aggregationMethod != "none")
+            {
+            rv$temp.aggregate <- RunAggregation()
+            writeToCommandLogFile("temp.aggregate <- data")
+        }
     })
 })
 
@@ -3262,7 +3248,7 @@ output$DS_PlotHeatmap <- renderUI({
     conditionalPanel(
         condition = TRUE,
         busyIndicator("Calculation In progress",wait = 0),
-        plotOutput("heatmap")
+        plotOutput("heatmap", width = "900px", height = "600px")
     )
 })
 
