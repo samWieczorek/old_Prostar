@@ -3016,7 +3016,6 @@ output$chooseProteinId <- renderUI({
 })
 
 observe({
-    #input$eData.box
     input$fData.box
     choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
     names(choices) = 
@@ -3032,14 +3031,16 @@ observe({
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
     rv$temp.aggregate
-    input$aggregationMethod
     input$perform.aggregation
     
-    if (is.null(rv$temp.aggregate) && input$perform.aggregation == 0) 
+    isolate({
+        if (input$perform.aggregation == 0) 
     {return(NULL)  }
     else if (input$aggregationMethod != "none"){
     h3(paste("Aggregation done with the ", input$aggregationMethod, " method.", sep=""))
     }
+        
+    })
 })
 
 
@@ -3144,15 +3145,17 @@ output$aggregationPlotUnique <- renderPlot({
 })
 
 
+
+
+###------------ Perform aggregation--------------------
 observe({
-    input$perform.aggregation
-    input$aggregationMethod
+    #input$perform.aggregation
+    #input$aggregationMethod
     if (is.null(input$perform.aggregation) 
         || (input$perform.aggregation == 0))
     {return(NULL)}
     
     isolate({
-    
         if (input$aggregationMethod != "none")
             {
             rv$temp.aggregate <- RunAggregation()
