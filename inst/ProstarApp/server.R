@@ -52,24 +52,40 @@ rv <- reactiveValues(
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
     widthSidebar = 3,
-    commandLog = NULL)
+    commandLog = NULL, 
+    normalizationFamily = NULL,
+    normalizationMethod = NULL, 
+    matAdj = NULL)
 
 env <- environment()
 
 writeToCommandLogFile <- function(txt){
     
-    cat(rv$commandLog,
-        file = commandLogFile,
-        txt,
-        sep = "\n",
-        append = TRUE)
+    rv$commandLog <- c(rv$commandLog, txt)
+    # cat(rv$commandLog,
+    #     file = commandLogFile,
+    #     txt,
+    #     sep = "\n",
+    #     append = TRUE)
 }
 
 if (file.exists(commandLogFile)){
     file.remove(commandLogFile)
 }
 
-
+output$code <- renderUI({
+    rv$commandLog
+    
+    aceEditor("ui"
+              , value = paste( rv$commandLog, collapse="\n")
+              , mode = "r"
+              , theme = "chrome"
+              , height = "260px"
+              , readOnly = TRUE
+    )
+    
+    
+})
 
 
 output$CurrentDataset <- renderUI({
@@ -106,7 +122,9 @@ output$hot <- renderRHandsontable({
 
 
 output$diffAnalysis_sidebarPanelTab1 <- renderUI({
+    rv$current.obj
     
+    if (is.null(rv$current.obj)) { return(NULL)}
     method <- NULL
     threshold.logFC <- 0
     if ("logFC" %in% names(fData(rv$current.obj) )){
@@ -116,7 +134,7 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
         #cond2 <- rv$current.obj@experimentData@other$condition2
     }
     
-    conditionalPanel(condition=TRUE,
+    conditionalPanel(condition = "true",
                     uiOutput("RenderLimmaCond1"),
                     uiOutput("RenderLimmaCond2"),
                     selectInput("diffAnaMethod","Choose the statistical test",
@@ -135,7 +153,7 @@ output$diffAnalysis_sidebarPanelTab2 <- renderUI({
         if (is.null(calibMethod)) calibMethod <- "pounds"
     }
     
-    conditionalPanel(condition=TRUE,
+    conditionalPanel(condition = "true",
                     selectInput("calibrationMethod", 
                                 "Choose the calibration method",
                                 choices = c("st.boot", "st.spline", 
@@ -148,6 +166,8 @@ output$diffAnalysis_sidebarPanelTab2 <- renderUI({
     })
 
 output$diffAnalysis_sidebarPanelTab3 <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return (NULL)}
     threshold.PVal <- 0
     if ("logFC" %in% names(fData(rv$current.obj) )){
         threshold.PVal <- rv$current.obj@experimentData@other$threshold.p.value
@@ -155,7 +175,7 @@ output$diffAnalysis_sidebarPanelTab3 <- renderUI({
     }
     
     
-    conditionalPanel(condition=TRUE,
+    conditionalPanel(condition = "true",
                     numericInput("seuilPVal", 
                                 "Define the -log10(p.value) threshold",
                                 min = 0,value = threshold.PVal,step=0.1)
@@ -165,12 +185,13 @@ output$diffAnalysis_sidebarPanelTab3 <- renderUI({
 
 
 output$DP_sidebar_FilterTab1 <- renderUI({
-    
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
     filter <- NULL
-    print(rv$current.obj@experimentData@other$mvFilter.method)
+    #print(rv$current.obj@experimentData@other$mvFilter.method)
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
-    conditionalPanel(condition=TRUE
+    conditionalPanel(condition= "true"
                     ,h4("Missing values filtering options")
                     ,hr()
                     ,radioButtons("ChooseFilters","", 
@@ -179,11 +200,16 @@ output$DP_sidebar_FilterTab1 <- renderUI({
                     ,conditionalPanel(
                         condition='input.ChooseFilters != "None"',
                         uiOutput("seuilNADelete"))
+                    ,actionButton("perform.filtering.MV", 
+                                  "Perform filtering MV")
                     )
 })
 
 output$DP_sidebar_FilterTab2 <- renderUI({
-    conditionalPanel(condition=TRUE
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    
+    conditionalPanel(condition= "true"
                     ,h4("String based filtering options")
                     ,hr()
                     ,h4("Filter contaminants"),
@@ -192,13 +218,18 @@ output$DP_sidebar_FilterTab2 <- renderUI({
                     br(),
                     h4("Filter reverse"),
                     uiOutput("id_Reverse"),
-                    uiOutput("choosePrefixReverse")
+                    uiOutput("choosePrefixReverse"),
+                    br(),
+                    actionButton("perform.filtering.Contaminants","Perform string based filtering")
                     )
 })
 
 
 output$DP_sidebar_FilterTab3 <- renderUI({
-    conditionalPanel(condition=TRUE
+    
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    conditionalPanel(condition= "true"
                     ,h4("Filtered data display")
                     ,hr()
                     ,radioButtons("ChooseTabAfterFiltering", 
@@ -212,6 +243,11 @@ output$DP_sidebar_FilterTab3 <- renderUI({
                         list("Deleted on missing values" = "MissingValues",
                         "Deleted contaminants" = "Contaminants",
                         "Deleted reverse" = "Reverse"))
+                    ,br(),br()
+                    ,checkboxInput("nDigitsMV", 
+                                   "Show full length intensities"
+                                   , value = FALSE)
+                    
                     )
 })
 
@@ -278,7 +314,7 @@ output$AbsShowOptions <- renderUI({
     if (!input$plotOptions) {return(NULL)}
     
     conditionalPanel(id = "condPanelShowOptions",
-    condition=TRUE,
+    condition = "true",
     uiOutput("ChooseLegendForAxis"),
     uiOutput("nShow"),
     uiOutput("nGroup")
@@ -392,37 +428,17 @@ ComputeAdjacencyMatrix <- reactive({
     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
                                             input$proteinId,
                                             TRUE)
-    
-    
-    #write command log file
-    writeToCommandLogFile(
-        paste(
-            "matSharedPeptides <- BuildAdjacencyMatrix(current.obj, '",
-            input$proteinId, "', FALSE)"
-            ,sep=""
-        )
-    )
-        
-        writeToCommandLogFile(
-            paste(
-            "matUniquePeptides <- BuildAdjacencyMatrix(current.obj, '",
-            input$proteinId, "', TRUE)"
-            ,sep=""
-        )
-        
-        )
-        writeToCommandLogFile(
-            "mat <- list(matWithSharedPeptides=matSharedPeptides,
-                matWithUniquePeptides=matUniquePeptides)"
-        )
-        
-    return(list(matWithSharedPeptides=matSharedPeptides,
-                matWithUniquePeptides=matUniquePeptides))
+
+    rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
+                matWithUniquePeptides=matUniquePeptides)
 })
 
 ########################################################
 RunAggregation <- reactive({
-    mat <- ComputeAdjacencyMatrix()
+    #mat <- ComputeAdjacencyMatrix()
+    rv$matAdj
+    if (is.null(rv$matAdj)) { return (NULL)}
+    
     n <- NULL
     if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { n <- input$nTopn}
     
@@ -433,32 +449,32 @@ RunAggregation <- reactive({
         data <- pepAgregate(rv$current.obj, 
                             input$proteinId,
                             input$aggregationMethod, 
-                            mat$matWithSharedPeptides, 
+                            rv$matAdj$matWithSharedPeptides, 
                             n)
-        writeToCommandLogFile(
-            paste(
-                "data <- pepAgregate(current.obj, '",
-                input$proteinId, "', '",
-                input$aggregationMethod, "', mat$matWithSharedPeptides)",
-                sep=""
-            )
-        )
+        # writeToCommandLogFile(
+        #     paste(
+        #         "data <- pepAgregate(current.obj, '",
+        #         input$proteinId, "', '",
+        #         input$aggregationMethod, "', mat$matWithSharedPeptides)",
+        #         sep=""
+        #     )
+        # )
         
         
         }else{
         data <- pepAgregate(rv$current.obj, 
                             input$proteinId,
                             input$aggregationMethod, 
-                            mat$matWithUniquePeptides
+                            rv$matAdj$matWithUniquePeptides
                             , n)
-        writeToCommandLogFile(
-            paste(
-                "data <- pepAgregate(current.obj, '",
-                input$proteinId, "', '",
-                input$aggregationMethod, "', mat$matWithUniquePeptides)",
-                sep=""
-            )
-        )
+        # writeToCommandLogFile(
+        #     paste(
+        #         "data <- pepAgregate(current.obj, '",
+        #         input$proteinId, "', '",
+        #         input$aggregationMethod, "', mat$matWithUniquePeptides)",
+        #         sep=""
+        #     )
+        # )
         }
     },
     err=function(errorCondition) {
@@ -655,11 +671,13 @@ observe({
 ##' @author Samuel Wieczorek
 observe({ 
     input$valid.aggregation
-    rv$temp.aggregate
+    #rv$temp.aggregate
     input$aggregationMethod
     input$columnsForProteinDataset.box
+    rv$matAdj
     
-    if (is.null(input$valid.aggregation) || (input$valid.aggregation == 0)) 
+    if (is.null(input$valid.aggregation) || (input$valid.aggregation == 0)
+        || is.null(rv$matAdj)) 
     {return(NULL)}
     #if (is.null(input$aggregationMethod)) {return(NULL)}
     if (is.null(rv$temp.aggregate)) {return(NULL)}
@@ -669,18 +687,21 @@ observe({
     input$proteinId
     input$checkSharedPeptides
     input$columnsForProteinDataset.box
+    rv$matAdj
+    #rv$temp.aggregate
     
     ##concatenation des informations
-    mat <- ComputeAdjacencyMatrix()
+    #mat <- ComputeAdjacencyMatrix()
     m <- NULL
+    print("m = NULL")
     if (input$checkSharedPeptides){ 
-        m <- mat$matWithSharedPeptides
-        writeToCommandLogFile("m <- mat$matWithSharedPeptides")
-    }else{ m <-mat$matWithUniquePeptides
-    writeToCommandLogFile("m <- mat$matWithUniquePeptides")
+        m <- rv$matAdj$matWithSharedPeptides
+       # writeToCommandLogFile("m <- mat$matWithSharedPeptides")
+    }else{ m <-rv$matAdj$matWithUniquePeptides
+    #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
     }
         
-    
+    print(m[1:10, 1:10])
     
     for(c in input$columnsForProteinDataset.box){
         newCol <- BuildColumnToProteinDataset(fData(rv$current.obj), m, c)
@@ -690,38 +711,39 @@ observe({
         colnames(fData(rv$temp.aggregate)) <- c(cnames, c)
     }
     
+    print("apres")
     rv$current.obj <- rv$temp.aggregate
     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
     name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
-    
+  
     
     
     
     ######
    # print(input$columnsForProteinDataset.box)
-    l <- NULL
-    for (i in input$columnsForProteinDataset.box)
-        {
-       l <- paste(l, paste("'",i, "',", sep=""))
-        }
-    writeToCommandLogFile(
-        paste("columnsForProteinDataset <- c(",substr(l, 1, nchar(l)-1),")", sep="")
-    )
-    
-    writeToCommandLogFile("for (c in columnsForProteinDataset) {")
-    writeToCommandLogFile(
-        "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
-    writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
-    writeToCommandLogFile("fData(temp.aggregate) <- 
-            data.frame(fData(temp.aggregate), newCol)")
-    writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
-    writeToCommandLogFile("}")
-    writeToCommandLogFile("current.obj <- temp.aggregate")
-    writeToCommandLogFile(
-        paste("rv$dataset[['",name, "']] <- current.obj", sep="")
-    )
-    
+    # l <- NULL
+    # for (i in input$columnsForProteinDataset.box)
+    #     {
+    #    l <- paste(l, paste("'",i, "',", sep=""))
+    #     }
+    # writeToCommandLogFile(
+    #     paste("columnsForProteinDataset <- c(",substr(l, 1, nchar(l)-1),")", sep="")
+    # )
+    # 
+    # writeToCommandLogFile("for (c in columnsForProteinDataset) {")
+    # writeToCommandLogFile(
+    #     "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
+    # writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
+    # writeToCommandLogFile("fData(temp.aggregate) <- 
+    #         data.frame(fData(temp.aggregate), newCol)")
+    # writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
+    # writeToCommandLogFile("}")
+    # writeToCommandLogFile("current.obj <- temp.aggregate")
+    # writeToCommandLogFile(
+    #     paste("rv$dataset[['",name, "']] <- current.obj", sep="")
+    # )
+    # 
     
     updateSelectInput(session, "datasets", 
                         choices = names(rv$dataset),
@@ -1357,11 +1379,11 @@ output$seuilNADelete <- renderUI({
     }
     ch <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.threshold
-    print(tag)
+    #print(tag)
     if (!is.null(tag)) { ch <- tag}
     else {ch <- choix[[1]]}
-    selectInput(inputId = "seuilNA", 
-                label = "Keep lines with at least x intensity values", 
+    selectInput("seuilNA", 
+                "Keep lines with at least x intensity values", 
                 choices = choix, 
                 selected = ch)
     
@@ -1747,7 +1769,8 @@ output$overviewNewData <- renderUI({
             plurial <- ""}
         
         txt4 <- paste("There ", verb, " : ",
-                    nb.empty.lines ," line",plurial," with only NA values !!")
+                    nb.empty.lines ," line",plurial," with only NA values !!"
+                    ,sep="")
     }
     
     tags$ul(
@@ -3032,7 +3055,7 @@ observe({
 output$ObserverAggregationDone <- renderUI({
     rv$temp.aggregate
     input$perform.aggregation
-    
+    if (is.null(rv$temp.aggregate)) {return(NULL)}
     isolate({
         if (input$perform.aggregation == 0) 
     {return(NULL)  }
@@ -3044,16 +3067,68 @@ output$ObserverAggregationDone <- renderUI({
 })
 
 
-#-----------------------------------------------
-output$aggregationPlot <- renderPlot({
+
+observe({
     input$proteinId
     rv$current.obj
     if (is.null( input$proteinId) || (input$proteinId == "None"))
     {return(NULL)}
+    
+    
+    if (rv$current.obj@experimentData@other$typeOfData == "protein") {return(NULL)}
+    
+    matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+                                              input$proteinId,
+                                              FALSE)
+    matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+                                              input$proteinId,
+                                              TRUE)
+    
+    rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
+                      matWithUniquePeptides=matUniquePeptides)
+})
+
+
+
+#-----------------------------------------------
+output$aggregationPlot <- renderPlot({
+    input$proteinId
+    rv$matAdj
+    rv$current.obj
+    if (is.null( input$proteinId) || (input$proteinId == "None")
+        || is.null(rv$matAdj))
+    {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-    matAdj <- ComputeAdjacencyMatrix()
-    if (input$checkSharedPeptides) {GraphPepProt(matAdj$matWithSharedPeptides)}
-    else {GraphPepProt(matAdj$matWithUniquePeptides)}
+    #matAdj <- ComputeAdjacencyMatrix()
+    
+#     #write command log file
+#     writeToCommandLogFile(
+#         paste(
+#             "matSharedPeptides <- BuildAdjacencyMatrix(current.obj, '",
+#             input$proteinId, "', FALSE)"
+#             ,sep=""
+#         )
+#     )
+#     
+#     writeToCommandLogFile(
+#         paste(
+#             "matUniquePeptides <- BuildAdjacencyMatrix(current.obj, '",
+#             input$proteinId, "', TRUE)"
+#             ,sep=""
+#         )
+#         
+#     )
+#     writeToCommandLogFile(
+#         "mat <- list(matWithSharedPeptides=matSharedPeptides,
+#         matWithUniquePeptides=matUniquePeptides)"
+# )
+#     
+    
+    
+    
+    
+    if (input$checkSharedPeptides) {GraphPepProt(rv$matAdj$matWithSharedPeptides)}
+    else {GraphPepProt(rv$matAdj$matWithUniquePeptides)}
     
 })
 
@@ -3076,10 +3151,12 @@ output$headerpanel <- renderUI({
 output$aggregationStats <- renderUI ({
     input$proteinId
     rv$current.obj
-    if (is.null( input$proteinId) || (input$proteinId == "None"))
+    rv$matAdj
+    if (is.null( input$proteinId) || (input$proteinId == "None")
+        || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-    matAdj <- ComputeAdjacencyMatrix()
+   # matAdj <- ComputeAdjacencyMatrix()
     
     text <- paste("<ul style=\"list-style-type:disc;\">
                 <li>
@@ -3125,22 +3202,24 @@ output$aggregationStats <- renderUI ({
 output$aggregationPlotShared <- renderPlot({
     input$proteinId
     rv$current.obj
-    if (is.null( input$proteinId) || (input$proteinId == "None"))
+    rv$matAdj
+    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-    matAdj <- ComputeAdjacencyMatrix()
-    GraphPepProt(matAdj$matWithSharedPeptides)
+    #matAdj <- ComputeAdjacencyMatrix()
+    GraphPepProt(rv$matAdj$matWithSharedPeptides)
     
 })
 
 output$aggregationPlotUnique <- renderPlot({
     input$proteinId
     rv$current.obj
-    if (is.null( input$proteinId) || (input$proteinId == "None"))
+    rv$matAdj
+    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-    matAdj <- ComputeAdjacencyMatrix()
-    GraphPepProt(matAdj$matWithUniquePeptides)
+    #matAdj <- ComputeAdjacencyMatrix()
+    GraphPepProt(rv$matAdj$matWithUniquePeptides)
     
 })
 
@@ -3159,7 +3238,7 @@ observe({
         if (input$aggregationMethod != "none")
             {
             rv$temp.aggregate <- RunAggregation()
-            writeToCommandLogFile("temp.aggregate <- data")
+            #writeToCommandLogFile("temp.aggregate <- data")
         }
     })
 })
@@ -3478,5 +3557,89 @@ observe({
 })
 
 
+
+output$AggregationSideBar_Step1 <-  renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj) || 
+        (rv$current.obj@experimentData@other$typeOfData == "protein"))
+    {return (NULL)}
+    
+    wellPanel(id = "sidebar_Aggregation",
+              height = "100%",
+    conditionalPanel(
+        condition = 'true',
+    h4("Aggregation options"),
+    uiOutput("chooseProteinId"),
+    checkboxInput("checkSharedPeptides",
+                  "Include shared peptides",
+                  value = FALSE),
+    selectInput("aggregationMethod",
+                "Aggregation methods",
+                choices =  gAgregateMethod),
+    uiOutput("topNOption"),
+    actionButton("perform.aggregation","Perform aggregation")
+    )
+    )
+    
+})
+
+
+
+
+output$AggregationWellPanel_Step1 <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj))
+    {return (NULL)}
+    
+    if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
+        conditionalPanel(id = "wellPanel_Agregation",
+                     condition = 'true',
+                     HTML("Please select first the id of protein in your dataset. 
+                          <br>Then, the stats will be showed and it will be possible to 
+                          perform the aggregation"),
+                     fluidRow(
+                         column(width=6, h4("Only unique peptides")),
+                         column(width=6, h4("All (unique & shared) peptides"))
+                     ),
+                     busyIndicator("Calculation In progress",wait = 0),
+                     fluidRow(
+                         column(width=6, plotOutput("aggregationPlotUnique")),
+                         column(width=6, plotOutput("aggregationPlotShared"))
+                     ),
+                     # uiOutput("aggregationStats"),
+                     uiOutput("ObserverAggregationDone")
+                     )
+    } else {
+        h4("The dataset is a protein one: the aggregation cannot be performed.")
+    }
+})
+
+output$Aggregation_Step2 <- renderUI({
+    
+    rv$current.obj
+    if (is.null(rv$current.obj)){return (NULL)}
+    
+    if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
+        conditionalPanel(
+                     condition = 'true',
+    helpText("Select the columns of the meta-data (related to proteins) that 
+            have to be recorded in the new protein dataset."),
+    div(class="row"),
+    div(class="span5", "",
+        uiOutput("columnsForProteinDataset"),
+        fluidRow(
+            column(width=3,
+                   actionButton("valid.aggregation",
+                                "Save aggregation", 
+                                styleclass = "primary")
+            )
+        )
+    )
+    )
+    } else {
+        h4("The dataset is a protein one: the aggregation cannot be performed.")
+    }
+    
+})
 
 })

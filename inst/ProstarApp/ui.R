@@ -7,6 +7,7 @@ library(shiny)
 library(rhandsontable)
 library(data.table)
 library(shinyjs)
+library(shinyAce)
 
 
 heightSidebarPanel <- "600px"
@@ -260,16 +261,27 @@ navbarMenu("Dataset manager"
         downloadButton('downloadMSnSet', 'Download')
     ),
 
-    tabPanel("Log session",
-        value = "ChangeDataset",
-        sidebarCustom(),
-        conditionalPanel(
-            id = "wellPanel_changeDataset",
-            condition = TRUE,
-            width=widthWellPanel,
-            DT::dataTableOutput("logSession")
-            )
-        )
+tabPanel("Log session",
+         value = "ChangeDataset",
+         
+         
+         tabsetPanel(id="LogSession_tabSetPanel",
+                     "test",
+                     tabPanel("Log session",
+                              value = "ChangeDataset",
+                              sidebarCustom(),
+                              conditionalPanel(
+                                  id = "wellPanel_changeDataset",
+                                  condition = TRUE,
+                                  width=widthWellPanel,
+                                  DT::dataTableOutput("logSession")
+                              )
+                     ),
+                     tabPanel("R source code", 
+                              uiOutput("code")
+                     )
+         )
+)
     ),
     
     
@@ -398,13 +410,13 @@ navbarMenu("Data processing"
     icon = icon("download"),
     tabsetPanel(id = "DP_Filtering_tabSetPanel"
         ,tabPanel( "1 - Missing values",
+            id =  "DP_FilterMissingValues",
             value = "DP_FilterMissingValues",
                 sidebarCustom(),
                 splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                     wellPanel(id = "sidebar_Filter1"
                         ,uiOutput("DP_sidebar_FilterTab1")
-                        ,actionButton("perform.filtering.MV", 
-                                        "Perform filtering MV")
+                        
                     ),
                     conditionalPanel(id = "wellPanelMVFilterTab1",
                         condition = TRUE,
@@ -423,11 +435,12 @@ each condition <br> or on at leat one condition."),
                 )
         )
         ,tabPanel( "2 - String based filtering",
+            id =  "DP_FilterContaminants",
             value = "DP_FilterContaminants",
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                 wellPanel(id = "sidebar_Filter2",
                     uiOutput("DP_sidebar_FilterTab2")
-                    ,actionButton("perform.filtering.Contaminants","Perform string based filtering")
+                    
                 ),
                 conditionalPanel(id = "wellPanelMVFilterTab2",
                     condition = TRUE,
@@ -441,12 +454,8 @@ each condition <br> or on at leat one condition."),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                 wellPanel(id = "sidebar_Filter3",
                     uiOutput("DP_sidebar_FilterTab3")
-                    ,br(),br()
-                    ,checkboxInput("nDigitsMV", 
-                                    "Show full length intensities"
-                                    , value = FALSE)
                     ,actionButton("ValidateFilters","Save filtered dataset",
-                                styleclass = "primary")
+                                  styleclass = "primary")
                 ),
                 conditionalPanel(id = "wellPanelMVFilterTab3"
                     ,condition = TRUE
@@ -532,65 +541,29 @@ tabPanel("Miss. values imputation",
             )
 ),
 
+
 tabPanel("Aggregation",
-    tabsetPanel(
+         
+             tabsetPanel(
         title = "agreagationTabsetPanel",
         id = "agreagationTabsetPanel",
         tabPanel(title = "1 - Aggregate peptides",
             value = "aggregation",
             sidebarCustom(),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                wellPanel(id = "sidebar_Aggregation",
-                    height = "100%"
-                    ,h4("Aggregation options")
-                    ,conditionalPanel(
-                        condition = 'input.datasets != "Aggregated"',
-                        uiOutput("chooseProteinId")
-                    ),
-                    checkboxInput("checkSharedPeptides",
-                        "Include shared peptides",
-                        value = FALSE),
-                    selectInput("aggregationMethod",
-                        "Aggregation methods",
-                        choices =  gAgregateMethod),
-                    uiOutput("topNOption"),
-                    actionButton("perform.aggregation","Perform aggregation")
-                ),
+               uiOutput("AggregationSideBar_Step1"),
             conditionalPanel(id = "wellPanel_Agregation",
-                condition = TRUE,
-                HTML("Please select first the id of protein in your dataset. 
-                <br>Then, the stats will be showed and it will be possible to 
-                perform the aggregation"),
-                fluidRow(
-                    column(width=6, h4("Only unique peptides")),
-                    column(width=6, h4("All (unique & shared) peptides"))
-                ),
-                busyIndicator("Calculation In progress",wait = 0),
-                fluidRow(
-                    column(width=6, plotOutput("aggregationPlotUnique")),
-                    column(width=6, plotOutput("aggregationPlotShared"))
-                ),
-                uiOutput("aggregationStats"),
-                uiOutput("ObserverAggregationDone"))
+                condition = 'true',
+                uiOutput("AggregationWellPanel_Step1")
+            )
             )
         ),
 tabPanel(title = "2 - Configure protein dataset",
     value = "configureProteinDataset",
-    helpText("Select the columns of the meta-data (related to proteins) that 
-            have to be recorded in the new protein dataset."),
-    div(class="row"),
-    div(class="span5", "",
-        uiOutput("columnsForProteinDataset"),
-        fluidRow(
-            column(width=3,
-                actionButton("valid.aggregation",
-                            "Save aggregation", 
-                            styleclass = "primary")
-                    )
-                )
-        )
+    uiOutput("Aggregation_Step2")
     )
 )
+
 ),
 
 
