@@ -99,7 +99,7 @@ proteins should be selected as significantly differentially abundant.
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/DatManager.png}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/DataManager.png}}
 \caption{Dataset Manager Menu}\label{fig:datman}
 \end{figure}
 
