@@ -1,3 +1,8 @@
+CHANGES IN VERSION 1.3.18 
+-------------------------
+The aggregation tool has been debugged and the way the user perform the aggregation is similar to the other processing tools. When the user is working on a protein dataset, the aggregation options are disabled.
+
+
 CHANGES IN VERSION 1.3.10 
 -------------------------
 Bug fixed when saving the dataset after the differential analysis
