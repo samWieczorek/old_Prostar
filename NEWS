@@ -1,40 +1,76 @@
 CHANGES IN VERSION 1.3.18 
 -------------------------
-The aggregation tool has been debugged and the way the user perform the aggregation is similar to the other processing tools. When the user is working on a protein dataset, the aggregation options are disabled.
+
+NEW FEATURES
+
+
+BUG FIXES
+
+    * The aggregation tool has been debugged and now, the way the user perform 
+    the aggregation is similar to the other processing tools. When the user is
+    working on a protein dataset, the aggregation options are disabled.
 
 
 CHANGES IN VERSION 1.3.10 
 -------------------------
-Bug fixed when saving the dataset after the differential analysis
+
+NEW FEATURES
+
+
+BUG FIXES
+    * Bug fixed when saving the dataset after the differential analysis
 
 
 CHANGES IN VERSION 1.3.8 
 -------------------------
-Minor bugs fixed
+
+NEW FEATURES
+
+
+BUG FIXES
+    * Minor bugs fixed
 
 CHANGES IN VERSION 1.3.6 
 -------------------------
-This is a major update of the GUI which now gives a larger place to plots and options
+
+NEW FEATURES
+    * This is a major update of the GUI which is based on Navbar menus. 
+    This new GUI gives a larger place to plots and options.
+
+BUG FIXES
 
 
 CHANGES IN VERSION 1.3.3 
 -------------------------
-New interface for the differential analysis
 
+NEW FEATURES
+    * New interface for the differential analysis which include calibration 
+    plots from the cp4p package.
+
+BUG FIXES
 
 
 CHANGES IN VERSION 1.1.3 
 -------------------------
-Add contaminant and Reverse filters
 
+NEW FEATURES
+    * Add contaminant and Reverse filters
+
+BUG FIXES
 
 
 CHANGES IN VERSION 1.1.1 
 -------------------------
 
-Updates to be compliant with DAPAR >=1.1.1 and the Proline suite (http://proline.profiproteomics.fr).
+NEW FEATURES
+    * Updates to be compliant with DAPAR >=1.1.1
+
+BUG FIXES
+
 
 
 CHANGES IN VERSION 0.99.0 
 -------------------------
-First submission of Prostar to Bioconductor
+
+NEW FEATURES
+    * First submission of Prostar to Bioconductor
