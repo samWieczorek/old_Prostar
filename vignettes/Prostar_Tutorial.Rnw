@@ -288,7 +288,7 @@ various criteria.
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/Filt.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Filt.png}}
 \caption{Screenshot of the missing value filtering panel. Graphics are interactively 
 updated.}\label{fig:Filt}
 \end{figure}
@@ -306,7 +306,7 @@ has been clicked on.
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltPerform.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltPerform.png}}
 \caption{Screenshot of the missing value filtering panel. Graphics are interactively 
 updated.}\label{fig:FiltPerform}
 \end{figure}
@@ -339,7 +339,7 @@ it now appears that the filtered data consist of 10660 peptides
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltValid.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltValid.png}}
 \caption{Panel for filter data validation}\label{fig:FiltValid}
 \end{figure}
 
@@ -356,7 +356,7 @@ top-right box indicates "Normalized - peptide".
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/Norm.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Norm.png}}
 \caption{The normalization panel - NB: After the normalization is validated, the upper right plot is updated to an empty graphic.}\label{fig:Norm}
 \end{figure}
 
@@ -374,7 +374,7 @@ the adequate imputation method.
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/MV1.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MV1.png}}
 \caption{Panel Missing Values Imputation}\label{fig:MV1}
 \end{figure}
 
@@ -393,7 +393,7 @@ necessary to save the imputation before going on.
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/MV2.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MV2.png}}
 \caption{Panel Missing Values Imputation}\label{fig:MV2}
 \end{figure}
 
@@ -419,7 +419,7 @@ peptides per proteins (on the right hand side of the panel), so as to help with 
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg1.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg1.png}}
 \caption{Aggregation step panel before aggregation}\label{fig:aggreg1}
 \end{figure}
 
@@ -428,7 +428,7 @@ A message shows up indicating the aggregation was successfully conducted (see Fi
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg2.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg2.png}}
 \caption{Aggregation step panel after aggregation}\label{fig:aggreg2}
 \end{figure}
 
@@ -445,7 +445,7 @@ Percentage of missing values: 0 %
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg3.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg3.png}}
 \caption{Aggregation step panel after aggregation}\label{fig:aggreg3}
 \end{figure}
 
@@ -491,7 +491,7 @@ This calls the cp4p R package functions, and we refer to the corresponding tutor
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffCalib.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffCalib.png}}
 \caption{Calibration panel for the differential analysis)}
 \label{fig:AnaDiffCalib}
 \end{figure}
@@ -501,7 +501,7 @@ On the \textbf{FDR} panel (fig.~\ref{fig:AnaDiffFDR}), one adjustes the $p$-valu
 
 \begin{figure}
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffFDR.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffFDR.png}}
 \caption{FDR visualization (Differential Analysis)}
 \label{fig:AnaDiffFDR}
 \end{figure}
@@ -527,7 +527,7 @@ Excel), and of course the name of the file exported. In the case of an Excel exp
 
 \begin{figure}[h]
 \centering
-\fbox{\includegraphics[width=0.85\textwidth]{captures/Export.PNG}}
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Export.png}}
 \caption{Export page of \Biocpkg{ProStaR}}\label{fig:Export}
 \end{figure}
 
