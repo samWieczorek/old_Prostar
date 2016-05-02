@@ -1,7 +1,7 @@
-%\VignetteIndexEntry{UPSprotx2 dataset description}
+%\VignetteIndexEntry{Prostar tutorial}
 %\VignetteDepends{}
 %\VignetteKeywords{Quantitative proteomics analysis}
-%\VignettePackage{DAPAR}
+%\VignettePackage{Prostar}
 
 \documentclass[12pt]{article}
 %\documentclass[12pt,a4paper]{article}
