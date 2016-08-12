@@ -2,6 +2,8 @@
 import(rhandsontable)
 import(data.table)
 import(DAPAR)
+import(DAPARdata)
+import(shinyAce)
 
 
 importFrom(shinyjs, info)

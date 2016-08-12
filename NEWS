@@ -1,4 +1,111 @@
-CHANGES IN VERSION 1.3.18 
+CHANGES IN VERSION 1.5.1
+-------------------------
+
+NEW FEATURES
+    * Add modules
+
+BUG FIXES
+
+      
+      
+CHANGES IN VERSION 1.4.11
+-------------------------
+
+NEW FEATURES
+
+BUG FIXES
+
+    * If the user convert a first text file and then wants to convert another one, the
+      widgets were not all updated and this caused a crash when saving to MSnSet.This bug has been fixed.
+    
+    
+CHANGES IN VERSION 1.4.10
+-------------------------
+
+NEW FEATURES
+    * Import of .tsv files
+    * The name of the study appears now in the title of the datasets versions
+    * When the user exports his datasets, the name of the study is automatically suggested
+      in the text field
+
+BUG FIXES
+
+    * A bug when choosing the id for converting a text file into a MSnSet file has been fixed
+    
+    
+CHANGES IN VERSION 1.4.9 
+-------------------------
+
+NEW FEATURES
+
+BUG FIXES
+
+    * A new calculation of the stats for the proteins is available in DAPAR (1.4.6)
+    
+    
+CHANGES IN VERSION 1.4.8 
+-------------------------
+
+NEW FEATURES
+    * the heigth of the sidebar panel for the choice of demo dataset has been extended
+
+BUG FIXES
+
+    * An error was catched in the differnetial analysis, step 3 if no data is selected, to avoid an                  error when Prostar computes the FDR
+    * During the calibration plot (Differential Analysis), if the user chooses a numeric value for Pi0, then th       validation of the differential analysis has an error. This bug has been fixed.
+    
+    
+    
+CHANGES IN VERSION 1.4.7 
+-------------------------
+
+NEW FEATURES
+
+
+BUG FIXES
+
+    * Add a dependancy to the DAPARdata package to avoid error at the installation.
+    
+    
+    
+CHANGES IN VERSION 1.4.6 
+-------------------------
+
+NEW FEATURES
+
+
+BUG FIXES
+
+    * A bug related to the filtering of missing values has been fixed.
+    
+    
+CHANGES IN VERSION 1.4.5 
+-------------------------
+
+NEW FEATURES
+
+
+BUG FIXES
+
+    * A bug related to the filtering of contaminants and Reverse. When the user write a prefix
+    int the text field and no lines correspond to the specified prefix, then the entire dataset was deleted.
+    This bug has been fixed
+    * When the user save the dataset after the imputation step, the old versions of datasets are erased. This    bug has also been fixed.
+    
+    
+    
+CHANGES IN VERSION 1.4.1 
+-------------------------
+
+NEW FEATURES
+
+
+BUG FIXES
+
+    * The user interface has been debugged so as to avoid the hang of the 
+    server in the missing values imputation tool and differential analysis tool.
+    
+    CHANGES IN VERSION 1.3.18 
 -------------------------
 
 NEW FEATURES

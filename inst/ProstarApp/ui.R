@@ -1,8 +1,9 @@
-options(shiny.trace=TRUE)
+options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
 
 library(DAPAR)
+library(DAPARdata)
 library(shiny)
 library(rhandsontable)
 library(data.table)
@@ -22,7 +23,6 @@ plotWidth <- "800px"
 plotHeight <- "600px"
 
 sidebarCustom <- function(){
-
 
 tags$head(
     tags$style(type="text/css", 
@@ -62,6 +62,11 @@ tags$head(
     tags$style(type="text/css", 
     paste("#sidebar_DiffAna4 { height:",heightSidebarPanel,"; }", sep="")),
     
+    
+    tags$style(type="text/css", 
+               paste("#chooseDatasetFromDAPARdata_wellPanel { height:",heightSidebarPanel,"; }", sep="")),
+    
+    
     tags$style(type="text/css", "#DS { padding-top:50px;"),
     tags$style(type="text/css", "#sidebar_dataExplorer { padding-top:50px;"),
     
@@ -87,6 +92,8 @@ tags$head(
             width: 800px;"),
     tags$style(HTML('.action-button{
             background-color:lightblue}'))
+    
+    
 )
 }
 
@@ -110,9 +117,12 @@ shinyUI <- tagList(
 titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,useShinyjs()
+#,tags$head(includeScript("google-analytics.js"))
+#,tags$head(includeScript("piwik.js"))
 
+,uiOutput("disableAggregationTool")
 ,navbarPage(
-    #id = "navPage",
+    id = "navPage",
     absolutePanel(id  = "#AbsolutePanel",
                 top = 10,
                 right = 300,
@@ -142,8 +152,8 @@ sidebarPanelWidth()
                     uiOutput("aboutText")
                     ),
     
-navbarMenu("Dataset manager"
-#           id = "datasetManagerMenu"
+navbarMenu("Dataset manager",
+           id = "datasetManagerMenu"
     ,tabPanel("Open MSnset file",
         #title="Open a MSnset file",
         #icon = icon("file"),
@@ -157,9 +167,10 @@ navbarMenu("Dataset manager"
                         multiple = FALSE)
             ),
             conditionalPanel(id = "wellPanelOpenFile",
-                condition = TRUE,
+                condition = "true",
                 h3("Quick overview of the dataset"),
-                uiOutput("overview")
+                uiOutput("overview"),
+                uiOutput("infoAboutAggregationTool")
             )
         )
     ),
@@ -174,9 +185,9 @@ navbarMenu("Dataset manager"
             tabPanel(width = widthWellPanel,
                     "1 - Select file",
                     value = "SelectFile2Import",
-                    fileInput("file1", "Data file", 
+                    fileInput("file1", "Data file (.txt, .csv, .tsv, .xls, .xlsx files)", 
                             multiple=FALSE, 
-                            accept=c(".txt", ".csv",".xls", ".xlsx")),
+                            accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")),
                             uiOutput("ManageXlsFiles"),
                     helpText("Hint : before importing quantification 
                                 file data, check the syntax of your text 
@@ -189,11 +200,9 @@ navbarMenu("Dataset manager"
                     )
 
                     ,radioButtons("checkDataLogged", 
-                            "Check whether the data you want to analyze are 
-                                already logged or not. If not, they will be 
-                                automatically logged", 
+                            "Are your data already logged ?", 
                             width = widthWellPanel, 
-                            choices=c("yes", "no"), 
+                            choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically logged)"="no"), 
                             selected="no")
                     ,br()
                     ,checkboxInput("replaceAllZeros", 
@@ -205,7 +214,7 @@ navbarMenu("Dataset manager"
         uiOutput("helpTextDataID"),
         radioButtons("autoID", width="500px",
             "If you choose the automatic ID, Prostar will build an index.", 
-            choices=c("Auto ID" = "Auto ID", "user ID" = "user ID")),
+            choices=c("Auto ID" = "Auto ID", "User ID" = "user ID")),
         conditionalPanel(
             condition = 'input.autoID == "user ID"',
             uiOutput("id"),
@@ -256,11 +265,34 @@ navbarMenu("Dataset manager"
             uiOutput("selectIDforExcelExport")
         ),
         br(),
-        textInput("nameExport", "Enter the name of the files to be created"),
+        uiOutput("chooseExportFilename"),
+       
         br(),
-        downloadButton('downloadMSnSet', 'Download')
+        downloadButton('downloadMSnSet', 'Download'),
+        
+         br(),br()
+         #radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
+         #             inline = TRUE),
+         #downloadButton('downloadReport', "Download report")
     ),
 
+    tabPanel("Demo mode",
+             id = "demo",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(id = "chooseDatasetFromDAPARdata_wellPanel"
+                                   ,uiOutput("chooseDataset")
+                                   ,actionButton("loadDemoDataset", "Load demo dataset")
+                         ),
+                         conditionalPanel(id = "wellPanelOpenFile",
+                                          condition = "true",
+                                          h3("Quick overview of the dataset"),
+                                          uiOutput("overviewDemoDataset"),
+                                          uiOutput("showDatasetDoc")
+                                         
+                                         # uiOutput("infoAboutDemoDataset")
+                         )
+             )),
 tabPanel("Log session",
          value = "ChangeDataset",
          
@@ -272,7 +304,7 @@ tabPanel("Log session",
                               sidebarCustom(),
                               conditionalPanel(
                                   id = "wellPanel_changeDataset",
-                                  condition = TRUE,
+                                  condition =  "true",
                                   width=widthWellPanel,
                                   DT::dataTableOutput("logSession")
                               )
@@ -293,16 +325,21 @@ tabPanel("Descriptive statistics",
             #------------------------------------------------------------
             tabPanel("Overview",
                 value = "DS_tabGeneral",
+                
                 uiOutput("overviewNewData")
             ),
 
-            tabPanel(title = "Miss. values",
+            tabPanel(
                 id = "DS_tabOverviewMV",
+                title = "Miss. values",
                 value = "DS_tabOverviewMV",
-                helpText("Those bargraph plots display some information to 
-                    view the distribution of missing values."),
-                fluidRow(
-                    column(width = 4, plotOutput("histoMV_DS")),
+                
+                helpText("Those bargraph plots display some information to
+                     view the distribution of missing values."),
+                    fluidRow(
+                    column(width = 4, 
+                           plotOutput("histoMV_Image_DS")
+                           ),
                     column(width = 4, 
                         plotOutput("histo.missvalues.per.lines_DS")),
                     column(width = 4, 
@@ -319,7 +356,7 @@ tabPanel("Descriptive statistics",
                         uiOutput("DS_sidebarPanel_tab")
                     ),
                     conditionalPanel(height = heightWellPanel,
-                        condition = TRUE,
+                        condition = "true",
                         uiOutput("tabToShow")
                     )
                 )
@@ -328,13 +365,18 @@ tabPanel("Descriptive statistics",
             tabPanel(title="Corr. matrix",
                 value="DS_tabCorrMatrix",
                 sidebarCustom(),
+                
                 splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                     wellPanel(id = "sidebar_Corrmatrix",
                         sliderInput("expGradientRate",
                             "Tune to modify the gradient of color",
-                            min = 2,max = 6,value = 5,step=0.05)
+                            min = 2,max = 6,value = defaultGradientRate,step=0.05)
                     ),
-                    plotOutput("corrMatrix", height="500px",width="800px")
+                    conditionalPanel(id = "wellPanelCorrMat",
+                                     condition = "true",
+                                     plotOutput("corrMatrix",width = plotWidth,
+                                                 height = plotHeight)
+                    )
                 )
             ),
 
@@ -346,13 +388,13 @@ tabPanel("Descriptive statistics",
                         uiOutput("DS_sidebarPanel_heatmap")
                     ),
                     conditionalPanel(id = "wellPanelHeatmap",
-                        condition = TRUE,
+                        condition = "true",
                         width = 800,
                         HTML("For this view, it is necessary that your dataset 
                             does not contains any NA lines. <br> Please check 
                             your data and use Filtering options or missing 
                             values imputation."),
-                        busyIndicator("Calculation In progress",wait = 0),
+                        busyIndicator("Calculation in progress",wait = 0),
                         uiOutput("DS_PlotHeatmap")
                     )
                 )
@@ -367,14 +409,30 @@ tabPanel("Descriptive statistics",
                     uiOutput("DS_sidebarPanel_Boxplot")
                     ),
                     conditionalPanel(id = "wellPanelBoxplot",
-                        condition = TRUE,
+                        condition = "true",
                         plotOutput("viewBoxPlot_DS",width = plotWidth,
-                                height = plotHeight)
+                                    height = plotHeight)
                     )
                 )
             ),
 
 
+            #-----------------------------------------------------------
+            tabPanel(title = "Violinplot",
+                     value="DS_tabViolinplot",
+                     sidebarCustom(),
+                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                 wellPanel(id = "sidebar_Violonplot",
+                                           uiOutput("DS_sidebarPanel_Violinplot")
+                                 ),
+                                 conditionalPanel(id = "wellPanelViolinplot",
+                                                  condition = "true",
+                                                  plotOutput("viewViolinPlot_DS",width = plotWidth,
+                                                             height = plotHeight)
+                                 )
+                     )
+            ),
+            
             #-----------------------------------------------------------
             tabPanel(title = "Densityplot",
                 value="DS_tabDensityplot",
@@ -384,7 +442,7 @@ tabPanel("Descriptive statistics",
                         uiOutput("DS_sidebarPanel_Densityplot")
                     ),
                     conditionalPanel(id = "wellPanelBoxplot",
-                        condition = TRUE,
+                        condition = "true",
                         plotOutput("viewDensityplot_DS",
                             width = plotWidth,
                             height = plotHeight)
@@ -395,7 +453,7 @@ tabPanel("Descriptive statistics",
             #-----------------------------------------------------------
             tabPanel(title="Variance distr.", 
                 value="DS_tabDistVar",
-                p("This graphics shows, for each condition, he distribution 
+                p("This graphics shows, for each condition, the distribution 
                     of the variance of the log-intensities."),
                 plotOutput("viewDistVariance",
                     width = plotWidth,
@@ -405,7 +463,8 @@ tabPanel("Descriptive statistics",
 ),
             
 #### NAVBAR MENU - DATA PROCESSING ################################
-navbarMenu("Data processing"
+navbarMenu("Data processing",
+           id = "dataProcessingNvaMenu"
     ,tabPanel("Filter data",
     icon = icon("download"),
     tabsetPanel(id = "DP_Filtering_tabSetPanel"
@@ -419,17 +478,19 @@ navbarMenu("Data processing"
                         
                     ),
                     conditionalPanel(id = "wellPanelMVFilterTab1",
-                        condition = TRUE,
+                        condition = "true",
                         HTML("The filter below allows keeping the lines that 
 contain a certain amount of quantitative data rather than NA values. <br>
-The threshold to define correponds to the number of quantitative values in a 
+The threshold to define corresponds to the number of quantitative values in a 
 line and means that the lines which contain <br> at least this threshold value 
 are kept. This filtering threshold may be applied on the whole  dataset, on 
 each condition <br> or on at leat one condition."),
                         fluidRow(
-                            column(width = 4, plotOutput("histoMV")),
-                            column(width = 4,plotOutput("histo.missvalues.per.lines")),
-                            column(width = 4,plotOutput("histo.missvalues.per.lines.per.conditions"))
+                            column(width = 4, 
+                                   plotOutput("histoMV_Image")
+                                   ),
+                            column(width = 4,plotOutput("histo.missvalues.per.lines_Image")),
+                            column(width = 4,plotOutput("histo.missvalues.per.lines.per.conditions_Image"))
                         )
                     )
                 )
@@ -443,7 +504,7 @@ each condition <br> or on at leat one condition."),
                     
                 ),
                 conditionalPanel(id = "wellPanelMVFilterTab2",
-                    condition = TRUE,
+                    condition = "true",
                     plotOutput("GlobalPieChart")
                 )
             )
@@ -458,7 +519,7 @@ each condition <br> or on at leat one condition."),
                                   styleclass = "primary")
                 ),
                 conditionalPanel(id = "wellPanelMVFilterTab3"
-                    ,condition = TRUE
+                    ,condition = "true"
                     ,DT::dataTableOutput("VizualizeFilteredData")
                     ,helpText("After checking the data, 
                             validate the filters")
@@ -487,12 +548,12 @@ each condition <br> or on at leat one condition."),
                                 width="170px")
             )
             ,conditionalPanel(id = "wellPanlNormalization",
-                condition = TRUE,
+                condition = "true",
                 uiOutput("helpForNormalizationMethods"),
                 fluidRow(
-                    column(width=6, plotOutput("viewBoxPlot")),
+                    column(width=6, plotOutput("viewBoxPlotNorm")),
                     column(width=6, plotOutput("viewComparisonNorm"))),
-                    plotOutput("viewDensityplot")
+                    plotOutput("viewDensityplotNorm")
             )
         ),
     tags$head(
@@ -514,6 +575,7 @@ each condition <br> or on at leat one condition."),
 ),
 
 tabPanel("Miss. values imputation",
+         id = "tabPanelImputation",
     value = "imputation",
         sidebarCustom(),
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -529,21 +591,25 @@ tabPanel("Miss. values imputation",
                                 styleclass = "primary")
                 ),
                 conditionalPanel(id = "wellPanel_Imputation",
-                    condition = TRUE,
+                    condition = "true",
                         helpText("Select an imputation method before 
                                 performing the imputation of missing values."),
-                    busyIndicator("Calculation In progress",wait = 0),
-                    fluidRow(
-                        column(width = 4, plotOutput("viewNAbyMean")),
-                        column(width = 8, plotOutput("showImageNA"))
-                    )
+                    busyIndicator("Calculation in progress",wait = 0),
+                    #imageOutput("viewNAbyMean"),
+                     fluidRow(
+                         column(width = 5, plotOutput("viewNAbyMean"
+                                                       , height = plotHeight, width = "400px"))
+                         ,column(width = 7, plotOutput("showImageNA"
+                                                        ))
+                     )
                 )
             )
 ),
 
 
 tabPanel("Aggregation",
-         
+         id = "Aggregation",
+         value="Aggregation",
              tabsetPanel(
         title = "agreagationTabsetPanel",
         id = "agreagationTabsetPanel",
@@ -581,7 +647,7 @@ tabPanel("Differential analysis",
                     ,uiOutput("diffAnalysis_sidebarPanelTab1")
                     ),
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab1",
-                    condition = TRUE,
+                    condition = "true",
                     uiOutput("nbSelectedItems"),
                     plotOutput("volcanoplot", height="500px", width="600px")
                 )
@@ -597,12 +663,12 @@ tabPanel("Differential analysis",
                     ,uiOutput("diffAnalysis_sidebarPanelTab2")
                 ),
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab2",
-                    condition = TRUE,
+                    condition = "true",
                     htmlOutput("errMsgCalibrationPlotAll"),
-                    busyIndicator("Calculation In progress",wait = 0),
+                    busyIndicator("Calculation in progress",wait = 0),
                     plotOutput("calibrationPlotAll"),
                     uiOutput("errMsgCalibrationPlot"),
-                    busyIndicator("Calculation In progress",wait = 0),
+                    busyIndicator("Calculation in progress",wait = 0),
                     plotOutput("calibrationPlot")
                 )
             )
@@ -619,9 +685,9 @@ tabPanel("Differential analysis",
                 ),
 
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab3",
-                    condition = TRUE,
+                    condition = "true",
                     uiOutput("nbSelectedItemsStep3"),
-                    br(), br(), hr(),
+                     hr(),
                     fluidRow(
                         column(width= 4, htmlOutput("equivPVal")),
                         column(width= 4, htmlOutput("showFDR"))

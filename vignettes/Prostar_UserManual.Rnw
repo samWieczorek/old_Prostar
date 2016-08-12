@@ -4,6 +4,7 @@
 
 \documentclass[12pt]{article}
 \usepackage{soul}
+\usepackage{url}
 \usepackage[utf8]{inputenc}
 
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
@@ -103,9 +104,9 @@ practitioner that is not comfortable with R programming through the complete
 quantitative analysis process.
 
 
-In DAPAR, a serie of functions may be called from two types of variables: a 
+In \Biocpkg{DAPAR}, a serie of functions may be called from two types of variables: a 
 dataframe that contains quantitative data and an object of class MSnSet. The 
-first case has been developped to make DAPAR easier to use (in command line) 
+first case has been developped to make \Biocpkg{DAPAR} easier to use (in command line) 
 for users who do not want to work with MSnSet files and to be compliant in 
 the future with the Proline Suite (http://proline.profiproteomics.fr/).
 
@@ -196,7 +197,7 @@ directory.\newline
 \shellcmd{unzip Prostar\_xxxx.tar.gz}
 \shellcmd{cd Prostar/R}\newline
 
-Create a directory named Prostar in the Shiny Server directory and then copy 
+Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory and then copy 
 the 3 files: ui.R, global.R and server.R.\newline
 \shellcmd{sudo mkdir /srv/shiny-server/Prostar}
 \shellcmd{sudo cp R/ui.R /srv/shiny-server/Prostar/.}
@@ -254,9 +255,9 @@ This step will automatically install the following packages:
 \caption{Default screen of ProStaR}\label{fig:vuegal}
 \end{figure}
 
-{As illustrated on Fig.~\ref{fig:vuegal}, ProStaR proposes a classical 
+{As illustrated on Fig.~\ref{fig:vuegal}, \Biocpkg{ProStaR} proposes a classical 
 Graphical User Interface (GUI) to visualize and interact with the data. On 
-the top, a navbar menu helps navigating throught the various DAPAR 
+the top, a navbar menu helps navigating throught the various \Biocpkg{DAPAR} 
 functionalities and running them. It is divided into five submenus:
 \begin{itemize}
 \item \textbf {ProStar}: The welcome page, depicted on Fig.~\ref{fig:vuegal}.
@@ -266,7 +267,7 @@ datasets;
 tools that are helpful to understand the dataset, and to picture the 
 influence of the various processing;
 \item \textbf {Data processing}: This is the heart of ProStaR, where all 
-the DAPAR functionalities can be accessed to; 
+the \Biocpkg{DAPAR} functionalities can be accessed to; 
 \item \textbf {Help}: A serie of informations about the software, 
 associated references, etc.
 \end{itemize}
@@ -328,29 +329,45 @@ of \Biocpkg{DAPAR}:\newline
 % @
 
 
-\subsubsection{Import data}\label{sec:import}
-{Alternatively, the user can create a quantitative dataset in the MSnSet 
-format, on the basis of CSV (Comma Separated Values) or Excel files that 
-contains the results of a proteomics analysis. To do so, one has to click 
+\subsubsection{Import}\label{sec:import}
+Alternatively, the user can create a quantitative dataset in the MSnSet 
+format, on the basis of TSV (Tab Separated Values) or Excel files that 
+contain the results of a proteomics analysis. To do so, one has to click 
 on "Convert data to MSnSet". Then, the right panel splits into 5 tabs that 
-guide the user through the various creation of the MSnSet object:}
+guide the user through the procedure to create the MSnSet object. Let us describe the import format first, and the import procedure then. 
+
+\noindent \textbf{Import data}\\
+\noindent Data are imported through a text file (.txt) formatted as a column separated file, with tabulations (\textit{i.e.} "\textbackslash{}t" character) as column separator.
+The first line of the text file contains the column names. A minimum of 4 columns with quantitative values are necessary: As \Biocpkg{ProStaR} is made for label-free discovery proteomics, it is required to have \textit{a minima} 2 conditions (or groups, or labels) to compare; moreover, 2 replicates per conditions are necessary, so that it is possible to compute a condition-wise variance. Regarding the quantitative values, the decimal separator is ".", and the intensities may be either log-transformed or not. It is also advised to have an additional columns that contains IDs (that is that gives a unique name to each line of the dataset). If such a unique ID does not appear in the dataset, one will be automatically generated.
+
+Of course, it is possible to have more columns with quantitative values; as well as additional columns with other information. The latter ones will be considered as metadata when imported.
+
+It is recommended to avoid special characters such as "$\sharp$", "@", "\$", "\%", etc. that are automatically removed. Similarly spaces in column names are replaced by ".".
+
+If the dataset describes proteins, each line should correspond to one and only one protein. 
+If the dataset describes peptides, each line should correspond to one and only one peptide. In addition, it is necessary to have a column that lists (separated by a ";") all the parent proteins of each peptide, as this piece of information is mandatory for the aggregation. It is also necessary that these parent proteins are describe by a unique ID (so as to avoid confusion between the proteins).
+
+As an example, please find at the following address a dataset abstract that can be inspired from: \url{http://www.bioconductor.org/packages/release/bioc/readmes/Prostar/README}. 
+
+
+\noindent \textbf{Import procedure}\\
+\noindent Several panels guide the user through the different steps of the procedure:
 
 \textbf {Select file}: Select the CSV/txt or Excel file to import (see 
-Fig.~\ref{fig:imp1}). These files must contain a table where each line 
+Fig.~\ref{fig:imp1}). The file must contain a table where each line 
 corresponds to a peptide or protein, except the first one which must contain 
 the names of the colums. 
 If the user chooses an Excel file, a dropdown menu appears and ask the user to 
-select the spreadsheet containing the data. Among the colums, one must 
-contain an ID that uniquely defines the peptides or proteins, as well as a 
-series of columns containing the abundance values (either log-transformed or 
-not). As it appears in Fig.~\ref{fig:imp1}, some options allows for 
-specifying if the data are related to peptides or proteins, the log2 
-transformation of the abundance values \footnote{In DAPAR, the analysis is 
+select the spreadsheet containing the data. 
+
+As it appears in Fig.~\ref{fig:imp1}, some options allows for 
+specifying if data are related to peptides or proteins, if the abundance values
+are already log-transformed or not \footnote{In \Biocpkg{DAPAR}, the analysis is 
 always conducted on log-transformed data. They may have previously been 
-transformed, but if not, then DAPAR automatically performs the transformation. 
-The user should not try applying any DAPAR processing on data that are not 
-log-transformed, for the result would be dubious.}, as well as for 
-automatically replacing the $0$ and $NaN$ values by \textbf{NA}. 
+transformed, but if not, then \Biocpkg{DAPAR} automatically performs the transformation. 
+The user should not try applying any \Biocpkg{DAPAR} processing on data that are not 
+log-transformed, for the result would be dubious.}, and also if $0$ and $NaN$ 
+values should be replaced by \textbf{NA}. 
 %These options are checked by default.
 \begin {figure}
 \centering
@@ -358,8 +375,8 @@ automatically replacing the $0$ and $NaN$ values by \textbf{NA}.
 \caption{Importing an Excel file, tab 1.}\label{fig:imp1}
 \end {figure}
 
-{\textbf {Data ID}: This step is to set the column that correspond to the 
-unique ID of peptides or proteins. The user has two options: let Prostar 
+{\textbf {Data ID}: This step is to set the column that corresponds to the 
+unique ID of peptides or proteins. The user has two options: let \Biocpkg{ProStaR} 
 creates such an ID by itself or choose among the columns available in the 
 data file. If choosing the second option, then a drop-down menu appears and 
 provides the list of the column names. A column corresponding to the unique 
@@ -372,11 +389,12 @@ him to choose another column.}
 \caption{Importing a CSV file, tab 2.}\label{fig:imp2}
 \end {figure}
 
-\textbf {Exp. and Feat. data}: In the "Quantitative data" list, select the 
-columns that correspond to the quantitative data. Each time the user selects 
-an item in the list, it is moved up to the field above (see 
-Fig.~\ref{fig:imp3}). If an item is selected by mistake, it can be removed by 
-pressing on the SUPPR key.
+\textbf {Exp. and Feat. data}: In the "Quantitative data" list, select (one 
+after the other) the columns that correspond to the quantitative data. 
+Each time the user selects an item in the list, it is moved up to the field 
+above (see Fig.~\ref{fig:imp3}). If an item is selected by mistake, it can be 
+removed by pressing on the SUPPR key.
+\newline Please note that the decimal separator should be ".". 
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=\textwidth]{images/convert_exp_featdata.png}}
@@ -384,14 +402,19 @@ pressing on the SUPPR key.
 \end {figure}
 
 \textbf {Sample metadata}: In this tab, the user fills the informations 
-related to the samples. The colum named \emph{Experiment} is filled by default 
-with the name of the different samples. The user fills the other columns: 
-\emph{Label} correspond to the conditions of the experiment that will be 
+related to the samples, \textit{i.e.} the experimental design. The colum named 
+\emph{Experiment} is filled by default with the name of the different samples. 
+The user fills the other columns: 
+\emph{Label} corresponds to the conditions of the experiment that will be 
 compared during the differential analysis; \emph{Bio.Rep}, \emph{Tech.rep} 
 and \emph{Analyt.Rep.} correspond respectively to the biological, technical 
 and analytical replicates (Fig.~\ref{fig:imp4}). The column Label is 
 mandatory (for the subsequent differential analysis), the other ones are 
 optional.
+\newline For the case of a peptide dataset, and in order to be able to agregate
+the peptides intensities on proteins ones : there should be a column indicating,
+for each peptide, the protein/s the peptide belongs to. If a peptide belongs to
+more than one protein, proteins names should be separated by ";".  
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.67\textwidth]{images/convert_sampledata.png}}
@@ -436,6 +459,15 @@ and \Rfunction{saveRDS()} (to export in MSnSet format).
 right-clicking on the plot. A contextual menu appears and let the user 
 choose either "Save image as" or "Copy image". In the latter case, he/she has 
 to paste the image in appropriate software.}
+
+\subsubsection{Demo mode}
+
+In order to facilitate first steps with Prostar, the "demo mode" menu allows 
+the user to access the datasets contained in the package \Biocpkg{DAPARdata}. 
+When the user chooses one of those datasets, it is automatically loaded in 
+\Biocpkg{Prostar}. It can be used to easily test the various functionalities of
+\Biocpkg{Prostar}.
+
 
 \subsubsection{Session log}\label{sec:sessionlog}
 

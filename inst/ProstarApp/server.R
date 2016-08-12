@@ -1,5 +1,5 @@
 options(shiny.maxRequestSize=30*1024^2) 
-options(shiny.trace=TRUE)
+options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
 library(shiny)
@@ -7,6 +7,8 @@ library(rhandsontable)
 library(data.table)
 library(reshape2)
 library(DT)
+library(MSnbase)
+library(XLConnect)
 
 
 # initialize data with colnames
@@ -21,7 +23,7 @@ port <- data.table(Experiment=list(),
 
 shinyServer(function(input, output, session) {
 cat(file=stderr())
-
+    Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     
     
 
@@ -55,9 +57,48 @@ rv <- reactiveValues(
     commandLog = NULL, 
     normalizationFamily = NULL,
     normalizationMethod = NULL, 
-    matAdj = NULL)
+    matAdj = NULL,
+    test = NULL, 
+    resAnaDiff = list(logFC=NULL, P.Value=NULL))
+
+
+initializeProstar <- reactive({
+    
+    rv$current.obj = NULL
+    rv$current.obj.name = NULL
+    rv$deleted.mvLines = NULL
+    rv$deleted.contaminants = NULL
+    rv$deleted.reverse = NULL
+    # variable to keep memory of previous datasets before 
+    # transformation of the data
+    rv$dataset = list()
+    # Variable that contains the log for the current R session
+    rv$text.log = data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
+    rv$seuilLogFC = 0
+    rv$seuilPVal = 1e-60
+    rv$tab1 = NULL
+    rv$dirname = ""
+    rv$dirnameforlink = ""
+    rv$conditions = list(cond1 = NULL, cond2 = NULL)
+    rv$temp.aggregate = NULL
+    rv$hot = port 
+    rv$calibrationRes = NULL
+    rv$errMsgcalibrationPlot = NULL
+    rv$errMsgcalibrationPlotALL = NULL
+    rv$typeOfDataset = ""
+    rv$widthSidebar = 3
+    rv$commandLog = NULL 
+    rv$normalizationFamily = NULL
+    rv$normalizationMethod = NULL 
+    rv$matAdj = NULL
+    test = NULL
+    rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
+})
+
+
 
 env <- environment()
+sessionID <- Sys.getpid()
 
 writeToCommandLogFile <- function(txt){
     
@@ -69,9 +110,20 @@ writeToCommandLogFile <- function(txt){
     #     append = TRUE)
 }
 
-if (file.exists(commandLogFile)){
-    file.remove(commandLogFile)
-}
+dirSessionPath <- paste(tempdir(), sessionID, sep="/")
+ if (!dir.exists(dirSessionPath)){
+     dir.create(dirSessionPath)
+ }
+
+
+
+output$currentObjLoaded <- reactive({
+    rv$current.obj
+    return(!is.null(rv$current.obj))})
+
+outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
+
+
 
 output$code <- renderUI({
     rv$commandLog
@@ -115,6 +167,7 @@ output$hot <- renderRHandsontable({
     rhandsontable(DT) %>% 
     hot_cols(colWidths = c(200, 100, 100, 100, 100) ) %>%
     hot_rows(rowHeights = 30) %>%
+    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
     hot_col(col = "Experiment", readOnly = TRUE)
 })
 
@@ -127,7 +180,7 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
     if (is.null(rv$current.obj)) { return(NULL)}
     method <- NULL
     threshold.logFC <- 0
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         
         method <- rv$current.obj@experimentData@other$method
         threshold.logFC <- rv$current.obj@experimentData@other$threshold.logFC
@@ -138,7 +191,7 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
                     uiOutput("RenderLimmaCond1"),
                     uiOutput("RenderLimmaCond2"),
                     selectInput("diffAnaMethod","Choose the statistical test",
-                                choices = c("None","Limma", "Welch"),
+                                choices = c("Limma", "Welch"),
                                 selected = method),
                     numericInput("seuilLogFC", "Define log(FC) threshold",
                                 min = 0,value = threshold.logFC,step=0.1),
@@ -148,7 +201,7 @@ HTML("This corresponds to the ratio: <br>Condition 2 / Condition 1.")
 
 output$diffAnalysis_sidebarPanelTab2 <- renderUI({
     calibMethod <- "pounds"
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         calibMethod <- rv$current.obj@experimentData@other$calibrationMethod
         if (is.null(calibMethod)) calibMethod <- "pounds"
     }
@@ -169,7 +222,7 @@ output$diffAnalysis_sidebarPanelTab3 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return (NULL)}
     threshold.PVal <- 0
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         threshold.PVal <- rv$current.obj@experimentData@other$threshold.p.value
         #cond2 <- rv$current.obj@experimentData@other$condition2
     }
@@ -188,7 +241,6 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     filter <- NULL
-    #print(rv$current.obj@experimentData@other$mvFilter.method)
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
     conditionalPanel(condition= "true"
@@ -278,23 +330,23 @@ output$VizualizeFilteredData <- DT::renderDataTable({
         obj <- rv$deleted.mvLines
         if(input$ChooseTabAfterFiltering == "quantiData" )
         {
-        data <- cbind(ID = rownames(fData(obj)),
-                    round(exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+        data <- cbind(ID = rownames(Biobase::fData(obj)),
+                    round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
     } else if ((input$ChooseViewAfterFiltering == "Contaminants") 
                 && !is.null(rv$deleted.contaminants)) { 
     obj <- rv$deleted.contaminants
     if(input$ChooseTabAfterFiltering == "quantiData" )
-        {data <- cbind(ID = rownames(fData(obj)),
-                        round(exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+        {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                        round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
     } else if ((input$ChooseViewAfterFiltering == "Reverse") 
                 && !is.null(rv$deleted.reverse)){
         obj <- rv$deleted.reverse
         if(input$ChooseTabAfterFiltering == "quantiData" )
-        {data <- cbind(ID = rownames(fData(obj)),
-                        round(exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(fData(obj)),fData(obj))}
+        {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                        round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
     }
     
     
@@ -358,7 +410,7 @@ output$DS_sidebarPanel_tab <- renderUI({
 
 output$DS_sidebarPanel_heatmap <- renderUI({
 
-conditionalPanel(condition='TRUE',
+conditionalPanel(condition= "true",
                     h3("Clustering Options"),
                     radioButtons("distance","Distance",
                                 choices = list(euclidean ="euclidean",
@@ -372,7 +424,7 @@ conditionalPanel(condition='TRUE',
 
 
 output$DS_sidebarPanel_Densityplot <- renderUI({
-conditionalPanel(condition='TRUE',
+conditionalPanel(condition= "true",
                     uiOutput("nGroup_DS"),
                     br(),
                     uiOutput("nShow_DS"))
@@ -382,19 +434,23 @@ conditionalPanel(condition='TRUE',
 
 
 output$DS_sidebarPanel_Boxplot <- renderUI({
-conditionalPanel(condition='TRUE',
+conditionalPanel(condition= "true",
                     uiOutput("ChooseLegendForAxis_DS"))
-
 })
 
+output$DS_sidebarPanel_Violinplot <- renderUI({
+    conditionalPanel(condition= "true",
+                        uiOutput("ChooseLegendForAxisViolin_DS"))
 
+})
 
 
 
 #----------------------------------------------
 output$tabToShow <- renderUI({
 input$DS_TabsChoice
-
+if (is.null(input$DS_TabsChoice)) {return(NULL)}
+    
 if (input$DS_TabsChoice == "tabExprs"){DT::dataTableOutput("viewExprs")}
 else if (input$DS_TabsChoice == "tabfData"){DT::dataTableOutput("viewfData")}
 else if (input$DS_TabsChoice == "tabpData"){DT::dataTableOutput("viewpData")}
@@ -416,22 +472,18 @@ ComputeMVTags <- reactive({
 })
 
 ########################################################
-ComputeAdjacencyMatrix <- reactive({
-    #       input$proteinId
-    #       rv$current.obj
-    #       if (is.null(input$proteinId)){return(NULL)}
-    #       if (is.null(rv$current.obj)){return(NULL)}
-    #       
-    matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                            input$proteinId,
-                                            FALSE)
-    matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                            input$proteinId,
-                                            TRUE)
-
-    rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
-                matWithUniquePeptides=matUniquePeptides)
-})
+# ComputeAdjacencyMatrix <- reactive({
+# 
+#     matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+#                                             input$proteinId,
+#                                             FALSE)
+#     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+#                                             input$proteinId,
+#                                             TRUE)
+# 
+#     rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
+#                 matWithUniquePeptides=matUniquePeptides)
+# })
 
 ########################################################
 RunAggregation <- reactive({
@@ -440,7 +492,7 @@ RunAggregation <- reactive({
     if (is.null(rv$matAdj)) { return (NULL)}
     
     n <- NULL
-    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { n <- input$nTopn}
+    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { n <- as.numeric(input$nTopn)}
     
     
     tryCatch (
@@ -476,6 +528,8 @@ RunAggregation <- reactive({
         #     )
         # )
         }
+        
+        return(data)
     },
     err=function(errorCondition) {
         cat("in err handler")
@@ -483,54 +537,62 @@ RunAggregation <- reactive({
     })
     
     
-    
-    return(data)
+   
 })
 
 ########################################################
-RunDiffAna <- reactive({
+observe({
     input$diffAnaMethod
     rv$current.obj
     input$condition1
     input$condition2
+    if (is.null(input$diffAnaMethod)) {return (NULL)}
+    if (is.null(rv$current.obj)) {return (NULL)}
+    if (is.null(input$condition1)) {return (NULL)}
+    if (is.null(input$condition2)) {return (NULL)}
+    if (input$condition1 == input$condition2) {return (NULL)}
+
     
     data <- NULL
     
-    
-    result = tryCatch(
-    {
-        writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
-        writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
-        writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
-        
-        if (input$diffAnaMethod == "Limma"){
-        data <- wrapper.diffAnaLimma(rv$current.obj, 
-                                    input$condition1, 
-                                    input$condition2)
-        writeToCommandLogFile(
-            "data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"
-            )
-        
-        } else if (input$diffAnaMethod == "Welch"){
-        data <- wrapper.diffAnaWelch(rv$current.obj, 
-                                    input$condition1, 
-                                    input$condition2)
-        writeToCommandLogFile(
-            "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)"
+    isolate({
+        result = tryCatch(
+            {
+                writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
+                writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
+                writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                
+                if (input$diffAnaMethod == "Limma"){
+                    rv$resAnaDiff <- wrapper.diffAnaLimma(rv$current.obj, 
+                                                          input$condition1, 
+                                                          input$condition2)
+                    writeToCommandLogFile(
+                        "data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"
+                    )
+                    
+                } else if (input$diffAnaMethod == "Welch"){
+                    rv$resAnaDiff <- wrapper.diffAnaWelch(rv$current.obj, 
+                                                          input$condition1, 
+                                                          input$condition2)
+                    writeToCommandLogFile(
+                        "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)"
+                    )
+                }
+            }
+            #, warning = function(w) {
+            #    shinyjs::info(conditionMessage(w))
+            #}
+            , error = function(e) {
+                shinyjs::info(conditionMessage(e))
+            }, finally = {
+                #cleanup-code
+                
+            }
+            
         )
-        }
-    }
-    , warning = function(w) {
-        shinyjs::info(w)
-    }, error = function(e) {
-        shinyjs::info(e)
-    }, finally = {
-        #cleanup-code
         
-    }
+    })
     
-)
-    return(data)
 })
 
 
@@ -544,7 +606,7 @@ UpdateLog <- function(text, name){
 
 ######################################
 GetNbNA <- reactive({
-    nb <- sum(is.na(exprs(rv$current.obj))==TRUE)
+    nb <- sum(is.na(Biobase::exprs(rv$current.obj))==TRUE)
     return(nb)
 })
 
@@ -553,12 +615,24 @@ GetNbNA <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
-    
+
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
+
+    #Si on a deja des pVal, alors, ne pas recalculer 
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+        rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
+                              P.Value = Biobase::fData(rv$current.obj)$P.Value)
+        rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold.logFC
+        rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold.p.value
+        
+    }
+
     
     name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
+    
+    
     writeToCommandLogFile("dataset <- list()")
     
     writeToCommandLogFile(
@@ -571,7 +645,7 @@ loadObjectInMemoryFromConverter <- reactive({
     UpdateFilterWidgets()
 
     updateSelectInput(session, "datasets", 
-                    label = "Dataset versions",
+                    label = paste("Dataset versions of",rv$current.obj.name, sep=" "),
                     choices = names(rv$dataset),
                     selected = name)
 
@@ -581,19 +655,36 @@ loadObjectInMemoryFromConverter <- reactive({
 
 #---------------------------------------------------- 
 ClearMemory <- function(){
+    
+    
     obj2remove <- c(
     "rv$nameOfDataset",
+    "rv$current.obj",
+    "rv$current.obj.name",
+    "rv",
     "session",
     "input",
     "output")
     
     
-    rv$text.log <- list()
-    rv$tab1 <- NULL
-    rv$current.obj <- NULL
-    rv$dataset <- list()
+    # rv$text.log <- list()
+    # rv$tab1 <- NULL
+    # rv$current.obj <- NULL
+    # rv$dataset <- list()
     
+    initializeProstar()
+    rv$hot = port
+   # print(rv$hot)
     updateSelectInput(session, "datasets",  "", choices = "none")
+    updateRadioButtons(session,"typeOfData",selected = "peptide" )
+    updateRadioButtons(session, "checkDataLogged", selected="no")
+    updateRadioButtons(session, "autoID", selected = "Auto ID")
+    
+    updateSelectInput(session, "idBox", selected = NULL)
+    
+    updateSelectizeInput(session,"eData.box",choices = NULL, selected=NULL)
+    updateTextInput(session,"filenameToCreate",value= "")
+    
     #UpdateLog("Memory has been cleared","none")
     updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
     updateRadioButtons(session,
@@ -606,6 +697,73 @@ ClearMemory <- function(){
 }
 
 
+
+
+
+output$chooseDataset <- renderUI({
+    
+    if(require("DAPARdata")){
+        print("DAPARdata is loaded correctly")
+        selectInput("demoDataset",
+                    "Choose a demo dataset",
+                    choices = data(package='DAPARdata')$results[,"Item"])
+    } else {
+        print("trying to install DAPARdata")
+        install.packages("DAPARdata")
+        if(require(DAPARdata)){
+            print("DAPARdata installed and loaded")
+            selectInput("demoDataset",
+                        "Choose a demo dataset",
+                        choices = data(package='DAPARdata')$results[,"Item"])
+        } else {
+            stop("could not install the package DAPARdata")
+        }
+    }
+
+
+})
+
+
+
+output$chooseExportFilename <- renderUI({
+    textInput("nameExport", 
+              label = "Enter the name of the files to be created",
+              value = rv$current.obj.name)
+})
+
+
+observe({
+    input$loadDemoDataset
+    if (is.null(input$loadDemoDataset) || (input$loadDemoDataset == 0)) {return(NULL)}
+    
+    isolate({
+            ClearMemory()
+        data(list = input$demoDataset)
+        rv$current.obj <- get(input$demoDataset)
+        rv$current.obj.name <- input$demoDataset
+        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+            
+            # writeToCommandLogFile(
+            #     paste("current.obj <- readRDS('",
+            #           input$file$name,
+            #           "')", sep="")
+            # )
+            
+            result = tryCatch(
+                {
+                    loadObjectInMemoryFromConverter()
+                }
+                , warning = function(w) {
+                    shinyjs::info(conditionMessage(w))
+                }, error = function(e) {
+                    shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                }, finally = {
+                    #cleanup-code 
+                })
+
+    })
+    
+})
 
 ##-- Open a MSnset File --------------------------------------------
 observe({ 
@@ -623,6 +781,7 @@ observe({
         rv$current.obj <- readRDS(input$file$datapath)
         rv$current.obj.name <- DeleteFileExtension(input$file$name)
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        loadObjectInMemoryFromConverter()
         
         writeToCommandLogFile(
             paste("current.obj <- readRDS('",
@@ -630,7 +789,7 @@ observe({
                                 "')", sep="")
         )
        
-        loadObjectInMemoryFromConverter()
+        
 }
     })
 })
@@ -646,24 +805,36 @@ observe({
         {return(NULL)}
     
     isolate({
-    if (input$normalization.method != "None") {
-        
-        rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-        name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
-        rv$dataset[[name]] <- rv$current.obj
-        
-        
-        #write command log file
-        writeToCommandLogFile(
-            paste("rv$dataset[['",name,"']] <- current.obj", sep="")
-        )
-        
-        updateSelectInput(session, "datasets", 
-                        choices = names(rv$dataset),
-                        selected = name)
-        UpdateLog(paste("Normalization : data normalized with the method",
-                        input$normalization.method, sep=" "), name)
-    }
+        result = tryCatch(
+            {
+                if (input$normalization.method != "None") {
+                    
+                    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                    name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
+                    rv$dataset[[name]] <- rv$current.obj
+                    
+                    
+                    #write command log file
+                    writeToCommandLogFile(
+                        paste("rv$dataset[['",name,"']] <- current.obj", sep="")
+                    )
+                    
+                    updateSelectInput(session, "datasets", 
+                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                      choices = names(rv$dataset),
+                                      selected = name)
+                    UpdateLog(paste("Normalization : data normalized with the method",
+                                    input$normalization.method, sep=" "), name)
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
     } )
 })
 
@@ -682,6 +853,10 @@ observe({
     #if (is.null(input$aggregationMethod)) {return(NULL)}
     if (is.null(rv$temp.aggregate)) {return(NULL)}
     
+    result = tryCatch(
+        {
+            
+            
     isolate({
     input$aggregationMethod
     input$proteinId
@@ -693,7 +868,6 @@ observe({
     ##concatenation des informations
     #mat <- ComputeAdjacencyMatrix()
     m <- NULL
-    print("m = NULL")
     if (input$checkSharedPeptides){ 
         m <- rv$matAdj$matWithSharedPeptides
        # writeToCommandLogFile("m <- mat$matWithSharedPeptides")
@@ -701,17 +875,15 @@ observe({
     #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
     }
         
-    print(m[1:10, 1:10])
     
     for(c in input$columnsForProteinDataset.box){
-        newCol <- BuildColumnToProteinDataset(fData(rv$current.obj), m, c)
-        cnames <- colnames(fData(rv$temp.aggregate))
-        fData(rv$temp.aggregate) <- 
-            data.frame(fData(rv$temp.aggregate), newCol)
-        colnames(fData(rv$temp.aggregate)) <- c(cnames, c)
+        newCol <- BuildColumnToProteinDataset(Biobase::fData(rv$current.obj), m, c)
+        cnames <- colnames(Biobase::fData(rv$temp.aggregate))
+        Biobase::fData(rv$temp.aggregate) <- 
+            data.frame(Biobase::fData(rv$temp.aggregate), newCol)
+        colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
     }
     
-    print("apres")
     rv$current.obj <- rv$temp.aggregate
     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
     name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
@@ -746,7 +918,8 @@ observe({
     # 
     
     updateSelectInput(session, "datasets", 
-                        choices = names(rv$dataset),
+                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                      choices = names(rv$dataset),
                         selected = name)
     UpdateLog(
         paste("Aggregation : peptides were aggregated into 
@@ -758,6 +931,16 @@ observe({
     rv$temp.aggregate <- NULL
     
     } )
+            
+        }
+   , warning = function(w) {
+       shinyjs::info(conditionMessage(w))
+   }, error = function(e) {
+       shinyjs::info(paste("Validate the agregatino",":",conditionMessage(e), sep=" "))
+   }, finally = {
+       #cleanup-code 
+   })
+            
 })
 
 ##' -- Validate the imputation ---------------------------------------
@@ -769,21 +952,36 @@ observe({
     {return(NULL)}
     
     isolate({
-    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-    name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
+        
+        result = tryCatch(
+            {
+                
+                #rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
+                
+                rv$dataset[[name]] <- rv$current.obj
+                #write command log file
+                writeToCommandLogFile(
+                    paste("rv$dataset[['",name,"']] <- current.obj", sep="")
+                )
+                
+                updateSelectInput(session, "datasets", 
+                                  paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                  choices = names(rv$dataset),
+                                  selected = name)
+                UpdateLog(paste("Imputation with" ,
+                                input$missing.value.algorithm,sep=" "),
+                          name)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste("Validate the imputation",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
     
-    rv$dataset[[name]] <- rv$current.obj
-    #write command log file
-    writeToCommandLogFile(
-        paste("rv$dataset[['",name,"']] <- current.obj", sep="")
-    )
-    
-    updateSelectInput(session, "datasets", 
-                        choices = names(rv$dataset),
-                        selected = name)
-    UpdateLog(paste("Imputation with" ,
-                    input$missing.value.algorithm,sep=" "),
-                name)
     })
 })
 
@@ -797,11 +995,13 @@ output$showFDR <- renderText({
     rv$seuilLogFC
     input$numericValCalibration
     input$calibrationMethod
+    rv$resAnaDiff
     
     
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return(NULL)}
     if (is.null(rv$current.obj)) {return(NULL)}
+    if (is.null(rv$resAnaDiff$logFC)) {return(NULL)}
     if (is.null(input$condition1) || is.null(input$condition2) ) 
     {return(NULL)}
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
@@ -812,23 +1012,40 @@ output$showFDR <- renderText({
     if ((input$condition1 == input$condition2)) {return(NULL)}
     
     isolate({
-    rv$current.obj
-    
-    if (  !(("logFC" %in% names(rv$current.obj@experimentData@other) ) && 
-            ("P.Value"  %in% names(rv$current.obj@experimentData@other))))
-    {
-        data <- RunDiffAna()
-        if (is.null(data)) {return (NULL)}
-        m <- NULL
-        if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
-        else if (input$calibrationMethod == "numeric value") {
-            m <- input$numericValCalibration} 
-        else {m <- input$calibrationMethod }
+        result = tryCatch(
+            {
+                
+                
+                m <- NULL
+                if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
+                else if (input$calibrationMethod == "numeric value") {
+                    m <- as.numeric(input$numericValCalibration)} 
+                else {m <- input$calibrationMethod }
+                
+                fdr <- diffAnaComputeFDR(rv$resAnaDiff, rv$seuilPVal, rv$seuilLogFC, m)
+                
+                if (!is.infinite(fdr)){
+                HTML(paste("<h4>FDR = ", round(100*fdr, digits=2)," % </h4>", sep=""))
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info("Warning ! There is no data selected ! Please modify the p-value threshold.")
+            }, error = function(e) {
+                shinyjs::info(paste("Show FDR",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
         
-        fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
-        HTML(paste("<h4>FDR = ", round(100*fdr, digits=2)," % </h4>", sep=""))
-    }
+       
+        
     })
+})
+
+
+session$onSessionEnded(function() {
+    setwd(tempdir())
+    graphics.off()
+    unlink(sessionID, recursive = TRUE)
 })
 
 
@@ -843,8 +1060,8 @@ output$histPValue <- renderPlot({
     
     t <- NULL
     # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-    if (isContainedIn(c("logFC","P.Value"),names(fData(rv$current.obj)) ) ){
-    t <- fData(rv$current.obj)[,"P.Value"]
+    if (isContainedIn(c("logFC","P.Value"),names(Biobase::fData(rv$current.obj)) ) ){
+    t <- Biobase::fData(rv$current.obj)[,"P.Value"]
     } else{
     data <- RunDiffAna()
     if (is.null(data)) {return (NULL)}
@@ -912,68 +1129,78 @@ catchToList <- function(expr) {
 } 
 
 
-
-
 output$calibrationPlot <- renderPlot({
-    input$calibrationMethod
-    input$numericValCalibration
-    rv$seuilLogFC
-    
-    if (
-        is.null(rv$seuilPVal) ||
-        is.null(rv$seuilLogFC) ||
-        is.null(input$diffAnaMethod)
-    ) {return(NULL)}
-    if (input$condition1 == input$condition2) {return(NULL)}
-    
-    
-    t <- NULL
-    method <- NULL
-    # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-    if (isContainedIn(c("logFC","P.Value"),names(fData(rv$current.obj)) ) ){
-    t <- fData(rv$current.obj)$P.Value
-    t <- t[which(abs(fData(rv$current.obj)$logFC) >= 
-                    rv$current.obj@experimentData@other$threshold.logFC)]
-    method <- NULL
-    } else{
-    data <- RunDiffAna()
-    if (is.null(data)) {return (NULL)}
-    t <- data$P.Value
-    t <- t[which(abs(data$logFC) >= rv$seuilLogFC)]
-    method <- NULL
-    }
-    
-    
-    ll <- NULL
 
-        if ((input$calibrationMethod == "numeric value") 
-            && !is.null(input$numericValCalibration)) {
-        #print("methode numeric value")
-        ll <-catchToList(
-            wrapperCalibrationPlot(t, input$numericValCalibration))
-        rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
-        }
-        else if (input$calibrationMethod == "Benjamini-Hochberg") {
-        #print("methode BH")
-        ll <-catchToList(wrapperCalibrationPlot(t, 1))
-        rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
-        }else { 
-        ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
-        rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
-        }
+        rv$seuilPVal
+        rv$seuilLogFC
+        input$condition1
+        input$condition2
+        input$diffAnaMethod
+        rv$resAnaDiff
+        
+        if (is.null(input$condition1) || is.null(input$condition2) ||
+            is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+            (input$condition1 == input$condition2) ||
+            (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
+        
+        cond <- c(input$condition1, input$condition2)
+        # ________
+        
+        if (is.null(input$calibrationMethod)  ) {return(NULL)}
+        #if (input$condition1 == input$condition2) {return(NULL)}
+        
+        
+        t <- NULL
+        method <- NULL
+        t <- rv$resAnaDiff$P.Value
+        t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
+        
+        l <- NULL
+        
+        
+        ll <- NULL
+        result = tryCatch(
+            {
 
-})
+                if ((input$calibrationMethod == "numeric value") 
+                    && !is.null(input$numericValCalibration)) {
+                    
+                    ll <-catchToList(
+                        wrapperCalibrationPlot(t, as.numeric(input$numericValCalibration)))
+                    rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
+                }
+                else if (input$calibrationMethod == "Benjamini-Hochberg") {
+                    
+                    ll <-catchToList(wrapperCalibrationPlot(t, 1))
+                    rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
+                }else { 
+                    ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
+                    rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
+                }
 
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste("Calibration plot",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
+    
 
 
 output$errMsgCalibrationPlot <- renderUI({
     rv$errMsgCalibrationPlot
+    rv$seuilLogFC
     if (is.null(rv$errMsgCalibrationPlot) ) {return(NULL)}
     
     txt <- NULL
     
     for (i in 1:length(rv$errMsgCalibrationPlot)) {
-    txt <- paste(txt, "toto",rv$errMsgCalibrationPlot[i], "<br>", sep="")
+        txt <- paste(txt, "toto",rv$errMsgCalibrationPlot[i], "<br>", sep="")
     }
     
     div(HTML(txt), style="color:red")
@@ -983,45 +1210,57 @@ output$errMsgCalibrationPlot <- renderUI({
 
 output$errMsgCalibrationPlotAll <- renderUI({
     rv$errMsgCalibrationPlotAll
+    rv$seuilLogFC
     if (is.null(rv$errMsgCalibrationPlotAll) ) {return(NULL)}
     
     txt <- NULL
     for (i in 1:length(rv$errMsgCalibrationPlotAll)) {
-    txt <- paste(txt, rv$errMsgCalibrationPlotAll[i], "<br>", sep="")
+        txt <- paste(txt, rv$errMsgCalibrationPlotAll[i], "<br>", sep="")
     }
-
-div(HTML(txt), style="color:red")
+    
+    div(HTML(txt), style="color:red")
 })
 
 
+#--------------------------------------------------
 output$calibrationPlotAll <- renderPlot({
-    if (
-    is.null(rv$seuilPVal) ||
-    is.null(rv$seuilLogFC) ||
-    is.null(input$diffAnaMethod)
-    ) {return(NULL)}
-    if (input$condition1 == input$condition2) {return(NULL)}
+    rv$seuilPVal
+    rv$seuilLogFC
+    input$condition1
+    input$condition2
+    input$diffAnaMethod
+    rv$resAnaDiff
+    
+    if (is.null(input$condition1) || is.null(input$condition2) ||
+        is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+        (input$condition1 == input$condition2) ||
+        (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
+    
+    cond <- c(input$condition1, input$condition2)
+    # ________
+    
+    if (is.null(input$calibrationMethod)  ) {return(NULL)}
+    #if (input$condition1 == input$condition2) {return(NULL)}
+    
     
     t <- NULL
-    # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-    if (isContainedIn(c("logFC","P.Value"),names(fData(rv$current.obj)) ) ){
-    t <- fData(rv$current.obj)$P.Value
-    t <- t[which(abs(fData(rv$current.obj)$logFC) 
-                >= rv$current.obj@experimentData@other$threshold.logFC)]
-    
-    } else{
-    data <- RunDiffAna()
-    if (is.null(data)) {return (NULL)}
-    t <- data$P.Value
-    t <- t[which(abs(data$logFC) >= rv$seuilLogFC)]
-    
-    }
-    
+    method <- NULL
+    t <- rv$resAnaDiff$P.Value
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
     
     l <- NULL
-    l <-catchToList(wrapperCalibrationPlot(t, "ALL")  )
-    rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:", l$warnings)]
-
+    result = tryCatch(
+        {
+            l <-catchToList(wrapperCalibrationPlot(t, "ALL")  )
+            rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:", l$warnings)]
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste("Calibration Plot All methods",":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
 })
 
 
@@ -1031,18 +1270,32 @@ output$calibrationPlotAll <- renderPlot({
 observe({ 
     input$datasets
     
-    isolate({
-    if (!is.null(input$datasets)) {
-        rv$current.obj <- rv$dataset[[input$datasets]]
-        if (!is.null( rv$current.obj))
-            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-        UpdateLog(
-        paste("Current dataset has changed. Now, it is ",
-            input$datasets, 
-            sep=" "),
-        input$datasets)
-    }
-    })
+    
+#        result = tryCatch(
+#            {
+                isolate({
+                    if (!is.null(input$datasets)) {
+                    rv$current.obj <- rv$dataset[[input$datasets]]
+                    
+                    if (!is.null( rv$current.obj))
+                        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+                    UpdateLog(
+                        paste("Current dataset has changed. Now, it is ",
+                              input$datasets, 
+                              sep=" "),
+                        input$datasets)
+                    }
+                   # print(length(which(is.na(exprs(rv$current.obj))==TRUE)))
+                })
+            # }
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(conditionMessage(e))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
+
     
 })
 
@@ -1054,21 +1307,37 @@ output$viewExprs <- DT::renderDataTable({
     input$nDigits
     if (is.null(rv$current.obj)) {return(NULL)}
     if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
-    data <- cbind(ID = rownames(fData(rv$current.obj)),
-                        round(exprs(rv$current.obj), 
-                                digits=nDigits))
-    dat <- DT::datatable(data, 
-                    options=list(pageLength=DT_pagelength,
-                                orderClasses = TRUE,
-                                autoWidth=FALSE)
-                    )
     
-    # %>% formatStyle(
-    #                              colnames(data)[1:3],
-    #                              valueColumns = 4,
-    # backgroundColor = styleInterval( 0, c('orange','white'))
-    #                            )
-    return(dat)
+    
+    #result = tryCatch(
+     #   {
+            
+            data <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+                          round(Biobase::exprs(rv$current.obj), 
+                                digits=nDigits))
+            dat <- DT::datatable(data, 
+                                 options=list(pageLength=DT_pagelength,
+                                              orderClasses = TRUE,
+                                              autoWidth=FALSE)
+            )
+            
+            # %>% formatStyle(
+            #                              colnames(data)[1:3],
+            #                              valueColumns = 4,
+            # backgroundColor = styleInterval( 0, c('orange','white'))
+            #                            )
+            return(dat)
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(conditionMessage(e))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
+    
+   
 } )
 
 
@@ -1076,88 +1345,106 @@ output$viewExprs <- DT::renderDataTable({
 #----------------------------------------------
 observe({ 
     input$ValidDiffAna
-    # input$diffAnaMethod
-    # input$condition1
-    # input$condition2
-    
+
     if ((input$ValidDiffAna == 0) ||  is.null(input$ValidDiffAna) ) {
         return(NULL)}
     if (input$condition1 == input$condition2) {return(NULL)}
     
     isolate({
-    
-    data <- RunDiffAna()
-
-    if (is.null(data)) {return (NULL)}
-    m <- NULL
-    if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
-    else {m <- input$calibrationMethod }
-
-
-
-    fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
-
-    temp <- diffAnaSave(rv$dataset[[input$datasets]],
-                        data,
-                        input$diffAnaMethod,
-                        input$condition1,
-                        input$condition2,
-                        rv$seuilPVal, 
-                        rv$seuilLogFC, 
-                        fdr,
-                        input$calibrationMethod)
-    
-    
-    #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-    name <- paste("DiffAnalysis.", input$diffAnaMethod, " - ", 
-                rv$typeOfDataset, 
-                sep="")
-    
-    rv$dataset[[name]] <- temp
-    rv$current.obj <- temp
-    updateSelectInput(session, "datasets", 
-                    choices = names(rv$dataset),
-                    selected = name)
-    
-    
-    
-    ####write command Log file
-   writeToCommandLogFile(paste("pvalThresh <- ", rv$seuilPVal, sep=""))
-    writeToCommandLogFile(paste("logFCthres <- ", rv$seuilLogFC,sep=""))
-    writeToCommandLogFile(paste("calibMethod <- '", m,"'",sep=""))
-    writeToCommandLogFile(
-        "fdr <- diffAnaComputeFDR(data, pvalThresh, logFCthres, calibMethod)"
-        )
-    writeToCommandLogFile(
-        paste("temp <- diffAnaSave(dataset[['", input$datasets, "']],",
-              "data, method, cond1, cond2, pvalThresh, logFCthres, fdr, calibMethod)", sep=""
-        )
-    )
-    writeToCommandLogFile("current.obj <- temp")
-    writeToCommandLogFile(paste("dataset[['", name, "']] <- current.obj", sep=""))
-    
-    
-    
-    cMethod <- NULL
-    if (input$calibrationMethod == "numeric value"){
-cMethod <- paste("The proportion of true null
-hypotheses was set to", input$numericValCalibration, sep= " ")}
-    else {cMethod <-input$calibrationMethod }
-    
-    text <- paste("Dataset of ", 
-                rv$typeOfDataset,
-                ": differential analysis with", 
-                input$diffAnaMethod, 
-                "Selection with the following threshold values :logFC =",
-                rv$seuilLogFC,
-                    "The calibration was made with the method", cMethod,
-                ", -log10(p-value) = ",
-                rv$seuilPVal,
-                "corresponding to a FDR = ", round(100*fdr, digits=2),
-                sep=" ")
-    UpdateLog(text,name)
-    
-    updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
+        
+        result = tryCatch(
+            {
+                data <- rv$resAnaDiff
+                
+                if (is.null(data)) {return (NULL)}
+                m <- NULL
+                if (input$calibrationMethod == "Benjamini-Hochberg") 
+                    { m <- 1}
+                else if (input$calibrationMethod == "numeric value") 
+                    {m <- as.numeric(input$numericValCalibration)}
+                else {m <- input$calibrationMethod }
+                
+                fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
+                
+                
+                temp <- diffAnaSave(rv$dataset[[input$datasets]],
+                                    data,
+                                    input$diffAnaMethod,
+                                    input$condition1,
+                                    input$condition2,
+                                    rv$seuilPVal, 
+                                    rv$seuilLogFC, 
+                                    fdr,
+                                    input$calibrationMethod)
+                print(colnames(exprs(rv$dataset[[input$datasets]])))
+                print(colnames(exprs(temp)))
+                
+                
+                #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+                name <- paste("DiffAnalysis.", input$diffAnaMethod, " - ", 
+                              rv$typeOfDataset, 
+                              sep="")
+                
+                rv$dataset[[name]] <- temp
+                rv$current.obj <- temp
+                
+                
+                updateSelectInput(session, "datasets", 
+                                  paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                  choices = names(rv$dataset),
+                                  selected = name)
+                
+                
+                
+                ####write command Log file
+                writeToCommandLogFile(paste("pvalThresh <- ", rv$seuilPVal, sep=""))
+                writeToCommandLogFile(paste("logFCthres <- ", rv$seuilLogFC,sep=""))
+                writeToCommandLogFile(paste("calibMethod <- '", m,"'",sep=""))
+                writeToCommandLogFile(
+                    "fdr <- diffAnaComputeFDR(data, pvalThresh, logFCthres, calibMethod)"
+                )
+                writeToCommandLogFile(
+                    paste("temp <- diffAnaSave(dataset[['", input$datasets, "']],",
+                          "data, method, cond1, cond2, pvalThresh, logFCthres, fdr, calibMethod)", sep=""
+                    )
+                )
+                writeToCommandLogFile("current.obj <- temp")
+                writeToCommandLogFile(paste("dataset[['", name, "']] <- current.obj", sep=""))
+                
+                
+                
+                cMethod <- NULL
+                if (input$calibrationMethod == "numeric value"){
+                    cMethod <- paste("The proportion of true null
+                                     hypotheses was set to", input$numericValCalibration, sep= " ")}
+                else {cMethod <-input$calibrationMethod }
+                
+                text <- paste("Dataset of ", 
+                              rv$typeOfDataset,
+                              ": differential analysis with", 
+                              input$diffAnaMethod, 
+                              "Selection with the following threshold values :logFC =",
+                              rv$seuilLogFC,
+                              "The calibration was made with the method", cMethod,
+                              ", -log10(p-value) = ",
+                              rv$seuilPVal,
+                              "corresponding to a FDR = ", round(100*fdr, digits=2),
+                              sep=" ")
+                UpdateLog(text,name)
+                
+                updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
+            }
+            #, warning = function(w) {
+            #    shinyjs::info(conditionMessage(w))
+            #}
+            , error = function(e) {
+                shinyjs::info(paste("Valid Diff Ana",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+ 
     }) 
     
 })
@@ -1179,9 +1466,21 @@ output$viewProcessingData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    data.frame(History=(rv$current.obj)@processingData@processing
-                [-grep("Subset", (rv$current.obj)@processingData@processing)])
+    result = tryCatch(
+        {
+            data.frame(History=(rv$current.obj)@processingData@processing
+                       [-grep("Subset", (rv$current.obj)@processingData@processing)])
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste("view processing data",":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
     
+    
+
     
 },
 option=list(pageLength=DT_pagelength,
@@ -1198,7 +1497,21 @@ option=list(pageLength=DT_pagelength,
 output$viewpData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
-    as.data.frame(pData(rv$current.obj))
+    
+    result = tryCatch(
+        {
+            as.data.frame(Biobase::pData(rv$current.obj))
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+    
+   
 },
 option=list(pageLength=DT_pagelength,
             orderClasses = TRUE,
@@ -1212,7 +1525,20 @@ option=list(pageLength=DT_pagelength,
 output$viewfData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
-    as.data.frame(fData(rv$current.obj))
+    result = tryCatch(
+        {
+            
+            as.data.frame(Biobase::fData(rv$current.obj))
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+
 },
 option=list(pageLength=DT_pagelength,
             orderClasses = TRUE,
@@ -1229,8 +1555,20 @@ option=list(pageLength=DT_pagelength,
 output$viewExprsMissValues <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
-    as.data.frame(cbind(ID = rownames(fData(rv$current.obj)),
-                        exprs(rv$current.obj)))
+    result = tryCatch(
+        {
+            as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+                                Biobase::exprs(rv$current.obj)))
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+    
 },
 
 option=list(orderClasses = TRUE,
@@ -1247,10 +1585,10 @@ output$RenderLimmaCond1 <- renderUI({
     if (is.null(rv$current.obj) ) {return(NULL)  }
     
     
-    labels <- unique(pData(rv$current.obj)[,"Label"])
+    labels <- unique(Biobase::pData(rv$current.obj)[,"Label"])
     labels <- setNames(as.list(labels),labels)
     condition1 <- labels[[1]]
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         condition1 <- rv$current.obj@experimentData@other$condition1
     }
     
@@ -1269,10 +1607,10 @@ output$RenderLimmaCond2 <- renderUI({
     if (is.null(rv$current.obj) ) {return(NULL)  }
     
     isolate({
-    labels <- unique(pData(rv$current.obj)[,"Label"])
+    labels <- unique(Biobase::pData(rv$current.obj)[,"Label"])
     labels <- setNames(as.list(labels),labels)
     condition2 <- labels[[2]]
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         condition2 <- rv$current.obj@experimentData@other$condition2
     }
     
@@ -1288,7 +1626,7 @@ output$selectIDforExcelExport <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) ) {return(NULL)  }
     selectInput("ID2XLS", "ID for XLS", 
-                choices = colnames(fData(rv$current.obj)))
+                choices = colnames(Biobase::fData(rv$current.obj)))
 })
 
 
@@ -1352,9 +1690,6 @@ output$chooseImputationMethod <- renderUI({
     m <- NULL
     tag <- rv$current.obj@experimentData@other$imputation.method
     if (!is.null(tag)){ m <- tag}
-    #print(m)
-    #print(tag)
-    #print(imputationAlgorithms[[m]])
     selectInput("missing.value.algorithm",
                 "Choose algorithm",
                 choices = names(imputationAlgorithms),
@@ -1379,7 +1714,7 @@ output$seuilNADelete <- renderUI({
     }
     ch <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.threshold
-    #print(tag)
+    
     if (!is.null(tag)) { ch <- tag}
     else {ch <- choix[[1]]}
     selectInput("seuilNA", 
@@ -1433,40 +1768,61 @@ output$id <- renderUI({
 #######################################
 observe({
     input$createMSnsetButton
+   # input$idBox
+    #input$autoID 
+   # input$hot
     if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
         {return(NULL)}
     
     isolate({
-    input$hot
-    input$filenameToCreate
-    # input$file1
-    #inFile1 <- input$file1
-    rv$tab1
+        
+        
+        result = tryCatch(
+            {
+                
+               # input$hot
+                input$filenameToCreate
+                # input$file1
+                #inFile1 <- input$file1
+                rv$tab1
+                
+                indexForEData <- match(input$eData.box, colnames(rv$tab1))
+                indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
+                
+                if (input$autoID == "Auto ID") {
+                    indexForIDBox <- NULL}
+                else 
+                    {indexForIDBox <- match(input$idBox, colnames(rv$tab1))}
+                
+                metadata <- hot_to_r(input$hot)
+                logData <- (input$checkDataLogged == "no")
+                
+                
+                
+                rv$current.obj <- createMSnset(rv$tab1, 
+                                               metadata, 
+                                               indexForEData, 
+                                               indexForFData, 
+                                               indexForIDBox,
+                                               logData, 
+                                               input$replaceAllZeros,
+                                               pep_prot_data = input$typeOfData
+                )
+                rv$current.obj.name <- input$filenameToCreate
+                loadObjectInMemoryFromConverter()
+                
+                
+                updateTabsetPanel(session, "tabImport", selected = "Convert")
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste("CreateMSnSet",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
     
-    indexForEData <- match(input$eData.box, colnames(rv$tab1))
-    indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
-    
-    indexForIDBox <- match(input$idBox, colnames(rv$tab1))
-    if (is.na(indexForIDBox) || length(indexForIDBox) == 0) {
-        indexForIDBox <- NULL}
-    
-    metadata <- hot_to_r(input$hot)
-    logData <- (input$checkDataLogged == "no")
-    
-    rv$current.obj <- createMSnset(rv$tab1, 
-                                    metadata, 
-                                    indexForEData, 
-                                    indexForFData, 
-                                    indexForIDBox,
-                                    logData, 
-                                    input$replaceAllZeros,
-                                    pep_prot_data = input$typeOfData
-                                    )
-    rv$current.obj.name <- input$filenameToCreate
-    loadObjectInMemoryFromConverter()
-    
-    
-    updateTabsetPanel(session, "tabImport", selected = "Convert")
     
     })
 })
@@ -1493,8 +1849,8 @@ output$columnsForProteinDataset <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    choices <- colnames(fData(rv$current.obj))
-    names(choices) <- colnames(fData(rv$current.obj))
+    choices <- colnames(Biobase::fData(rv$current.obj))
+    names(choices) <- colnames(Biobase::fData(rv$current.obj))
     selectizeInput("columnsForProteinDataset.box",
                     label = "",
                     choices = choices,
@@ -1620,6 +1976,8 @@ output$logSession <- DT::renderDataTable({
 
 #########################################################
 output$References <- renderText({
+    
+    
     HTML("<strong><font size=\"5\">HELP</font></strong>
         <br><hr color:\"blue\"><br>
 
@@ -1628,8 +1986,12 @@ output$References <- renderText({
                                 title=\"here\" target=\"_blank\">here</a>
         <br><br>
 
+        
+
         <strong><font size=\"4\">Tutorial:</font></strong>
-        Coming soon.<br><br>
+        <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_Tutorial.pdf\"
+                                title=\"here\" target=\"_blank\">here</a>
+        <br><br>
 
         <strong><font size=\"4\">Contact:</font></strong><br>
         If you need any help, but also if you wish to make comments 
@@ -1661,8 +2023,7 @@ output$References <- renderText({
         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
         A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
         \"DAPAR & ProStaR: software to perform statistical analyses in 
-        quantitative discovery proteomics\", under (minor) revision, 
-        <i>Bioinformatics</i>, 2016
+        quantitative discovery proteomics\", under review, 2016
         </li>
         <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
         for the multiple natures of missing values in label-free quantitative 
@@ -1673,8 +2034,13 @@ output$References <- renderText({
         T. Burger. Calibration Plot for Proteomics (cp4p): A graphical tool 
         to visually check the assumptions underlying FDR control in 
         quantitative experiments. <i>Proteomics</i>, 16(1):29-32, 2016. 
-
         </li>
+
+        <li> Q. Giai Gianetto, Y. Couté, C. Bruley, T. Burger. Uses and 
+        misuses of the fudge factor in quantitative discovery proteomics. 
+        Accepted for publication, <i>Proteomics</i>, June 2016.. 
+        </li>
+
         </ul>
         ")
 })
@@ -1694,6 +2060,81 @@ output$helpTextDataID <- renderUI({
 })
 
 
+output$showDatasetDoc <- renderUI({
+    input$demoDataset
+    if (is.null(input$demoDataset)) { return(NULL)}
+    
+    if (input$demoDataset %in% c("UPSpep25", "UPSprot25")) {
+tags$iframe(src="http://bioconductor.org/packages/release/data/experiment/vignettes/DAPARdata/inst/doc/UPSpep-prot25.pdf", 
+                width="900", height="700")}
+    else if (input$demoDataset %in% c("UPSpep2", "UPSprot2")){
+        tags$iframe(src="http://bioconductor.org/packages/release/data/experiment/vignettes/DAPARdata/inst/doc/UPSpep-prot2.pdf", 
+                    width="900", height="700")
+    }
+    
+})
+
+
+
+
+
+output$overviewDemoDataset <- renderUI({
+    rv$current.obj
+    rv$typeOfDataset
+    if (is.null(rv$current.obj)) {return(NULL)    }
+    
+    isolate({
+        
+        
+        result = tryCatch(
+            {
+                
+                
+                rv$current.obj
+                rv$typeOfDataset
+                NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                                  2, 
+                                  function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                pourcentage <- 100 * round(sum(NA.count)/
+                                               (dim(Biobase::exprs(rv$current.obj))[1]*
+                                                    dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+                d <- "lines"
+                if (rv$typeOfDataset == "peptide") {d <- "peptides"}
+                else if (rv$typeOfDataset == "protein") {d <- "proteins"}
+                else {d <- "analytes"}
+                
+                nb.empty.lines <- sum(apply(
+                    is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+                tags$ul(
+                    # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
+                    #                                            "dataset.", sep=" "))}, 
+                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
+                                  " samples in your data.", sep=" ")),
+                    
+                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[1], d,
+                                  " in your data.", sep=" ")), 
+                    tags$li(paste("Percentage of missing values:",
+                                  pourcentage , "%", sep=" ")),
+                    tags$li(paste("Number of lines with only NA values =",
+                                  nb.empty.lines , sep=" "))
+                )
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+        
+    })
+})
+
+
+
 ##' Quick overview of the MSnbase object
 ##' @author Florence Combes
 output$overview <- renderUI({
@@ -1702,39 +2143,65 @@ output$overview <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)    }
     
     isolate({
-    rv$current.obj
-    rv$typeOfDataset
-    NA.count <- apply(data.frame(exprs(rv$current.obj)), 
-                        2, 
-                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
-    pourcentage <- 100 * round(sum(NA.count)/
-                                    (dim(exprs(rv$current.obj))[1]*
-                                    dim(exprs(rv$current.obj))[2]), digits=4)
-    d <- "lines"
-    #print("rv$typeOfDataset")
-    #print(rv$typeOfDataset)
-    if (rv$typeOfDataset == "peptide") {d <- "peptides"}
-    else if (rv$typeOfDataset == "protein") {d <- "proteins"}
-    else {d <- "analytes"}
-    
-    nb.empty.lines <- sum(apply(
-        is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-    tags$ul(
-        # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
-        #                                            "dataset.", sep=" "))}, 
-        tags$li(paste("There are", dim(exprs(rv$current.obj))[2], 
-                    "samples in your data.", sep=" ")),
         
-        tags$li(paste("There are", dim(exprs(rv$current.obj))[1], d,
-                    "in your data.", sep=" ")), 
-        tags$li(paste("Percentage of missing values:",
-                    pourcentage , "%", sep=" ")),
-        tags$li(paste("Number of lines with only NA values =",
-                    nb.empty.lines , sep=" "))
-    )
+        
+        result = tryCatch(
+            {
+                
+                rv$current.obj
+                rv$typeOfDataset
+                NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                                  2, 
+                                  function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                pourcentage <- 100 * round(sum(NA.count)/
+                                               (dim(Biobase::exprs(rv$current.obj))[1]*
+                                                    dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+                d <- "lines"
+                if (rv$typeOfDataset == "peptide") {d <- "peptides"}
+                else if (rv$typeOfDataset == "protein") {d <- "proteins"}
+                else {d <- "analytes"}
+                
+                nb.empty.lines <- sum(apply(
+                    is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+                tags$ul(
+                    # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
+                    #                                            "dataset.", sep=" "))}, 
+                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
+                                  " samples in your data.", sep=" ")),
+                    
+                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[1], d,
+                                  " in your data.", sep=" ")), 
+                    tags$li(paste("Percentage of missing values:",
+                                  pourcentage , "%", sep=" ")),
+                    tags$li(paste("Number of lines with only NA values =",
+                                  nb.empty.lines , sep=" "))
+                )
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
 
     })
 })
+
+
+output$infoAboutAggregationTool <- renderUI({
+    rv$current.obj
+    rv$typeOfDataset
+    if (is.null(rv$current.obj)) {return(NULL)    }
+    
+    if (rv$typeOfDataset == "protein"){
+        tags$h5("Note: the aggregation tool
+                has been disabled because the dataset contains protein quantitative data.")
+    }
+    })
+
+
 
 
 output$overviewNewData <- renderUI({
@@ -1742,33 +2209,52 @@ output$overviewNewData <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)}
     
     isolate({
-    txt1 <- paste("There is", 
-                dim(exprs(rv$current.obj))[2],
-                "samples in your data.")
-    txt2 <- paste("There is",
-                dim(exprs(rv$current.obj))[1], 
-                "lines in your data.")
-    
-    NA.count<-apply(data.frame(exprs(rv$current.obj)), 
-                    2, 
-                    function(x) length(which(is.na(data.frame(x))==TRUE)) )
-    pourcentage <- 100 * round(sum(NA.count)/
-                                    (dim(exprs(rv$current.obj))[1]*
-                                    dim(exprs(rv$current.obj))[2]), digits=4)
-    txt3 <- paste("Percentage of missing values:",pourcentage , "%")
-    
-    nb.empty.lines <- sum(apply(
-        is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-    txt4 <- NULL
-    if (nb.empty.lines > 0){
         
-        if( nb.empty.lines > 1){
+        verb <- NULL
+        plurial <- NULL
+        
+        
+        if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
+            verb <- "are"
+            plurial <- "s"} else {
+                verb <- "is"
+                plurial <- ""}
+        
+        
+        
+    txt1 <- paste("There ", verb, " " ,
+                dim(Biobase::exprs(rv$current.obj))[2],
+                " sample", plurial, " in your data.", sep="")
+    
+    if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
         verb <- "are"
         plurial <- "s"} else {
             verb <- "is"
             plurial <- ""}
+    txt2 <- paste("There ", verb, " ",
+                dim(Biobase::exprs(rv$current.obj))[1], 
+                " line", plurial, " in your data.", sep="")
+    
+    NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                    2, 
+                    function(x) length(which(is.na(data.frame(x))==TRUE)) )
+    pourcentage <- 100 * round(sum(NA.count)/
+                                    (dim(Biobase::exprs(rv$current.obj))[1]*
+                                    dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+    txt3 <- paste("Percentage of missing values:",pourcentage , "%")
+    
+    nb.empty.lines <- sum(apply(
+        is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+    txt4 <- NULL
+    if (nb.empty.lines > 0){
+        if( nb.empty.lines > 1){
+            verb <- "are"
+            plurial <- "s"} else {
+                verb <- "is"
+                plurial <- ""}
         
-        txt4 <- paste("There ", verb, " : ",
+        
+        txt4 <- paste("There ", verb, " ",
                     nb.empty.lines ," line",plurial," with only NA values !!"
                     ,sep="")
     }
@@ -1787,31 +2273,177 @@ output$overviewNewData <- renderUI({
 
 
 output$GlobalPieChart <- renderPlot({
+
+        rv$current.obj
+        input$idBoxContaminants
+        input$idBoxReverse
+        input$prefixReverse
+        input$prefixContaminants
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        p <- rep("",4)
+        if (is.null(input$idBoxContaminants)) {p[1] <- ""}
+        else {p[1] <-input$idBoxContaminants}
+        
+        if (is.null(input$idBoxReverse)) {p[2] <- ""}
+        else {p[2] <-input$idBoxReverse}
+        
+        if (is.null(input$prefixContaminants)) {p[3] <- ""}
+        else {p[3] <-input$prefixContaminants}
+        
+        if (is.null(input$prefixReverse)) {p[4] <- ""}
+        else {p[4] <-input$prefixReverse}
+        
+        
+        result = tryCatch(
+            {
+                proportionConRev(rv$current.obj,p[1], p[3], p[2],p[4])
+            }
+            #, warning = function(w) {
+           #     shinyjs::info(conditionMessage(w))
+            #}
+           , error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
+    
+    
+
+
+######-----------------------------------------------------------------
+output$downloadReport <- downloadHandler(
+    filename = function() {
+        paste('__ProStaR report', sep = '.', switch(
+            input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+        ))
+    },
+    
+    content = function(file) {
+        src <- normalizePath('report.Rmd')
+        
+        # temporarily switch to the temp dir, in case you do not have write
+        # permission to the current working directory
+        file.copy(src, paste(tempdir(), sessionID, 'report.Rmd',sep="/"))
+        
+        library(rmarkdown)
+        out <- render(paste(tempdir(), sessionID, 'report.Rmd', sep="/"), 
+                      switch(
+            input$format,
+            PDF = pdf_document(), 
+            HTML = html_document(), 
+            Word = word_document()
+        ))
+        file.rename(out, file)
+    }
+)
+
+
+
+output$histoMV_Image_DS <- renderPlot({
     rv$current.obj
-    input$idBoxContaminants
-    input$idBoxReverse
-    input$prefixContaminants
-    input$prefixReverse
+    if (is.null(rv$current.obj)) {return(NULL)}
     
-    
-    if (is.null(rv$current.obj)){return(NULL)}
-    
-    proportionConRev(rv$current.obj,
-            input$idBoxContaminants, 
-            input$prefixContaminants, 
-            input$idBoxReverse,
-            input$prefixReverse)
+        result = tryCatch(
+            {
+                wrapper.mvHisto(rv$current.obj)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
 })
+
+
+output$histoMV_Image <- renderPlot({
+        rv$current.obj
+        if (is.null(rv$current.obj)) {return(NULL)}
+        result = tryCatch(
+            {
+                if (!is.null(rv$current.obj)){wrapper.mvHisto(rv$current.obj)}
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+    })
+    
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+output$histo.missvalues.per.lines_Image <- renderPlot({
+        rv$current.obj
+        if (is.null(rv$current.obj)) {return(NULL)}
+        result = tryCatch(
+            {
+wrapper.mvPerLinesHisto(rv$current.obj, 
+                                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+    })
 
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histoMV_DS <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
+output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
+
+        rv$current.obj
+        if (is.null(rv$current.obj)) {return(NULL)}
+        result = tryCatch(
+            {
+                wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+                                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+    })    
     
-    wrapper.mvHisto(rv$current.obj)
-})
+
+
+# output$histoMV_DS_Image <- renderImage({
+#     rv$current.obj
+#     
+#      list(src = paste(tempdir(),sessionID,gGraphicsFilenames$histoMV_DS, sep="/"),
+#           contentType = "image/png"
+#           #width = width,
+#           #height = height,
+#           )
+# }, deleteFile = FALSE)
+
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+# output$histoMV_DS <- renderPlot({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)){return(NULL)}
+#     
+#     wrapper.mvHisto(rv$current.obj)
+# })
 
 
 
@@ -1819,66 +2451,114 @@ output$histoMV_DS <- renderPlot({
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines_DS <- renderPlot({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    wrapper.mvPerLinesHisto(rv$current.obj, 
-                            c(2:length(colnames(pData(rv$current.obj)))))
-})
+        rv$current.obj
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        result = tryCatch(
+            {
+                wrapper.mvPerLinesHisto(rv$current.obj, 
+                                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
+
+
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
-                    c(2:length(colnames(pData(rv$current.obj)))))
-})
+
+        rv$current.obj
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        result = tryCatch(
+            {
+                wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+                                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+    })
 
 
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histoMV <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    
-    wrapper.mvHisto(rv$current.obj)
-})
+# output$histoMV <- renderPlot({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)){return(NULL)}
+#     
+#     wrapper.mvHisto(rv$current.obj)
+# })
 
 
 
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    wrapper.mvPerLinesHisto(rv$current.obj, 
-                    c(2:length(colnames(pData(rv$current.obj)))))
-})
-
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines.per.conditions <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
-                            c(2:length(colnames(pData(rv$current.obj)))))
-})
+# ##' distribution of missing values in current.obj
+# ##' @author Samuel Wieczorek
+# output$histo.missvalues.per.lines <- renderPlot({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)){return(NULL)}
+#     wrapper.mvPerLinesHisto(rv$current.obj, 
+#                     c(2:length(colnames(pData(rv$current.obj)))))
+# })
+# 
+# ##' distribution of missing values in current.obj
+# ##' @author Samuel Wieczorek
+# output$histo.missvalues.per.lines.per.conditions <- renderPlot({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)){return(NULL)}
+#     wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+#                             c(2:length(colnames(pData(rv$current.obj)))))
+# })
 
 ##' xxxxxxxxxxxxxxxxxxxxxxxx
 ##' @author Samuel Wieczorek
 output$showImageNA <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(plot.new())}
-    
-    wrapper.mvImage(rv$current.obj)
-})
+
+        rv$current.obj
+        #input$toto
+        
+        isolate({
+            
+            if (is.null(rv$current.obj)) {return(NULL)}
+            result = tryCatch(
+                {
+                    wrapper.mvImage(rv$current.obj)
+                }
+                , warning = function(w) {
+                    shinyjs::info(conditionMessage(w))
+                }, error = function(e) {
+                    shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                }, finally = {
+                    #cleanup-code 
+                })
+            
+        })
+        
+        
+    })
+
 
 
 ##########################
 output$ChooseLegendForNormTabPanel <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
-    .names <- colnames(pData(rv$current.obj))[-1]
+    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     checkboxGroupInput("legendXAxisNormTabPanel",
                         label = "Choose data to show in legend",
                         choices = .names,
@@ -1937,37 +2617,37 @@ output$choose_Normalization_2 <- renderUI({
 ##' boxplot and densityplot of intensities in current.obj 
 ##' in the normalization panel
 ##' @author Samuel Wieczorek
-output$NormData <- renderPlot({
-    rv$current.obj
-    input$graph.choice.normalization.tab
-    input$legendXAxisNormTabPanel
-    input$legendXAxis
-    if (is.null(rv$current.obj)){return(plot.new())}
-    
-    typeOfGraphics <- input$graph.choice.normalization.tab
-    if (typeOfGraphics == "boxplot"){
-    input$legendXAxisNormTabPanel
-    input$legendXAxis
-    rv$current.obj
-    
-    #.axis <- match(input$legendXAxisNormTabPanel,
-    #colnames(pData(rv$current.obj)))
-    .axis <- input$legendXAxis
-    wrapper.boxPlotD(rv$current.obj,.axis)
-    
-    }else if (typeOfGraphics == "densityplot") {
-    wrapper.densityPlotD(rv$current.obj, 
-                    unique(pData(rv$current.obj)[,"Label"]),
-                    NULL)
-    }
-})
+# output$NormData <- renderImage({
+#     rv$current.obj
+#     input$graph.choice.normalization.tab
+#     input$legendXAxisNormTabPanel
+#     input$legendXAxis
+#     if (is.null(rv$current.obj)){return(plot.new())}
+#     
+#     typeOfGraphics <- input$graph.choice.normalization.tab
+#     if (typeOfGraphics == "boxplot"){
+#     input$legendXAxisNormTabPanel
+#     input$legendXAxis
+#     rv$current.obj
+#     
+#     #.axis <- match(input$legendXAxisNormTabPanel,
+#     #colnames(pData(rv$current.obj)))
+#     .axis <- input$legendXAxis
+#     wrapper.boxPlotD(rv$current.obj,.axis)
+#     
+#     }else if (typeOfGraphics == "densityplot") {
+#     wrapper.densityPlotD(rv$current.obj, 
+#                     unique(pData(rv$current.obj)[,"Label"]),
+#                     NULL)
+#     }
+# })
 
 #------------------------------------------------------
 output$ChooseLegendForAxis <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     isolate(rv$current.obj)
-    .names <- colnames(pData(rv$current.obj))[-1]
+    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     tags$head(tags$link(rel="stylesheet", type="text/css", 
                         href="css/overrides.css"))
     
@@ -1978,12 +2658,37 @@ output$ChooseLegendForAxis <- renderUI({
 })
 
 
+
+testUI <- function(input, output, session){
+    
+    
+    
+    test <- reactive({
+        rv$current.obj
+        if (is.null(rv$current.obj)){return(NULL)}
+        isolate(rv$current.obj)
+
+            
+            .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+            tags$head(tags$link(rel="stylesheet", type="text/css" ,
+                                href="css/overrides.css"))
+            
+            checkboxGroupInput("legendXAxis_DS",
+                               label = "Choose data to show in legend",
+                               choices = .names,
+                               selected = .names[1])
+    })
+    
+
+}
+
+
 #------------------------------------------------------
 output$ChooseLegendForAxis_DS <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     isolate(rv$current.obj)
-    .names <- colnames(pData(rv$current.obj))[-1]
+    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     tags$head(tags$link(rel="stylesheet", type="text/css", 
                         href="css/overrides.css"))
     
@@ -1995,45 +2700,130 @@ output$ChooseLegendForAxis_DS <- renderUI({
 
 
 
+output$ChooseLegendForAxisViolin_DS <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return(NULL)}
+    isolate(rv$current.obj)
+    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+    tags$head(tags$link(rel="stylesheet", type="text/css", 
+                        href="css/overrides.css"))
+    
+    checkboxGroupInput("legendXAxisViolin_DS",
+                       label = "Choose data to show in legend",
+                       choices = .names,
+                       selected = .names[1])
+})
+
+
 ##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
 output$viewBoxPlot_DS <- renderPlot({
-    input$legendXAxis_DS
-    rv$current.obj
-    #input$whichGroup2Color
+        rv$current.obj
+        input$legendXAxis_DS
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        
+        legDS <- NULL
+        if (is.null(input$legendXAxis_DS)){
+            .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+            legDS <- .names[1]}
+        else{legDS <- input$legendXAxis_DS}
+        
+        result = tryCatch(
+            {
+                wrapper.boxPlotD(rv$current.obj,  legDS)
+
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
     
-    if (is.null(rv$current.obj)){return(NULL)}
-    # print(input$legendXAxis_DS)
-    #print(str(input$legendXAxis_DS))
-    wrapper.boxPlotD(rv$current.obj,  input$legendXAxis_DS)
+
+
+output$viewViolinPlot_DS <- renderPlot({
+    rv$current.obj
+    input$legendXAxis_DS
+    if (is.null(rv$current.obj)) {return(NULL)}
+    
+    
+    legDS <- NULL
+    if (is.null(input$legendXAxis_DS)){
+        .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+        legDS <- .names[1]}
+    else{legDS <- input$legendXAxis_DS}
+    
+    result = tryCatch(
+        {
+            wrapper.violinPlotD(rv$current.obj,  legDS)
+            
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
     
     
 })
+
+
 
 
 ##' Distribution of intensities in current.obj
 ##' @author Samuel Wieczorek
 output$viewDensityplot_DS <- renderPlot({
-    rv$current.obj
-    input$lab2Show
-    input$whichGroup2Color
-    if (is.null(rv$current.obj) || (length(input$lab2Show) == 0))
-    {return(plot.new())}
-    
-    
-    if (input$whichGroup2Color == "Condition"){
-    labs <- pData(rv$current.obj)[,"Label"]
-    }else {
-    labs <- paste(pData(rv$current.obj)[,"Label"],
-                    pData(rv$current.obj)[,"Bio.Rep"],
-                    pData(rv$current.obj)[,"Tech.Rep"],
-                    pData(rv$current.obj)[,"Analyt.Rep"],
-                    sep= "_")
-    }
-    
-    wrapper.densityPlotD(rv$current.obj, labs, as.numeric(input$lab2Show), 
-                        input$whichGroup2Color)
-})
+        rv$current.obj
+        input$lab2Show_DS
+        input$whichGroup2Color_DS
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        labels_DS <- NULL
+        labelsToShow_DS <- NULL
+        gToColor_DS <- NULL
+        if (is.null(input$lab2Show_DS)) { 
+            labelsToShow_DS <- c(1:nrow(Biobase::pData(rv$current.obj)))
+        }
+        else { labelsToShow_DS <- input$lab2Show_DS}
+        
+        if (is.null(input$whichGroup2Color_DS)){
+            gToColor_DS <- "Condition"
+        }else{gToColor_DS <- input$whichGroup2Color_DS}
+        
+        if (is.null(input$whichGroup2Color_DS) || (input$whichGroup2Color_DS == "Condition")){
+            labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
+        }else {
+            labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                               Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                               Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                               Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+                               sep= "_")
+        }
+        
+        result = tryCatch(
+            {
+                wrapper.densityPlotD(rv$current.obj, labels_DS, as.numeric(labelsToShow_DS), 
+                                     gToColor_DS)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+    })
 
 
 
@@ -2041,155 +2831,282 @@ output$viewDensityplot_DS <- renderPlot({
 
 ##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
-output$viewBoxPlot <- renderPlot({
-    input$legendXAxis
-    rv$current.obj
-    input$whichGroup2Color
+output$viewBoxPlotNorm <- renderPlot({
+
+        rv$current.obj
+        input$whichGroup2Color
+        input$normalization.method
+        input$perform.normalization
+        
+        if (is.null(rv$current.obj) || is.null(rv$dataset[[input$datasets]]) ||
+            is.null(input$normalization.method)) {return(NULL)}
+        
+        
+        gToColorNorm <- NULL
+        
+        if (is.null(input$whichGroup2Color)){
+            gToColorNorm <- "Condition"
+        }else{gToColorNorm <- input$whichGroup2Color}
+        
+        leg <- NULL
+        if (is.null(input$legendXAxis_DS)){
+            .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+            leg <- .names[1]}
+        else{leg <- input$legendXAxis_DS}
+        
+        result = tryCatch(
+            {
+                wrapper.boxPlotD(rv$current.obj,leg ,gToColorNorm)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+    })
     
-    if (is.null(rv$current.obj)){return(plot.new())}
-    
-    if( is.null(input$legendXAxis) || is.null(input$whichGroup2Color))
-    { wrapper.boxPlotD(rv$current.obj)
-    } else {
-    wrapper.boxPlotD(rv$current.obj,input$legendXAxis ,input$whichGroup2Color)
-    }
-    
-})
+
 
 
 ##' Distribution of intensities in current.obj
 ##' @author Samuel Wieczorek
-output$viewDensityplot<- renderPlot({
-    rv$current.obj
-    input$lab2Show
-    input$whichGroup2Color
-    
-    if (is.null(rv$current.obj) ){return(plot.new())}
-    
-    
-    if(is.null(input$whichGroup2Color) && is.null(input$lab2Show))
-    { 
-    labs <- pData(rv$current.obj)[,"Label"]
-    wrapper.densityPlotD(rv$current.obj, labs)
-    } else {
-    if (input$whichGroup2Color == "Condition")
-            {
-            labs <- pData(rv$current.obj)[,"Label"]
-    }else {
-            labs <- paste(pData(rv$current.obj)[,"Label"],
-                    pData(rv$current.obj)[,"Bio.Rep"],
-                    pData(rv$current.obj)[,"Tech.Rep"],
-                    pData(rv$current.obj)[,"Analyt.Rep"],
-                    sep= "_")
-            }
-    wrapper.densityPlotD(rv$current.obj, labs, as.numeric(input$lab2Show),
-                        input$whichGroup2Color)
-    }
+output$viewDensityplotNorm<- renderPlot({
 
-})
+        rv$dataset[[input$datasets]]
+        rv$current.obj
+        input$legendXAxis
+        input$whichGroup2Color
+        input$lab2Show
+        input$normalization.method
+        input$perform.normalization
+        
+        if (is.null(rv$current.obj) || is.null(rv$dataset[[input$datasets]]) ||
+            is.null(input$normalization.method)) {return(NULL)}
+        
+        
+        leg <- NULL
+        grp <- NULL
+        
+        labelsNorm <- NULL
+        labelsToShowNorm <- NULL
+        gToColorNorm <- NULL
+        if (is.null(input$lab2Show)) { 
+            labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+        }
+        else { labelsToShowNorm <- input$lab2Show}
+        
+        if (is.null(input$whichGroup2Color)){
+            gToColorNorm <- "Condition"
+        }else{gToColorNorm <- input$whichGroup2Color}
+        
+        
+        # if (is.null(input$legendXAxis)){
+        #     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+        #     leg <- .names[1]}
+        # else{leg <- input$legendXAxis}
+        # 
+        # 
+        #_-----------------------------------------
+        
+        if (is.null(input$whichGroup2Color) 
+            || (input$whichGroup2Color == "Condition")){
+            labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
+        }else {
+            labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                                Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                                Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                                Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+                                sep= "_")
+        }
+        
+        result = tryCatch(
+            {
+                wrapper.densityPlotD(rv$current.obj, labelsNorm, as.numeric(labelsToShowNorm), 
+                                     gToColorNorm)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+    })   
 
 #######################
 output$viewComparisonNorm<- renderPlot({
-    rv$current.obj
-    input$whichGroup2Color
-    input$lab2Show
+
+        rv$dataset[[input$datasets]]
+        rv$current.obj
+        input$legendXAxis
+        input$whichGroup2Color
+        input$lab2Show
+        input$normalization.method
+        input$perform.normalization
+        
+        if (is.null(rv$current.obj) 
+            || is.null(rv$dataset[[input$datasets]]) 
+            || is.null(input$normalization.method)
+            || 
+            (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {return(NULL)}
+        
+        
+        leg <- NULL
+        grp <- NULL
+        
+        labelsNorm <- NULL
+        labelsToShowNorm <- NULL
+        gToColorNorm <- NULL
+        if (is.null(input$lab2Show)) { 
+            labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+        }
+        else { labelsToShowNorm <- input$lab2Show}
+        
+        if (is.null(input$whichGroup2Color)){
+            gToColorNorm <- "Condition"
+        }else{gToColorNorm <- input$whichGroup2Color}
+        
+        
+        # if (is.null(input$legendXAxis)){
+        #     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+        #     leg <- .names[1]}
+        # else{leg <- input$legendXAxis}
+        # 
+        # 
+        #_-----------------------------------------
+        
+        if (is.null(input$whichGroup2Color) 
+            || (input$whichGroup2Color == "Condition")){
+            labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
+        }else {
+            labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                                Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                                Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                                Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+                                sep= "_")
+        }
+        
+        result = tryCatch(
+            {
+                compareNormalizationD(Biobase::exprs(rv$dataset[[input$datasets]]),
+                                      Biobase::exprs(rv$current.obj),
+                                      labelsNorm,
+                                      as.numeric(labelsToShowNorm),
+                                      gToColorNorm)
+            }
+            #, warning = function(w) {
+            #   shinyjs::info(conditionMessage(w))
+            #}
+            , error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+    })
     
-    if (is.null(rv$current.obj) ){return(plot.new())}
-    
-    if(is.null(input$whichGroup2Color) && is.null(input$lab2Show))
-    { 
-    labs <- pData(rv$current.obj)[,"Label"]
-    compareNormalizationD(exprs(rv$dataset[[input$datasets]]), 
-                        exprs(rv$current.obj), 
-                        labs)
-    } else {
-    if (input$whichGroup2Color == "Condition"){
-        labs <- pData(rv$current.obj)[,"Label"]
-    }else {
-        labs <- paste(pData(rv$current.obj)[,"Label"],
-                    pData(rv$current.obj)[,"Bio.Rep"],
-                    pData(rv$current.obj)[,"Tech.Rep"],
-                    pData(rv$current.obj)[,"Analyt.Rep"],
-                    sep= "_")
-    }
-    compareNormalizationD(exprs(rv$dataset[[input$datasets]]), 
-                            exprs(rv$current.obj), 
-                            labs,
-                            as.numeric(input$lab2Show), 
-                            input$whichGroup2Color)
-    }
-    
-    
-    
-})
 
 
 
-
-
-
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-output$viewNAbyMean <- renderPlot({
-    rv$current.obj
-    input$seuilMNAR
-    if (is.null(rv$current.obj)){return(plot.new())}
-    wrapper.mvTypePlot(rv$current.obj,input$seuilMNAR)
-})
 
 
 ##' distribution of the variance in current.obj
 ##' 
 ##' @author Samuel Wieczorek
 output$viewDistVariance <- renderPlot({
-    rv$current.obj
-    if (is.null(rv$current.obj))
-    {return(plot.new())}
-    
-    wrapper.varianceDistD(rv$current.obj)
-})
+
+        rv$current.obj
+        
+        if (is.null(rv$current.obj)) {return(NULL)}
+        result = tryCatch(
+            {
+                wrapper.varianceDistD(rv$current.obj)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
+    })
 
 
 ##' Draw a correlation matrix of intensities in current.obj
 ##' 
 ##' @author Samuel Wieczorek
 output$corrMatrix <- renderPlot({
-    input$expGradientRate
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    if (is.null(input$expGradientRate)){return(NULL)}
-    wrapper.corrMatrixD(rv$current.obj, rate = input$expGradientRate)
-})
+
+        rv$current.obj
+        input$expGradientRate
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        gradient <- NULL
+        if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
+        else{gradient <- input$expGradientRate}
+        
+        result = tryCatch(
+            {
+                wrapper.corrMatrixD(rv$current.obj, rate = gradient)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    }) 
+
 
 
 ##' Draw a heatmap of current data
 ##' 
 ##' @author Samuel Wieczorek
 output$heatmap <- renderPlot({
-    rv$current.obj
-    input$linkage
-    input$distance
 
+        rv$current.obj
+        input$linkage
+        input$distance
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        
+        if (!is.null(input$linkage) && !is.null(input$distance)
+            && (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)) {
+            
+            result = tryCatch(
+                {
+
+                    wrapper.heatmapD(rv$current.obj,
+                                     input$distance, 
+                                     input$linkage,
+                                     TRUE) 
+
+                }
+                , warning = function(w) {
+                    shinyjs::info(conditionMessage(w))
+                }, error = function(e) {
+                    shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                }, finally = {
+                    #cleanup-code 
+                })
+            
+            
+        }
+    })
     
-    if (is.null(rv$current.obj) 
-        || is.null(input$linkage) 
-        || is.null(input$distance)) {return(NULL)
-#return(plot.new())
-}
-    
-    # if (getNumberOfEmptyLines(exprs(rv$current.obj)) != 0) {
-    # return(NULL)
-    # # plot.new()
-    # }
-    # else {  
-    # plot.new()
-    wrapper.heatmapD(rv$current.obj,
-                    input$distance, 
-                    input$linkage,
-                    TRUE) 
-    # buildHeatmapPlot()
-    #}
-})  
+
 
 ##' Select the labels to be highlighted in densityplots
 ##' @author Samuel Wieczorek
@@ -2210,7 +3127,7 @@ output$nGroup_DS <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) ) {return(NULL) }
     
-    radioButtons("whichGroup2Color",
+    radioButtons("whichGroup2Color_DS",
                 "Plot to show",
                 choices=list("By condition" = "Condition",
                             "By replicate" = "Replicate"))
@@ -2232,22 +3149,20 @@ output$topNOption <- renderUI({
 ##' @author Samuel Wieczorek
 output$nShow_DS <- renderUI({
     rv$current.obj
-    #input$whichGroup2Color
     if (is.null(rv$current.obj) ) {return(NULL) }
     
     isolate({
     rv$current.obj
-    labs <- paste(pData(rv$current.obj)[,"Label"],
-                    pData(rv$current.obj)[,"Bio.Rep"],
-                    pData(rv$current.obj)[,"Tech.Rep"],
-                    pData(rv$current.obj)[,"Analyt.Rep"],
+    labs <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                    Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                    Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                    Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
                     sep= "_")
     
-    #label.names <- unique(pData(rv$current.obj)[,"Label"])
     label.names <- setNames(as.list(c(1:length(labs))),labs)
     
     
-    checkboxGroupInput("lab2Show"
+    checkboxGroupInput("lab2Show_DS"
                         , label = "Select data to show"
                         , choices = label.names
                         , selected = unlist(label.names))
@@ -2262,18 +3177,16 @@ output$nShow_DS <- renderUI({
 ##' @author Samuel Wieczorek
 output$nShow <- renderUI({
     rv$current.obj
-    #input$whichGroup2Color
     if (is.null(rv$current.obj) ) {return(NULL) }
     
     isolate({
     rv$current.obj
-labs <- paste(pData(rv$current.obj)[,"Label"],
-pData(rv$current.obj)[,"Bio.Rep"],
-                            pData(rv$current.obj)[,"Tech.Rep"],
-                            pData(rv$current.obj)[,"Analyt.Rep"],
+labs <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                            Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                            Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
                             sep= "_")
 
-    #label.names <- unique(pData(rv$current.obj)[,"Label"])
     label.names <- setNames(as.list(c(1:length(labs))),labs)
 
 
@@ -2322,7 +3235,7 @@ observe({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     
-    if ("P.Value"  %in% names(fData(rv$current.obj))){
+    if ("P.Value"  %in% names(Biobase::fData(rv$current.obj))){
     
     updateSelectInput(session,"diffAnaMethod",
                         selected =  rv$current.obj@experimentData@other$method)
@@ -2330,14 +3243,14 @@ observe({
     updateNumericInput(session,
                     "seuilPVal",
                     min = 0,
-                    max = max(-log10(fData(rv$current.obj)$P.Value)),
+                    max = max(-log10(Biobase::fData(rv$current.obj)$P.Value)),
                     value = rv$current.obj@experimentData@other$seuil.p.value, 
                     step=0.1)
     
     updateNumericInput(session,
                     "seuilLogFC", 
                     min = 0, 
-                    max = max(abs(fData(rv$current.obj)$logFC)), 
+                    max = max(abs(Biobase::fData(rv$current.obj)$logFC)), 
                     value = rv$current.obj@experimentData@other$seuil.logFC, 
                     step=0.1)
     }
@@ -2345,64 +3258,66 @@ observe({
 })
 
 observe({
-    if (!is.null(input$seuilPVal)){rv$seuilPVal <- input$seuilPVal}
-    # print(rv$seuilPVal)
+    if (!is.null(input$seuilPVal)){rv$seuilPVal <- as.numeric(input$seuilPVal)}
+
 })
 
 observe({
-    if (!is.null(input$seuilLogFC)){rv$seuilLogFC <- input$seuilLogFC}
-    # print(rv$seuilLogFC)
+    if (!is.null(input$seuilLogFC)){rv$seuilLogFC <- as.numeric(input$seuilLogFC)}
+
 })
 
 
 output$nbSelectedItems <- renderUI({
-    rv$seuilPVal
     rv$seuilLogFC
     input$condition1
     input$condition2
     input$diffAnaMethod
     rv$current.obj
-
+    rv$resAnaDiff
+    
+    
+    if (is.null(rv$resAnaDiff$logFC)){return(NULL)}
+    
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
         return(NULL)}
-    p <- NULL
-    if ("P.Value"  %in% names(fData(rv$current.obj))){
-        p$P.Value <- fData(rv$current.obj)$P.Value
-        p$logFC <- fData(rv$current.obj)$logFC
-    }else {
-        p <- RunDiffAna()
-    }
-    if (is.null(p)) {return (NULL)}
-    upItemsPVal <- NULL
-    upItemsLogFC <- NULL
-    
-    if (!is.null(rv$seuilPVal)) {
-        upItemsPVal <- which(-log10(p$P.Value) >= rv$seuilPVal)}
-    
-    if (!is.null(rv$seuilPVal)) {
-        upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)}
     
     
-    nbTotal <- nrow(exprs(rv$current.obj))
-    nbSelected <- NULL
-    t <- NULL
+    result = tryCatch(
+        {
+            p <- NULL
+            p <- rv$resAnaDiff
+            upItemsPVal <- NULL
+            upItemsLogFC <- NULL
+            
+            
+            upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
+            nbTotal <- nrow(Biobase::exprs(rv$current.obj))
+            nbSelected <- NULL
+            t <- NULL
+            
+            t <- upItemsLogFC
+            nbSelected <- length(t)
+            
+            txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ", 
+                         nbTotal,"<br>",
+                         "Number of selected ",rv$typeOfDataset, "(s) = ", 
+                         nbSelected,"<br>",
+                         "Number of non selected ",rv$typeOfDataset, "(s) = ", 
+                         (nbTotal-nbSelected), sep="")
+            HTML(txt)
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
     
-    if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-        t <- intersect(upItemsPVal, upItemsLogFC)}
-    else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
-        t <- upItemsPVal}
-    else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-        t <- upItemsLogFC}
     
-    nbSelected <- length(t)
     
-    txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ", 
-                nbTotal,"<br>",
-                "Number of selected ",rv$typeOfDataset, "(s) = ", 
-                nbSelected,"<br>",
-                "Number of non selected ",rv$typeOfDataset, "(s) = ", 
-                (nbTotal-nbSelected), sep="")
-    HTML(txt)
+
 })
 
 output$nbSelectedItemsStep3 <- renderUI({
@@ -2416,46 +3331,61 @@ output$nbSelectedItemsStep3 <- renderUI({
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
         return(NULL)}
     
-    p <- NULL
-    if ("P.Value"  %in% names(fData(rv$current.obj))){
-        p$P.Value <- fData(rv$current.obj)$P.Value
-        p$logFC <- fData(rv$current.obj)$logFC
-    }else {
-        p <- RunDiffAna()
-    }
-    
-    if (is.null(p)) {return (NULL)}
-    upItemsPVal <- NULL
-    upItemsLogFC <- NULL
-    
-    if (!is.null(rv$seuilPVal)) {
-        upItemsPVal <- which(-log10(p$P.Value) >= rv$seuilPVal)}
-    
-    if (!is.null(rv$seuilPVal)) {
-        upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)}
     
     
-    nbTotal <- nrow(exprs(rv$current.obj))
-    nbSelected <- NULL
-    t <- NULL
-    
-    if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-        t <- intersect(upItemsPVal, upItemsLogFC)}
-    else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
-        t <- upItemsPVal}
-    else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-        t <- upItemsLogFC}
-    
-    nbSelected <- length(t)
-    
-    txt <- paste("Total number of ", rv$typeOfDataset, " = ", 
-                nbTotal,"<br>",
-                "Number of selected ", rv$typeOfDataset, " = ", 
-                nbSelected,"<br>",
-                "Number of non selected ", rv$typeOfDataset, " = ", 
-                (nbTotal-nbSelected), sep="")
-    HTML(txt)
+    result = tryCatch(
+        {
+            
+            p <- NULL
+            if ("P.Value"  %in% names(fData(rv$current.obj))){
+                p$P.Value <- fData(rv$current.obj)$P.Value
+                p$logFC <- fData(rv$current.obj)$logFC
+            }else {
+                
+                p <- rv$resAnaDiff
+            }
+            
+            if (is.null(p)) {return (NULL)}
+            upItemsPVal <- NULL
+            upItemsLogFC <- NULL
+            
+            
+            upItemsPVal <- which(-log10(p$P.Value) >= rv$seuilPVal)
+            upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
+            
+            
+            nbTotal <- nrow(Biobase::exprs(rv$current.obj))
+            nbSelected <- NULL
+            t <- NULL
+            
+            if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+                t <- intersect(upItemsPVal, upItemsLogFC)}
+            else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
+                t <- upItemsPVal}
+            else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+                t <- upItemsLogFC}
+            
+            nbSelected <- length(t)
+            
+            txt <- paste("Total number of ", rv$typeOfDataset, " = ", 
+                         nbTotal,"<br>",
+                         "Number of selected ", rv$typeOfDataset, " = ", 
+                         nbSelected,"<br>",
+                         "Number of non selected ", rv$typeOfDataset, " = ", 
+                         (nbTotal-nbSelected), sep="")
+            HTML(txt)
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+
+
 })
+
 
 
 
@@ -2464,28 +3394,42 @@ observe({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     isolate({
-    
-    #Si on a deja des pVal, alors, ne pas recalculer 
-    if ("logFC" %in% names(fData(rv$current.obj) )){
-        updateNumericInput(session, 
-            "seuilLogFC",
-            value= rv$current.obj@experimentData@other$threshold.logFC)
-        updateNumericInput(session, 
-            "seuilPVal",
-            value= rv$current.obj@experimentData@other$threshold.p.value)
-        updateSelectInput(session,
-            "diffAnaMethod",
-            selected = rv$current.obj@experimentData@other$method)
-        updateRadioButtons(session,
-            "condition1",
-            selected = rv$current.obj@experimentData@other$condition1)
-        updateRadioButtons(session,
-            "condition2",
-            selected = rv$current.obj@experimentData@other$condition2)
-        updateRadioButtons(session,
-            "calibrationMethod",
-            selected = rv$current.obj@experimentData@other$calibrationMethod)
-    }
+        
+        result = tryCatch(
+            {
+                
+                #Si on a deja des pVal, alors, ne pas recalculer 
+                if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+                    updateNumericInput(session, 
+                                       "seuilLogFC",
+                                       value= rv$current.obj@experimentData@other$threshold.logFC)
+                    updateNumericInput(session, 
+                                       "seuilPVal",
+                                       value= rv$current.obj@experimentData@other$threshold.p.value)
+                    updateSelectInput(session,
+                                      "diffAnaMethod",
+                                      selected = rv$current.obj@experimentData@other$method)
+                    updateRadioButtons(session,
+                                       "condition1",
+                                       selected = rv$current.obj@experimentData@other$condition1)
+                    updateRadioButtons(session,
+                                       "condition2",
+                                       selected = rv$current.obj@experimentData@other$condition2)
+                    updateRadioButtons(session,
+                                       "calibrationMethod",
+                                       selected = rv$current.obj@experimentData@other$calibrationMethod)
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(conditionMessage(e))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+
     
 })
     
@@ -2493,97 +3437,126 @@ observe({
 
 
 
-
-#-------------------------------------------------------------------
 output$volcanoplot <- renderPlot({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$condition1
-    input$condition2
-    input$diffAnaMethod
-    
-    if (is.null(input$condition1) ||is.null(input$condition2))
-    {return(NULL)}
-    if (input$condition1 == input$condition2) {return(NULL)}
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC)) { return (NULL)}
-    
-    isolate({
-    
-    #Si on a deja des pVal, alors, ne pas recalculer 
-    if ("logFC" %in% names(fData(rv$current.obj) )){
+        rv$seuilPVal
+        rv$seuilLogFC
+        input$condition1
+        input$condition2
+        input$diffAnaMethod
+        rv$resAnaDiff
         
-        cond <- c(rv$current.obj@experimentData@other$condition1,
-                  rv$current.obj@experimentData@other$condition2)
+        if (is.null(input$condition1) || is.null(input$condition2) ||
+            is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+            (input$condition1 == input$condition2) ||
+            (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
         
-        
-        diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
-                        fData(rv$current.obj)$P.Value, 
-                        0,
-                        rv$current.obj@experimentData@other$threshold.logFC,
-                        cond)
-    }else{
-        #p <- NULL
-        p <- RunDiffAna()
         cond <- c(input$condition1, input$condition2)
-        diffAnaVolcanoplot(p$logFC, 
-                            p$P.Value, 
-                            rv$seuilPVal, 
-                            rv$seuilLogFC,
-                            cond)
-    }
-    })
-})
+        result = tryCatch(
+            {
+                diffAnaVolcanoplot(logFC = rv$resAnaDiff$logFC, 
+                                   pVal = rv$resAnaDiff$P.Value, 
+                                   threshold_logFC = rv$seuilLogFC,
+                                   conditions = cond)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })   
+    
+
+
 
 
 output$volcanoplotStep3 <- renderPlot({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$condition1
-    input$condition2
-    input$diffAnaMethod
-    
-    if (is.null(input$condition1) ||is.null(input$condition2))
-    {return(NULL)}
-    if (input$condition1 == input$condition2) {return(NULL)}
-    if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return (NULL)}
-    
-    
-    isolate({
-    
-    #Si on a deja des pVal, alors, ne pas recalculer 
-    if ("logFC" %in% names(fData(rv$current.obj) )){
-        diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
-                    fData(rv$current.obj)$P.Value, 
-                    rv$current.obj@experimentData@other$threshold.p.value,
-                    rv$current.obj@experimentData@other$threshold.logFC,
-                    c(rv$current.obj@experimentData@other$condition1,
-                    rv$current.obj@experimentData@other$condition2)
-        )
-    }else{
-        #p <- NULL
-        p <- RunDiffAna()
-        cond <- c(input$condition1, input$condition2)
-        
-        diffAnaVolcanoplot(p$logFC, 
-                            p$P.Value, 
-                            rv$seuilPVal, 
-                            rv$seuilLogFC,
-                            cond)
-    }
-    })
-})
 
+        rv$seuilPVal
+        rv$seuilLogFC
+        input$condition1
+        input$condition2
+        input$diffAnaMethod
+        rv$resAnaDiff
+        
+        if (is.null(input$condition1) || is.null(input$condition2) ||
+            is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+            is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
+            (input$condition1 == input$condition2) ||
+            (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
+        
+        cond <- c(input$condition1, input$condition2)
+        result = tryCatch(
+            {
+                if ("logFC" %in% names(fData(rv$current.obj) )){
+                    diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
+                                       fData(rv$current.obj)$P.Value, 
+                                       rv$current.obj@experimentData@other$threshold.p.value,
+                                       rv$current.obj@experimentData@other$threshold.logFC,
+                                       c(rv$current.obj@experimentData@other$condition1,
+                                         rv$current.obj@experimentData@other$condition2)
+                    )
+                }else{
+                    cond <- c(input$condition1, input$condition2)
+                    
+                    diffAnaVolcanoplot(rv$resAnaDiff$logFC, 
+                                       rv$resAnaDiff$P.Value, 
+                                       rv$seuilPVal, 
+                                       rv$seuilLogFC,
+                                       cond)
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
+    })
+    
+
+
+output$disableAggregationTool <- renderUI({
+    rv$current.obj
+    
+    if (!is.null(rv$current.obj))
+    {
+        if (rv$current.obj@experimentData@other$typeOfData == "protein")
+        {
+            disable(selector = "#navPage li a[data-value=Aggregation]")
+            tags$style(type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
+            
+            
+        } else {
+            enable(selector = "#navPage li a[data-value=Aggregation]")
+            
+        }
+    }
+    
+})
 
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
-    busyIndicator("Calculation In progress",wait = 0)
+    busyIndicator("Calculation in progress",wait = 0)
     
     t <- sessionInfo()
     daparVersion <- t$otherPkgs$DAPAR$Version
     ProstarVersion <- installed.packages()["Prostar","Version"]
     
     
-    text <- paste("<strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
+    text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
+S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
+        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
+                  <i>\"DAPAR & ProStaR: software to perform statistical analyses in <br>
+                  quantitative discovery proteomics\"</i>, under review, 2016
+                  
+<br><br><br>
+<strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
                 software suite for quantitative analysis of mass spectrometry 
                 based proteomics, more specifically designed to process 
                 relative quantitative data from discovery experiments.<br> <br>
@@ -2660,31 +3633,77 @@ output$limmaplot <- DT::renderDataTable({
     
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return(NULL)}
+    result = tryCatch(
+        {
+
+            # isolate({
+            t <- NULL
+            # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
+            if (isContainedIn(c("logFC","P.Value"),names(Biobase::fData(rv$current.obj)) ) ){
+                selectedItems <- (which(Biobase::fData(rv$current.obj)$Significant == TRUE)) 
+                t <- data.frame(id =  
+                                    rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+                                Biobase::fData(rv$current.obj)[selectedItems,
+                                                               c("logFC", "P.Value", "Significant")])
+            } else{
+                data <- rv$resAnaDiff
+                upItems1 <- which(-log10(data$P.Value) >= rv$seuilPVal)
+                upItems2 <- which(abs(data$logFC) >= rv$seuilLogFC)
+                selectedItems <- intersect(upItems1, upItems2)
+                t <- data.frame(id =  rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+                                data[selectedItems,])
+            }
+            t
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
     
-    # isolate({
-    t <- NULL
-    # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-    if (isContainedIn(c("logFC","P.Value"),names(fData(rv$current.obj)) ) ){
-    selectedItems <- (which(fData(rv$current.obj)$Significant == TRUE)) 
-    t <- data.frame(id =  
-                        rownames(exprs(rv$current.obj))[selectedItems],
-                    fData(rv$current.obj)[selectedItems,
-                    c("logFC", "P.Value", "Significant")])
-        } else{
-    data <- RunDiffAna()
-    upItems1 <- which(-log10(data$P.Value) >= rv$seuilPVal)
-    upItems2 <- which(abs(data$logFC) >= rv$seuilLogFC)
-    selectedItems <- intersect(upItems1, upItems2)
-    t <- data.frame(id =  rownames(exprs(rv$current.obj))[selectedItems],
-                    data[selectedItems,])
-    }
-    t
+    
+    
+
     
 })
 
 isContainedIn <- function(strA, strB){
     return (all(strA %in% strB))
 }
+
+
+
+
+##' boxplot of intensities in current.obj
+##' @author Samuel Wieczorek
+output$viewNAbyMean <- renderPlot({
+        rv$current.obj
+        
+        if (is.null(rv$current.obj)) {return(NULL)}
+        
+        isolate({
+            result = tryCatch(
+                {
+                    wrapper.mvTypePlot(rv$current.obj)
+                }
+                , warning = function(w) {
+                    shinyjs::info(conditionMessage(w))
+                }, error = function(e) {
+                    shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                }, finally = {
+                    #cleanup-code 
+                })
+            
+            
+        })
+        
+        
+    })
+    
+
+
 
 # ---- Download of only significat data --------------
 output$linkWelch <- renderUI({
@@ -2694,7 +3713,7 @@ output$linkWelch <- renderUI({
     saveMSnset(input$filenameWelchData,
                 gFileExtension$msnset,
                 rv$current.obj[
-                which(fData(rv$current.obj)$Significant.Welch == TRUE)])
+                which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)])
     filename <- paste(input$filenameWelchData, gFileExtension$msnset, sep="")
     
     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
@@ -2709,7 +3728,7 @@ output$linkLimma <- renderUI({
     
     saveMSnset(input$filenameLimmaData, gFileExtension$msnset, 
                 rv$current.obj[
-                which(fData(rv$current.obj)$Significant.limma == TRUE)])
+                which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)])
     filename <- paste(input$filenameLimmaData, gFileExtension$msnset, sep="")
     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
     a(filename, href=completeFilename)
@@ -2718,12 +3737,11 @@ output$linkLimma <- renderUI({
 
 # store the object in binary file
 saveMSnset <- function(name, fileExt, obj ){
-    #print(rv$dirname)
     saveRDS(obj,file=paste(rv$dirname,"/", name, fileExt,sep=""))
     return(obj)
 }
 
-############ Read text file ######################
+############ Read text file to be imported ######################
 observe({
     input$file1
     input$XLSsheets
@@ -2732,19 +3750,32 @@ observe({
         || (GetExtension(input$file1$name) == "xlsx") ) 
         && is.null(input$XLSsheets)) {return(NULL)  }
     
-    # print(input$file1$datapath)
-    ClearMemory()
-    ext <- GetExtension(input$file1$name)
-    if ((ext == "txt") || (ext == "csv") ){
-    rv$tab1 <- read.csv(input$file1$datapath, 
-                        header=TRUE, 
-                        sep="\t", 
-                        as.is=T)
-    } else if ((ext == "xls") || (ext == "xlsx") ){
-    file <- loadWorkbook(input$file1$datapath)
-    rv$tab1 <- readWorksheet(file, sheet = input$XLSsheets)
     
-    }
+    result = tryCatch(
+        {
+            ClearMemory()
+            ext <- GetExtension(input$file1$name)
+            if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
+                rv$tab1 <- read.csv(input$file1$datapath, 
+                                    header=TRUE, 
+                                    sep="\t", 
+                                    as.is=T)
+            } else if ((ext == "xls") || (ext == "xlsx") ){
+                require(XLConnect)
+                file <- loadWorkbook(input$file1$datapath)
+                rv$tab1 <- readWorksheet(file, sheet = input$XLSsheets)
+                
+            }
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste("Read text file to convert",":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+    
 })
 
 
@@ -2796,89 +3827,125 @@ UpdateFilterWidgets <- function(){
 ##' Function to compute the maximum value for the filter
 ##' @author Samuel Wieczorek
 GetMaxValueThresholdFilter <- function(){
-    vMax <- 0
-    isolate({
     input$ChooseFilters
-    if (input$ChooseFilters == gFilterWholeMat) { 
-        vMax <- ncol(exprs(rv$current.obj))}
-    else if (input$ChooseFilters == gFilterAllCond 
-                || input$ChooseFilters == gFilterOneCond){ 
-        ll <- NULL
-        for (i in 1:length(unique(pData(rv$current.obj)$Label))){
-        ll <- c(ll, length(which(
-            pData(rv$current.obj)$Label==
-            unique(pData(rv$current.obj)$Label)[i])))
-        }
+    vMax <- 0
+  
         
-        vMax <- min(ll)
-    }
-    })
-    return(vMax)
+        result = tryCatch(
+            {
+                isolate({
+                    if (input$ChooseFilters == gFilterWholeMat) { 
+                    vMax <- ncol(Biobase::exprs(rv$current.obj))}
+                else if (input$ChooseFilters == gFilterAllCond 
+                         || input$ChooseFilters == gFilterOneCond){ 
+                    ll <- NULL
+                    for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
+                        ll <- c(ll, length(which(
+                            Biobase::pData(rv$current.obj)$Label==
+                                unique(Biobase::pData(rv$current.obj)$Label)[i])))
+                    }
+                    
+                    vMax <- min(ll)
+                }
+          
+        return(vMax)
+                })
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+
 }
 
 
 ## Perform missing values filtering
 observe({
+    input$perform.filtering.MV
     if (is.null(input$perform.filtering.MV) ){return(NULL)}
     if (input$perform.filtering.MV == 0){return(NULL)}
     
     isolate({
-    if (input$ChooseFilters == gFilterNone){
-        rv$current.obj <- rv$dataset[[input$datasets]]
-    } else {
         
-        
-        keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                        input$ChooseFilters,
-                                        input$seuilNA)
-
-        if (!is.null(keepThat))
+        result = tryCatch(
             {
-            rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
-            rv$current.obj <- mvFilterFromIndices(rv$dataset[[input$datasets]],
-                        keepThat,
-                        GetFilterText(input$ChooseFilters, input$seuilNA) )
+                
+        
+        if (input$ChooseFilters == gFilterNone){
+            rv$current.obj <- rv$dataset[[input$datasets]]
+        } else {
+            
+            
+            keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
+                                           input$ChooseFilters,
+                                           as.integer(input$seuilNA))
 
-            
-            #write command log
-            # l <- paste(keepThat,",", collapse="")
-            # writeToCommandLogFile(
-            #     paste("keepThat <- ",
-            #         findSequences(keepThat),
-            #     sep="")
-            # )
-            
-            
-            writeToCommandLogFile(
-                paste("keepThat <- mvFilterGetIndices(rv$dataset[['",
-                      input$datasets, 
-                      "']], '",
-                      input$ChooseFilters, "', '",
-                      input$seuilNA, "')", sep="")
-            )
-            writeToCommandLogFile("deleted.mv <- current.obj[-keepThat]")
-            writeToCommandLogFile(paste("txt <- '",
-                                        GetFilterText(input$ChooseFilters,
-                                                      input$seuilNA),
-                                        "'",
-                                        sep ="")
-            )
-            writeToCommandLogFile(paste("current.obj <- mvFilterFromIndices(",
-                                    "current.obj, keepThat, '",
-                                     GetFilterText(input$ChooseFilters,
-                                                   input$seuilNA),
-                                     "')",
-                                     sep ="")
+            if (!is.null(keepThat))
+            {
+                rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
+               
+                rv$current.obj <- mvFilterFromIndices(rv$dataset[[input$datasets]],
+                                                      keepThat,
+                                                      GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
+                
+               
+                #write command log
+                # l <- paste(keepThat,",", collapse="")
+                # writeToCommandLogFile(
+                #     paste("keepThat <- ",
+                #         findSequences(keepThat),
+                #     sep="")
+                # )
+                
+                
+                writeToCommandLogFile(
+                    paste("keepThat <- mvFilterGetIndices(rv$dataset[['",
+                          input$datasets, 
+                          "']], '",
+                          input$ChooseFilters, "', '",
+                          input$seuilNA, "')", sep="")
                 )
+                writeToCommandLogFile("deleted.mv <- current.obj[-keepThat]")
+                writeToCommandLogFile(paste("txt <- '",
+                                            GetFilterText(input$ChooseFilters,
+                                                          input$seuilNA),
+                                            "'",
+                                            sep ="")
+                )
+                writeToCommandLogFile(paste("current.obj <- mvFilterFromIndices(",
+                                            "current.obj, keepThat, '",
+                                            GetFilterText(input$ChooseFilters,
+                                                          input$seuilNA),
+                                            "')",
+                                            sep ="")
+                )
+            }
+            
+            
+            updateSelectInput(session, "ChooseFilters", 
+                              selected = input$ChooseFilters)
+            updateSelectInput(session, "seuilNA", 
+                              selected = input$seuilNA)
+            
         }
-
-
-        updateSelectInput(session, "ChooseFilters", 
-                        selected = input$ChooseFilters)
-        updateSelectInput(session, "seuilNA", 
-                        selected = input$seuilNA)
-
     }
+    #, warning = function(w) {
+    #    shinyjs::info(conditionMessage(w))
+    #}
+    , error = function(e) {
+        shinyjs::info(paste("Perform missing values filtering",":",conditionMessage(e), sep=" "))
+    }, finally = {
+        #cleanup-code 
+    })
+    
+    
+    
     })
 })
 
@@ -2888,97 +3955,122 @@ observe({
     if (input$perform.filtering.Contaminants == 0){return(NULL)}
     
     isolate({
-        temp <- rv$current.obj
-        if (!is.null(input$idBoxContaminants)
-            || (input$idBoxContaminants != "")) {
-            ind <- getIndicesOfLinesToRemove(temp,
-                                             input$idBoxContaminants, 
-                                             input$prefixContaminants)
-            if (!is.null(ind))  {
-                rv$deleted.contaminants <- temp[ind]
+
+        
+        result = tryCatch(
+            {
+                temp <- rv$current.obj
+                if (!is.null(input$idBoxContaminants)
+                    || (input$idBoxContaminants != "")) {
+                    ind <- getIndicesOfLinesToRemove(temp,
+                                                     input$idBoxContaminants, 
+                                                     input$prefixContaminants)
+                   
+                    if (!is.null(ind)){
+                        if (length(ind) > 0)  {
+                        rv$deleted.contaminants <- temp[ind]
+                        
+                        #temp <- temp[-ind]
+                        temp <- deleteLinesFromIndices(temp, ind, 
+                                                       paste("'", length(ind), 
+                                                             "contaminants were removed from dataset.'",
+                                                             sep=" ")
+                        )
+                        
+                        #write command log
+                        writeToCommandLogFile(
+                            paste(
+                                "indContaminants <- getIndicesOfLinesToRemove(",
+                                "current.obj",
+                                ",'", input$idBoxContaminants,
+                                "', '",input$prefixContaminants,"')",
+                                sep="")
+                        )
+                        
+                        writeToCommandLogFile(
+                            "deleted.contaminants <- current.obj[indContaminants]")
+                        writeToCommandLogFile(
+                            paste("txt <- '",
+                                  length(ind),
+                                  "contaminants were removed from dataset.'",
+                                  sep=" "))
+                        writeToCommandLogFile(
+                            paste("current.obj <- ",
+                                  "deleteLinesFromIndices(current.obj, indContaminants, txt)",
+                                  sep="")
+                        )
+                        
+                    }
+                }
+                }
                 
-                #temp <- temp[-ind]
-                temp <- deleteLinesFromIndices(temp, ind, 
-                                               paste("'", length(ind), 
-                                                     "contaminants were removed from dataset.'",
-                                                     sep=" ")
-                )
                 
-                #write command log
-                writeToCommandLogFile(
-                    paste(
-                        "indContaminants <- getIndicesOfLinesToRemove(",
-                        "current.obj",
-                        ",'", input$idBoxContaminants,
-                        "', '",input$prefixContaminants,"')",
-                        sep="")
-                )
+                if (!is.null(input$idBoxReverse) || (input$idBoxReverse != "")){
+                    ind <- getIndicesOfLinesToRemove(temp,
+                                                     input$idBoxReverse,
+                                                     input$prefixReverse)
+                    
+                   
+                    if (!is.null(ind)){
+                        if(length(ind) >0)  {
+                        rv$deleted.reverse <- temp[ind]
+                        temp <- deleteLinesFromIndices(temp, ind, 
+                                                       paste(length(ind), "reverse were removed from dataset",
+                                                             sep=" ")
+                        )
+                        
+                        writeToCommandLogFile(
+                            paste(
+                                "indReverse <- getIndicesOfLinesToRemove(",
+                                "current.obj",
+                                ",'", input$idBoxReverse,
+                                "', '",input$prefixReverse,"')",
+                                sep="")
+                        )
+                        
+                        writeToCommandLogFile(
+                            "deleted.reverse <- current.obj[indReverse]")
+                        writeToCommandLogFile(
+                            paste("txt <- '",
+                                  length(ind),
+                                  "reverse were removed from dataset.'",
+                                  sep=" "))
+                        writeToCommandLogFile(
+                            paste("current.obj <- ",
+                                  "deleteLinesFromIndices(current.obj, indReverse, txt)",
+                                  sep="")
+                        )
+                    }
+                }
+                }
+                rv$current.obj <- temp
                 
-                writeToCommandLogFile(
-                    "deleted.contaminants <- current.obj[indContaminants]")
-                writeToCommandLogFile(
-                    paste("txt <- '",
-                          length(ind),
-                          "contaminants were removed from dataset.'",
-                          sep=" "))
-                writeToCommandLogFile(
-                    paste("current.obj <- ",
-                          "deleteLinesFromIndices(current.obj, indContaminants, txt)",
-                          sep="")
-                )
+                updateSelectInput(session, "idBoxReverse",
+                                  selected = input$idBoxReverse)
+                updateSelectInput(session, "idBoxContaminants",
+                                  selected = input$idBoxContaminants)
+                updateSelectInput(session, "prefixContaminants", 
+                                  selected = input$prefixContaminants)
+                updateSelectInput(session, "prefixReverse",
+                                  selected = input$prefixReverse)
+                
+                updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
                 
             }
-        }
+            #, warning = function(w) {
+            #    shinyjs::info(conditionMessage(w))
+           # }
+        , error = function(e) {
+                shinyjs::info(paste("Perform contaminants filtering",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
         
-        if (!is.null(input$idBoxReverse) || (input$idBoxReverse != "")){
-            ind <- getIndicesOfLinesToRemove(temp,
-                                             input$idBoxReverse,
-                                             input$prefixReverse)
-            
-            if (!is.null(ind))  {
-                rv$deleted.reverse <- temp[ind]
-                temp <- deleteLinesFromIndices(temp, ind, 
-                                               paste(length(ind), "reverse were removed from dataset",
-                                                     sep=" ")
-                )
-                
-                writeToCommandLogFile(
-                    paste(
-                        "indReverse <- getIndicesOfLinesToRemove(",
-                        "current.obj",
-                        ",'", input$idBoxReverse,
-                        "', '",input$prefixReverse,"')",
-                        sep="")
-                )
-                
-                writeToCommandLogFile(
-                    "deleted.reverse <- current.obj[indReverse]")
-                writeToCommandLogFile(
-                    paste("txt <- '",
-                          length(ind),
-                          "reverse were removed from dataset.'",
-                          sep=" "))
-                writeToCommandLogFile(
-                    paste("current.obj <- ",
-                          "deleteLinesFromIndices(current.obj, indReverse, txt)",
-                          sep="")
-                )
-            }
-        }
         
-        rv$current.obj <- temp
         
-        updateSelectInput(session, "idBoxReverse",
-                          selected = input$idBoxReverse)
-        updateSelectInput(session, "idBoxContaminants",
-                          selected = input$idBoxContaminants)
-        updateSelectInput(session, "prefixContaminants", 
-                          selected = input$prefixContaminants)
-        updateSelectInput(session, "prefixReverse",
-                          selected = input$prefixReverse)
         
-        updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
         
+
     })
 })
 
@@ -2997,31 +4089,47 @@ observe({
     {return(NULL)}
     
     isolate({
-        if((input$ChooseFilters != gFilterNone) 
-            || !is.null(input$idBoxContaminants) 
-            || !is.null(input$idBoxReverse)){
-        
-        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-        name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
-        rv$dataset[[name]] <- rv$current.obj
-        
-    ###### write to commandLog File
-         writeToCommandLogFile(  
-             paste("dataset[['",name, "']] <- current.obj", sep=""))
-    ###### end write to command log file
         
         
-        updateSelectInput(session, "datasets", 
-                            choices = names(rv$dataset), selected = name)
-        txtFilterMV <- paste("Filtering :",
-                                GetFilterText(input$ChooseFilters, 
-                                            input$seuilNA), 
-                            sep="")
-        txt <- paste(txtFilterMV, "Contaminants deleted", 
-                    "Reverse deleted", 
-                    sep=" ")
-        UpdateLog(txt,name)
-        }
+        result = tryCatch(
+            {
+                
+                if((input$ChooseFilters != gFilterNone) 
+                   || !is.null(input$idBoxContaminants) 
+                   || !is.null(input$idBoxReverse)){
+                    
+                    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+                    name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
+                    rv$dataset[[name]] <- rv$current.obj
+                    
+                    ###### write to commandLog File
+                    writeToCommandLogFile(  
+                        paste("dataset[['",name, "']] <- current.obj", sep=""))
+                    ###### end write to command log file
+                    
+                    
+                    updateSelectInput(session, "datasets", 
+                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                      choices = names(rv$dataset), selected = name)
+                    txtFilterMV <- paste("Filtering :",
+                                         GetFilterText(input$ChooseFilters, 
+                                                       input$seuilNA), 
+                                         sep="")
+                    txt <- paste(txtFilterMV, "Contaminants deleted", 
+                                 "Reverse deleted", 
+                                 sep=" ")
+                    UpdateLog(txt,name)
+                }
+                
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste("Validate filters",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+
         
     })
 
@@ -3035,7 +4143,7 @@ output$chooseProteinId <- renderUI({
     
     selectInput("proteinId", 
                 "Choose the protein ID",
-                choices = c("None",colnames(fData(rv$current.obj))))
+                choices = c("None",colnames(Biobase::fData(rv$current.obj))))
 })
 
 observe({
@@ -3077,15 +4185,27 @@ observe({
     
     if (rv$current.obj@experimentData@other$typeOfData == "protein") {return(NULL)}
     
-    matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                              input$proteinId,
-                                              FALSE)
-    matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                              input$proteinId,
-                                              TRUE)
-    
-    rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
-                      matWithUniquePeptides=matUniquePeptides)
+    result = tryCatch(
+        {
+            matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+                                                      input$proteinId,
+                                                      FALSE)
+            matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
+                                                      input$proteinId,
+                                                      TRUE)
+            
+            rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
+                              matWithUniquePeptides=matUniquePeptides)
+        }
+        #, warning = function(w) {
+        #    shinyjs::info(conditionMessage(w))
+        #}
+        , error = function(e) {
+            shinyjs::info(paste("Build adjacency matrix",":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+            })
+
 })
 
 
@@ -3156,39 +4276,43 @@ output$aggregationStats <- renderUI ({
         || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-   # matAdj <- ComputeAdjacencyMatrix()
+   
+    res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, rv$matAdj$matWithSharedPeptides)
     
     text <- paste("<ul style=\"list-style-type:disc;\">
                 <li>
                 Number of peptides: ", 
-                nrow(matAdj$matWithSharedPeptides),
+                nrow(rv$matAdj$matWithSharedPeptides),
                 "</li>
 
                 <li>
                 Number of unique peptides: ", 
-                nrow(matAdj$matWithUniquePeptides),
+                nrow(rv$matAdj$matWithUniquePeptides),
                 "</li>
 
 
                 <li>
                 Number of shared peptides: ",
-                nrow(matAdj$matWithSharedPeptides)
-                -nrow(matAdj$matWithUniquePeptides),
+                nrow(rv$matAdj$matWithSharedPeptides)
+                -nrow(rv$matAdj$matWithUniquePeptides),
                 "</li>
 
                 <li>
-                Number of proteins:  ", ncol(matAdj$matWithSharedPeptides),
+                Number of proteins:  ", ncol(rv$matAdj$matWithSharedPeptides),
                 " </li>
-
                 <li>
                 Number of proteins only defined by unique peptides: ", 
-                ncol(matAdj$matWithUniquePeptides), 
+                length(res$protOnlyUniquePep), 
                 "</li>
 
                 <li>
                 Number of proteins only defined by shared peptides:  ", 
-                ncol(matAdj$matWithSharedPeptides)
-                - ncol(matAdj$matWithUniquePeptides), 
+                length(res$protOnlySharedPep), 
+                "</li>
+
+                <li>
+                Number of proteins defined both by shared and unique peptides:  ", 
+                length(res$protMixPep), 
                 "</li>
 
                 </ul>" , sep="")
@@ -3200,29 +4324,44 @@ output$aggregationStats <- renderUI ({
     })
 
 output$aggregationPlotShared <- renderPlot({
-    input$proteinId
-    rv$current.obj
-    rv$matAdj
-    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
-    {return(NULL)}
-    if (is.null( rv$current.obj)){return(NULL)}
-    #matAdj <- ComputeAdjacencyMatrix()
-    GraphPepProt(rv$matAdj$matWithSharedPeptides)
+
+        rv$matAdj
+        
+        if (is.null(rv$matAdj)) {return(NULL)}
+        result = tryCatch(
+            {
+                GraphPepProt(rv$matAdj$matWithSharedPeptides)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
     
-})
 
 output$aggregationPlotUnique <- renderPlot({
-    input$proteinId
-    rv$current.obj
-    rv$matAdj
-    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
-    {return(NULL)}
-    if (is.null( rv$current.obj)){return(NULL)}
-    #matAdj <- ComputeAdjacencyMatrix()
-    GraphPepProt(rv$matAdj$matWithUniquePeptides)
-    
-})
-
+        rv$matAdj
+        
+        if (is.null(rv$matAdj)) {return(NULL)}
+        result = tryCatch(
+            {
+                GraphPepProt(rv$matAdj$matWithUniquePeptides)
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+    })
 
 
 
@@ -3235,11 +4374,27 @@ observe({
     {return(NULL)}
     
     isolate({
-        if (input$aggregationMethod != "none")
+        
+        result = tryCatch(
             {
-            rv$temp.aggregate <- RunAggregation()
-            #writeToCommandLogFile("temp.aggregate <- data")
-        }
+                if (input$aggregationMethod != "none")
+                {
+                    rv$temp.aggregate <- RunAggregation()
+                    #writeToCommandLogFile("temp.aggregate <- data")
+                }
+                
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+        
     })
 })
 
@@ -3270,8 +4425,8 @@ output$id_Contaminants <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    .choices <- c("",colnames(fData(rv$current.obj)))
-    names(.choices) <- c("",colnames(fData(rv$current.obj)))
+    .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
+    names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
     selectInput("idBoxContaminants", 
                 label = "Choose column", 
                 choices = .choices , 
@@ -3283,8 +4438,8 @@ output$id_Reverse <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    .choices <- c("",colnames(fData(rv$current.obj)))
-    names(.choices) <- c("",colnames(fData(rv$current.obj)))
+    .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
+    names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
     selectInput("idBoxReverse", 
                 label = "Choose column", 
                 choices = .choices , 
@@ -3325,11 +4480,11 @@ output$DS_PlotHeatmap <- renderUI({
     rv$current.obj
 
     if (is.null(rv$current.obj)) {return(plot.new())}
-    if (getNumberOfEmptyLines(exprs(rv$current.obj)) != 0) {return (NULL)}
+    if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
     
     conditionalPanel(
-        condition = TRUE,
-        busyIndicator("Calculation In progress",wait = 0),
+        condition = "true",
+        busyIndicator("Calculation in progress",wait = 0),
         plotOutput("heatmap", width = "900px", height = "600px")
     )
 })
@@ -3451,7 +4606,7 @@ ConditionTabPanel <- reactive({
             h3("Select conditions to perform the differential analysis"),
             helpText("Please choose the labels for condition to analyse"),
             if (GetNbNA() > 0){
-                h3("There are some NA in your data. please impute before.")
+                h3("There are some NA in your data. Please impute before.")
             }
             else{
                 h3("Conditions setup")
@@ -3468,57 +4623,52 @@ ConditionTabPanel <- reactive({
 observe({
     if (is.null(input$perform.imputation.button) ){return(NULL)}
     if (input$perform.imputation.button == 0){return(NULL)}
+    if (is.null(input$missing.value.algorithm) ){return(NULL)}
     
     isolate({
-    
-    
-    result = tryCatch(
-        {
         
-        
-        input$missing.value.algorithm
-    rv$current.obj
-    input$datasets
-    .temp <- unlist(strsplit(input$missing.value.algorithm, " - "))
-    if (.temp[1] == "None"){
-        rv$current.obj <- rv$dataset[[input$datasets]]
-    } else {
-        if ((.temp[1] == "LeftCensored") || (.temp[1] == "RandomOccurence")) 
-        {
-        
-            busyIndicator("Calculation In progress",wait = 0)
-            rv$current.obj <- wrapper.mvImputation(
-                                rv$dataset[[input$datasets]],
-                                .temp[2])
-            
-            #write log command file
-            writeToCommandLogFile(
-                paste("current.obj <- wrapper.mvImputation(",
-                      "rv$dataset[['",
-                      input$datasets, 
-                      "']],'",.temp[2],"')",
-                      sep="")
-            )
-            
-            updateSelectInput(session, 
-                            "missing.value.algorithm", 
-                            selected = input$missing.value.algorithm)
-            
-        }
-        else if (input$missing.value.type == "Mix")
-        {}
-    }
-        }
-        , warning = function(w) {
-            print(w)
-        }, error = function(e) {
-            shinyjs::info(e)
-        }, finally = {
-            #cleanup-code
-        
+        result = tryCatch(
+            {
+                .temp <- unlist(strsplit(input$missing.value.algorithm, " - "))
+                if (.temp[1] == "None"){
+                    #rv$current.obj <- rv$dataset[[input$datasets]]
+                } else {
+                    if ((.temp[1] == "LeftCensored") || (.temp[1] == "RandomOccurence")) 
+                    {
+                        
+                        busyIndicator("Calculation in progress",wait = 0)
+                        rv$current.obj <- wrapper.mvImputation(
+                            rv$dataset[[input$datasets]],
+                            .temp[2])
+                        
+                        #write log command file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.mvImputation(",
+                                  "rv$dataset[['",
+                                  input$datasets, 
+                                  "']],'",.temp[2],"')",
+                                  sep="")
+                        )
+                        
+                        updateSelectInput(session, 
+                                          "missing.value.algorithm", 
+                                          selected = input$missing.value.algorithm)
+                        
+                    }
+                    else if (input$missing.value.type == "Mix")
+                    {}
                 }
-
-    )
+            }
+            , warning = function(w) {
+                print(w)
+            }, error = function(e) {
+                shinyjs::info(paste("Perform missing values imputation",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code
+                
+            }
+            
+        )
     })
 })
 
@@ -3532,30 +4682,54 @@ observe({
     if (input$perform.normalization == 0){return(NULL)}
     
     isolate({
-    .temp <- unlist(strsplit(input$normalization.method, " - "))
-    
-    if (.temp[1] == "None"){
-        rv$current.obj <- rv$dataset[[input$datasets]]
-    } else {
-        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                    .temp[1], 
-                                    .temp[2])
-        updateSelectInput(session, "normalization.method", 
-                        selected = input$normalization.method)
+        result = tryCatch(
+            {
+
+                .temp <- unlist(strsplit(input$normalization.method, " - "))
+                
+                if (.temp[1] == "None"){
+                    rv$current.obj <- rv$dataset[[input$datasets]]
+                } else {
+                    rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                         .temp[1], 
+                                                         .temp[2])
+                    updateSelectInput(session, "normalization.method", 
+                                      selected = input$normalization.method)
+                    
+                    
+                    ## Write command log file
+                    writeToCommandLogFile(
+                        paste("current.obj <- wrapper.normalizeD(",
+                              "rv$dataset[['",
+                              input$datasets, 
+                              "']],'",.temp[1], "','", .temp[2],"')",
+                              sep="")
+                    )
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
         
-        
-        ## Write command log file
-        writeToCommandLogFile(
-            paste("current.obj <- wrapper.normalizeD(",
-                  "rv$dataset[['",
-                input$datasets, 
-                "']],'",.temp[1], "','", .temp[2],"')",
-                  sep="")
-        )
-    }
+     
     })
 })
 
+
+
+
+output$ChooseAggregationMethod <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return (NULL)}
+    
+    selectInput("aggregationMethod",
+                "Aggregation methods",
+                choices =  gAgregateMethod)
+})
 
 
 output$AggregationSideBar_Step1 <-  renderUI({
@@ -3573,9 +4747,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
     checkboxInput("checkSharedPeptides",
                   "Include shared peptides",
                   value = FALSE),
-    selectInput("aggregationMethod",
-                "Aggregation methods",
-                choices =  gAgregateMethod),
+    uiOutput("ChooseAggregationMethod"),
     uiOutput("topNOption"),
     actionButton("perform.aggregation","Perform aggregation")
     )
@@ -3601,12 +4773,12 @@ output$AggregationWellPanel_Step1 <- renderUI({
                          column(width=6, h4("Only unique peptides")),
                          column(width=6, h4("All (unique & shared) peptides"))
                      ),
-                     busyIndicator("Calculation In progress",wait = 0),
+                     busyIndicator("Calculation in progress",wait = 0),
                      fluidRow(
                          column(width=6, plotOutput("aggregationPlotUnique")),
                          column(width=6, plotOutput("aggregationPlotShared"))
                      ),
-                     # uiOutput("aggregationStats"),
+                      uiOutput("aggregationStats"),
                      uiOutput("ObserverAggregationDone")
                      )
     } else {
@@ -3637,7 +4809,7 @@ output$Aggregation_Step2 <- renderUI({
     )
     )
     } else {
-        h4("The dataset is a protein one: the aggregation cannot be performed.")
+        h4("The peptide dataset has been aggregated into a protein dataset.")
     }
     
 })

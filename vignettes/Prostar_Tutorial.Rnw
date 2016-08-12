@@ -79,7 +79,7 @@ functionalities, we  refer the readers to the "\Biocpkg{DAPAR} and
 
 The text-format file is 'UPSpep25.txt' and is part of the \Biocpkg{DAPARdata} 
 package. For a precise understanding of the dataset, please refer to the 
-document "Description of the UPSfpep/protg25 datasets" available on the 
+document "Description of the UPS\{pep/prot\}25 datasets" available on the 
 bioconductor webpage of \Biocpkg{DAPARdata}.
 
 In a nutshell, it gathers the peptide intensities of 6 samples, containing 
@@ -311,6 +311,14 @@ has been clicked on.
 updated.}\label{fig:FiltPerform}
 \end{figure}
 
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/StringFilt.png}}
+\caption{Screenshot of the string based filtering panel. Graphics are 
+interactively updated.}\label{fig:StringFilt}
+\end{figure}
+
+
 % %See fig.~\ref{fig:Filt}. 
 % This threshold may be applied on the whole dataset, on each condition 
 % or on at least one condition.
@@ -322,8 +330,11 @@ updated.}\label{fig:FiltPerform}
 Once this filtering has been performed, it is possible to move to the 
 string-based filtering panel, which proposes to remove lines on the basis of 
 some meta-data (i.e. peptide sequences that are known to be contaminants ou 
-reverse sequences). This panels works as the previous one. Yet, with this toy 
-dataset, there is no string-based filtering to apply.
+reverse sequences). This panels works as the previous one and is shown on 
+Fig.~\ref{fig:StringFilt}.
+
+%Yet, with this toy 
+%dataset, there is no string-based filtering to apply.
 
 Finally, one goes on the third panel, named 'Visualise and validate', that aims
 at performing the final validation of the filtering steps. To do so, one simply
@@ -348,16 +359,25 @@ it now appears that the filtered data consist of 10660 peptides
 \section{Normalization}\label{sec:norm}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Once the data are filtered, the next step is to normalize the data (in the "Data processing" dropdown
-menu). It works as the previous processing steps, yet the navigation is even simpler. First, chose the
-adequate normalization method (here we have chosen "Median Centering - overall"); Second perfom the
-normalization; and finally, save it (see Fig.~\ref{fig:Norm}). As usual, notice that once the data are normalized, the
-top-right box indicates "Normalized - peptide".
+Once the data are filtered, the next step is to normalize the data (in the 
+"Data processing" dropdown menu). It works as the previous processing steps, 
+yet the navigation is even simpler. First, chose the adequate normalization 
+method (here we have chosen "Median Centering - overall"); Second perfom the
+normalization; and finally, save it (see Fig.~\ref{fig:Norm}). As usual, notice
+that once the data are normalized, the top-right box indicates 
+"Normalized - peptide".
 
 \begin{figure}
 \centering
 \fbox{\includegraphics[width=0.85\textwidth]{captures/Norm.png}}
-\caption{The normalization panel - NB: After the normalization is validated, the upper right plot is updated to an empty graphic.}\label{fig:Norm}
+\caption{The normalization panel - before performing normalization}\label{fig:Norm}
+\end{figure}
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/NormAfter.png}}
+\caption{The normalization panel - after the normalization has been performed}
+\label{fig:Norm}
 \end{figure}
 
 
@@ -439,7 +459,7 @@ Once the aggregation is saved, please check that the top right
 box indicates now "Aggregated - proteins". From that point on, it is possible to go back to the "Descriptive statistics" tabs, and to investigate the new protein-wise dataset. For instance, in the "Overview" tab, it appears that one has the following information:
 \begin{verbatim}
 There is 6 samples in your data.
-There is 2104 lines in your data.
+There is 2350 lines in your data.
 Percentage of missing values: 0 %
 \end{verbatim}
 
@@ -487,7 +507,7 @@ Then, the practitioner is allowed to define a threshold on the  fold-change, so 
 The \textbf{Calibrate Ana Diff} panel (fig.~\ref{fig:AnaDiffCalib}) helps the 
 practitioner to check if the ditribution of the $p$-values is well-calibrated. 
 This calls the cp4p R package functions, and we refer to the corresponding tutorial: 
-\url{https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf}. We use the default setting with "pounds" method.
+\url{https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf}. Here, we simply use the default setting with "pounds" method.
 
 \begin{figure}
 \centering

@@ -1,0 +1,112 @@
+---
+title: "ProStaR report"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+## Descriptive statistics
+
+
+#### Missing values
+
+```{r missingValue_figure, fig.height=32, echo=FALSE}
+par(mfrow=c(2,2))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMVPerLines_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMVPerLinesConditions_DS, sep="/"))
+```
+
+
+
+
+#### Heatmap
+```{r heatmap_figure, fig.height=32, echo=FALSE}
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/")
+if (file.exists(f)) {
+    knitr::include_graphics(f)
+}
+```
+
+
+                    
+#### Correlation matrix
+```{r corrMatrix_figure, fig.height=32, echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"))
+```
+
+
+#### Box plot
+```{r boxplot_figure, fig.height=32, echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
+```
+
+
+#### Density plot
+```{r densityPlot_figure, fig.height=32, echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"))
+```
+
+## Data processing
+
+#### Filtering
+```{r contaminants_figure, fig.height=32, echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"))
+```
+
+#### Normalization
+```{r normPlots_figure, fig.height=32, echo=FALSE}
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$boxplotNorm, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotNorm, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+
+```
+
+
+
+#### Missing values imputation
+```{r imputation_figure, fig.height=32, echo=FALSE}
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$imageNA, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+```
+
+
+
+#### Aggregation
+```{r agregation_figure, fig.height=32, echo=FALSE}
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$AgregMatUniquePeptides, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$AgregMatSharedPeptides, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+```
+
+
+
+#### Differential analysis
+```{r anaDiff_figure, fig.height=32, echo=FALSE}
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+f <- paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/")
+if (file.exists(f)) {knitr::include_graphics(f)}
+
+
+```
+

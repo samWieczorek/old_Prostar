@@ -1,0 +1,52 @@
+---
+title: "ProStaR report"
+output:
+  html_document:
+    toc: true
+    theme: united
+---
+
+
+
+## Descriptive statistics
+
+
+#### Missing values
+
+```{r a_taller_figure, fig.height=32, echo=FALSE}
+par(mfrow=c(3,1))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMVPerLines, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMVPerLinesConditions, sep="/"))
+```
+
+
+
+
+#### Heatmap
+
+
+                    
+#### Correlation matrix
+
+
+#### Box plot
+
+
+#### Density plot
+
+## Data processing
+
+#### Filtering
+
+#### Normalization
+
+
+
+#### Missing values imputation
+
+#### Aggregation
+
+
+#### Differential analysis
+
