@@ -260,11 +260,11 @@ navbarMenu("Dataset manager",
                     choices=  c( "MSnset","Excel")),
 
         br(),
-        conditionalPanel(
-            condition = "input.fileformatExport == 'Excel'",
-            uiOutput("selectIDforExcelExport")
-        ),
-        br(),
+       # conditionalPanel(
+       #     condition = "input.fileformatExport == 'Excel'",
+        #    uiOutput("selectIDforExcelExport")
+       # ),
+       # br(),
         uiOutput("chooseExportFilename"),
        
         br(),

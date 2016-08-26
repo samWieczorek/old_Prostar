@@ -5,7 +5,7 @@ logfilename <- "log.txt"
 gFileExtension <- list(txt = ".txt",
                        tsv = ".tsv",
                         msnset = ".MSnset",
-                        excel = ".xls",
+                        excel = ".xlsx",
                         zip = ".zip")
 
 gAgregateMethod <- list("none" = "none",

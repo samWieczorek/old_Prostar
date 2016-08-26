@@ -1,6 +1,7 @@
 options(shiny.maxRequestSize=30*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
+options(java.parameters = "-Xmx8000m")
 
 library(shiny)
 library(rhandsontable)
@@ -8,7 +9,7 @@ library(data.table)
 library(reshape2)
 library(DT)
 library(MSnbase)
-library(XLConnect)
+library(openxlsx)
 
 
 # initialize data with colnames
@@ -59,7 +60,9 @@ rv <- reactiveValues(
     normalizationMethod = NULL, 
     matAdj = NULL,
     test = NULL, 
-    resAnaDiff = list(logFC=NULL, P.Value=NULL))
+    resAnaDiff = list(logFC=NULL, P.Value=NULL),
+    wb = NULL
+    )
 
 
 initializeProstar <- reactive({
@@ -430,6 +433,8 @@ conditionalPanel(condition= "true",
                     uiOutput("nShow_DS"))
 
 })
+
+
 
 
 
@@ -1622,12 +1627,12 @@ output$RenderLimmaCond2 <- renderUI({
 })
 
 ##' @author Samuel Wieczorek
-output$selectIDforExcelExport <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return(NULL)  }
-    selectInput("ID2XLS", "ID for XLS", 
-                choices = colnames(Biobase::fData(rv$current.obj)))
-})
+# output$selectIDforExcelExport <- renderUI({
+#     rv$current.obj
+#     if (is.null(rv$current.obj) ) {return(NULL)  }
+#     selectInput("ID2XLS", "ID for XLS", 
+#                 choices = colnames(Biobase::fData(rv$current.obj)))
+# })
 
 
 output$downloadMSnSet <- downloadHandler(
@@ -1644,7 +1649,7 @@ output$downloadMSnSet <- downloadHandler(
     if (input$fileformatExport == gFileFormatExport$excel) {
         fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
         
-        writeMSnsetToExcel(rv$current.obj,input$nameExport, input$ID2XLS)
+        writeMSnsetToExcel(rv$current.obj,input$nameExport)
         file.copy(fname, file)
         file.remove(fname)
     }
@@ -3741,10 +3746,32 @@ saveMSnset <- function(name, fileExt, obj ){
     return(obj)
 }
 
+
+
+#####-------------------------------------------------------
+output$ManageXlsFiles <- renderUI({
+    input$file1
+    if (is.null(input$file1)){return(NULL)}
+    
+    .ext <- GetExtension(input$file1$name)
+    if ((.ext == "xls") || (.ext == "xlsx")){ 
+        print(input$file1)
+        
+        #  jgc()
+        #rv$wb <- loadWorkbook(input$file1$datapath)
+        sheets <- getSheetNames(input$file1$datapath)
+        selectInput("XLSsheets", "sheets", choices = as.list(sheets))
+    }
+    
+})
+
+
+
 ############ Read text file to be imported ######################
 observe({
     input$file1
     input$XLSsheets
+    rv$wb
     if (is.null(input$file1) ) {return(NULL)  }
     if (((GetExtension(input$file1$name)== "xls") 
         || (GetExtension(input$file1$name) == "xlsx") ) 
@@ -3761,10 +3788,7 @@ observe({
                                     sep="\t", 
                                     as.is=T)
             } else if ((ext == "xls") || (ext == "xlsx") ){
-                require(XLConnect)
-                file <- loadWorkbook(input$file1$datapath)
-                rv$tab1 <- readWorksheet(file, sheet = input$XLSsheets)
-                
+                rv$tab1 <- read.xlsx(input$file1$datapath, sheet=input$XLSsheets)
             }
         }
         , warning = function(w) {
@@ -4460,18 +4484,12 @@ output$conversionDone <- renderUI({
 })
 
 
-output$ManageXlsFiles <- renderUI({
-    input$file1
-    if (is.null(input$file1)){return(NULL)}
-    
-    .ext <- GetExtension(input$file1$name)
-    if ((.ext == "xls") || (.ext == "xlsx")){ 
-    file <- loadWorkbook(input$file1$datapath)
-    sheets <- getSheets(file)
-    selectInput("XLSsheets", "sheets", choices = sheets)
-    }
-    
-})
+## java garbage collector
+jgc <- function()
+{
+    .jcall("java/lang/System", method = "gc")
+}    
+
 
 
 
