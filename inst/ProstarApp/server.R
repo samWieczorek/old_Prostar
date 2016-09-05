@@ -26,7 +26,25 @@ shinyServer(function(input, output, session) {
 cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     
+
     
+ 
+    
+# 
+#         progress <- shiny::Progress$new()
+#         # Make sure it closes when we exit this reactive, even if there's an error
+#         on.exit(progress$close())
+#         
+#         progress$set(message = "Making plot", value = 0)
+#         
+#         # Number of times we'll go through the loop
+#         n <- 10
+#         
+#         for (i in 1:n) {
+#             progress$inc(1/n, detail = paste("Doing part", i))
+#             Sys.sleep(1)
+#         }
+#         
 
 
 #-------------------------------------------------------------
@@ -61,7 +79,9 @@ rv <- reactiveValues(
     matAdj = NULL,
     test = NULL, 
     resAnaDiff = list(logFC=NULL, P.Value=NULL),
-    wb = NULL
+    wb = NULL,
+    progressImputation = 0,
+    toto = 0
     )
 
 
@@ -96,12 +116,17 @@ initializeProstar <- reactive({
     rv$matAdj = NULL
     test = NULL
     rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
+    rv$toto = 0
 })
+
 
 
 
 env <- environment()
 sessionID <- Sys.getpid()
+
+
+
 
 writeToCommandLogFile <- function(txt){
     
@@ -1801,8 +1826,7 @@ observe({
                 
                 metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
-                
-                
+
                 
                 rv$current.obj <- createMSnset(rv$tab1, 
                                                metadata, 
@@ -1816,7 +1840,7 @@ observe({
                 rv$current.obj.name <- input$filenameToCreate
                 loadObjectInMemoryFromConverter()
                 
-                
+               
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
@@ -4634,6 +4658,15 @@ ConditionTabPanel <- reactive({
 })
 
 
+
+
+output$progressOne <- renderUI({
+    progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
+})
+
+ 
+
+
 # 
 #------------------------------------------
 ##' Missing values imputation - reactivity behavior
@@ -4672,10 +4705,41 @@ observe({
                                           "missing.value.algorithm", 
                                           selected = input$missing.value.algorithm)
                         
+                    } else if (.temp[1]== "imp4p")
+                    {
+            
+                        #rv$toto <- "Computing step 1 / 3"
+                        dat.slsa <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
+                         updatePB(session,inputId="pb1",value=33,text_value="33 %", striped = TRUE, active=TRUE)
+                         
+                         
+                        # 
+                         #rv$toto <- "Computing step 2 / 3"
+                         proba <- wrapper.identifyMCAR_MNAR(rv$dataset[[input$datasets]],dat.slsa)
+                         updatePB(session,inputId="pb1",value=66,text_value="66 %", striped = TRUE, active=TRUE)
+                        # 
+                         #rv$toto <- "Computing step 3 / 3"
+                         rv$current.obj <- wrapper.imputeImp4p(rv$dataset[[input$datasets]], dat.slsa, proba)
+                         updatePB(session,inputId="pb1",value=100,text_value="100 %", striped = FALSE, active=FALSE)
+                        # 
+
+                         
+                        #write log command file
+                        # writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.mvImputation(",
+                        #           "rv$dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",.temp[2],"')",
+                        #           sep="")
+                        # )
+                        
+                        updateSelectInput(session, 
+                                          "missing.value.algorithm", 
+                                          selected = input$missing.value.algorithm)
+                        
                     }
-                    else if (input$missing.value.type == "Mix")
-                    {}
                 }
+                    
             }
             , warning = function(w) {
                 print(w)

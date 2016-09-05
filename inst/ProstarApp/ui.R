@@ -25,6 +25,8 @@ plotHeight <- "600px"
 sidebarCustom <- function(){
 
 tags$head(
+
+
     tags$style(type="text/css", 
     paste("#wellPanelFileOpen { height:",heightSidebarPanel,"; }", sep="")),
     tags$style(type="text/css",
@@ -99,6 +101,8 @@ tags$head(
 
 
 
+
+
 sidebarPanelWidth <- function(){
 tags$head(
     tags$style(type="text/css", "#fileopened { 
@@ -116,9 +120,13 @@ shinyUI <- tagList(
 
 titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
+,includeCSS("www/progressBar/progressBar.css")
+,includeScript("www/progressBar/ShinyProgress2.js")
 ,useShinyjs()
 #,tags$head(includeScript("google-analytics.js"))
 #,tags$head(includeScript("piwik.js"))
+
+
 
 ,uiOutput("disableAggregationTool")
 ,navbarPage(
@@ -588,7 +596,13 @@ tabPanel("Miss. values imputation",
                                 "Perform imputation"),
                     actionButton("ValidImputation", 
                                 "Save imputation",
-                                styleclass = "primary")
+                                styleclass = "primary"),
+                    ## progress bar
+                    br(),
+                    br(),
+                    h5("This may take a while,"),
+                    h5("Please be patient ..."),
+                    uiOutput(outputId = "progressOne")
                 ),
                 conditionalPanel(id = "wellPanel_Imputation",
                     condition = "true",
@@ -602,6 +616,7 @@ tabPanel("Miss. values imputation",
                          ,column(width = 7, plotOutput("showImageNA"
                                                         ))
                      )
+                    
                 )
             )
 ),

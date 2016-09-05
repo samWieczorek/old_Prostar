@@ -68,7 +68,8 @@ imputationAlgorithms <- list("None" = "None",
                             "LeftCensored - QRILC" = "QRILC",
                             "RandomOccurence - BPCA" = "BPCA",
                             "RandomOccurence - KNN" = "KNN",
-                            "RandomOccurence - MLE" = "MLE"
+                            "RandomOccurence - MLE" = "MLE",
+                            "imp4p" = "imp4p"
 )
 
 JSCSSTags <- function() 
@@ -220,6 +221,75 @@ tagList(
     ",wait)
     )
 )	
+}
+
+########################################################
+# FROM :http://stackoverflow.com/questions/35271661/update-shiny-r-custom-progressbar/39265225#39265225
+progressBar2 <- function(inputId=NULL, value=0, label=FALSE, color="info", size=NULL,
+                         striped=FALSE, active=FALSE, vertical=FALSE) {
+    stopifnot(is.numeric(value))
+    if (value < 0 || value > 100)
+        stop("'value' should be in the range from 0 to 100", call. = FALSE)
+    if (!(color %in% shinydashboard:::validColors || color %in% shinydashboard:::validStatuses))
+        stop("'color' should be a valid status or color.", call. = FALSE)
+    if (!is.null(size))
+        size <- match.arg(size, c("sm", "xs", "xxs"))
+    text_value <- paste0(value, "%")
+    if (vertical)
+        style <- htmltools::css(height = text_value, `min-height` = "2em")
+    else
+        style <- htmltools::css(width = text_value, `min-width` = "2em")
+    htmltools::tags$div(
+        class = "progress",
+        class = if (!is.null(size)) paste0("progress-", size),
+        class = if (vertical) "vertical",
+        class = if (active) "active",
+        htmltools::tags$div(
+            class = "progress-bar",
+            class = paste0("progress-bar-", color),
+            class = if (striped) "progress-bar-striped",
+            id = paste0(inputId),
+            role = "progressbar",
+            style = style,
+            `aria-valuemax` = 100,
+            `aria-valuemin` = 0,
+            `aria-valuenow` = value,
+            htmltools::tags$span(
+                id = "text_value",
+                class = if (!label) "sr-only", 
+                text_value)
+        )
+    )
+}
+
+
+updatePB <- function(session,inputId=NULL,value=NULL,label=NULL,color=NULL,text_value = NULL,size=NULL,striped=NULL,active=NULL,vertical=NULL) {
+    data <- dropNulls(list(id=inputId,value=value,label=label,color=color,text_value=text_value,size=size,striped=striped,active=active,vertical=vertical))
+    
+    session$sendCustomMessage("updateprogress",data)
+}
+
+dropNulls <-function(x) {
+    x[!vapply(x,is.null,FUN.VALUE=logical(1))]
+}
+
+
+
+
+########################################################
+
+# Author: https://jackolney.github.io/2016/shiny/
+progressGroup <- function(text, value, min = 0, max = value, color = "aqua") {
+    stopifnot(is.character(text))
+    stopifnot(is.numeric(value))
+    if (value < min || value > max)
+        stop(sprintf("'value' should be in the range from %d to %d.", min, max), call. = FALSE)
+    tags$div(
+        class = "progress-group",
+        tags$span(class = "progress-text", text),
+        tags$span(class = "progress-number", sprintf("%d / %d", value, max)),
+        prgoressBar(round(value / max * 100), color = color, size = "sm")
+    )
 }
 
 

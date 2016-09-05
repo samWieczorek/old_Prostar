@@ -1,11 +1,15 @@
+CHANGES IN VERSION 1.5.5
+-------------------------
+
+NEW FEATURES
+    * Prostar integrates the imp4p package for the imputation of missing values, w.r.t MNAR / MCAR 
+
+
 CHANGES IN VERSION 1.5.3
 -------------------------
 
 NEW FEATURES
     * Prostar handles the format xlsx for Excel files
-
-
-
 
 
 CHANGES IN VERSION 1.5.1
