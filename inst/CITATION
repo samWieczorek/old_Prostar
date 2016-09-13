@@ -20,5 +20,5 @@ citEntry(entry="article",
         textVersion = paste("Samuel Wieczorek et al.",
             "DAPAR & ProStaR: software to perform statistical analyses in 
             quantitative discovery proteomics",
-            "under review (2016).")
+            "Bioinformatics, 2016.")
          )

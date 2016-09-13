@@ -26,25 +26,8 @@ shinyServer(function(input, output, session) {
 cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     
-
+Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     
- 
-    
-# 
-#         progress <- shiny::Progress$new()
-#         # Make sure it closes when we exit this reactive, even if there's an error
-#         on.exit(progress$close())
-#         
-#         progress$set(message = "Making plot", value = 0)
-#         
-#         # Number of times we'll go through the loop
-#         n <- 10
-#         
-#         for (i in 1:n) {
-#             progress$inc(1/n, detail = paste("Doing part", i))
-#             Sys.sleep(1)
-#         }
-#         
 
 
 #-------------------------------------------------------------
@@ -129,13 +112,12 @@ sessionID <- Sys.getpid()
 
 
 writeToCommandLogFile <- function(txt){
-    
     rv$commandLog <- c(rv$commandLog, txt)
-    # cat(rv$commandLog,
-    #     file = commandLogFile,
-    #     txt,
-    #     sep = "\n",
-    #     append = TRUE)
+     cat(rv$commandLog,
+         file = paste(tempdir(), sessionID, commandLogFile, sep="/"),
+         txt,
+         sep = "\n",
+         append = TRUE)
 }
 
 dirSessionPath <- paste(tempdir(), sessionID, sep="/")
@@ -533,14 +515,14 @@ RunAggregation <- reactive({
                             input$aggregationMethod, 
                             rv$matAdj$matWithSharedPeptides, 
                             n)
-        # writeToCommandLogFile(
-        #     paste(
-        #         "data <- pepAgregate(current.obj, '",
-        #         input$proteinId, "', '",
-        #         input$aggregationMethod, "', mat$matWithSharedPeptides)",
-        #         sep=""
-        #     )
-        # )
+        writeToCommandLogFile(
+            paste(
+                "data <- pepAgregate(current.obj, '",
+                input$proteinId, "', '",
+                input$aggregationMethod, "', mat$matWithSharedPeptides,",n,")",
+                sep=""
+            )
+        )
         
         
         }else{
@@ -549,14 +531,14 @@ RunAggregation <- reactive({
                             input$aggregationMethod, 
                             rv$matAdj$matWithUniquePeptides
                             , n)
-        # writeToCommandLogFile(
-        #     paste(
-        #         "data <- pepAgregate(current.obj, '",
-        #         input$proteinId, "', '",
-        #         input$aggregationMethod, "', mat$matWithUniquePeptides)",
-        #         sep=""
-        #     )
-        # )
+        writeToCommandLogFile(
+            paste(
+                "data <- pepAgregate(current.obj, '",
+                input$proteinId, "', '",
+                input$aggregationMethod, "', mat$matWithUniquePeptides,",n,")",
+                sep=""
+            )
+        )
         }
         
         return(data)
@@ -588,25 +570,25 @@ observe({
     isolate({
         result = tryCatch(
             {
-                writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
-                writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
-                writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
-                
+                # writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
+                # writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
+                # writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                # 
                 if (input$diffAnaMethod == "Limma"){
                     rv$resAnaDiff <- wrapper.diffAnaLimma(rv$current.obj, 
                                                           input$condition1, 
                                                           input$condition2)
-                    writeToCommandLogFile(
-                        "data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"
-                    )
+                  #  writeToCommandLogFile(
+                  #      "data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"
+                  #  )
                     
                 } else if (input$diffAnaMethod == "Welch"){
                     rv$resAnaDiff <- wrapper.diffAnaWelch(rv$current.obj, 
                                                           input$condition1, 
                                                           input$condition2)
-                    writeToCommandLogFile(
-                        "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)"
-                    )
+                   # writeToCommandLogFile(
+                   #     "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)"
+                   # )
                 }
             }
             #, warning = function(w) {
@@ -664,13 +646,8 @@ loadObjectInMemoryFromConverter <- reactive({
     
     
     writeToCommandLogFile("dataset <- list()")
-    
-    writeToCommandLogFile(
-        paste("dataset[['",
-              name,
-              "']] <- current.obj",
-              sep="")
-        )
+    writeToCommandLogFile(paste("dataset[['",name,"']] <- current.obj",sep=""))
+    writeToCommandLogFile(paste("typeOfDataset <- \"", rv$typeOfDataset, "\"", sep=""))
 
     UpdateFilterWidgets()
 
@@ -704,7 +681,7 @@ ClearMemory <- function(){
     
     initializeProstar()
     rv$hot = port
-   # print(rv$hot)
+   
     updateSelectInput(session, "datasets",  "", choices = "none")
     updateRadioButtons(session,"typeOfData",selected = "peptide" )
     updateRadioButtons(session, "checkDataLogged", selected="no")
@@ -762,9 +739,9 @@ output$chooseExportFilename <- renderUI({
 })
 
 
-observe({
-    input$loadDemoDataset
-    if (is.null(input$loadDemoDataset) || (input$loadDemoDataset == 0)) {return(NULL)}
+observeEvent(input$loadDemoDataset,{
+    
+    #if (is.null(input$loadDemoDataset) || (input$loadDemoDataset == 0)) {return(NULL)}
     
     isolate({
             ClearMemory()
@@ -773,11 +750,9 @@ observe({
         rv$current.obj.name <- input$demoDataset
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
             
-            # writeToCommandLogFile(
-            #     paste("current.obj <- readRDS('",
-            #           input$file$name,
-            #           "')", sep="")
-            # )
+            writeToCommandLogFile("library(DAPARdata)")
+            writeToCommandLogFile(paste("data(",input$demoDataset,")", sep=""))
+            writeToCommandLogFile(paste("current.obj <- ",input$demoDataset, sep=""))
             
             result = tryCatch(
                 {
@@ -796,9 +771,7 @@ observe({
 })
 
 ##-- Open a MSnset File --------------------------------------------
-observe({ 
-    input$file
-    if (is.null(input$file)) {return(NULL)}
+observeEvent(input$file,{ 
     
     isolate({
     exts <- c("MSnset","MSnSet")
@@ -811,14 +784,12 @@ observe({
         rv$current.obj <- readRDS(input$file$datapath)
         rv$current.obj.name <- DeleteFileExtension(input$file$name)
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-        loadObjectInMemoryFromConverter()
         
         writeToCommandLogFile(
-            paste("current.obj <- readRDS('",
-                                input$file$name,
-                                "')", sep="")
+            paste("current.obj <- readRDS('",input$file$name,"')", sep="")
         )
        
+        loadObjectInMemoryFromConverter()
         
 }
     })
@@ -846,7 +817,7 @@ observe({
                     
                     #write command log file
                     writeToCommandLogFile(
-                        paste("rv$dataset[['",name,"']] <- current.obj", sep="")
+                        paste("dataset[['",name,"']] <- current.obj", sep="")
                     )
                     
                     updateSelectInput(session, "datasets", 
@@ -900,9 +871,9 @@ observe({
     m <- NULL
     if (input$checkSharedPeptides){ 
         m <- rv$matAdj$matWithSharedPeptides
-       # writeToCommandLogFile("m <- mat$matWithSharedPeptides")
+        writeToCommandLogFile("m <- mat$matWithSharedPeptides")
     }else{ m <-rv$matAdj$matWithUniquePeptides
-    #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
+    writeToCommandLogFile("m <- mat$matWithUniquePeptides")
     }
         
     
@@ -923,29 +894,22 @@ observe({
     
     
     ######
-   # print(input$columnsForProteinDataset.box)
-    # l <- NULL
-    # for (i in input$columnsForProteinDataset.box)
-    #     {
-    #    l <- paste(l, paste("'",i, "',", sep=""))
-    #     }
-    # writeToCommandLogFile(
-    #     paste("columnsForProteinDataset <- c(",substr(l, 1, nchar(l)-1),")", sep="")
-    # )
-    # 
-    # writeToCommandLogFile("for (c in columnsForProteinDataset) {")
-    # writeToCommandLogFile(
-    #     "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
-    # writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
-    # writeToCommandLogFile("fData(temp.aggregate) <- 
-    #         data.frame(fData(temp.aggregate), newCol)")
-    # writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
-    # writeToCommandLogFile("}")
-    # writeToCommandLogFile("current.obj <- temp.aggregate")
-    # writeToCommandLogFile(
-    #     paste("rv$dataset[['",name, "']] <- current.obj", sep="")
-    # )
-    # 
+   l <- buildWritableVector(input$columnsForProteinDataset.box)
+    writeToCommandLogFile(paste("columnsForProteinDataset <- ",l, sep="") )
+
+   writeToCommandLogFile("for (c in columnsForProteinDataset) {")
+   writeToCommandLogFile(
+       "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
+   writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
+   writeToCommandLogFile("fData(temp.aggregate) <-
+           data.frame(fData(temp.aggregate), newCol)")
+   writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
+   writeToCommandLogFile("}")
+   writeToCommandLogFile("current.obj <- temp.aggregate")
+   writeToCommandLogFile(
+       paste("dataset[['",name, "']] <- current.obj", sep="")
+   )
+
     
     updateSelectInput(session, "datasets", 
                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
@@ -966,7 +930,7 @@ observe({
    , warning = function(w) {
        shinyjs::info(conditionMessage(w))
    }, error = function(e) {
-       shinyjs::info(paste("Validate the agregatino",":",conditionMessage(e), sep=" "))
+       shinyjs::info(paste("Validate the agregation",":",conditionMessage(e), sep=" "))
    }, finally = {
        #cleanup-code 
    })
@@ -992,7 +956,7 @@ observe({
                 rv$dataset[[name]] <- rv$current.obj
                 #write command log file
                 writeToCommandLogFile(
-                    paste("rv$dataset[['",name,"']] <- current.obj", sep="")
+                    paste("dataset[['",name,"']] <- current.obj", sep="")
                 )
                 
                 updateSelectInput(session, "datasets", 
@@ -1076,6 +1040,7 @@ session$onSessionEnded(function() {
     setwd(tempdir())
     graphics.off()
     unlink(sessionID, recursive = TRUE)
+    unlink(commandLogFile)
 })
 
 
@@ -1297,10 +1262,8 @@ output$calibrationPlotAll <- renderPlot({
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-observe({ 
-    input$datasets
-    
-    
+observeEvent( input$datasets,{ 
+
 #        result = tryCatch(
 #            {
                 isolate({
@@ -1373,8 +1336,8 @@ output$viewExprs <- DT::renderDataTable({
 
 
 #----------------------------------------------
-observe({ 
-    input$ValidDiffAna
+observeEvent(input$ValidDiffAna,{ 
+    
 
     if ((input$ValidDiffAna == 0) ||  is.null(input$ValidDiffAna) ) {
         return(NULL)}
@@ -1406,8 +1369,6 @@ observe({
                                     rv$seuilLogFC, 
                                     fdr,
                                     input$calibrationMethod)
-                print(colnames(exprs(rv$dataset[[input$datasets]])))
-                print(colnames(exprs(temp)))
                 
                 
                 #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
@@ -1427,19 +1388,33 @@ observe({
                 
                 
                 ####write command Log file
-                writeToCommandLogFile(paste("pvalThresh <- ", rv$seuilPVal, sep=""))
-                writeToCommandLogFile(paste("logFCthres <- ", rv$seuilLogFC,sep=""))
-                writeToCommandLogFile(paste("calibMethod <- '", m,"'",sep=""))
-                writeToCommandLogFile(
-                    "fdr <- diffAnaComputeFDR(data, pvalThresh, logFCthres, calibMethod)"
-                )
-                writeToCommandLogFile(
-                    paste("temp <- diffAnaSave(dataset[['", input$datasets, "']],",
-                          "data, method, cond1, cond2, pvalThresh, logFCthres, fdr, calibMethod)", sep=""
-                    )
-                )
+                writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
+                writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
+                writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                if (input$diffAnaMethod == "Limma"){
+                    writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)")
+                } else if (input$diffAnaMethod == "Welch"){
+                    writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
+                }
+                
+                
+                writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
+                writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
+                
+                writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
+                if (input$calibrationMethod == "Benjamini-Hochberg") { 
+                    writeToCommandLogFile("m <- 1") }
+                    else if (input$calibrationMethod == "numeric value") 
+                    { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
+                    else {writeToCommandLogFile("m <- calibMethod")}
+                                            
+                writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
+                                            
+                                            
+                writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
+                writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
+                writeToCommandLogFile("dataset[[name]] <- temp")
                 writeToCommandLogFile("current.obj <- temp")
-                writeToCommandLogFile(paste("dataset[['", name, "']] <- current.obj", sep=""))
                 
                 
                 
@@ -1660,6 +1635,18 @@ output$RenderLimmaCond2 <- renderUI({
 # })
 
 
+
+buildWritableVector <- function(v){
+    t <- "c("
+    for (i in v){
+        t <- paste(t, "\"", as.character(i), "\"", sep="")
+        if (i == last(v)) {t <- paste(t, ")", sep="")}
+        else {t <- paste(t, ",", sep="")}
+    }
+    return(t)
+}
+
+
 output$downloadMSnSet <- downloadHandler(
     filename = function() { 
     #input$nameExport
@@ -1670,11 +1657,24 @@ output$downloadMSnSet <- downloadHandler(
         paste(input$nameExport,gFileExtension$msnset,  sep="")}
     },
     content = function(file) {
-    
+        if (!is.null(input$colsToExport)){
+            fData(rv$current.obj) <- fData(rv$current.obj)[,input$colsToExport]
+
+            t <- buildWritableVector(input$colsToExport)
+            writeToCommandLogFile(
+                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
+            )
+            }
+        
+        
     if (input$fileformatExport == gFileFormatExport$excel) {
         fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
+        writeMSnsetToExcel(rv$current.obj, input$nameExport)
+        writeToCommandLogFile(
+            paste("writeMSnsetToExcel(current.obj,\"", input$nameExport, "\")", sep="")
+        )
         
-        writeMSnsetToExcel(rv$current.obj,input$nameExport)
+        
         file.copy(fname, file)
         file.remove(fname)
     }
@@ -1682,6 +1682,9 @@ output$downloadMSnSet <- downloadHandler(
     else if  (input$fileformatExport == gFileFormatExport$msnset) {
         fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
         saveRDS(rv$current.obj,file=fname)
+        writeToCommandLogFile(
+            paste("saveRDS(current.obj, \"", fname, "\")", sep="")
+        )
         file.copy(fname, file)
         file.remove(fname)
     }
@@ -1796,8 +1799,8 @@ output$id <- renderUI({
 })
 
 #######################################
-observe({
-    input$createMSnsetButton
+observeEvent(input$createMSnsetButton,{
+    
    # input$idBox
     #input$autoID 
    # input$hot
@@ -1810,6 +1813,20 @@ observe({
         result = tryCatch(
             {
                 
+                
+                ext <- GetExtension(input$file1$name)
+                if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
+                    
+                    writeToCommandLogFile(
+                        paste("tab1 <- read.csv(\"",input$file1$name,"\",header=TRUE, sep=\"\t\", as.is=T)", sep="")
+                    )
+                    
+                } else if ((ext == "xls") || (ext == "xlsx") ){
+                    writeToCommandLogFile(
+                        paste("tab1 <- read.xlsx(",input$file1$name,",sheet=", input$XLSsheets,")",sep="")
+                    )
+                }
+                    
                # input$hot
                 input$filenameToCreate
                 # input$file1
@@ -1838,7 +1855,61 @@ observe({
                                                pep_prot_data = input$typeOfData
                 )
                 rv$current.obj.name <- input$filenameToCreate
+                
+                t <- "metadata <- data.frame("
+                for (c in colnames(metadata)){
+                    t <- paste(t,c, " = c(",sep="")
+                    
+                    for (i in 1:(nrow(metadata)-1)){
+                        t <- paste(t,"\"",metadata[i,as.character(c)], "\",",sep="")
+                    }
+                    t <- paste(t,"\"",last(metadata[,as.character(c)]), "\")",sep="")
+                    if (c!= last(colnames(metadata))){t <- paste(t,", ") }
+                    else {t <- paste(t,")") }
+                }
+                writeToCommandLogFile(t)
+
+                t <- "rownames(m) <- c("
+                for (i in rownames(metadata)){
+                    t <- paste(t,"\"",as.character(i), "\"",sep="")
+                    if (i != last(rownames(metadata))){t <- paste(t,", ") }
+                    else {t <- paste(t,")") }
+                }
+                writeToCommandLogFile(t)
+
+
+                p <- "c("
+                for (i in 1:(length(indexForEData)-1)){p <- paste(p,indexForEData[i], ",",sep="")}
+                p <- paste(p, last(indexForEData), ")", sep="")
+                writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
+
+                p <- "c("
+                for (i in 1:(length(indexForFData)-1)){p <- paste(p,indexForFData[i], ",",sep="")}
+                p <- paste(p, last(indexForFData), ")", sep="")
+                writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
+
+                writeToCommandLogFile(
+                    paste("indexForIDBox <- ", indexForIDBox, sep="")
+                )
+
+                writeToCommandLogFile(
+                    paste("logData <- ", logData, sep="")
+                )
+
+                writeToCommandLogFile(
+                    paste("replaceZeros <- ",input$replaceAllZeros, sep = "")
+                )
+
+                writeToCommandLogFile(
+                    paste("pep_prot_data <- \"",input$typeOfData, "\"", sep="")
+                    )
+
+                writeToCommandLogFile(
+                    paste("current.obj <- createMSnset(tab1, metadata, indexForEData, indexForFData, indexForIDBox,logData, replaceZeros, pep_prot_data)")
+                )
+
                 loadObjectInMemoryFromConverter()
+                
                 
                
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
@@ -1872,6 +1943,22 @@ output$eData <- renderUI({
     
 })
 
+
+
+output$chooseMetaDataExport <- renderUI({
+    rv$current.obj
+    #rv$tab1
+    #if (is.null(input$file1)) {return(NULL)  }
+    if (is.null(rv$current.obj)) {return(NULL)  }
+    
+    choices <- colnames(fData(rv$current.obj))
+    names(choices) <- colnames(fData(rv$current.obj))
+    selectizeInput("colsToExport",
+                   label = "",
+                   choices = choices,
+                   multiple = TRUE, width='500px')
+    
+})
 
 ######################################################### 
 output$columnsForProteinDataset <- renderUI({
@@ -2052,7 +2139,7 @@ output$References <- renderText({
         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
         A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
         \"DAPAR & ProStaR: software to perform statistical analyses in 
-        quantitative discovery proteomics\", under review, 2016
+        quantitative discovery proteomics\", <i>Bioinformatics</i>, 2016
         </li>
         <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
         for the multiple natures of missing values in label-free quantitative 
@@ -3582,7 +3669,7 @@ output$aboutText <- renderUI({
 S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
         A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
                   <i>\"DAPAR & ProStaR: software to perform statistical analyses in <br>
-                  quantitative discovery proteomics\"</i>, under review, 2016
+                  quantitative discovery proteomics\"</i>, <i>Bioinformatics</i>, 2016
                   
 <br><br><br>
 <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
@@ -3785,6 +3872,8 @@ output$ManageXlsFiles <- renderUI({
         #rv$wb <- loadWorkbook(input$file1$datapath)
         sheets <- getSheetNames(input$file1$datapath)
         selectInput("XLSsheets", "sheets", choices = as.list(sheets))
+        
+        
     }
     
 })
@@ -3795,7 +3884,7 @@ output$ManageXlsFiles <- renderUI({
 observe({
     input$file1
     input$XLSsheets
-    rv$wb
+   # rv$wb
     if (is.null(input$file1) ) {return(NULL)  }
     if (((GetExtension(input$file1$name)== "xls") 
         || (GetExtension(input$file1$name) == "xlsx") ) 
@@ -3813,6 +3902,7 @@ observe({
                                     as.is=T)
             } else if ((ext == "xls") || (ext == "xlsx") ){
                 rv$tab1 <- read.xlsx(input$file1$datapath, sheet=input$XLSsheets)
+                
             }
         }
         , warning = function(w) {
@@ -3953,7 +4043,7 @@ observe({
                 
                 
                 writeToCommandLogFile(
-                    paste("keepThat <- mvFilterGetIndices(rv$dataset[['",
+                    paste("keepThat <- mvFilterGetIndices(dataset[['",
                           input$datasets, 
                           "']], '",
                           input$ChooseFilters, "', '",
@@ -4018,36 +4108,20 @@ observe({
                         if (length(ind) > 0)  {
                         rv$deleted.contaminants <- temp[ind]
                         
-                        #temp <- temp[-ind]
-                        temp <- deleteLinesFromIndices(temp, ind, 
-                                                       paste("'", length(ind), 
-                                                             "contaminants were removed from dataset.'",
-                                                             sep=" ")
+                        temp <- deleteLinesFromIndices(temp, ind, paste("\"", length(ind), " contaminants were removed from dataset.\"",sep="")
                         )
                         
                         #write command log
                         writeToCommandLogFile(
                             paste(
-                                "indContaminants <- getIndicesOfLinesToRemove(",
-                                "current.obj",
-                                ",'", input$idBoxContaminants,
-                                "', '",input$prefixContaminants,"')",
-                                sep="")
+                                "indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", input$idBoxContaminants,
+                                "\", \"",input$prefixContaminants,"\")", sep="")
                         )
                         
+                        writeToCommandLogFile("deleted.contaminants <- current.obj[indContaminants]")
                         writeToCommandLogFile(
-                            "deleted.contaminants <- current.obj[indContaminants]")
-                        writeToCommandLogFile(
-                            paste("txt <- '",
-                                  length(ind),
-                                  "contaminants were removed from dataset.'",
-                                  sep=" "))
-                        writeToCommandLogFile(
-                            paste("current.obj <- ",
-                                  "deleteLinesFromIndices(current.obj, indContaminants, txt)",
-                                  sep="")
-                        )
-                        
+                            paste("txt <- \"",length(ind)," contaminants were removed from dataset.\"",sep=""))
+                        writeToCommandLogFile("current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)")
                     }
                 }
                 }
@@ -4057,50 +4131,31 @@ observe({
                     ind <- getIndicesOfLinesToRemove(temp,
                                                      input$idBoxReverse,
                                                      input$prefixReverse)
-                    
                    
                     if (!is.null(ind)){
                         if(length(ind) >0)  {
                         rv$deleted.reverse <- temp[ind]
-                        temp <- deleteLinesFromIndices(temp, ind, 
-                                                       paste(length(ind), "reverse were removed from dataset",
-                                                             sep=" ")
+                        temp <- deleteLinesFromIndices(temp, ind, paste(length(ind), " reverse were removed from dataset",sep="")
                         )
                         
                         writeToCommandLogFile(
-                            paste(
-                                "indReverse <- getIndicesOfLinesToRemove(",
-                                "current.obj",
-                                ",'", input$idBoxReverse,
-                                "', '",input$prefixReverse,"')",
-                                sep="")
+                            paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", input$idBoxReverse,
+                                "\", \"",input$prefixReverse,"\")",sep="")
                         )
                         
+                        writeToCommandLogFile("deleted.reverse <- current.obj[indReverse]")
                         writeToCommandLogFile(
-                            "deleted.reverse <- current.obj[indReverse]")
-                        writeToCommandLogFile(
-                            paste("txt <- '",
-                                  length(ind),
-                                  "reverse were removed from dataset.'",
-                                  sep=" "))
-                        writeToCommandLogFile(
-                            paste("current.obj <- ",
-                                  "deleteLinesFromIndices(current.obj, indReverse, txt)",
-                                  sep="")
-                        )
+                            paste("txt <- \"",length(ind)," reverse were removed from dataset.\"",sep=""))
+                        writeToCommandLogFile("current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)")
                     }
                 }
                 }
                 rv$current.obj <- temp
                 
-                updateSelectInput(session, "idBoxReverse",
-                                  selected = input$idBoxReverse)
-                updateSelectInput(session, "idBoxContaminants",
-                                  selected = input$idBoxContaminants)
-                updateSelectInput(session, "prefixContaminants", 
-                                  selected = input$prefixContaminants)
-                updateSelectInput(session, "prefixReverse",
-                                  selected = input$prefixReverse)
+                updateSelectInput(session, "idBoxReverse",selected = input$idBoxReverse)
+                updateSelectInput(session, "idBoxContaminants",selected = input$idBoxContaminants)
+                updateSelectInput(session, "prefixContaminants", selected = input$prefixContaminants)
+                updateSelectInput(session, "prefixReverse",selected = input$prefixReverse)
                 
                 updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
                 
@@ -4224,12 +4279,12 @@ output$ObserverAggregationDone <- renderUI({
 
 
 
-observe({
-    input$proteinId
+observeEvent(input$proteinId,{
+    
     rv$current.obj
     if (is.null( input$proteinId) || (input$proteinId == "None"))
     {return(NULL)}
-    
+
     
     if (rv$current.obj@experimentData@other$typeOfData == "protein") {return(NULL)}
     
@@ -4244,6 +4299,22 @@ observe({
             
             rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
                               matWithUniquePeptides=matUniquePeptides)
+            
+            writeToCommandLogFile(
+                paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
+                      input$proteinId,"\",FALSE)", sep="")
+                )
+            writeToCommandLogFile(
+                paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
+                      input$proteinId,"\",TRUE)", sep="")
+            )
+
+            writeToCommandLogFile(
+                "mat <- list(matWithSharedPeptides=matSharedPeptides,
+                              matWithUniquePeptides=matUniquePeptides)"
+            )
+            
+            
         }
         #, warning = function(w) {
         #    shinyjs::info(conditionMessage(w))
@@ -4267,33 +4338,7 @@ output$aggregationPlot <- renderPlot({
         || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
-    #matAdj <- ComputeAdjacencyMatrix()
-    
-#     #write command log file
-#     writeToCommandLogFile(
-#         paste(
-#             "matSharedPeptides <- BuildAdjacencyMatrix(current.obj, '",
-#             input$proteinId, "', FALSE)"
-#             ,sep=""
-#         )
-#     )
-#     
-#     writeToCommandLogFile(
-#         paste(
-#             "matUniquePeptides <- BuildAdjacencyMatrix(current.obj, '",
-#             input$proteinId, "', TRUE)"
-#             ,sep=""
-#         )
-#         
-#     )
-#     writeToCommandLogFile(
-#         "mat <- list(matWithSharedPeptides=matSharedPeptides,
-#         matWithUniquePeptides=matUniquePeptides)"
-# )
-#     
-    
-    
-    
+ 
     
     if (input$checkSharedPeptides) {GraphPepProt(rv$matAdj$matWithSharedPeptides)}
     else {GraphPepProt(rv$matAdj$matWithUniquePeptides)}
@@ -4428,7 +4473,7 @@ observe({
                 if (input$aggregationMethod != "none")
                 {
                     rv$temp.aggregate <- RunAggregation()
-                    #writeToCommandLogFile("temp.aggregate <- data")
+                    writeToCommandLogFile("temp.aggregate <- data")
                 }
                 
             }
@@ -4695,7 +4740,7 @@ observe({
                         #write log command file
                         writeToCommandLogFile(
                             paste("current.obj <- wrapper.mvImputation(",
-                                  "rv$dataset[['",
+                                  "dataset[['",
                                   input$datasets, 
                                   "']],'",.temp[2],"')",
                                   sep="")
@@ -4725,13 +4770,13 @@ observe({
 
                          
                         #write log command file
-                        # writeToCommandLogFile(
-                        #     paste("current.obj <- wrapper.mvImputation(",
-                        #           "rv$dataset[['",
-                        #           input$datasets, 
-                        #           "']],'",.temp[2],"')",
-                        #           sep="")
-                        # )
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.mvImputation(",
+                                  "dataset[['",
+                                  input$datasets,
+                                  "']], \"imp4p\")",
+                                  sep="")
+                        )
                         
                         updateSelectInput(session, 
                                           "missing.value.algorithm", 
@@ -4757,11 +4802,11 @@ observe({
 
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
-observe({
+observeEvent(input$perform.normalization,{
     # input$perform.normalization
     # input$normalization.method
-    if (is.null(input$perform.normalization) ){return(NULL)}
-    if (input$perform.normalization == 0){return(NULL)}
+    #if (is.null(input$perform.normalization) ){return(NULL)}
+    #if (input$perform.normalization == 0){return(NULL)}
     
     isolate({
         result = tryCatch(
@@ -4782,7 +4827,7 @@ observe({
                     ## Write command log file
                     writeToCommandLogFile(
                         paste("current.obj <- wrapper.normalizeD(",
-                              "rv$dataset[['",
+                              "dataset[['",
                               input$datasets, 
                               "']],'",.temp[1], "','", .temp[2],"')",
                               sep="")
