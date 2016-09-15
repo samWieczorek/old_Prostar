@@ -1,8 +1,14 @@
+CHANGES IN VERSION 1.5.9
+------------------------ 
+
+NEW FEATURES
+    * This version uses the version 1.5.9 of DAPAR which
+    
 CHANGES IN VERSION 1.5.7
 -------------------------
 
 NEW FEATURES
-    * The R commands of all the operations made with prostar are available in the logSession tab. This allows the user         to create a script to automatize the analysis of a dataset.
+    * The R commands of all the operations made with prostar are available in the logSession tab. This allows the user to create a script to automatize the analysis of a dataset.
     
     
 CHANGES IN VERSION 1.5.5

@@ -331,7 +331,7 @@ of \Biocpkg{DAPAR}:\newline
 
 \subsubsection{Import}\label{sec:import}
 Alternatively, the user can create a quantitative dataset in the MSnSet 
-format, on the basis of TSV (Tab Separated Values) or Excel files that 
+format, on the basis of TSV (Tab Separated Values) or Excel files (in format xls or xlsx) that 
 contain the results of a proteomics analysis. To do so, one has to click 
 on "Convert data to MSnSet". Then, the right panel splits into 5 tabs that 
 guide the user through the procedure to create the MSnSet object. Let us describe the import format first, and the import procedure then. 
@@ -353,7 +353,7 @@ As an example, please find at the following address a dataset abstract that can 
 \noindent \textbf{Import procedure}\\
 \noindent Several panels guide the user through the different steps of the procedure:
 
-\textbf {Select file}: Select the CSV/txt or Excel file to import (see 
+\textbf {Select file}: Select the CSV/txt or Excel (*.xls, *.xlsx) file to import (see 
 Fig.~\ref{fig:imp1}). The file must contain a table where each line 
 corresponds to a peptide or protein, except the first one which must contain 
 the names of the colums. 
@@ -440,7 +440,7 @@ from a CSV file is \Rfunction{createMSnSet()}.
 Once an MSnSet has been created, it is possible to save it as a MSnSet binary 
 object (so that next time, it is not necessary to create it, and a simple 
 uploads makes it, as described in Section~\ref{sec:load}). It is also possible 
-to export it as an Excel spreadsheet. To do so, one simply goes on the 
+to export it as an Excel spreadsheet (in xlsx format). To do so, one simply goes on the 
 corresponding tab and select the appropriate option.
 
 %In case of Excel files, the user has to choose first the ID of the proteins. 
@@ -479,14 +479,26 @@ is added to the table shown in the "Session log" tab
 data were processed during the session. 
 Let us note that, if a dataset is processed, then saved and reloaded in a 
 new session, the session log is naturally empty. To have a complete view on 
-the previous processing applied to a given dataset, pelase refer to 
+the previous processing applied to a given dataset, please refer to 
 Section~\ref{sec:dataexplorer}).
 
 \begin{figure}[b]
 \centering
 \fbox{\includegraphics[width=0.75\textwidth]{images/SessionLog.png}}
-\caption{Example of the log of a session in ProStaR}\label{fig:sessionlog}
+\caption{Example of the log of a session in ProStaR.}\label{fig:sessionlog}
 \end {figure}
+
+Moreover, in the "R source code" tab, the user has access to the R commands 
+(from DAPAR) that have been used to process its dataset 
+(see Figure~\ref{fig:Rcode}). This code may be copy and paste in a R script to 
+automate the analysis of a dataset.
+
+\begin{figure}[b]
+\centering
+\fbox{\includegraphics[width=0.75\textwidth]{images/Rcode.png}}
+\caption{Example of the R code generated during a session in ProStaR.}\label{fig:Rcode}
+\end {figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Menu
@@ -653,6 +665,34 @@ correspond to the different conditions (column \textbf{Label} in the table of
 \item for the dataframe parameter: \Rfunction{boxPlotD()},
 \item for an object of class MSnSet: \Rfunction{wrapper.boxPlotD()}.
 \end{itemize}
+
+
+
+\subsubsection {Violin plot}\label{sec:violinplot}
+
+The protein distribution by replicates is summarized with violin plots 
+(see Fig.~\ref{fig:violinplot}). The user can change the legend of the samples 
+(X-axis) by checking items in the checkboxes group. The colors of the boxes 
+correspond to the different conditions (column \textbf{Label} in the table of 
+\emph {Samples Meta Data}).
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=0.6\textwidth]{images/desc_violinplot.png}}
+\caption{Violin plot for the quantitative data.}\label{fig:violinplot}
+\end {figure}
+
+
+
+%%\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is 
+%%\Rfunction{boxPlotD()}.
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding functions are:
+\begin{itemize}
+\item for the dataframe parameter: \Rfunction{violinPlotD()},
+\item for an object of class MSnSet: \Rfunction{wrapper.violinPlotD()}.
+\end{itemize}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%
 

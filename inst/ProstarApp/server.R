@@ -10,6 +10,7 @@ library(reshape2)
 library(DT)
 library(MSnbase)
 library(openxlsx)
+library(sm)
 
 
 # initialize data with colnames
@@ -142,7 +143,7 @@ output$code <- renderUI({
               , value = paste( rv$commandLog, collapse="\n")
               , mode = "r"
               , theme = "chrome"
-              , height = "260px"
+              , height = "600px"
               , readOnly = TRUE
     )
     
@@ -628,6 +629,7 @@ GetNbNA <- reactive({
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
 
+    ClearMemory()
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
 
@@ -2280,8 +2282,6 @@ output$overview <- renderUI({
                 nb.empty.lines <- sum(apply(
                     is.na(as.matrix(exprs(rv$current.obj))), 1, all))
                 tags$ul(
-                    # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
-                    #                                            "dataset.", sep=" "))}, 
                     tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
                                   " samples in your data.", sep=" ")),
                     
@@ -4706,7 +4706,17 @@ ConditionTabPanel <- reactive({
 
 
 output$progressOne <- renderUI({
-    progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
+    input$missing.value.algorithm
+    rv$current.obj
+    if (is.null(input$missing.value.algorithm)){return(NULL)}
+    if (!grepl( "imp4p",input$missing.value.algorithm)) {return(NULL)}
+    if (is.null(rv$current.obj)) { return(NULL)}
+    
+    conditionalPanel(condition='true',
+                     h5("This may take a while,"),
+                    h5("Please be patient ..."),
+                    progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
+    )
 })
 
  
@@ -4716,7 +4726,7 @@ output$progressOne <- renderUI({
 #------------------------------------------
 ##' Missing values imputation - reactivity behavior
 ##' @author Samuel Wieczorek
-observe({
+observeEvent(input$perform.imputation.button,{
     if (is.null(input$perform.imputation.button) ){return(NULL)}
     if (input$perform.imputation.button == 0){return(NULL)}
     if (is.null(input$missing.value.algorithm) ){return(NULL)}

@@ -210,9 +210,9 @@ navbarMenu("Dataset manager",
                     )
 
                     ,radioButtons("checkDataLogged", 
-                            "Are your data already logged ?", 
+                            "Are your data already log-transformed ?", 
                             width = widthWellPanel, 
-                            choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically logged)"="no"), 
+                            choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically transformed)"="no"), 
                             selected="no")
                     ,br()
                     ,checkboxInput("replaceAllZeros", 
@@ -606,8 +606,6 @@ tabPanel("Miss. values imputation",
                     ## progress bar
                     br(),
                     br(),
-                    h5("This may take a while,"),
-                    h5("Please be patient ..."),
                     uiOutput(outputId = "progressOne")
                 ),
                 conditionalPanel(id = "wellPanel_Imputation",

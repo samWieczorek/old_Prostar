@@ -23,7 +23,7 @@ License: Artistic-2.0
 Depends: R (>= 3.3)
 Suggests: BiocStyle
 Imports: DAPAR (>= 1.5.5), DAPARdata, rhandsontable, data.table,
-        shinyjs, DT, shiny, shinyAce
+        shinyjs, DT, shiny, shinyAce, sm
 NeedsCompilation: no
 RoxygenNote: 5.0.1
 Packaged: 2016-06-20 07:50:11 UTC; sw175264
