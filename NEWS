@@ -1,8 +1,16 @@
+CHANGES IN VERSION 1.5.11
+------------------------ 
+
+NEW FEATURES
+    * When the user wants to convert a text file into a MSnset dataset, the 
+    options are available only when a file has been loaded.
+    
+    
 CHANGES IN VERSION 1.5.9
 ------------------------ 
 
 NEW FEATURES
-    * This version uses the version 1.5.9 of DAPAR which
+    * This version is compliant with the version 1.5.9 of DAPAR 
     
 CHANGES IN VERSION 1.5.7
 -------------------------

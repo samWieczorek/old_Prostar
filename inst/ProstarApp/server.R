@@ -1,7 +1,6 @@
 options(shiny.maxRequestSize=30*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
-options(java.parameters = "-Xmx8000m")
 
 library(shiny)
 library(rhandsontable)
@@ -57,16 +56,14 @@ rv <- reactiveValues(
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
     widthSidebar = 3,
-    commandLog = NULL, 
+    commandLog = "", 
     normalizationFamily = NULL,
     normalizationMethod = NULL, 
     matAdj = NULL,
     test = NULL, 
     resAnaDiff = list(logFC=NULL, P.Value=NULL),
     wb = NULL,
-    progressImputation = 0,
-    toto = 0
-    )
+    progressImputation = 0)
 
 
 initializeProstar <- reactive({
@@ -94,13 +91,15 @@ initializeProstar <- reactive({
     rv$errMsgcalibrationPlotALL = NULL
     rv$typeOfDataset = ""
     rv$widthSidebar = 3
-    rv$commandLog = NULL 
+    rv$commandLog =  "" 
     rv$normalizationFamily = NULL
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
     test = NULL
     rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
-    rv$toto = 0
+
+    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
+    
 })
 
 
@@ -138,7 +137,7 @@ outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
 
 output$code <- renderUI({
     rv$commandLog
-    
+    if (is.null(rv$commandLog)){return(NULL)}
     aceEditor("ui"
               , value = paste( rv$commandLog, collapse="\n")
               , mode = "r"
@@ -171,7 +170,6 @@ output$hot <- renderRHandsontable({
 
     #rownames(DT) <- input$eData.box
     rv$hot <- DT
-
     }
 
     if (!is.null(DT))
@@ -195,7 +193,6 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
         
         method <- rv$current.obj@experimentData@other$method
         threshold.logFC <- rv$current.obj@experimentData@other$threshold.logFC
-        #cond2 <- rv$current.obj@experimentData@other$condition2
     }
     
     conditionalPanel(condition = "true",
@@ -211,6 +208,9 @@ HTML("This corresponds to the ratio: <br>Condition 2 / Condition 1.")
 
 
 output$diffAnalysis_sidebarPanelTab2 <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)){ return(NULL)}
+    
     calibMethod <- "pounds"
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         calibMethod <- rv$current.obj@experimentData@other$calibrationMethod
@@ -235,7 +235,6 @@ output$diffAnalysis_sidebarPanelTab3 <- renderUI({
     threshold.PVal <- 0
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         threshold.PVal <- rv$current.obj@experimentData@other$threshold.p.value
-        #cond2 <- rv$current.obj@experimentData@other$condition2
     }
     
     
@@ -317,6 +316,11 @@ output$DP_sidebar_FilterTab3 <- renderUI({
 
 
 
+output$helpTextMV <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return(NULL)}
+    helpText("After checking the data, validate the filters.")
+})
 
 #----------------------------------------------
 output$VizualizeFilteredData <- DT::renderDataTable({
@@ -327,8 +331,6 @@ output$VizualizeFilteredData <- DT::renderDataTable({
     
     if (is.null(input$ChooseTabAfterFiltering)) {return(NULL)}
     if (is.null(input$ChooseViewAfterFiltering)) {return(NULL)}
-    
-    
     if (is.null(rv$current.obj)) {return(NULL)}
     
     
@@ -484,23 +486,10 @@ ComputeMVTags <- reactive({
     return(tags)
 })
 
-########################################################
-# ComputeAdjacencyMatrix <- reactive({
-# 
-#     matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-#                                             input$proteinId,
-#                                             FALSE)
-#     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-#                                             input$proteinId,
-#                                             TRUE)
-# 
-#     rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
-#                 matWithUniquePeptides=matUniquePeptides)
-# })
+
 
 ########################################################
 RunAggregation <- reactive({
-    #mat <- ComputeAdjacencyMatrix()
     rv$matAdj
     if (is.null(rv$matAdj)) { return (NULL)}
     
@@ -564,32 +553,23 @@ observe({
     if (is.null(input$condition1)) {return (NULL)}
     if (is.null(input$condition2)) {return (NULL)}
     if (input$condition1 == input$condition2) {return (NULL)}
-
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     data <- NULL
     
     isolate({
         result = tryCatch(
             {
-                # writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
-                # writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
-                # writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
-                # 
+                
                 if (input$diffAnaMethod == "Limma"){
                     rv$resAnaDiff <- wrapper.diffAnaLimma(rv$current.obj, 
                                                           input$condition1, 
                                                           input$condition2)
-                  #  writeToCommandLogFile(
-                  #      "data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"
-                  #  )
-                    
+
                 } else if (input$diffAnaMethod == "Welch"){
                     rv$resAnaDiff <- wrapper.diffAnaWelch(rv$current.obj, 
                                                           input$condition1, 
                                                           input$condition2)
-                   # writeToCommandLogFile(
-                   #     "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)"
-                   # )
                 }
             }
             #, warning = function(w) {
@@ -599,7 +579,6 @@ observe({
                 shinyjs::info(conditionMessage(e))
             }, finally = {
                 #cleanup-code
-                
             }
             
         )
@@ -633,7 +612,7 @@ loadObjectInMemoryFromConverter <- reactive({
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
 
-    #Si on a deja des pVal, alors, ne pas recalculer 
+    #If there are already pVal values, then do no compute them 
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P.Value = Biobase::fData(rv$current.obj)$P.Value)
@@ -665,26 +644,12 @@ loadObjectInMemoryFromConverter <- reactive({
 #---------------------------------------------------- 
 ClearMemory <- function(){
     
-    
-    obj2remove <- c(
-    "rv$nameOfDataset",
-    "rv$current.obj",
-    "rv$current.obj.name",
-    "rv",
-    "session",
-    "input",
-    "output")
-    
-    
-    # rv$text.log <- list()
-    # rv$tab1 <- NULL
-    # rv$current.obj <- NULL
-    # rv$dataset <- list()
-    
+
     initializeProstar()
     rv$hot = port
-   
-    updateSelectInput(session, "datasets",  "", choices = "none")
+    rv$text.log <- data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
+    rv$commandLog <- ""
+    updateSelectInput(session, "datasets",  "Dataset versions", choices = "none")
     updateRadioButtons(session,"typeOfData",selected = "peptide" )
     updateRadioButtons(session, "checkDataLogged", selected="no")
     updateRadioButtons(session, "autoID", selected = "Auto ID")
@@ -693,6 +658,7 @@ ClearMemory <- function(){
     
     updateSelectizeInput(session,"eData.box",choices = NULL, selected=NULL)
     updateTextInput(session,"filenameToCreate",value= "")
+    updateTextInput(session,"nameExport",value= "")
     
     #UpdateLog("Memory has been cleared","none")
     updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
@@ -735,6 +701,7 @@ output$chooseDataset <- renderUI({
 
 
 output$chooseExportFilename <- renderUI({
+
     textInput("nameExport", 
               label = "Enter the name of the files to be created",
               value = rv$current.obj.name)
@@ -801,8 +768,8 @@ observeEvent(input$file,{
 
 ##' -- Validate the normalization ---------------------------------------
 ##' @author Samuel Wieczorek
-observe({ 
-    input$valid.normalization
+observeEvent(input$valid.normalization,{ 
+    
     input$normalization.method
     if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
         {return(NULL)}
@@ -843,33 +810,23 @@ observe({
 
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
-observe({ 
-    input$valid.aggregation
-    #rv$temp.aggregate
+observeEvent(input$valid.aggregation,{ 
+    
     input$aggregationMethod
     input$columnsForProteinDataset.box
     rv$matAdj
     
     if (is.null(input$valid.aggregation) || (input$valid.aggregation == 0)
-        || is.null(rv$matAdj)) 
-    {return(NULL)}
-    #if (is.null(input$aggregationMethod)) {return(NULL)}
-    if (is.null(rv$temp.aggregate)) {return(NULL)}
+        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
+        {return(NULL)}
+
     
     result = tryCatch(
         {
-            
-            
+
     isolate({
-    input$aggregationMethod
-    input$proteinId
-    input$checkSharedPeptides
-    input$columnsForProteinDataset.box
-    rv$matAdj
-    #rv$temp.aggregate
-    
+
     ##concatenation des informations
-    #mat <- ComputeAdjacencyMatrix()
     m <- NULL
     if (input$checkSharedPeptides){ 
         m <- rv$matAdj$matWithSharedPeptides
@@ -877,21 +834,30 @@ observe({
     }else{ m <-rv$matAdj$matWithUniquePeptides
     writeToCommandLogFile("m <- mat$matWithUniquePeptides")
     }
-        
+    #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
     
+    
+    #total <- 60
+    #delta <- round(total / length(input$columnsForProteinDataset.box))
+    #cpt <- 10
     for(c in input$columnsForProteinDataset.box){
         newCol <- BuildColumnToProteinDataset(Biobase::fData(rv$current.obj), m, c)
         cnames <- colnames(Biobase::fData(rv$temp.aggregate))
         Biobase::fData(rv$temp.aggregate) <- 
             data.frame(Biobase::fData(rv$temp.aggregate), newCol)
         colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
+        #cpt <- cpt + delta
+        #updatePB(session,inputId="pb_SaveAggregation",value=cpt,text_value=paste(cpt," %", sep=""), striped = TRUE, active=TRUE)
+        
     }
+    
     
     rv$current.obj <- rv$temp.aggregate
     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
     name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
   
+    #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     
     
     
@@ -911,7 +877,8 @@ observe({
    writeToCommandLogFile(
        paste("dataset[['",name, "']] <- current.obj", sep="")
    )
-
+   #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
+   
     
     updateSelectInput(session, "datasets", 
                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
@@ -925,6 +892,7 @@ observe({
             ", protein id = ", input$proteinId, sep=" "),
         name)
     rv$temp.aggregate <- NULL
+    #updatePB(session,inputId="pb_SaveAggregation",value=100,text_value="100 %", striped = TRUE, active=TRUE)
     
     } )
             
@@ -941,8 +909,8 @@ observe({
 
 ##' -- Validate the imputation ---------------------------------------
 ##' @author Samuel Wieczorek
-observe({ 
-    input$ValidImputation
+observeEvent(input$ValidImputation,{ 
+    
     input$missing.value.algorithm
     if (is.null(input$ValidImputation) || (input$ValidImputation == 0)) 
     {return(NULL)}
@@ -952,7 +920,6 @@ observe({
         result = tryCatch(
             {
                 
-                #rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                 name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
                 
                 rv$dataset[[name]] <- rv$current.obj
@@ -1003,15 +970,13 @@ output$showFDR <- renderText({
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
     {return(NULL)}
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return (NULL)}
-    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     if ((input$condition1 == input$condition2)) {return(NULL)}
     
     isolate({
         result = tryCatch(
             {
-                
-                
                 m <- NULL
                 if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
                 else if (input$calibrationMethod == "numeric value") {
@@ -1042,7 +1007,7 @@ session$onSessionEnded(function() {
     setwd(tempdir())
     graphics.off()
     unlink(sessionID, recursive = TRUE)
-    unlink(commandLogFile)
+    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
 })
 
 
@@ -1058,9 +1023,9 @@ output$histPValue <- renderPlot({
     t <- NULL
     # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
     if (isContainedIn(c("logFC","P.Value"),names(Biobase::fData(rv$current.obj)) ) ){
-    t <- Biobase::fData(rv$current.obj)[,"P.Value"]
+        t <- Biobase::fData(rv$current.obj)[,"P.Value"]
     } else{
-    data <- RunDiffAna()
+        data <- RunDiffAna()
     if (is.null(data)) {return (NULL)}
     t <- data$P.Value
     }
@@ -1134,12 +1099,14 @@ output$calibrationPlot <- renderPlot({
         input$condition2
         input$diffAnaMethod
         rv$resAnaDiff
+        rv$current.obj
+        if (is.null(rv$current.obj) ) {return(NULL)}
         
         if (is.null(input$condition1) || is.null(input$condition2) ||
             is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
             (input$condition1 == input$condition2) ||
             (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
-        
+        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
         cond <- c(input$condition1, input$condition2)
         # ________
         
@@ -1192,6 +1159,8 @@ output$calibrationPlot <- renderPlot({
 output$errMsgCalibrationPlot <- renderUI({
     rv$errMsgCalibrationPlot
     rv$seuilLogFC
+    rv$current.obj
+    if (is.null(rv$current.obj) ) {return(NULL)}
     if (is.null(rv$errMsgCalibrationPlot) ) {return(NULL)}
     
     txt <- NULL
@@ -1208,6 +1177,8 @@ output$errMsgCalibrationPlot <- renderUI({
 output$errMsgCalibrationPlotAll <- renderUI({
     rv$errMsgCalibrationPlotAll
     rv$seuilLogFC
+    rv$current.obj
+    if (is.null(rv$current.obj) ) {return(NULL)}
     if (is.null(rv$errMsgCalibrationPlotAll) ) {return(NULL)}
     
     txt <- NULL
@@ -1227,18 +1198,18 @@ output$calibrationPlotAll <- renderPlot({
     input$condition2
     input$diffAnaMethod
     rv$resAnaDiff
+    rv$current.obj
+    if (is.null(rv$current.obj) ) {return(NULL)}
     
     if (is.null(input$condition1) || is.null(input$condition2) ||
         is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         (input$condition1 == input$condition2) ||
         (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
-    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     cond <- c(input$condition1, input$condition2)
     # ________
     
     if (is.null(input$calibrationMethod)  ) {return(NULL)}
-    #if (input$condition1 == input$condition2) {return(NULL)}
-    
     
     t <- NULL
     method <- NULL
@@ -1266,8 +1237,7 @@ output$calibrationPlotAll <- renderPlot({
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,{ 
 
-#        result = tryCatch(
-#            {
+
                 isolate({
                     if (!is.null(input$datasets)) {
                     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -1280,18 +1250,8 @@ observeEvent( input$datasets,{
                               sep=" "),
                         input$datasets)
                     }
-                   # print(length(which(is.na(exprs(rv$current.obj))==TRUE)))
+                  
                 })
-            # }
-            # , warning = function(w) {
-            #     shinyjs::info(conditionMessage(w))
-            # }, error = function(e) {
-            #     shinyjs::info(conditionMessage(e))
-            # }, finally = {
-            #     #cleanup-code 
-            # })
-
-    
 })
 
 
@@ -1303,10 +1263,7 @@ output$viewExprs <- DT::renderDataTable({
     if (is.null(rv$current.obj)) {return(NULL)}
     if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
     
-    
-    #result = tryCatch(
-     #   {
-            
+
             data <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
                           round(Biobase::exprs(rv$current.obj), 
                                 digits=nDigits))
@@ -1322,16 +1279,7 @@ output$viewExprs <- DT::renderDataTable({
             # backgroundColor = styleInterval( 0, c('orange','white'))
             #                            )
             return(dat)
-        # }
-        # , warning = function(w) {
-        #     shinyjs::info(conditionMessage(w))
-        # }, error = function(e) {
-        #     shinyjs::info(conditionMessage(e))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-        # 
-    
+
    
 } )
 
@@ -1344,7 +1292,7 @@ observeEvent(input$ValidDiffAna,{
     if ((input$ValidDiffAna == 0) ||  is.null(input$ValidDiffAna) ) {
         return(NULL)}
     if (input$condition1 == input$condition2) {return(NULL)}
-    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     isolate({
         
         result = tryCatch(
@@ -1373,7 +1321,6 @@ observeEvent(input$ValidDiffAna,{
                                     input$calibrationMethod)
                 
                 
-                #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
                 name <- paste("DiffAnalysis.", input$diffAnaMethod, " - ", 
                               rv$typeOfDataset, 
                               sep="")
@@ -1628,14 +1575,6 @@ output$RenderLimmaCond2 <- renderUI({
     })
 })
 
-##' @author Samuel Wieczorek
-# output$selectIDforExcelExport <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj) ) {return(NULL)  }
-#     selectInput("ID2XLS", "ID for XLS", 
-#                 choices = colnames(Biobase::fData(rv$current.obj)))
-# })
-
 
 
 buildWritableVector <- function(v){
@@ -1802,20 +1741,12 @@ output$id <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-    
-   # input$idBox
-    #input$autoID 
-   # input$hot
     if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
         {return(NULL)}
     
     isolate({
-        
-        
         result = tryCatch(
             {
-                
-                
                 ext <- GetExtension(input$file1$name)
                 if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
                     
@@ -1912,8 +1843,6 @@ observeEvent(input$createMSnsetButton,{
 
                 loadObjectInMemoryFromConverter()
                 
-                
-               
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
@@ -1949,8 +1878,6 @@ output$eData <- renderUI({
 
 output$chooseMetaDataExport <- renderUI({
     rv$current.obj
-    #rv$tab1
-    #if (is.null(input$file1)) {return(NULL)  }
     if (is.null(rv$current.obj)) {return(NULL)  }
     
     choices <- colnames(fData(rv$current.obj))
@@ -1980,9 +1907,6 @@ output$columnsForProteinDataset <- renderUI({
 
 #########################################################
 output$labelsNames <- renderUI({
-    #input$openButton
-    #if (input$openButton == 0) {return(NULL) }
-    
     input$file1
     input$LabelField
     input$eData.box
@@ -2002,8 +1926,6 @@ output$labelsNames <- renderUI({
 
 #########################################################
 output$ChooseLabelField <- renderUI({
-    #input$openButton
-    #if (input$openButton == 0) {return(NULL) }
     input$file1
     input$eData.box
     if (is.null(input$file1)) {return(NULL)  }
@@ -2199,15 +2121,11 @@ tags$iframe(src="http://bioconductor.org/packages/release/data/experiment/vignet
 output$overviewDemoDataset <- renderUI({
     rv$current.obj
     rv$typeOfDataset
-    if (is.null(rv$current.obj)) {return(NULL)    }
+    if (is.null(rv$current.obj)) {return(NULL)}
     
     isolate({
-        
-        
         result = tryCatch(
             {
-                
-                
                 rv$current.obj
                 rv$typeOfDataset
                 NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
@@ -2224,8 +2142,6 @@ output$overviewDemoDataset <- renderUI({
                 nb.empty.lines <- sum(apply(
                     is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
                 tags$ul(
-                    # if (rv$typeOfData != "") {tags$li(paste("This is ", rv$typeOfData, 
-                    #                                            "dataset.", sep=" "))}, 
                     tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
                                   " samples in your data.", sep=" ")),
                     
@@ -2541,27 +2457,6 @@ output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
     
 
 
-# output$histoMV_DS_Image <- renderImage({
-#     rv$current.obj
-#     
-#      list(src = paste(tempdir(),sessionID,gGraphicsFilenames$histoMV_DS, sep="/"),
-#           contentType = "image/png"
-#           #width = width,
-#           #height = height,
-#           )
-# }, deleteFile = FALSE)
-
-
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-# output$histoMV_DS <- renderPlot({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)){return(NULL)}
-#     
-#     wrapper.mvHisto(rv$current.obj)
-# })
-
-
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
@@ -2612,34 +2507,6 @@ output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
 
 
 
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-# output$histoMV <- renderPlot({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)){return(NULL)}
-#     
-#     wrapper.mvHisto(rv$current.obj)
-# })
-
-
-
-# ##' distribution of missing values in current.obj
-# ##' @author Samuel Wieczorek
-# output$histo.missvalues.per.lines <- renderPlot({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)){return(NULL)}
-#     wrapper.mvPerLinesHisto(rv$current.obj, 
-#                     c(2:length(colnames(pData(rv$current.obj)))))
-# })
-# 
-# ##' distribution of missing values in current.obj
-# ##' @author Samuel Wieczorek
-# output$histo.missvalues.per.lines.per.conditions <- renderPlot({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)){return(NULL)}
-#     wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
-#                             c(2:length(colnames(pData(rv$current.obj)))))
-# })
 
 ##' xxxxxxxxxxxxxxxxxxxxxxxx
 ##' @author Samuel Wieczorek
@@ -2730,34 +2597,6 @@ output$choose_Normalization_2 <- renderUI({
 })
 
 
-##' boxplot and densityplot of intensities in current.obj 
-##' in the normalization panel
-##' @author Samuel Wieczorek
-# output$NormData <- renderImage({
-#     rv$current.obj
-#     input$graph.choice.normalization.tab
-#     input$legendXAxisNormTabPanel
-#     input$legendXAxis
-#     if (is.null(rv$current.obj)){return(plot.new())}
-#     
-#     typeOfGraphics <- input$graph.choice.normalization.tab
-#     if (typeOfGraphics == "boxplot"){
-#     input$legendXAxisNormTabPanel
-#     input$legendXAxis
-#     rv$current.obj
-#     
-#     #.axis <- match(input$legendXAxisNormTabPanel,
-#     #colnames(pData(rv$current.obj)))
-#     .axis <- input$legendXAxis
-#     wrapper.boxPlotD(rv$current.obj,.axis)
-#     
-#     }else if (typeOfGraphics == "densityplot") {
-#     wrapper.densityPlotD(rv$current.obj, 
-#                     unique(pData(rv$current.obj)[,"Label"]),
-#                     NULL)
-#     }
-# })
-
 #------------------------------------------------------
 output$ChooseLegendForAxis <- renderUI({
     rv$current.obj
@@ -2776,8 +2615,6 @@ output$ChooseLegendForAxis <- renderUI({
 
 
 testUI <- function(input, output, session){
-    
-    
     
     test <- reactive({
         rv$current.obj
@@ -3020,15 +2857,7 @@ output$viewDensityplotNorm<- renderPlot({
             gToColorNorm <- "Condition"
         }else{gToColorNorm <- input$whichGroup2Color}
         
-        
-        # if (is.null(input$legendXAxis)){
-        #     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-        #     leg <- .names[1]}
-        # else{leg <- input$legendXAxis}
-        # 
-        # 
-        #_-----------------------------------------
-        
+       
         if (is.null(input$whichGroup2Color) 
             || (input$whichGroup2Color == "Condition")){
             labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
@@ -3090,15 +2919,7 @@ output$viewComparisonNorm<- renderPlot({
             gToColorNorm <- "Condition"
         }else{gToColorNorm <- input$whichGroup2Color}
         
-        
-        # if (is.null(input$legendXAxis)){
-        #     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-        #     leg <- .names[1]}
-        # else{leg <- input$legendXAxis}
-        # 
-        # 
-        #_-----------------------------------------
-        
+
         if (is.null(input$whichGroup2Color) 
             || (input$whichGroup2Color == "Condition")){
             labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
@@ -3199,7 +3020,8 @@ output$heatmap <- renderPlot({
         
         
         if (!is.null(input$linkage) && !is.null(input$distance)
-            && (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)) {
+            #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
+            ) {
             
             result = tryCatch(
                 {
@@ -3282,7 +3104,6 @@ output$nShow_DS <- renderUI({
                         , label = "Select data to show"
                         , choices = label.names
                         , selected = unlist(label.names))
-    
     })
 })
 
@@ -3325,6 +3146,7 @@ output$equivPVal <- renderText ({
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None"))
     {return(NULL)}
     if ((input$condition1 == input$condition2)) {return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     HTML(paste("<h4>(p-value = ",
                 signif(10^(- (input$seuilPVal)), digits=3), ") </h4>", sep=""))
@@ -3339,6 +3161,7 @@ output$equivLog10 <- renderText ({
     if (is.null(rv$current.obj)){return(NULL)}
     if (is.null(input$condition1) || is.null(input$condition2)){return(NULL)}
     if (is.null(input$test.threshold)){return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     HTML(paste("<h4>-log10 (p-value) = ",
                 signif(- log10(input$test.threshold/100), digits=1),
@@ -3347,9 +3170,10 @@ output$equivLog10 <- renderText ({
 
 
 ##update diffAna Panel
-observe({
-    rv$current.obj
+observeEvent(rv$current.obj,{
+    
     if (is.null(rv$current.obj)){return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     if ("P.Value"  %in% names(Biobase::fData(rv$current.obj))){
     
@@ -3373,12 +3197,12 @@ observe({
     
 })
 
-observe({
+observeEvent(input$seuilPVal,{
     if (!is.null(input$seuilPVal)){rv$seuilPVal <- as.numeric(input$seuilPVal)}
 
 })
 
-observe({
+observeEvent(input$seuilLogFC,{
     if (!is.null(input$seuilLogFC)){rv$seuilLogFC <- as.numeric(input$seuilLogFC)}
 
 })
@@ -3393,10 +3217,11 @@ output$nbSelectedItems <- renderUI({
     rv$resAnaDiff
     
     
-    if (is.null(rv$resAnaDiff$logFC)){return(NULL)}
+    if (is.null(rv$resAnaDiff$logFC) || is.null(rv$current.obj)){return(NULL)}
     
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
         return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     
     result = tryCatch(
@@ -3444,8 +3269,10 @@ output$nbSelectedItemsStep3 <- renderUI({
     input$diffAnaMethod
     rv$current.obj
     
-    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
+    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")
+        || is.null(rv$current.obj)){
         return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     
     
     
@@ -3506,14 +3333,15 @@ output$nbSelectedItemsStep3 <- renderUI({
 
 
 
-observe({
-    rv$current.obj
+observeEvent(rv$current.obj,{
+    
     if (is.null(rv$current.obj)){return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
+    
     isolate({
         
         result = tryCatch(
             {
-                
                 #Si on a deja des pVal, alors, ne pas recalculer 
                 if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
                     updateNumericInput(session, 
@@ -3560,11 +3388,14 @@ output$volcanoplot <- renderPlot({
         input$condition2
         input$diffAnaMethod
         rv$resAnaDiff
+        rv$current.obj
         
         if (is.null(input$condition1) || is.null(input$condition2) ||
             is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
             (input$condition1 == input$condition2) ||
-            (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
+            (length(rv$resAnaDiff$logFC) == 0) || is.null(rv$current.obj)) { return(NULL)}
+        
+        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
         
         cond <- c(input$condition1, input$condition2)
         result = tryCatch(
@@ -3590,7 +3421,7 @@ output$volcanoplot <- renderPlot({
 
 
 output$volcanoplotStep3 <- renderPlot({
-
+        rv$current.obj
         rv$seuilPVal
         rv$seuilLogFC
         input$condition1
@@ -3602,8 +3433,8 @@ output$volcanoplotStep3 <- renderPlot({
             is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
             is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
             (input$condition1 == input$condition2) ||
-            (length(rv$resAnaDiff$logFC) == 0)) { return(NULL)}
-        
+            (length(rv$resAnaDiff$logFC) == 0) ||  is.null(rv$current.obj)) { return(NULL)}
+        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)} 
         cond <- c(input$condition1, input$condition2)
         result = tryCatch(
             {
@@ -3736,7 +3567,7 @@ For more details, please refer to the \"Help\" tab.", sep="")
 })
 
 ########################################################
-output$limmaplot <- DT::renderDataTable({
+output$showSelectedItems <- DT::renderDataTable({
     rv$current.obj
     input$diffAnaMethod
     input$seuilLogFC
@@ -3749,6 +3580,8 @@ output$limmaplot <- DT::renderDataTable({
     
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return(NULL)}
+    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     result = tryCatch(
         {
 
@@ -3866,25 +3699,41 @@ output$ManageXlsFiles <- renderUI({
     
     .ext <- GetExtension(input$file1$name)
     if ((.ext == "xls") || (.ext == "xlsx")){ 
-        print(input$file1)
-        
-        #  jgc()
-        #rv$wb <- loadWorkbook(input$file1$datapath)
         sheets <- getSheetNames(input$file1$datapath)
         selectInput("XLSsheets", "sheets", choices = as.list(sheets))
-        
-        
     }
     
 })
 
 
+output$ConvertOptions <- renderUI({
+    input$file1
+    if (is.null(input$file1)){return(NULL)}
+    
+    conditionalPanel(
+        condition='true',
+        radioButtons("typeOfData", 
+                     "Is it a peptide or protein dataset ?", 
+                     choices=c("peptide dataset" = "peptide", 
+                               "protein dataset" = "protein")
+        )
+        
+        ,radioButtons("checkDataLogged", 
+                      "Are your data already log-transformed ?", 
+                      #width = widthWellPanel, 
+                      choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically transformed)"="no"), 
+                      selected="no")
+        ,br()
+        ,checkboxInput("replaceAllZeros", 
+                       "Replace all 0 and NaN by NA", 
+                       value= TRUE)
+    )
+})
 
 ############ Read text file to be imported ######################
 observe({
     input$file1
     input$XLSsheets
-   # rv$wb
     if (is.null(input$file1) ) {return(NULL)  }
     if (((GetExtension(input$file1$name)== "xls") 
         || (GetExtension(input$file1$name) == "xlsx") ) 
@@ -4004,8 +3853,8 @@ GetMaxValueThresholdFilter <- function(){
 
 
 ## Perform missing values filtering
-observe({
-    input$perform.filtering.MV
+observeEvent(input$perform.filtering.MV,{
+    
     if (is.null(input$perform.filtering.MV) ){return(NULL)}
     if (input$perform.filtering.MV == 0){return(NULL)}
     
@@ -4088,7 +3937,7 @@ observe({
 })
 
 
-observe({
+observeEvent(input$perform.filtering.Contaminants,{
     if (is.null(input$perform.filtering.Contaminants) ){return(NULL)}
     if (input$perform.filtering.Contaminants == 0){return(NULL)}
     
@@ -4186,11 +4035,12 @@ observe({
 #########################################################
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
-    observe({ 
-    input$ValidateFilters
+    observeEvent(input$ValidateFilters,{ 
+    
     if(is.null(input$ChooseFilters) || (input$ValidateFilters == 0)) 
     {return(NULL)}
-    
+        if(is.null(rv$current.obj)) {return(NULL)}
+        
     isolate({
         
         
@@ -4249,8 +4099,8 @@ output$chooseProteinId <- renderUI({
                 choices = c("None",colnames(Biobase::fData(rv$current.obj))))
 })
 
-observe({
-    input$fData.box
+observeEvent(input$fData.box,{
+    
     choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
     names(choices) = 
     colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
@@ -4459,7 +4309,7 @@ output$aggregationPlotUnique <- renderPlot({
 
 
 ###------------ Perform aggregation--------------------
-observe({
+observeEvent(input$perform.aggregation,{
     #input$perform.aggregation
     #input$aggregationMethod
     if (is.null(input$perform.aggregation) 
@@ -4567,7 +4417,7 @@ output$DS_PlotHeatmap <- renderUI({
     rv$current.obj
 
     if (is.null(rv$current.obj)) {return(plot.new())}
-    if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
+   # if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
     
     conditionalPanel(
         condition = "true",
@@ -4704,24 +4554,6 @@ ConditionTabPanel <- reactive({
 
 
 
-
-output$progressOne <- renderUI({
-    input$missing.value.algorithm
-    rv$current.obj
-    if (is.null(input$missing.value.algorithm)){return(NULL)}
-    if (!grepl( "imp4p",input$missing.value.algorithm)) {return(NULL)}
-    if (is.null(rv$current.obj)) { return(NULL)}
-    
-    conditionalPanel(condition='true',
-                     h5("This may take a while,"),
-                    h5("Please be patient ..."),
-                    progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
-    )
-})
-
- 
-
-
 # 
 #------------------------------------------
 ##' Missing values imputation - reactivity behavior
@@ -4763,21 +4595,18 @@ observeEvent(input$perform.imputation.button,{
                     } else if (.temp[1]== "imp4p")
                     {
             
-                        #rv$toto <- "Computing step 1 / 3"
                         dat.slsa <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
                          updatePB(session,inputId="pb1",value=33,text_value="33 %", striped = TRUE, active=TRUE)
                          
-                         
-                        # 
-                         #rv$toto <- "Computing step 2 / 3"
                          proba <- wrapper.identifyMCAR_MNAR(rv$dataset[[input$datasets]],dat.slsa)
                          updatePB(session,inputId="pb1",value=66,text_value="66 %", striped = TRUE, active=TRUE)
-                        # 
-                         #rv$toto <- "Computing step 3 / 3"
+                        
                          rv$current.obj <- wrapper.imputeImp4p(rv$dataset[[input$datasets]], dat.slsa, proba)
+                         updatePB(session,inputId="pb1",value=90,text_value="100 %", striped = FALSE, active=FALSE)
+                        
+                         rv$current.obj <- wrapper.impute.pa(rv$current.obj)
                          updatePB(session,inputId="pb1",value=100,text_value="100 %", striped = FALSE, active=FALSE)
-                        # 
-
+                         
                          
                         #write log command file
                         writeToCommandLogFile(
@@ -4943,12 +4772,45 @@ output$Aggregation_Step2 <- renderUI({
                                 styleclass = "primary")
             )
         )
+        
     )
     )
     } else {
         h4("The peptide dataset has been aggregated into a protein dataset.")
     }
     
+})
+
+
+
+################# PROGRESS BARS #############
+# output$progressSaveAggregation <- renderUI({
+#     input$valid.aggregation
+#     rv$current.obj
+#     if (is.null(input$valid.aggregation)) {return(NULL)}
+#     if (is.null(rv$current.obj)) { return(NULL)}
+#     
+#     conditionalPanel(condition='true',
+#                      h5("This may take a while, please be patient ..."),
+#                      progressBar2("pb_SaveAggregation",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
+#     )
+# })
+# 
+
+
+
+output$progressOne <- renderUI({
+    input$missing.value.algorithm
+    rv$current.obj
+    if (is.null(input$missing.value.algorithm)){return(NULL)}
+    if (!grepl( "imp4p",input$missing.value.algorithm)) {return(NULL)}
+    if (is.null(rv$current.obj)) { return(NULL)}
+    
+    conditionalPanel(condition='true',
+                     h5("This may take a while,"),
+                     h5("please be patient ..."),
+                     progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)
+    )
 })
 
 })

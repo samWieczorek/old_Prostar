@@ -167,8 +167,9 @@ biocLite("Prostar")
 @
 
 This step will automatically install the following packages: \CRANpkg{shiny}, 
-\CRANpkg{reshape2}, \Githubpkg{jrowen/rhandsontable}, \CRANpkg{quantmod}, 
-\CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}.
+\CRANpkg{reshape2}, \Githubpkg{jrowen/rhandsontable}, \CRANpkg{DAPARdata}, 
+\CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}, \CRANpkg{sm}, \CRANpkg{openxlsx},
+\CRANpkg{shinyAce}.
 
 Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
 << runProstarStandalone>>=
@@ -232,10 +233,10 @@ This step will automatically install the following packages:
 \begin{itemize}
 \item {From CRAN}: \CRANpkg{RColorBrewer}, \CRANpkg{Cairo}, \CRANpkg{png}, 
 \CRANpkg{lattice}, \CRANpkg{reshape2}, \CRANpkg{tmvtnorm}, \CRANpkg{norm}, 
-\CRANpkg{ggplot2}, \CRANpkg{imputeLCMD}, \CRANpkg{gplots}, \CRANpkg{XLConnect},
-\CRANpkg{knitr}, \CRANpkg{cp4p},\CRANpkg{doParallel}, \CRANpkg{scales},
-\CRANpkg{stats}, \CRANpkg{grDevices}
-\CRANpkg{graphics}, \CRANpkg{utils}
+\CRANpkg{ggplot2}, \CRANpkg{imputeLCMD}, \CRANpkg{gplots}, \CRANpkg{openxlsx},
+\CRANpkg{knitr}, \CRANpkg{cp4p}, \CRANpkg{doParallel}, \CRANpkg{scales},
+\CRANpkg{stats}, \CRANpkg{grDevices}, \CRANpkg{vioplot}, \CRANpkg{sm}
+\CRANpkg{graphics}, \CRANpkg{utils}, \CRANpkg{parallel}, \CRANpkg{openxlsx}, \CRANpkg{Matrix}
 \item {From Bioconductor}: \Biocpkg{MSnbase}, \Biocpkg{preprocessCore}, 
 \Biocpkg{impute}, \Biocpkg{limma}, \Biocpkg{pcaMethods}
 \end{itemize}
@@ -289,7 +290,8 @@ is part of the package \Biocpkg{MSnbase}:
 %~\cite{}.
 It is either possible to load existing MSnSet files (see 
 Section~\ref{sec:load}) or to import text (-tabulated) and Excel files (see 
-Section~\ref{sec:import}).
+Section~\ref{sec:import}). The "Demo mode" allows to load the datasets of the 
+package \Biocpkg{DAPARdata} (see Section~\ref{sec:demomode}).
 
 
 \subsubsection{Open MSnSet} \label{sec:load}
@@ -441,7 +443,16 @@ Once an MSnSet has been created, it is possible to save it as a MSnSet binary
 object (so that next time, it is not necessary to create it, and a simple 
 uploads makes it, as described in Section~\ref{sec:load}). It is also possible 
 to export it as an Excel spreadsheet (in xlsx format). To do so, one simply goes on the 
-corresponding tab and select the appropriate option.
+corresponding tab and select the appropriate option (Fig.~\ref{fig:export}).
+
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=0.9\textwidth]{images/export.png}}
+\caption{Importing a CSV file, tab 5.}\label{fig:export}
+\end {figure}
+
+
 
 %In case of Excel files, the user has to choose first the ID of the proteins. 
 %The result is a file containing three sheets, one sheet per tab in the 
@@ -460,13 +471,21 @@ right-clicking on the plot. A contextual menu appears and let the user
 choose either "Save image as" or "Copy image". In the latter case, he/she has 
 to paste the image in appropriate software.}
 
-\subsubsection{Demo mode}
+\subsubsection{Demo mode} \label{sec:demomode}
 
 In order to facilitate first steps with Prostar, the "demo mode" menu allows 
 the user to access the datasets contained in the package \Biocpkg{DAPARdata}. 
 When the user chooses one of those datasets, it is automatically loaded in 
 \Biocpkg{Prostar}. It can be used to easily test the various functionalities of
-\Biocpkg{Prostar}.
+\Biocpkg{Prostar} (Fig.~\ref{fig:demomodeFig}).
+
+
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=0.9\textwidth]{images/demomode.png}}
+\caption{Importing a CSV file, tab 5.}\label{fig:demomodeFig}
+\end {figure}
 
 
 \subsubsection{Session log}\label{sec:sessionlog}
@@ -484,7 +503,7 @@ Section~\ref{sec:dataexplorer}).
 
 \begin{figure}[b]
 \centering
-\fbox{\includegraphics[width=0.75\textwidth]{images/SessionLog.png}}
+\fbox{\includegraphics[width=0.75\textwidth]{images/logSession.png}}
 \caption{Example of the log of a session in ProStaR.}\label{fig:sessionlog}
 \end {figure}
 
@@ -1087,7 +1106,7 @@ Third, the aggregation method itself ust be chosen:
 \begin{itemize}
 \item Sum: that is the sum of the peptide intensities),
 \item Mean: the mean of the peptide intensities),
-\item Topn: that is the sum over the N peptides with the highest median 
+\item Sum on top n: that is the sum over the N peptides with the highest median 
 intensities - in this case, the additional parameter N must be tuned.
 \end{itemize}
 
@@ -1341,25 +1360,25 @@ variations in the "Descriptive statistics" menu.
 
 Both packages \Biocpkg{DAPAR} and \Biocpkg{Prostar} are under active 
 development. Despite our attention bugs may remain. To signal any, as well 
-as typos, suggestions, etc. or even to ask a questions, please contact us by 
+as typos, suggestions, etc. or even to ask a question, please contact us by 
 email. Please join to the message as much information as possible, a 
 reproducible example and the output of sessionInfo(). 
 
-Here fellow some error messages that the user may encounter and the tip to 
-work around (please not that this section will be enriched with your 
+Here follow some error messages that the user may encounter and the tip to 
+work around (please note that this section will be enriched with your 
 feedbacks):
 
-\textbf{Unable to load loadWorkbook}: This error may appear if the package 
-\CRANpkg{XLConnect} is not properly installed. First check if this package is 
-well installed. The package \CRANpkg{XLConnect} needs the package 
-\CRANpkg{rJava} to be installed. It may happen that the installation of 
-\CRANpkg{rJava} fails because of the configuration of environment variables 
-(especially on Windows systems). In this case, try to set the environment 
-variable JAVA\_HOME to an empy string before installing \CRANpkg{rJava} and 
-\Biocpkg{DAPAR}:
-<< installDAPARBiocondJAVAHOME>>=
-Sys.setenv("JAVA_HOME", "")
-@
+%' \textbf{Unable to load loadWorkbook}: This error may appear if the package 
+%' \CRANpkg{XLConnect} is not properly installed. First check if this package is 
+%' well installed. The package \CRANpkg{XLConnect} needs the package 
+%' \CRANpkg{rJava} to be installed. It may happen that the installation of 
+%' \CRANpkg{rJava} fails because of the configuration of environment variables 
+%' (especially on Windows systems). In this case, try to set the environment 
+%' variable JAVA\_HOME to an empy string before installing \CRANpkg{rJava} and 
+%' \Biocpkg{DAPAR}:
+%' << installDAPARBiocondJAVAHOME>>=
+%' Sys.setenv("JAVA_HOME", "")
+%' @
 
 
 

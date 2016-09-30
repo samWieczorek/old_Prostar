@@ -1,7 +1,7 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.5.7
+Version: 1.5.11
 Date: 2016-06-29
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
@@ -17,8 +17,7 @@ Author: Samuel Wieczorek [cre,aut],
     Thomas Burger [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
-biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics,
-        GUI
+biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics, GUI
 License: Artistic-2.0
 Depends: R (>= 3.3)
 Suggests: BiocStyle

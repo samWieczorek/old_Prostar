@@ -161,11 +161,7 @@ sidebarPanelWidth()
                     ),
     
 navbarMenu("Dataset manager",
-           #id = "datasetManagerMenu"
-    tabPanel("Open MSnset file",
-        #title="Open a MSnset file",
-        #icon = icon("file"),
-        #id = "openMSnSet",
+          tabPanel("Open MSnset file",
         value = "open",
         sidebarCustom(),
         splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -185,39 +181,22 @@ navbarMenu("Dataset manager",
     tabPanel("Convert data",
         icon = icon("download"),
         value = "import",
-        #width = widthWellPanel,
         helpText("These steps allow to create a MSnSet file 
             from a tabulated-text file."),
         tabsetPanel(
-            #id = "tabImport",
-            #width = widthWellPanel,
             tabPanel(
-                #width = widthWellPanel,
                     "1 - Select file",
                     value = "SelectFile2Import",
                     fileInput("file1", "Data file (.txt, .csv, .tsv, .xls, .xlsx files)", 
                             multiple=FALSE, 
                             accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")),
                             uiOutput("ManageXlsFiles"),
-                    helpText("Hint : before importing quantification 
-                                file data, check the syntax of your text 
-                                file."),
-                    br()
-                    ,radioButtons("typeOfData", 
-                            "Is it a peptide or protein dataset ?", 
-                            choices=c("peptide dataset" = "peptide", 
-                                    "protein dataset" = "protein")
-                    )
-
-                    ,radioButtons("checkDataLogged", 
-                            "Are your data already log-transformed ?", 
-                            width = widthWellPanel, 
-                            choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically transformed)"="no"), 
-                            selected="no")
-                    ,br()
-                    ,checkboxInput("replaceAllZeros", 
-                                    "Replace all 0 and NaN by NA", 
-                                    value= TRUE)
+                    # helpText("Hint : before importing quantification 
+                    #             file data, check the syntax of your text 
+                    #             file."),
+                    br(),
+                    uiOutput("ConvertOptions")
+                    
                     ),
     tabPanel( "2 - Data Id",
         value = "ID",
@@ -256,6 +235,7 @@ navbarMenu("Dataset manager",
             htmlOutput("msgAlertCreateMSnset"),
             textInput("filenameToCreate",
                         "Enter the name of the study"),
+            busyIndicator("Calculation in progress",wait = 0),
             actionButton("createMSnsetButton","Convert data")
             ,uiOutput("conversionDone")
             )
@@ -273,8 +253,7 @@ navbarMenu("Dataset manager",
         helpText("Select the columns you wante to keep as metadata. 
                  By default, in any column is specified, all meta data in your dataset
                  will be exported."),
-        #div(class="row"),
-        #div(class="span5", "Meta  Data",
+
             uiOutput("chooseMetaDataExport",width = widthWellPanel),
         br(),br(),
         uiOutput("chooseExportFilename"),
@@ -308,9 +287,7 @@ navbarMenu("Dataset manager",
 tabPanel("Log session",
          value = "ChangeDataset",
          
-         
          tabsetPanel(
-             #id="LogSession_tabSetPanel",
                      "test",
                      tabPanel("Log session",
                               value = "ChangeDataset",
@@ -344,7 +321,6 @@ tabPanel("Descriptive statistics",
 
             tabPanel(
                 "Miss. values",
-                #id = "DS_tabOverviewMV",
                 value = "DS_tabOverviewMV",
                 
                 helpText("Those bargraph plots display some information to
@@ -403,10 +379,10 @@ tabPanel("Descriptive statistics",
                     conditionalPanel(id = "wellPanelHeatmap",
                         condition = "true",
                         width = 800,
-                        HTML("For this view, it is necessary that your dataset 
-                            does not contains any NA lines. <br> Please check 
-                            your data and use Filtering options or missing 
-                            values imputation."),
+                        # HTML("For this view, it is necessary that your dataset 
+                        #     does not contains any NA lines. <br> Please check 
+                        #     your data and use Filtering options or missing 
+                        #     values imputation."),
                         busyIndicator("Calculation in progress",wait = 0),
                         uiOutput("DS_PlotHeatmap")
                     )
@@ -535,8 +511,7 @@ each condition <br> or on at leat one condition."),
                 conditionalPanel(id = "wellPanelMVFilterTab3"
                     ,condition = "true"
                     ,DT::dataTableOutput("VizualizeFilteredData")
-                    ,helpText("After checking the data, 
-                            validate the filters")
+                    ,uiOutput("helpTextMV")
                 )
             )
         )
@@ -645,8 +620,17 @@ tabPanel("Aggregation",
         ),
 tabPanel("2 - Configure protein dataset",
     value = "configureProteinDataset",
+    #sidebarCustom(),
+    #splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+               # wellPanel(id = "sidebar_imputation",
+                #          height = "100%",
+                          uiOutput(outputId = "progressSaveAggregation"),
+                #),
+                #conditionalPanel(id = "wellPanel_Imputation",
+                #                 condition = "true",
+    busyIndicator("Calculation in progress",wait = 0),
     uiOutput("Aggregation_Step2")
-    )
+)
 )
 
 ),
@@ -728,7 +712,7 @@ tabPanel("Differential analysis",
                 ),
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",
                     condition = "true",
-                    DT::dataTableOutput("limmaplot"),
+                    DT::dataTableOutput("showSelectedItems"),
                     br()
                     ,uiOutput("DiffAnalysisSaved")
                     )
