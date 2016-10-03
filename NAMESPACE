@@ -4,7 +4,7 @@ import(data.table)
 import(DAPAR)
 import(DAPARdata)
 import(shinyAce)
-import(sm)
+#import(sm)
 
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )

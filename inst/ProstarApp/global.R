@@ -68,8 +68,8 @@ imputationAlgorithms <- list("None" = "None",
                             "LeftCensored - QRILC" = "QRILC",
                             "RandomOccurence - BPCA" = "BPCA",
                             "RandomOccurence - KNN" = "KNN",
-                            "RandomOccurence - MLE" = "MLE",
-                            "imp4p" = "imp4p"
+                            "RandomOccurence - MLE" = "MLE"
+                            #,"imp4p" = "imp4p"
 )
 
 JSCSSTags <- function() 
