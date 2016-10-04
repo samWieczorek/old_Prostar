@@ -2357,8 +2357,6 @@ output$downloadReport <- downloadHandler(
     content = function(file) {
         src <- normalizePath('report.Rmd')
         
-        # temporarily switch to the temp dir, in case you do not have write
-        # permission to the current working directory
         file.copy(src, paste(tempdir(), sessionID, 'report.Rmd',sep="/"))
         
         library(rmarkdown)
@@ -2559,8 +2557,6 @@ output$choose_Normalization_1 <- renderUI({
 output$choose_Normalization_Test <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) { return (NULL)}
-    
-    #isolate({
     
     # check if the normalisation has already been performed
     m <- NULL
