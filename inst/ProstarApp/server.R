@@ -99,6 +99,7 @@ initializeProstar <- reactive({
     rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
 
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
+    unlink("www/*pdf")
     
 })
 
@@ -1008,6 +1009,7 @@ session$onSessionEnded(function() {
     graphics.off()
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
+    unlink("www/*pdf")
 })
 
 
@@ -2103,15 +2105,12 @@ output$helpTextDataID <- renderUI({
 output$showDatasetDoc <- renderUI({
     input$demoDataset
     if (is.null(input$demoDataset)) { return(NULL)}
-    
-    if (input$demoDataset %in% c("UPSpep25", "UPSprot25")) {
-tags$iframe(src="http://bioconductor.org/packages/release/data/experiment/vignettes/DAPARdata/inst/doc/UPSpep-prot25.pdf", 
-                width="900", height="700")}
-    else if (input$demoDataset %in% c("UPSpep2", "UPSprot2")){
-        tags$iframe(src="http://bioconductor.org/packages/release/data/experiment/vignettes/DAPARdata/inst/doc/UPSpep-prot2.pdf", 
-                    width="900", height="700")
-    }
-    
+
+     file<- paste(system.file(package = "DAPARdata"),"/doc/",input$demoDataset,".pdf", sep="")
+    cmd <- paste("cp ",file," www/.", sep="")
+     system(cmd)
+     tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), width="900", height="700")
+
 })
 
 
