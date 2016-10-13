@@ -1,3 +1,12 @@
+    CHANGES IN VERSION 1.5.13
+------------------------ 
+
+NEW FEATURES
+    * In this version, the methods for missing values impuation from the 
+    package imp4p have been disabled because they are still under development.
+    They will be available later.
+    
+    
 CHANGES IN VERSION 1.5.11
 ------------------------ 
 
