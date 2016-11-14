@@ -65,9 +65,12 @@ normMethods <- list("None" = "None",
 
 
 imputationAlgorithms <- list("None" = "None",
-                            "LeftCensored - QRILC" = "QRILC",
-                            "RandomOccurence - BPCA" = "BPCA",
-                            "RandomOccurence - KNN" = "KNN",
+                             "imp4p without LAPALA" = "imp4p without LAPALA",
+                             "imp4p with LAPALA" = "imp4p with LAPALA",
+                             "LAPALA baseline" = "LAPALA baseline",
+                            #"LeftCensored - QRILC" = "QRILC",
+                            #"RandomOccurence - BPCA" = "BPCA",
+                            #"RandomOccurence - KNN" = "KNN",
                             "RandomOccurence - MLE" = "MLE"
                             #,"imp4p" = "imp4p"
 )

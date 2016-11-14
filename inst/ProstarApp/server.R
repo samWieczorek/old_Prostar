@@ -9,8 +9,10 @@ library(reshape2)
 library(DT)
 library(MSnbase)
 library(openxlsx)
+library(sm)
+library(imp4p)
 
-
+###
 
 # initialize data with colnames
 df <- data.frame(matrix(c("0","0"), 1, 2))
@@ -649,7 +651,7 @@ ClearMemory <- function(){
     initializeProstar()
     rv$hot = port
     rv$text.log <- data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
-    rv$commandLog <- ""
+    #rv$commandLog <- ""
     updateSelectInput(session, "datasets",  "Dataset versions", choices = "none")
     updateRadioButtons(session,"typeOfData",selected = "peptide" )
     updateRadioButtons(session, "checkDataLogged", selected="no")
@@ -711,22 +713,22 @@ output$chooseExportFilename <- renderUI({
 
 observeEvent(input$loadDemoDataset,{
     
-    #if (is.null(input$loadDemoDataset) || (input$loadDemoDataset == 0)) {return(NULL)}
-    
-    isolate({
+   # isolate({
             ClearMemory()
         data(list = input$demoDataset)
         rv$current.obj <- get(input$demoDataset)
         rv$current.obj.name <- input$demoDataset
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
             
-            writeToCommandLogFile("library(DAPARdata)")
-            writeToCommandLogFile(paste("data(",input$demoDataset,")", sep=""))
-            writeToCommandLogFile(paste("current.obj <- ",input$demoDataset, sep=""))
             
             result = tryCatch(
                 {
+                    
+                    writeToCommandLogFile("library(DAPARdata)")
+                    writeToCommandLogFile(paste("data(",input$demoDataset,")", sep=""))
+                    writeToCommandLogFile(paste("current.obj <- ",input$demoDataset, sep=""))
                     loadObjectInMemoryFromConverter()
+                    
                 }
                 , warning = function(w) {
                     shinyjs::info(conditionMessage(w))
@@ -736,7 +738,7 @@ observeEvent(input$loadDemoDataset,{
                     #cleanup-code 
                 })
 
-    })
+   # })
     
 })
 
@@ -1280,6 +1282,7 @@ output$viewExprs <- DT::renderDataTable({
             #                              valueColumns = 4,
             # backgroundColor = styleInterval( 0, c('orange','white'))
             #                            )
+            #%>% hot_validate_numeric(col = 1, min = 10, max = 100, exclude = 40,allowInvalid = TRUE)
             return(dat)
 
    
@@ -1864,7 +1867,6 @@ observeEvent(input$createMSnsetButton,{
 output$eData <- renderUI({
     input$file1
     rv$tab1
-    #if (is.null(input$file1)) {return(NULL)  }
     if (is.null(rv$tab1)) {return(NULL)  }
     
     choices <- colnames(rv$tab1)
@@ -2062,10 +2064,7 @@ output$References <- renderText({
 
         <strong><font size=\"4\">References:</font></strong>
         <ul>
-        <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
-        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
-        \"DAPAR & ProStaR: software to perform statistical analyses in 
-        quantitative discovery proteomics\", <i>Bioinformatics</i>, 2016
+        <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. \"DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics\", <i>Bioinformatics</i>, 2016
         </li>
         <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
         for the multiple natures of missing values in label-free quantitative 
@@ -2140,6 +2139,7 @@ output$overviewDemoDataset <- renderUI({
                 
                 nb.empty.lines <- sum(apply(
                     is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+                h3("Quick overview of the dataset")
                 tags$ul(
                     tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
                                   " samples in your data.", sep=" ")),
@@ -3494,7 +3494,7 @@ output$aboutText <- renderUI({
     text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
 S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
         A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
-                  <i>\"DAPAR & ProStaR: software to perform statistical analyses in <br>
+                  <i>\"DAPAR & ProStaR: software to perform statistical analyses in 
                   quantitative discovery proteomics\"</i>, <i>Bioinformatics</i>, 2016
                   
 <br><br><br>
@@ -3508,7 +3508,7 @@ It is composed of two distinct R packages : <br>",
 "<ul style=\"list-style-type:disc;\">
 <li>
 <a href=\"http://www.bioconductor.org/packages/release/bioc/html/Prostar.html\"
-title=\"here\" target=\"_blank\">Prostar</a> package (version ",
+title=\"here\" target=\"_blank\">Prostar</a> (version ",
 ProstarVersion, "): the web based graphical user interface to DAPAR 
 </li>
 <li>
@@ -3804,6 +3804,81 @@ UpdateFilterWidgets <- function(){
     updateSelectInput(session, "normalization.family",selected = c("None"))
     })
 }
+
+
+
+
+
+output$warningAgregationMethod <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return (NULL)}
+    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
+    {
+        text <- "<font color=\"red\"> Warning ! <br> 
+            Your dataset contains missing values.
+         <br> For better results, you should impute  <br> them first"
+        HTML(text)
+    }
+    
+})
+
+
+output$warningImputationMethod <- renderUI({
+    input$missing.value.algorithm
+    if (is.null(input$missing.value.algorithm)) {return (NULL)}
+
+    if (input$missing.value.algorithm == "imp4p with LAPALA")
+        {
+        text <- "<font color=\"red\"> Warning ! <br> You are about to impute the <br> LAPALA with small 
+        arbitrary values. <br> This is not an optimal way <br> 
+        to impute such values. <br> 
+        You do it at your own risk."
+         HTML(text)
+    } else if (input$missing.value.algorithm == "LAPALA baseline") {
+        text <- "<font color=\"red\"> Warning ! <br> You are about to impute the LAPALA with small 
+        arbitrary values. This is not an optimal way to impute such values. 
+        You do it at your own risk."
+        HTML(text)
+    }
+    
+})
+
+output$showImputationPanel <- renderUI({
+    rv$current.obj
+    
+if (is.null(rv$current.obj)) {return (NULL)}
+    
+    nbEmptyLines <- getNumberOfEmptyLines(exprs(rv$current.obj))
+        if (nbEmptyLines == 0)
+        {
+        conditionalPanel(id = "wellPanel_Imputation",
+                     condition = "true",
+                     helpText("Select an imputation method before 
+                              performing the imputation of missing values."),
+                     
+                     
+                     
+                     busyIndicator("Calculation in progress",wait = 0),
+                     #imageOutput("viewNAbyMean"),
+                     fluidRow(
+                         column(width = 5, plotOutput("viewNAbyMean"
+                                                      , height = "600px", width = "400px"))
+                         ,column(width = 7, plotOutput("showImageNA"
+                         ))
+                     )
+                     
+                     )
+        }
+    else{
+        text <- "<br> <br> <font color=\"red\">
+            Warning ! Your dataset contains empty lines so that the imputation cannot be proceed.
+        <br> <br> Please filter your data first."
+        
+        HTML(text)
+
+    }
+})
 
 #########################################################
 ##' Function to compute the maximum value for the filter
@@ -4587,28 +4662,51 @@ observeEvent(input$perform.imputation.button,{
                                           "missing.value.algorithm", 
                                           selected = input$missing.value.algorithm)
                         
-                    } else if (.temp[1]== "imp4p")
+                    } else if (.temp[1]== "imp4p without LAPALA")
                     {
-            
-                        dat.slsa <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
-                         updatePB(session,inputId="pb1",value=33,text_value="33 %", striped = TRUE, active=TRUE)
-                         
-                         proba <- wrapper.identifyMCAR_MNAR(rv$dataset[[input$datasets]],dat.slsa)
-                         updatePB(session,inputId="pb1",value=66,text_value="66 %", striped = TRUE, active=TRUE)
-                        
-                         rv$current.obj <- wrapper.imputeImp4p(rv$dataset[[input$datasets]], dat.slsa, proba)
-                         updatePB(session,inputId="pb1",value=90,text_value="100 %", striped = FALSE, active=FALSE)
-                        
-                         rv$current.obj <- wrapper.impute.pa(rv$current.obj)
-                         updatePB(session,inputId="pb1",value=100,text_value="100 %", striped = FALSE, active=FALSE)
-                         
+                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]], lapala=FALSE)
                          
                         #write log command file
                         writeToCommandLogFile(
-                            paste("current.obj <- wrapper.mvImputation(",
+                            paste("current.obj <- wrapper.dapar.impute.mi(",
                                   "dataset[['",
                                   input$datasets,
-                                  "']], \"imp4p\")",
+                                  "']], lapala=FALSE)",
+                                  sep="")
+                        )
+                        
+                        updateSelectInput(session, 
+                                          "missing.value.algorithm", 
+                                          selected = input$missing.value.algorithm)
+                        
+                    }
+                    else if (.temp[1]== "imp4p with LAPALA")
+                    {
+                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]])
+                        #write log command file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.dapar.impute.mi(",
+                                  "dataset[['",
+                                  input$datasets,
+                                  "']])",
+                                  sep="")
+                        )
+                        
+                        updateSelectInput(session, 
+                                          "missing.value.algorithm", 
+                                          selected = input$missing.value.algorithm)
+                        
+                    } else if (.temp[1]== "LAPALA baseline")
+                    {
+                        
+                        rv$current.obj <- wrapper.impute.pa(rv$dataset[[input$datasets]])
+
+                        #write log command file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.impute.pa(",
+                                  "dataset[['",
+                                  input$datasets,
+                                  "']])",
                                   sep="")
                         )
                         
@@ -4704,6 +4802,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
     conditionalPanel(
         condition = 'true',
     h4("Aggregation options"),
+    uiOutput("warningAgregationMethod"),
     uiOutput("chooseProteinId"),
     checkboxInput("checkSharedPeptides",
                   "Include shared peptides",

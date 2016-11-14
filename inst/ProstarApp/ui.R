@@ -578,25 +578,15 @@ tabPanel("Miss. values imputation",
                     actionButton("ValidImputation", 
                                 "Save imputation",
                                 styleclass = "primary"),
+                    br(), br(), br(),
+                    uiOutput("warningImputationMethod")
                     ## progress bar
-                    br(),
-                    br(),
-                    uiOutput(outputId = "progressOne")
+                    #br(),
+                    #br(),
+                    #uiOutput(outputId = "progressOne")
                 ),
-                conditionalPanel(id = "wellPanel_Imputation",
-                    condition = "true",
-                        helpText("Select an imputation method before 
-                                performing the imputation of missing values."),
-                    busyIndicator("Calculation in progress",wait = 0),
-                    #imageOutput("viewNAbyMean"),
-                     fluidRow(
-                         column(width = 5, plotOutput("viewNAbyMean"
-                                                       , height = plotHeight, width = "400px"))
-                         ,column(width = 7, plotOutput("showImageNA"
-                                                        ))
-                     )
-                    
-                )
+                uiOutput("showImputationPanel")
+                
             )
 ),
 
