@@ -1,3 +1,10 @@
+    CHANGES IN VERSION 1.7.5
+------------------------ 
+
+BUG FIXES
+    * The legend of the x-axis for the boxplots has been modified. With a lot of samples, there was a problem with the margins which were too large to display the plots. Now, the legend appears in one line instead of one line per type of information
+    
+    
     CHANGES IN VERSION 1.7.3
 ------------------------ 
 

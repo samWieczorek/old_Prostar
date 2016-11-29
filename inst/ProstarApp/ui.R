@@ -539,10 +539,11 @@ each condition <br> or on at leat one condition."),
             ,conditionalPanel(id = "wellPanlNormalization",
                 condition = "true",
                 uiOutput("helpForNormalizationMethods"),
-                fluidRow(
-                    column(width=6, plotOutput("viewBoxPlotNorm")),
-                    column(width=6, plotOutput("viewComparisonNorm"))),
-                    plotOutput("viewDensityplotNorm")
+                #plotOutput("viewBoxPlotNorm")
+                 fluidRow(
+                     column(width=6, plotOutput("viewDensityplotNorm")),
+                     column(width=6, plotOutput("viewComparisonNorm"))),
+                    plotOutput("viewBoxPlotNorm")
             )
         ),
     tags$head(

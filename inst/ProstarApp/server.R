@@ -1,4 +1,4 @@
-options(shiny.maxRequestSize=30*1024^2) 
+options(shiny.maxRequestSize=100*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
@@ -2670,7 +2670,6 @@ output$viewBoxPlot_DS <- renderPlot({
         input$legendXAxis_DS
         if (is.null(rv$current.obj)) {return(NULL)}
         
-        
         legDS <- NULL
         if (is.null(input$legendXAxis_DS)){
             .names <- colnames(Biobase::pData(rv$current.obj))[-1]
@@ -2783,28 +2782,29 @@ output$viewBoxPlotNorm <- renderPlot({
 
         rv$current.obj
         input$whichGroup2Color
+        input$legendXAxis
         input$normalization.method
         input$perform.normalization
         
         if (is.null(rv$current.obj) || is.null(rv$dataset[[input$datasets]]) ||
             is.null(input$normalization.method)) {return(NULL)}
         
-        
+        print(input$legendXAxis)
         gToColorNorm <- NULL
         
-        if (is.null(input$whichGroup2Color)){
-            gToColorNorm <- "Condition"
-        }else{gToColorNorm <- input$whichGroup2Color}
-        
+         if (is.null(input$whichGroup2Color)){
+             gToColorNorm <- "Condition"
+         }else{gToColorNorm <- input$whichGroup2Color}
+         
         leg <- NULL
-        if (is.null(input$legendXAxis_DS)){
+        if (is.null(input$legendXAxis)){
             .names <- colnames(Biobase::pData(rv$current.obj))[-1]
             leg <- .names[1]}
-        else{leg <- input$legendXAxis_DS}
+        else{leg <- input$legendXAxis}
         
         result = tryCatch(
             {
-                wrapper.boxPlotD(rv$current.obj,leg ,gToColorNorm)
+                wrapper.boxPlotD(rv$current.obj, leg )
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
