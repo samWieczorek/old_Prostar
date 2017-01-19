@@ -312,7 +312,6 @@ output$DP_sidebar_FilterTab3 <- renderUI({
                     ,checkboxInput("nDigitsMV", 
                                    "Show full length intensities"
                                    , value = FALSE)
-                    
                     )
 })
 
@@ -1604,7 +1603,8 @@ output$downloadMSnSet <- downloadHandler(
     },
     content = function(file) {
         if (!is.null(input$colsToExport)){
-            fData(rv$current.obj) <- fData(rv$current.obj)[,input$colsToExport]
+            print(input$colsToExport)
+            fData(rv$current.obj) <- (Biobase::fData(rv$current.obj))[,input$colsToExport]
 
             t <- buildWritableVector(input$colsToExport)
             writeToCommandLogFile(
@@ -2062,7 +2062,7 @@ output$References <- renderText({
         </ul>
 <br><br>
 
-        <strong><font size=\"4\">References:</font></strong>
+        <strong><font size=\"4\">Our referenced work:</font></strong>
         <ul>
         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. \"DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics\", <i>Bioinformatics</i>, 2016
         </li>
@@ -2083,6 +2083,11 @@ output$References <- renderText({
         </li>
 
         </ul>
+
+<br><br>
+
+        <strong><font size=\"4\">Other references:</font></strong>
+       
         ")
 })
 
@@ -2226,10 +2231,30 @@ output$infoAboutAggregationTool <- renderUI({
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)    }
     
-    if (rv$typeOfDataset == "protein"){
-        tags$h5("Note: the aggregation tool
-                has been disabled because the dataset contains protein quantitative data.")
-    }
+    NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                      2, 
+                      function(x) length(which(is.na(data.frame(x))==TRUE)) )
+    
+    nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+    
+    conditionalPanel(
+        condition="true",
+        tags$h3("Info"),
+        if (rv$typeOfDataset == "protein"){
+            tags$h5("Note: the aggregation tool
+                    has been disabled because the dataset contains protein quantitative data.")
+        },
+        
+        if (NA.count > 0){
+            tags$h5("As your dataset contains missing values, you should impute them prior to proceed",br()," 
+                    to the differential analysis.")
+        },
+        if (nb.empty.lines > 0){
+            tags$h5("As your dataset contains lines with no values, you should remove them with the filter",br()," tool
+            prior to proceed to the analysis of the data.")
+        }
+        
+        )
     })
 
 
@@ -3857,7 +3882,7 @@ if (is.null(rv$current.obj)) {return (NULL)}
                      helpText("Select an imputation method before 
                               performing the imputation of missing values."),
                      
-                     
+                     uiOutput("helpForImputation"),
                      
                      busyIndicator("Calculation in progress",wait = 0),
                      #imageOutput("viewNAbyMean"),
@@ -4581,6 +4606,33 @@ stop("Enter something that switches me!")
 
 
 
+output$helpForImputation <- renderUI({
+    input$missing.value.algorithm
+    rv$typeOfDataset
+    if (is.null(input$missing.value.algorithm) || (input$missing.value.algorithm == "None")) {return(NULL)}
+    #toto <- input$normalization.method
+    
+    
+    switch(input$missing.value.algorithm,
+           "imp4p" = {
+               t <- "imp4p"},
+           
+           "LAPALA baseline" = {
+               t <- "LAPALA BASELINE "},
+           
+           "RandomOccurence - KNN" = {
+               t <- "KNNNNNNNNNNNNN"},
+           
+           "RandomOccurence - MLE" = {
+               t <- "MLE"},
+           
+           stop("Enter something that switches me!")
+               )
+    
+    HTML(t)
+           })
+
+
 ProcessStepsTabPanel <- function(){
     
     tabPanel(title = "processStepsTab",
@@ -4624,6 +4676,25 @@ ConditionTabPanel <- reactive({
 
 
 
+output$MVI_options <- renderUI({
+    
+    rv$current.obj
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$missing.value.algorithm)){return (NULL)}
+    
+    if (input$missing.value.algorithm == "imp4p"){
+        conditionalPanel(
+                  condition = 'true',
+                  h4("Imputation options"),
+                  #uiOutput("warningAgregationMethod"),
+                  numericInput("imp4p_eps", "Max imputated value", value = 2, min = 0),
+                  numericInput("imp4p_nbiter", "Number of iterations", value = 3, step=1, min=1),
+                  checkboxInput("imp4p_withLapala", "with Lapala", value = FALSE)
+              )
+}
+   
+})
+
 # 
 #------------------------------------------
 ##' Missing values imputation - reactivity behavior
@@ -4662,27 +4733,12 @@ observeEvent(input$perform.imputation.button,{
                                           "missing.value.algorithm", 
                                           selected = input$missing.value.algorithm)
                         
-                    } else if (.temp[1]== "imp4p without LAPALA")
+                    } else if (.temp[1]== "imp4p")
                     {
-                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]], lapala=FALSE)
-                         
-                        #write log command file
-                        writeToCommandLogFile(
-                            paste("current.obj <- wrapper.dapar.impute.mi(",
-                                  "dataset[['",
-                                  input$datasets,
-                                  "']], lapala=FALSE)",
-                                  sep="")
-                        )
-                        
-                        updateSelectInput(session, 
-                                          "missing.value.algorithm", 
-                                          selected = input$missing.value.algorithm)
-                        
-                    }
-                    else if (.temp[1]== "imp4p with LAPALA")
-                    {
-                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]])
+                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
+                                                                  eps = input$imp4p_eps,
+                                                                  nb.iter = input$imp4p_nbiter,
+                                                                  lapala = input$imp4p_withLapala)
                         #write log command file
                         writeToCommandLogFile(
                             paste("current.obj <- wrapper.dapar.impute.mi(",

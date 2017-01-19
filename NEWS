@@ -1,3 +1,12 @@
+    CHANGES IN VERSION 1.7.7
+------------------------ 
+
+NEW FEATURES
+    * In the missing values imputation tool, two features have been implemented :
+        - a serie of options for the imp4p method
+        - a help text that describes the method selected by the user
+    
+    
     CHANGES IN VERSION 1.7.5
 ------------------------ 
 

@@ -574,6 +574,7 @@ tabPanel("Miss. values imputation",
                     ,h4("Miss. values imputation options")
                     ,br()
                     ,uiOutput("chooseImputationMethod"),
+                    uiOutput("MVI_options"),
                     actionButton("perform.imputation.button",
                                 "Perform imputation"),
                     actionButton("ValidImputation", 
