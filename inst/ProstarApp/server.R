@@ -11,6 +11,7 @@ library(MSnbase)
 library(openxlsx)
 library(sm)
 library(imp4p)
+library(highcharter)
 
 ###
 
@@ -30,7 +31,12 @@ cat(file=stderr())
     
 Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     
+# Simulate work being done for 1 second
+Sys.sleep(1)
 
+# Hide the loading message when the rest of the server function has executed
+hide(id = "loading-content", anim = TRUE, animType = "fade")    
+show("app-content")
 
 #-------------------------------------------------------------
 rv <- reactiveValues(
@@ -65,7 +71,8 @@ rv <- reactiveValues(
     test = NULL, 
     resAnaDiff = list(logFC=NULL, P.Value=NULL),
     wb = NULL,
-    progressImputation = 0)
+    progressImputation = 0,
+    indexNA = NULL)
 
 
 initializeProstar <- reactive({
@@ -99,6 +106,7 @@ initializeProstar <- reactive({
     rv$matAdj = NULL
     test = NULL
     rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
+    indexNA = NULL
 
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
@@ -466,9 +474,12 @@ output$DS_sidebarPanel_Violinplot <- renderUI({
 #----------------------------------------------
 output$tabToShow <- renderUI({
 input$DS_TabsChoice
+rv$current.obj
+rv$indexNA
 if (is.null(input$DS_TabsChoice)) {return(NULL)}
-    
-if (input$DS_TabsChoice == "tabExprs"){DT::dataTableOutput("viewExprs")}
+if (is.null(rv$current.obj)) {return(NULL)}
+
+if (input$DS_TabsChoice == "tabExprs"){DT::dataTableOutput("table")}
 else if (input$DS_TabsChoice == "tabfData"){DT::dataTableOutput("viewfData")}
 else if (input$DS_TabsChoice == "tabpData"){DT::dataTableOutput("viewpData")}
 else if (input$DS_TabsChoice == "processingData"){
@@ -631,9 +642,20 @@ loadObjectInMemoryFromConverter <- reactive({
     writeToCommandLogFile("dataset <- list()")
     writeToCommandLogFile(paste("dataset[['",name,"']] <- current.obj",sep=""))
     writeToCommandLogFile(paste("typeOfDataset <- \"", rv$typeOfDataset, "\"", sep=""))
-
+    writeToCommandLogFile("colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)")
+    writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
+    if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
+        writeToCommandLogFile("current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
+    }
+    
+    
     UpdateFilterWidgets()
 
+    ## update widgets for normalization panels
+    
+    
+    
+    
     updateSelectInput(session, "datasets", 
                     label = paste("Dataset versions of",rv$current.obj.name, sep=" "),
                     choices = names(rv$dataset),
@@ -649,6 +671,7 @@ ClearMemory <- function(){
 
     initializeProstar()
     rv$hot = port
+    #rv$indexNA <- NULL
     rv$text.log <- data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
     #rv$commandLog <- ""
     updateSelectInput(session, "datasets",  "Dataset versions", choices = "none")
@@ -683,7 +706,8 @@ output$chooseDataset <- renderUI({
         print("DAPARdata is loaded correctly")
         selectInput("demoDataset",
                     "Choose a demo dataset",
-                    choices = data(package='DAPARdata')$results[,"Item"])
+                    choices = utils::data(package="DAPARdata")$results[,"Item"]
+                    )
     } else {
         print("trying to install DAPARdata")
         install.packages("DAPARdata")
@@ -691,7 +715,7 @@ output$chooseDataset <- renderUI({
             print("DAPARdata installed and loaded")
             selectInput("demoDataset",
                         "Choose a demo dataset",
-                        choices = data(package='DAPARdata')$results[,"Item"])
+                        choices = utils::data(package='DAPARdata')$results[,"Item"])
         } else {
             stop("could not install the package DAPARdata")
         }
@@ -714,17 +738,24 @@ observeEvent(input$loadDemoDataset,{
     
    # isolate({
             ClearMemory()
-        data(list = input$demoDataset)
+        utils::data(list = input$demoDataset)
         rv$current.obj <- get(input$demoDataset)
         rv$current.obj.name <- input$demoDataset
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-            
+        rv$indexNA <- which(is.na(rv$current.obj))
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
+        colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
+       
+        
+        if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
+            rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+             }
             
             result = tryCatch(
                 {
-                    
                     writeToCommandLogFile("library(DAPARdata)")
-                    writeToCommandLogFile(paste("data(",input$demoDataset,")", sep=""))
+                    writeToCommandLogFile(paste("utils::data(",input$demoDataset,")", sep=""))
                     writeToCommandLogFile(paste("current.obj <- ",input$demoDataset, sep=""))
                     loadObjectInMemoryFromConverter()
                     
@@ -744,7 +775,7 @@ observeEvent(input$loadDemoDataset,{
 ##-- Open a MSnset File --------------------------------------------
 observeEvent(input$file,{ 
     
-    isolate({
+    #isolate({
     exts <- c("MSnset","MSnSet")
     if( is.na(match(GetExtension(input$file$name), exts))) {
         shinyjs::info("Warning : this file is not a MSnset file ! 
@@ -755,6 +786,46 @@ observeEvent(input$file,{
         rv$current.obj <- readRDS(input$file$datapath)
         rv$current.obj.name <- DeleteFileExtension(input$file$name)
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        #rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+        
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
+        colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
+        
+        if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
+            rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            }
+        
+        ## check the information about normalizations and convert if needed
+        if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {
+            print(rv$current.obj@experimentData@other$normalizationFamily)
+            print(rv$current.obj@experimentData@other$normalizationMethod)
+            
+            
+            method <- rv$current.obj@experimentData@other$normalizationMethod
+            type <- rv$current.obj@experimentData@other$normalizationFamily
+            
+            rv$current.obj@experimentData@other$normalizationFamily <- NULL
+            rv$current.obj@experimentData@other$normalizationMethod <- method
+            rv$current.obj@experimentData@other$normalizationType <- type
+            
+            if (method == "Mean Centering Scaling") {
+                scaling <- TRUE
+                method <- "Mean Centering"
+                rv$current.obj@experimentData@other$normalizationMethod <- method
+                rv$current.obj@experimentData@other$normalizationType <- type
+                rv$current.obj@experimentData@other$normalizationScaling <- scaling
+            }
+            else if (method == "Median Centering"){
+                method <- "Quantile Centering"
+                rv$current.obj@experimentData@other$normalizationMethod <- method
+                rv$current.obj@experimentData@other$normalizationType <- type
+                rv$current.obj@experimentData@other$normalizationQuantile <- 0.5
+            }
+
+        }
+        
+        
         
         writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
@@ -763,63 +834,24 @@ observeEvent(input$file,{
         loadObjectInMemoryFromConverter()
         
 }
-    })
+    #})
 })
 
 
 
-##' -- Validate the normalization ---------------------------------------
-##' @author Samuel Wieczorek
-observeEvent(input$valid.normalization,{ 
-    
-    input$normalization.method
-    if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
-        {return(NULL)}
-    
-    isolate({
-        result = tryCatch(
-            {
-                if (input$normalization.method != "None") {
-                    
-                    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-                    name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
-                    rv$dataset[[name]] <- rv$current.obj
-                    
-                    
-                    #write command log file
-                    writeToCommandLogFile(
-                        paste("dataset[['",name,"']] <- current.obj", sep="")
-                    )
-                    
-                    updateSelectInput(session, "datasets", 
-                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                                      choices = names(rv$dataset),
-                                      selected = name)
-                    UpdateLog(paste("Normalization : data normalized with the method",
-                                    input$normalization.method, sep=" "), name)
-                }
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-
-    } )
-})
 
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.aggregation,{ 
-    
+    input$nbPeptides
+    input$filterProtAfterAgregation
     input$aggregationMethod
     input$columnsForProteinDataset.box
     rv$matAdj
     
     if (is.null(input$valid.aggregation) || (input$valid.aggregation == 0)
-        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
+        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)
+        || is.null(input$filterProtAfterAgregation)) 
         {return(NULL)}
 
     
@@ -853,6 +885,9 @@ observeEvent(input$valid.aggregation,{
         
     }
     
+    #if (input$filterProtAfterAgregation){
+    #    rv$temp.aggregate <- FilterProteinWithFewPeptides(rv$temp.aggregate, input$nbPeptides)
+    #}
     
     rv$current.obj <- rv$temp.aggregate
     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
@@ -1258,34 +1293,138 @@ observeEvent( input$datasets,{
 })
 
 
+
+tagNA <- function(data){
+    
+    df <- is.na(data)
+    txt <- "function(row, data,index) {"
+    for (i in 1:nrow(df)){
+        for (j in 1:ncol(df)){
+            if(df[i,j]) {
+                txt <- paste(txt,
+                             "$(this.api().cell(",
+                             i-1,",",j,
+                             ").node()).css({'background-color': 'lightblue'});",
+                             collaspe="\n")
+            }
+        }
+    }
+    txt <- paste(txt,"}")
+    return (txt)
+}
+
+
+tagNAsapply <- function(data){
+    
+    id <- which(is.na(data))
+    txt <- paste("function(row, data,index) {",
+          paste(sapply(id,function(i) 
+              paste( "$(this.api().cell(",i %% nrow(data)-1,",",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")
+          ),collapse = "\n"),"}" )
+    return(txt)
+}
+
+getData <- reactive({
+    input$nDigits
+    rv$current$obj
+    
+    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
+    
+     # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+     #                     round(Biobase::exprs(rv$current.obj), 
+     #                     digits=nDigits))
+     test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
+    test.table
+})
+
+
+
+data <- eventReactive(rv$current$obj, {
+    input$nDigits
+    rv$current$obj
+    
+    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
+    
+    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+    #                     round(Biobase::exprs(rv$current.obj), 
+    #                     digits=nDigits))
+    test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
+    test.table
+}, ignoreNULL = FALSE)
+
+
+
+#################
+output$table <- renderDataTable(
+    
+    getData(),
+    options = list(
+        displayLength = 20
+        
+       # ,drawCallback=JS(
+       # paste("function(row, data) {",
+       #       paste(sapply(1:ncol(getData()),function(i)
+       #           paste( "$(this.api().cell(",indewq() %% nrow(data())-1,",",trunc(indewq() / nrow(getData()))+1,").node()).css({'background-color': 'lightblue'});")
+       #       ),collapse = "\n"),"}" ))
+        
+     ),server = FALSE)
+
+
+
 ##' show intensity values of the MSnset object in a table
 ##' @author Samuel Wieczorek
-output$viewExprs <- DT::renderDataTable({
-    rv$current.obj
-    input$nDigits
-    if (is.null(rv$current.obj)) {return(NULL)}
-    if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
+output$viewExprs <- renderDataTable(
+    # rv$current.obj
+    # input$nDigits
+    # if (is.null(rv$current.obj)) {return(NULL)}
+    # if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
+    # 
+    # df <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+    #               round(Biobase::exprs(rv$current.obj), 
+    #               digits=nDigits))
+    # 
+    # 
+    # test.table <- data.frame(lapply(1:8, function(x) {1:1000}))
+    # test.table[c(2,3,7), c(2,7,6)] <- NA
+    # id <- which(is.na(test.table))
+    # colonnes <- trunc(id / nrow(test.table))+1
+    # lignes <- id %% nrow(test.table)
+    # formattable(test.table, list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+    # 
+   # id <- which(is.na(exprs(Exp1_R25_prot)))
+    #colonnes <- trunc(id / nrow(exprs(Exp1_R25_prot)))+1
+    #lignes <- id %% nrow(exprs(Exp1_R25_prot))
+    #formattable(as.data.frame(exprs(Exp1_R25_prot)), list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
     
+    
+    
+    #id <- which(is.na(exprs(Exp1_R25_prot)))
 
-            data <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-                          round(Biobase::exprs(rv$current.obj), 
-                                digits=nDigits))
-            dat <- DT::datatable(data, 
-                                 options=list(pageLength=DT_pagelength,
-                                              orderClasses = TRUE,
-                                              autoWidth=FALSE)
-            )
-            
-            # %>% formatStyle(
-            #                              colnames(data)[1:3],
-            #                              valueColumns = 4,
-            # backgroundColor = styleInterval( 0, c('orange','white'))
-            #                            )
-            #%>% hot_validate_numeric(col = 1, min = 10, max = 100, exclude = 40,allowInvalid = TRUE)
-            return(dat)
-
+    test.table,
+    options = list(
+        displayLength = 3,
+        drawCallback=JS(
+        paste("function(row, data) {",
+              paste(sapply(1:ncol(test.table),function(i)
+                  paste( "$(this.api().cell(",id %% nrow(test.table)-1,",",trunc(id / nrow(test.table))+1,").node()).css({'background-color': 'lightblue'});")
+              ),collapse = "\n"),"}" )
+    ), 
+    serverSide = FALSE)
+    
+    
+    # id <- which(is.na(df))
+    # datatable(df,
+    #               options=list(drawCallback=JS(
+    #               paste("function(row, data,index) {",
+    #               paste(sapply(1:ncol(df),function(i) 
+    #              {paste( "$(this.api().cell(",id %% nrow(df)-1,",",trunc(id / nrow(df))+1,").node()).css({'background-color': 'lightblue'});")}
+    #              #{paste( "$(this.api().cell(index,",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")}
+    #               
+    #              ),collapse = "\n"),"}" ) )
+    #     )
+    #     ) 
    
-} )
+ )
 
 
 
@@ -1483,27 +1622,34 @@ option=list(pageLength=DT_pagelength,
 output$viewfData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            
-            as.data.frame(Biobase::fData(rv$current.obj))
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
 
-},
-option=list(pageLength=DT_pagelength,
-            orderClasses = TRUE,
-            autoWidth=FALSE,
-            columns.searchable=F,
-            columnDefs = list(list(columns.width=c("60px"),
-                            columnDefs.targets=c(list(0),list(1),list(2)))))
+                         
+    if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
+        dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
+                           options=list(pageLength=DT_pagelength,
+                                       orderClasses = TRUE,
+                                       autoWidth=FALSE,
+                                       columns.searchable=F,
+                                       columnDefs = list(list(columns.width=c("60px"),
+                                                       columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
+                formatStyle(columns = 'Significant',
+                            target = 'row',
+                            background = styleEqual(1, 'lightblue'))
+            } else {
+                dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
+                                     options=list(pageLength=DT_pagelength,
+                                                  orderClasses = TRUE,
+                                                  autoWidth=FALSE,
+                                                  columns.searchable=F,
+                                                  columnDefs = list(list(columns.width=c("60px"),
+                                                                         columnDefs.targets=c(list(0),list(1),list(2))))))
+           }
+
+return(dat)
+}
+
+#              
+#             ))
 )
 
 
@@ -1602,15 +1748,33 @@ output$downloadMSnSet <- downloadHandler(
         paste(input$nameExport,gFileExtension$msnset,  sep="")}
     },
     content = function(file) {
-        if (!is.null(input$colsToExport)){
-            print(input$colsToExport)
-            fData(rv$current.obj) <- (Biobase::fData(rv$current.obj))[,input$colsToExport]
-
+        
+        
+        if (length(input$colsToExport) == 1){
+            Biobase::fData(rv$current.obj) <- data.frame(fData(rv$current.obj)[,input$colsToExport])
+            colnames( Biobase::fData(rv$current.obj)) <- input$colsToExport
             t <- buildWritableVector(input$colsToExport)
             writeToCommandLogFile(
                 paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
             )
-            }
+        }
+        else if (length(input$colsToExport) > 1){
+            Biobase::fData(rv$current.obj) <- data.frame(fData(rv$current.obj)[,input$colsToExport])
+            t <- buildWritableVector(input$colsToExport)
+            writeToCommandLogFile(
+                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
+            )
+        }
+        
+        rv$current.obj@experimentData@other$Prostar_Version <- installed.packages()["Prostar","Version"]
+        rv$current.obj@experimentData@other$DAPAR_Version <- installed.packages()["DAPAR","Version"]
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
+        colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
+        
+        if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
+            rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+        }
         
         
     if (input$fileformatExport == gFileFormatExport$excel) {
@@ -1793,6 +1957,7 @@ observeEvent(input$createMSnsetButton,{
                                                pep_prot_data = input$typeOfData
                 )
                 rv$current.obj.name <- input$filenameToCreate
+                rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
                 t <- "metadata <- data.frame("
                 for (c in colnames(metadata)){
@@ -2578,43 +2743,8 @@ output$choose_Normalization_1 <- renderUI({
     })
 })
 
-output$choose_Normalization_Test <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) { return (NULL)}
-    
-    # check if the normalisation has already been performed
-    m <- NULL
-    if( !is.null(rv$current.obj@experimentData@other$normalizationFamily)
-        && !is.null(rv$current.obj@experimentData@other$normalizationMethod)) { 
-        family <- rv$current.obj@experimentData@other$normalizationFamily
-        method <- rv$current.obj@experimentData@other$normalizationMethod
-        m <- paste(family, method, sep=" - ")
-    }
-    if (GetNbNA() == 0){
-    choices <- normMethods
-    } else {
-    choices <- normMethods
-    } 
-    
-    selectInput("normalization.method", 
-                "Choose normalization method", 
-                names(choices), 
-                selected = m)
-})
 
 
-# Check boxes
-output$choose_Normalization_2 <- renderUI({
-    input$normalization.family
-    if(is.null(input$normalization.family) || 
-        ( input$normalization.family == "None"))
-    return()
-    
-    outVar <- normalization.methods[[which(names(normalization.methods) == 
-                                            input$normalization.family)]]
-    selectInput("normalization.method", "Choose normalization method",
-                choices  = outVar)
-})
 
 
 #------------------------------------------------------
@@ -2978,14 +3108,14 @@ output$viewComparisonNorm<- renderPlot({
 ##' distribution of the variance in current.obj
 ##' 
 ##' @author Samuel Wieczorek
-output$viewDistVariance <- renderPlot({
+output$viewDistCV <- renderPlot({
 
         rv$current.obj
         
         if (is.null(rv$current.obj)) {return(NULL)}
         result = tryCatch(
             {
-                wrapper.varianceDistD(rv$current.obj)
+                wrapper.CVDistD(rv$current.obj)
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
@@ -3401,6 +3531,152 @@ observeEvent(rv$current.obj,{
 
 
 
+
+
+# output$text <- renderText({
+#     input$eventPointClicked
+#     if (is.null(input$eventPointClicked)){return (NULL)}
+#     t <- unlist(input$eventPointClicked)
+#    # print(th3(paste(t[1], t[2], sep=" "))
+# })
+
+# observeEvent(input$eventPointClicked, {
+#     outputText <<- paste0("You clicked on series ", input$eventPointClicked[1],".") 
+#     rv$current.obj
+#     
+#     data <- rv$current.obj@experimentData@other$isMissingValues[input$eventPointClicked,]
+#     print("data = ")
+#     print(str(data))
+#     print(data)
+#     rv$indexNA <-  which(data==1)
+#     print("index")
+#     print(which(data==1))
+#     print("indexNA")
+#     print(rv$îndexNA)
+#     rv$indexNA
+#     print("_____")
+# })
+
+
+# getIndexNA <- reactive({
+#     input$eventPointClicked
+#     rv$current.obj
+#     
+#         
+#         data <- rv$current.obj@experimentData@other$isMissingValues[input$eventPointClicked,]
+#         print(paste("data = ", data, sep=" "))
+# 
+#         rv$indexNA <<-  which(data==1)
+#         print(paste("indexNA = ", rv$indexNA, sep=" "))
+# 
+#         rv$indexNA
+#         print("_____")
+#         
+#     rv$indexNA
+# })
+
+
+
+output$selectTooltipInfo <- renderUI({
+    rv$current.obj
+    
+    #selectInput("tooltipInfo", "Select the info you want to see", choices = colnames(fData(rv$current.obj)))
+    selectizeInput("tooltipInfo",
+                   label = "Select the info you want to see",
+                   choices = colnames(fData(rv$current.obj)),
+                   multiple = TRUE, width='500px')
+})
+
+getDataInfosVolcano <- reactive({
+    rv$current$obj
+    input$eventPointClicked
+    
+    test.table <- data.frame(lapply(Biobase::exprs(rv$current.obj)[as.character(input$eventPointClicked),], function(x) t(data.frame(x))))
+    rownames(test.table) <- input$eventPointClicked 
+    test.table <- round(test.table, digits=3)
+    test.table
+})
+
+
+
+output$infosVolcanoTable <- DT::renderDataTable({
+    rv$current.obj
+    input$eventPointClicked
+   
+    if (is.null(input$eventPointClicked)){return(NULL)}
+    
+    data <- rv$current.obj@experimentData@other$isMissingValues[input$eventPointClicked,]
+    id <-  which(data==1)
+    if (length(id) == 0){
+        dat <- DT::datatable(getDataInfosVolcano(), 
+                             options=list(dom='t',ordering=F))
+        } else {
+            dat <- DT::datatable(getDataInfosVolcano(), 
+                         options=list(dom='t',
+                                      ordering=F
+                                      ,drawCallback=JS(
+                                          paste("function(row, data) {",
+                                                paste(sapply(1:ncol(getDataInfosVolcano()),function(i)
+                                                    paste( "$(this.api().cell(",id %% nrow(getDataInfosVolcano()),",",id / nrow(getDataInfosVolcano()),").node()).css({'background-color': 'lightblue'});")
+                                                ),collapse = "\n"),"}" ))
+                                      ,server = FALSE))
+        }
+    return(dat)
+
+   })
+
+
+
+output$volcanoplot_rCharts <- renderHighchart({
+    rv$seuilPVal
+    rv$seuilLogFC
+    input$condition1
+    input$condition2
+    input$diffAnaMethod
+    rv$resAnaDiff
+    rv$current.obj
+    input$tooltipInfo
+    
+    if (is.null(input$condition1) || is.null(input$condition2) ||
+        is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+        (input$condition1 == input$condition2) ||
+        (length(rv$resAnaDiff$logFC) == 0) || is.null(rv$current.obj)) { return(NULL)}
+    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
+    
+    cond <- c(input$condition1, input$condition2)
+    result = tryCatch(
+        {
+            df <- data.frame(x=rv$resAnaDiff$logFC, 
+                             y = -log10(rv$resAnaDiff$P.Value),
+                             index = as.character(rownames(rv$current.obj)),
+                             stringsAsFactors = FALSE)
+            df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+          colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+          if (ncol(df) > 3){
+              colnames(df)[4:ncol(df)] <- paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+          }
+            hc_clickFunction <- JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
+            
+            diffAnaVolcanoplot_rCharts(df,
+                                       threshold_logFC = rv$seuilLogFC,
+                                       conditions = cond,
+                                       clickFunction=hc_clickFunction) 
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+    
+})   
+
+
+
+
 output$volcanoplot <- renderPlot({
         rv$seuilPVal
         rv$seuilLogFC
@@ -3420,10 +3696,12 @@ output$volcanoplot <- renderPlot({
         cond <- c(input$condition1, input$condition2)
         result = tryCatch(
             {
-                diffAnaVolcanoplot(logFC = rv$resAnaDiff$logFC, 
-                                   pVal = rv$resAnaDiff$P.Value, 
-                                   threshold_logFC = rv$seuilLogFC,
-                                   conditions = cond)
+                 diffAnaVolcanoplot(logFC = rv$resAnaDiff$logFC, 
+                                    pVal = rv$resAnaDiff$P.Value, 
+                                    threshold_logFC = rv$seuilLogFC,
+                                    conditions = cond)
+                
+                
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
@@ -3436,6 +3714,121 @@ output$volcanoplot <- renderPlot({
         
     })   
     
+
+
+output$volcanoplot_rCharts_Step3 <- renderHighchart({
+    rv$current.obj
+    rv$seuilPVal
+    rv$seuilLogFC
+    input$condition1
+    input$condition2
+    input$diffAnaMethod
+    rv$resAnaDiff
+    
+
+            
+            
+            if (is.null(input$condition1) || is.null(input$condition2) ||
+                is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+                is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
+                (input$condition1 == input$condition2) ||
+                (length(rv$resAnaDiff$logFC) == 0) ||  is.null(rv$current.obj)) { return(NULL)}
+            if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)} 
+            cond <- c(input$condition1, input$condition2)
+            result = tryCatch(
+                {
+                    
+                          if ("logFC" %in% names(fData(rv$current.obj) )){
+                         df <- data.frame(x=fData(rv$current.obj)$logFC, 
+                                         y = -log10(fData(rv$current.obj)$P.Value),
+                                         index = as.character(rownames(rv$current.obj)),
+                                         , stringsAsFactors = FALSE)
+                        
+                        df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+                        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+                        if (ncol(df) > 3){
+                            colnames(df)[4:ncol(df)] <- paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+                        }
+                        hc_clickFunction <- JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
+                        
+                        diffAnaVolcanoplot_rCharts(df,
+                                                   threshold_logFC = rv$current.obj@experimentData@other$threshold.logFC,
+                                                   threshold_pVal = rv$current.obj@experimentData@other$threshold.p.value,
+                                                   conditions = c(rv$current.obj@experimentData@other$condition1,
+                                                                  rv$current.obj@experimentData@other$condition2),
+                                                   clickFunction=hc_clickFunction)
+                        
+                        
+                    }else{
+                        cond <- c(input$condition1, input$condition2)
+                        
+                        df <- data.frame(x=rv$resAnaDiff$logFC, 
+                                         y = -log10(rv$resAnaDiff$P.Value),
+                                         index = as.character(rownames(rv$current.obj)),
+                                         stringsAsFactors = FALSE)
+                        df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+                        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+                        if (ncol(df) > 3){
+                            colnames(df)[4:ncol(df)] <- paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+                        }
+                        hc_clickFunction <- JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
+                        
+                        diffAnaVolcanoplot_rCharts(df,
+                                                   threshold_logFC = rv$seuilLogFC,
+                                                   conditions = cond,
+                                                   clickFunction=hc_clickFunction)
+                    }
+                }
+                , warning = function(w) {
+                    shinyjs::info(conditionMessage(w))
+                }, error = function(e) {
+                    shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                }, finally = {
+                    #cleanup-code 
+                })
+            
+})   
+
+
+
+getDataInfosVolcano_Step3 <- reactive({
+    rv$current$obj
+    input$eventPointClicked
+    
+    test.table <- data.frame(lapply(Biobase::exprs(rv$current.obj)[as.character(input$eventPointClicked),], function(x) t(data.frame(x))))
+    rownames(test.table) <- input$eventPointClicked
+    test.table <- round(test.table, digits=3)
+    test.table
+    
+    
+})
+
+
+output$infosVolcanoTableStep3 <- renderDataTable({
+    rv$current.obj
+    input$eventPointClicked
+    
+    if (is.null(input$eventPointClicked)){return(NULL)}
+    
+    data <- rv$current.obj@experimentData@other$isMissingValues[input$eventPointClicked,]
+    id <-  which(data==1)
+    if (length(id) == 0){
+        dat <- DT::datatable(getDataInfosVolcano_Step3(), 
+                             options=list(dom='t',ordering=F))
+    } else {
+        dat <- DT::datatable(getDataInfosVolcano_Step3(), 
+                             options=list(dom='t',
+                                          ordering=F
+                                          ,drawCallback=JS(
+                                              paste("function(row, data) {",
+                                                    paste(sapply(1:ncol(getDataInfosVolcano_Step3()),function(i)
+                                                        paste( "$(this.api().cell(",id %% nrow(getDataInfosVolcano_Step3()),",",id / nrow(getDataInfosVolcano_Step3()),").node()).css({'background-color': 'lightblue'});")
+                                                    ),collapse = "\n"),"}" ))
+                                          ,server = FALSE))
+    }
+    return(dat)
+
+   } )
 
 
 
@@ -3512,7 +3905,7 @@ output$aboutText <- renderUI({
     busyIndicator("Calculation in progress",wait = 0)
     
     t <- sessionInfo()
-    daparVersion <- t$otherPkgs$DAPAR$Version
+    daparVersion <- installed.packages()["DAPAR","Version"]
     ProstarVersion <- installed.packages()["Prostar","Version"]
     
     
@@ -3631,11 +4024,7 @@ output$showSelectedItems <- DT::renderDataTable({
         }, finally = {
             #cleanup-code 
         })
-    
-    
-    
 
-    
 })
 
 isContainedIn <- function(strA, strB){
@@ -4037,8 +4426,6 @@ observeEvent(input$perform.filtering.Contaminants,{
     if (input$perform.filtering.Contaminants == 0){return(NULL)}
     
     isolate({
-
-        
         result = tryCatch(
             {
                 temp <- rv$current.obj
@@ -4522,86 +4909,6 @@ output$DS_PlotHeatmap <- renderUI({
 })
 
 
-output$helpForNormalizationMethods <- renderUI({
-    input$normalization.method
-    rv$typeOfDataset
-    if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
-    toto <- input$normalization.method
-    
-    
-    switch(input$normalization.method,
-            "Global Rescaling - sum by columns" = {
-t <- paste("Each abundance value is divided by the total of the abundance 
-values in the same replicate. This normalization  <br> 
-is interesting to compare the proportions of a given", rv$typeOfDataset, "in 
-different replicates that do not necessarily contain  <br> the same amount of 
-biological material. Contrarily to the others, this normalization is not
-performed on the log2 scale  <br> (for it would not have any interpretation), 
-but on the real intensity scale: the data are thus exponentiated first, 
-normalize, <br> and finally re-log2-transformed.", sep=" ")},
-
-            "Global Rescaling - quantiles" = {
-t <- paste("The log-abundances are normalized by the quantile method (from R 
-package preprocessCore). Roughly, the abundance  <br> 
-values are replaced by their order statics. This normalization is the 
-strongest one available, and it should be use <br> 
-carefully, for it leads to a strong loss of information, making all the 
-replicates rather similar.", sep=" ")},
-
-            "Median Centering - overall" = {
-t <- "The medians of the replicates are aligned. To do so, the median of each 
-replicate is computed and subtracted to each <br>
-abundance value. Then, the means of all the medians (over all the conditions) 
-is added, so as to roughly find back <br> 
-the original range of values. As a result, any global shift of the abundance 
-range between the conditions is suppressed. <br>
-Note that all these computations are performed on the log scale"},
-            
-            "Median Centering - within conditions" = {
-t <- "The medians of the replicates are aligned. To do so, the median of each 
-replicate is computed and subtracted to each abundance <br>
-value. Then, the means of all the medians (within each condition) is added, so 
-as to roughly find back the original range of values. <br>
-As a result, global shift of the abundance range between the conditions 
-remains un-normalized. Note that all these computations <br>
-are performed on the log scale."},
-            
-            "Mean Centering - overall" = {
-t <- "The means of the replicates are aligned. To do so, the mean of each 
-replicate is computed and subtracted to each abundance value. <br>
-Then, the means of all the means (over all the conditions) is added, so as to 
-roughly find back the original range of values. <br>
-As a result, any global shift of the abundance range between the conditions 
-is suppressed. Note that all these computations <br>
-are performed on the log scale."},
-            
-            "Mean Centering - within conditions" = {
-t <- "The means of the replicates are aligned. To do so, the means of each 
-replicate is computed and subtracted to each abundance value. <br>
-Then, the means of all the means (within each condition) is added, so as to 
-roughly find back the original range of values. As a result, <br>
-global shift of the abundance range between the conditions remains 
-un-normalized. Note that all these computations are performed on the log 
-scale."},
-            
-            
-            "Mean Centering Scaling - overall" = {
-t <- "Same as \"Mean Centering – overall\", however, in addition, the variance 
-of the distribution of each replicate is re-scaled to 1. <br>
-This normalization only applies to dataset where log-abundance values are 
-normally distributed along each replicate."},
-            
-            "Mean Centering Scaling - within conditions" = {
-t <- "Same as \"Mean Centering – within conditions\", however, in addition, 
-the variance of the distribution of each replicate is re-scaled <br>
-to 1. This normalization only applies to dataset where log-abundance values 
-are normally distributed along each replicate."},
-
-stop("Enter something that switches me!")
-)
-    
-    HTML(t)
-})
 
 
 
@@ -4687,8 +4994,8 @@ output$MVI_options <- renderUI({
                   condition = 'true',
                   h4("Imputation options"),
                   #uiOutput("warningAgregationMethod"),
-                  numericInput("imp4p_eps", "Max imputated value", value = 2, min = 0),
-                  numericInput("imp4p_nbiter", "Number of iterations", value = 3, step=1, min=1),
+                  numericInput("imp4p_eps", "Max imputated value (eps)", value = 2, min = 0),
+                  numericInput("imp4p_nbiter", "Number of iterations (nb.iter)", value = 3, step=1, min=1),
                   checkboxInput("imp4p_withLapala", "with Lapala", value = FALSE)
               )
 }
@@ -4788,38 +5095,328 @@ observeEvent(input$perform.imputation.button,{
 })
 
 
+###########################################################################
+###########################################################################
+###########################################################################
+##            NORMALIZATION FUNCTIONS                                    ##
+###########################################################################
+###########################################################################
+
+output$helpForNormalizationMethods <- renderUI({
+    input$normalization.method
+    rv$typeOfDataset
+    if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
+    toto <- input$normalization.method
+    
+    
+    switch(input$normalization.method,
+           "Global Rescaling - sum by columns" = {
+               t <- paste("Each abundance value is divided by the total of the abundance 
+                          values in the same replicate. This normalization  <br> 
+                          is interesting to compare the proportions of a given", rv$typeOfDataset, "in 
+                          different replicates that do not necessarily contain  <br> the same amount of 
+                          biological material. Contrarily to the others, this normalization is not
+                          performed on the log2 scale  <br> (for it would not have any interpretation), 
+                          but on the real intensity scale: the data are thus exponentiated first, 
+                          normalize, <br> and finally re-log2-transformed.", sep=" ")},
+           
+           "Global Rescaling - quantiles" = {
+               t <- paste("The log-abundances are normalized by the quantile method (from R 
+                          package preprocessCore). Roughly, the abundance  <br> 
+                          values are replaced by their order statics. This normalization is the 
+                          strongest one available, and it should be use <br> 
+                          carefully, for it leads to a strong loss of information, making all the 
+                          replicates rather similar.", sep=" ")},
+           
+           "Median Centering - overall" = {
+               t <- "The medians of the replicates are aligned. To do so, the median of each 
+               replicate is computed and subtracted to each <br>
+               abundance value. Then, the means of all the medians (over all the conditions) 
+               is added, so as to roughly find back <br> 
+               the original range of values. As a result, any global shift of the abundance 
+               range between the conditions is suppressed. <br>
+               Note that all these computations are performed on the log scale"},
+           
+           "Median Centering - within conditions" = {
+               t <- "The medians of the replicates are aligned. To do so, the median of each 
+               replicate is computed and subtracted to each abundance <br>
+               value. Then, the means of all the medians (within each condition) is added, so 
+               as to roughly find back the original range of values. <br>
+               As a result, global shift of the abundance range between the conditions 
+               remains un-normalized. Note that all these computations <br>
+               are performed on the log scale."},
+           
+           "Mean Centering - overall" = {
+               t <- "The means of the replicates are aligned. To do so, the mean of each 
+               replicate is computed and subtracted to each abundance value. <br>
+               Then, the means of all the means (over all the conditions) is added, so as to 
+               roughly find back the original range of values. <br>
+               As a result, any global shift of the abundance range between the conditions 
+               is suppressed. Note that all these computations <br>
+               are performed on the log scale."},
+           
+           "Mean Centering - within conditions" = {
+               t <- "The means of the replicates are aligned. To do so, the means of each 
+               replicate is computed and subtracted to each abundance value. <br>
+               Then, the means of all the means (within each condition) is added, so as to 
+               roughly find back the original range of values. As a result, <br>
+               global shift of the abundance range between the conditions remains 
+               un-normalized. Note that all these computations are performed on the log 
+               scale."},
+           
+           
+           "Mean Centering Scaling - overall" = {
+               t <- "Same as \"Mean Centering – overall\", however, in addition, the variance 
+               of the distribution of each replicate is re-scaled to 1. <br>
+               This normalization only applies to dataset where log-abundance values are 
+               normally distributed along each replicate."},
+           
+           "Mean Centering Scaling - within conditions" = {
+               t <- "Same as \"Mean Centering – within conditions\", however, in addition, 
+               the variance of the distribution of each replicate is re-scaled <br>
+               to 1. This normalization only applies to dataset where log-abundance values 
+               are normally distributed along each replicate."},
+           
+           "Quantile Centering" = { t <- "Quantile Centering"}
+               )
+    
+    HTML(t)
+           })
+
+
+
+
+output$choose_normalizationQuantile <- renderUI({
+    rv$current.obj
+    input$normalization.method
+    if (is.null(rv$current.obj)) { return (NULL)}
+    if (is.null(input$normalization.method)) { return (NULL)}
+    
+    
+    if (input$normalization.method == "Quantile Centering"){
+        # check if the normalisation has already been performed
+        quantileChoices <- list("0.15 (noise)"="0.15", "0.5 (median)" = "0.15", "Other"="Other")
+        quantileSelected <- 0.15
+        if(!is.null(rv$current.obj@experimentData@other$normalizationQuantile)) { 
+            quantileSelected <- as.numeric(rv$current.obj@experimentData@other$normalizationQuantile)
+        }
+
+        
+        radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=quantileSelected)
+    }
+    
+    
+    
+})
+
+
+output$choose_normalizationQuantileOther <- renderUI({
+    input$normalization.quantile
+    if (is.null(input$normalization.quantile)){return(NULL)}
+    
+    
+    quantileOther <- 0.15
+    if(!is.null(rv$current.obj@experimentData@other$normalizationQuantileOther)) { 
+        quantileOther <- rv$current.obj@experimentData@other$normalizationQuantileOther
+    }
+    
+    if (input$normalization.quantile == "Other"){
+        numericInput("normalization.quantileOther", "Choose normalization quantile other",
+                     min=0, max = 1 , value = quantileOther,
+                     step = 0.1)
+        
+    }
+    
+})
+
+
+output$choose_normalizationScaling <- renderUI({
+    rv$current.obj
+    input$normalization.method
+    if (is.null(rv$current.obj)) { return (NULL)}
+    if (is.null(input$normalization.method)) { return (NULL)}
+    
+    
+    if (input$normalization.method %in% c("Mean Centering")){
+        # check if the normalisation has already been performed
+        scaling <- FALSE
+        if(!is.null(rv$current.obj@experimentData@other$normalizationScaling)) { 
+            scaling <- rv$current.obj@experimentData@other$normalizationScaling
+        }
+        
+        # if (GetNbNA() == 0){
+        #     choices <- c("overall", "within conditions")
+        # } else {
+        #     choices <- c("overall", "within conditions")
+        # } 
+        # 
+        checkboxInput("normalization.scaling", "Choose normalization scaling",  value = scaling)
+    }
+    
+})
+
+output$choose_normalizationType <- renderUI({
+    rv$current.obj
+    input$normalization.method
+    if (is.null(rv$current.obj)) { return (NULL)}
+    if (is.null(input$normalization.method)) { return (NULL)}
+    if (input$normalization.method == "None") { return (NULL)}
+    
+    
+     
+    if (input$normalization.method %in% c("Quantile Centering", "Mean Centering")){
+        
+        # check if the normalisation has already been performed
+        type <- c("overall", "within conditions")
+        typeSelected <- NULL
+        if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
+            typeSelected <- rv$current.obj@experimentData@other$normalizationType
+        }
+        # if (GetNbNA() == 0){
+        #     choices <- c("overall", "within conditions")
+        # } else {
+        #     choices <- c("overall", "within conditions")
+        # } 
+        # 
+        
+    } else if (input$normalization.method %in% c("Global Rescaling")){
+        type <- c("sum by columns", "quantiles")
+        if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
+            typeSelected <- rv$current.obj@experimentData@other$normalizationType
+        }
+    }
+    selectInput("normalization.type", "Choose normalization type",  choices = type, selected = typeSelected)
+})
+
+
+
+output$choose_Normalization_Test <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) { return (NULL)}
+    
+    # check if the normalisation has already been performed
+    method <- normMethods
+    methodSelected <- NULL
+    if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) { 
+        methodSelected <- rv$current.obj@experimentData@other$normalizationMethod
+    }
+print("method")
+print(method)
+print("methodSelected")
+print(methodSelected)
+    selectInput("normalization.method","Choose normalization method", method, selected = methodSelected)
+})
+
+
+# Check boxes
+# output$choose_Normalization_2 <- renderUI({
+#     input$normalization.family
+#     if(is.null(input$normalization.family) || 
+#         ( input$normalization.family == "None"))
+#     return()
+#     
+#     outVar <- normalization.methods[[which(names(normalization.methods) == 
+#                                             input$normalization.family)]]
+#     selectInput("normalization.method", "Choose normalization method",
+#                 choices  = outVar)
+# })
+
+
+
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
     # input$perform.normalization
     # input$normalization.method
-    #if (is.null(input$perform.normalization) ){return(NULL)}
+    if (is.null(input$perform.normalization) ){return(NULL)}
     #if (input$perform.normalization == 0){return(NULL)}
+    
     
     isolate({
         result = tryCatch(
             {
-
-                .temp <- unlist(strsplit(input$normalization.method, " - "))
+                # input$normalization.quantile
+                # input$normalization.quantileOther
+                # input$normalization.scaling
+                # input$normalization.type
+                # input$normalization.method
+                # 
                 
-                if (.temp[1] == "None"){
+                #.temp <- unlist(strsplit(input$normalization.method, " - "))
+                
+                if (input$normalization.method == "None"){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
-                    rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                         .temp[1], 
-                                                         .temp[2])
-                    updateSelectInput(session, "normalization.method", 
-                                      selected = input$normalization.method)
+                    
+                    if (input$normalization.method == "Global Rescaling"){
+                        rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
+                                                              input$normalization.method, 
+                                                              input$normalization.type)
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                        
+                        ## Write command log file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.normalizeD2(",
+                                  "dataset[['",
+                                  input$datasets, 
+                                  "']],'",input$normalization.method, "','", input$normalization.type,"')",
+                                  sep="")
+                        )
+                    }
+                     else if (input$normalization.method =="Quantile Centering"){
+                         
+                         
+                         quant <-NA
+                         if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
+                         {quant <- as.numeric(input$normalization.quantile)}
+                         else {quant <- as.numeric(input$normalization.quantileOther)}
+                         rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
+                                                               input$normalization.method, 
+                                                               input$normalization.type, 
+                                                               quantile = quant)
+                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                         if (!is.null(input$normalization.quantile)){
+                             updateRadioButtons(session, "normalization.quantile", selected = input$normalization.quantile)}
+                         
+                         if (!is.null(input$normalization.quantileOther)){
+                             updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)}
+                         
+                         ## Write command log file
+                         writeToCommandLogFile(
+                             paste("current.obj <- wrapper.normalizeD2(",
+                                   "dataset[['",
+                                   input$datasets, 
+                                   "']],'",input$normalization.method, "','", input$normalization.type,
+                                   "', quant =", quant,")",
+                                   sep="")
+                         )
+                         
+                     }   
+                    else if (input$normalization.method =="Mean Centering"){
+                        rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
+                                                              input$normalization.method, 
+                                                              input$normalization.type, 
+                                                              scaling=input$normalization.scaling)
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                        scale <- FALSE
+                        if( !is.null(input$normalization.scaling)){scale <- input$normalization.scaling}
+                        
+                        ## Write command log file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.normalizeD2(",
+                                  "dataset[['",
+                                  input$datasets, 
+                                  "']],'",input$normalization.method, "','", input$normalization.type,
+                                  "', scaling =", input$normalization.scaling,")",
+                                  sep="")
+                        )
+                    } 
                     
                     
-                    ## Write command log file
-                    writeToCommandLogFile(
-                        paste("current.obj <- wrapper.normalizeD(",
-                              "dataset[['",
-                              input$datasets, 
-                              "']],'",.temp[1], "','", .temp[2],"')",
-                              sep="")
-                    )
+                    
                 }
             }
             , warning = function(w) {
@@ -4834,6 +5431,53 @@ observeEvent(input$perform.normalization,{
     })
 })
 
+
+##' -- Validate the normalization ---------------------------------------
+##' @author Samuel Wieczorek
+observeEvent(input$valid.normalization,{ 
+    
+    input$normalization.method
+    if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
+    {return(NULL)}
+    
+    isolate({
+        result = tryCatch(
+            {
+                if (input$normalization.method != "None") {
+                    
+                    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                    name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
+                    rv$dataset[[name]] <- rv$current.obj
+                    
+                    
+                    #write command log file
+                    writeToCommandLogFile(
+                        paste("dataset[['",name,"']] <- current.obj", sep="")
+                    )
+                    
+                    updateSelectInput(session, "datasets", 
+                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                      choices = names(rv$dataset),
+                                      selected = name)
+                    UpdateLog(paste("Normalization : data normalized with the method",
+                                    input$normalization.method, sep=" "), name)
+                }
+            }
+            , warning = function(w) {
+                shinyjs::info(conditionMessage(w))
+            }, error = function(e) {
+                shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+    } )
+})
+
+
+###########################################################################
+###########################################################################
+###########################################################################
 
 
 
@@ -4902,6 +5546,21 @@ output$AggregationWellPanel_Step1 <- renderUI({
     }
 })
 
+
+
+output$displayNbPeptides <- renderUI({
+    input$filterProtAfterAgregation
+    if (is.null(input$filterProtAfterAgregation)){return (NULL) }
+    
+    if (input$filterProtAfterAgregation) {
+        numericInput("nbPeptides", "Nb of peptides defining a protein", 
+                     value = 0, min =0, step=1,
+                     width = "250px")
+    }
+})
+
+
+
 output$Aggregation_Step2 <- renderUI({
     
     rv$current.obj
@@ -4910,7 +5569,19 @@ output$Aggregation_Step2 <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
         conditionalPanel(
                      condition = 'true',
-    helpText("Select the columns of the meta-data (related to proteins) that 
+                     fluidRow(
+                         column(width=3,
+                                checkboxInput("filterProtAfterAgregation",
+                                              "Filtering : remove the proteins that are defined by less than n peptides.",
+                                              value = FALSE)
+                         ),
+                         column(width=4,uiOutput("displayNbPeptides")
+                         )
+                         
+                     ),
+
+
+helpText("Select the columns of the meta-data (related to proteins) that 
             have to be recorded in the new protein dataset."),
     div(class="row"),
     div(class="span5", "",
@@ -4921,7 +5592,7 @@ output$Aggregation_Step2 <- renderUI({
                                 "Save aggregation", 
                                 styleclass = "primary")
             )
-        )
+        ) 
         
     )
     )

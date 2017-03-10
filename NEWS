@@ -1,3 +1,25 @@
+    CHANGES IN VERSION 1.7.13
+------------------------ 
+
+NEW FEATURES
+    * The normalization function has been modified to take into account the quantile normalization. Only works with DAPAR version >= 1.7.13. Back compatibilty with previous versions
+    
+    
+    CHANGES IN VERSION 1.7.11
+------------------------ 
+
+NEW FEATURES
+    * In the Desctiptive statistics panel, The NA values are colored in the table of quantitative data
+    
+    
+    CHANGES IN VERSION 1.7.9
+------------------------ 
+
+NEW FEATURES
+    * In the Desctiptive statistics panel, the variance distribution plot has been replaced by
+    a CV distribution plot
+        
+        
     CHANGES IN VERSION 1.7.7
 ------------------------ 
 

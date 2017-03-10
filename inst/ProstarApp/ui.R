@@ -9,6 +9,25 @@ library(rhandsontable)
 library(data.table)
 library(shinyjs)
 library(shinyAce)
+library(highcharter)
+
+
+
+appCSS <- "
+#loading-content {
+position: absolute;
+background: #000000;
+opacity: 0.3;
+z-index: 100;
+left: 0;
+right: 0;
+height: 100%;
+text-align: center;
+color: #FFFFFF;
+}
+"
+
+
 
 
 heightSidebarPanel <- "600px"
@@ -117,15 +136,28 @@ tags$head(
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- tagList(
-
+    useShinyjs(),
+    #,tags$head(includeScript("google-analytics.js"))
+    #,tags$head(includeScript("piwik.js"))
+    
+    inlineCSS(appCSS),
+    
+    # Loading message
+    div(
+        br(),br(),br(),br(),br(),br(),
+        id = "loading-content",
+        h2("Prostar is loading, please wait...")
+    ),
+    # 
+    # hidden(
+    #     div(
+    #         id = "app-content",
+    #         
+    
 titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
-,useShinyjs()
-#,tags$head(includeScript("google-analytics.js"))
-#,tags$head(includeScript("piwik.js"))
-
 
 
 ,uiOutput("disableAggregationTool")
@@ -440,11 +472,11 @@ tabPanel("Descriptive statistics",
             ),
 
             #-----------------------------------------------------------
-            tabPanel("Variance distr.", 
+            tabPanel("CV distr.", 
                 value="DS_tabDistVar",
                 p("This graphics shows, for each condition, the distribution 
-                    of the variance of the log-intensities."),
-                plotOutput("viewDistVariance",
+                    of the CV of the log-intensities."),
+                plotOutput("viewDistCV",
                     width = plotWidth,
                     height = plotHeight)
             )
@@ -474,7 +506,7 @@ contain a certain amount of quantitative data rather than NA values. <br>
 The threshold to define corresponds to the number of quantitative values in a 
 line and means that the lines which contain <br> at least this threshold value 
 are kept. This filtering threshold may be applied on the whole  dataset, on 
-each condition <br> or on at leat one condition."),
+each condition <br> or on at least one condition."),
                         fluidRow(
                             column(width = 4, 
                                    plotOutput("histoMV_Image")
@@ -526,6 +558,10 @@ each condition <br> or on at leat one condition."),
                 ,height = "100%"
                 ,h4("Normalization options")
                 ,uiOutput("choose_Normalization_Test")
+                ,uiOutput("choose_normalizationType")
+                ,uiOutput("choose_normalizationScaling")
+                ,uiOutput("choose_normalizationQuantile")
+                ,uiOutput("choose_normalizationQuantileOther")
                 ,checkboxInput("plotOptions", "Show plot options", 
                                 value = FALSE)
                 ,actionButton("perform.normalization", 
@@ -643,8 +679,13 @@ tabPanel("Differential analysis",
                     ),
                 conditionalPanel(id = "wellPanel_DifferentialAnalysisTab1",
                     condition = "true",
-                    uiOutput("nbSelectedItems"),
-                    plotOutput("volcanoplot", height="500px", width="600px")
+                    fluidRow(
+                        column(width=6, uiOutput("nbSelectedItems")),
+                        column(width=6, uiOutput("selectTooltipInfo"))),
+                    DT::dataTableOutput("infosVolcanoTable"),
+                    #plotOutput("volcanoplot", height="500px", width="600px")
+                    highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+                   
                 )
             )
         ),
@@ -687,9 +728,12 @@ tabPanel("Differential analysis",
                         column(width= 4, htmlOutput("equivPVal")),
                         column(width= 4, htmlOutput("showFDR"))
                     ),
-                    plotOutput("volcanoplotStep3", 
-                                height="500px",
-                                width="600px")
+                    DT::dataTableOutput("infosVolcanoTableStep3"),
+                    #plotOutput("volcanoplot", height="500px", width="600px")
+                    highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
+                    
+                    
+                   # plotOutput("volcanoplotStep3",height="500px",width="600px")
                 )
             )
         ), # end tabPanel(title = "3 - Visualize FDR"
@@ -720,6 +764,7 @@ tabPanel("Help",
     )
 
 )
-
+#)
+#)
 )
 

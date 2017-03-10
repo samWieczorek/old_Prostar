@@ -39,29 +39,10 @@ pData.complete.list <- list("Label" = "Label",
 
 
 normMethods <- list("None" = "None",
-                    "Global Rescaling - sum by columns" = 
-                    "Global Rescaling - sum by columns",
-                    
-                    "Global Rescaling - quantiles" =  
-                    "Global Rescaling - quantiles",
-                    
-                    "Median Centering - overall" = 
-                    "Median Centering - overall",
-                    
-                    "Median Centering - within conditions" = 
-                    "Median Centering - overall",
-                    
-                    "Mean Centering - overall" = 
-                    "Mean Centering - overall", 
-                    
-                    "Mean Centering - within conditions" = 
-                    "Mean Centering - within conditions", 
-                    
-                    "Mean Centering Scaling - overall" = 
-                    "Mean Centering Scaling - overall",
-                    
-                    "Mean Centering Scaling - within conditions" = 
-                    "Mean Centering Scaling - within conditions")
+                    "Global Rescaling" = "Global Rescaling",
+                    "Quantile Centering" = "Quantile Centering",
+                    "Mean Centering" = "Mean Centering" 
+ )
 
 
 imputationAlgorithms <- list("None" = "None",

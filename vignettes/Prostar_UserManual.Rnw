@@ -198,17 +198,22 @@ directory.\newline
 \shellcmd{unzip Prostar\_xxxx.tar.gz}
 \shellcmd{cd Prostar/R}\newline
 
-Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory and then copy 
-the 3 files: ui.R, global.R and server.R.\newline
-\shellcmd{sudo mkdir /srv/shiny-server/Prostar}
-\shellcmd{sudo cp R/ui.R /srv/shiny-server/Prostar/.}
-\shellcmd{sudo cp R/global.R /srv/shiny-server/Prostar/.}
-\shellcmd{sudo cp R/server.R /srv/shiny-server/Prostar/.}\newline
+Change the owner of the shiny-server directory and log as shiny
+\shellcmd{sudo chown shiny /srv/shiny-server}
+\shellcmd{su shiny}\newline
+
+
+Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with the user shiny as owner and then copy the 3 files: ui.R, global.R and server.R.\newline
+\shellcmd{mkdir /srv/shiny-server/Prostar}
+\shellcmd{chown -R shiny /srv/shiny-server/Prostar}
+\shellcmd{cp R/ui.R /srv/shiny-server/Prostar/.}
+\shellcmd{cp R/global.R /srv/shiny-server/Prostar/.}
+\shellcmd{cp R/server.R /srv/shiny-server/Prostar/.}\newline
 
 Then, complete the installation by copying the 'www' directory of 
-\Biocpkg{ProStaR} and giving the followinf permissions:\newline
-\shellcmd{sudo cp -R inst/extdata/www /srv/shiny-server/Prostar/.}
-\shellcmd{sudo chmod 755 /srv/shiny-server/Prostar/www}\newline
+\Biocpkg{ProStaR} and giving the following permissions:\newline
+\shellcmd{cp -R inst/extdata/www /srv/shiny-server/Prostar/.}
+\shellcmd{chmod 755 /srv/shiny-server/Prostar/www}\newline
 \newline
 Check if the configuration file of shiny-server is correct.\newline
 For more details, please visit 
