@@ -169,7 +169,7 @@ biocLite("Prostar")
 This step will automatically install the following packages: \CRANpkg{shiny}, 
 \CRANpkg{reshape2}, \Githubpkg{jrowen/rhandsontable}, \CRANpkg{DAPARdata}, 
 \CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}, \CRANpkg{sm}, \CRANpkg{openxlsx},
-\CRANpkg{shinyAce}.
+\CRANpkg{shinyAce}, \CRANpkg{highcharter}.
 
 Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
 << runProstarStandalone>>=
@@ -190,25 +190,22 @@ The first step is to install \Biocpkg{Prostar} as described in
 Section~\ref{sec:daparProstarstandalone} in order to have the dependencies 
 installed.
 
+Then, execute the following line in order to get the install directory of Prostar:
 
-In the sequel, we suppose the directory of shiny-server is 
-\Rcode{/srv/shiny-server} (this is the default configuration of a Shiny 
-Server). In the home directory, unzip the package tarball and move to the R 
-directory.\newline
-\shellcmd{unzip Prostar\_xxxx.tar.gz}
-\shellcmd{cd Prostar/R}\newline
+<< getProstarInstallDir>>=
+installed.packages()["Prostar","LibPath"]
+@
+
 
 Change the owner of the shiny-server directory and log as shiny
 \shellcmd{sudo chown shiny /srv/shiny-server}
 \shellcmd{su shiny}\newline
 
 
-Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with the user shiny as owner and then copy the 3 files: ui.R, global.R and server.R.\newline
+Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with the user shiny as owner and then copy the Prostar files.\newline
 \shellcmd{mkdir /srv/shiny-server/Prostar}
 \shellcmd{chown -R shiny /srv/shiny-server/Prostar}
-\shellcmd{cp R/ui.R /srv/shiny-server/Prostar/.}
-\shellcmd{cp R/global.R /srv/shiny-server/Prostar/.}
-\shellcmd{cp R/server.R /srv/shiny-server/Prostar/.}\newline
+\shellcmd{cp -R prostarDir/ProstarApp/* /srv/shiny-server/ProStaR/.}
 
 Then, complete the installation by copying the 'www' directory of 
 \Biocpkg{ProStaR} and giving the following permissions:\newline
@@ -242,7 +239,8 @@ This step will automatically install the following packages:
 \CRANpkg{ggplot2}, \CRANpkg{imputeLCMD}, \CRANpkg{gplots}, \CRANpkg{openxlsx},
 \CRANpkg{knitr}, \CRANpkg{cp4p}, \CRANpkg{doParallel}, \CRANpkg{scales},
 \CRANpkg{stats}, \CRANpkg{grDevices}, \CRANpkg{vioplot}, \CRANpkg{sm}
-\CRANpkg{graphics}, \CRANpkg{utils}, \CRANpkg{parallel}, \CRANpkg{openxlsx}, \CRANpkg{Matrix}
+\CRANpkg{graphics}, \CRANpkg{utils}, \CRANpkg{parallel}, \CRANpkg{openxlsx}, \CRANpkg{Matrix},
+\CRANpkg{highcharter}
 \item {From Bioconductor}: \Biocpkg{MSnbase}, \Biocpkg{preprocessCore}, 
 \Biocpkg{impute}, \Biocpkg{limma}, \Biocpkg{pcaMethods}
 \end{itemize}
@@ -326,7 +324,15 @@ function \Rfunction{readRDS()}.
 
 {The user can find an example of MSnSet file in the installation directory 
 of \Biocpkg{DAPAR}:\newline
-\Rcode{inst/extdata/UPSpepx2.MSnSet}}
+\Rcode{inst/extdata/UPSpepx2.MSnSet}}. \newline
+
+The user can find this directory by entering:
+
+<< getProstarInstallDir>>=
+installed.packages()["DAPAR","LibPath"]
+@
+
+
 % 
 % Any user who wants to directly use \Biocpkg{DAPAR} in command line, 
 %without \Biocpkg{ProStaR} interface, may upload an MSnSet file with 
@@ -721,14 +727,14 @@ correspond to the different conditions (column \textbf{Label} in the table of
 
 %%%%%%%%%%%%%%%%%%%%%%
 
-\subsubsection{Variance distribution}
-This plot shows the distribution of the variance of the log-intensity of 
+\subsubsection{CV distribution}
+This plot shows the distribution of the CV of the log-intensity of 
 proteins for each condition (see Fig.~\ref{fig:sdvd}).
 
 \begin {figure}
 \centering
-\includegraphics[width=0.75\textwidth]{images/desc_varDist.png}
-\caption{Variance distribution for the quantitative data.}\label{fig:sdvd}
+\includegraphics[width=0.75\textwidth]{images/desc_CVDist.png}
+\caption{CV distribution for the quantitative data.}\label{fig:sdvd}
 \end {figure}
 
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the corresponding function is 
@@ -908,42 +914,65 @@ Several methods are implemented:
 \begin {description}
 %  \item \textbf{Global adjustment}:
 %    \begin {itemize}
-    \item[Sum by column] The abundance of each protein is divided by the 
-    total abundance of all the proteins in the same replicates. This 
-    normalization is interesting to compare the proportions of a given 
-    protein in different samples that do not necessarily contain the same 
-    amount of biological material. Contrarily to the others, this 
-    normalization is not performed on the log2 scale, for it would not have 
-    any interpretation (the data are thus exponentiated and 
-    re-log2-transformed as pre-and post-processing).
-    \item[Quantiles] The protein abundance are roughly replaced by the order 
-    statics on their abundance (from package \Biocpkg{preprocessCore}). This 
-    is the strongest normalization method available, and it should be use 
-    carefully, for it erazes most of the difference between the samples.
+\item[Global alignment]
+These methods propose normalizations of important magnitude that should be cautiously used:
+\begin{itemize}
+\item \textbf{sum by columns} operates on the original scale (not the log2 one) and propose to normalize each abundance by the total abundance of the sample (so as to focus on the analyte proportions among each sample).
+\item \textbf{quantile alignment} proposes to align the quantiles of all the replicates as described in [ref1]; practically it amounts to replace abundances by order statistics.\newline
+\end{itemize}
+
+
+\item[Quantile centering]
+These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align a specific quantile: the median (under the assumption that up-regulations and down-regulations are equally frequent), the 15 quantile (under the assumption that the signal/noise ratio is roughly the same in all the samples), or any other user's choice. Two parameters are available:
+\begin{itemize}
+\item \textbf{Parameter 1: } the centering can operate over the entire dataset (value "overall") or over each condition (value "within conditions"),
+\item \textbf{Value of quantile (in \%): } 0.15 (lower limit/noise), 0.5 (median) or Other (In that case, the user can choose its personal quantile value).\newline
+\end{itemize}
+
+
+\item[Mean centering]
+These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align their means. It is also possible to force unit variance (or not). Two parameters are available:
+\begin{itemize}
+\item \textbf{Parameter 1: } the centering can operate over the entire dataset (value "overall") or over each condition (value "within conditions"),
+\item \textbf{Parameter 2: } include variance reduction
+\end{itemize}
+
+    % \item[Sum by column] The abundance of each protein is divided by the 
+    % total abundance of all the proteins in the same replicates. This 
+    % normalization is interesting to compare the proportions of a given 
+    % protein in different samples that do not necessarily contain the same 
+    % amount of biological material. Contrarily to the others, this 
+    % normalization is not performed on the log2 scale, for it would not have 
+    % any interpretation (the data are thus exponentiated and 
+    % re-log2-transformed as pre-and post-processing).
+    % \item[Quantiles] The protein abundance are roughly replaced by the order 
+    % statics on their abundance (from package \Biocpkg{preprocessCore}). This 
+    % is the strongest normalization method available, and it should be use 
+    % carefully, for it erazes most of the difference between the samples.
 %    \end {itemize}
 %  \item \textbf {Adjustment by centering}:
 %  \begin {itemize}
-    \item[Mean / median centering] The central tendancies of the samples 
-    are aligned. To do so, one computes first the central tendancy (either 
-    the mean of the median, depending on the user choice) for each replicates.
-    Then, to each abundance value, one subtracts the corresponding central 
-    tendancy. Finally, one adds to this abundance value, an offset in order 
-    to find roughly back the original range of values. Depending on the 
-    user's choice, this offset can be the mean of all the central tendancies, 
-    whatever the conditions (then, any global difference between the 
-    conditions will disappear);  or it can be the mean of all the central 
-    tendancies within each conditions (then, any global difference between 
-    the conditions is preserved).
-Note that all these computations are performed on values that were originaly 
-log2-transformed.
-    \item[Mean centering and scaling] The spirit of this normalization is 
-    the same as the previous one, yet, it is stronger, and it only applies 
-    to log2-tranformed abundance values that distributes roughly normaly for 
-    each sample. Basically, a mean centering as described above is applied. 
-    Then, the variance of the distribution is re-scaled to 1. Let us note 
-    that median centering is not really adapted to a rescaling the variance; 
-    this is why such combination of parameters is not available. Once again, 
-    the centering can operate over the entire dataset, or over each condition.
+%     \item[Mean / median centering] The central tendancies of the samples 
+%     are aligned. To do so, one computes first the central tendancy (either 
+%     the mean of the median, depending on the user choice) for each replicates.
+%     Then, to each abundance value, one subtracts the corresponding central 
+%     tendancy. Finally, one adds to this abundance value, an offset in order 
+%     to find roughly back the original range of values. Depending on the 
+%     user's choice, this offset can be the mean of all the central tendancies, 
+%     whatever the conditions (then, any global difference between the 
+%     conditions will disappear);  or it can be the mean of all the central 
+%     tendancies within each conditions (then, any global difference between 
+%     the conditions is preserved).
+% Note that all these computations are performed on values that were originaly 
+% log2-transformed.
+%     \item[Mean centering and scaling] The spirit of this normalization is 
+%     the same as the previous one, yet, it is stronger, and it only applies 
+%     to log2-tranformed abundance values that distributes roughly normaly for 
+%     each sample. Basically, a mean centering as described above is applied. 
+%     Then, the variance of the distribution is re-scaled to 1. Let us note 
+%     that median centering is not really adapted to a rescaling the variance; 
+%     this is why such combination of parameters is not available. Once again, 
+%     the centering can operate over the entire dataset, or over each condition.
 %     on all conditions,
 %     \item Centering over median on each condition,
 %     \item Centering over mean on all conditions,
@@ -1006,7 +1035,7 @@ enhance a better visualization.
 %function of the number of missing values contained in the line (Y-axis) of 
 %the corresponding protein. The different conditions are colored by different 
 %colors. The points in the Y-axis have been jittered to an easier view.
-This plots indicates how the missing values are distributed over the range of 
+This plot indicates how the missing values are distributed over the range of 
 intensity: if there are lots of missing values in the low intensity region 
 (indicating a censoring mechanism produced the missing values) or if they are 
 uniformly distributed. 
@@ -1195,6 +1224,22 @@ Then, the $p$-values are computed and a volcanoplot is displayed.
 Finally, the user can tune a threshold on the FC. It allows discriminating 
 some analytes for which the difference of expression between the condition is 
 not important enough to be biologically relevant.
+
+This is an interactive plot which reacts to mouse's events :
+\begin{itemize}
+\item When the user puts the pointer of his mouse over a
+point of the plot, a tooltip window appears and shows some informations about 
+that point. He can select the items to show in the Select widget where the 
+different choices correspond to the columns of the feature meta-data table. 
+The tooltip window is automatically updated.
+\item When the user clicks on a point, a table is displayed above the 
+volcanoplot. It shows the values of intensities for all the samples related to
+the selected point. The cells colored in blue indicate that the corresponding 
+value was a missing value in the original dataset and has been imputed.
+\item The user can click and draw a rectangle on the plot to zoom in. 
+By clicking on the button named "Reset zoom", the user can return to the 
+entire plot.
+\end{itemize}
 
 \begin {figure}
 \centering

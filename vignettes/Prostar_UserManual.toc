@@ -5,7 +5,7 @@
 \contentsline {subsubsection}{\numberline {2.1.2}Server version}{4}{subsubsection.2.1.2}
 \contentsline {subsection}{\numberline {2.2}DAPAR (alone)}{5}{subsection.2.2}
 \contentsline {section}{\numberline {3}Navigating through the ProStaR interface}{5}{section.3}
-\contentsline {subsection}{\numberline {3.1}Overview of the interface}{6}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.1}Overview of the interface}{5}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Dataset manager}{6}{subsection.3.2}
 \contentsline {subsubsection}{\numberline {3.2.1}Open MSnSet}{6}{subsubsection.3.2.1}
 \contentsline {subsubsection}{\numberline {3.2.2}Import}{7}{subsubsection.3.2.2}
@@ -19,15 +19,15 @@
 \contentsline {subsubsection}{\numberline {3.3.4}Correlation matrix}{16}{subsubsection.3.3.4}
 \contentsline {subsubsection}{\numberline {3.3.5}Boxplot}{16}{subsubsection.3.3.5}
 \contentsline {subsubsection}{\numberline {3.3.6}Violin plot}{17}{subsubsection.3.3.6}
-\contentsline {subsubsection}{\numberline {3.3.7}Variance distribution}{18}{subsubsection.3.3.7}
+\contentsline {subsubsection}{\numberline {3.3.7}CV distribution}{18}{subsubsection.3.3.7}
 \contentsline {subsubsection}{\numberline {3.3.8}Density plot}{19}{subsubsection.3.3.8}
 \contentsline {subsection}{\numberline {3.4}Data processing}{19}{subsection.3.4}
 \contentsline {subsubsection}{\numberline {3.4.1}Filtering}{20}{subsubsection.3.4.1}
 \contentsline {subsubsection}{\numberline {3.4.2}Normalization}{22}{subsubsection.3.4.2}
 \contentsline {subsubsection}{\numberline {3.4.3}Imputation}{24}{subsubsection.3.4.3}
 \contentsline {subsubsection}{\numberline {3.4.4}Aggregation}{26}{subsubsection.3.4.4}
-\contentsline {subsubsection}{\numberline {3.4.5}Differential analysis}{27}{subsubsection.3.4.5}
+\contentsline {subsubsection}{\numberline {3.4.5}Differential analysis}{28}{subsubsection.3.4.5}
 \contentsline {subsection}{\numberline {3.5}Help}{30}{subsection.3.5}
-\contentsline {subsection}{\numberline {3.6}Versions of dataset}{31}{subsection.3.6}
-\contentsline {section}{\numberline {4}Bugs}{31}{section.4}
+\contentsline {subsection}{\numberline {3.6}Versions of dataset}{30}{subsection.3.6}
+\contentsline {section}{\numberline {4}Bugs}{32}{section.4}
 \contentsline {section}{\numberline {5}Session information}{32}{section.5}
