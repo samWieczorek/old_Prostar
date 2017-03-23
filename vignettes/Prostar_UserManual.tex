@@ -946,7 +946,7 @@ These methods propose to shift the sample distributions (either all of them at o
 These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align their means. It is also possible to force unit variance (or not). Two parameters are available:
 \begin{itemize}
 \item \textbf{Parameter 1: } the centering can operate over the entire dataset (value "overall") or over each condition (value "within conditions"),
-\item \textbf{Parameter 2: } including variance reduction
+\item \textbf{Parameter 2: } include variance reduction
 \end{itemize}
 
     % \item[Sum by column] The abundance of each protein is divided by the 
@@ -1047,7 +1047,7 @@ enhance a better visualization.
 %function of the number of missing values contained in the line (Y-axis) of 
 %the corresponding protein. The different conditions are colored by different 
 %colors. The points in the Y-axis have been jittered to an easier view.
-This plots indicates how the missing values are distributed over the range of 
+This plot indicates how the missing values are distributed over the range of 
 intensity: if there are lots of missing values in the low intensity region 
 (indicating a censoring mechanism produced the missing values) or if they are 
 uniformly distributed. 
@@ -1073,7 +1073,7 @@ missingness or censoring of the low intensities).
 \caption{Interface of the imputation of missing values tool.}\label{fig:impu}
 \end {figure}
 
-
+\textcolor{red}{
 The user can choose one of the several available imputation methods, depending 
 on the type of missing values:
 \begin{itemize}
@@ -1087,6 +1087,7 @@ package \Biocpkg{pcaMethods}, KNN ($K$ Nearest Neighbors) from package
 \Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package \
 Biocpkg{norm}.
 \end{itemize}
+}
 
 The user can visualize the effect of an imputation method without changing 
 the current dataset. If the imputation does not produce the expected effect, 

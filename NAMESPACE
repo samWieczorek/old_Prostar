@@ -4,8 +4,8 @@ import(data.table)
 import(DAPAR)
 import(DAPARdata)
 import(shinyAce)
-#import(sm)
-
+import(highcharter)
+import(openxlsx)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
 
