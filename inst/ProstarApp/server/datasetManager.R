@@ -638,8 +638,7 @@ output$ConvertOptions <- renderUI({
     input$file1
     if (is.null(input$file1)){return(NULL)}
     
-    conditionalPanel(
-        condition='true',
+    tagList(
         radioButtons("typeOfData", 
                      "Is it a peptide or protein dataset ?", 
                      choices=c("peptide dataset" = "peptide", 
@@ -725,8 +724,7 @@ output$infoAboutAggregationTool <- renderUI({
     
     nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
     
-    conditionalPanel(
-        condition="true",
+    tagList(
         tags$h3("Info"),
         if (rv$typeOfDataset == "protein"){
             tags$h5("Note: the aggregation tool

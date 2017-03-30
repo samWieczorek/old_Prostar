@@ -6,8 +6,7 @@ output$MVI_options <- renderUI({
     if (is.null(input$missing.value.algorithm)){return (NULL)}
     
     if (input$missing.value.algorithm == "imp4p"){
-        conditionalPanel(
-            condition = 'true',
+        tagList(
             h4("imp4p options"),
             numericInput("imp4p_nbiter", "Number of iterations", value = 10, step=1, min=1),
             checkboxInput("imp4p_withLapala", "with Lapala", value = FALSE)
@@ -15,6 +14,24 @@ output$MVI_options <- renderUI({
     }
     
 })
+
+
+
+output$imp4pLAPALA_distribution_option <- renderUI({
+    rv$current.obj
+    input$missing.value.algorithm
+    input$imp4p_withLapala
+    if (is.null(input$imp4p_withLapala) ) {return (NULL)}
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$missing.value.algorithm)){return (NULL)}
+    
+    if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala == TRUE)){
+        radioButtons("imp4pLAPALA_distrib", "Distribution type", choices = c("uniform" = "unif", "beta" = "beta"))
+    }
+    
+})
+
+
 
 
 output$OnlyLAPALA_distribution_option <- renderUI({
@@ -40,7 +57,7 @@ output$OnlyLAPALA_qmin_option <- renderUI({
     if (is.null(input$missing.value.algorithm) || is.null(input$missing.value.basic.algorithm)){return (NULL)}
     
     if ((input$missing.value.algorithm == "Basic methods") && (input$missing.value.basic.algorithm == "dummy censored")){
-        numericInput("OnlyLAPALA_qmin", "Quantile (%)", value = 2.5, step=0.1, min=0, max=100)
+        numericInput("OnlyLAPALA_qmin", "Upper LAPALA bound", value = 2.5, step=0.1, min=0, max=100)
     }
     
 })
@@ -56,7 +73,7 @@ output$MVI_qmin_option <- renderUI({
     if (is.null(input$imp4p_withLapala)){return(NULL)}
     
     if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala==TRUE)){
-        numericInput("imp4p_qmin", "upper lapala limit (as a centile of observed distribution)", value = 2.5, step=0.1, min=0, max=100)
+        numericInput("imp4p_qmin", "Upper lapala bound", value = 2.5, step=0.1, min=0, max=100)
     }
     
 })
@@ -73,6 +90,7 @@ observeEvent(input$perform.imputation.button,{
     input$imp4p_withLapala
     input$OnlyLAPALA_qmin
     input$OnlyLAPALA_distrib
+    input$imp4pLAPALA_distrib
     
     isolate({
         result = tryCatch(
@@ -87,13 +105,25 @@ observeEvent(input$perform.imputation.button,{
                                                                   #eps = input$imp4p_eps,
                                                                   nb.iter = input$imp4p_nbiter,
                                                                   lapala = input$imp4p_withLapala,
-                                                                  q.min = input$imp4p_qmin / 100)
+                                                                  q.min = input$imp4p_qmin / 100,
+                                                                  distribution = input$imp4pLAPALA_distrib)
                         #write log command file
                         writeToCommandLogFile(
                             paste("current.obj <- wrapper.dapar.impute.mi(",
                                   "dataset[['",input$datasets,"']] nb.iter=",input$imp4p_nbiter,
                                   ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ")",sep=""))
-                    } else {
+                        updateSelectInput(session, 
+                                          "imp4p_withLapala", 
+                                          selected = input$imp4p_withLapala)
+                        updateSelectInput(session, 
+                                          "imp4pLAPALA_distrib", 
+                                          selected = input$imp4pLAPALA_distrib)
+                        
+                        updateSelectInput(session, 
+                                          "imp4p_qmin", 
+                                          selected = input$imp4p_qmin)
+                        
+                        } else {
                         rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
                                                                   #eps = input$imp4p_eps,
                                                                   nb.iter = input$imp4p_nbiter,
@@ -108,6 +138,9 @@ observeEvent(input$perform.imputation.button,{
                     updateSelectInput(session, 
                                       "missing.value.algorithm", 
                                       selected = input$missing.value.algorithm)
+                    updateSelectInput(session, 
+                                      "imp4p_nbiter", 
+                                      selected = input$imp4p_nbiter)
                     
                 } else if (input$missing.value.algorithm == "Basic methods"){
                     if (input$missing.value.basic.algorithm %in% c("KNN", "MLE")) 
@@ -324,12 +357,30 @@ output$showImageNA <- renderPlot({
 
 
 
-output$warningImputationMethod <- renderUI({
+output$warningImputationMethod <- renderText({
     input$missing.value.algorithm
+    input$imp4p_withLapala
+    
     if (is.null(input$missing.value.algorithm)) {return (NULL)}
     
+    if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
     
-    uiOutput("warningLapala")
+    var <- ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala == TRUE)) ||
+        (input$missing.value.basic.algorithm ==  "dummy censored")
+    
+    if (var){
+    t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
+    to analytes (peptides or proteins) <br>that are entirely missing in some 
+    conditions while they are (partially or totally) <br>visible in others. There 
+    specific accounting in a conservative way is a real issue as the imputation <br>
+    cannot rely on any observed value in a given condition.
+    <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
+    value as a centile of the observed <br>
+    distribution (a tuning between 0% and 10% is advised). <br>
+    <font color=\"red\"><strong>Warning:</strong> Imputed lapala values must be very cautiously interpreted.</font color=\"red\">"
+    HTML(t)}
+    
+    
     # if (input$missing.value.algorithm == "imp4p with LAPALA")
     #     {
     #     text <- "<font color=\"red\"> Warning ! <br> You are about to impute the <br> LAPALA with small 
@@ -346,6 +397,23 @@ output$warningImputationMethod <- renderUI({
     
 })
 
+
+observe({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return(NULL)}
+        
+    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+    if (nbEmptyLines > 0) {
+        shinyjs::disable("perform.imputation.button")
+        shinyjs::disable("ValidImputation")
+    } else {
+        shinyjs::enable("perform.imputation.button")
+        shinyjs::enable("ValidImputation")
+    }
+})
+
+
+
 output$showImputationPanel <- renderUI({
     rv$current.obj
     
@@ -354,73 +422,46 @@ output$showImputationPanel <- renderUI({
     nbEmptyLines <- getNumberOfEmptyLines(exprs(rv$current.obj))
     if (nbEmptyLines == 0)
     {
-        conditionalPanel(id = "wellPanel_Imputation",
-                         condition = "true",
-                         helpText("Select an imputation method before 
-                                  performing the imputation of missing values."),
-                         
-                         uiOutput("helpForImputation"),
-                         
-                         busyIndicator("Calculation in progress",wait = 0),
-                         #imageOutput("viewNAbyMean"),
-                         fluidRow(
-                             column(width = 5, plotOutput("viewNAbyMean"
-                                                          , height = "600px", width = "400px"))
-                             ,column(width = 7, plotOutput("showImageNA"
-                             ))
-                         ),
-                         uiOutput("Ref_imputation")
-                         )
+        tagList(
+            htmlOutput("helpForImputation"),
+            htmlOutput("warningImputationMethod")
+        )
+
     }
     else{
         text <- "<br> <br> <font color=\"red\">
         Warning ! Your dataset contains empty lines so that the imputation cannot be proceed.
         <br> <br> Please filter your data first."
-        
         HTML(text)
-        
     }
 })
 
 ###################
 
 
-
-output$warningLapala <- renderUI({
-    input$imp4p_withLapala
-    if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
-    
-    
-    t <- "warning: imputed lapala values must be very cautiously interpreted"
-    h2(t)
-})
-
-
-output$Ref_imputation <- renderUI({
-    
-    txt <- "<strong><font size=\"4\">References:</font></strong>
-    <ol>
-    <li> Bolstad B.M. (2007) preprocessCore: a collection of 
-    pre-processing functions. R package version 1.32.0
-    </li>
-    <li> Q. GIAI GIANETTO, C. LAZAR, S. WIECZOREK, C. BRULEY, Y. COUTE AND 
-    T. BURGER. Multiple imputation strategy for mass <br> spectrometry-based 
-    proteomic data (under preparation)
-    </li>
-    <li> Hastie T. et al.  . (2001). impute: imputation for microarray 
-    data. R package version 1.44.0.
-    </li>
-    <li> Schafer J.L. (2008). NORM: Analysis of Incomplete Multivariate Data 
-    under a Normal Model, Version 3. Software package for R.
-    </li>
-    </ol>"
-    
-    HTML(txt)
-    
-})
+# 
+# output$warningLapala <- renderUI({
+#     input$imp4p_withLapala
+#     if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
+#     
+#     
+#     t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
+#         to analytes (peptides or proteins) <br>that are entirely missing in some 
+#         conditions while they are (partially or totally) <br>visible in others. There 
+#         specific accounting in a conservative way is a real issue as the imputation <br>
+#         cannot rely on any observed value in a given condition.
+#         <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
+#         value as a centile of the observed
+#         distribution (a tuning between 0% and 10% is advised). <br>
+#         Warning: imputed lapala values must be very cautiously interpreted"
+#     HTML(t)
+# })
 
 
-output$helpForImputation <- renderUI({
+
+
+
+output$helpForImputation <- renderText({
     input$missing.value.algorithm
     input$missing.value.basic.algorithm
     rv$typeOfDataset
@@ -429,30 +470,26 @@ output$helpForImputation <- renderUI({
     if ((input$missing.value.algorithm == "Basic methods") && is.null(input$missing.value.basic.algorithm == "None")) {return(NULL)}
     
     name <- NULL
-    t <- "Lapala (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-    to analytes (peptides or proteins) <br>that are entirely missing in some 
-    conditions while they are (partially or totally) <br>visible in others. There 
-    specific accounting in a conservative way is a real issue as the imputation <br>
-    cannot rely on any observed value in a given condition."
-    helpTextImputation <- list("imp4p" = "imp4p [ref2] is a proteomic-specific multiple imputation 
+   
+    helpTextImputation <- list("imp4p" = "<strong>imp4p [5]</strong> is a proteomic-specific multiple imputation 
                                method that operates on peptide-level datasets and which proposes <br>
                                to impute each missing value according to its nature (censored 
                                or random). <br> The more iterations, the more accurate the results, 
                                yet the more time-consuming.",
-                               "dummy censored" = "each missing value is supposed to be a censored value and 
+                               "dummy censored" = "Dummy censored: each missing value is supposed to be a censored value and 
                                is replaced by the XXX quantile <br> of the corresponding sample 
                                abundance distribution",
-                               "KNN" = "K- nearest neighbors, see [Ref3]",
-                               "MLE" = "Maximum likelihood estimation, see [ref4]")
+                               "KNN" = "<strong>K- nearest neighbors</strong>, see [7]",
+                               "MLE" = "<strong>Maximum likelihood estimation</strong>, see [8]")
     
     
     if (input$missing.value.algorithm == "Basic methods") {
         name <- input$missing.value.basic.algorithm}
     else {name <- input$missing.value.algorithm}
     
-    print(name)
     if (!is.null(name)) {
         HTML(helpTextImputation[[name]])
+        
     }
 })
 
@@ -467,7 +504,7 @@ output$progressOne <- renderUI({
     if (!grepl( "imp4p",input$missing.value.algorithm)) {return(NULL)}
     if (is.null(rv$current.obj)) { return(NULL)}
     
-    conditionalPanel(condition='true',
+    tagList(
                      h5("This may take a while,"),
                      h5("please be patient ..."),
                      progressBar2("pb1",value=0, size="sm", color="aqua", striped=TRUE, active=TRUE, label=TRUE)

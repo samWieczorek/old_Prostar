@@ -8,8 +8,7 @@ navbarMenu("Dataset manager",
                                                      "Open a MSnset file",
                                                      multiple = FALSE)
                                 ),
-                                conditionalPanel(id = "wellPanelOpenFile",
-                                                 condition = "true",
+                                tagList(
                                                  h3("Quick overview of the dataset"),
                                                  uiOutput("overview"),
                                                  uiOutput("infoAboutAggregationTool")
@@ -113,8 +112,7 @@ navbarMenu("Dataset manager",
                                           ,uiOutput("chooseDataset")
                                           ,actionButton("loadDemoDataset", "Load demo dataset")
                                 ),
-                                conditionalPanel(id = "wellPanelOpenFile",
-                                                 condition = "true",
+                                tagList(
                                                  h3("Quick overview of the dataset"),
                                                  uiOutput("overviewDemoDataset"),
                                                  uiOutput("showDatasetDoc")
@@ -130,9 +128,7 @@ navbarMenu("Dataset manager",
                         tabPanel("Log session",
                                  value = "ChangeDataset",
                                  sidebarCustom(),
-                                 conditionalPanel(
-                                     id = "wellPanel_changeDataset",
-                                     condition =  "true",
+                                 tagList(
                                      width=widthWellPanel,
                                      DT::dataTableOutput("logSession")
                                  )

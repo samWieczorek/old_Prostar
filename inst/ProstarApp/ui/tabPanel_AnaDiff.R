@@ -11,14 +11,15 @@ tabPanel("Differential analysis",
                                             ,h4("Differential analysis options")
                                             ,uiOutput("diffAnalysis_sidebarPanelTab1")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab1",
-                                                   condition = "true",
-                                                   fluidRow(
+                                  tagList(
+                                      uiOutput("warningNA"),
+                                      fluidRow(
                                                        column(width=6, uiOutput("nbSelectedItems")),
                                                        column(width=6, uiOutput("selectTooltipInfo"))),
                                                    DT::dataTableOutput("infosVolcanoTable"),
                                                    #plotOutput("volcanoplot", height="500px", width="600px")
-                                                   highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+                                      busyIndicator("Calculation in progress",wait = 0),
+                                      highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
                                                    
                                   )
                       )
@@ -32,9 +33,8 @@ tabPanel("Differential analysis",
                                             ,h4("Calibration")
                                             ,uiOutput("diffAnalysis_sidebarPanelTab2")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab2",
-                                                   condition = "true",
-                                                   htmlOutput("errMsgCalibrationPlotAll"),
+                                  tagList(
+                                      htmlOutput("errMsgCalibrationPlotAll"),
                                                    busyIndicator("Calculation in progress",wait = 0),
                                                    plotOutput("calibrationPlotAll"),
                                                    uiOutput("errMsgCalibrationPlot"),
@@ -54,9 +54,7 @@ tabPanel("Differential analysis",
                                             ,uiOutput("diffAnalysis_sidebarPanelTab3")
                                   ),
                                   
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab3",
-                                                   condition = "true",
-                                                   uiOutput("nbSelectedItemsStep3"),
+                                  tagList( uiOutput("nbSelectedItemsStep3"),
                                                    hr(),
                                                    fluidRow(
                                                        column(width= 4, htmlOutput("equivPVal")),
@@ -80,9 +78,8 @@ tabPanel("Differential analysis",
                                             height = "100%",
                                             actionButton("ValidDiffAna","Save diff analysis")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",
-                                                   condition = "true",
-                                                   DT::dataTableOutput("showSelectedItems"),
+                                  tagList(
+                                      DT::dataTableOutput("showSelectedItems"),
                                                    br()
                                                    ,uiOutput("DiffAnalysisSaved")
                                   )

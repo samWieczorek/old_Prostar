@@ -20,7 +20,7 @@ output$DS_sidebarPanel_tab <- renderUI({
                          "Dataset history" = "processingData")
     }
     
-    conditionalPanel(condition="true",
+    tagList(
                      radioButtons("DS_TabsChoice", "Choose the tab to display",
                                   choices = .choices),
                      br(),
@@ -34,7 +34,7 @@ output$DS_sidebarPanel_tab <- renderUI({
 
 output$DS_sidebarPanel_heatmap <- renderUI({
     
-    conditionalPanel(condition= "true",
+    tagList(
                      h3("Clustering Options"),
                      radioButtons("distance","Distance",
                                   choices = list(euclidean ="euclidean",
@@ -603,8 +603,7 @@ output$DS_PlotHeatmap <- renderUI({
     if (is.null(rv$current.obj)) {return(plot.new())}
     # if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
     
-    conditionalPanel(
-        condition = "true",
+    tagList(
         busyIndicator("Calculation in progress",wait = 0),
         plotOutput("heatmap", width = "900px", height = "600px")
     )
@@ -628,13 +627,11 @@ output$DS_sidebarPanel_Densityplot <- renderUI({
 
 
 output$DS_sidebarPanel_Boxplot <- renderUI({
-    conditionalPanel(condition= "true",
-                     uiOutput("ChooseLegendForAxis_DS"))
+    uiOutput("ChooseLegendForAxis_DS")
 })
 
 output$DS_sidebarPanel_Violinplot <- renderUI({
-    conditionalPanel(condition= "true",
-                     uiOutput("ChooseLegendForAxisViolin_DS"))
+    uiOutput("ChooseLegendForAxisViolin_DS")
     
 })
 

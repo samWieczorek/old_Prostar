@@ -13,9 +13,8 @@ tabPanel("Filter data",
                                              ,uiOutput("DP_sidebar_FilterTab1")
                                              
                                    ),
-                                   conditionalPanel(id = "wellPanelMVFilterTab1",
-                                                    condition = "true",
-                                                    HTML("The filter below allows keeping the lines that 
+                                   tagList(
+                                        HTML("The filter below allows keeping the lines that 
                                                          contain a certain amount of quantitative data rather than NA values. <br>
                                                          The threshold to define corresponds to the number of quantitative values in a 
                                                          line and means that the lines which contain <br> at least this threshold value 
@@ -39,9 +38,8 @@ tabPanel("Filter data",
                                           uiOutput("DP_sidebar_FilterTab2")
                                           
                                 ),
-                                conditionalPanel(id = "wellPanelMVFilterTab2",
-                                                 condition = "true",
-                                                 plotOutput("GlobalPieChart")
+                                tagList(
+                                    plotOutput("GlobalPieChart")
                                 )
                     )
          )
@@ -54,9 +52,8 @@ tabPanel("Filter data",
                                           ,actionButton("ValidateFilters","Save filtered dataset",
                                                         styleclass = "primary")
                                 ),
-                                conditionalPanel(id = "wellPanelMVFilterTab3"
-                                                 ,condition = "true"
-                                                 ,DT::dataTableOutput("VizualizeFilteredData")
+                                tagList(
+                                    DT::dataTableOutput("VizualizeFilteredData")
                                                  ,uiOutput("helpTextMV")
                                 )
                     )

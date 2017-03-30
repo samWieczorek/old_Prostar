@@ -1,7 +1,7 @@
 output$References <- renderText({
     
     
-    HTML("<strong><font size=\"5\">HELP</font></strong>
+    txt<- "<strong><font size=\"5\">HELP</font></strong>
          <br><hr color:\"blue\"><br>
          
          <strong><font size=\"4\">User manual:</font></strong>
@@ -42,34 +42,61 @@ output$References <- renderText({
          <br><br>
          
          <strong><font size=\"4\">Our referenced works:</font></strong>
-         <ul>
-         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. \"DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics\", <i>Bioinformatics</i>, 2016
+         <ol>
+         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
+        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
+        DAPAR & ProStaR: software to perform statistical analyses in 
+        quantitative discovery proteomics, <i>Bioinformatics</i>, 2016
          </li>
          <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
          for the multiple natures of missing values in label-free quantitative 
          proteomics datasets to compare imputation strategies. <i>Journal of 
-         Proteome Research</i>, accepted for publication, February 2016. 
+         Proteome Research</i>, 15(4):1116-25, 2016. 
          </li>
-         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Couté, 
+         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Coute, 
          T. Burger. Calibration Plot for Proteomics (cp4p): A graphical tool 
          to visually check the assumptions underlying FDR control in 
          quantitative experiments. <i>Proteomics</i>, 16(1):29-32, 2016. 
          </li>
          
-         <li> Q. Giai Gianetto, Y. Couté, C. Bruley, T. Burger. Uses and 
+         <li> Q. Giai Gianetto, Y. Coute, C. Bruley, T. Burger. Uses and 
          misuses of the fudge factor in quantitative discovery proteomics. 
-         Accepted for publication, <i>Proteomics</i>, June 2016.. 
+         <i>Proteomics</i>, 16(14):1955-60, 2016. 
+         </li>
+
+
+         <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
+         T. Burger. Multiple imputation strategy for mass spectrometry-based 
+         proteomic data (under preparation)
          </li>
          
-         </ul>
+         </ol>
          
          <br><br>
          
          <strong><font size=\"4\">Other references:</font></strong>
-         
-         ")
-})
+         <ol start=6>
+         <li> Bolstad BM (2016). preprocessCore: A collection of pre-processing 
+        functions. R package version 1.36.0, 
+        <a href=\"https://github.com/bmbolstad/preprocessCore\"
+         title=\"here\" target=\"_blank\">https://github.com/bmbolstad/preprocessCore</a>
 
+         <li> Hastie T, Tibshirani R, Narasimhan B and Chu G (2016). 
+        impute: Imputation for microarray data. R package version 1.48.0
+         </li>
+
+         <li> Ported to R by Alvaro A. Novo. Original by Joseph L. Schafer 
+        <jls@stat.psu.edu>. (2013). norm: Analysis of
+        multivariate normal datasets with missing values. R package version 1.0-9.5.
+        <a href=\"https://CRAN.R-project.org/package=norm\"
+         title=\"norm on CRAN\" target=\"_blank\">norm on CRAN</a>
+         </li>
+         </ol>"
+         
+         
+         HTML(txt)
+
+})
 
 
 

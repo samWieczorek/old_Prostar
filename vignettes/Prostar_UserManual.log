@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.9)  21 MAR 2017 11:09
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.9)  30 MAR 2017 10:19
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -256,10 +256,11 @@ Now handling font encoding U ...
    defining Unicode char U+2122 (decimal 8482)
    defining Unicode char U+2423 (decimal 9251)
 ))
-(/Users/sw175264/Library/R/3.3/library/BiocStyle/resources/tex/Bioconductor.sty
+(/Library/Frameworks/R.framework/Versions/3.4/Resources/library/BiocStyle/resou
+rces/tex/Bioconductor.sty
 
-LaTeX Warning: You have requested package `/Users/sw175264/Library/R/3.3/librar
-y/BiocStyle/resources/tex/Bioconductor',
+LaTeX Warning: You have requested package `/Library/Frameworks/R.framework/Vers
+ions/3.4/Resources/library/BiocStyle/resources/tex/Bioconductor',
                but the package provides `Bioconductor'.
 
 Package: Bioconductor 2013/07/01 Bioconductor vignette style
@@ -882,338 +883,343 @@ Underfull \hbox (badness 10000) in paragraph at lines 216--224
 
 LaTeX Font Info:    Font shape `T1/aess/m/it' in size <12> not available
 (Font)              Font shape `T1/aess/m/sl' tried instead on input line 226.
-<images/defaultProstar1.png, id=296, 1322.9425pt x 521.95pt>
+<images/defaultProstar1.png, id=305, 1322.9425pt x 521.95pt>
 File: images/defaultProstar1.png Graphic file (type png)
 
 <use images/defaultProstar1.png>
-Package pdftex.def Info: images/defaultProstar1.png used on input line 267.
+Package pdftex.def Info: images/defaultProstar1.png used on input line 277.
 (pdftex.def)             Requested size: 325.31154pt x 128.34477pt.
  [5]
-<images/open_msnset.png, id=321, 978.65625pt x 333.245pt>
+<images/open_msnset.png, id=329, 978.65625pt x 333.245pt>
 File: images/open_msnset.png Graphic file (type png)
 
 <use images/open_msnset.png>
-Package pdftex.def Info: images/open_msnset.png used on input line 319.
+Package pdftex.def Info: images/open_msnset.png used on input line 329.
 (pdftex.def)             Requested size: 400.38872pt x 136.34148pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 333--336
+ [6 <./images/defaultProstar1.png>]
+Underfull \hbox (badness 10000) in paragraph at lines 343--345
 
  []
 
-[6 <./images/defaultProstar1.png>] [7 <./images/open_msnset.png>]
-<images/convert_selectfile.png, id=353, 973.6375pt x 631.35875pt>
+[7 <./images/open_msnset.png>]
+<images/convert_selectfile.png, id=361, 973.6375pt x 631.35875pt>
 File: images/convert_selectfile.png Graphic file (type png)
 
 <use images/convert_selectfile.png>
-Package pdftex.def Info: images/convert_selectfile.png used on input line 398.
+Package pdftex.def Info: images/convert_selectfile.png used on input line 405.
 (pdftex.def)             Requested size: 500.484pt x 324.54164pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 398--399
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 405--406
  [][] 
  []
 
-<images/convert_dataID.png, id=356, 943.525pt x 359.3425pt>
+<images/convert_dataID.png, id=364, 943.525pt x 359.3425pt>
 File: images/convert_dataID.png Graphic file (type png)
 
 <use images/convert_dataID.png>
-Package pdftex.def Info: images/convert_dataID.png used on input line 412.
+Package pdftex.def Info: images/convert_dataID.png used on input line 419.
 (pdftex.def)             Requested size: 375.36299pt x 142.95584pt.
 
-<images/convert_exp_featdata.png, id=358, 964.60374pt x 328.22626pt>
+<images/convert_exp_featdata.png, id=366, 964.60374pt x 328.22626pt>
 File: images/convert_exp_featdata.png Graphic file (type png)
 
 <use images/convert_exp_featdata.png>
-Package pdftex.def Info: images/convert_exp_featdata.png used on input line 424
+Package pdftex.def Info: images/convert_exp_featdata.png used on input line 431
 .
 (pdftex.def)             Requested size: 500.484pt x 170.29799pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 424--425
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 431--432
  [][] 
  []
 
-<images/convert_sampledata.png, id=360, 970.62625pt x 442.65375pt>
+<images/convert_sampledata.png, id=368, 970.62625pt x 442.65375pt>
 File: images/convert_sampledata.png Graphic file (type png)
 
 <use images/convert_sampledata.png>
-Package pdftex.def Info: images/convert_sampledata.png used on input line 444.
+Package pdftex.def Info: images/convert_sampledata.png used on input line 451.
 (pdftex.def)             Requested size: 335.32335pt x 152.92508pt.
 
-<images/convert_convert.png, id=363, 1186.4325pt x 353.32pt>
+<images/convert_convert.png, id=371, 1186.4325pt x 353.32pt>
 File: images/convert_convert.png Graphic file (type png)
 
 <use images/convert_convert.png>
-Package pdftex.def Info: images/convert_convert.png used on input line 454.
+Package pdftex.def Info: images/convert_convert.png used on input line 461.
 (pdftex.def)             Requested size: 450.43253pt x 134.13899pt.
  [8] [9 <./images/convert_selectfile.png> <./images/convert_dataID.png>]
-<images/export.png, id=389, 958.58125pt x 504.88625pt>
+<images/export.png, id=398, 958.58125pt x 504.88625pt>
 File: images/export.png Graphic file (type png)
  <use images/export.png>
-Package pdftex.def Info: images/export.png used on input line 473.
+Package pdftex.def Info: images/export.png used on input line 480.
 (pdftex.def)             Requested size: 450.43253pt x 237.24263pt.
 
 [10 <./images/convert_exp_featdata.png> <./images/convert_sampledata.png>]
-<images/demomode.png, id=405, 1181.41376pt x 883.3pt>
+<images/demomode.png, id=415, 1181.41376pt x 883.3pt>
 File: images/demomode.png Graphic file (type png)
 
 <use images/demomode.png>
-Package pdftex.def Info: images/demomode.png used on input line 508.
+Package pdftex.def Info: images/demomode.png used on input line 515.
 (pdftex.def)             Requested size: 450.43253pt x 336.7627pt.
  [11 <./images/convert_convert.png> <./images/export.png>] <images/logSession.p
-ng, id=420, 1205.50375pt x 367.3725pt>
+ng, id=429, 1205.50375pt x 367.3725pt>
 File: images/logSession.png Graphic file (type png)
 
 <use images/logSession.png>
-Package pdftex.def Info: images/logSession.png used on input line 528.
+Package pdftex.def Info: images/logSession.png used on input line 535.
 (pdftex.def)             Requested size: 375.36299pt x 114.3888pt.
- <images/Rcode.png, id=422, 949.5475pt x 453.695pt>
+ <images/Rcode.png, id=431, 949.5475pt x 453.695pt>
 File: images/Rcode.png Graphic file (type png)
 
 <use images/Rcode.png>
-Package pdftex.def Info: images/Rcode.png used on input line 539.
+Package pdftex.def Info: images/Rcode.png used on input line 546.
 (pdftex.def)             Requested size: 375.36299pt x 179.34947pt.
  [12 <./images/demomode.png> <./images/logSession.png>]
-<images/desc_missValues.png, id=432, 1444.39626pt x 565.11125pt>
+<images/desc_missValues.png, id=441, 1444.39626pt x 565.11125pt>
 File: images/desc_missValues.png Graphic file (type png)
 
 <use images/desc_missValues.png>
-Package pdftex.def Info: images/desc_missValues.png used on input line 561.
+Package pdftex.def Info: images/desc_missValues.png used on input line 568.
 (pdftex.def)             Requested size: 375.36299pt x 146.85648pt.
 
-<images/desc_quantiData.png, id=436, 1356.06625pt x 812.03375pt>
+<images/desc_quantiData.png, id=445, 1356.06625pt x 812.03375pt>
 File: images/desc_quantiData.png Graphic file (type png)
 
 <use images/desc_quantiData.png>
-Package pdftex.def Info: images/desc_quantiData.png used on input line 596.
+Package pdftex.def Info: images/desc_quantiData.png used on input line 603.
 (pdftex.def)             Requested size: 400.38872pt x 239.75851pt.
 
-<images/desc_fdata.png, id=438, 1360.08125pt x 828.09375pt>
+<images/desc_fdata.png, id=447, 1360.08125pt x 828.09375pt>
 File: images/desc_fdata.png Graphic file (type png)
 
 <use images/desc_fdata.png>
-Package pdftex.def Info: images/desc_fdata.png used on input line 606.
+Package pdftex.def Info: images/desc_fdata.png used on input line 613.
 (pdftex.def)             Requested size: 400.38872pt x 243.7801pt.
 
-<images/desc_pdata.png, id=440, 1357.07pt x 476.78125pt>
+<images/desc_pdata.png, id=449, 1357.07pt x 476.78125pt>
 File: images/desc_pdata.png Graphic file (type png)
 
 <use images/desc_pdata.png>
-Package pdftex.def Info: images/desc_pdata.png used on input line 616.
+Package pdftex.def Info: images/desc_pdata.png used on input line 623.
 (pdftex.def)             Requested size: 400.38872pt x 140.66379pt.
  [13 <./images/Rcode.png>] [14 <./images/desc_missValues.png> <./images/desc_qu
 antiData.png>]
-<images/desc_heatmap.png, id=465, 1227.58624pt x 742.775pt>
+<images/desc_heatmap.png, id=474, 1227.58624pt x 742.775pt>
 File: images/desc_heatmap.png Graphic file (type png)
 
 <use images/desc_heatmap.png>
-Package pdftex.def Info: images/desc_heatmap.png used on input line 655.
+Package pdftex.def Info: images/desc_heatmap.png used on input line 662.
 (pdftex.def)             Requested size: 400.38872pt x 242.26038pt.
  [15 <./images/desc_fdata.png> <./images/desc_pdata.png>] <images/desc_corrmatr
-ix.png, id=477, 1213.53375pt x 736.7525pt>
+ix.png, id=486, 1213.53375pt x 736.7525pt>
 File: images/desc_corrmatrix.png Graphic file (type png)
 
 <use images/desc_corrmatrix.png>
-Package pdftex.def Info: images/desc_corrmatrix.png used on input line 675.
+Package pdftex.def Info: images/desc_corrmatrix.png used on input line 682.
 (pdftex.def)             Requested size: 400.38872pt x 243.0841pt.
 
-<images/desc_boxplot.png, id=480, 1195.46625pt x 669.50125pt>
+<images/desc_boxplot.png, id=489, 1195.46625pt x 669.50125pt>
 File: images/desc_boxplot.png Graphic file (type png)
 
 <use images/desc_boxplot.png>
-Package pdftex.def Info: images/desc_boxplot.png used on input line 698.
+Package pdftex.def Info: images/desc_boxplot.png used on input line 705.
 (pdftex.def)             Requested size: 300.29344pt x 168.17172pt.
  [16 <./images/desc_heatmap.png>]
-<images/desc_violinplot.png, id=492, 1170.3725pt x 728.7225pt>
+<images/desc_violinplot.png, id=501, 1170.3725pt x 728.7225pt>
 File: images/desc_violinplot.png Graphic file (type png)
 
 <use images/desc_violinplot.png>
-Package pdftex.def Info: images/desc_violinplot.png used on input line 724.
+Package pdftex.def Info: images/desc_violinplot.png used on input line 731.
 (pdftex.def)             Requested size: 300.29344pt x 186.97263pt.
 
-<images/desc_CVDist.png, id=495, 801.99625pt x 569.12625pt>
+<images/desc_CVDist.png, id=504, 801.99625pt x 569.12625pt>
 File: images/desc_CVDist.png Graphic file (type png)
 
 <use images/desc_CVDist.png>
-Package pdftex.def Info: images/desc_CVDist.png used on input line 748.
+Package pdftex.def Info: images/desc_CVDist.png used on input line 755.
 (pdftex.def)             Requested size: 375.36299pt x 266.3778pt.
  [17 <./images/desc_corrmatrix.png> <./images/desc_boxplot.png>] <images/desc_d
-ensity.png, id=507, 1187.43625pt x 737.75626pt>
+ensity.png, id=516, 1187.43625pt x 737.75626pt>
 File: images/desc_density.png Graphic file (type png)
 
 <use images/desc_density.png>
-Package pdftex.def Info: images/desc_density.png used on input line 761.
+Package pdftex.def Info: images/desc_density.png used on input line 768.
 (pdftex.def)             Requested size: 335.32335pt x 208.33772pt.
  [18 <./images/desc_violinplot.png> <./images/desc_CVDist.png>] [19 <./images/d
 esc_density.png>]
-<images/filter1.png, id=535, 1175.39125pt x 622.325pt>
+<images/filter1.png, id=544, 1175.39125pt x 622.325pt>
 File: images/filter1.png Graphic file (type png)
 
 <use images/filter1.png>
-Package pdftex.def Info: images/filter1.png used on input line 823.
+Package pdftex.def Info: images/filter1.png used on input line 830.
 (pdftex.def)             Requested size: 500.484pt x 264.98315pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 823--824
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 830--831
  [][] 
  []
 
-<images/filter2.png, id=536, 1322.9425pt x 688.5725pt>
+<images/filter2.png, id=545, 1322.9425pt x 688.5725pt>
 File: images/filter2.png Graphic file (type png)
 
 <use images/filter2.png>
-Package pdftex.def Info: images/filter2.png used on input line 829.
+Package pdftex.def Info: images/filter2.png used on input line 836.
 (pdftex.def)             Requested size: 500.484pt x 260.494pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 829--830
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 836--837
  [][] 
  []
 
-<images/filter3.png, id=537, 1351.0475pt x 834.11626pt>
+<images/filter3.png, id=546, 1351.0475pt x 834.11626pt>
 File: images/filter3.png Graphic file (type png)
 
 <use images/filter3.png>
-Package pdftex.def Info: images/filter3.png used on input line 835.
+Package pdftex.def Info: images/filter3.png used on input line 842.
 (pdftex.def)             Requested size: 500.484pt x 308.98729pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 835--836
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 842--843
  [][] 
  []
 
 [20 <./images/filter1.png>] [21 <./images/filter2.png> <./images/filter3.png>]
-<images/normalisation.png, id=565, 1313.90875pt x 910.40125pt>
+<images/normalisation.png, id=574, 1313.90875pt x 910.40125pt>
 File: images/normalisation.png Graphic file (type png)
 
 <use images/normalisation.png>
-Package pdftex.def Info: images/normalisation.png used on input line 914.
+Package pdftex.def Info: images/normalisation.png used on input line 921.
 (pdftex.def)             Requested size: 500.484pt x 346.78957pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 914--915
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 921--922
  [][] 
  []
 
 [22]
-Underfull \hbox (badness 10000) in paragraph at lines 933--934
+Underfull \hbox (badness 10000) in paragraph at lines 940--941
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 941--942
+Underfull \hbox (badness 10000) in paragraph at lines 948--949
 
  []
 
 [23 <./images/normalisation.png>] [24]
-<images/imputation.png, id=590, 1294.8375pt x 746.79pt>
+<images/imputation.png, id=599, 1294.8375pt x 746.79pt>
 File: images/imputation.png Graphic file (type png)
 
 <use images/imputation.png>
-Package pdftex.def Info: images/imputation.png used on input line 1072.
+Package pdftex.def Info: images/imputation.png used on input line 1079.
 (pdftex.def)             Requested size: 500.484pt x 288.64883pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 1072--1073
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 1079--1080
  [][] 
  []
 
 [25 <./images/imputation.png>]
-<images/agregation1.png, id=605, 1210.5225pt x 768.8725pt>
+<images/agregation1.png, id=614, 1210.5225pt x 768.8725pt>
 File: images/agregation1.png Graphic file (type png)
 
 <use images/agregation1.png>
-Package pdftex.def Info: images/agregation1.png used on input line 1139.
+Package pdftex.def Info: images/agregation1.png used on input line 1146.
 (pdftex.def)             Requested size: 500.484pt x 317.8912pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 1139--1140
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 1146--1147
  [][] 
  []
 
-<images/agregation2.png, id=606, 919.435pt x 159.59625pt>
+<images/agregation2.png, id=615, 919.435pt x 159.59625pt>
 File: images/agregation2.png Graphic file (type png)
 
 <use images/agregation2.png>
-Package pdftex.def Info: images/agregation2.png used on input line 1145.
+Package pdftex.def Info: images/agregation2.png used on input line 1152.
 (pdftex.def)             Requested size: 500.484pt x 86.87473pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 1145--1146
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 1152--1153
  [][] 
  []
 
 [26 <./images/agregation1.png>] [27 <./images/agregation2.png>]
-<images/anaDiff1.png, id=632, 1180.41pt x 775.89874pt>
+<images/anaDiff1.png, id=641, 1180.41pt x 775.89874pt>
 File: images/anaDiff1.png Graphic file (type png)
 
 <use images/anaDiff1.png>
-Package pdftex.def Info: images/anaDiff1.png used on input line 1259.
+Package pdftex.def Info: images/anaDiff1.png used on input line 1266.
 (pdftex.def)             Requested size: 300.29344pt x 197.38391pt.
 
-<images/anaDiff2.png, id=638, 1159.33125pt x 920.43875pt>
+<images/anaDiff2.png, id=647, 1159.33125pt x 920.43875pt>
 File: images/anaDiff2.png Graphic file (type png)
 
 <use images/anaDiff2.png>
-Package pdftex.def Info: images/anaDiff2.png used on input line 1274.
+Package pdftex.def Info: images/anaDiff2.png used on input line 1281.
 (pdftex.def)             Requested size: 300.29344pt x 238.40956pt.
 
-<images/anaDiff3.png, id=639, 954.56625pt x 764.8575pt>
+<images/anaDiff3.png, id=648, 954.56625pt x 764.8575pt>
 File: images/anaDiff3.png Graphic file (type png)
 
 <use images/anaDiff3.png>
-Package pdftex.def Info: images/anaDiff3.png used on input line 1282.
+Package pdftex.def Info: images/anaDiff3.png used on input line 1289.
 (pdftex.def)             Requested size: 300.29344pt x 240.6046pt.
  [28]
-<images/anaDiff4.png, id=656, 1185.42876pt x 631.35875pt>
+<images/anaDiff4.png, id=666, 1185.42876pt x 631.35875pt>
 File: images/anaDiff4.png Graphic file (type png)
 
 <use images/anaDiff4.png>
-Package pdftex.def Info: images/anaDiff4.png used on input line 1321.
+Package pdftex.def Info: images/anaDiff4.png used on input line 1328.
 (pdftex.def)             Requested size: 500.484pt x 266.55612pt.
 
-Overfull \hbox (6.79999pt too wide) in paragraph at lines 1321--1323
+Overfull \hbox (6.79999pt too wide) in paragraph at lines 1328--1330
  [][] 
  []
 
 [29 <./images/anaDiff1.png> <./images/anaDiff2.png>] [30 <./images/anaDiff3.png
 >] [31 <./images/anaDiff4.png>]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1466.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1480.
  [32]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1466.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1480.
  (./Prostar_UserManual.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1466.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1466.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1480.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1480.
 
 Package rerunfilecheck Info: File `Prostar_UserManual.out' has not changed.
-(rerunfilecheck)             Checksum: BD9E425A98992FE846B240C254FE7661;2368.
+(rerunfilecheck)             Checksum: D961EA2EAC69B8575D33C999CB279895;2430.
 
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1466.
- ) 
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1480.
+ )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 343 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
- 8343 strings out of 493089
- 123703 string characters out of 6134842
- 216565 words of memory out of 5000000
- 11513 multiletter control sequences out of 15000+600000
+ 8346 strings out of 493089
+ 123898 string characters out of 6134842
+ 216668 words of memory out of 5000000
+ 11515 multiletter control sequences out of 15000+600000
  48654 words of font info for 98 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 36i,12n,45p,777b,513s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
-}</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb>
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></
-usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsltt10.pfb><
-/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></
-usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss12.pfb></u
-sr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss17.pfb></us
-r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr
-/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi10.pfb></usr
-/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi12.pfb></usr
-/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmssi17.pfb></usr
-/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/
-local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/l
-ocal/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/lo
-cal/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm0700.pfb></usr/loca
-l/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/
-texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
-Output written on Prostar_UserManual.pdf (32 pages, 2270689 bytes).
+ 36i,12n,45p,777b,580s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2015/texmf-dist/fonts/enc/dvips/cm-super/cm
+-super-ts1.enc}</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmmi12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmsltt10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmss10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmss12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mss17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+ss8.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmss
+bx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+si10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+si12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+si17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cms
+y10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt
+10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt1
+2.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm0700.
+pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pf
+b></usr/local/texlive/2015/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb>
+
+Output written on Prostar_UserManual.pdf (32 pages, 2272277 bytes).
 PDF statistics:
- 774 PDF objects out of 1000 (max. 8388607)
- 651 compressed objects within 7 object streams
- 105 named destinations out of 1000 (max. 500000)
- 429 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 783 PDF objects out of 1000 (max. 8388607)
+ 660 compressed objects within 7 object streams
+ 106 named destinations out of 1000 (max. 500000)
+ 437 words of extra memory for PDF output out of 10000 (max. 10000000)
 

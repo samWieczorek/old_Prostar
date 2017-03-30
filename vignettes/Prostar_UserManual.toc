@@ -4,8 +4,9 @@
 \contentsline {subsubsection}{\numberline {2.1.1}Stand-alone version}{4}{subsubsection.2.1.1}
 \contentsline {subsubsection}{\numberline {2.1.2}Server version}{4}{subsubsection.2.1.2}
 \contentsline {subsection}{\numberline {2.2}DAPAR (alone)}{5}{subsection.2.2}
+\contentsline {subsection}{\numberline {2.3}DAPARdata}{5}{subsection.2.3}
 \contentsline {section}{\numberline {3}Navigating through the ProStaR interface}{5}{section.3}
-\contentsline {subsection}{\numberline {3.1}Overview of the interface}{5}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.1}Overview of the interface}{6}{subsection.3.1}
 \contentsline {subsection}{\numberline {3.2}Dataset manager}{6}{subsection.3.2}
 \contentsline {subsubsection}{\numberline {3.2.1}Open MSnSet}{6}{subsubsection.3.2.1}
 \contentsline {subsubsection}{\numberline {3.2.2}Import}{7}{subsubsection.3.2.2}

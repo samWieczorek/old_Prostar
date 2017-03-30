@@ -1,7 +1,29 @@
+
+
+
+output$warningNA <- renderUI({
+    rv$current.obj
+    
+    if (is.null(rv$current.obj)) {return (NULL)}
+    
+    NA.count <- length(which(is.na(Biobase::exprs((rv$current.obj)))))
+    
+    if(NA.count > 0){
+        
+        text <- "<br> <br> <font color=\"red\">
+                    Warning ! Your dataset contains empty lines so that the imputation cannot be proceed.
+                    <br> <br> Please filter your data first."
+        HTML(text)
+    }
+})
+
+
+
 output$diffAnalysis_sidebarPanelTab1 <- renderUI({
     rv$current.obj
     
     if (is.null(rv$current.obj)) { return(NULL)}
+    
     method <- NULL
     threshold.logFC <- 0
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
@@ -10,12 +32,14 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
         threshold.logFC <- rv$current.obj@experimentData@other$threshold.logFC
     }
     
-    conditionalPanel(condition = "true",
-                     uiOutput("RenderLimmaCond1"),
+    tagList(
+       
+        uiOutput("RenderLimmaCond1"),
                      uiOutput("RenderLimmaCond2"),
                      selectInput("diffAnaMethod","Choose the statistical test",
                                  choices = c("Limma", "Welch"),
                                  selected = method),
+        
                      numericInput("seuilLogFC", "Define log(FC) threshold",
                                   min = 0,value = threshold.logFC,step=0.1),
                      HTML("This corresponds to the ratio: <br>Condition 2 / Condition 1.")
@@ -32,7 +56,7 @@ output$diffAnalysis_sidebarPanelTab2 <- renderUI({
         if (is.null(calibMethod)) calibMethod <- "pounds"
     }
     
-    conditionalPanel(condition = "true",
+    tagList(
                      selectInput("calibrationMethod", 
                                  "Choose the calibration method",
                                  choices = c("st.boot", "st.spline", 
@@ -53,7 +77,7 @@ output$diffAnalysis_sidebarPanelTab3 <- renderUI({
     }
     
     
-    conditionalPanel(condition = "true",
+    tagList(
                      numericInput("seuilPVal", 
                                   "Define the -log10(p.value) threshold",
                                   min = 0,value = threshold.PVal,step=0.1)
@@ -1160,6 +1184,7 @@ output$showSelectedItems <- DT::renderDataTable({
 
 
 
+
 # ---- Download of only significat data --------------
 output$linkWelch <- renderUI({
     input$ExportWelchTest
@@ -1218,6 +1243,26 @@ isContainedIn <- function(strA, strB){
     return (all(strA %in% strB))
 }
 
+
+
+observe({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return(NULL)}
+    
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    
+    if (NA.count > 0) {
+        shinyjs::disable(input$condition1)
+        #shinyjs::disable("condition2")
+        shinyjs::disable(input$diffAnaMethod)
+        shinyjs::disable(input$seuilLogFC)
+    } else {
+        shinyjs::enable("diffAnaMethod")
+        #shinyjs::enable("seuilLogFC")
+        #shinyjs::enable("condition1")
+        #shinyjs::enable("condition2")
+    }
+})
 
 
 

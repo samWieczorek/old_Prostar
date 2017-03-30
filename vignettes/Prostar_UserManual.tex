@@ -10,9 +10,9 @@
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
 \newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
 
-\RequirePackage{/Users/sw175264/Library/R/3.3/library/BiocStyle/resources/tex/Bioconductor}
+\RequirePackage{/Library/Frameworks/R.framework/Versions/3.4/Resources/library/BiocStyle/resources/tex/Bioconductor}
 
-\AtBeginDocument{\bibliographystyle{/Users/sw175264/Library/R/3.3/library/BiocStyle/resources/tex/unsrturl}}
+\AtBeginDocument{\bibliographystyle{/Library/Frameworks/R.framework/Versions/3.4/Resources/library/BiocStyle/resources/tex/unsrturl}}
 
 \bioctitle{\Biocpkg{DAPAR} and \Biocpkg{ProStaR} user manual}
 
@@ -73,7 +73,7 @@ interface, so that no programming skill is required).
 the processing of proteomics data. More precisely, they are devoted to the 
 analysis of quantitative datasets produced in bottom-up discovery proteomics 
 with a LC-MS/MS pipe-line (Liquid Chromatography and Tandey Mass 
-spectrometry).\newline
+spectrometry). \textcolor{red}{The experiment package \Biocpkg{DAPARdata} is the companion package for \Biocpkg{ProStaR} and \Biocpkg{DAPAR}. It contains many datasets that can be used as example.}\newline
 
 \Biocpkg{DAPAR} (Differential Analysis of Protein Abundance with R) is an R 
 package that contains all the necessary functions to:
@@ -123,7 +123,7 @@ There are 3 ways to use \Biocpkg{DAPAR}:
 \begin{itemize}
 \item The first one is to use \Biocpkg{DAPAR} alone, through command lines or 
 scripts. To do so, the user simply has to install \Biocpkg{DAPAR} on his/her 
-own work station, as instructed in Section~\ref{sec:daparalone};
+own workstation, as instructed in Section~\ref{sec:daparalone};
 \item The second one is to use \Biocpkg{DAPAR} along with its graphical 
 interface \Biocpkg{ProStaR}, and to have them running on the user's station 
 (referred to as stand-alone install). In such case, it is necessary to install
@@ -132,10 +132,10 @@ interface \Biocpkg{ProStaR}, and to have them running on the user's station
 Section~\ref{sec:daparProstarstandalone};
 \item In the case where several \Biocpkg{ProStaR} users who are not 
 confortable with R (programming or installing), it is best to have a single 
-version of \Biocpkg{DAPAR} and \Biocpkg{ProStaR} running on a Unix/Linux 
-server. The users will use \Biocpkg{ProStaR} through a web browser, exactly 
-if it were locally installed, yet, a single install has to be administrated. 
-In that case, \Biocpkg{DAPAR} has to be classically installed 
+version of \Biocpkg{DAPAR} and \Biocpkg{ProStaR} running on a shiny server 
+installed on a Unix/Linux server. The users will use \Biocpkg{ProStaR} through 
+a web browser, exactly if it were locally installed, yet, a single install has 
+to be administrated. In that case, \Biocpkg{DAPAR} has to be classically installed 
 (Section~\ref{sec:daparalone}), while on the other hand,  the install of 
 \Biocpkg{ProStaR} is slightly different on a server 
 (Section~\ref{sec:daparProstarserver}).
@@ -143,7 +143,7 @@ In that case, \Biocpkg{DAPAR} has to be classically installed
 For a stand-alone use, both \Biocpkg{DAPAR} and \Biocpkg{ProStaR} can run on 
 any operating system (Unix/Linux, Mac OS X and Windows) as long as R is 
 installed. 
-In any case (stand-alone or server), a recent version of R ($\geq$ 3.2) is 
+In any case (stand-alone or server), a recent version of R ($\geq$ 3.4) is 
 needed.
 
 
@@ -254,6 +254,16 @@ This step will automatically install the following packages:
 \end{itemize}
 
 
+\subsection{DAPARdata}\label{sec:DAPARdata}
+
+\textcolor{red}{The installation of the package \Biocpkg{DAPARdata} follows the classical way for Bioconductor packages. In a R console, enter:}
+\begin{Schunk}
+\begin{Sinput}
+> source("http://www.bioconductor.org/biocLite.R")
+> biocLite("DAPARdata")
+\end{Sinput}
+\end{Schunk}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -270,7 +280,7 @@ This step will automatically install the following packages:
 
 {As illustrated on Fig.~\ref{fig:vuegal}, \Biocpkg{ProStaR} proposes a classical 
 Graphical User Interface (GUI) to visualize and interact with the data. On 
-the top, a navbar menu helps navigating throught the various \Biocpkg{DAPAR} 
+the top, a navbar menu helps navigating through the various \Biocpkg{DAPAR} 
 functionalities and running them. It is divided into five submenus:
 \begin{itemize}
 \item \textbf {ProStar}: The welcome page, depicted on Fig.~\ref{fig:vuegal}.
@@ -330,15 +340,12 @@ widgets to interact with \Biocpkg{ProStaR} are preloaded.
 command line (\emph{i.e.} without \Biocpkg{ProStaR} interface), using 
 function \Rfunction{readRDS()}.
 
-{The user can find an example of MSnSet file in the installation directory 
-of \Biocpkg{DAPAR}:\newline
-\Rcode{inst/extdata/UPSpepx2.MSnSet}}. \newline
-
-The user can find this directory by entering:
+{The user can find examples of MSnSet file in the 'extdata' directory 
+of \Biocpkg{DAPARdata}. The user can find this directory by entering:\newline
 
 \begin{Schunk}
 \begin{Sinput}
-> installed.packages()["DAPAR","LibPath"]
+> installed.packages()["DAPARdata","LibPath"]
 \end{Sinput}
 \end{Schunk}
 
@@ -1454,11 +1461,18 @@ feedbacks):
 
 \section{Session information}\label{sec:sessionInfo}
 \begin{itemize}\raggedright
-  \item R version 3.3.2 (2016-10-31), \verb|x86_64-apple-darwin13.4.0|
+  \item R Under development (unstable) (2017-03-21 r72380), \verb|x86_64-apple-darwin15.6.0|
   \item Locale: \verb|fr_FR.UTF-8/fr_FR.UTF-8/fr_FR.UTF-8/C/fr_FR.UTF-8/fr_FR.UTF-8|
+  \item Running under: \verb|macOS Sierra 10.12.4|
+  \item Matrix products: default
+  \item BLAS: \verb|/Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRblas.0.dylib|
+  \item LAPACK: \verb|/Library/Frameworks/R.framework/Versions/3.4/Resources/lib/libRlapack.dylib|
   \item Base packages: base, datasets, graphics, grDevices, methods, stats,
     utils
-  \item Loaded via a namespace (and not attached): BiocStyle~2.2.1, tools~3.3.2
+  \item Loaded via a namespace (and not attached): backports~1.0.5,
+    BiocStyle~2.3.31, compiler~3.4.0, digest~0.6.12, evaluate~0.10,
+    htmltools~0.3.5, knitr~1.15.1, magrittr~1.5, Rcpp~0.12.10, rmarkdown~1.3,
+    rprojroot~1.2, stringi~1.1.3, stringr~1.2.0, tools~3.4.0, yaml~2.1.14
 \end{itemize}
 %\bibliography{\Biocpkg{ProStaR}}
 

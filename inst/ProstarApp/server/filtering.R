@@ -4,8 +4,8 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     filter <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
-    conditionalPanel(condition= "true"
-                     ,h4("Missing values filtering options")
+    tagList(
+        h4("Missing values filtering options")
                      ,hr()
                      ,radioButtons("ChooseFilters","", 
                                    choices = gFiltersList,
@@ -22,8 +22,8 @@ output$DP_sidebar_FilterTab2 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
     
-    conditionalPanel(condition= "true"
-                     ,h4("String based filtering options")
+    tagList(
+        h4("String based filtering options")
                      ,hr()
                      ,h4("Filter contaminants"),
                      uiOutput("id_Contaminants"),
@@ -42,8 +42,8 @@ output$DP_sidebar_FilterTab3 <- renderUI({
     
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
-    conditionalPanel(condition= "true"
-                     ,h4("Filtered data display")
+    tagList(
+        h4("Filtered data display")
                      ,hr()
                      ,radioButtons("ChooseTabAfterFiltering", 
                                    "Choose the data to display",

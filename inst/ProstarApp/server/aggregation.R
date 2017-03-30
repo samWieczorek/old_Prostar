@@ -282,7 +282,7 @@ output$aggregationStats <- renderUI ({
                   "</li>
                   
                   <li>
-                  Number of unique peptides: ", 
+                  Number of specific peptides: ", 
                   nrow(rv$matAdj$matWithUniquePeptides),
                   "</li>
                   
@@ -297,7 +297,7 @@ output$aggregationStats <- renderUI ({
                   Number of proteins:  ", ncol(rv$matAdj$matWithSharedPeptides),
                   " </li>
                   <li>
-                  Number of proteins only defined by unique peptides: ", 
+                  Number of proteins only defined by specific peptides: ", 
                   length(res$protOnlyUniquePep), 
                   "</li>
                   
@@ -307,7 +307,7 @@ output$aggregationStats <- renderUI ({
                   "</li>
                   
                   <li>
-                  Number of proteins defined both by shared and unique peptides:  ", 
+                  Number of proteins defined both by shared and specific peptides:  ", 
                   length(res$protMixPep), 
                   "</li>
                   
@@ -419,8 +419,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
     
     wellPanel(id = "sidebar_Aggregation",
               height = "100%",
-              conditionalPanel(
-                  condition = 'true',
+              tagList(
                   h4("Aggregation options"),
                   uiOutput("warningAgregationMethod"),
                   uiOutput("chooseProteinId"),
@@ -444,14 +443,13 @@ output$AggregationWellPanel_Step1 <- renderUI({
     {return (NULL)}
     
     if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
-        conditionalPanel(id = "wellPanel_Agregation",
-                         condition = 'true',
-                         HTML("Please select first the id of protein in your dataset. 
+        tagList(
+            HTML("Please select first the id of protein in your dataset. 
                               <br>Then, the stats will be showed and it will be possible to 
                               perform the aggregation"),
                          fluidRow(
-                             column(width=6, h4("Only unique peptides")),
-                             column(width=6, h4("All (unique & shared) peptides"))
+                             column(width=6, h4("Only specific peptides")),
+                             column(width=6, h4("All (specific & shared) peptides"))
                          ),
                          busyIndicator("Calculation in progress",wait = 0),
                          fluidRow(
@@ -487,8 +485,7 @@ output$Aggregation_Step2 <- renderUI({
     if (is.null(rv$current.obj)){return (NULL)}
     
     if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
-        conditionalPanel(
-            condition = 'true',
+        tagList(
             fluidRow(
                 column(width=3,
                        checkboxInput("filterProtAfterAgregation",

@@ -18,28 +18,34 @@ output$helpForNormalizationMethods <- renderUI({
                                               c("sum by columns", "quantile alignment", "overall", "within conditions")))
     
     
-    helpNormalization["Global Alignment"] <- "these methods propose 
-    normalizations of important magnitude that should be cautiously used:
-    * \"sum by columns\" operates on the original scale (not the log2 one) and propose to 
-    normalize each abundance by the total abundance of the sample (so as to focus 
+    helpNormalization["Global Alignment"] <- "These methods propose 
+    normalizations of important magnitude that should be cautiously used:<br>
+    <ul>
+    <li>
+    <strong>sum by columns</strong> operates on the original scale (not the log2 one) and propose to 
+    normalize each abundance <br> by the total abundance of the sample (so as to focus 
     on the analyte proportions among each sample).
-    * \"quantile alignment\" proposes to align the quantiles of all the 
-    replicates as described in [ref1]; practically it amounts to replace 
-    abundances by order statistics."
+    </li>
+    <li>
+    <strong>quantile alignment</strong> proposes to align the quantiles of all the 
+    replicates as described in [6]; <br> practically it amounts to replace 
+    abundances by order statistics.
+    </li>
+    </ul>"
     
     
     
     helpNormalization["Quantile Centering"] <- "These methods propose 
     to shift the sample distributions (either all of them at once, or within 
-    each condition at a time) to align a specific quantile: the median (under 
-    the assumption that up-regulations and down-regulations are equally frequent), 
-    the 15% quantile (under the assumption that the signal/noise ratio is 
+    each condition at a time) to align <br> a specific quantile: the median (under 
+    the assumption that up-regulations and down-regulations are equally frequent), <br>
+    the 15% quantile <br> (under the assumption that the signal/noise ratio is 
     roughly the same in all the samples), or any other user's choice."
     
     
     helpNormalization["Mean Centering"] <- "These methods propose to shift the 
     sample distributions (either all of them at once, or within each condition 
-    at a time) to align their means. It is also possible to force unit variance 
+    at a time) to align their means. <br> It is also possible to force unit variance 
     (or not)."
     
     
@@ -532,8 +538,7 @@ output$AbsShowOptions <- renderUI({
     input$plotOptions
     if (!input$plotOptions) {return(NULL)}
     
-    conditionalPanel(id = "condPanelShowOptions",
-                     condition = "true",
+    tagList(
                      uiOutput("ChooseLegendForAxis"),
                      uiOutput("nShow"),
                      uiOutput("nGroup")
