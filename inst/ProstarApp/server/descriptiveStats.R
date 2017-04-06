@@ -99,7 +99,10 @@ output$viewExprs <- renderDataTable(
         drawCallback=JS(
             paste("function(row, data) {",
                   paste(sapply(1:ncol(test.table),function(i)
-                      paste( "$(this.api().cell(",id %% nrow(test.table)-1,",",trunc(id / nrow(test.table))+1,").node()).css({'background-color': 'lightblue'});")
+                     paste( "$(this.api().cell(",
+                        id %% nrow(test.table)-1,",",
+                        trunc(id / nrow(test.table))+1,
+                        ").node()).css({'background-color': 'lightblue'});")
                   ),collapse = "\n"),"}" )
         ), 
         serverSide = FALSE)
@@ -135,7 +138,9 @@ output$viewpData <- DT::renderDataTable({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -146,8 +151,9 @@ output$viewpData <- DT::renderDataTable({
 option=list(pageLength=DT_pagelength,
             orderClasses = TRUE,
             autoWidth=FALSE,
-            columnDefs = list(list(columns.width=c("60px"),
-                                   columnDefs.targets= c(list(0),list(1),list(2)))))
+            columnDefs = list(
+                list(columns.width=c("60px"),
+                     columnDefs.targets= c(list(0),list(1),list(2)))))
 )
 
 ##' show fData of the MSnset object in a table
@@ -159,23 +165,23 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             options=list(pageLength=DT_pagelength,
-                                          orderClasses = TRUE,
-                                          autoWidth=FALSE,
-                                          columns.searchable=F,
-                                          columnDefs = list(list(columns.width=c("60px"),
-                                                                 columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
+                        options=list(pageLength=DT_pagelength,
+                                    orderClasses = TRUE,
+                                    autoWidth=FALSE,
+                                    columns.searchable=F,
+                            columnDefs = list(list(columns.width=c("60px"),
+                        columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
                         target = 'row',
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                              options=list(pageLength=DT_pagelength,
-                                          orderClasses = TRUE,
-                                          autoWidth=FALSE,
-                                          columns.searchable=F,
-                                          columnDefs = list(list(columns.width=c("60px"),
-                                                                 columnDefs.targets=c(list(0),list(1),list(2))))))
+                            orderClasses = TRUE,
+                            autoWidth=FALSE,
+                            columns.searchable=F,
+                            columnDefs = list(list(columns.width=c("60px"),
+                            columnDefs.targets=c(list(0),list(1),list(2))))))
     }
     
     return(dat)
@@ -200,7 +206,9 @@ output$viewExprsMissValues <- DT::renderDataTable({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -213,7 +221,7 @@ option=list(orderClasses = TRUE,
             columns.searchable=F,
             pageLength = DT_pagelength,
             columnDefs = list(list(columns.width=c("60px"),
-                                   columnDefs.targets=c(list(0),list(1),list(2)))))
+                            columnDefs.targets=c(list(0),list(1),list(2)))))
 )
 
 
@@ -235,12 +243,14 @@ output$overview <- renderUI({
                 
                 rv$current.obj
                 rv$typeOfDataset
-                NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                                  2, 
-                                  function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                NA.count <- 
+                    apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                          2, 
+                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
                 pourcentage <- 100 * round(sum(NA.count)/
-                                               (dim(Biobase::exprs(rv$current.obj))[1]*
-                                                    dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+                                    (dim(Biobase::exprs(rv$current.obj))[1]*
+                                    dim(Biobase::exprs(rv$current.obj))[2]), 
+                                    digits=4)
                 d <- "lines"
                 if (rv$typeOfDataset == "peptide") {d <- "peptides"}
                 else if (rv$typeOfDataset == "protein") {d <- "proteins"}
@@ -249,10 +259,12 @@ output$overview <- renderUI({
                 nb.empty.lines <- sum(apply(
                     is.na(as.matrix(exprs(rv$current.obj))), 1, all))
                 tags$ul(
-                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
+                    tags$li(paste("There are", 
+                                  dim(Biobase::exprs(rv$current.obj))[2], 
                                   " samples in your data.", sep=" ")),
                     
-                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[1], d,
+                    tags$li(paste("There are", 
+                                  dim(Biobase::exprs(rv$current.obj))[1], d,
                                   " in your data.", sep=" ")), 
                     tags$li(paste("Percentage of missing values:",
                                   pourcentage , "%", sep=" ")),
@@ -263,7 +275,9 @@ output$overview <- renderUI({
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste(match.call()[[1]],":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -284,13 +298,15 @@ output$histo.missvalues.per.lines_Image <- renderPlot({
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.mvPerLinesHisto(rv$current.obj, 
-                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+        wrapper.mvPerLinesHisto(rv$current.obj, 
+                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -306,12 +322,14 @@ output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
     result = tryCatch(
         {
             wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
-                                                c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -331,12 +349,14 @@ output$histo.missvalues.per.lines_DS <- renderPlot({
     result = tryCatch(
         {
             wrapper.mvPerLinesHisto(rv$current.obj, 
-                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -356,12 +376,14 @@ output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
     result = tryCatch(
         {
             wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
-                                                c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -411,7 +433,9 @@ output$viewBoxPlot_DS <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -441,7 +465,9 @@ output$viewViolinPlot_DS <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -472,7 +498,8 @@ output$viewDensityplot_DS <- renderPlot({
         gToColor_DS <- "Condition"
     }else{gToColor_DS <- input$whichGroup2Color_DS}
     
-    if (is.null(input$whichGroup2Color_DS) || (input$whichGroup2Color_DS == "Condition")){
+    if (is.null(input$whichGroup2Color_DS) 
+        || (input$whichGroup2Color_DS == "Condition")){
         labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
     }else {
         labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
@@ -484,13 +511,17 @@ output$viewDensityplot_DS <- renderPlot({
     
     result = tryCatch(
         {
-            wrapper.densityPlotD(rv$current.obj, labels_DS, as.numeric(labelsToShow_DS), 
+            wrapper.densityPlotD(rv$current.obj, 
+                                 labels_DS, 
+                                 as.numeric(labelsToShow_DS), 
                                  gToColor_DS)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -518,7 +549,9 @@ output$viewDistCV <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -546,7 +579,9 @@ output$corrMatrix <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -583,7 +618,9 @@ output$heatmap <- renderPlot({
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste(match.call()[[1]],":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -726,8 +763,8 @@ output$overviewNewData <- renderUI({
                         2, 
                         function(x) length(which(is.na(data.frame(x))==TRUE)) )
         pourcentage <- 100 * round(sum(NA.count)/
-                                       (dim(Biobase::exprs(rv$current.obj))[1]*
-                                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+                                (dim(Biobase::exprs(rv$current.obj))[1]*
+                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
         txt3 <- paste("Percentage of missing values:",pourcentage , "%")
         
         nb.empty.lines <- sum(apply(
@@ -742,7 +779,8 @@ output$overviewNewData <- renderUI({
             
             
             txt4 <- paste("There ", verb, " ",
-                          nb.empty.lines ," line",plurial," with only NA values !!"
+                          nb.empty.lines ," line",
+                          plurial," with only NA values !!"
                           ,sep="")
         }
         

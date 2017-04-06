@@ -20,8 +20,9 @@ tabPanel("Normalization",
                                              "Save normalization",
                                              width="170px")
                      )
-                     ,tagList(
-                         uiOutput("helpForNormalizationMethods"),
+                     ,conditionalPanel(id = "wellPanlNormalization",
+                                       condition = "true",
+                                       uiOutput("helpForNormalizationMethods"),
                                        #plotOutput("viewBoxPlotNorm")
                                        fluidRow(
                                            column(width=6, plotOutput("viewDensityplotNorm")),

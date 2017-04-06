@@ -9,7 +9,8 @@ tabPanel("Aggregation",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   uiOutput("AggregationSideBar_Step1"),
-                                  tagList(
+                                  conditionalPanel(id = "wellPanel_Agregation",
+                                                   condition = 'true',
                                                    uiOutput("AggregationWellPanel_Step1")
                                   )
                       )

@@ -208,7 +208,8 @@ tagList(
 
 ########################################################
 # FROM :http://stackoverflow.com/questions/35271661/update-shiny-r-custom-progressbar/39265225#39265225
-progressBar2 <- function(inputId=NULL, value=0, label=FALSE, color="info", size=NULL,
+progressBar2 <- function(inputId=NULL, value=0, label=FALSE, color="info", 
+                         size=NULL,
                          striped=FALSE, active=FALSE, vertical=FALSE) {
     stopifnot(is.numeric(value))
     if (value < 0 || value > 100)

@@ -8,8 +8,8 @@ observeEvent( input$datasets,{
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
             
-            if (!is.null( rv$current.obj))
-                rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        if (!is.null( rv$current.obj))
+            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
             UpdateLog(
                 paste("Current dataset has changed. Now, it is ",
                       input$datasets, 
@@ -28,7 +28,7 @@ observeEvent( input$datasets,{
 
 
 session$onSessionEnded(function() {
-    setwd(tempdir())
+    #setwd(tempdir())
     graphics.off()
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
@@ -43,9 +43,15 @@ session$onSessionEnded(function() {
         initializeProstar()
         rv$hot = port
         #rv$indexNA <- NULL
-        rv$text.log <- data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
+        rv$text.log <- data.frame(Date="", 
+                                  Dataset="", 
+                                  History="", 
+                                  stringsAsFactors=F)
         #rv$commandLog <- ""
-        updateSelectInput(session, "datasets",  "Dataset versions", choices = "none")
+        updateSelectInput(session, 
+                          "datasets",  
+                          "Dataset versions", 
+                          choices = "none")
         updateRadioButtons(session,"typeOfData",selected = "peptide" )
         updateRadioButtons(session, "checkDataLogged", selected="no")
         updateRadioButtons(session, "autoID", selected = "Auto ID")
@@ -94,8 +100,10 @@ loadObjectInMemoryFromConverter <- reactive({
     
     
     writeToCommandLogFile("dataset <- list()")
-    writeToCommandLogFile(paste("dataset[['",name,"']] <- current.obj",sep=""))
-    writeToCommandLogFile(paste("typeOfDataset <- \"", rv$typeOfDataset, "\"", sep=""))
+    writeToCommandLogFile(paste("dataset[['",
+                                name,"']] <- current.obj",sep=""))
+    writeToCommandLogFile(paste("typeOfDataset <- \"", 
+                                rv$typeOfDataset, "\"", sep=""))
     writeToCommandLogFile("colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)")
     #writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
     if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
@@ -111,7 +119,8 @@ loadObjectInMemoryFromConverter <- reactive({
     
     
     updateSelectInput(session, "datasets", 
-                      label = paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                      label = paste("Dataset versions of",
+                                    rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
     
@@ -153,7 +162,10 @@ initializeProstar <- reactive({
     # transformation of the data
     rv$dataset = list()
     # Variable that contains the log for the current R session
-    rv$text.log = data.frame(Date="", Dataset="", History="", stringsAsFactors=F)
+    rv$text.log = data.frame(Date="", 
+                             Dataset="", 
+                             History="", 
+                             stringsAsFactors=F)
     rv$seuilLogFC = 0
     rv$seuilPVal = 1e-60
     rv$tab1 = NULL
@@ -256,8 +268,9 @@ output$disableAggregationTool <- renderUI({
     {
         if (rv$current.obj@experimentData@other$typeOfData == "protein")
         {
-            disable(selector = "#navPage li a[data-value=Aggregation]")
-            tags$style(type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
+    disable(selector = "#navPage li a[data-value=Aggregation]")
+    tags$style(
+type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
             
             
         } else {

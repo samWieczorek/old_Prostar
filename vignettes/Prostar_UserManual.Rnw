@@ -73,14 +73,16 @@ interface, so that no programming skill is required).
 the processing of proteomics data. More precisely, they are devoted to the 
 analysis of quantitative datasets produced in bottom-up discovery proteomics 
 with a LC-MS/MS pipe-line (Liquid Chromatography and Tandey Mass 
-spectrometry). \textcolor{red}{The experiment package \Biocpkg{DAPARdata} is the companion package for \Biocpkg{ProStaR} and \Biocpkg{DAPAR}. It contains many datasets that can be used as example.}\newline
+spectrometry). \textcolor{red}{The experiment package \Biocpkg{DAPARdata} is 
+the companion package for \Biocpkg{ProStaR} and \Biocpkg{DAPAR}. It contains 
+many datasets that can be used as example.}\newline
 
 \Biocpkg{DAPAR} (Differential Analysis of Protein Abundance with R) is an R 
 package that contains all the necessary functions to:
 \begin{itemize}
 \item {Import/export a quantitative dataset.} Here, a quantitative dataset 
 denotes a table where each protein is represented by a line and and each 
-replicate is represented by a column; each cell of the table contain the 
+replicate is represented by a column; each cell of the table contains the 
 abundance of a given protein in a given sample; the replicates are clustered 
 into different conditions (or groups), and the purpose of the analysis is to 
 isolate the few proteins the abundance of which significantly differ between 
@@ -104,11 +106,12 @@ practitioner that is not comfortable with R programming through the complete
 quantitative analysis process.
 
 
-In \Biocpkg{DAPAR}, a serie of functions may be called from two types of variables: a 
-dataframe that contains quantitative data and an object of class MSnSet. The 
-first case has been developped to make \Biocpkg{DAPAR} easier to use (in command line) 
-for users who do not want to work with MSnSet files and to be compliant in 
-the future with the Proline Suite (http://proline.profiproteomics.fr/).
+In \Biocpkg{DAPAR}, a serie of functions may be called from two types of 
+variables: a dataframe that contains quantitative data and an object of class 
+MSnSet. The first case has been developped to make \Biocpkg{DAPAR} easier to 
+use (in command line) for users who do not want to work with MSnSet files and 
+to be compliant in the future with the Proline Suite 
+(http://proline.profiproteomics.fr/).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -135,9 +138,9 @@ confortable with R (programming or installing), it is best to have a single
 version of \Biocpkg{DAPAR} and \Biocpkg{ProStaR} running on a shiny server 
 installed on a Unix/Linux server. The users will use \Biocpkg{ProStaR} through 
 a web browser, exactly if it were locally installed, yet, a single install has 
-to be administrated. In that case, \Biocpkg{DAPAR} has to be classically installed 
-(Section~\ref{sec:daparalone}), while on the other hand,  the install of 
-\Biocpkg{ProStaR} is slightly different on a server 
+to be administrated. In that case, \Biocpkg{DAPAR} has to be classically 
+installed (Section~\ref{sec:daparalone}), while on the other hand, the 
+installation of \Biocpkg{ProStaR} is slightly different on a server 
 (Section~\ref{sec:daparProstarserver}).
 \end{itemize}
 For a stand-alone use, both \Biocpkg{DAPAR} and \Biocpkg{ProStaR} can run on 
@@ -168,8 +171,8 @@ biocLite("Prostar")
 
 This step will automatically install the following packages: \CRANpkg{shiny}, 
 \CRANpkg{reshape2}, \Githubpkg{jrowen/rhandsontable}, \CRANpkg{DAPARdata}, 
-\CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}, \CRANpkg{sm}, \CRANpkg{openxlsx},
-\CRANpkg{shinyAce}, \CRANpkg{highcharter}.
+\CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}, \CRANpkg{sm}, 
+\CRANpkg{openxlsx}, \CRANpkg{shinyAce}, \CRANpkg{highcharter}.
 
 Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
 << runProstarStandalone>>=
@@ -190,7 +193,8 @@ The first step is to install \Biocpkg{Prostar} as described in
 Section~\ref{sec:daparProstarstandalone} in order to have the dependencies 
 installed.
 
-Then, execute the following line in order to get the install directory of Prostar:
+Then, execute the following line in order to get the install directory of 
+Prostar:
 
 << getProstarInstallDir>>=
 installed.packages()["Prostar","LibPath"]
@@ -202,7 +206,8 @@ Change the owner of the shiny-server directory and log as shiny
 \shellcmd{su shiny}\newline
 
 
-Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with the user shiny as owner and then copy the Prostar files.\newline
+Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with 
+the user shiny as owner and then copy the Prostar files.\newline
 \shellcmd{mkdir /srv/shiny-server/Prostar}
 \shellcmd{chown -R shiny /srv/shiny-server/Prostar}
 \shellcmd{cp -R prostarDir/ProstarApp/* /srv/shiny-server/ProStaR/.}
@@ -239,8 +244,8 @@ This step will automatically install the following packages:
 \CRANpkg{ggplot2}, \CRANpkg{imputeLCMD}, \CRANpkg{gplots}, \CRANpkg{openxlsx},
 \CRANpkg{knitr}, \CRANpkg{cp4p}, \CRANpkg{doParallel}, \CRANpkg{scales},
 \CRANpkg{stats}, \CRANpkg{grDevices}, \CRANpkg{vioplot}, \CRANpkg{sm}
-\CRANpkg{graphics}, \CRANpkg{utils}, \CRANpkg{parallel}, \CRANpkg{openxlsx}, \CRANpkg{Matrix},
-\CRANpkg{highcharter}
+\CRANpkg{graphics}, \CRANpkg{utils}, \CRANpkg{parallel}, \CRANpkg{openxlsx}, 
+\CRANpkg{Matrix}, \CRANpkg{highcharter}
 \item {From Bioconductor}: \Biocpkg{MSnbase}, \Biocpkg{preprocessCore}, 
 \Biocpkg{impute}, \Biocpkg{limma}, \Biocpkg{pcaMethods}
 \end{itemize}
@@ -248,7 +253,8 @@ This step will automatically install the following packages:
 
 \subsection{DAPARdata}\label{sec:DAPARdata}
 
-\textcolor{red}{The installation of the package \Biocpkg{DAPARdata} follows the classical way for Bioconductor packages. In a R console, enter:}
+\textcolor{red}{The installation of the package \Biocpkg{DAPARdata} follows 
+the classical way for Bioconductor packages. In a R console, enter:}
 << installDAPARdata>>=
 source("http://www.bioconductor.org/biocLite.R")
 biocLite("DAPARdata")
@@ -268,10 +274,11 @@ biocLite("DAPARdata")
 \caption{Default screen of ProStaR}\label{fig:vuegal}
 \end{figure}
 
-{As illustrated on Fig.~\ref{fig:vuegal}, \Biocpkg{ProStaR} proposes a classical 
-Graphical User Interface (GUI) to visualize and interact with the data. On 
-the top, a navbar menu helps navigating through the various \Biocpkg{DAPAR} 
-functionalities and running them. It is divided into five submenus:
+{As illustrated on Fig.~\ref{fig:vuegal}, \Biocpkg{ProStaR} proposes a 
+classical Graphical User Interface (GUI) to visualize and interact with the 
+data. On the top, a navbar menu helps navigating through the various 
+\Biocpkg{DAPAR} functionalities and running them. It is divided into five 
+submenus:
 \begin{itemize}
 \item \textbf {ProStar}: The welcome page, depicted on Fig.~\ref{fig:vuegal}.
 \item \textbf {Dataset manager}: It contains the tools to import and export 
@@ -350,30 +357,55 @@ installed.packages()["DAPARdata","LibPath"]
 
 \subsubsection{Import}\label{sec:import}
 Alternatively, the user can create a quantitative dataset in the MSnSet 
-format, on the basis of TSV (Tab Separated Values) or Excel files (in format xls or xlsx) that 
-contain the results of a proteomics analysis. To do so, one has to click 
-on "Convert data to MSnSet". Then, the right panel splits into 5 tabs that 
-guide the user through the procedure to create the MSnSet object. Let us describe the import format first, and the import procedure then. 
+format, on the basis of TSV (Tab Separated Values) or Excel files (in format 
+xls or xlsx) that contain the results of a proteomics analysis. To do so, one 
+has to click on "Convert data to MSnSet". Then, the right panel splits into 5 
+tabs that guide the user through the procedure to create the MSnSet object. 
+Let us describe the import format first, and the import procedure then. 
 
 \noindent \textbf{Import data}\\
-\noindent Data are imported through a text file (.txt) formatted as a column separated file, with tabulations (\textit{i.e.} "\textbackslash{}t" character) as column separator.
-The first line of the text file contains the column names. A minimum of 4 columns with quantitative values are necessary: As \Biocpkg{ProStaR} is made for label-free discovery proteomics, it is required to have \textit{a minima} 2 conditions (or groups, or labels) to compare; moreover, 2 replicates per conditions are necessary, so that it is possible to compute a condition-wise variance. Regarding the quantitative values, the decimal separator is ".", and the intensities may be either log-transformed or not. It is also advised to have an additional columns that contains IDs (that is that gives a unique name to each line of the dataset). If such a unique ID does not appear in the dataset, one will be automatically generated.
+\noindent Data are imported through a text file (.txt) formatted as a column 
+separated file, with tabulations (\textit{i.e.} "\textbackslash{}t" character) 
+as column separator.
+The first line of the text file contains the column names. A minimum of 4 
+columns with quantitative values are necessary: As \Biocpkg{ProStaR} is made 
+for label-free discovery proteomics, it is required to have \textit{a minima} 
+2 conditions (or groups, or labels) to compare; moreover, 2 replicates per 
+conditions are necessary, so that it is possible to compute a condition-wise 
+variance. Regarding the quantitative values, the decimal separator is ".", 
+and the intensities may be either log-transformed or not. It is also advised 
+to have an additional columns that contains IDs (that is that gives a unique 
+name to each line of the dataset). If such a unique ID does not appear in the 
+dataset, one will be automatically generated.
 
-Of course, it is possible to have more columns with quantitative values; as well as additional columns with other information. The latter ones will be considered as metadata when imported.
+Of course, it is possible to have more columns with quantitative values; as 
+well as additional columns with other information. The latter ones will be 
+considered as metadata when imported.
 
-It is recommended to avoid special characters such as "$\sharp$", "@", "\$", "\%", etc. that are automatically removed. Similarly spaces in column names are replaced by ".".
+It is recommended to avoid special characters such as "$\sharp$", "@", "\$", 
+"\%", etc. that are automatically removed. Similarly spaces in column names 
+are replaced by ".".
 
-If the dataset describes proteins, each line should correspond to one and only one protein. 
-If the dataset describes peptides, each line should correspond to one and only one peptide. In addition, it is necessary to have a column that lists (separated by a ";") all the parent proteins of each peptide, as this piece of information is mandatory for the aggregation. It is also necessary that these parent proteins are describe by a unique ID (so as to avoid confusion between the proteins).
+If the dataset describes proteins, each line should correspond to one and 
+only one protein. 
+If the dataset describes peptides, each line should correspond to one and only 
+one peptide. In addition, it is necessary to have a column that lists 
+(separated by a ";") all the parent proteins of each peptide, as this piece of 
+information is mandatory for the aggregation. It is also necessary that these 
+parent proteins are describe by a unique ID (so as to avoid confusion between 
+the proteins).
 
-As an example, please find at the following address a dataset abstract that can be inspired from: \url{http://www.bioconductor.org/packages/release/bioc/readmes/Prostar/README}. 
+As an example, please find at the following address a dataset abstract that 
+can be inspired from: \url{http://www.bioconductor.org/packages/release/bioc/
+readmes/Prostar/README}. 
 
 
 \noindent \textbf{Import procedure}\\
-\noindent Several panels guide the user through the different steps of the procedure:
+\noindent Several panels guide the user through the different steps of the 
+procedure:
 
-\textbf {Select file}: Select the CSV/txt or Excel (*.xls, *.xlsx) file to import (see 
-Fig.~\ref{fig:imp1}). The file must contain a table where each line 
+\textbf {Select file}: Select the CSV/txt or Excel (*.xls, *.xlsx) file to 
+import (see Fig.~\ref{fig:imp1}). The file must contain a table where each line 
 corresponds to a peptide or protein, except the first one which must contain 
 the names of the colums. 
 If the user chooses an Excel file, a dropdown menu appears and ask the user to 
@@ -381,12 +413,13 @@ select the spreadsheet containing the data.
 
 As it appears in Fig.~\ref{fig:imp1}, some options allows for 
 specifying if data are related to peptides or proteins, if the abundance values
-are already log-transformed or not \footnote{In \Biocpkg{DAPAR}, the analysis is 
-always conducted on log-transformed data. They may have previously been 
-transformed, but if not, then \Biocpkg{DAPAR} automatically performs the transformation. 
-The user should not try applying any \Biocpkg{DAPAR} processing on data that are not 
-log-transformed, for the result would be dubious.}, and also if $0$ and $NaN$ 
-values should be replaced by \textbf{NA}. 
+are already log-transformed or not \footnote{In \Biocpkg{DAPAR}, the analysis 
+is always conducted on log-transformed data. They may have previously been 
+transformed, but if not, then \Biocpkg{DAPAR} automatically performs the 
+transformation. 
+The user should not try applying any \Biocpkg{DAPAR} processing on data that 
+are not log-transformed, for the result would be dubious.}, and also if $0$ 
+and $NaN$ values should be replaced by \textbf{NA}. 
 %These options are checked by default.
 \begin {figure}
 \centering
@@ -395,13 +428,13 @@ values should be replaced by \textbf{NA}.
 \end {figure}
 
 {\textbf {Data ID}: This step is to set the column that corresponds to the 
-unique ID of peptides or proteins. The user has two options: let \Biocpkg{ProStaR} 
-creates such an ID by itself or choose among the columns available in the 
-data file. If choosing the second option, then a drop-down menu appears and 
-provides the list of the column names. A column corresponding to the unique 
-ID of the peptides or proteins should be selected (see Fig.~\ref{fig:imp2}). 
-If the column contains non unique IDs, a warning alerts the user and suggests 
-him to choose another column.}
+unique ID of peptides or proteins. The user has two options: let 
+\Biocpkg{ProStaR} creates such an ID by itself or choose among the columns 
+available in the data file. If choosing the second option, then a drop-down 
+menu appears and provides the list of the column names. A column corresponding 
+to the unique ID of the peptides or proteins should be selected 
+(see Fig.~\ref{fig:imp2}). If the column contains non unique IDs, a warning 
+alerts the user and suggests him to choose another column.}
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.75\textwidth]{images/convert_dataID.png}}
@@ -459,14 +492,15 @@ from a CSV file is \Rfunction{createMSnSet()}.
 Once an MSnSet has been created, it is possible to save it as a MSnSet binary 
 object (so that next time, it is not necessary to create it, and a simple 
 uploads makes it, as described in Section~\ref{sec:load}). It is also possible 
-to export it as an Excel spreadsheet (in xlsx format). To do so, one simply goes on the 
-corresponding tab and select the appropriate option (Fig.~\ref{fig:export}).
+to export it as an Excel spreadsheet (in xlsx format). To do so, one simply 
+goes on the corresponding tab and select the appropriate option 
+(Fig.~\ref{fig:export}).
 
 
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.9\textwidth]{images/export.png}}
-\caption{Importing a CSV file, tab 5.}\label{fig:export}
+\caption{Exporting to an Excel file.}\label{fig:export}
 \end {figure}
 
 
@@ -501,7 +535,7 @@ When the user chooses one of those datasets, it is automatically loaded in
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.9\textwidth]{images/demomode.png}}
-\caption{Importing a CSV file, tab 5.}\label{fig:demomodeFig}
+\caption{Loadind a demo dataset.}\label{fig:demomodeFig}
 \end {figure}
 
 
@@ -532,7 +566,8 @@ automate the analysis of a dataset.
 \begin{figure}[b]
 \centering
 \fbox{\includegraphics[width=0.75\textwidth]{images/Rcode.png}}
-\caption{Example of the R code generated during a session in ProStaR.}\label{fig:Rcode}
+\caption{Example of the R code generated during a 
+session in ProStaR.}\label{fig:Rcode}
 \end {figure}
 
 
@@ -920,26 +955,43 @@ Several methods are implemented:
 %  \item \textbf{Global adjustment}:
 %    \begin {itemize}
 \item[Global alignment]
-These methods propose normalizations of important magnitude that should be cautiously used:
+These methods propose normalizations of important magnitude that should be 
+cautiously used:
 \begin{itemize}
-\item \textbf{sum by columns} operates on the original scale (not the log2 one) and propose to normalize each abundance by the total abundance of the sample (so as to focus on the analyte proportions among each sample).
-\item \textbf{quantile alignment} proposes to align the quantiles of all the replicates as described in [ref1]; practically it amounts to replace abundances by order statistics.\newline
+\item \textbf{sum by columns} operates on the original scale (not the log2 one) 
+and propose to normalize each abundance by the total abundance of the sample 
+(so as to focus on the analyte proportions among each sample).
+\item \textbf{quantile alignment} proposes to align the quantiles of all the 
+replicates as described in [ref1]; practically it amounts to replace abundances 
+by order statistics.\newline
 \end{itemize}
 
 
 \item[Quantile centering]
-These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align a specific quantile: the median (under the assumption that up-regulations and down-regulations are equally frequent), the 15 quantile (under the assumption that the signal/noise ratio is roughly the same in all the samples), or any other user's choice. Two parameters are available:
+These methods propose to shift the sample distributions (either all of them at 
+once, or within each condition at a time) to align a specific quantile: the 
+median (under the assumption that up-regulations and down-regulations are 
+equally frequent), the 15 quantile (under the assumption that the signal/noise 
+ratio is roughly the same in all the samples), or any other user's choice. 
+Two parameters are available:
 \begin{itemize}
-\item \textbf{Normalization type: } the centering can operate over the entire dataset (value "overall") or over each condition (value "within conditions"),
-\item \textbf{Value of quantile (in \%): } 0.15 (lower limit/noise), 0.5 (median) or Other (In that case, the user can choose its personal quantile value).\newline
+\item \textbf{Normalization type: } the centering can operate over the entire 
+dataset (value "overall") or over each condition (value "within conditions"),
+\item \textbf{Value of quantile (in \%): } 0.15 (lower limit/noise), 
+0.5 (median) or Other (In that case, the user can choose its personal 
+quantile value).\newline
 \end{itemize}
 
 
 \item[Mean centering]
-These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align their means. It is also possible to force unit variance (or not). Two parameters are available:
+These methods propose to shift the sample distributions (either all of them at 
+once, or within each condition at a time) to align their means. It is also 
+possible to force unit variance (or not). Two parameters are available:
 \begin{itemize}
-\item \textbf{Normalization type:} the centering can operate over the entire dataset (value "overall") or over each condition (value "within conditions"),
-\item \textbf{Include variance reduction:} Let the user choose if he/she wants to rescale the dataset by mean of the variance reduction.
+\item \textbf{Normalization type:} the centering can operate over the entire 
+dataset (value "overall") or over each condition (value "within conditions"),
+\item \textbf{Include variance reduction:} Let the user choose if he/she wants 
+to rescale the dataset by mean of the variance reduction.
 \end{itemize}
 
     % \item[Sum by column] The abundance of each protein is divided by the 
@@ -1145,8 +1197,8 @@ peptides to be accounted for during the aggregation process.
 
 Third, the aggregation method itself ust be chosen: 
 \begin{itemize}
-\item Sum: that is the sum of the peptide intensities),
-\item Mean: the mean of the peptide intensities),
+\item Sum: that is the sum of the peptide intensities,
+\item Mean: the mean of the peptide intensities,
 \item Sum on top n: that is the sum over the N peptides with the highest median 
 intensities - in this case, the additional parameter N must be tuned.
 \end{itemize}
@@ -1237,11 +1289,11 @@ This is an interactive plot which reacts to mouse's events :
 point of the plot, a tooltip window appears and shows some informations about 
 that point. He can select the items to show in the Select widget where the 
 different choices correspond to the columns of the feature meta-data table. 
-The tooltip window is automatically updated.
+The tooltip window is automatically updated,
 \item When the user clicks on a point, a table is displayed above the 
 volcanoplot. It shows the values of intensities for all the samples related to
 the selected point. The cells colored in blue indicate that the corresponding 
-value was a missing value in the original dataset and has been imputed.
+value was a missing value in the original dataset and has been imputed,
 \item The user can click and draw a rectangle on the plot to zoom in. 
 By clicking on the button named "Reset zoom", the user can return to the 
 entire plot.
@@ -1340,7 +1392,7 @@ to be more or less stringent on the number of proteins called "Significant".
 %% Menu
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Help}
-The Help screen offers various information through three panels:
+The Help screen offers various information:
 \begin{itemize}
 \item\textbf{{The MSnSet format}}. On this screen, there is a link to an 
 article about the MSnSet format in order to explain its architecture to the 
@@ -1424,19 +1476,6 @@ reproducible example and the output of sessionInfo().
 Here follow some error messages that the user may encounter and the tip to 
 work around (please note that this section will be enriched with your 
 feedbacks):
-
-%' \textbf{Unable to load loadWorkbook}: This error may appear if the package 
-%' \CRANpkg{XLConnect} is not properly installed. First check if this package is 
-%' well installed. The package \CRANpkg{XLConnect} needs the package 
-%' \CRANpkg{rJava} to be installed. It may happen that the installation of 
-%' \CRANpkg{rJava} fails because of the configuration of environment variables 
-%' (especially on Windows systems). In this case, try to set the environment 
-%' variable JAVA\_HOME to an empy string before installing \CRANpkg{rJava} and 
-%' \Biocpkg{DAPAR}:
-%' << installDAPARBiocondJAVAHOME>>=
-%' Sys.setenv("JAVA_HOME", "")
-%' @
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -39,13 +39,15 @@ shinyServer(function(input, output, session) {
     
     env <- environment()
     sessionID <- Sys.getpid()
+    #source(file.path("server", "global.R"), local = TRUE)$value
+    source(file.path("server", "general.R"), local = TRUE)$value
+    
 
     source(file.path("server", "filtering.R"),  local = TRUE)$value
     source(file.path("server", "imputation.R"),  local = TRUE)$value
     source(file.path("server", "normalization.R"),  local = TRUE)$value
     source(file.path("server", "anaDiff.R"),  local = TRUE)$value
     source(file.path("server", "descriptiveStats.R"),  local = TRUE)$value
-    source(file.path("server", "general.R"),  local = TRUE)$value
     source(file.path("server", "aggregation.R"),  local = TRUE)$value
     source(file.path("server", "datasetManager.R"),  local = TRUE)$value
     source(file.path("server", "help.R"),  local = TRUE)$value

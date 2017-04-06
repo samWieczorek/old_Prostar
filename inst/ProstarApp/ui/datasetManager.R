@@ -8,7 +8,8 @@ navbarMenu("Dataset manager",
                                                      "Open a MSnset file",
                                                      multiple = FALSE)
                                 ),
-                                tagList(
+                                conditionalPanel(id = "wellPanelOpenFile",
+                                                 condition = "true",
                                                  h3("Quick overview of the dataset"),
                                                  uiOutput("overview"),
                                                  uiOutput("infoAboutAggregationTool")
@@ -87,7 +88,7 @@ navbarMenu("Dataset manager",
                                 choices=  c( "MSnset","Excel")),
                     
                     br(),
-                    helpText("Select the columns you want to keep as metadata. 
+                    helpText("Select the columns you wante to keep as metadata. 
                              By default, in any column is specified, all meta data in your dataset
                              will be exported."),
                     
@@ -112,7 +113,8 @@ navbarMenu("Dataset manager",
                                           ,uiOutput("chooseDataset")
                                           ,actionButton("loadDemoDataset", "Load demo dataset")
                                 ),
-                                tagList(
+                                conditionalPanel(id = "wellPanelOpenFile",
+                                                 condition = "true",
                                                  h3("Quick overview of the dataset"),
                                                  uiOutput("overviewDemoDataset"),
                                                  uiOutput("showDatasetDoc")
@@ -128,7 +130,9 @@ navbarMenu("Dataset manager",
                         tabPanel("Log session",
                                  value = "ChangeDataset",
                                  sidebarCustom(),
-                                 tagList(
+                                 conditionalPanel(
+                                     id = "wellPanel_changeDataset",
+                                     condition =  "true",
                                      width=widthWellPanel,
                                      DT::dataTableOutput("logSession")
                                  )

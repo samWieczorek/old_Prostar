@@ -4,7 +4,9 @@ RunAggregation <- reactive({
     if (is.null(rv$matAdj)) { return (NULL)}
     
     n <- NULL
-    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { n <- as.numeric(input$nTopn)}
+    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { 
+        n <- as.numeric(input$nTopn)
+        }
     
     
     tryCatch (
@@ -19,7 +21,8 @@ RunAggregation <- reactive({
                     paste(
                         "data <- pepAgregate(current.obj, '",
                         input$proteinId, "', '",
-                        input$aggregationMethod, "', mat$matWithSharedPeptides,",n,")",
+                        input$aggregationMethod, 
+                        "', mat$matWithSharedPeptides,",n,")",
                         sep=""
                     )
                 )
@@ -35,7 +38,8 @@ RunAggregation <- reactive({
                     paste(
                         "data <- pepAgregate(current.obj, '",
                         input$proteinId, "', '",
-                        input$aggregationMethod, "', mat$matWithUniquePeptides,",n,")",
+                        input$aggregationMethod, 
+                        "', mat$matWithUniquePeptides,",n,")",
                         sep=""
                     )
                 )
@@ -90,7 +94,8 @@ observeEvent(input$valid.aggregation,{
                 #delta <- round(total / length(input$columnsForProteinDataset.box))
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
-                    newCol <- BuildColumnToProteinDataset(Biobase::fData(rv$current.obj), m, c)
+                    newCol <- BuildColumnToProteinDataset(
+                        Biobase::fData(rv$current.obj), m, c)
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 
                         data.frame(Biobase::fData(rv$temp.aggregate), newCol)
@@ -105,7 +110,8 @@ observeEvent(input$valid.aggregation,{
                 #}
                 
                 rv$current.obj <- rv$temp.aggregate
-                rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                rv$typeOfDataset <-
+                    rv$current.obj@experimentData@other$typeOfData
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- rv$current.obj
                 
@@ -115,11 +121,12 @@ observeEvent(input$valid.aggregation,{
                 
                 ######
                 l <- buildWritableVector(input$columnsForProteinDataset.box)
-                writeToCommandLogFile(paste("columnsForProteinDataset <- ",l, sep="") )
+                writeToCommandLogFile(
+                    paste("columnsForProteinDataset <- ",l, sep="") )
                 
                 writeToCommandLogFile("for (c in columnsForProteinDataset) {")
                 writeToCommandLogFile(
-                    "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
+                "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
                 writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
                 writeToCommandLogFile("fData(temp.aggregate) <-
                                       data.frame(fData(temp.aggregate), newCol)")
@@ -133,14 +140,16 @@ observeEvent(input$valid.aggregation,{
                 
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                  paste("Dataset versions of",
+                                        rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
                 UpdateLog(
                     paste("Aggregation : peptides were aggregated into 
                           proteins with method =",
                           input$aggregationMethod,
-                          ", include Shared Peptides = ", input$checkSharedPeptides,
+                          ", include Shared Peptides = ", 
+                          input$checkSharedPeptides,
                           ", protein id = ", input$proteinId, sep=" "),
                     name)
                 rv$temp.aggregate <- NULL
@@ -152,7 +161,8 @@ observeEvent(input$valid.aggregation,{
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste("Validate the agregation",":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste("Validate the agregation",":",
+                                conditionMessage(e), sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -184,7 +194,8 @@ output$ObserverAggregationDone <- renderUI({
         if (input$perform.aggregation == 0) 
         {return(NULL)  }
         else if (input$aggregationMethod != "none"){
-            h3(paste("Aggregation done with the ", input$aggregationMethod, " method.", sep=""))
+            h3(paste("Aggregation done with the ", input$aggregationMethod, 
+                     " method.", sep=""))
         }
         
     })
@@ -201,7 +212,8 @@ observeEvent(input$proteinId,{
     {return(NULL)}
     
     
-    if (rv$current.obj@experimentData@other$typeOfData == "protein") {return(NULL)}
+    if (rv$current.obj@experimentData@other$typeOfData == "protein") {
+        return(NULL)}
     
     result = tryCatch(
         {
@@ -216,17 +228,17 @@ observeEvent(input$proteinId,{
                               matWithUniquePeptides=matUniquePeptides)
             
             writeToCommandLogFile(
-                paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
+            paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
                       input$proteinId,"\",FALSE)", sep="")
             )
             writeToCommandLogFile(
-                paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
+            paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
                       input$proteinId,"\",TRUE)", sep="")
             )
             
             writeToCommandLogFile(
-                "mat <- list(matWithSharedPeptides=matSharedPeptides,
-                matWithUniquePeptides=matUniquePeptides)"
+            "mat <- list(matWithSharedPeptides=matSharedPeptides,
+            matWithUniquePeptides=matUniquePeptides)"
     )
             
             
@@ -235,7 +247,8 @@ observeEvent(input$proteinId,{
     #    shinyjs::info(conditionMessage(w))
     #}
     , error = function(e) {
-        shinyjs::info(paste("Build adjacency matrix",":",conditionMessage(e), sep=" "))
+        shinyjs::info(paste("Build adjacency matrix",":",conditionMessage(e), 
+                            sep=" "))
     }, finally = {
         #cleanup-code 
     })
@@ -255,8 +268,12 @@ output$aggregationPlot <- renderPlot({
     if (is.null( rv$current.obj)){return(NULL)}
     
     
-    if (input$checkSharedPeptides) {GraphPepProt(rv$matAdj$matWithSharedPeptides)}
-    else {GraphPepProt(rv$matAdj$matWithUniquePeptides)}
+    if (input$checkSharedPeptides) {
+        GraphPepProt(rv$matAdj$matWithSharedPeptides)
+        }
+    else {
+        GraphPepProt(rv$matAdj$matWithUniquePeptides)
+        }
     
 })
 
@@ -273,7 +290,8 @@ output$aggregationStats <- renderUI ({
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
     
-    res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, rv$matAdj$matWithSharedPeptides)
+    res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
+                            rv$matAdj$matWithSharedPeptides)
     
     text <- paste("<ul style=\"list-style-type:disc;\">
                   <li>
@@ -331,7 +349,8 @@ output$aggregationPlotShared <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -351,7 +370,8 @@ output$aggregationPlotUnique <- renderPlot({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -383,7 +403,8 @@ observeEvent(input$perform.aggregation,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -445,20 +466,20 @@ output$AggregationWellPanel_Step1 <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
         tagList(
             HTML("Please select first the id of protein in your dataset. 
-                              <br>Then, the stats will be showed and it will be possible to 
-                              perform the aggregation"),
-                         fluidRow(
-                             column(width=6, h4("Only specific peptides")),
-                             column(width=6, h4("All (specific & shared) peptides"))
-                         ),
-                         busyIndicator("Calculation in progress",wait = 0),
-                         fluidRow(
-                             column(width=6, plotOutput("aggregationPlotUnique")),
-                             column(width=6, plotOutput("aggregationPlotShared"))
-                         ),
-                         uiOutput("aggregationStats"),
-                         uiOutput("ObserverAggregationDone")
-                         )
+                <br>Then, the stats will be showed and it will be possible to 
+                perform the aggregation"),
+            fluidRow(
+                column(width=6, h4("Only specific peptides")),
+                column(width=6, h4("All (specific & shared) peptides"))
+                ),
+            busyIndicator("Calculation in progress",wait = 0),
+            fluidRow(
+                column(width=6, plotOutput("aggregationPlotUnique")),
+                column(width=6, plotOutput("aggregationPlotShared"))
+                ),
+            uiOutput("aggregationStats"),
+            uiOutput("ObserverAggregationDone")
+            )
     } else {
         h4("The dataset is a protein one: the aggregation cannot be performed.")
     }
@@ -489,7 +510,8 @@ output$Aggregation_Step2 <- renderUI({
             fluidRow(
                 column(width=3,
                        checkboxInput("filterProtAfterAgregation",
-                                     "Filtering : remove the proteins that are defined by less than n peptides.",
+                                     "Filtering : remove the proteins that are 
+                                     defined by less than n peptides.",
                                      value = FALSE)
                 ),
                 column(width=4,uiOutput("displayNbPeptides")
@@ -498,8 +520,8 @@ output$Aggregation_Step2 <- renderUI({
             ),
             
             
-            helpText("Select the columns of the meta-data (related to proteins) that 
-                     have to be recorded in the new protein dataset."),
+            helpText("Select the columns of the meta-data (related to proteins)
+                    that have to be recorded in the new protein dataset."),
             div(class="row"),
             div(class="span5", "",
                 uiOutput("columnsForProteinDataset"),

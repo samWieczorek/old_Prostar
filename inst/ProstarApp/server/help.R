@@ -5,14 +5,16 @@ output$References <- renderText({
          <br><hr color:\"blue\"><br>
          
          <strong><font size=\"4\">User manual:</font></strong>
-         <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf\"
+         <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/
+Prostar/inst/doc/Prostar_UserManual.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          <br><br>
          
          
          
          <strong><font size=\"4\">Tutorial:</font></strong>
-         <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_Tutorial.pdf\"
+         <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
+Prostar/inst/doc/Prostar_Tutorial.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          <br><br>
          
@@ -25,17 +27,21 @@ output$References <- renderText({
          <strong><font size=\"4\">Additional ressources:</font></strong>
          <ul>
          <li> ProStaR reference manual:  
-         <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf\"
+         <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/
+Prostar/man/Prostar.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          </li>
-         <li> DAPAR reference manual: <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\"
+         <li> DAPAR reference manual: <a href=\"https://www.bioconductor.org/
+packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          
          
          </li>
-         <li> MSnbase package: <a href=\"https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\" title=\"here\" target=\"_blank\">here</a>
+         <li> MSnbase package: <a href=\"https://www.bioconductor.org/packages/
+release/bioc/html/MSnbase.html\" title=\"here\" target=\"_blank\">here</a>
          </li>
-         <li> Cp4p tutorial: <a href=\"https://cran.r-project.org/web/packages/cp4p/cp4p.pdf\"
+         <li> Cp4p tutorial: <a href=\"https://cran.r-project.org/web/
+packages/cp4p/cp4p.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          </li>
          </ul>
@@ -79,7 +85,8 @@ output$References <- renderText({
          <li> Bolstad BM (2016). preprocessCore: A collection of pre-processing 
         functions. R package version 1.36.0, 
         <a href=\"https://github.com/bmbolstad/preprocessCore\"
-         title=\"here\" target=\"_blank\">https://github.com/bmbolstad/preprocessCore</a>
+         title=\"here\" target=\"_blank\">
+        https://github.com/bmbolstad/preprocessCore</a>
 
          <li> Hastie T, Tibshirani R, Narasimhan B and Chu G (2016). 
         impute: Imputation for microarray data. R package version 1.48.0
@@ -87,7 +94,8 @@ output$References <- renderText({
 
          <li> Ported to R by Alvaro A. Novo. Original by Joseph L. Schafer 
         <jls@stat.psu.edu>. (2013). norm: Analysis of
-        multivariate normal datasets with missing values. R package version 1.0-9.5.
+        multivariate normal datasets with missing values. R package 
+        version 1.0-9.5.
         <a href=\"https://CRAN.R-project.org/package=norm\"
          title=\"norm on CRAN\" target=\"_blank\">norm on CRAN</a>
          </li>
@@ -110,10 +118,11 @@ output$aboutText <- renderUI({
     
     
     text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
-                  S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
-                  A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
-                  <i>\"DAPAR & ProStaR: software to perform statistical analyses in 
-                  quantitative discovery proteomics\"</i>, <i>Bioinformatics</i>, 2016
+                  S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
+                L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
+                C. Bruley, T. Burger. <i>\"DAPAR & ProStaR: software to 
+                perform statistical analyses in quantitative discovery 
+                proteomics\"</i>, <i>Bioinformatics</i>, 2016
                   
                   <br><br><br>
                   <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
@@ -136,7 +145,7 @@ output$aboutText <- renderUI({
                   </li>
                   </ul> 
                   
-                  In addition, it is bind numerous other R packages available on 
+                  In addition, it is bind to numerous other R packages available on 
                   <a href=\"the https://cran.r-project.org/\" title=\"here\" target=\"_blank\">
                   CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
                   title=\"here\" target=\"_blank\">Bioconductor</a>, among which 
@@ -151,23 +160,24 @@ output$aboutText <- renderUI({
                   quantitative dataset;
                   </li>
                   <li>  
-                  Filtering options allows pruning the protein or peptide list according to 
-                  various criteria (missing values, contaminants, reverse sequences);
+                Filtering options allows pruning the protein or peptide list according to 
+                various criteria (missing values, contaminants, reverse sequences);
+                </li>
+                  
+                <li>
+                Cross replicate normalization, so as to make the quantitative 
+                values comparable between the different analyzed samples;
+                </li>
+                  
+                <li>  
+                 Missing values imputation with different methods, depending 
+                on the nature of  the missing values;
                   </li>
                   
                   <li>
-                  Cross replicate normalization, so as to make the quantitative values 
-                  comparable between the different analyzed samples;
-                  </li>
-                  
-                  <li>  
-                  Missing values imputation with different methods, depending on the nature of 
-                  the missing values;
-                  </li>
-                  
-                  <li>
-                  Differential analysis, which includes null hypothesis significance testing 
-                  as well as multiple testing correction (for false discovery rate estimation).
+                  Differential analysis, which includes null hypothesis 
+                significance testing as well as multiple testing correction 
+                (for false discovery rate estimation).
                   </li>
                   </ul>
                   

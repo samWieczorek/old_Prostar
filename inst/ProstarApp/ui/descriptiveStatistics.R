@@ -34,7 +34,10 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_dataExplorer",
                                                     uiOutput("DS_sidebarPanel_tab")
                                           ),
-                                          uiOutput("tabToShow")
+                                          conditionalPanel(height = heightWellPanel,
+                                                           condition = "true",
+                                                           uiOutput("tabToShow")
+                                          )
                               )
                      ),
                      
@@ -48,8 +51,9 @@ tabPanel("Descriptive statistics",
                                                                 "Tune to modify the gradient of color",
                                                                 min = 2,max = 6,value = defaultGradientRate,step=0.05)
                                           ),
-                                          tagList(
-                                              plotOutput("corrMatrix",width = plotWidth,
+                                          conditionalPanel(id = "wellPanelCorrMat",
+                                                           condition = "true",
+                                                           plotOutput("corrMatrix",width = plotWidth,
                                                                       height = plotHeight)
                                           )
                               )
@@ -62,8 +66,10 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_heatmap",
                                                     uiOutput("DS_sidebarPanel_heatmap")
                                           ),
-                                          tagList(
-                                              # HTML("For this view, it is necessary that your dataset 
+                                          conditionalPanel(id = "wellPanelHeatmap",
+                                                           condition = "true",
+                                                           width = 800,
+                                                           # HTML("For this view, it is necessary that your dataset 
                                                            #     does not contains any NA lines. <br> Please check 
                                                            #     your data and use Filtering options or missing 
                                                            #     values imputation."),
@@ -81,7 +87,8 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_boxplot",
                                                     uiOutput("DS_sidebarPanel_Boxplot")
                                           ),
-                                          tagList(
+                                          conditionalPanel(id = "wellPanelBoxplot",
+                                                           condition = "true",
                                                            plotOutput("viewBoxPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
@@ -97,7 +104,8 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_Violonplot",
                                                     uiOutput("DS_sidebarPanel_Violinplot")
                                           ),
-                                          tagList(
+                                          conditionalPanel(id = "wellPanelViolinplot",
+                                                           condition = "true",
                                                            plotOutput("viewViolinPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
@@ -112,7 +120,8 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_densityplot",
                                                     uiOutput("DS_sidebarPanel_Densityplot")
                                           ),
-                                          tagList(
+                                          conditionalPanel(id = "wellPanelBoxplot",
+                                                           condition = "true",
                                                            plotOutput("viewDensityplot_DS",
                                                                       width = plotWidth,
                                                                       height = plotHeight)

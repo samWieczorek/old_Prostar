@@ -33,7 +33,8 @@ output$DP_sidebar_FilterTab2 <- renderUI({
                      uiOutput("id_Reverse"),
                      uiOutput("choosePrefixReverse"),
                      br(),
-                     actionButton("perform.filtering.Contaminants","Perform string based filtering")
+                     actionButton("perform.filtering.Contaminants",
+                                  "Perform string based filtering")
     )
 })
 
@@ -52,10 +53,10 @@ output$DP_sidebar_FilterTab3 <- renderUI({
                                             "Meta data" = "MetaData"))
                      ,radioButtons("ChooseViewAfterFiltering", 
                                    "Choose the type of filtered data", 
-                                   choices=
-                                       list("Deleted on missing values" = "MissingValues",
-                                            "Deleted contaminants" = "Contaminants",
-                                            "Deleted reverse" = "Reverse"))
+                            choices=
+                            list("Deleted on missing values" = "MissingValues",
+                            "Deleted contaminants" = "Contaminants",
+                            "Deleted reverse" = "Reverse"))
                      ,br(),br()
                      ,checkboxInput("nDigitsMV", 
                                     "Show full length intensities"
@@ -88,21 +89,24 @@ output$VizualizeFilteredData <- DT::renderDataTable({
         {
             data <- cbind(ID = rownames(Biobase::fData(obj)),
                           round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                             Biobase::fData(obj))}
     } else if ((input$ChooseViewAfterFiltering == "Contaminants") 
                && !is.null(rv$deleted.contaminants)) { 
         obj <- rv$deleted.contaminants
         if(input$ChooseTabAfterFiltering == "quantiData" )
         {data <- cbind(ID = rownames(Biobase::fData(obj)),
                        round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                             Biobase::fData(obj))}
     } else if ((input$ChooseViewAfterFiltering == "Reverse") 
                && !is.null(rv$deleted.reverse)){
         obj <- rv$deleted.reverse
         if(input$ChooseTabAfterFiltering == "quantiData" )
         {data <- cbind(ID = rownames(Biobase::fData(obj)),
                        round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))}
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                             Biobase::fData(obj))}
     }
     
     
@@ -178,7 +182,9 @@ output$GlobalPieChart <- renderPlot({
         #     shinyjs::info(conditionMessage(w))
         #}
         , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -205,7 +211,8 @@ UpdateFilterWidgets <- function(){
                           rv$current.obj@processingData@processing)
             updateCheckboxInput(session, "replaceAllZeros",value=val)
             
-            val <- match (gLogTransform, rv$current.obj@processingData@processing)
+            val <- match (gLogTransform, 
+                          rv$current.obj@processingData@processing)
             #updateCheckboxInput(session,"log2transform",value=val)
             
             r <- grep(pattern = gFilterTextPrefix, 
@@ -215,8 +222,11 @@ UpdateFilterWidgets <- function(){
             { 
                 listMots <- unlist(strsplit(
                     rv$current.obj@processingData@processing[r], split=" "))
-                updateSliderInput(session,inputId = "seuilNA", value = listMots[6])
-                updateRadioButtons(session,inputId = "ChooseFilters", 
+                updateSliderInput(session,
+                                  inputId = "seuilNA", 
+                                  value = listMots[6])
+                updateRadioButtons(session,
+                                   inputId = "ChooseFilters", 
                                    selected = listMots[3])
             }
             else
@@ -273,7 +283,9 @@ GetMaxValueThresholdFilter <- function(){
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -307,11 +319,14 @@ observeEvent(input$perform.filtering.MV,{
                     
                     if (!is.null(keepThat))
                     {
-                        rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
+                        rv$deleted.mvLines <- 
+                            rv$dataset[[input$datasets]][-keepThat]
                         
-                        rv$current.obj <- mvFilterFromIndices(rv$dataset[[input$datasets]],
-                                                              keepThat,
-                                                              GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
+                        rv$current.obj <- 
+                            mvFilterFromIndices(rv$dataset[[input$datasets]],
+                                keepThat,
+                                GetFilterText(input$ChooseFilters, 
+                                              as.integer(input$seuilNA)))
                         
                         
                         #write command log
@@ -330,17 +345,19 @@ observeEvent(input$perform.filtering.MV,{
                                   input$ChooseFilters, "', '",
                                   input$seuilNA, "')", sep="")
                         )
-                        writeToCommandLogFile("deleted.mv <- current.obj[-keepThat]")
+                        writeToCommandLogFile(
+                            "deleted.mv <- current.obj[-keepThat]")
                         writeToCommandLogFile(paste("txt <- '",
-                                                    GetFilterText(input$ChooseFilters,
-                                                                  input$seuilNA),
+                                        GetFilterText(input$ChooseFilters,
+                                                      input$seuilNA),
                                                     "'",
                                                     sep ="")
                         )
-                        writeToCommandLogFile(paste("current.obj <- mvFilterFromIndices(",
-                                                    "current.obj, keepThat, '",
-                                                    GetFilterText(input$ChooseFilters,
-                                                                  input$seuilNA),
+                        writeToCommandLogFile(
+                            paste("current.obj <- mvFilterFromIndices(",
+                                        "current.obj, keepThat, '",
+                                        GetFilterText(input$ChooseFilters,
+                                                        input$seuilNA),
                                                     "')",
                                                     sep ="")
                         )
@@ -358,7 +375,9 @@ observeEvent(input$perform.filtering.MV,{
             #    shinyjs::info(conditionMessage(w))
             #}
             , error = function(e) {
-                shinyjs::info(paste("Perform missing values filtering",":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste("Perform missing values filtering",":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -387,26 +406,36 @@ observeEvent(input$perform.filtering.Contaminants,{
                         if (length(ind) > 0)  {
                             rv$deleted.contaminants <- temp[ind]
                             
-                            temp <- deleteLinesFromIndices(temp, ind, paste("\"", length(ind), " contaminants were removed from dataset.\"",sep="")
+                            temp <- deleteLinesFromIndices(temp, ind, 
+                                paste("\"", 
+                                length(ind), 
+                                " contaminants were removed from dataset.\"",
+                                sep="")
                             )
                             
                             #write command log
                             writeToCommandLogFile(
-                                paste(
-                                    "indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", input$idBoxContaminants,
-                                    "\", \"",input$prefixContaminants,"\")", sep="")
+                    paste(
+                "indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", 
+                input$idBoxContaminants,
+                "\", \"",input$prefixContaminants,"\")", 
+                                    sep="")
                             )
                             
-                            writeToCommandLogFile("deleted.contaminants <- current.obj[indContaminants]")
-                            writeToCommandLogFile(
-                                paste("txt <- \"",length(ind)," contaminants were removed from dataset.\"",sep=""))
-                            writeToCommandLogFile("current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)")
+            writeToCommandLogFile(
+                    "deleted.contaminants <- current.obj[indContaminants]")
+            writeToCommandLogFile(
+                    paste("txt <- \"",length(ind),
+                        " contaminants were removed from dataset.\"",sep=""))
+            writeToCommandLogFile(
+    "current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)")
                         }
                     }
                 }
                 
                 
-                if (!is.null(input$idBoxReverse) || (input$idBoxReverse != "")){
+                if (!is.null(input$idBoxReverse) 
+                    || (input$idBoxReverse != "")){
                     ind <- getIndicesOfLinesToRemove(temp,
                                                      input$idBoxReverse,
                                                      input$prefixReverse)
@@ -414,36 +443,54 @@ observeEvent(input$perform.filtering.Contaminants,{
                     if (!is.null(ind)){
                         if(length(ind) >0)  {
                             rv$deleted.reverse <- temp[ind]
-                            temp <- deleteLinesFromIndices(temp, ind, paste(length(ind), " reverse were removed from dataset",sep="")
+                            temp <- deleteLinesFromIndices(
+                                temp, ind, 
+                                paste(length(ind), 
+                                    " reverse were removed from dataset",
+                                    sep="")
                             )
                             
-                            writeToCommandLogFile(
-                                paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", input$idBoxReverse,
-                                      "\", \"",input$prefixReverse,"\")",sep="")
-                            )
+        writeToCommandLogFile(
+            paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", 
+                  input$idBoxReverse,
+                    "\", \"",input$prefixReverse,"\")",sep="")
+                )
                             
-                            writeToCommandLogFile("deleted.reverse <- current.obj[indReverse]")
-                            writeToCommandLogFile(
-                                paste("txt <- \"",length(ind)," reverse were removed from dataset.\"",sep=""))
-                            writeToCommandLogFile("current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)")
+        writeToCommandLogFile("deleted.reverse <- current.obj[indReverse]")
+        writeToCommandLogFile(
+paste("txt <- \"",length(ind)," reverse were removed from dataset.\"",sep=""))
+writeToCommandLogFile(
+    "current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)")
                         }
                     }
                 }
                 rv$current.obj <- temp
                 
-                updateSelectInput(session, "idBoxReverse",selected = input$idBoxReverse)
-                updateSelectInput(session, "idBoxContaminants",selected = input$idBoxContaminants)
-                updateSelectInput(session, "prefixContaminants", selected = input$prefixContaminants)
-                updateSelectInput(session, "prefixReverse",selected = input$prefixReverse)
+                updateSelectInput(session, 
+                                  "idBoxReverse",
+                                  selected = input$idBoxReverse)
+                updateSelectInput(session, 
+                                  "idBoxContaminants",
+                                  selected = input$idBoxContaminants)
+                updateSelectInput(session, 
+                                  "prefixContaminants", 
+                                  selected = input$prefixContaminants)
+                updateSelectInput(session, 
+                                  "prefixReverse",
+                                  selected = input$prefixReverse)
                 
-                updateTabsetPanel(session, "tabFilter", selected = "FilterContaminants")
+                updateTabsetPanel(session, 
+                                  "tabFilter", 
+                                  selected = "FilterContaminants")
                 
             }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))
             # }
             , error = function(e) {
-                shinyjs::info(paste("Perform contaminants filtering",":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste("Perform contaminants filtering",":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -492,8 +539,10 @@ observeEvent(input$ValidateFilters,{
                     
                     
                     updateSelectInput(session, "datasets", 
-                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                                      choices = names(rv$dataset), selected = name)
+                                      paste("Dataset versions of",
+                                            rv$current.obj.name, sep=" "),
+                                      choices = names(rv$dataset), 
+                                      selected = name)
                     txtFilterMV <- paste("Filtering :",
                                          GetFilterText(input$ChooseFilters, 
                                                        input$seuilNA), 
@@ -508,7 +557,9 @@ observeEvent(input$ValidateFilters,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste("Validate filters",":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste("Validate filters",":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })

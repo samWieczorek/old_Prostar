@@ -12,10 +12,10 @@ output$chooseDataset <- renderUI({
         print("trying to install DAPARdata")
         install.packages("DAPARdata")
         if(require(DAPARdata)){
-            print("DAPARdata installed and loaded")
-            selectInput("demoDataset",
-                        "Choose a demo dataset",
-                        choices = utils::data(package='DAPARdata')$results[,"Item"])
+        print("DAPARdata installed and loaded")
+        selectInput("demoDataset",
+                    "Choose a demo dataset",
+                    choices = utils::data(package='DAPARdata')$results[,"Item"])
         } else {
             stop("could not install the package DAPARdata")
         }
@@ -134,27 +134,37 @@ observeEvent(input$loadDemoDataset,{
     rv$current.obj.name <- input$demoDataset
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(rv$current.obj))
-    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    colnames(fData(rv$current.obj)) <- 
+        gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
     #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
     #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
     
     
     if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-        rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+        rv$current.obj@experimentData@other$isMissingValues <- 
+            Matrix(as.numeric(is.na(rv$current.obj)),
+                   nrow = nrow(rv$current.obj), 
+                   sparse=TRUE)
     }
     
     result = tryCatch(
         {
             writeToCommandLogFile("library(DAPARdata)")
-            writeToCommandLogFile(paste("utils::data(",input$demoDataset,")", sep=""))
-            writeToCommandLogFile(paste("current.obj <- ",input$demoDataset, sep=""))
+            writeToCommandLogFile(paste("utils::data(",
+                                        input$demoDataset,")", 
+                                        sep=""))
+            writeToCommandLogFile(paste("current.obj <- ",
+                                        input$demoDataset, 
+                                        sep=""))
             loadObjectInMemoryFromConverter()
             
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste(match.call()[[1]],":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -179,12 +189,16 @@ observeEvent(input$file,{
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         #rv$indexNA <- which(is.na(exprs(rv$current.obj)))
         
-        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        colnames(fData(rv$current.obj)) <- 
+            gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
         if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-            rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            rv$current.obj@experimentData@other$isMissingValues <- 
+                Matrix(as.numeric(is.na(rv$current.obj)),
+                       nrow = nrow(rv$current.obj), 
+                       sparse=TRUE)
         }
         
         ## check the information about normalizations and convert if needed
@@ -201,17 +215,17 @@ observeEvent(input$file,{
             rv$current.obj@experimentData@other$normalizationType <- type
             
             if (method == "Mean Centering Scaling") {
-                scaling <- TRUE
-                method <- "Mean Centering"
-                rv$current.obj@experimentData@other$normalizationMethod <- method
-                rv$current.obj@experimentData@other$normalizationType <- type
-                rv$current.obj@experimentData@other$normalizationScaling <- scaling
+            scaling <- TRUE
+            method <- "Mean Centering"
+            rv$current.obj@experimentData@other$normalizationMethod <- method
+            rv$current.obj@experimentData@other$normalizationType <- type
+            rv$current.obj@experimentData@other$normalizationScaling <- scaling
             }
             else if (method == "Median Centering"){
-                method <- "Quantile Centering"
-                rv$current.obj@experimentData@other$normalizationMethod <- method
-                rv$current.obj@experimentData@other$normalizationType <- type
-                rv$current.obj@experimentData@other$normalizationQuantile <- 0.5
+            method <- "Quantile Centering"
+            rv$current.obj@experimentData@other$normalizationMethod <- method
+            rv$current.obj@experimentData@other$normalizationType <- type
+            rv$current.obj@experimentData@other$normalizationQuantile <- 0.5
             }
             
         }
@@ -239,12 +253,14 @@ output$viewProcessingData <- DT::renderDataTable({
     result = tryCatch(
         {
             data.frame(History=(rv$current.obj)@processingData@processing
-                       [-grep("Subset", (rv$current.obj)@processingData@processing)])
+            [-grep("Subset", (rv$current.obj)@processingData@processing)])
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste("view processing data",":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste("view processing data",":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -258,7 +274,7 @@ option=list(pageLength=DT_pagelength,
             autoWidth=FALSE,
             dom = 'R<"clear">lfrtip',
             columnDefs = list(list(columns.width=c("60px"),
-                                   columnDefs.targets= c(list(0),list(1),list(2)))))
+                            columnDefs.targets= c(list(0),list(1),list(2)))))
 )
 
 
@@ -280,29 +296,40 @@ output$downloadMSnSet <- downloadHandler(
         
         
         if (length(input$colsToExport) == 1){
-            Biobase::fData(rv$current.obj) <- data.frame(fData(rv$current.obj)[,input$colsToExport])
+            Biobase::fData(rv$current.obj) <- 
+                data.frame(fData(rv$current.obj)[,input$colsToExport])
             colnames( Biobase::fData(rv$current.obj)) <- input$colsToExport
             t <- buildWritableVector(input$colsToExport)
             writeToCommandLogFile(
-                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
+                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
+                      sep="")
             )
         }
         else if (length(input$colsToExport) > 1){
-            Biobase::fData(rv$current.obj) <- data.frame(fData(rv$current.obj)[,input$colsToExport])
+            Biobase::fData(rv$current.obj) <- 
+                data.frame(fData(rv$current.obj)[,input$colsToExport])
             t <- buildWritableVector(input$colsToExport)
             writeToCommandLogFile(
-                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
+                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
+                      sep="")
             )
         }
         
-        rv$current.obj@experimentData@other$Prostar_Version <- installed.packages()["Prostar","Version"]
-        rv$current.obj@experimentData@other$DAPAR_Version <- installed.packages()["DAPAR","Version"]
-        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        rv$current.obj@experimentData@other$Prostar_Version <- 
+            installed.packages()["Prostar","Version"]
+        rv$current.obj@experimentData@other$DAPAR_Version <- 
+            installed.packages()["DAPAR","Version"]
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", 
+                                                colnames(fData(rv$current.obj)), 
+                                                fixed=TRUE)
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
         if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-            rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            rv$current.obj@experimentData@other$isMissingValues <- 
+                Matrix(as.numeric(is.na(rv$current.obj)),
+                       nrow = nrow(rv$current.obj), 
+                       sparse=TRUE)
         }
         
         
@@ -310,7 +337,9 @@ output$downloadMSnSet <- downloadHandler(
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
             writeMSnsetToExcel(rv$current.obj, input$nameExport)
             writeToCommandLogFile(
-                paste("writeMSnsetToExcel(current.obj,\"", input$nameExport, "\")", sep="")
+                paste("writeMSnsetToExcel(current.obj,\"", 
+                      input$nameExport, "\")", 
+                      sep="")
             )
             
             
@@ -372,12 +401,17 @@ observeEvent(input$createMSnsetButton,{
                 if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
                     
                     writeToCommandLogFile(
-                        paste("tab1 <- read.csv(\"",input$file1$name,"\",header=TRUE, sep=\"\t\", as.is=T)", sep="")
+                        paste("tab1 <- read.csv(\"",
+                              input$file1$name,
+                              "\",header=TRUE, sep=\"\t\", as.is=T)", 
+                              sep="")
                     )
                     
                 } else if ((ext == "xls") || (ext == "xlsx") ){
                     writeToCommandLogFile(
-                        paste("tab1 <- read.xlsx(",input$file1$name,",sheet=", input$XLSsheets,")",sep="")
+                        paste("tab1 <- read.xlsx(",input$file1$name,
+                              ",sheet=", input$XLSsheets,")",
+                              sep="")
                     )
                 }
                 
@@ -416,9 +450,11 @@ observeEvent(input$createMSnsetButton,{
                     t <- paste(t,c, " = c(",sep="")
                     
                     for (i in 1:(nrow(metadata)-1)){
-                        t <- paste(t,"\"",metadata[i,as.character(c)], "\",",sep="")
+                        t <- paste(t,"\"",metadata[i,as.character(c)], "\",",
+                                   sep="")
                     }
-                    t <- paste(t,"\"",last(metadata[,as.character(c)]), "\")",sep="")
+                    t <- paste(t,"\"",last(metadata[,as.character(c)]), "\")",
+                               sep="")
                     if (c!= last(colnames(metadata))){t <- paste(t,", ") }
                     else {t <- paste(t,")") }
                 }
@@ -434,12 +470,14 @@ observeEvent(input$createMSnsetButton,{
                 
                 
                 p <- "c("
-                for (i in 1:(length(indexForEData)-1)){p <- paste(p,indexForEData[i], ",",sep="")}
+                for (i in 1:(length(indexForEData)-1)){
+                    p <- paste(p,indexForEData[i], ",",sep="")}
                 p <- paste(p, last(indexForEData), ")", sep="")
                 writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
                 
                 p <- "c("
-                for (i in 1:(length(indexForFData)-1)){p <- paste(p,indexForFData[i], ",",sep="")}
+                for (i in 1:(length(indexForFData)-1)){
+                    p <- paste(p,indexForFData[i], ",",sep="")}
                 p <- paste(p, last(indexForFData), ")", sep="")
                 writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
                 
@@ -470,7 +508,9 @@ observeEvent(input$createMSnsetButton,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste("CreateMSnSet",":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste("CreateMSnSet",":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -518,10 +558,12 @@ output$showDatasetDoc <- renderUI({
     input$demoDataset
     if (is.null(input$demoDataset)) { return(NULL)}
     
-    file<- paste(system.file(package = "DAPARdata"),"/doc/",input$demoDataset,".pdf", sep="")
+    file<- paste(system.file(package = "DAPARdata"),"/doc/",
+                 input$demoDataset,".pdf", sep="")
     cmd <- paste("cp ",file," www/.", sep="")
     system(cmd)
-    tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), width="900", height="700")
+    tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), 
+                width="900", height="700")
     
 })
 
@@ -540,11 +582,11 @@ output$overviewDemoDataset <- renderUI({
                 rv$current.obj
                 rv$typeOfDataset
                 NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                                  2, 
-                                  function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                        2, 
+                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
                 pourcentage <- 100 * round(sum(NA.count)/
-                                               (dim(Biobase::exprs(rv$current.obj))[1]*
-                                                    dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+                            (dim(Biobase::exprs(rv$current.obj))[1]*
+                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
                 d <- "lines"
                 if (rv$typeOfDataset == "peptide") {d <- "peptides"}
                 else if (rv$typeOfDataset == "protein") {d <- "proteins"}
@@ -554,10 +596,12 @@ output$overviewDemoDataset <- renderUI({
                     is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
                 h3("Quick overview of the dataset")
                 tags$ul(
-                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[2], 
+                    tags$li(paste("There are", 
+                                  dim(Biobase::exprs(rv$current.obj))[2], 
                                   " samples in your data.", sep=" ")),
                     
-                    tags$li(paste("There are", dim(Biobase::exprs(rv$current.obj))[1], d,
+                    tags$li(paste("There are", 
+                                  dim(Biobase::exprs(rv$current.obj))[1], d,
                                   " in your data.", sep=" ")), 
                     tags$li(paste("Percentage of missing values:",
                                   pourcentage , "%", sep=" ")),
@@ -568,7 +612,9 @@ output$overviewDemoDataset <- renderUI({
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+                shinyjs::info(paste(match.call()[[1]],":",
+                                    conditionMessage(e), 
+                                    sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -648,7 +694,8 @@ output$ConvertOptions <- renderUI({
         ,radioButtons("checkDataLogged", 
                       "Are your data already log-transformed ?", 
                       #width = widthWellPanel, 
-                      choices=c("yes (they stay unchanged)" = "yes", "no (they wil be automatically transformed)"="no"), 
+                choices=c("yes (they stay unchanged)" = "yes", 
+                        "no (they wil be automatically transformed)"="no"), 
                       selected="no")
         ,br()
         ,checkboxInput("replaceAllZeros", 
@@ -677,14 +724,17 @@ observe({
                                     sep="\t", 
                                     as.is=T)
             } else if ((ext == "xls") || (ext == "xlsx") ){
-                rv$tab1 <- read.xlsx(input$file1$datapath, sheet=input$XLSsheets)
+                rv$tab1 <- read.xlsx(input$file1$datapath, 
+                                     sheet=input$XLSsheets)
                 
             }
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste("Read text file to convert",":",conditionMessage(e), sep=" "))
+            shinyjs::info(paste("Read text file to convert",":",
+                                conditionMessage(e), 
+                                sep=" "))
         }, finally = {
             #cleanup-code 
         })
@@ -722,21 +772,24 @@ output$infoAboutAggregationTool <- renderUI({
                       2, 
                       function(x) length(which(is.na(data.frame(x))==TRUE)) )
     
-    nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
     
     tagList(
         tags$h3("Info"),
         if (rv$typeOfDataset == "protein"){
             tags$h5("Note: the aggregation tool
-                    has been disabled because the dataset contains protein quantitative data.")
+                    has been disabled because the dataset contains 
+                    protein quantitative data.")
         },
         
         if (NA.count > 0){
-            tags$h5("As your dataset contains missing values, you should impute them prior to proceed",br()," 
+            tags$h5("As your dataset contains missing values, you should 
+            impute them prior to proceed",br()," 
                     to the differential analysis.")
         },
         if (nb.empty.lines > 0){
-            tags$h5("As your dataset contains lines with no values, you should remove them with the filter",br()," tool
+            tags$h5("As your dataset contains lines with no values, you 
+            should remove them with the filter",br()," tool
             prior to proceed to the analysis of the data.")
         }
         

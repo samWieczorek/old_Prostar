@@ -13,8 +13,9 @@ tabPanel("Filter data",
                                              ,uiOutput("DP_sidebar_FilterTab1")
                                              
                                    ),
-                                   tagList(
-                                        HTML("The filter below allows keeping the lines that 
+                                   conditionalPanel(id = "wellPanelMVFilterTab1",
+                                                    condition = "true",
+                                                    HTML("The filter below allows keeping the lines that 
                                                          contain a certain amount of quantitative data rather than NA values. <br>
                                                          The threshold to define corresponds to the number of quantitative values in a 
                                                          line and means that the lines which contain <br> at least this threshold value 
@@ -38,8 +39,9 @@ tabPanel("Filter data",
                                           uiOutput("DP_sidebar_FilterTab2")
                                           
                                 ),
-                                tagList(
-                                    plotOutput("GlobalPieChart")
+                                conditionalPanel(id = "wellPanelMVFilterTab2",
+                                                 condition = "true",
+                                                 plotOutput("GlobalPieChart")
                                 )
                     )
          )
@@ -52,8 +54,9 @@ tabPanel("Filter data",
                                           ,actionButton("ValidateFilters","Save filtered dataset",
                                                         styleclass = "primary")
                                 ),
-                                tagList(
-                                    DT::dataTableOutput("VizualizeFilteredData")
+                                conditionalPanel(id = "wellPanelMVFilterTab3"
+                                                 ,condition = "true"
+                                                 ,DT::dataTableOutput("VizualizeFilteredData")
                                                  ,uiOutput("helpTextMV")
                                 )
                     )

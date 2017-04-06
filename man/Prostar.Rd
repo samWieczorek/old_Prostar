@@ -18,4 +18,3 @@ if(interactive()) {Prostar()}
 \author{
 Samuel Wieczorek
 }
-
