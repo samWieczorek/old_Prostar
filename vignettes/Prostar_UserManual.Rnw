@@ -1129,8 +1129,8 @@ the Imputation of Left Censored data) imputation method (function
 \item Alternatively, if the missing values are roughly uniformly distributed,
 it is advised to use BPCA (Bayesian Principal Component Analysis) from 
 package \Biocpkg{pcaMethods}, KNN ($K$ Nearest Neighbors) from package 
-\Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package \
-Biocpkg{norm}.
+\Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package 
+\Biocpkg{norm}.
 \end{itemize}
 }
 

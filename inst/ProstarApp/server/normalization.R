@@ -15,7 +15,7 @@ output$helpForNormalizationMethods <- renderUI({
     
     helpNormalization <- matrix(rep("", 12),nrow = 3, 
                                 dimnames=list(c("Global Alignment", "Quantile Centering", "Mean Centering"),
-                                              c("sum by columns", "quantile alignment", "overall", "within conditions")))
+                                              c("sum by columns", "Alignment on all quantiles", "overall", "within conditions")))
     
     
     helpNormalization["Global Alignment"] <- "These methods propose 
@@ -27,7 +27,7 @@ output$helpForNormalizationMethods <- renderUI({
     on the analyte proportions among each sample).
     </li>
     <li>
-    <strong>quantile alignment</strong> proposes to align the quantiles of all the 
+    <strong>Alignment on all quantiles</strong> proposes to align the quantiles of all the 
     replicates as described in [6]; <br> practically it amounts to replace 
     abundances by order statistics.
     </li>
@@ -140,7 +140,7 @@ output$choose_normalizationType <- renderUI({
         # 
         
     } else if (input$normalization.method %in% c("Global Alignment")){
-        type <- c("sum by columns", "quantile alignment")
+        type <- c("sum by columns", "Alignment on all quantiles")
         typeSelected <- NULL
         if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
             typeSelected <- rv$current.obj@experimentData@other$normalizationType
@@ -185,6 +185,7 @@ output$choose_Normalization_Test <- renderUI({
 observeEvent(input$perform.normalization,{
     input$perform.normalization
     input$normalization.method
+    input$normalization.type
     if (is.null(input$perform.normalization) ){return(NULL)}
     #if (input$perform.normalization == 0){return(NULL)}
     
