@@ -68,7 +68,8 @@ observeEvent(input$valid.aggregation,{
     input$columnsForProteinDataset.box
     rv$matAdj
     
-    if (is.null(input$valid.aggregation) || (input$valid.aggregation == 0)
+    if (is.null(input$valid.aggregation) 
+        || (input$valid.aggregation == 0)
         || is.null(rv$matAdj) || is.null(rv$temp.aggregate)
         || is.null(input$filterProtAfterAgregation)) 
     {return(NULL)}
@@ -194,8 +195,10 @@ output$ObserverAggregationDone <- renderUI({
         if (input$perform.aggregation == 0) 
         {return(NULL)  }
         else if (input$aggregationMethod != "none"){
-            h3(paste("Aggregation done with the ", input$aggregationMethod, 
-                     " method.", sep=""))
+            h3(paste("Aggregation done with the ", 
+                     input$aggregationMethod, 
+                     " method.", 
+                     sep=""))
         }
         
     })
@@ -247,7 +250,8 @@ observeEvent(input$proteinId,{
     #    shinyjs::info(conditionMessage(w))
     #}
     , error = function(e) {
-        shinyjs::info(paste("Build adjacency matrix",":",conditionMessage(e), 
+        shinyjs::info(paste("Build adjacency matrix:",
+                            conditionMessage(e), 
                             sep=" "))
     }, finally = {
         #cleanup-code 
@@ -285,7 +289,8 @@ output$aggregationStats <- renderUI ({
     input$proteinId
     rv$current.obj
     rv$matAdj
-    if (is.null( input$proteinId) || (input$proteinId == "None")
+    if (is.null( input$proteinId) 
+        || (input$proteinId == "None")
         || is.null(rv$matAdj))
     {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
@@ -508,12 +513,12 @@ output$Aggregation_Step2 <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
         tagList(
             fluidRow(
-                column(width=3,
-                       checkboxInput("filterProtAfterAgregation",
-                                     "Filtering : remove the proteins that are 
-                                     defined by less than n peptides.",
-                                     value = FALSE)
-                ),
+                #column(width=3,
+                #       checkboxInput("filterProtAfterAgregation",
+                #                     "Filtering : remove the proteins that are 
+                #                     defined by less than n peptides.",
+                #                     value = FALSE)
+                #),
                 column(width=4,uiOutput("displayNbPeptides")
                 )
                 

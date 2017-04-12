@@ -2,14 +2,6 @@ options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
 
-library(DAPAR)
-library(DAPARdata)
-library(shiny)
-library(rhandsontable)
-library(data.table)
-library(shinyjs)
-library(shinyAce)
-library(highcharter)
 
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
@@ -45,8 +37,6 @@ sidebarPanelWidth()
     absolutePanel(id  = "#AbsolutePanel",
                 top = 10,
                 right = 300,
-                # bottom = 600,
-                # left = "600px",
                 width = "200px",
                 height = "50px",
                 draggable = FALSE,
@@ -74,9 +64,6 @@ navbarMenu("Data processing",
     source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Aggregation.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value),
-
     source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value
-
-
 )
 )

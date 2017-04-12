@@ -99,8 +99,8 @@ observeEvent(input$perform.imputation.button,{
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else if (input$missing.value.algorithm == "imp4p")
                 {
-                    
                     if (input$imp4p_withLapala) {
+                        
                         rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
                                                                   #eps = input$imp4p_eps,
                                                                   nb.iter = input$imp4p_nbiter,

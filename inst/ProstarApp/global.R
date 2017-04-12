@@ -1,3 +1,23 @@
+
+library(DAPAR)
+library(DAPARdata)
+library(shiny)
+library(rhandsontable)
+library(data.table)
+library(shinyjs)
+library(shinyAce)
+library(highcharter)
+
+library(rhandsontable)
+library(data.table)
+library(reshape2)
+library(DT)
+library(MSnbase)
+library(openxlsx)
+library(sm)
+library(imp4p)
+library(highcharter)
+
 # Declaration of global variables
 
 commandLogFile <- "cmdLog.R"

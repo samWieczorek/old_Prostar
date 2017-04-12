@@ -73,9 +73,9 @@ interface, so that no programming skill is required).
 the processing of proteomics data. More precisely, they are devoted to the 
 analysis of quantitative datasets produced in bottom-up discovery proteomics 
 with a LC-MS/MS pipe-line (Liquid Chromatography and Tandey Mass 
-spectrometry). \textcolor{red}{The experiment package \Biocpkg{DAPARdata} is 
+spectrometry). The experiment package \Biocpkg{DAPARdata} is 
 the companion package for \Biocpkg{ProStaR} and \Biocpkg{DAPAR}. It contains 
-many datasets that can be used as example.}\newline
+many datasets that can be used as example.\newline
 
 \Biocpkg{DAPAR} (Differential Analysis of Protein Abundance with R) is an R 
 package that contains all the necessary functions to:
@@ -253,8 +253,8 @@ This step will automatically install the following packages:
 
 \subsection{DAPARdata}\label{sec:DAPARdata}
 
-\textcolor{red}{The installation of the package \Biocpkg{DAPARdata} follows 
-the classical way for Bioconductor packages. In a R console, enter:}
+The installation of the package \Biocpkg{DAPARdata} follows 
+the classical way for Bioconductor packages. In a R console, enter:
 << installDAPARdata>>=
 source("http://www.bioconductor.org/biocLite.R")
 biocLite("DAPARdata")

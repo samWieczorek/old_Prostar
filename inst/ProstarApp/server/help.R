@@ -70,7 +70,6 @@ packages/cp4p/cp4p.pdf\"
          <i>Proteomics</i>, 16(14):1955-60, 2016. 
          </li>
 
-
          <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
          T. Burger. Multiple imputation strategy for mass spectrometry-based 
          proteomic data (under preparation)

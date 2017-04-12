@@ -11,6 +11,7 @@ tabPanel("Miss. values imputation",
                                uiOutput("chooseBasicImputationMethod"),
                                uiOutput("MVI_options"),
                                uiOutput("MVI_qmin_option"),
+                               uiOutput("imp4pLAPALA_distribution_option"),
                                uiOutput("OnlyLAPALA_qmin_option"),
                                uiOutput("OnlyLAPALA_distribution_option"),
                                actionButton("perform.imputation.button",
@@ -26,7 +27,19 @@ tabPanel("Miss. values imputation",
                                #br(),
                                #uiOutput(outputId = "progressOne")
                      ),
-                     uiOutput("showImputationPanel")
+                     conditionalPanel(id="test",
+                                      condition= "true" ,
+                                      uiOutput("showImputationPanel"),
+                                      busyIndicator("Calculation in progress",wait = 0),
+                                      #imageOutput("viewNAbyMean"),
+                                      fluidRow(
+                                          column(width = 5, plotOutput("viewNAbyMean"
+                                                                       , height = plotHeight, width = "400px"))
+                                          ,column(width = 7, plotOutput("showImageNA"
+                                          ))
+                                      )
+                     )      
+
                      
          )
 )

@@ -1,17 +1,8 @@
 options(shiny.maxRequestSize=100*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
+if (!interactive()) sink(stderr(), type = "output")
 
-library(shiny)
-library(rhandsontable)
-library(data.table)
-library(reshape2)
-library(DT)
-library(MSnbase)
-library(openxlsx)
-library(sm)
-library(imp4p)
-library(highcharter)
 
 ###
 
@@ -39,10 +30,7 @@ shinyServer(function(input, output, session) {
     
     env <- environment()
     sessionID <- Sys.getpid()
-    #source(file.path("server", "global.R"), local = TRUE)$value
     source(file.path("server", "general.R"), local = TRUE)$value
-    
-
     source(file.path("server", "filtering.R"),  local = TRUE)$value
     source(file.path("server", "imputation.R"),  local = TRUE)$value
     source(file.path("server", "normalization.R"),  local = TRUE)$value
