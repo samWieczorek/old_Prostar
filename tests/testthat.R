@@ -1,7 +1,7 @@
 Sys.setenv("R_TESTS" = "")
 
 library(testthat)
-library(shinytest)
+#library(shinytest)
 library(DAPAR)
 library(DAPARdata)
 

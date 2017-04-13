@@ -70,7 +70,7 @@ imputationAlgorithms <- list("None" = "None",
                              "Basic methods" = "Basic methods")
 
 basicMethodsImputationAlgos <- list(
-                             "dummy censored" = "dummy censored",
+                             #"dummy censored" = "dummy censored",
                                 "KNN" = "KNN",
                             "MLE" = "MLE")
 

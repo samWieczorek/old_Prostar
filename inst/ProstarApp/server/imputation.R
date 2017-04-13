@@ -33,34 +33,34 @@ output$imp4pLAPALA_distribution_option <- renderUI({
 
 
 
+# 
+# output$OnlyLAPALA_distribution_option <- renderUI({
+#     rv$current.obj
+#     input$missing.value.basic.algorithm
+#     input$missing.value.algorithm
+#     if (is.null(rv$current.obj) ) {return (NULL)}
+#     if (is.null(input$missing.value.algorithm) || is.null(input$missing.value.basic.algorithm)){return (NULL)}
+#     
+#     if ((input$missing.value.algorithm == "Basic methods") && (input$missing.value.basic.algorithm == "dummy censored")){
+#         radioButtons("OnlyLAPALA_distrib", "Distribution type", choices = c("unif" = "unif", "beta" = "beta"))
+#     }
+#     
+# })
 
-output$OnlyLAPALA_distribution_option <- renderUI({
-    rv$current.obj
-    input$missing.value.basic.algorithm
-    input$missing.value.algorithm
-    if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.algorithm) || is.null(input$missing.value.basic.algorithm)){return (NULL)}
-    
-    if ((input$missing.value.algorithm == "Basic methods") && (input$missing.value.basic.algorithm == "dummy censored")){
-        radioButtons("OnlyLAPALA_distrib", "Distribution type", choices = c("unif" = "unif", "beta" = "beta"))
-    }
-    
-})
 
-
-
-output$OnlyLAPALA_qmin_option <- renderUI({
-    rv$current.obj
-    input$missing.value.basic.algorithm
-    input$missing.value.algorithm
-    if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.algorithm) || is.null(input$missing.value.basic.algorithm)){return (NULL)}
-    
-    if ((input$missing.value.algorithm == "Basic methods") && (input$missing.value.basic.algorithm == "dummy censored")){
-        numericInput("OnlyLAPALA_qmin", "Upper LAPALA bound", value = 2.5, step=0.1, min=0, max=100)
-    }
-    
-})
+# 
+# output$OnlyLAPALA_qmin_option <- renderUI({
+#     rv$current.obj
+#     input$missing.value.basic.algorithm
+#     input$missing.value.algorithm
+#     if (is.null(rv$current.obj) ) {return (NULL)}
+#     if (is.null(input$missing.value.algorithm) || is.null(input$missing.value.basic.algorithm)){return (NULL)}
+#     
+#     if ((input$missing.value.algorithm == "Basic methods") && (input$missing.value.basic.algorithm == "dummy censored")){
+#         numericInput("OnlyLAPALA_qmin", "Upper LAPALA bound", value = 2.5, step=0.1, min=0, max=100)
+#     }
+#     
+# })
 
 
 
@@ -161,28 +161,29 @@ observeEvent(input$perform.imputation.button,{
                         updateSelectInput(session,"missing.value.basic.algorithm",
                                           selected = input$missing.value.basic.algorithm)
                         
-                    } else if (input$missing.value.basic.algorithm ==  "dummy censored")
-                    {
-                        
-                        
-                        rv$current.obj <- wrapper.impute.pa2(rv$dataset[[input$datasets]], 
-                                                             q.min = (input$OnlyLAPALA_qmin/100),
-                                                             distribution = input$OnlyLAPALA_distrib)
-                        #write log command file
-                        writeToCommandLogFile(
-                            paste("current.obj <- wrapper.impute.pa2(",
-                                  "dataset[['", input$datasets,"']])",sep="")
-                        )
-                        
-                        updateSelectInput(session, 
-                                          "missing.value.algorithm", 
-                                          selected = input$missing.value.algorithm)
-                        updateSelectInput(session,"missing.value.basic.algorithm",
-                                          selected = input$missing.value.basic.algorithm)
-                        updateSelectInput(session,"OnlyLAPALA_distrib",
-                                          selected = input$OnlyLAPALA_distrib)
-                        
-                    }
+                    } 
+                    # else if (input$missing.value.basic.algorithm ==  "dummy censored")
+                    # {
+                    #     
+                    #     
+                    #     rv$current.obj <- wrapper.impute.pa2(rv$dataset[[input$datasets]], 
+                    #                                          q.min = (input$OnlyLAPALA_qmin/100),
+                    #                                          distribution = input$OnlyLAPALA_distrib)
+                    #     #write log command file
+                    #     writeToCommandLogFile(
+                    #         paste("current.obj <- wrapper.impute.pa2(",
+                    #               "dataset[['", input$datasets,"']])",sep="")
+                    #     )
+                    #     
+                    #     updateSelectInput(session, 
+                    #                       "missing.value.algorithm", 
+                    #                       selected = input$missing.value.algorithm)
+                    #     updateSelectInput(session,"missing.value.basic.algorithm",
+                    #                       selected = input$missing.value.basic.algorithm)
+                    #     updateSelectInput(session,"OnlyLAPALA_distrib",
+                    #                       selected = input$OnlyLAPALA_distrib)
+                    #     
+                    # }
                 }
                 
             }
