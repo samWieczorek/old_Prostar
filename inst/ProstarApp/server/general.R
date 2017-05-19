@@ -37,7 +37,7 @@ session$onSessionEnded(function() {
 
 
 
-    ClearMemory <- function(){
+ClearMemory <- function(){
         
         
         initializeProstar()
@@ -88,9 +88,9 @@ loadObjectInMemoryFromConverter <- reactive({
     #If there are already pVal values, then do no compute them 
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
-                              P.Value = Biobase::fData(rv$current.obj)$P.Value)
-        rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold.logFC
-        rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold.p.value
+                              P_Value = Biobase::fData(rv$current.obj)$P_Value)
+        rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC
+        rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold_p_value
         
     }
     
@@ -100,24 +100,21 @@ loadObjectInMemoryFromConverter <- reactive({
     
     
     writeToCommandLogFile("dataset <- list()")
-    writeToCommandLogFile(paste("dataset[['",
-                                name,"']] <- current.obj",sep=""))
-    writeToCommandLogFile(paste("typeOfDataset <- \"", 
-                                rv$typeOfDataset, "\"", sep=""))
+    writeToCommandLogFile(paste("dataset[['", name,"']] <- current.obj",sep=""))
+    writeToCommandLogFile(paste("typeOfDataset <- \"",  rv$typeOfDataset, "\"", sep=""))
     writeToCommandLogFile("colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)")
     #writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
+    
+    
     if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
         writeToCommandLogFile("current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
-    }
+    } 
     
     
     UpdateFilterWidgets()
     
     ## update widgets for normalization panels
-    
-    
-    
-    
+
     updateSelectInput(session, "datasets", 
                       label = paste("Dataset versions of",
                                     rv$current.obj.name, sep=" "),
@@ -133,13 +130,14 @@ loadObjectInMemoryFromConverter <- reactive({
 
 
 
-writeToCommandLogFile <- function(txt){
+writeToCommandLogFile <- function(txt, verbose = FALSE){
     rv$commandLog <- c(rv$commandLog, txt)
     cat(rv$commandLog,
         file = paste(tempdir(), sessionID, commandLogFile, sep="/"),
         txt,
         sep = "\n",
         append = TRUE)
+    if (verbose) print(txt)
 }
 
 dirSessionPath <- paste(tempdir(), sessionID, sep="/")
@@ -184,7 +182,7 @@ initializeProstar <- reactive({
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
     test = NULL
-    rv$resAnaDiff = list(logFC=NULL, P.Value=NULL)
+    rv$resAnaDiff = list(logFC=NULL, P_Value=NULL)
     indexNA = NULL
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
@@ -229,10 +227,11 @@ rv <- reactiveValues(
     normalizationMethod = NULL, 
     matAdj = NULL,
     test = NULL, 
-    resAnaDiff = list(logFC=NULL, P.Value=NULL),
+    resAnaDiff = list(logFC=NULL, P_Value=NULL),
     wb = NULL,
     progressImputation = 0,
-    indexNA = NULL)
+    indexNA = NULL,
+    IP_Client= "")
 
 
 

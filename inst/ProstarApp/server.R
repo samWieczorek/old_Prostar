@@ -1,9 +1,12 @@
 options(shiny.maxRequestSize=100*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
-if (!interactive()) sink(stderr(), type = "output")
+#if (!interactive()) sink(stderr(), type = "output")
 
+library(R.utils)
 
+require(compiler)
+enableJIT(3)
 ###
 
 # initialize data with colnames
@@ -21,7 +24,23 @@ shinyServer(function(input, output, session) {
     cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
+    sessionID <- Sys.getpid()
     
+    serverAdmin <- FALSE
+    
+    if (isTRUE(serverAdmin)){
+        hname <- System$getHostname()
+        print(hname)
+        
+        clientdataText <- observe({
+            rv$IP_Client = session$clientData$url_hostname
+        })
+        
+        #verbose <- TRUE
+        #print(cdata$url_hostname)
+        sessionLogFile <- paste("www/sessionLogs_", gsub("\\.", "_", rv$IP_Client), "_", sessionID, ".txt",sep="")
+        if (!interactive()) sink(sessionLogFile, type = "output")
+    }
     # Simulate work being done for 1 second
     Sys.sleep(1)
 
@@ -29,7 +48,6 @@ shinyServer(function(input, output, session) {
     hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
-    sessionID <- Sys.getpid()
     source(file.path("server", "general.R"), local = TRUE)$value
     source(file.path("server", "filtering.R"),  local = TRUE)$value
     source(file.path("server", "imputation.R"),  local = TRUE)$value

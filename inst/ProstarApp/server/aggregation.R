@@ -17,15 +17,14 @@ RunAggregation <- reactive({
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithSharedPeptides, 
                                     n)
-                writeToCommandLogFile(
-                    paste(
-                        "data <- pepAgregate(current.obj, '",
-                        input$proteinId, "', '",
-                        input$aggregationMethod, 
-                        "', mat$matWithSharedPeptides,",n,")",
-                        sep=""
-                    )
+                txt <- paste(
+                    "data <- pepAgregate(current.obj, '",
+                    input$proteinId, "', '",
+                    input$aggregationMethod, 
+                    "', mat$matWithSharedPeptides,",n,")",
+                    sep=""
                 )
+                writeToCommandLogFile(txt)
                 
                 
             }else{
@@ -70,8 +69,7 @@ observeEvent(input$valid.aggregation,{
     
     if (is.null(input$valid.aggregation) 
         || (input$valid.aggregation == 0)
-        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)
-        || is.null(input$filterProtAfterAgregation)) 
+        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
     {return(NULL)}
     
     

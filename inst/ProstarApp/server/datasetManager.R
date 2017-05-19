@@ -134,17 +134,14 @@ observeEvent(input$loadDemoDataset,{
     rv$current.obj.name <- input$demoDataset
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(rv$current.obj))
-    colnames(fData(rv$current.obj)) <- 
-        gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
     #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
     
     
     if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-        rv$current.obj@experimentData@other$isMissingValues <- 
-            Matrix(as.numeric(is.na(rv$current.obj)),
-                   nrow = nrow(rv$current.obj), 
-                   sparse=TRUE)
+        rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
     }
     
     result = tryCatch(
@@ -158,6 +155,7 @@ observeEvent(input$loadDemoDataset,{
                                         sep=""))
             loadObjectInMemoryFromConverter()
             
+            print(rv$current.obj)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -189,8 +187,9 @@ observeEvent(input$file,{
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         #rv$indexNA <- which(is.na(exprs(rv$current.obj)))
         
-        colnames(fData(rv$current.obj)) <- 
-            gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
@@ -203,10 +202,6 @@ observeEvent(input$file,{
         
         ## check the information about normalizations and convert if needed
         if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {
-            print(rv$current.obj@experimentData@other$normalizationFamily)
-            print(rv$current.obj@experimentData@other$normalizationMethod)
-            
-            
             method <- rv$current.obj@experimentData@other$normalizationMethod
             type <- rv$current.obj@experimentData@other$normalizationFamily
             
@@ -322,6 +317,8 @@ output$downloadMSnSet <- downloadHandler(
         colnames(fData(rv$current.obj)) <- gsub(".", "_", 
                                                 colnames(fData(rv$current.obj)), 
                                                 fixed=TRUE)
+        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
@@ -460,7 +457,7 @@ observeEvent(input$createMSnsetButton,{
                 }
                 writeToCommandLogFile(t)
                 
-                t <- "rownames(m) <- c("
+                t <- "rownames(metadata) <- c("
                 for (i in rownames(metadata)){
                     t <- paste(t,"\"",as.character(i), "\"",sep="")
                     if (i != last(rownames(metadata))){t <- paste(t,", ") }
@@ -581,9 +578,7 @@ output$overviewDemoDataset <- renderUI({
             {
                 rv$current.obj
                 rv$typeOfDataset
-                NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                        2, 
-                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
                 pourcentage <- 100 * round(sum(NA.count)/
                             (dim(Biobase::exprs(rv$current.obj))[1]*
                             dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
@@ -768,9 +763,7 @@ output$infoAboutAggregationTool <- renderUI({
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)    }
     
-    NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                      2, 
-                      function(x) length(which(is.na(data.frame(x))==TRUE)) )
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
     
 nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
     
