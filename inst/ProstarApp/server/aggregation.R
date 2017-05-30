@@ -94,7 +94,7 @@ observeEvent(input$valid.aggregation,{
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
                     newCol <- BuildColumnToProteinDataset(
-                        Biobase::fData(rv$current.obj), m, c)
+                        Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 
                         data.frame(Biobase::fData(rv$temp.aggregate), newCol)
