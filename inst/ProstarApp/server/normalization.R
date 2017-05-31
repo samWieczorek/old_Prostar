@@ -65,7 +65,7 @@ output$choose_normalizationQuantile <- renderUI({
     
     #    if (input$normalization.method == "Quantile Centering"){
     # check if the normalisation has already been performed
-    quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.15", "Other"="Other")
+    quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
     quantileSelected <- 0.15
     if(!is.null(rv$current.obj@experimentData@other$normalizationQuantile)) { 
         quantileSelected <- as.numeric(rv$current.obj@experimentData@other$normalizationQuantile)
@@ -186,6 +186,7 @@ observeEvent(input$perform.normalization,{
     input$perform.normalization
     input$normalization.method
     input$normalization.type
+    input$normalization.quantile
     if (is.null(input$perform.normalization) ){return(NULL)}
     #if (input$perform.normalization == 0){return(NULL)}
     
@@ -226,9 +227,11 @@ observeEvent(input$perform.normalization,{
                         
                         
                         quant <-NA
+                        print(input$normalization.quantile)
                         if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
                         {quant <- as.numeric(input$normalization.quantile)}
                         else {quant <- as.numeric(input$normalization.quantileOther)}
+                        print(quant)
                         rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
