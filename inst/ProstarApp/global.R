@@ -7,7 +7,8 @@ library(data.table)
 library(shinyjs)
 library(shinyAce)
 library(highcharter)
-
+library(tidyr)
+library(dplyr)
 library(rhandsontable)
 library(data.table)
 library(reshape2)
@@ -162,7 +163,7 @@ gGraphicsFilenames <- list(
     
 )
 
-defaultGradientRate <- 5
+defaultGradientRate <- 0.9
 
 
 

@@ -25,7 +25,7 @@ tabPanel("Normalization",
                                        uiOutput("helpForNormalizationMethods"),
                                        #plotOutput("viewBoxPlotNorm")
                                        fluidRow(
-                                           column(width=6, plotOutput("viewDensityplotNorm")),
+                                           column(width=6, highchartOutput("viewDensityplotNorm")),
                                            column(width=6, plotOutput("viewComparisonNorm"))),
                                        plotOutput("viewBoxPlotNorm")
                      )

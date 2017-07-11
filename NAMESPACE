@@ -5,7 +5,6 @@ import(DAPAR)
 import(DAPARdata)
 import(shinyAce)
 import(highcharter)
-import(openxlsx)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
 

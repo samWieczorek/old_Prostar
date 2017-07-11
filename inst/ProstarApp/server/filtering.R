@@ -1,6 +1,6 @@
 output$DP_sidebar_FilterTab1 <- renderUI({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
+    if (is.null(rv$current.obj)){return()}
     filter <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
@@ -20,7 +20,7 @@ output$DP_sidebar_FilterTab1 <- renderUI({
 
 output$DP_sidebar_FilterTab2 <- renderUI({
     rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
+    if (is.null(rv$current.obj)){return()}
     
     tagList(
         h4("String based filtering options")
@@ -42,7 +42,7 @@ output$DP_sidebar_FilterTab2 <- renderUI({
 output$DP_sidebar_FilterTab3 <- renderUI({
     
     rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
+    if (is.null(rv$current.obj)){return()}
     tagList(
         h4("Filtered data display")
                      ,hr()
@@ -68,25 +68,27 @@ output$DP_sidebar_FilterTab3 <- renderUI({
 
 #----------------------------------------------
 output$VizualizeFilteredData <- DT::renderDataTable({
-    rv$current.obj
-    input$nDigitsMV
-    input$ChooseViewAfterFiltering
-    input$ChooseTabAfterFiltering
-    
-    if (is.null(input$ChooseTabAfterFiltering)) {return(NULL)}
-    if (is.null(input$ChooseViewAfterFiltering)) {return(NULL)}
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    
-    if (input$nDigitsMV){nDigits = 1e100}else {nDigitsMV = 3}
+     rv$current.obj
+     input$nDigitsMV
+     input$ChooseViewAfterFiltering
+     input$ChooseTabAfterFiltering
+     
+     if (is.null(input$ChooseTabAfterFiltering)
+         ||is.null(input$ChooseViewAfterFiltering) 
+         ||is.null(input$nDigitsMV) 
+         ||(is.null(rv$current.obj))) {return()}
+     
+     
+    if (is.null(input$nDigitsMV)){nDigits = 1e100}
+     else {nDigitsMV = 3}
     
     data <- NULL
     if ((input$ChooseViewAfterFiltering == "MissingValues") 
         && !is.null(rv$deleted.mvLines))
-    {
+        {
         obj <- rv$deleted.mvLines
         if(input$ChooseTabAfterFiltering == "quantiData" )
-        {
+            {
             data <- cbind(ID = rownames(Biobase::fData(obj)),
                           round(Biobase::exprs(obj), digits=nDigitsMV))
         }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
@@ -110,14 +112,15 @@ output$VizualizeFilteredData <- DT::renderDataTable({
     }
     
     
-    dat <- DT::datatable(data, 
+    #if (!is.null(data)){
+        DT::datatable(data, 
                          options=list(pageLength=DT_pagelength,
                                       orderClasses = TRUE,
                                       autoWidth=FALSE)
     )
     
-    return(dat)
-    
+    #dat
+    #}
 })
 
 
@@ -151,14 +154,14 @@ output$seuilNADelete <- renderUI({
 
 
 
-output$GlobalPieChart <- renderPlot({
+output$GlobalPieChart <- renderHighchart({
     
     rv$current.obj
     input$idBoxContaminants
     input$idBoxReverse
     input$prefixReverse
     input$prefixContaminants
-    if (is.null(rv$current.obj)) {return(NULL)}
+    if (is.null(rv$current.obj)) {return()}
     
     p <- rep("",4)
     if (is.null(input$idBoxContaminants)) {p[1] <- ""}
@@ -176,7 +179,7 @@ output$GlobalPieChart <- renderPlot({
     
     result = tryCatch(
         {
-            proportionConRev(rv$current.obj,p[1], p[3], p[2],p[4])
+            proportionConRev_HC(rv$current.obj,p[1], p[3], p[2],p[4])
         }
         #, warning = function(w) {
         #     shinyjs::info(conditionMessage(w))
@@ -299,8 +302,8 @@ GetMaxValueThresholdFilter <- function(){
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,{
     
-    if (is.null(input$perform.filtering.MV) ){return(NULL)}
-    if (input$perform.filtering.MV == 0){return(NULL)}
+    if (is.null(input$perform.filtering.MV) ){return()}
+    if (input$perform.filtering.MV == 0){return()}
     
     isolate({
         
@@ -389,8 +392,8 @@ observeEvent(input$perform.filtering.MV,{
 
 
 observeEvent(input$perform.filtering.Contaminants,{
-    if (is.null(input$perform.filtering.Contaminants) ){return(NULL)}
-    if (input$perform.filtering.Contaminants == 0){return(NULL)}
+    if (is.null(input$perform.filtering.Contaminants) ){return()}
+    if (input$perform.filtering.Contaminants == 0){return()}
     
     isolate({
         result = tryCatch(

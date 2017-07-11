@@ -22,11 +22,9 @@ tabPanel("Filter data",
                                                          are kept. This filtering threshold may be applied on the whole  dataset, on 
                                                          each condition <br> or on at least one condition."),
                                                     fluidRow(
-                                                        column(width = 4, 
-                                                               plotOutput("histoMV_Image")
-                                                        ),
-                                                        column(width = 4,plotOutput("histo.missvalues.per.lines_Image")),
-                                                        column(width = 4,plotOutput("histo.missvalues.per.lines.per.conditions_Image"))
+                                                        column(width = 4, highchartOutput("histoMV_Image")),
+                                                        column(width = 4,highchartOutput("histo_missvalues_per_lines_Image")),
+                                                        column(width = 4,highchartOutput("histo_missvalues_per_lines_per_conditions_Image"))
                                                     )
                                                     )
                        )
@@ -41,7 +39,7 @@ tabPanel("Filter data",
                                 ),
                                 conditionalPanel(id = "wellPanelMVFilterTab2",
                                                  condition = "true",
-                                                 plotOutput("GlobalPieChart")
+                                                 highchartOutput("GlobalPieChart")
                                 )
                     )
          )

@@ -17,15 +17,14 @@ RunAggregation <- reactive({
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithSharedPeptides, 
                                     n)
-                writeToCommandLogFile(
-                    paste(
-                        "data <- pepAgregate(current.obj, '",
-                        input$proteinId, "', '",
-                        input$aggregationMethod, 
-                        "', mat$matWithSharedPeptides,",n,")",
-                        sep=""
-                    )
+                txt <- paste(
+                    "data <- pepAgregate(current.obj, '",
+                    input$proteinId, "', '",
+                    input$aggregationMethod, 
+                    "', mat$matWithSharedPeptides,",n,")",
+                    sep=""
                 )
+                writeToCommandLogFile(txt)
                 
                 
             }else{
@@ -70,8 +69,7 @@ observeEvent(input$valid.aggregation,{
     
     if (is.null(input$valid.aggregation) 
         || (input$valid.aggregation == 0)
-        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)
-        || is.null(input$filterProtAfterAgregation)) 
+        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
     {return(NULL)}
     
     
@@ -96,7 +94,7 @@ observeEvent(input$valid.aggregation,{
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
                     newCol <- BuildColumnToProteinDataset(
-                        Biobase::fData(rv$current.obj), m, c)
+                        Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 
                         data.frame(Biobase::fData(rv$temp.aggregate), newCol)
@@ -127,7 +125,7 @@ observeEvent(input$valid.aggregation,{
                 
                 writeToCommandLogFile("for (c in columnsForProteinDataset) {")
                 writeToCommandLogFile(
-                "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c)")
+                "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c, rownames(Biobase::fData(temp.aggregate)))")
                 writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
                 writeToCommandLogFile("fData(temp.aggregate) <-
                                       data.frame(fData(temp.aggregate), newCol)")
@@ -594,6 +592,7 @@ output$columnsForProteinDataset <- renderUI({
 
 
 
+######################################################### 
 
 output$chooseProteinId <- renderUI({
     rv$current.obj

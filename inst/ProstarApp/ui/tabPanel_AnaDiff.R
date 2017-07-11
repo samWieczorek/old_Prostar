@@ -11,14 +11,14 @@ tabPanel("Differential analysis",
                                             ,h4("Differential analysis options")
                                             ,uiOutput("diffAnalysis_sidebarPanelTab1")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab1",
-                                                   condition = "true",
-                                                   fluidRow(
-                                                       column(width=6, uiOutput("nbSelectedItems")),
-                                                       column(width=6, uiOutput("selectTooltipInfo"))),
-                                                   DT::dataTableOutput("infosVolcanoTable"),
-                                                   #plotOutput("volcanoplot", height="500px", width="600px")
-                                                   highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+                                  tagList(
+                                       fluidRow(
+                                                column(width=6, uiOutput("nbSelectedItems")),
+                                                column(width=6, uiOutput("selectTooltipInfo"))
+                                                ),
+                                        DT::dataTableOutput("infosVolcanoTable"),
+                                        busyIndicator("Calculation in progress",wait = 0),
+                                        highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
                                                    
                                   )
                       )
@@ -54,21 +54,16 @@ tabPanel("Differential analysis",
                                             ,uiOutput("diffAnalysis_sidebarPanelTab3")
                                   ),
                                   
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab3",
-                                                   condition = "true",
-                                                   uiOutput("nbSelectedItemsStep3"),
-                                                   hr(),
-                                                   fluidRow(
-                                                       column(width= 4, htmlOutput("equivPVal")),
-                                                       column(width= 4, htmlOutput("showFDR"))
-                                                   ),
-                                                   DT::dataTableOutput("infosVolcanoTableStep3"),
-                                                   #plotOutput("volcanoplot", height="500px", width="600px")
-                                                   highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
-                                                   
-                                                   
-                                                   # plotOutput("volcanoplotStep3",height="500px",width="600px")
-                                  )
+                                  tagList(
+                                        uiOutput("nbSelectedItemsStep3"),
+                                        hr(),
+                                        fluidRow(
+                                                column(width= 4, htmlOutput("equivPVal")),
+                                                column(width= 4, htmlOutput("showFDR"))
+                                                ),
+                                        #DT::dataTableOutput("infosVolcanoTableStep3"),
+                                        highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
+                                        )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"
              tabPanel("4 - Validate & save",

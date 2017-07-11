@@ -17,7 +17,7 @@ output$chooseDataset <- renderUI({
                     "Choose a demo dataset",
                     choices = utils::data(package='DAPARdata')$results[,"Item"])
         } else {
-            stop("could not install the package DAPARdata")
+            stop("Could not install the package DAPARdata")
         }
     }
     
@@ -57,9 +57,13 @@ output$warningNonUniqueID <- renderUI({
     rv$tab1
     if (is.null(rv$tab1)) {return(NULL)  }
     if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
+    print(length(as.data.frame(rv$tab1)[, input$idBox]))
     
-    t <- (length(rv$tab1[, input$idBox]) 
-          == length(unique(rv$tab1[, input$idBox])))
+    print(length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+    
+    
+    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
     
     if (!t){
         text <- "<font color=\"red\">
@@ -134,17 +138,14 @@ observeEvent(input$loadDemoDataset,{
     rv$current.obj.name <- input$demoDataset
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(rv$current.obj))
-    colnames(fData(rv$current.obj)) <- 
-        gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
     #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
     
     
     if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-        rv$current.obj@experimentData@other$isMissingValues <- 
-            Matrix(as.numeric(is.na(rv$current.obj)),
-                   nrow = nrow(rv$current.obj), 
-                   sparse=TRUE)
+        rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
     }
     
     result = tryCatch(
@@ -158,6 +159,7 @@ observeEvent(input$loadDemoDataset,{
                                         sep=""))
             loadObjectInMemoryFromConverter()
             
+            print(rv$current.obj)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -189,8 +191,9 @@ observeEvent(input$file,{
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         #rv$indexNA <- which(is.na(exprs(rv$current.obj)))
         
-        colnames(fData(rv$current.obj)) <- 
-            gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
@@ -203,10 +206,6 @@ observeEvent(input$file,{
         
         ## check the information about normalizations and convert if needed
         if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {
-            print(rv$current.obj@experimentData@other$normalizationFamily)
-            print(rv$current.obj@experimentData@other$normalizationMethod)
-            
-            
             method <- rv$current.obj@experimentData@other$normalizationMethod
             type <- rv$current.obj@experimentData@other$normalizationFamily
             
@@ -322,6 +321,8 @@ output$downloadMSnSet <- downloadHandler(
         colnames(fData(rv$current.obj)) <- gsub(".", "_", 
                                                 colnames(fData(rv$current.obj)), 
                                                 fixed=TRUE)
+        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
@@ -424,10 +425,11 @@ observeEvent(input$createMSnsetButton,{
                 indexForEData <- match(input$eData.box, colnames(rv$tab1))
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
-                if (input$autoID == "Auto ID") {
-                    indexForIDBox <- NULL}
-                else 
-                {indexForIDBox <- match(input$idBox, colnames(rv$tab1))}
+                indexForIDBox <- NULL
+                if (input$autoID == "User ID") {
+                    indexForIDBox <- match(input$idBox, colnames(rv$tab1))
+                    }
+                
                 
                 metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
@@ -445,22 +447,32 @@ observeEvent(input$createMSnsetButton,{
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
-                t <- "metadata <- data.frame("
+                 metadata <- as.data.frame(metadata)
+                 t <- "metadata <- data.frame("
                 for (c in colnames(metadata)){
                     t <- paste(t,c, " = c(",sep="")
                     
                     for (i in 1:(nrow(metadata)-1)){
-                        t <- paste(t,"\"",metadata[i,as.character(c)], "\",",
+                        
+                        car <- metadata[i,as.character(c)]
+                        #if (car == " ") { car <- NA}
+                        t <- paste(t,"\"",car, "\",",
                                    sep="")
                     }
-                    t <- paste(t,"\"",last(metadata[,as.character(c)]), "\")",
+                    
+                    car <- last(metadata[,as.character(c)])
+                    #if (car == " ") { car <- NA}
+                    
+                    t <- paste(t,"\"",car, "\")",
                                sep="")
                     if (c!= last(colnames(metadata))){t <- paste(t,", ") }
                     else {t <- paste(t,")") }
                 }
+                
+                
                 writeToCommandLogFile(t)
                 
-                t <- "rownames(m) <- c("
+                t <- "rownames(metadata) <- c("
                 for (i in rownames(metadata)){
                     t <- paste(t,"\"",as.character(i), "\"",sep="")
                     if (i != last(rownames(metadata))){t <- paste(t,", ") }
@@ -481,8 +493,11 @@ observeEvent(input$createMSnsetButton,{
                 p <- paste(p, last(indexForFData), ")", sep="")
                 writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
                 
+                car <- 'NULL'
+                if (!is.null(indexForIDBox)) {
+                    car <- indexForIDBox}
                 writeToCommandLogFile(
-                    paste("indexForIDBox <- ", indexForIDBox, sep="")
+                    paste("indexForIDBox <- ", car, sep="")
                 )
                 
                 writeToCommandLogFile(
@@ -581,9 +596,7 @@ output$overviewDemoDataset <- renderUI({
             {
                 rv$current.obj
                 rv$typeOfDataset
-                NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                        2, 
-                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
+                NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
                 pourcentage <- 100 * round(sum(NA.count)/
                             (dim(Biobase::exprs(rv$current.obj))[1]*
                             dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
@@ -673,7 +686,7 @@ output$ManageXlsFiles <- renderUI({
     
     .ext <- GetExtension(input$file1$name)
     if ((.ext == "xls") || (.ext == "xlsx")){ 
-        sheets <- getSheetNames(input$file1$datapath)
+        sheets <- listSheets(input$file1$datapath)
         selectInput("XLSsheets", "sheets", choices = as.list(sheets))
     }
     
@@ -724,8 +737,12 @@ observe({
                                     sep="\t", 
                                     as.is=T)
             } else if ((ext == "xls") || (ext == "xlsx") ){
-                rv$tab1 <- read.xlsx(input$file1$datapath, 
+                # rv$tab1 <- read.xlsx(input$file1$datapath, 
+                #                      sheet=input$XLSsheets)
+                print(input$file1$datapath)
+                rv$tab1 <- readExcel(input$file1$datapath, ext, 
                                      sheet=input$XLSsheets)
+    
                 
             }
         }
@@ -768,9 +785,7 @@ output$infoAboutAggregationTool <- renderUI({
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)    }
     
-    NA.count <- apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                      2, 
-                      function(x) length(which(is.na(data.frame(x))==TRUE)) )
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
     
 nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
     

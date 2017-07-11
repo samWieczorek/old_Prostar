@@ -88,8 +88,8 @@ navbarMenu("Dataset manager",
                                 choices=  c( "MSnset","Excel")),
                     
                     br(),
-                    helpText("Select the columns you wante to keep as metadata. 
-                             By default, in any column is specified, all meta data in your dataset
+                    helpText("Select the columns you want to keep as metadata. 
+                             By default, if any column is specified, all metadata in your dataset
                              will be exported."),
                     
                     uiOutput("chooseMetaDataExport",width = widthWellPanel),

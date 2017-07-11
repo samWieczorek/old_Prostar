@@ -293,12 +293,12 @@ output$overview <- renderUI({
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines_Image <- renderPlot({
+output$histo_missvalues_per_lines_Image <- renderHighchart({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-        wrapper.mvPerLinesHisto(rv$current.obj, 
+        wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
@@ -315,13 +315,13 @@ output$histo.missvalues.per.lines_Image <- renderPlot({
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
+output$histo_missvalues_per_lines_per_conditions_Image <- renderHighchart({
     
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
@@ -341,24 +341,27 @@ output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines_DS <- renderPlot({
-    rv$current.obj
+output$histo_missvalues_per_lines_DS <- renderHighchart({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    result = tryCatch(
-        {
-            wrapper.mvPerLinesHisto(rv$current.obj, 
-                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+     result = tryCatch(
+         {
+            #wrapper.mvPerLinesHisto(rv$current.obj, 
+            #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            
+            
+            wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
             shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
+                                conditionMessage(e),
                                 sep=" "))
         }, finally = {
-            #cleanup-code 
+            #cleanup-code
         })
     
     
@@ -368,14 +371,14 @@ output$histo.missvalues.per.lines_DS <- renderPlot({
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
+output$histo_missvalues_per_lines_per_conditions_DS <- renderHighchart({
     
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
     result = tryCatch(
         {
-            wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
+            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
         }
         , warning = function(w) {
@@ -480,7 +483,7 @@ output$viewViolinPlot_DS <- renderPlot({
 
 ##' Distribution of intensities in current.obj
 ##' @author Samuel Wieczorek
-output$viewDensityplot_DS <- renderPlot({
+output$viewDensityplot_DS <- renderHighchart({
     rv$current.obj
     input$lab2Show_DS
     input$whichGroup2Color_DS
@@ -511,7 +514,7 @@ output$viewDensityplot_DS <- renderPlot({
     
     result = tryCatch(
         {
-            wrapper.densityPlotD(rv$current.obj, 
+            wrapper.densityPlotD_HC(rv$current.obj, 
                                  labels_DS, 
                                  as.numeric(labelsToShow_DS), 
                                  gToColor_DS)
@@ -562,7 +565,7 @@ output$viewDistCV <- renderPlot({
 ##' Draw a correlation matrix of intensities in current.obj
 ##' 
 ##' @author Samuel Wieczorek
-output$corrMatrix <- renderPlot({
+output$corrMatrix <- renderHighchart({
     
     rv$current.obj
     input$expGradientRate
@@ -574,7 +577,7 @@ output$corrMatrix <- renderPlot({
     
     result = tryCatch(
         {
-            wrapper.corrMatrixD(rv$current.obj, rate = gradient)
+            wrapper.corrMatrixD_HC(rv$current.obj,gradient)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))

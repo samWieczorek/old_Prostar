@@ -2,7 +2,7 @@ options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
 
-
+library(highcharter)
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -56,7 +56,7 @@ sidebarPanelWidth()
                     ),
     
 source(file.path("ui", "datasetManager.R"),  local = TRUE)$value,
-source(file.path("ui", "descriptiveStatistics.R"),  local = TRUE)$value,
+source(file.path("ui", "tabPanel_descriptiveStatistics.R"),  local = TRUE)$value,
 
 navbarMenu("Data processing",
     source(file.path("ui", "tabPanel_Filtering.R"),  local = TRUE)$value,

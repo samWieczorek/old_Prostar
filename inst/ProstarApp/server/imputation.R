@@ -106,12 +106,12 @@ observeEvent(input$perform.imputation.button,{
                                                                   nb.iter = input$imp4p_nbiter,
                                                                   lapala = input$imp4p_withLapala,
                                                                   q.min = input$imp4p_qmin / 100,
-                                                                  distribution = input$imp4pLAPALA_distrib)
+                                                                  distribution = as.character(input$imp4pLAPALA_distrib))
                         #write log command file
                         writeToCommandLogFile(
                             paste("current.obj <- wrapper.dapar.impute.mi(",
-                                  "dataset[['",input$datasets,"']] nb.iter=",input$imp4p_nbiter,
-                                  ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ")",sep=""))
+                                  "dataset[['",input$datasets,"']], nb.iter=",input$imp4p_nbiter,
+                                  ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ", distribution = ", input$imp4pLAPALA_distrib, ")",sep=""))
                         updateSelectInput(session, 
                                           "imp4p_withLapala", 
                                           selected = input$imp4p_withLapala)
@@ -286,13 +286,13 @@ output$chooseBasicImputationMethod <- renderUI({
 
 
 
-output$histoMV_Image_DS <- renderPlot({
+output$histoMV_Image_DS <- renderHighchart({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
     result = tryCatch(
         {
-            wrapper.mvHisto(rv$current.obj)
+            wrapper.mvHisto_HC(rv$current.obj)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -305,12 +305,12 @@ output$histoMV_Image_DS <- renderPlot({
 })
 
 
-output$histoMV_Image <- renderPlot({
+output$histoMV_Image <- renderHighchart({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            if (!is.null(rv$current.obj)){wrapper.mvHisto(rv$current.obj)}
+            if (!is.null(rv$current.obj)){wrapper.mvHisto_HC(rv$current.obj)}
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
