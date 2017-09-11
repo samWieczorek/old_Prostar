@@ -40,6 +40,30 @@ gAgregateMethod <- list("none" = "none",
                         "mean" = "mean",
                         "sum on top n" = "sum on top n")
 
+
+list_org_db <- c("Anopheles" = "org.Ag.eg.db",
+                 "Arabidopsis" = "org.At.tair.db",
+                 "Bovine" = "org.Bt.eg.db",
+                 "Canine" = "org.Cf.eg.db",
+                 "Chicken" = "org.Gg.eg.db",
+                 "Chimp" = "org.Pt.eg.db",
+                 "E coli strain K12" = "org.EcK12.eg.db",
+                 "E coli strain Sakai" = "org.EcSakai.eg.db",
+                 "Fly" = "org.Dm.eg.db",
+                 "Human" = "org.Hs.eg.db",
+                 "Malaria" = "org.Pf.plasmo.db",
+                 "Mouse" = "org.Mm.eg.db",
+                 "Pig" = "org.Ss.eg.db",
+                 "Rat" = "org.Rn.eg.db",
+                 "Rhesus" = "org.Mmu.eg.db",
+                 "Worm" = "org.Ce.eg.db",
+                 "Xenopus" = "org.Xl.eg.db",
+                 "Yeast" = "org.Sc.sgd.db",
+                 "Zebrafish" = "org.Dr.eg.db"
+                 )
+
+
+
 gFiltersList <- list()
 gFiltersList[["None"]] <- "none"
 gFiltersList[["Whole matrix"]] <- "wholeMatrix"

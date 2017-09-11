@@ -193,6 +193,11 @@ initializeProstar <- reactive({
     rv$nbSelectedAnaDiff = NULL
     rv$nbSelectedTotal_Step3 = NULL
     rv$nbSelected_Step3 = NULL
+    rv$groupGO_data = NULL
+    rv$enrichGO_data = NULL
+    rv$universeData = NULL
+    rv$uniprotID = NULL
+    
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
@@ -249,7 +254,11 @@ rv <- reactiveValues(
     nbSelectedAnaDiff = NULL,
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
-    nbSelected_Step3 = NULL
+    nbSelected_Step3 = NULL,
+    enrichGO_data = NULL,
+    groupGO_data = NULL,
+    universeData = NULL,
+    uniprotID = NULL
     )
 
 
