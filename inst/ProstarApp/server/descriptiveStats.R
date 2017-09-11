@@ -1,3 +1,15 @@
+
+
+
+
+
+
+
+
+#######################################
+
+
+
 output$DS_sidebarPanel_tab <- renderUI({
     input$DS_tabSetPanel
     rv$typeOfDataset
@@ -226,7 +238,10 @@ option=list(orderClasses = TRUE,
 
 
 
-
+initRmd <- function()
+{
+    
+}
 
 ##' Quick overview of the MSnbase object
 ##' @author Florence Combes
@@ -247,7 +262,7 @@ output$overview <- renderUI({
                     apply(data.frame(Biobase::exprs(rv$current.obj)), 
                           2, 
                         function(x) length(which(is.na(data.frame(x))==TRUE)) )
-                pourcentage <- 100 * round(sum(NA.count)/
+                rv$pourcentageNA <- 100 * round(sum(NA.count)/
                                     (dim(Biobase::exprs(rv$current.obj))[1]*
                                     dim(Biobase::exprs(rv$current.obj))[2]), 
                                     digits=4)
@@ -256,7 +271,7 @@ output$overview <- renderUI({
                 else if (rv$typeOfDataset == "protein") {d <- "proteins"}
                 else {d <- "analytes"}
                 
-                nb.empty.lines <- sum(apply(
+                rv$nb.empty.lines <- sum(apply(
                     is.na(as.matrix(exprs(rv$current.obj))), 1, all))
                 tags$ul(
                     tags$li(paste("There are", 
@@ -267,10 +282,12 @@ output$overview <- renderUI({
                                   dim(Biobase::exprs(rv$current.obj))[1], d,
                                   " in your data.", sep=" ")), 
                     tags$li(paste("Percentage of missing values:",
-                                  pourcentage , "%", sep=" ")),
+                                  rv$pourcentageNA , "%", sep=" ")),
                     tags$li(paste("Number of lines with only NA values =",
-                                  nb.empty.lines , sep=" "))
+                                  rv$nb.empty.lines , sep=" "))
                 )
+                
+               # initRmd()
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
@@ -288,18 +305,28 @@ output$overview <- renderUI({
 
 
 
+<<<<<<< HEAD
 
 
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines_Image <- renderPlot({
+=======
+histo_missvalues_per_lines_Image <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
+<<<<<<< HEAD
         wrapper.mvPerLinesHisto(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+=======
+            wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+                                       c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -313,16 +340,30 @@ output$histo.missvalues.per.lines_Image <- renderPlot({
 })
 
 
+<<<<<<< HEAD
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
     
+=======
+
+
+histo_missvalues_per_lines_per_conditions_Image <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+=======
+            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+                                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            
+            
+            
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -334,22 +375,36 @@ output$histo.missvalues.per.lines.per.conditions_Image <- renderPlot({
             #cleanup-code 
         })
     
-})    
+    
+})
+
+   
 
 
-
-
+<<<<<<< HEAD
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines_DS <- renderPlot({
     rv$current.obj
+=======
+histo_missvalues_per_lines_DS <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.mvPerLinesHisto(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+=======
+            #wrapper.mvPerLinesHisto(rv$current.obj, 
+            #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            
+            
+            wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+                                       c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -362,21 +417,31 @@ output$histo.missvalues.per.lines_DS <- renderPlot({
         })
     
     
+    
 })
 
 
 
+<<<<<<< HEAD
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
 output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
     
+=======
+histo_missvalues_per_lines_per_conditions_DS <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.mvPerLinesHistoPerCondition(rv$current.obj, 
                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+=======
+            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+                                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -387,8 +452,10 @@ output$histo.missvalues.per.lines.per.conditions_DS <- renderPlot({
         }, finally = {
             #cleanup-code 
         })
-    
 })
+
+
+
 
 
 
@@ -412,9 +479,8 @@ output$ChooseLegendForAxisViolin_DS <- renderUI({
 })
 
 
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-output$viewBoxPlot_DS <- renderPlot({
+
+boxPlot <- reactive({
     rv$current.obj
     input$legendXAxis_DS
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -445,7 +511,10 @@ output$viewBoxPlot_DS <- renderPlot({
 
 
 
-output$viewViolinPlot_DS <- renderPlot({
+
+
+
+violinPlot2 <- reactive({
     rv$current.obj
     input$legendXAxis_DS
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -460,7 +529,6 @@ output$viewViolinPlot_DS <- renderPlot({
     result = tryCatch(
         {
             wrapper.violinPlotD(rv$current.obj,  legDS)
-            
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -472,15 +540,18 @@ output$viewViolinPlot_DS <- renderPlot({
             #cleanup-code 
         })
     
-    
 })
 
 
 
 
+<<<<<<< HEAD
 ##' Distribution of intensities in current.obj
 ##' @author Samuel Wieczorek
 output$viewDensityplot_DS <- renderPlot({
+=======
+Densityplot_DS <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     input$lab2Show_DS
     input$whichGroup2Color_DS
@@ -511,10 +582,18 @@ output$viewDensityplot_DS <- renderPlot({
     
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.densityPlotD(rv$current.obj, 
                                  labels_DS, 
                                  as.numeric(labelsToShow_DS), 
                                  gToColor_DS)
+=======
+            wrapper.densityPlotD_HC(rv$current.obj, 
+                                    labels_DS, 
+                                    as.numeric(labelsToShow_DS), 
+                                    gToColor_DS)
+
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -532,19 +611,15 @@ output$viewDensityplot_DS <- renderPlot({
 
 
 
-
-
-##' distribution of the variance in current.obj
-##' 
-##' @author Samuel Wieczorek
-output$viewDistCV <- renderPlot({
+viewDistCV <- reactive({
     
     rv$current.obj
     
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.CVDistD(rv$current.obj)
+            wrapper.CVDistD_HC(rv$current.obj)
+            
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -556,13 +631,19 @@ output$viewDistCV <- renderPlot({
             #cleanup-code 
         })
     
+    
 })
 
 
+<<<<<<< HEAD
 ##' Draw a correlation matrix of intensities in current.obj
 ##' 
 ##' @author Samuel Wieczorek
 output$corrMatrix <- renderPlot({
+=======
+
+corrMatrix <- reactive({
+>>>>>>> c7ca397... August bug fixed
     
     rv$current.obj
     input$expGradientRate
@@ -574,7 +655,12 @@ output$corrMatrix <- renderPlot({
     
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.corrMatrixD(rv$current.obj, rate = gradient)
+=======
+            wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+            
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -586,15 +672,11 @@ output$corrMatrix <- renderPlot({
             #cleanup-code 
         })
     
-    
-}) 
+})
 
 
 
-##' Draw a heatmap of current data
-##' 
-##' @author Samuel Wieczorek
-output$heatmap <- renderPlot({
+heatmap <- reactive({
     
     rv$current.obj
     input$linkage
@@ -612,8 +694,8 @@ output$heatmap <- renderPlot({
                 wrapper.heatmapD(rv$current.obj,
                                  input$distance, 
                                  input$linkage,
-                                 TRUE) 
-                
+                                 TRUE)
+
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
@@ -627,7 +709,10 @@ output$heatmap <- renderPlot({
         
         
     }
+    
 })
+
+
 
 
 
@@ -852,4 +937,125 @@ output$nShow_DS <- renderUI({
                            , selected = unlist(label.names))
     })
 })
+
+
+
+
+
+histoMV_Image_DS <- reactive({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return(NULL)}
+    
+    result = tryCatch(
+        {
+            wrapper.mvHisto_HC(rv$current.obj)
+            
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code 
+        })
+    
+    
+})
+
+
+
+output$histoMV_Image_DS <- renderHighchart({
+    histoMV_Image_DS()
+})
+
+
+
+##' boxplot of intensities in current.obj
+##' @author Samuel Wieczorek
+output$viewBoxPlot_DS <- renderPlot({
+    boxPlot()
+    
+})
+
+
+output$viewViolinPlot_DS <- renderPlot({
+    violinPlot2()
+}) 
+
+
+
+##' Distribution of intensities in current.obj
+##' @author Samuel Wieczorek
+output$viewDensityplot_DS <- renderHighchart({
+    Densityplot_DS()
+    
+})
+
+
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+output$histo_missvalues_per_lines_Image <- renderHighchart({
+    histo_missvalues_per_lines_Image()
+})
+
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+output$histo_missvalues_per_lines_per_conditions_Image <- renderHighchart({
+    histo_missvalues_per_lines_per_conditions_Image()
+}) 
+
+
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+output$histo_missvalues_per_lines_per_conditions_DS <- renderHighchart({
+    histo_missvalues_per_lines_per_conditions_DS()
+})
+
+
+
+##' distribution of missing values in current.obj
+##' @author Samuel Wieczorek
+output$histo_missvalues_per_lines_DS <- renderHighchart({
+    histo_missvalues_per_lines_DS()
+    
+})
+
+##' Draw a heatmap of current data
+##' 
+##' @author Samuel Wieczorek
+output$heatmap <- renderPlot({
+    heatmap()
+})
+
+
+
+
+##' distribution of the variance in current.obj
+##' 
+##' @author Samuel Wieczorek
+output$viewDistCV <- renderHighchart({
+    viewDistCV()
+    
+})
+
+
+
+##' Draw a correlation matrix of intensities in current.obj
+##' 
+##' @author Samuel Wieczorek
+output$corrMatrix <- renderHighchart({
+    corrMatrix()
+}) 
+
+
+
+
+
+
+
+
+
 

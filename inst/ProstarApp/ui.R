@@ -33,8 +33,9 @@ sidebarPanelWidth()
 
 ,uiOutput("disableAggregationTool")
 ,navbarPage(
-    id = "navPage",
-    absolutePanel(id  = "#AbsolutePanel",
+    #id = "navPage",
+    absolutePanel(
+        id  = "#AbsolutePanel",
                 top = 10,
                 right = 300,
                 width = "200px",
@@ -42,28 +43,44 @@ sidebarPanelWidth()
                 draggable = FALSE,
                 fixed = FALSE,
                 cursor = "default",
-                selectInput("datasets", 
-                            "Dataset versions", 
-                            choices = list("None"=""), 
+                selectInput("datasets",
+                            "Dataset versions",
+                            choices = list("None"=""),
                             width = '250px')
     ),
 
-    "",
+   #"",
 
 
+<<<<<<< HEAD
             tabPanel(test,
                     uiOutput("aboutText")
                     ),
     
 source(file.path("ui", "datasetManager.R"),  local = TRUE)$value,
 source(file.path("ui", "descriptiveStatistics.R"),  local = TRUE)$value,
+=======
+            tabPanel(test, uiOutput("aboutText")),
+
+   navbarMenu("Dataset manager",
+              source(file.path("ui", "tabPanel_openMSnSetFile.R"),  local = TRUE)$value,
+              source(file.path("ui", "tabPanel_convertData.R"),  local = TRUE)$value,
+              source(file.path("ui", "tabPanel_DemoMode.R"),  local = TRUE)$value,
+              source(file.path("ui", "tabPanel_Export.R"),  local = TRUE)$value,
+              source(file.path("ui", "tabPanel_logSession.R"),  local = TRUE)$value
+              
+   ),
+source(file.path("ui", "tabPanel_descriptiveStatistics.R"),  local = TRUE)$value,
+>>>>>>> c7ca397... August bug fixed
 
 navbarMenu("Data processing",
     source(file.path("ui", "tabPanel_Filtering.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Normalization.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Aggregation.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value),
-    source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value
+    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value
+    ),
+
+source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value
 )
 )

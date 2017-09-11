@@ -184,6 +184,15 @@ initializeProstar <- reactive({
     test = NULL
     rv$resAnaDiff = list(logFC=NULL, P_Value=NULL)
     indexNA = NULL
+    rv$pourcentageNA = 0
+    rv$nb.empty.lines = 0
+    rv$nbContaminantsDeleted = NULL
+    rv$nbReverseDeleted = NULL
+    rv$fdr = NULL
+    rv$nbTotalAnaDiff = NULL
+    rv$nbSelectedAnaDiff = NULL
+    rv$nbSelectedTotal_Step3 = NULL
+    rv$nbSelected_Step3 = NULL
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
@@ -231,7 +240,17 @@ rv <- reactiveValues(
     wb = NULL,
     progressImputation = 0,
     indexNA = NULL,
-    IP_Client= "")
+    IP_Client= "",
+    pourcentageNA = 0,
+    nb.empty.lines = 0,
+    nbReverseDeleted = NULL,
+    nbContaminantsDeleted = NULL,
+    fdr = NULL,
+    nbSelectedAnaDiff = NULL,
+    nbTotalAnaDiff = NULL,
+    nbSelectedTotal_Step3 = NULL,
+    nbSelected_Step3 = NULL
+    )
 
 
 

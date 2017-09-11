@@ -1,6 +1,6 @@
 tabPanel("Differential analysis",
          tabsetPanel(
-             "diffAnalysis_tabSetPanel",
+             #"diffAnalysis_tabSetPanel",
              id = "diffAnalysis_tabSetPanel",
              tabPanel("1 - Volcano plot",
                       value = "DiffAnalysis_Volcanoplot",

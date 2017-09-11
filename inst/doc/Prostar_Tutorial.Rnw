@@ -1,0 +1,592 @@
+%\VignetteIndexEntry{Prostar tutorial}
+%\VignetteDepends{}
+%\VignetteKeywords{Quantitative proteomics analysis}
+%\VignettePackage{Prostar}
+
+\documentclass[12pt]{article}
+%\documentclass[12pt,a4paper]{article}
+\usepackage{soul}
+\usepackage[utf8]{inputenc}
+
+\newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
+\newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
+
+<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
+BiocStyle::latex()
+@
+
+% \textwidth=6.2in
+% \textheight=8.5in
+% \oddsidemargin=0.2in
+% \evensidemargin=0.2in
+% \headheight=0in
+% \headsep=0in
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{\Biocpkg{ProStaR} Tutorial}
+\author{Florence Combes\footnote{firstname.lastname@cea.fr} , 
+Wieczorek Samuel$^\ast$, Burger Thomas$^\ast$}
+\maketitle
+
+%% Abstract and keywords %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\vskip 0.3in minus 0.1in
+\hrule
+\begin{abstract}
+
+
+This document is a tutorial to \Biocpkg{ProStaR}. It uses the data stored 
+in the 'Exp1\_R25\_pept.txt' file, from the \Biocpkg{DAPARdata} package, to 
+illustrate on a walkthrough example the use of \Biocpkg{ProStaR} to conduct a 
+proteomics quantitative analysis.
+
+% On the basis of a dataset available in  the analysis of proteomics data with 
+% \Biocpkg{ProStaR}, which is the graphical interface of \Biocpkg{DAPAR} 
+% (Differential Analysis of Protein Abundance with R). 
+% \Biocpkg{ProStaR} being a click-button interface, no programming skill is 
+% required to use it and access all the functions of \Biocpkg{DAPAR}. 
+% 
+% Showing a "real data" analysis as an example, this document presents the 
+% analysis steps you can perform with \Biocpkg{ProStaR} : descriptive 
+% statistics, missing data imputation, normalization, agregation and 
+% differential analysis. 
+
+
+\end{abstract}
+\vskip 0.1in minus 0.05in
+\hrule
+\vskip 0.2in minus 0.1in
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\tableofcontents
+\newpage
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Preambule}\label{sec:Preamb}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+This document is only a step by step illustration of the use of 
+\Biocpkg{ProStaR}. For a comprehensive description of \Biocpkg{ProStaR} 
+functionalities, we  refer the readers to the "\Biocpkg{DAPAR} and 
+\Biocpkg{ProStaR} user manual", available on the Bioconductor webpage of 
+\Biocpkg{ProStaR}. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Loading data}\label{sec:DataLoad}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+The text-format file of 'Exp1\_R25\_pept.txt' is part of the 
+\Biocpkg{DAPARdata} package. For a precise understanding of the dataset, 
+please refer to the document "Description of the UPS\{pep/prot\}25 datasets" 
+available on the bioconductor webpage of \Biocpkg{DAPARdata}.
+
+In a nutshell, it gathers the peptide intensities of 6 samples, containing 
+each the same yeast lysate. 
+In addition, several human proteins have been spiked in, with different 
+concentrations: three samples theoretically contains 2.5 more humain proteins 
+than the three others. At the end of the quantitative analysis, all and only 
+these proteins should be selected as significantly differentially abundant.
+
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/DatManager.png}}
+\caption{Dataset Manager Menu}\label{fig:datman}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\subsection{Text-formatted data}\label{sec:txtData}
+The text file containing the data must be of tabular form, as those produced 
+by MaxQuant software, for instance.
+It is to be uploaded by clicking on the "Convert data" of the "Dataset manager"
+submenu (see Fig.~\ref{fig:datman}). This opens the page captured on 
+Fig.~\ref{fig:convdattxt} and composed of five panels: Select File, Data Id, 
+Exp and Feat data, Samples and Convert. 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/ConvData.png}}
+\caption{Conversion Text Data Page}\label{fig:convdattxt}
+\end{figure}
+
+In the panel \textbf{Select File}: Indicate where to find the text file 
+containing the data. As in this example, the file contains peptide intensities 
+that are not depicted on a logarithm scale, the corresponding options must be 
+manually selected (see Fig.~\ref{fig:convdattxt}). 
+
+In the panel \textbf{Data Id}: Indicate the column that contains the IDs of the 
+peptides. These IDs have to be unique across all the rows. 
+In the example dataset, it is simply the column referred to as "id". 
+This is why "id" is selected in the drop down menu (see Fig.~\ref{fig:userid}). 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/DatManUserID.png}}
+\caption{Using user-column 'id' as an ID in ProStaR}\label{fig:userid}
+\end{figure}
+
+
+In the panel \textbf{Exp. and Feat. Data}: indicate the title of the columns
+that contains quantitative data of the peptides 
+(See Fig.~\ref{fig:expfeatdata}). 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/ExpFeatData.png}}
+\caption{Exp. and Feat. Data panel}\label{fig:expfeatdata}
+\end{figure}
+
+
+In the panel \textbf{Samples metadata}: Fill in the table according to the 
+properties of the experimental design (see Fig.~\ref{fig:metadata}). In the 
+example case, the first 3 samples correspond to 25 fmol of human proteins, 
+while the others to 10fmol; the concentration is used to refer to the 
+conditions. What matters here is to have different name for the two conditions,
+and to have a similar name within each condition. Because of the simple 
+experimental design, the biological, technical and analytical replicates do 
+not need to be filled.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MetaData.png}}
+\caption{Metadata table to fill in (Samples metadata panel)}\label{fig:metadata}
+\end{figure}
+
+
+Finally, in the panel \textbf{Convert}, enter the name of the project and click
+on "Convert data" to build an MSnSet object containing the data.  
+A message indicates when the conversion is over (see fig.~\ref{fig:convdone}). 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/ConvDone.png}}
+\caption{The conversion of text file to MSnSet format is done.}
+\label{fig:convdone}
+\end{figure}
+
+Please also notice in the screenshot that the value in the top-right box has 
+changed from 'None' to 'Original - peptide'. All along the  
+\Biocpkg{ProStaR} pipeline, this box indicates the current state of the dataset.
+Here "original" means that no processing  has been performed so far, and 
+"peptide" means that the dataset contains peptide intensities. 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Descriptive statistics}\label{sec:explo}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Once the data are loaded, their exploration/visualisation is the natural 
+following step. 
+By clicking on "Descriptive statistics"  in the menu, one finds a series of 9 
+panels, that are helpful to understand the data:
+
+The first one, referred to as \textbf{Overview}, shows very basics and general 
+informations about your 
+dataset. For our example we can see we have: 6 samples, 13919 peptides, 
+19.19\% of missing values and 733 lines with only NA values (missing values).
+
+The second one, referred to as \textbf{Missing values}, summarizes the missing 
+values distributions with 3 plots (see fig.~\ref{fig:MVbarplots} from left to 
+right), that are also use to monitor the imputation of missing values 
+(see Section~\ref{sec:MVimput}):
+
+\begin{itemize}
+\item \textbf{'\# NA per columns'} i.e. the number of missing values per sample.
+\item \textbf{'\# of lines by \# of NA'}: how many lines (peptides in our 
+example) have 1, 2, .., up to 6 NA. 
+The red bar bar of the barplot (6 here) corresponds to peptides that have only
+missing values, i.e. that have been identified but not quantified. 
+Notice that this corresponds to the 733 lines already pointed on the previous 
+paragraph. 
+\item \textbf{'\# of lines by \# of NA per condition'}: It is the same plot as 
+the second one, yet condition-wise, rather than entire dataset-wise. Notice 
+that in this third plot, the number of lines with 0 missing values is 
+presented, contrarily to the second one (where it would shrink too much the 
+Y-axis).
+\end{itemize}
+
+The third one, referred to as \textbf{Data explorer}, allows the practitioner 
+to navigate through the MSnSet containing the data.
+Several tables are available: quantitative data, peptides metadata, replicate
+metadata. 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MV-barplots.png}}
+\caption{Missing Values repartition in the dataset}\label{fig:MVbarplots}
+\end{figure}
+
+The other panels produce graphical representations of the dataset: 
+\textbf{Boxplot}, \textbf{Densityplot}, \textbf{Correlation matrix}, 
+\textbf{Heatmap}, \textbf{Violinplot} and \textbf{CV distribution} (see some 
+of them on Fig.~\ref{fig:corrmat} to~\ref{fig:densplot}).
+
+In particular: 
+\begin{itemize}
+\item The correlation matrix (Fig.~\ref{fig:corrmat}) shows well the 
+replicates correlate better within conditions (25fmol together or 10fmol 
+together). 
+This confirms the qualilty of the dataset.
+\item On the density plots (Fig.~\ref{fig:densplot}) the distributions are 
+Gaussian-like. It is a pre-requisite for most next coming statistical 
+processing. %for data analysis, we can follow up. 
+\end{itemize}
+
+%%Corr Matrix
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/CorrMat.png}}
+\caption{Correlation Matrix (for the 6 samples)}\label{fig:corrmat}
+\end{figure}
+
+%%Boxplot
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Boxplot.png}}
+\caption{Boxplot (raw data)}\label{fig:boxplot}
+\end{figure}
+
+%%Density plot
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/DensPlot.png}}
+\caption{Density plots of the log2 raw data}\label{fig:densplot}
+\end{figure}
+
+% %%Var dist
+% \begin{figure}
+% \centering
+% \fbox{\includegraphics[width=0.85\textwidth]{captures/VarDist.png}}
+% \caption{Variance distributions for the 6 samples}\label{fig:vardist}
+% \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Filtering}\label{sec:MVfilt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+Clicking on 'Filter data' in the drop down submenu 'Data processing' allows 
+the practitioner to filter out some lines of the dataset according to 
+various criteria.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Filt.png}}
+\caption{Screenshot of the missing value filtering panel. Graphics are 
+interactively updated.}\label{fig:Filt}
+\end{figure}
+
+In the first panel, one filters out peptides with too many missing values. 
+The same plots as those from the 'Descriptive statistics' panel are displayed 
+(see Fig.~\ref{fig:Filt}). 
+For this dataset, we propose to filter out peptides that have at maximum 1 
+missing value among the 3 peptide intensities of each condition (but other 
+filtering option would also make sense, depending on the dataset, and on the 
+next coming processing). This results in the options selection that is 
+illustrated on Fig.~\ref{fig:FiltPerform}, where one sees that the 3 plots 
+have been automatically updated, as soon as the 'Perform filtering MV' button 
+has been clicked on.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltPerform.png}}
+\caption{Screenshot of the missing value filtering panel. Graphics are 
+interactively updated.}\label{fig:FiltPerform}
+\end{figure}
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/StringFilt.png}}
+\caption{Screenshot of the string based filtering panel. Graphics are 
+interactively updated.}\label{fig:StringFilt}
+\end{figure}
+
+
+% %See fig.~\ref{fig:Filt}. 
+% This threshold may be applied on the whole dataset, on each condition 
+% or on at least one condition.
+% \newline The barplots are updated interactively, thus allowing to easily 
+% adapt the threshold if necessary.
+% For our expmale we keep only the lines where there is at least 2 significant 
+% values (among the 3 replicates) per condition. 
+
+Once this filtering has been performed, it is possible to move to the 
+string-based filtering panel, which proposes to remove lines on the basis of 
+some meta-data (i.e. peptide sequences that are known to be contaminants ou 
+reverse sequences). This panels works as the previous one and is shown on 
+Fig.~\ref{fig:StringFilt}.
+
+%Yet, with this toy 
+%dataset, there is no string-based filtering to apply.
+
+Finally, one goes on the third panel, named 'Visualise and validate', that aims
+at performing the final validation of the filtering steps. To do so, one simply
+clicks on "Save filtered dataset" (Fig.~\ref{fig:FiltValid}). From that point 
+on, the field in the top-right box is updated to "\textbf{Filtered} - peptide",
+indicating that \Biocpkg{ProStaR} will work on this filtered version of the 
+dataset.  As a result, all the panels are interactively updated through 
+\Biocpkg{ProStaR}. Hence, if one goes back to the 'Descriptive statistics' 
+panels, all the plots will display this "\textbf{Filtered} - peptide" dataset. 
+For example in the 'Overview' panel, 
+it now appears that the filtered data consist of 10660 peptides 
+(instead of 13919), with 3.88\% of missing values.  
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/FiltValid.png}}
+\caption{Panel for filter data validation}\label{fig:FiltValid}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Normalization}\label{sec:norm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Once the data are filtered, the next step is to normalize the data (in the 
+"Data processing" dropdown menu). It works as the previous processing steps, 
+yet the navigation is even simpler. First, chose the adequate normalization 
+method (here we have chosen "Quantile Centering - within conditions with 
+quantile=0.5"); Second perfom the normalization; and finally, save it 
+(see Fig.~\ref{fig:NormAfter}). As usual, notice that once the data are 
+normalized, the top-right box indicates "Normalized - peptide".
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Norm.png}}
+\caption{The normalization panel - 
+before performing normalization}\label{fig:Norm}
+\end{figure}
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/NormAfter.png}}
+\caption{The normalization panel - after the normalization has been performed}
+\label{fig:NormAfter}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Missing value imputation}\label{sec:MVimput}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The next step is to impute the missing values.
+%To impute the data, we use the panel "Missing Values imputation" of the "Data 
+%processing" submenu. 
+On this panel (Fig.~\ref{fig:MV1}) two plots are of help to 
+visualize the distribution of the missing values in the dataset, and to choose 
+the adequate imputation method. 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MV1.png}}
+\caption{Panel Missing Values Imputation}\label{fig:MV1}
+\end{figure}
+
+On the left hand side (Fig.~\ref{fig:MV1}) is displayed the number of missing 
+values as a function of the intensity of the peptides. 
+% This allows to know if MV are present
+% preferentially for peptides in the low intensities, or if the are spread 
+% uniformly across the whole intensity-scale of the data. 
+The missing values heatmap (on the right hand side) allows to see 
+once-at-a-glance the possible difference of distribution of the missing values 
+between the conditions. 
+
+On this example, we impute the missing values with the imp4p method (with one
+iteration, imputation of LAPALA, the upper distribution bound is set to 2.5 
+and the distribution type used is beta).
+Fig.~\ref{fig:MV2} represents the automatically updated plots. Once again, it 
+is necessary to save the imputation before going on.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/MV2.png}}
+\caption{Panel Missing Values Imputation}\label{fig:MV2}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Protein-wise aggregation}
+\label{sec:aggreg}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The dataset we work on is quantified at the peptide-level. Nevertheless, the 
+aim of a proteomics quantitative analysis is to conclude at protein-level. 
+Thus, we aggregate the peptide intensities into protein abundance values
+% Several methods are available in the \Biocpkg{ProStaR} package for this
+% aggregation step: sum, mean and "topn". 
+(the available aggregation methods are described in the 'DAPAR and ProStaR 
+user manual'). 
+
+On the panel "Aggregation" of the "Data processing" drop-down menu 
+(Fig.~\ref{fig:aggreg1}), one has first to indicate in the "Aggregate peptides" 
+tab, the protein ID to consider (here 'Protein.group.IDs'). As soon as the 
+protein ID is indicated, some plots and statistics provide evidences on the 
+number of (specific or shared) peptides per proteins (on the right hand side 
+of the panel), so as to help with the tuning of the two other parameters 
+(Fig.~\ref{fig:aggreg1}).
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg1.png}}
+\caption{Aggregation step panel before aggregation}\label{fig:aggreg1}
+\end{figure}
+
+After the tuning of the other parameters, namely, the aggregation method (here 
+'mean'), and whether shared peptides are considered or not (here 'yes'), the 
+aggregation can be performed.
+A message shows up indicating the aggregation was successfully conducted 
+(see Fig.~\ref{fig:aggreg2}): 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg2.png}}
+\caption{Aggregation step panel after aggregation}\label{fig:aggreg2}
+\end{figure}
+
+As usual with \Biocpkg{ProStaR}, it is necessary to save the results. This is 
+done on the next panel "Configure protein dataset". Here, one indicates among 
+the peptide metadata of the dataset which one will be  kept and aggregated to 
+define the protein metadata (here, we consider the column 
+"Leading.razor.protein" - Fig.~\ref{fig:aggreg3}).
+Once the aggregation is saved, please check that the top right box indicates 
+now "Aggregated - proteins". From that point on, it is possible to go back to 
+the "Descriptive statistics" tabs, and to investigate the new protein-wise 
+dataset. For instance, in the "Overview" tab, it appears that one has the 
+following information:
+\begin{verbatim}
+There is 6 samples in your data.
+There is 2082 lines in your data.
+Percentage of missing values: 0 %
+\end{verbatim}
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/aggreg3.png}}
+\caption{Aggregation step panel after aggregation}\label{fig:aggreg3}
+\end{figure}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Differential analysis}\label{sec:DiffAna}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Differential analysis is the final step to identify differentially abundant 
+proteins. This is performed on the corresponding panel of the "Data processing" 
+drop-down menu. 
+%It is needed that the dataset has no MV at this time (so imputation has to 
+have been performed if the original dataset had MV).
+
+The first step of the differential analysis is to build a volcano plot. This 
+requires
+conducting a statistical test on each protein, so as to fit them with a 
+$p$-value each (which will be used as a complement to the fold-change to 
+construct the plot). To do so, we advise to use Limma moderated $t$-test. 
+% Limma was designed for transcriptomics data treatment but works well on 
+% proteomics data for differential analysis (performed at the protein-level 
+% -data not shown). 
+Concretely, one has to define which are the two conditions to compare (select 
+"condition 1" and "condition 2" - in the example case, it is obvious as there 
+are only 2 different conditions)  and to select "Limma" on the drop down menu, 
+on the left hand side of the panel. Then, the volcano plot is displayed 
+(Fig.~\ref{fig:AnaDiffVolcano1}). 
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffVolcano1.png}}
+\caption{Vocano plot panel (Differential analysis)}\label{fig:AnaDiffVolcano1}
+\end{figure}
+
+Then, the practitioner is allowed to define a threshold on the  fold-change, 
+so as to filter out proteins which do not vary enough between the conditions 
+(Fig.~\ref{fig:AnaDiffVolcano2}).
+
+When the user puts the pointer of his mouse over a point of the plot, a tooltip 
+window appears and shows some informations about that point. He can select the 
+items to show in the Select widget where the 
+different choices correspond to the columns of the feature meta-data table. 
+The tooltip window is automatically updated.
+When the user clicks on a point, a table is displayed above the 
+volcanoplot. It shows the values of intensities for all the samples related to
+the selected point. The cells colored in blue indicate that the corresponding 
+value was a missing value in the original dataset and has been imputed,
+The user can click and draw a rectangle on the plot to zoom in. 
+By clicking on the button named "Reset zoom", the user can return to the 
+entire plot.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffVolcano2.png}}
+\caption{Vocanoplot panel (Differential analysis)}\label{fig:AnaDiffVolcano2}
+\end{figure}
+
+
+The \textbf{Calibrate Ana Diff} panel (fig.~\ref{fig:AnaDiffCalib}) helps the 
+practitioner to check if the ditribution of the $p$-values is well-calibrated. 
+This calls the cp4p R package functions, and we refer to the corresponding 
+tutorial: 
+\url{
+https://sites.google.com/site/thomasburgerswebpage/download/
+tutorial-CP4P-4.pdf}. 
+Here, we simply use the default setting with "pounds" method.
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffCalib.png}}
+\caption{Calibration panel for the differential analysis)}
+\label{fig:AnaDiffCalib}
+\end{figure}
+
+
+On the \textbf{FDR} panel (fig.~\ref{fig:AnaDiffFDR}), one adjustes the 
+$p$-value threshold (here to 0.0001), and apply the adaptive Benjamini-Hochberg 
+procedure to adjust the $p$-values (corrected by pounds methods, see previous 
+tab), which leads to an estimator of an upper bound of the proportion of false 
+discoveries (referred to as False Discovery Rate, or FDR - in the example, it 
+is estimated to 0\%).
+
+\begin{figure}
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/AnaDiffFDR.png}}
+\caption{FDR visualization (Differential Analysis)}
+\label{fig:AnaDiffFDR}
+\end{figure}
+
+Finally, on the \textbf{Validate and Save} panel, one visualizes the selected 
+45 proteins and save a new dataset with only the latter ones.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Export}\label{sec:export}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+At the end of the quantitative analysis, or whenever an intermediate step is 
+achieved   along the processing pipeline, it is possible export the dataset. 
+To do so, an "Export" panel is available in
+the "Dataset Manager" drop-down menu (see Fig.~\ref{fig:Export}).
+
+Let us note that the dataset which will be exported is the one that is 
+indicated in the "Dataset versions" box. 
+On the left of the panel ones specifies: the export format (MsnSet or Excel), 
+and of course the name of the file exported. In the case of an Excel export, 
+it is necessary to specify the protein or peptide ID that is used to map the 
+data to the meta data (the file contains 3 sheets for the quantitative data, 
+peptide/protein metadata and the replicate metadata). 
+
+\begin{figure}[h]
+\centering
+\fbox{\includegraphics[width=0.85\textwidth]{captures/Export.png}}
+\caption{Export page of \Biocpkg{ProStaR}}\label{fig:Export}
+\end{figure}
+
+\end{document}
+
+

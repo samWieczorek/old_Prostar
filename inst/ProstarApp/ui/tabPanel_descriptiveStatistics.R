@@ -16,14 +16,15 @@ tabPanel("Descriptive statistics",
                          helpText("Those bargraph plots display some information to
                                   view the distribution of missing values."),
                          fluidRow(
-                             column(width = 4, 
-                                    plotOutput("histoMV_Image_DS")
+                             column(width = 4,
+                                    highchartOutput("histoMV_Image_DS")
                              ),
-                             column(width = 4, 
-                                    plotOutput("histo.missvalues.per.lines_DS")),
-                             column(width = 4, 
-                                    plotOutput("histo.missvalues.per.lines.per.conditions_DS"))
+                             column(width = 4,
+                                    highchartOutput("histo_missvalues_per_lines_DS")),
+                             column(width = 4,
+                                    highchartOutput("histo_missvalues_per_lines_per_conditions_DS"))
                          )
+
                          ),
                      
                      #-------------------------------------------------------------
@@ -49,13 +50,9 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_Corrmatrix",
                                                     sliderInput("expGradientRate",
                                                                 "Tune to modify the gradient of color",
-                                                                min = 2,max = 6,value = defaultGradientRate,step=0.05)
+                                                                min = 0,max = 1,value = defaultGradientRate,step=0.01)
                                           ),
-                                          conditionalPanel(id = "wellPanelCorrMat",
-                                                           condition = "true",
-                                                           plotOutput("corrMatrix",width = plotWidth,
-                                                                      height = plotHeight)
-                                          )
+                                          highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
                               )
                      ),
                      
@@ -122,7 +119,7 @@ tabPanel("Descriptive statistics",
                                           ),
                                           conditionalPanel(id = "wellPanelBoxplot",
                                                            condition = "true",
-                                                           plotOutput("viewDensityplot_DS",
+                                                           highchartOutput("viewDensityplot_DS",
                                                                       width = plotWidth,
                                                                       height = plotHeight)
                                           )
@@ -134,7 +131,7 @@ tabPanel("Descriptive statistics",
                               value="DS_tabDistVar",
                               p("This graphics shows, for each condition, the distribution 
                                 of the CV of the log-intensities."),
-                              plotOutput("viewDistCV",
+                              highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)
                               )

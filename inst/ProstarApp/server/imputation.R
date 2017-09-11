@@ -95,9 +95,13 @@ observeEvent(input$perform.imputation.button,{
     isolate({
         result = tryCatch(
             {
+                
                 if (input$missing.value.algorithm == "None"){
                     rv$current.obj <- rv$dataset[[input$datasets]]
-                } else if (input$missing.value.algorithm == "imp4p")
+                } else {
+                    createPNG_BeforeImputation()
+                    
+                    if (input$missing.value.algorithm == "imp4p")
                 {
                     if (input$imp4p_withLapala) {
                         
@@ -185,7 +189,8 @@ observeEvent(input$perform.imputation.button,{
                     #     
                     # }
                 }
-                
+                }
+                createPNG_AfterImputation()
             }
             , warning = function(w) {
                 print(w)
@@ -234,6 +239,12 @@ observeEvent(input$ValidImputation,{
                 UpdateLog(paste("Imputation with" ,
                                 input$missing.value.algorithm,sep=" "),
                           name)
+                
+                
+                ## Add the necessary text to the Rmd file
+                txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
+                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
@@ -283,16 +294,23 @@ output$chooseBasicImputationMethod <- renderUI({
 
 
 
+<<<<<<< HEAD
 
 
 
 output$histoMV_Image_DS <- renderPlot({
+=======
+histoMV_Image <- reactive({
+>>>>>>> c7ca397... August bug fixed
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
-    
     result = tryCatch(
         {
+<<<<<<< HEAD
             wrapper.mvHisto(rv$current.obj)
+=======
+            if (!is.null(rv$current.obj)){wrapper.mvHisto_HC(rv$current.obj)}
+>>>>>>> c7ca397... August bug fixed
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -305,6 +323,7 @@ output$histoMV_Image_DS <- renderPlot({
 })
 
 
+<<<<<<< HEAD
 output$histoMV_Image <- renderPlot({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -321,16 +340,16 @@ output$histoMV_Image <- renderPlot({
         })
     
     
+=======
+output$histoMV_Image <- renderHighchart({
+   
+    histoMV_Image()
+>>>>>>> c7ca397... August bug fixed
     
 })
 
 
-
-
-##' xxxxxxxxxxxxxxxxxxxxxxxx
-##' @author Samuel Wieczorek
-output$showImageNA <- renderPlot({
-    
+showImageNA <- reactive({
     rv$current.obj
     #input$toto
     
@@ -351,7 +370,12 @@ output$showImageNA <- renderPlot({
         
     })
     
-    
+})
+
+##' xxxxxxxxxxxxxxxxxxxxxxxx
+##' @author Samuel Wieczorek
+output$showImageNA <- renderPlot({
+    showImageNA()
 })
 
 
@@ -513,11 +537,7 @@ output$progressOne <- renderUI({
 })
 
 
-
-
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-output$viewNAbyMean <- renderPlot({
+viewNAbyMean <- reactive({
     rv$current.obj
     
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -538,7 +558,13 @@ output$viewNAbyMean <- renderPlot({
         
     })
     
+})
+
+##' boxplot of intensities in current.obj
+##' @author Samuel Wieczorek
+output$viewNAbyMean <- renderPlot({
     
+    viewNAbyMean()
 })
 
 

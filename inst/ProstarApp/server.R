@@ -57,6 +57,7 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "aggregation.R"),  local = TRUE)$value
     source(file.path("server", "datasetManager.R"),  local = TRUE)$value
     source(file.path("server", "help.R"),  local = TRUE)$value
+     
 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
 })

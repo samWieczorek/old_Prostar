@@ -152,9 +152,14 @@ output$seuilNADelete <- renderUI({
 })
 
 
+<<<<<<< HEAD
 
 
 output$GlobalPieChart <- renderPlot({
+=======
+GlobalPieChart <- reactive({
+    
+>>>>>>> c7ca397... August bug fixed
     
     rv$current.obj
     input$idBoxContaminants
@@ -179,7 +184,13 @@ output$GlobalPieChart <- renderPlot({
     
     result = tryCatch(
         {
+<<<<<<< HEAD
             proportionConRev(rv$current.obj,p[1], p[3], p[2],p[4])
+=======
+            proportionConRev_HC(rv$current.obj,p[1], p[3], p[2],p[4])
+            
+            
+>>>>>>> c7ca397... August bug fixed
         }
         #, warning = function(w) {
         #     shinyjs::info(conditionMessage(w))
@@ -193,6 +204,10 @@ output$GlobalPieChart <- renderPlot({
         })
     
     
+})
+
+output$GlobalPieChart <- renderHighchart({
+    GlobalPieChart()
 })
 
 
@@ -310,6 +325,8 @@ observeEvent(input$perform.filtering.MV,{
         result = tryCatch(
             {
                 
+                createPNG_BeforeFiltering()
+                
                 
                 if (input$ChooseFilters == gFilterNone){
                     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -406,6 +423,7 @@ observeEvent(input$perform.filtering.Contaminants,{
                                                      input$prefixContaminants)
                     
                     if (!is.null(ind)){
+                        rv$nbContaminantsDeleted = length(ind)
                         if (length(ind) > 0)  {
                             rv$deleted.contaminants <- temp[ind]
                             
@@ -444,6 +462,7 @@ observeEvent(input$perform.filtering.Contaminants,{
                                                      input$prefixReverse)
                     
                     if (!is.null(ind)){
+                        rv$nbReverseDeleted = length(ind)
                         if(length(ind) >0)  {
                             rv$deleted.reverse <- temp[ind]
                             temp <- deleteLinesFromIndices(
@@ -486,6 +505,8 @@ writeToCommandLogFile(
                                   "tabFilter", 
                                   selected = "FilterContaminants")
                 
+                
+                createPNG_Filtering()
             }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))
@@ -554,6 +575,14 @@ observeEvent(input$ValidateFilters,{
                                  "Reverse deleted", 
                                  sep=" ")
                     UpdateLog(txt,name)
+                    
+                    
+                    ## Add the necessary text to the Rmd file
+                    txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
+                    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                    write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    createPNG_Filtering()
+                    
                 }
                 
             }
