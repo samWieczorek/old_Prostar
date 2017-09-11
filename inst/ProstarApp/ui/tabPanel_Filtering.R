@@ -2,7 +2,7 @@ tabPanel("Filter data",
          icon = icon("download"),
          
          tabsetPanel(
-             #id = "DP_Filtering_tabSetPanel"
+             id = "DP_Filtering_tabSetPanel",
              
              tabPanel( "1 - Missing values",
                        #id =  "DP_FilterMissingValues",

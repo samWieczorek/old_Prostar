@@ -18,8 +18,14 @@ library(openxlsx)
 library(sm)
 library(imp4p)
 library(highcharter)
+library(webshot)
+library(htmlwidgets)
 
 # Declaration of global variables
+
+
+ppi <- 300
+
 
 commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"
@@ -136,23 +142,35 @@ return (
 
 
 gGraphicsFilenames <- list(
-    histoMV_DS = "histoMV_DS.png",
-    histoMVPerLines_DS = "histoMissvaluesPerLines_DS.png",
-    histoMVPerLinesConditions_DS = "histoMVPerLinesPerConditions_DS.png",
-    histoMV = "histoMV_DS.png",
-    histoMVPerLines = "histoMissvaluesPerLines.png",
-    histoMVPerLinesConditions = "histoMVPerLinesPerConditions.png",
+    #histoMVPerLines_DS = "histoMissvaluesPerLines_DS.png",
+    #histoMVPerLinesConditions_DS = "histoMVPerLinesPerConditions_DS.png",
+    #histoMV = "histoMV_DS.png",
+    #histoMVPerLines = "histoMissvaluesPerLines.png",
+    #histoMVPerLinesConditions = "histoMVPerLinesPerConditions.png",
+    
+    histoMV_Image_DS = "histoMV_Image_DS.png",
+    histo_missvalues_per_lines_DS = "histo_missvalues_per_lines_DS.png",
+    histo_missvalues_per_lines_per_conditions_DS = "histo_missvalues_per_lines_per_conditions_DS.png",
+    
+    histoMV_Image_DS_BeforeFiltering = "histoMV_Image_DSBeforeFiltering.png",
+    histo_missvalues_per_lines_DS_BeforeFiltering = "histo_missvalues_per_lines_DSBeforeFiltering.png",
+    histo_missvalues_per_lines_per_conditions_DS_BeforeFiltering = "histo_missvalues_per_lines_per_conditions_DSBeforeFiltering.png",
+    
+    
     corrMatrix = "corrMatrix.png",
     heatmap = "heatmap.png",
     boxplot = "boxplot.png",
+    violinplot = "violinplot.png",
     varDist = "varDist.png",
     densityPlot = "densityPlot.png",
-    densityPlotNorm = "densityPlotNorm.png",
+    densityPlotBeforeNorm = "densityPlotBeforeNorm.png",
     propContRev = "propContRev.png",
-    boxplotNorm = "boxplotNorm.png",
+    boxplotBeforeNorm = "boxplotBeforeNorm.png",
     compareNorm = "compareNorm.png",
-    MVtypePlot = "MVtypePlot.png",
-    imageNA = "imageNA.png",
+    MVtypePlot_BeforeImputation = "MVtypePlot_BeforeImputation.png",
+    imageNA_BeforeImputation = "imageNA_BeforeImputation.png",
+    MVtypePlot_AfterImputation = "MVtypePlot_AfterImputation.png",
+    imageNA_AfterImputation = "imageNA_AfterImputation.png",
     AgregMatUniquePeptides = "AgregMatUniquePeptides.png",
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
     volcanoPlot_1 = "volcanoPlot_1.png",

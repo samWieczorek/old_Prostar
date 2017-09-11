@@ -1,0 +1,59 @@
+---
+title: "ProStaR report"
+
+
+output:
+  html_document:
+    toc: true
+    theme: united
+    fig.width: 10
+    fig.height: 6
+  pdf_document:
+    toc: true
+    theme: united
+    fig.width: 10
+    fig.height: 6
+
+params:
+    listOverview: !r as.list(NA)
+    listFiltering: !r as.list(NA)
+    listNormalization: !r as.list(NA)
+    listImputation: !r as.list(NA)
+    listAggregation: !r as.list(NA)
+    listAnaDiff: !r as.list(NA)
+
+---
+
+***
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache=TRUE)
+#knitr::opts_chunk$set(dev = 'pdf')
+#knitr::opts_chunk$set(dpi=600)
+```
+
+
+# Descriptive statistics
+
+#### Quick overview of the dataset
+
+
+* There is `r params$listOverview$nSamples` samples in the dataset
+* There are `r params$listOverview$nEntities` `r params$typeOfData` in the dataset
+* Pourcentage de valeurs manquantes : `r params$listOverview$pourcentageNA` 
+* Number of lines with only NA values = `r params$listOverview$nNAlines` %
+
+```{r fig_ds,out.width = "50%", echo=FALSE}
+layout(t(1:3))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
+
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
+```
+
+

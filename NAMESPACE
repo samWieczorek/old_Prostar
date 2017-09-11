@@ -2,6 +2,8 @@
 import(rhandsontable)
 import(data.table)
 import(DAPAR)
+import(webshot)
+import(htmlwidgets)
 import(DAPARdata)
 import(shinyAce)
 import(highcharter)

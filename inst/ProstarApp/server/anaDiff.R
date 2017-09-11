@@ -175,12 +175,12 @@ output$showFDR <- renderText({
                     m <- as.numeric(input$numericValCalibration)} 
                 else {m <- input$calibrationMethod }
                 
-                fdr <- diffAnaComputeFDR(rv$resAnaDiff, 
+                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff, 
                                          rv$seuilPVal, 
                                          rv$seuilLogFC, m)
-                if (!is.infinite(fdr)){
+                if (!is.infinite(rv$fdr)){
                     HTML(paste("<h4>FDR = ", 
-                               round(100*fdr, digits=2)," % </h4>", sep=""))
+                               round(100*rv$fdr, digits=2)," % </h4>", sep=""))
                 }
             }
             , warning = function(w) {
@@ -201,9 +201,7 @@ output$showFDR <- renderText({
 
 
 
-
-
-output$histPValue <- renderPlot({
+histPValue <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)){ return()}
     
@@ -226,6 +224,11 @@ output$histPValue <- renderPlot({
     
     hist(sort(1-t), breaks=80, col="grey")
     
+    
+})
+
+output$histPValue <- renderPlot({
+    histPValue()
 })
 
 
@@ -265,10 +268,7 @@ output$calibrationResults <- renderUI({
 
 
 
-
-
-output$calibrationPlot <- renderPlot({
-    
+calibrationPlot <- reactive({
     rv$seuilPVal
     rv$seuilLogFC
     input$condition1
@@ -333,6 +333,12 @@ output$calibrationPlot <- renderPlot({
     
 })
 
+output$calibrationPlot <- renderPlot({
+    
+    calibrationPlot()
+    
+})
+
 
 
 output$errMsgCalibrationPlot <- renderUI({
@@ -369,8 +375,8 @@ output$errMsgCalibrationPlotAll <- renderUI({
 })
 
 
-#--------------------------------------------------
-output$calibrationPlotAll <- renderPlot({
+
+calibrationPlotAll <- reactive({
     rv$seuilPVal
     rv$seuilLogFC
     input$condition1
@@ -411,6 +417,14 @@ output$calibrationPlotAll <- renderPlot({
         }, finally = {
             #cleanup-code 
         })
+    
+})
+
+
+
+#--------------------------------------------------
+output$calibrationPlotAll <- renderPlot({
+    calibrationPlotAll()
 })
 
 
@@ -442,7 +456,7 @@ observeEvent(input$ValidDiffAna,{
                 {m <- as.numeric(input$numericValCalibration)}
                 else {m <- input$calibrationMethod }
                 
-                fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
+                rv$fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
                 
                 
                 temp <- diffAnaSave(rv$dataset[[input$datasets]],
@@ -452,7 +466,7 @@ observeEvent(input$ValidDiffAna,{
                                     input$condition2,
                                     rv$seuilPVal, 
                                     rv$seuilLogFC, 
-                                    fdr,
+                                    rv$fdr,
                                     input$calibrationMethod)
                 
                 
@@ -521,11 +535,20 @@ observeEvent(input$ValidDiffAna,{
                               "The calibration was made with the method", cMethod,
                               ", -log10(p-value) = ",
                               rv$seuilPVal,
-                              "corresponding to a FDR = ", round(100*fdr, digits=2),
+                              "corresponding to a FDR = ", round(100*rv$fdr, digits=2),
                               sep=" ")
                 UpdateLog(text,name)
                 
                 updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
+                
+                
+                
+                
+                ## Add the necessary text to the Rmd file
+                txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
+                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                createPNG_DifferentialAnalysis()
                 }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))
@@ -708,19 +731,19 @@ output$nbSelectedItems <- renderUI({
             
             
             upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
-            nbTotal <- nrow(Biobase::exprs(rv$current.obj))
-            nbSelected <- NULL
+            rv$nbTotalAnaDiff_Step1 <- nrow(Biobase::exprs(rv$current.obj))
+            rv$nbSelectedAnaDiff_Step1 <- NULL
             t <- NULL
             
             t <- upItemsLogFC
-            nbSelected <- length(t)
+            rv$nbSelectedAnaDiff_Step1 <- length(t)
             
             txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ", 
-                         nbTotal,"<br>",
+                         rv$nbTotalAnaDiff_Step1,"<br>",
                          "Number of selected ",rv$typeOfDataset, "(s) = ", 
-                         nbSelected,"<br>",
+                         rv$nbSelectedAnaDiff_Step1,"<br>",
                          "Number of non selected ",rv$typeOfDataset, "(s) = ", 
-                         (nbTotal-nbSelected), sep="")
+                         (rv$nbTotalAnaDiff_Step1 -rv$nbSelectedAnaDiff_Step1), sep="")
             HTML(txt)
         }
         , warning = function(w) {
@@ -775,8 +798,8 @@ output$nbSelectedItemsStep3 <- renderUI({
             upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
             
             
-            nbTotal <- nrow(Biobase::exprs(rv$current.obj))
-            nbSelected <- NULL
+            rv$nbSelectedTotal_Step3 <- nrow(Biobase::exprs(rv$current.obj))
+            rv$nbSelected_Step3 <- NULL
             t <- NULL
             
             if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
@@ -786,14 +809,14 @@ output$nbSelectedItemsStep3 <- renderUI({
             else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
                 t <- upItemsLogFC}
             
-            nbSelected <- length(t)
+            rv$nbSelected_Step3 <- length(t)
             
             txt <- paste("Total number of ", rv$typeOfDataset, " = ", 
-                         nbTotal,"<br>",
+                         rv$nbSelectedTotal_Step3,"<br>",
                          "Number of selected ", rv$typeOfDataset, " = ", 
-                         nbSelected,"<br>",
+                         rv$nbSelected_Step3,"<br>",
                          "Number of non selected ", rv$typeOfDataset, " = ", 
-                         (nbTotal-nbSelected), sep="")
+                         (rv$nbSelectedTotal_Step3-rv$nbSelected_Step3), sep="")
             HTML(txt)
         }
         , warning = function(w) {
@@ -924,7 +947,7 @@ dat <- DT::datatable(getDataInfosVolcano(),
 
 
 
-output$volcanoplot_rCharts <- renderHighchart({
+volcanoplot_rCharts <- reactive({
     rv$seuilPVal
     rv$seuilLogFC
     input$condition1
@@ -940,82 +963,84 @@ output$volcanoplot_rCharts <- renderHighchart({
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     if (is.null(rv$current.obj) ){return()}
     #if (is.null(input$tooltipInfo)) {        return()}
-
+    
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
-
-     result = tryCatch(
-         {
-            
-    if ("logFC" %in% names(fData(rv$current.obj) )){
-        
-              df <- data.frame(x=fData(rv$current.obj)$logFC, 
-                         y = -log10(fData(rv$current.obj)$P_Value),
-                         index = as.character(rownames(rv$current.obj)),
-                         stringsAsFactors = FALSE)
-        if (!is.null(input$tooltipInfo)){
-            df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
-        }
-        rownames(df) <- rownames(rv$current.obj)
-        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-        
-        if (ncol(df) > 3){
-            colnames(df)[4:ncol(df)] <- 
-                paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-        }
-        hc_clickFunction <- 
-            JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
-        #             print("avant 5")
-        cond <- c(rv$current.obj@experimentData@other$condition1,
-                  rv$current.obj@experimentData@other$condition2)
-        diffAnaVolcanoplot_rCharts(df,
-                                   threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
-                                   conditions = cond,
-                                   clickFunction=hc_clickFunction) 
-    } else {
-        df <- data.frame(x=rv$resAnaDiff$logFC, 
-                         y = -log10(rv$resAnaDiff$P_Value),
-                         index = 1:nrow(fData(rv$current.obj)),
-                         stringsAsFactors = FALSE)
-        if (!is.null(input$tooltipInfo)){
-            df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
-        }
-         rownames(df) <- rownames(rv$current.obj)
-        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-        if (ncol(df) > 3){
-            colnames(df)[4:ncol(df)] <- 
-                paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-        }
-        hc_clickFunction <- 
-            JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
-        #             print("avant 5")
-        cond <- c(input$condition1, input$condition2)
-        diffAnaVolcanoplot_rCharts(df,
-                                   threshold_logFC = rv$seuilLogFC,
-                                   conditions = cond,
-                                   clickFunction=hc_clickFunction)
-        
-        
-    }
-         }
-         , warning = function(w) {
-             shinyjs::info(conditionMessage(w))
-         }, error = function(e) {
-             shinyjs::info(paste("titi",match.call()[[1]],":",
-                                 conditionMessage(e),
-                                 sep=" "))
-         }, finally = {
-            #cleanup-code
-         })
     
+    result = tryCatch(
+        {
+            
+            if ("logFC" %in% names(fData(rv$current.obj) )){
+                
+                df <- data.frame(x=fData(rv$current.obj)$logFC, 
+                                 y = -log10(fData(rv$current.obj)$P_Value),
+                                 index = as.character(rownames(rv$current.obj)),
+                                 stringsAsFactors = FALSE)
+                if (!is.null(input$tooltipInfo)){
+                    df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+                }
+                rownames(df) <- rownames(rv$current.obj)
+                colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+                names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+                
+                if (ncol(df) > 3){
+                    colnames(df)[4:ncol(df)] <- 
+                        paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+                }
+                hc_clickFunction <- 
+                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
+                #             print("avant 5")
+                cond <- c(rv$current.obj@experimentData@other$condition1,
+                          rv$current.obj@experimentData@other$condition2)
+                diffAnaVolcanoplot_rCharts(df,
+                                           threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
+                                           conditions = cond,
+                                           clickFunction=hc_clickFunction) 
+            } else {
+                df <- data.frame(x=rv$resAnaDiff$logFC, 
+                                 y = -log10(rv$resAnaDiff$P_Value),
+                                 index = 1:nrow(fData(rv$current.obj)),
+                                 stringsAsFactors = FALSE)
+                if (!is.null(input$tooltipInfo)){
+                    df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+                }
+                rownames(df) <- rownames(rv$current.obj)
+                colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+                if (ncol(df) > 3){
+                    colnames(df)[4:ncol(df)] <- 
+                        paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+                }
+                hc_clickFunction <- 
+                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
+                #             print("avant 5")
+                cond <- c(input$condition1, input$condition2)
+                diffAnaVolcanoplot_rCharts(df,
+                                           threshold_logFC = rv$seuilLogFC,
+                                           conditions = cond,
+                                           clickFunction=hc_clickFunction)
+                
+                
+            }
+        }
+        , warning = function(w) {
+            shinyjs::info(conditionMessage(w))
+        }, error = function(e) {
+            shinyjs::info(paste("titi",match.call()[[1]],":",
+                                conditionMessage(e),
+                                sep=" "))
+        }, finally = {
+            #cleanup-code
+        })
+    
+})
+
+output$volcanoplot_rCharts <- renderHighchart({
+    volcanoplot_rCharts()
     
 })   
 
 
-
-
-output$volcanoplot <- renderPlot({
+volcanoplot <- reactive({
     rv$seuilPVal
     rv$seuilLogFC
     input$condition1
@@ -1052,11 +1077,14 @@ output$volcanoplot <- renderPlot({
         })
     
     
+})
+
+output$volcanoplot <- renderPlot({
+    volcanoplot()
 })   
 
 
-
-output$volcanoplot_rCharts_Step3 <- renderHighchart({
+volcanoplot_rCharts_Step3 <- reactive({
     rv$current.obj
     rv$seuilPVal
     rv$seuilLogFC
@@ -1092,17 +1120,17 @@ output$volcanoplot_rCharts_Step3 <- renderHighchart({
                                                       colnames(df)[4:ncol(df)], 
                                                       sep="")
                 }
-        hc_clickFunction <- JS(
-    "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
-    )
+                hc_clickFunction <- JS(
+                    "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
+                )
                 
-    diffAnaVolcanoplot_rCharts(df,
-        threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
-        threshold_pVal = rv$current.obj@experimentData@other$threshold_p_value,
-        conditions = c(rv$current.obj@experimentData@other$condition1,
-                        rv$current.obj@experimentData@other$condition2),
-        clickFunction=hc_clickFunction)
-
+                diffAnaVolcanoplot_rCharts(df,
+                                           threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
+                                           threshold_pVal = rv$current.obj@experimentData@other$threshold_p_value,
+                                           conditions = c(rv$current.obj@experimentData@other$condition1,
+                                                          rv$current.obj@experimentData@other$condition2),
+                                           clickFunction=hc_clickFunction)
+                
             }else{
                 cond <- c(input$condition1, input$condition2)
                 
@@ -1119,9 +1147,9 @@ output$volcanoplot_rCharts_Step3 <- renderHighchart({
                                                       colnames(df)[4:ncol(df)], 
                                                       sep="")
                 }
-hc_clickFunction <- JS(
-    "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
-    )
+                hc_clickFunction <- JS(
+                    "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
+                )
                 
                 diffAnaVolcanoplot_rCharts(df,
                                            threshold_logFC = rv$seuilLogFC,
@@ -1140,6 +1168,11 @@ hc_clickFunction <- JS(
             #cleanup-code 
         })
     
+})
+
+
+output$volcanoplot_rCharts_Step3 <- renderHighchart({
+    volcanoplot_rCharts_Step3()
 })   
 
 
@@ -1196,8 +1229,7 @@ as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointC
 
 
 
-
-output$volcanoplotStep3 <- renderPlot({
+volcanoplotStep3 <- reactive({
     rv$current.obj
     rv$seuilPVal
     rv$seuilLogFC
@@ -1218,12 +1250,12 @@ output$volcanoplotStep3 <- renderPlot({
     result = tryCatch(
         {
             if ("logFC" %in% names(fData(rv$current.obj) )){
-        diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
-                        fData(rv$current.obj)$P_Value, 
-                        rv$current.obj@experimentData@other$threshold_p_value,
-                        rv$current.obj@experimentData@other$threshold_logFC,
-                        c(rv$current.obj@experimentData@other$condition1,
-                               rv$current.obj@experimentData@other$condition2)
+                diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
+                                   fData(rv$current.obj)$P_Value, 
+                                   rv$current.obj@experimentData@other$threshold_p_value,
+                                   rv$current.obj@experimentData@other$threshold_logFC,
+                                   c(rv$current.obj@experimentData@other$condition1,
+                                     rv$current.obj@experimentData@other$condition2)
                 )
             }else{
                 cond <- c(input$condition1, input$condition2)
@@ -1245,6 +1277,10 @@ output$volcanoplotStep3 <- renderPlot({
             #cleanup-code 
         })
     
+})
+
+output$volcanoplotStep3 <- renderPlot({
+    volcanoplotStep3()
 })
 
 

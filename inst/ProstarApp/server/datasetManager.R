@@ -1,5 +1,3 @@
-
-
 output$chooseDataset <- renderUI({
     
     if(require("DAPARdata")){
@@ -158,8 +156,7 @@ observeEvent(input$loadDemoDataset,{
                                         input$demoDataset, 
                                         sep=""))
             loadObjectInMemoryFromConverter()
-            
-            print(rv$current.obj)
+            initRmd()
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -174,6 +171,19 @@ observeEvent(input$loadDemoDataset,{
     # })
     
 })
+
+
+initRmd <- function(){
+    
+    ## Init the Rmd file for the report
+    src <- normalizePath('Rmd_sources/report.Rmd')
+    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+    file.copy(src, filename, overwrite = TRUE)
+    
+    createPNG_DescriptiveStatistics()
+    
+}
+
 
 ##-- Open a MSnset File --------------------------------------------
 observeEvent(input$file,{ 
@@ -229,8 +239,8 @@ observeEvent(input$file,{
             
         }
         
-        
-        
+        initRmd()
+        #createPNG_DescriptiveStatistics()
         writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
         )
@@ -517,7 +527,7 @@ observeEvent(input$createMSnsetButton,{
                 )
                 
                 loadObjectInMemoryFromConverter()
-                
+                initRmd()
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
@@ -640,10 +650,191 @@ output$overviewDemoDataset <- renderUI({
 
 
 
+###--------------------------------------------------------------------------
+createPNG_BeforeFiltering <- reactive({
+##last plot of descriptive statistics
+tempplot <- histo_missvalues_per_lines_per_conditions_DS()
+htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS_BeforeFiltering, sep="/"),
+                 zoom = 0.50)
+
+
+##second plot of descriptive statistics
+tempplot <- histo_missvalues_per_lines_DS()
+htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS_BeforeFiltering, sep="/"),
+                 zoom = 0.50)
+
+# first plot of descriptive statistics
+tempplot <- histoMV_Image_DS()
+htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS_BeforeFiltering, sep="/"),
+                 zoom = 0.50)
+
+})
+
+
+
+###--------------------------------------------------------------------------
+createPNG_Filtering <- reactive({
+    
+    tempplot <-GlobalPieChart()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
+                     zoom = 0.50)
+})
+
+###--------------------------------------------------------------------------
+createPNG_Normalization <- reactive({
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
+    viewComparisonNorm()
+    dev.off()
+
+    
+})
+
+
+###--------------------------------------------------------------------------
+createPNG_BeforeNormalization <- reactive({
+    
+    tempplot <- viewDensityplotNorm()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotBeforeNorm, sep="/"),
+                     delay = 1,
+                     zoom = 0.50)
+    
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"))
+    viewBoxPlotNorm()
+    dev.off()
+    
+})
+
+###--------------------------------------------------------------------------
+createPNG_BeforeImputation <- reactive({
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_BeforeImputation, sep="/"))
+    #showImageNA()
+    #dev.off()
+    
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"))
+    #viewNAbyMean()
+    #dev.off()
+})
+
+createPNG_AfterImputation <- reactive({
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_AfterImputation, sep="/"))
+    #showImageNA()
+    #dev.off()
+    
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_AfterImputation, sep="/"))
+    #viewNAbyMean()
+    #dev.off()
+})
+
+###--------------------------------------------------------------------------
+createPNG_Aggregation <- reactive({
+    
+})
+
+###--------------------------------------------------------------------------
+createPNG_DifferentialAnalysis <- reactive({
+    tempplot <- volcanoplot_rCharts_Step3()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"),
+                     delay = 5
+                     ,zoom = 0.50
+                     )
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
+    calibrationPlot()
+    Sys.sleep(5)
+    dev.off()
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
+    calibrationPlotAll()
+    dev.off()
+})
+
+
+###--------------------------------------------------------------------------
+createPNG_DescriptiveStatistics <- reactive({
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
+    boxPlot()
+    dev.off()
+    
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
+    violinPlot2()
+    dev.off()
+
+
+    tempplot <- Densityplot_DS()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
+                     delay = 1,
+                     zoom = 0.50)
+
+
+
+     tempplot <-viewDistCV()
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
+                      delay = 1,
+                      zoom = 0.50)
+
+
+    tempplot <-corrMatrix()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
+                     zoom = 0.50)
+
+
+    png(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
+    heatmap()
+    dev.off()
+
+
+    ##last plot of descriptive statistics
+    tempplot <-histo_missvalues_per_lines_per_conditions_DS()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
+                     zoom = 0.50)
+
+
+    ##second plot of descriptive statistics
+    tempplot <-histo_missvalues_per_lines_DS()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
+                     zoom = 0.50)
+
+    # first plot of descriptive statistics
+    tempplot <-histoMV_Image_DS()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
+                     zoom = 0.50)
+
+
+    
+})
 
 
 ######-----------------------------------------------------------------
 output$downloadReport <- downloadHandler(
+    #createPNG(),
+    
     filename = function() {
         paste('__ProStaR report', sep = '.', switch(
             input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
@@ -651,19 +842,57 @@ output$downloadReport <- downloadHandler(
     },
     
     content = function(file) {
-        src <- normalizePath('report.Rmd')
+        #src <- normalizePath('report.Rmd')
+        filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
         
-        file.copy(src, paste(tempdir(), sessionID, 'report.Rmd',sep="/"))
-        
+        #file.copy(src, filename, overwrite = TRUE)
         library(rmarkdown)
-        out <- render(paste(tempdir(), sessionID, 'report.Rmd', sep="/"), 
-                      switch(
+        
+        #paramRmd <- list(current.obj=rv$current.obj)
+        out <- render(filename, 
+                      output_file = file,
+                      params = list(listOverview = list(pourcentageNA = rv$pourcentageNA,
+                                                        nEntities = dim(Biobase::exprs(rv$current.obj))[1],
+                                                        typeOfData = rv$typeOfDataset,
+                                                        nNAlines = rv$nb.empty.lines,
+                                                        nSamples = dim(Biobase::exprs(rv$current.obj))[2]),
+                                    
+                                    listFiltering= list(filter = input$ChooseFilters,
+                                                        seuilNA = as.integer(input$seuilNA),
+                                                        nbReverseDeleted = rv$nbReverseDeleted,
+                                                        nbContaminantsDeleted = rv$nbContaminantsDeleted),
+                                    
+                                    listNormalization = list(method=input$normalization.method,
+                                                             type = input$normalization.type,
+                                                             quantile=input$normalization.quantile,
+                                                             quantileOther = input$normalization.quantileOther,
+                                                             scaling = input$normalization.variance.reduction),
+                                    
+                                    listImputation = list(algorithm = input$missing.value.algorithm,
+                                                          basicAlgo = input$missing.value.basic.algorithm,
+                                                          imp4p_withLapala = input$imp4p_withLapala,
+                                                          OnlyLAPALA_qmin = input$OnlyLAPALA_qmin,
+                                                          OnlyLAPALA_distrib = input$OnlyLAPALA_distrib,
+                                                          imp4pLAPALA_distrib = input$imp4pLAPALA_distrib),
+                                    
+                                    listAggregation = list(a=3, b=4, c=8),
+                                    listAnaDiff = list(condition1 = input$condition1, 
+                                                       condition2 = input$condition2,
+                                                       calibrationMethod = input$calibrationMethod,
+                                                       numericValCalibration = input$numericValCalibration,
+                                                       seuilPValue = rv$seuilPVal,
+                                                       seuilLogFC = rv$seuilLogFC,
+                                                       method = input$diffAnaMethod,
+                                                       fdr = round(100*rv$fdr, digits=2),
+                                                       nbSelected = rv$nbSelected_Step3)
+                                    ),
+                        switch(
                           input$format,
                           PDF = pdf_document(), 
                           HTML = html_document(), 
                           Word = word_document()
                       ))
-        file.rename(out, file)
+
     }
 )
 

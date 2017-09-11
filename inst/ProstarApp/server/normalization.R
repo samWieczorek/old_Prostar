@@ -203,6 +203,8 @@ observeEvent(input$perform.normalization,{
                 
                 #.temp <- unlist(strsplit(input$normalization.method, " - "))
                 
+                createPNG_BeforeNormalization()
+                
                 if (input$normalization.method == "None"){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
@@ -227,7 +229,7 @@ observeEvent(input$perform.normalization,{
                         
                         
                         quant <-NA
-                        print(input$normalization.quantile)
+                        #print(input$normalization.quantile)
                         if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
                         {quant <- as.numeric(input$normalization.quantile)}
                         else {quant <- as.numeric(input$normalization.quantileOther)}
@@ -276,7 +278,7 @@ observeEvent(input$perform.normalization,{
                         )
                     } 
                     
-                    
+                    createPNG_Normalization()
                     
                 }
             }
@@ -322,6 +324,14 @@ observeEvent(input$valid.normalization,{
                                       selected = name)
                     UpdateLog(paste("Normalization : data normalized with the method",
                                     input$normalization.method, sep=" "), name)
+                    
+                    
+                    ## Add the necessary text to the Rmd file
+                    txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
+                    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                    write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    createPNG_Normalization()
+                    
                 }
             }
             , warning = function(w) {
@@ -364,11 +374,7 @@ output$choose_Normalization_1 <- renderUI({
 
 
 
-
-
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-output$viewBoxPlotNorm <- renderPlot({
+viewBoxPlotNorm <- reactive({
     
     rv$current.obj
     input$whichGroup2Color
@@ -408,12 +414,15 @@ output$viewBoxPlotNorm <- renderPlot({
     
 })
 
-
-
-
-##' Distribution of intensities in current.obj
+##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
-output$viewDensityplotNorm<- renderHighchart({
+output$viewBoxPlotNorm <- renderPlot({
+    viewBoxPlotNorm()
+    
+})
+
+
+viewDensityplotNorm <- reactive({
     
     rv$dataset[[input$datasets]]
     rv$current.obj
@@ -457,7 +466,7 @@ output$viewDensityplotNorm<- renderHighchart({
     result = tryCatch(
         {
             wrapper.densityPlotD_HC(rv$current.obj, labelsNorm, as.numeric(labelsToShowNorm), 
-                                 gToColorNorm)
+                                    gToColorNorm)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -469,10 +478,18 @@ output$viewDensityplotNorm<- renderHighchart({
     
     
     
+    
+})
+
+##' Distribution of intensities in current.obj
+##' @author Samuel Wieczorek
+output$viewDensityplotNorm<- renderHighchart({
+    viewDensityplotNorm()
 })   
 
-#######################
-output$viewComparisonNorm<- renderPlot({
+
+viewComparisonNorm <- reactive({
+    
     
     rv$dataset[[input$datasets]]
     rv$current.obj
@@ -533,6 +550,12 @@ output$viewComparisonNorm<- renderPlot({
             #cleanup-code 
         })
     
+})
+
+
+#######################
+output$viewComparisonNorm<- renderPlot({
+    viewComparisonNorm()
 })
 
 

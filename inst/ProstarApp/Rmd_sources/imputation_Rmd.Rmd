@@ -1,0 +1,19 @@
+# Imputation 
+       
+Parameters used for the imputation step :
+
+* __Algorithm__ `r params$listImputation$algorithm`
+* __Basic algorithm__ `r params$listImputation$basicAlgo`
+* __imp4p_withLapala__ `r params$listImputation$imp4p_withLapala`
+* __OnlyLAPALA_qmin__ `r params$listImputation$OnlyLAPALA_qmin`
+* __OnlyLAPALA_distrib__ `r params$listImputation$OnlyLAPALA_distrib`
+* __imp4pLAPALA_distrib__ `r params$listImputation$imp4pLAPALA_distrib`
+
+```{r ,out.width = "50%", echo=FALSE}
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"))
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_BeforeImputation, sep="/"))
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_AfterImputation, sep="/"))
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_AfterImputation, sep="/"))
+```
+
+

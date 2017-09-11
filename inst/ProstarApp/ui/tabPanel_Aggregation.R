@@ -2,7 +2,7 @@ tabPanel("Aggregation",
          id = "Aggregation",
          value="Aggregation",
          tabsetPanel(
-             "agreagationTabsetPanel",
+             #"agreagationTabsetPanel",
              id = "agreagationTabsetPanel",
              tabPanel("1 - Aggregate peptides",
                       value = "aggregation",

@@ -131,7 +131,7 @@ tabPanel("Descriptive statistics",
                               value="DS_tabDistVar",
                               p("This graphics shows, for each condition, the distribution 
                                 of the CV of the log-intensities."),
-                              plotOutput("viewDistCV",
+                              highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)
                               )

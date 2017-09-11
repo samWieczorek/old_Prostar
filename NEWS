@@ -1,8 +1,10 @@
-    CHANGES IN VERSION 1.9.3
+
+    
+    CHANGES IN VERSION 1.8.7
 ------------------------ 
 
 BUG FIXES
-    * A new package (readxl) is used to read xls or xlxs files. In certain circumstances, the functions of the package openxlsx is not able to decode properly Excel files
+    * August bug
     
     
     CHANGES IN VERSION 1.8.3
