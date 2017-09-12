@@ -69,7 +69,8 @@ navbarMenu("Data processing",
     source(file.path("ui", "tabPanel_Normalization.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Aggregation.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value
+    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value,
+    source(file.path("ui", "tabPanel_GO_Enrich.R"),  local = TRUE)$value
     ),
 
 source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value

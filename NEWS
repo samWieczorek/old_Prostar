@@ -1,10 +1,17 @@
+    CHANGES IN VERSION 1.9.5
+------------------------ 
 
+NEW FEATURES
+    * Bioanalyse tab
     
-    CHANGES IN VERSION 1.8.7
+    
+    
+    
+    CHANGES IN VERSION 1.9.3
 ------------------------ 
 
 BUG FIXES
-    * August bug
+    * A new package (readxl) is used to read xls or xlxs files. In certain circumstances, the functions of the package openxlsx is not able to decode properly Excel files
     
     
     CHANGES IN VERSION 1.8.3
