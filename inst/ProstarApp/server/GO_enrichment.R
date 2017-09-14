@@ -1,6 +1,4 @@
 
-
-output$getUniprotIDCol <- renderUI({
 output$chooseColForProtID <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) ){return(NULL)}
