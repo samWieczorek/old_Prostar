@@ -197,6 +197,7 @@ initializeProstar <- reactive({
     rv$enrichGO_data = NULL
     rv$universeData = NULL
     rv$uniprotID = NULL
+    rv$ProtIDList = NULL
     
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
@@ -258,7 +259,8 @@ rv <- reactiveValues(
     enrichGO_data = NULL,
     groupGO_data = NULL,
     universeData = NULL,
-    uniprotID = NULL
+    uniprotID = NULL,
+    ProtIDList = NULL
     )
 
 

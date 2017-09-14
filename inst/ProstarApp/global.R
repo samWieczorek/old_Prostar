@@ -21,6 +21,7 @@ library(highcharter)
 library(webshot)
 library(htmlwidgets)
 
+
 # Declaration of global variables
 
 

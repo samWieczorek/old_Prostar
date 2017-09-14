@@ -2,13 +2,19 @@ tabPanel("GO Analysis",
 tabsetPanel(
     id = "tabsetPanelGO",
     tabPanel("GO Setup",
-             uiOutput("getUniprotIDCol"),
-
+             #uiOutput("getUniprotIDCol"),
+             uiOutput("chooseColForProtID"),
+             
             fileInput("UNIPROTID_File", "Choose UNIPROT ID file"),
-             selectInput("Organism", "Genome Wide Annotation", choices = list_org_db),
+            uiOutput("infoIDProt_NA"),
+            selectInput("Organism", "Genome Wide Annotation", choices = list_org_db),
              
              selectInput("Ontology", "Ontology",
-                         choices = c("Molecular Function (MF)"="MF" , "Biological Process (BP)" = "BP", "Cellular Component (CC)" = "CC"))
+                         choices = c("Molecular Function (MF)"="MF" , 
+                                     "Biological Process (BP)" = "BP", 
+                                     "Cellular Component (CC)" = "CC")),
+            
+            dataTableOutput("nonIdentifiedProteins")
              ),
     tabPanel("GO Classification",
              id = "tabPanelGOClassif",
@@ -35,11 +41,12 @@ tabsetPanel(
         splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                     wellPanel(id = "sidebar_GO1",
                               height = "100%",
-                              radioButtons("universe", "Universe", choices = c("Entire organism" = "Entire organism","Custom" = "Custom")),
+                              radioButtons("universe", "Universe", choices = c("Entire organism" = "Entire organism",
+                                                                               "Entire dataset" = "Entire dataset",
+                                                                               "Custom" = "Custom")),
                               uiOutput("chooseUniverseFile"),
                               selectInput("PAdjustMethod", "P Adjust Method",choices = c("BH", "fdr", "none")),
                               numericInput("pvalueCutoff", "p-Value cutoff", min = 0, max = 1, step = 0.01, value = 0.01),
-                              numericInput("qvalueCutoff", "q-Value cutoff", min = 0, max = 1, step = 0.01, value = 0.05),
                               
 
                               actionButton("perform.GO.button",

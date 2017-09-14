@@ -1,13 +1,42 @@
 
 
 output$getUniprotIDCol <- renderUI({
+output$chooseColForProtID <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) ){return(NULL)}
     
-selectInput("UniprotID", "Uniprot ID column",
-            choices = colnames(Biobase::fData(rv$current.obj)))
-
+    selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
+                choices = colnames(Biobase::fData(rv$current.obj)))
+    
 })
+
+
+output$infoIDProt_NA <- renderUI({
+    rv$ProtIDList
+    rv$current.obj
+    if (is.null(rv$current.obj) ){return(NULL)}
+    if (is.null(rv$ProtIDList) ){return(NULL)}
+    nbNA <- length(which(is.na(rv$ProtIDList)))
+    h3(paste("Number of non identified proteins :", nbNA, sep =""))
+})
+
+
+observeEvent(input$UniprotIDCol, {
+    
+    rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
+    #print(rv$ProtIDList[1:100])
+})
+
+
+
+# output$getUniprotIDCol <- renderUI({
+#     rv$current.obj
+#     if (is.null(rv$current.obj) ){return(NULL)}
+#     
+# selectInput("UniprotIDCol", "Uniprot ID column",
+#             choices = colnames(Biobase::fData(rv$current.obj)))
+# 
+# })
 
 
 
@@ -38,7 +67,6 @@ observeEvent(input$perform.GO.button,{
     input$Ontology
     input$PAdjustMethod
     input$pvalueCutoff
-    input$qvalueCutoff
     input$GO_level
     rv$uniprotID
     if (is.null(input$perform.GO.button) ){return(NULL)}
@@ -55,7 +83,6 @@ observeEvent(input$perform.GO.button,{
                     data <- getUniprotID(input$UniprotID)
                 } else { data <- rv$uniprotID}
                     
-                print(head(data))
                     rv$groupGO_data <- group_GO(data,
                                                 idFrom, 
                                                 idTo, 
@@ -70,8 +97,7 @@ observeEvent(input$perform.GO.button,{
                                   ont = input$Ontology, 
                                   pAdj = input$PAdjustMethod, 
                                   pval = input$pvalueCutoff, 
-                                  qval = input$qvalueCutoff, 
-                                  universe = rv$universeData )
+                                   universe = rv$universeData )
                      
             # }
             # , warning = function(w) {
@@ -132,6 +158,18 @@ output$GODatatable <- renderDataTable({
     
 })
 
+
+
+output$nonIdentifiedProteins <- renderDataTable({
+    input$UniprotIDCol
+    rv$ProtIDList
+    rv$current.obj
+    if (is.null(rv$current.obj) ){return(NULL)}
+    if (is.null(rv$ProtIDList) ){return(NULL)}
+    
+        as.data.frame(fData(rv$current.obj)[which(is.na(rv$ProtIDList)),])
+    
+})
 
 # 
 # ##' -- Validate the normalization ---------------------------------------
