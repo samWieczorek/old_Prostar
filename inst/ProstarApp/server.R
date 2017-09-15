@@ -9,6 +9,8 @@ require(compiler)
 enableJIT(3)
 ###
 
+source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
+
 # initialize data with colnames
 df <- data.frame(matrix(c("0","0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")

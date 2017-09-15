@@ -11,6 +11,8 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- tagList(
+    
+    
     useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
     #,tags$head(includeScript("piwik.js"))
@@ -25,13 +27,16 @@ shinyUI <- tagList(
     ),
 
     
+    
+    
 titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
 
 
-,uiOutput("disableAggregationTool")
+#,uiOutput("disableAggregationTool")
+#,uiOutput("disableBioanalysisTool")
 ,navbarPage(
     #id = "navPage",
     absolutePanel(

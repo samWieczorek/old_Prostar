@@ -289,10 +289,31 @@ catchToList <- function(expr) {
 
 
 
+# 
+# output$disableBioanalysisTool <- renderUI({
+#     rv$current.obj
+#     
+#     if (!is.null(rv$current.obj))
+#     {
+#         if (rv$current.obj@experimentData@other$typeOfData == "peptide")
+#         {
+#             hideTab(inputId = "tabsetPanelGO", target = "GO Setup")
+#             #disable(selector = "#navPage li a[data-value=GO_Analysis]")
+#             #tags$style(
+#             #    type="text/css","#navPage li a[data-value=GO_Analysis] { color:lightgrey;}")
+#             
+#             
+#         } else {
+#             enable(selector = "#navPage li a[data-value=GO_Analysis]")
+#             
+#         }
+#     }
+#     
+# })
 
 output$disableAggregationTool <- renderUI({
     rv$current.obj
-    
+
     if (!is.null(rv$current.obj))
     {
         if (rv$current.obj@experimentData@other$typeOfData == "protein")
@@ -300,14 +321,14 @@ output$disableAggregationTool <- renderUI({
     disable(selector = "#navPage li a[data-value=Aggregation]")
     tags$style(
 type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
-            
-            
+
+
         } else {
             enable(selector = "#navPage li a[data-value=Aggregation]")
-            
+
         }
     }
-    
+
 })
 
 

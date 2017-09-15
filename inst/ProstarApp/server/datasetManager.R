@@ -55,10 +55,6 @@ output$warningNonUniqueID <- renderUI({
     rv$tab1
     if (is.null(rv$tab1)) {return(NULL)  }
     if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
-    print(length(as.data.frame(rv$tab1)[, input$idBox]))
-    
-    print(length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-    
     
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))

@@ -1,10 +1,99 @@
+output$GOAnalysisMenu <- renderUI({
+    if (rv$current.obj@experimentData@other$typeOfData == "protein") {
+        
+        tabsetPanel(
+            tabPanel("GO Setup",
+                     sidebarCustom(),
+                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                 wellPanel(id = "sidebar_Normalization"
+                                           ,height = "100%"
+                                           ,h4("General GO setup")
+                                           ,uiOutput("chooseColForProtID")
+                                           ,selectInput("Organism", "Genome Wide Annotation", choices = list_org_db)
+                                           
+                                           ,selectInput("Ontology", "Ontology",
+                                                        choices = c("Molecular Function (MF)"="MF" , 
+                                                                    "Biological Process (BP)" = "BP", 
+                                                                    "Cellular Component (CC)" = "CC"))
+                                 )
+                                 ,tagList(
+                                     uiOutput("infoIDProt_NA"),
+                                     br(), br(),
+                                     dataTableOutput("nonIdentifiedProteins", width = "80%")
+                                     
+                                 )
+                     )
+                     
+                     
+            ),
+            tabPanel("GO Classification",
+                     sidebarCustom(),
+                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                 wellPanel(id = "sidebar_GO",
+                                           height = "100%",
+                                           numericInput("GO_level", "Level",min = 0, max = 10, step = 1, value = 2)
+                                           
+                                 ),
+                                 tagList(
+                                     busyIndicator("Calculation in progress",wait = 0),
+                                     plotOutput("GOplotGroup", width = plotWidth,height = plotHeight),
+                                     dataTableOutput("GODatatable")
+                                     
+                                 )
+                                 
+                                 
+                     )
+            ),
+            tabPanel("GO Enrichment",
+                     #id = "tabPanelEnrichGO",
+                     sidebarCustom(),
+                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                 wellPanel(id = "sidebar_GO1",
+                                           height = "100%",
+                                           radioButtons("universe", "Universe", choices = c("Entire organism" = "Entire organism",
+                                                                                            "Entire dataset" = "Entire dataset",
+                                                                                            "Custom" = "Custom")),
+                                           uiOutput("chooseUniverseFile"),
+                                           selectInput("PAdjustMethod", "P Adjust Method",choices = c("BH", "fdr", "none")),
+                                           numericInput("pvalueCutoff", "p-Value cutoff", min = 0, max = 1, step = 0.01, value = 0.01),
+                                           
+                                           
+                                           actionButton("perform.GO.button",
+                                                        "Perform analysis"),
+                                           busyIndicator("Calculation in progress",wait = 0),
+                                           
+                                           actionButton("ValidGO",
+                                                        "Save analysis",
+                                                        styleclass = "primary")
+                                 ),
+                                 tagList(
+                                     busyIndicator("Calculation in progress",wait = 0),
+                                     plotOutput("GObarplotEnrich", width = plotWidth,height = plotHeight),
+                                     plotOutput("GOdotplotEnrich", width = plotWidth,height = plotHeight)
+                                     #plotOutput("GOEnrichMap")
+                                     
+                                     #dataTableOutput("GODatatableEn")
+                                     
+                                 )
+                                 
+                                 
+                     )
+            )
+        )
+    } else {
+        h4("The dataset is a peptide one: the GO analysis cannot be performed.")
+    }
+})
+
+
+
 
 output$chooseColForProtID <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) ){return(NULL)}
     
     selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
-                choices = colnames(Biobase::fData(rv$current.obj)))
+                choices = c("", colnames(Biobase::fData(rv$current.obj))))
     
 })
 
@@ -15,12 +104,12 @@ output$infoIDProt_NA <- renderUI({
     if (is.null(rv$current.obj) ){return(NULL)}
     if (is.null(rv$ProtIDList) ){return(NULL)}
     nbNA <- length(which(is.na(rv$ProtIDList)))
-    h3(paste("Number of non identified proteins :", nbNA, sep =""))
+    h3(paste("Total of non-identified proteins :", nbNA, sep =""))
 })
 
 
 observeEvent(input$UniprotIDCol, {
-    
+    if (input$UniprotIDCol == "") {return (NULL)}
     rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
     #print(rv$ProtIDList[1:100])
 })
