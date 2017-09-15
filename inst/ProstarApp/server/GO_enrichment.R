@@ -1,5 +1,9 @@
 
 output$GOAnalysisMenu <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return (NULL)}
+    
+    
     if (rv$current.obj@experimentData@other$typeOfData == "protein") {
         
         tabsetPanel(
@@ -37,7 +41,7 @@ output$GOAnalysisMenu <- renderUI({
                                  ),
                                  tagList(
                                      busyIndicator("Calculation in progress",wait = 0),
-                                     plotOutput("GOplotGroup", width = plotWidth,height = plotHeight),
+                                     plotOutput("GOplotGroup",  width = "80%"),
                                      dataTableOutput("GODatatable")
                                      
                                  )
@@ -69,8 +73,8 @@ output$GOAnalysisMenu <- renderUI({
                                  ),
                                  tagList(
                                      busyIndicator("Calculation in progress",wait = 0),
-                                     plotOutput("GObarplotEnrich", width = plotWidth,height = plotHeight),
-                                     plotOutput("GOdotplotEnrich", width = plotWidth,height = plotHeight)
+                                     plotOutput("GObarplotEnrich", width = "80%"),
+                                     plotOutput("GOdotplotEnrich", width = "80%")
                                      #plotOutput("GOEnrichMap")
                                      
                                      #dataTableOutput("GODatatableEn")
@@ -105,7 +109,8 @@ output$infoIDProt_NA <- renderUI({
     if (is.null(rv$current.obj) ){return(NULL)}
     if (is.null(rv$ProtIDList) ){return(NULL)}
     nbNA <- length(which(is.na(rv$ProtIDList)))
-    h3(paste("Total of non-identified proteins :", nbNA, sep =""))
+    pourcentage= round(100*nbNA/length(rv$ProtIDList), digits=0)
+    h3(paste("Total of non-identified proteins :", nbNA, " (", pourcentage, "% of the dataset).",sep =""))
 })
 
 
@@ -182,6 +187,16 @@ observeEvent(input$perform.GO.button,{
                                    orgdb = input$Organism, 
                                  ont=input$Ontology, 
                                  level=input$GO_level)
+                    
+                    
+                    
+                    if (input$universe == "Entire dataset") {
+                        rv$universeData  <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
+                    } else if (input$universe == "Entire organism") {
+                        
+                        rv$universeData = keys(get(orgdb), keytype="ENTREZID")
+                    }
+                    
                     
                     rv$enrichGO_data <- enrich_GO(data,
                                     idFrom, 

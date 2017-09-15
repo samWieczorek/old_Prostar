@@ -155,28 +155,32 @@ output$aboutText <- renderUI({
                   Here is a brief overview of the available functionalities:
                   <ul style=\"list-style-type:disc;\">
                   <li>  
-                  Descriptive statistics are available, for exploration and visualization of the 
+                  <strong>Descriptive statistics</strong> are available, for exploration and visualization of the 
                   quantitative dataset;
                   </li>
                   <li>  
-                Filtering options allows pruning the protein or peptide list according to 
+                <strong>Filtering</strong> options allows pruning the protein or peptide list according to 
                 various criteria (missing values, contaminants, reverse sequences);
                 </li>
                   
                 <li>
-                Cross replicate normalization, so as to make the quantitative 
+                <strong>Cross replicate normalization</strong>, so as to make the quantitative 
                 values comparable between the different analyzed samples;
                 </li>
                   
                 <li>  
-                 Missing values imputation with different methods, depending 
+                 <strong>Missing values imputation</strong> with different methods, depending 
                 on the nature of  the missing values;
                   </li>
                   
                   <li>
-                  Differential analysis, which includes null hypothesis 
+                  <strong>Differential analysis</strong>, which includes null hypothesis 
                 significance testing as well as multiple testing correction 
                 (for false discovery rate estimation).
+                  </li>
+
+                <li>
+                  <strong>Gene Ontology (GO) analysis</strong>, XXXXXXXXXXXXXX.
                   </li>
                   </ul>
                   
