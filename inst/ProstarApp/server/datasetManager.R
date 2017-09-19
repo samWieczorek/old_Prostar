@@ -269,10 +269,7 @@ output$viewProcessingData <- DT::renderDataTable({
         }, finally = {
             #cleanup-code 
         })
-    
-    
-    
-    
+
 },
 option=list(pageLength=DT_pagelength,
             orderClasses = TRUE,

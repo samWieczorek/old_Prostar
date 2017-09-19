@@ -456,10 +456,10 @@ observeEvent(input$ValidDiffAna,{
                 {m <- as.numeric(input$numericValCalibration)}
                 else {m <- input$calibrationMethod }
                 
-                rv$fdr <- diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
+                rv$fdr <- DAPAR::diffAnaComputeFDR(data, rv$seuilPVal, rv$seuilLogFC, m)
                 
                 
-                temp <- diffAnaSave(rv$dataset[[input$datasets]],
+                temp <- DAPAR::diffAnaSave(rv$dataset[[input$datasets]],
                                     data,
                                     input$diffAnaMethod,
                                     input$condition1,

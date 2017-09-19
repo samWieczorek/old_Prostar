@@ -13,15 +13,20 @@ output$GOAnalysisMenu <- renderUI({
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
                                            ,h4("General GO setup")
-                                           ,uiOutput("chooseColForProtID")
-                                           ,selectInput("Organism", "Genome Wide Annotation", choices = list_org_db)
+                                           , radioButtons("sourceOfProtID", "Source of protein ID",
+                                                          choices = c("colInDataset" = "colInDataset",
+                                                                      "extFile" = "extFile"))
                                            
+                                           ,uiOutput("chooseSourceForProtID")
+                                           ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
+                                           #,uiOutput("selectOrganism")
                                            ,selectInput("Ontology", "Ontology",
                                                         choices = c("Molecular Function (MF)"="MF" , 
                                                                     "Biological Process (BP)" = "BP", 
                                                                     "Cellular Component (CC)" = "CC"))
                                  )
                                  ,tagList(
+                                     uiOutput("warnDifferentSizeID"),
                                      uiOutput("infoIDProt_NA"),
                                      br(), br(),
                                      dataTableOutput("nonIdentifiedProteins", width = "80%")
@@ -91,35 +96,75 @@ output$GOAnalysisMenu <- renderUI({
 })
 
 
+GetListInstalledOrgdDB <- function(){
+    l <- installed.packages()[,"Package"]
+    l <- l[grep("org", l)]
+   res <-  list_org_db[l,]$longName
+    return(res)
+}
 
 
-output$chooseColForProtID <- renderUI({
+GetDataIndexForAnalysis <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj) ){return(NULL)}
     
-    selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
-                choices = c("", colnames(Biobase::fData(rv$current.obj))))
+    index <- NULL
+    if ("Significant.Welch" %in% names(Biobase::fData(rv$current.obj) )){
+        index <- which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)
+    } else if ("Significant.limma" %in% names(Biobase::fData(rv$current.obj) )){
+        index <- which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)
+    } else{
+        index <- seq(1:nrow(rv$current.obj))
+    }
     
+    return(index)
 })
 
 
-output$infoIDProt_NA <- renderUI({
-    rv$ProtIDList
+
+output$chooseSourceForProtID <- renderUI({
     rv$current.obj
+    input$sourceOfProtID
     if (is.null(rv$current.obj) ){return(NULL)}
-    if (is.null(rv$ProtIDList) ){return(NULL)}
-    nbNA <- length(which(is.na(rv$ProtIDList)))
-    pourcentage= round(100*nbNA/length(rv$ProtIDList), digits=0)
-    h3(paste("Total of non-identified proteins :", nbNA, " (", pourcentage, "% of the dataset).",sep =""))
+    
+    print(input$sourceOfProtID)
+    if (input$sourceOfProtID == "colInDataset"){
+        selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
+                    choices = c("", colnames(Biobase::fData(rv$current.obj))))
+    }
+    else  if (input$sourceOfProtID == "extFile"){
+        fileInput("UNIPROTID_File", "Select file for UNIPROT protein ID")
+
+    }
 })
 
 
-observeEvent(input$UniprotIDCol, {
-    if (input$UniprotIDCol == "") {return (NULL)}
-    rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
-    #print(rv$ProtIDList[1:100])
+# output$infoIDProt_NA <- renderUI({
+#     rv$ProtIDList
+#     rv$current.obj
+#     if (is.null(rv$current.obj) ){return(NULL)}
+#     if (is.null(rv$ProtIDList) ){return(NULL)}
+#     
+#     nbNA <- length(which(is.na(rv$ProtIDList)))
+#     pourcentage= round(100*nbNA/length(rv$ProtIDList), digits=0)
+#     h3(paste("Total of non-identified proteins :", nbNA, " (", pourcentage, "% of the dataset).",sep =""))
+# })
 
-})
+
+# observeEvent(input$UniprotIDCol, {
+#     if (input$UniprotIDCol == "") {return (NULL)}
+#     
+#     rv$ProtIDList <- NULL
+#     index <- GetDataIndexForAnalysis()
+#     rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[index,input$UniprotIDCol])
+#     lIndex <- which(!is.na(rv$ProtIDList))
+#     if (length(lIndex) >0){
+#         rv$ProtIDList <- rv$ProtIDList[]
+#     }
+#     
+#     print(rv$ProtIDList)
+#     
+# })
 
 
 
@@ -144,15 +189,35 @@ output$chooseUniverseFile <- renderUI({
 })
 
 
-observeEvent(input$UniverseFile,{ 
-    rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
-})
+#observeEvent(input$UniverseFile,{ 
+#    rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
+#})
 
+
+observeEvent(input$UniprotIDCol,{ 
+    if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  rv$ProtIDList <- return (NULL)}
+    else {
+        rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
+    }
+})
 
 observeEvent(input$UNIPROTID_File,{ 
-    rv$uniprotID <- read.table(input$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
+    rv$ProtIDList <- read.table(input$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
 })
 
+
+output$warnDifferentSizeID <- renderUI({
+    rv$ProtIDList
+    if (is.null(rv$ProtIDList)) { return (NULL)}
+    print(length(rv$ProtIDList))
+    print(nrow(rv$current.obj))
+    if (length(rv$ProtIDList) != nrow(rv$current.obj)){
+        #rv$ProtIDList <- NULL
+        h4("Warning : the protein ID list has not the same number of entites as the dataset.")
+        br()
+        h4("Please select another list of ID")
+    }
+})
 
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
@@ -163,11 +228,12 @@ observeEvent(input$perform.GO.button,{
     input$Ontology
     input$PAdjustMethod
     input$pvalueCutoff
+    rv$ProtIDList
 
     input$GO_level
     rv$uniprotID
     if (is.null(input$perform.GO.button) ){return(NULL)}
-    #if (input$perform.normalization == 0){return(NULL)}
+    if (is.null(rv$ProtIDList)){return(NULL)}
     
     require(clusterProfiler)
     isolate({
@@ -176,12 +242,10 @@ observeEvent(input$perform.GO.button,{
                 idFrom <- "UNIPROT"
                 idTo <- "ENTREZID"
                 data <- NULL
-                if (is.null(rv$uniprotID)){
-                    data <- getUniprotID(input$UniprotID)
-                } else { data <- rv$uniprotID}
-                    
-
-                    rv$groupGO_data <- group_GO(data,
+               
+               index <- GetDataIndexForAnalysis()
+               
+                    rv$groupGO_data <- group_GO(rv$ProtIDList[index],
                                                 idFrom, 
                                                 idTo, 
                                    orgdb = input$Organism, 
@@ -193,12 +257,13 @@ observeEvent(input$perform.GO.button,{
                     if (input$universe == "Entire dataset") {
                         rv$universeData  <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
                     } else if (input$universe == "Entire organism") {
-                        
-                        rv$universeData = keys(get(orgdb), keytype="ENTREZID")
+                        rv$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
+                    } else {
+                        rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
                     }
                     
                     
-                    rv$enrichGO_data <- enrich_GO(data,
+                    rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
                                     idFrom, 
                                     idTo, 
                                     orgdb = input$Organism, 
