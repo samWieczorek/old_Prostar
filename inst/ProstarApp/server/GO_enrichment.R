@@ -14,8 +14,8 @@ output$GOAnalysisMenu <- renderUI({
                                            ,height = "100%"
                                            ,h4("General GO setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
-                                                          choices = c("colInDataset" = "colInDataset",
-                                                                      "extFile" = "extFile"))
+                                                          choices = c("Select a column in dataset" = "colInDataset",
+                                                                      "Choose a file" = "extFile"))
                                            
                                            ,uiOutput("chooseSourceForProtID")
                                            ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
