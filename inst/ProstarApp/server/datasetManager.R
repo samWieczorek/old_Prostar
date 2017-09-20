@@ -429,7 +429,7 @@ observeEvent(input$createMSnsetButton,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$autoID == "User ID") {
+                if (input$autoID == "user ID") {
                     indexForIDBox <- match(input$idBox, colnames(rv$tab1))
                     }
                 
