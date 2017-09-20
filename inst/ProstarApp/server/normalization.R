@@ -488,8 +488,9 @@ output$viewDensityplotNorm<- renderHighchart({
 })   
 
 
-viewComparisonNorm <- reactive({
-    
+
+#######################
+output$viewComparisonNorm<- renderPlot({
     
     rv$dataset[[input$datasets]]
     rv$current.obj
@@ -550,12 +551,6 @@ viewComparisonNorm <- reactive({
             #cleanup-code 
         })
     
-})
-
-
-#######################
-output$viewComparisonNorm<- renderPlot({
-    viewComparisonNorm()
 })
 
 
