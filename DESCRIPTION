@@ -1,18 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-<<<<<<< HEAD
-<<<<<<< HEAD
-Version: 1.8.5
-Date: 2017-05-31
-=======
-Version: 1.8.7
-Date: 2017-07-10
->>>>>>> c7ca397... August bug fixed
-=======
-Version: 1.8.7
+Version: 1.8.8
 Date: 2017-09-15
->>>>>>> 9417003... Change version number for August bug fix
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -32,13 +22,8 @@ biocViews: MassSpectrometry, Normalization, Preprocessing, Proteomics,
 License: Artistic-2.0
 Depends: R (>= 3.4)
 Suggests: BiocStyle, testthat
-<<<<<<< HEAD
-Imports: DAPAR (>= 1.8.7), DAPARdata, rhandsontable, data.table,
-        shinyjs, DT, shiny, shinyAce, highcharter, openxlsx
-=======
 Imports: DAPAR (>= 1.8.9), DAPARdata, rhandsontable, data.table,
         shinyjs, DT, shiny, shinyAce, highcharter, htmlwidgets, webshot
->>>>>>> c7ca397... August bug fixed
 NeedsCompilation: no
 RoxygenNote: 6.0.1
 Packaged: 2017-09-06 06:18:13 UTC; sw175264

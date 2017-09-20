@@ -1,6 +1,9 @@
-<<<<<<< HEAD
-=======
 
+    CHANGES IN VERSION 1.8.8
+------------------------ 
+
+BUG FIXES
+    * Fixed the bug in the Normalization panel where the graph for the comparison of the dataset before/after the normalisation did not display correctly
     
     CHANGES IN VERSION 1.8.7
 ------------------------ 
