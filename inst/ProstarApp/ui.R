@@ -37,7 +37,7 @@ sidebarPanelWidth()
 
 #,uiOutput("disableAggregationTool")
 #,uiOutput("disableBioanalysisTool")
-,navbarPage("",
+,navbarPage(
     id = "navPage",
     absolutePanel(
         id  = "#AbsolutePanel",

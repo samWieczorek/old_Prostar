@@ -69,7 +69,7 @@ output$GOAnalysisMenu <- renderUI({
                      )
             ),
             tabPanel("GO Enrichment",
-                     #id = "tabPanelEnrichGO",
+                     id = "tabPanelEnrichGO",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
@@ -86,7 +86,7 @@ output$GOAnalysisMenu <- renderUI({
                                                         "Perform analysis"),
                                            busyIndicator("Calculation in progress",wait = 0),
                                            
-                                           actionButton("ValidGO",
+                                           actionButton("ValidGOAnalysis",
                                                         "Save analysis",
                                                         styleclass = "primary")
                                  ),
@@ -114,7 +114,9 @@ GetListInstalledOrgdDB <- function(){
     l <- installed.packages()[,"Package"]
     l <- l[grep("org", l)]
    res <-  list_org_db[l,]$longName
-    return(res)
+   names(l) <- res
+   
+    return(l)
 }
 
 
@@ -359,54 +361,129 @@ output$nonIdentifiedProteins <- renderDataTable({
     
 })
 
-
-# 
-# ##' -- Validate the normalization ---------------------------------------
-# ##' @author Samuel Wieczorek
-# observeEvent(input$valid.normalization,{ 
-#     
-#     input$normalization.method
-#     if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
-#     {return(NULL)}
-#     
-#     isolate({
-#         result = tryCatch(
-#             {
-#                 if (input$normalization.method != "None") {
-#                     
-#                     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-#                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
-#                     rv$dataset[[name]] <- rv$current.obj
-#                     
-#                     
-#                     #write command log file
-#                     writeToCommandLogFile(
-#                         paste("dataset[['",name,"']] <- current.obj", sep="")
-#                     )
-#                     
-#                     updateSelectInput(session, "datasets", 
-#                                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
-#                                       choices = names(rv$dataset),
-#                                       selected = name)
-#                     UpdateLog(paste("Normalization : data normalized with the method",
-#                                     input$normalization.method, sep=" "), name)
-#                     
-#                     
-#                     ## Add the necessary text to the Rmd file
-#                     txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
-#                     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-#                     write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-#                     createPNG_Normalization()
-#                     
-#                 }
-#             }
-#             , warning = function(w) {
-#                 shinyjs::info(conditionMessage(w))
-#             }, error = function(e) {
-#                 shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
-#             }, finally = {
-#                 #cleanup-code 
-#             })
-#         
-#     } )
-# })
+observeEvent(input$ValidGOAnalysis,{ 
+    input$Organism
+    input$Ontology
+    input$PAdjustMethod
+    input$pvalueCutoff
+    rv$current.obj
+    rv$enrichGO_data
+    rv$groupGO_data 
+    input$universe
+    
+    if (is.null(rv$current.obj)){ return()}
+    
+    
+    if ((input$ValidGOAnalysis == 0) ||  is.null(input$ValidGOAnalysis) ) {
+        return()}
+   
+    isolate({
+        
+        result = tryCatch(
+            {
+               
+                    temp <- DAPAR::GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                rv$groupGO_data ,
+                                                rv$enrichGO_data ,
+                                                input$Organism,
+                                                input$Ontology,
+                                                input$GO_level,
+                                                input$PAdjustMethod,
+                                                input$pvalueCutoff,
+                                                input$universe)
+               
+                name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
+                rv$dataset[[name]] <- temp
+                rv$current.obj <- temp
+                
+                
+                updateSelectInput(session, "datasets", 
+                                  paste("Dataset versions of",
+                                        rv$current.obj.name, sep=" "),
+                                  choices = names(rv$dataset),
+                                  selected = name)
+                
+                
+                # 
+                # ####write command Log file
+                # writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
+                # writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
+                # writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                # if (input$diffAnaMethod == "Limma"){
+                #     writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)")
+                # } else if (input$diffAnaMethod == "Welch"){
+                #     writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
+                # }
+                # 
+                # 
+                # writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
+                # writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
+                # 
+                # writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
+                # if (input$calibrationMethod == "Benjamini-Hochberg") { 
+                #     writeToCommandLogFile("m <- 1") }
+                # else if (input$calibrationMethod == "numeric value") 
+                # { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
+                # else {writeToCommandLogFile("m <- calibMethod")}
+                # 
+                # writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
+                # 
+                # 
+                # writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
+                #                             input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
+                # writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
+                #                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
+                # writeToCommandLogFile("dataset[[name]] <- temp")
+                # writeToCommandLogFile("current.obj <- temp")
+                # 
+                # 
+                # 
+                # cMethod <- NULL
+                # if (input$calibrationMethod == "numeric value"){
+                #     cMethod <- paste("The proportion of true null
+                #                      hypotheses was set to", 
+                #                      input$numericValCalibration, sep= " ")}
+                # else {cMethod <-input$calibrationMethod }
+                # 
+                # text <- paste("Dataset of ", 
+                #               rv$typeOfDataset,
+                #               ": differential analysis with", 
+                #               input$diffAnaMethod, 
+                #               "Selection with the following threshold values :logFC =",
+                #               rv$seuilLogFC,
+                #               "The calibration was made with the method", cMethod,
+                #               ", -log10(p-value) = ",
+                #               rv$seuilPVal,
+                #               "corresponding to a FDR = ", round(100*rv$fdr, digits=2),
+                #               sep=" ")
+                # UpdateLog(text,name)
+                # 
+                 updateTabsetPanel(session, "abc", selected = "tabPanelEnrichGO")
+ 
+                
+                
+                
+                ## Add the necessary text to the Rmd file
+                # txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
+                # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                # createPNG_DifferentialAnalysis()
+                
+                
+                
+            }
+            #, warning = function(w) {
+            #    shinyjs::info(conditionMessage(w))
+            #}
+            , error = function(e) {
+                shinyjs::info(paste("Valid Diff Ana",":",
+                                    conditionMessage(e), sep=" "))
+            }, finally = {
+                #cleanup-code 
+            })
+        
+        
+        
+            }) 
+    
+})
