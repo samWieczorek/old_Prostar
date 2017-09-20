@@ -1,3 +1,18 @@
+observe({
+    rv$current.obj
+    if(is.null(rv$current.obj)) {return (NULL)}
+    
+    if (rv$current.obj@experimentData@other$typeOfData == "protein")
+    { 
+        hideTab(inputId ="navPage", target = "Aggregation")
+    } else {
+        showTab(inputId ="navPage", target = "Aggregation")
+    }
+})
+
+
+
+
 ########################################################
 RunAggregation <- reactive({
     rv$matAdj

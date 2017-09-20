@@ -1,4 +1,18 @@
 
+
+observe({
+    rv$current.obj
+    if(is.null(rv$current.obj)) {return (NULL)}
+    
+    if (rv$current.obj@experimentData@other$typeOfData == "peptide")
+    { 
+        hideTab(inputId ="navPage", target = "GO_Analysis")
+    } else {
+        showTab(inputId ="navPage", target = "GO_Analysis")
+        }
+})
+
+
 output$GOAnalysisMenu <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return (NULL)}
