@@ -28,16 +28,13 @@ output$GOAnalysisMenu <- renderUI({
                                            ,height = "100%"
                                            ,h4("General GO setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
-                                                          choices = c("Select a column in dataset" = "colInDataset",
-                                                                      "Choose a file" = "extFile"))
+                                                          choices = G_sourceOfProtID_Choices)
                                            
                                            ,uiOutput("chooseSourceForProtID")
                                            ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
                                            #,uiOutput("selectOrganism")
                                            ,selectInput("Ontology", "Ontology",
-                                                        choices = c("Molecular Function (MF)"="MF" , 
-                                                                    "Biological Process (BP)" = "BP", 
-                                                                    "Cellular Component (CC)" = "CC"))
+                                                        choices = G_ontology_Choices)
                                  )
                                  ,tagList(
                                      uiOutput("warnDifferentSizeID"),
@@ -74,11 +71,9 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
                                            height = "100%",
-                                           radioButtons("universe", "Universe", choices = c("Entire organism" = "Entire organism",
-                                                                                            "Entire dataset" = "Entire dataset",
-                                                                                            "Custom" = "Custom")),
+                                           radioButtons("universe", "Universe", choices = G_universe_Choices),
                                            uiOutput("chooseUniverseFile"),
-                                           selectInput("PAdjustMethod", "P Adjust Method",choices = c("BH", "fdr", "none")),
+                                           selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
                                            numericInput("pvalueCutoff", "p-Value cutoff", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            
@@ -271,7 +266,7 @@ observeEvent(input$perform.GO.button,{
                     
                     
                     if (input$universe == "Entire dataset") {
-                        rv$universeData  <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[,input$UniprotIDCol])
+                        rv$universeData  <- rv$ProtIDList
                     } else if (input$universe == "Entire organism") {
                         rv$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
                     } else {
@@ -310,6 +305,7 @@ output$GOplotGroup <- renderPlot({
     rv$groupGO_data
     if (is.null(rv$groupGO_data)) {return(NULL)}
     
+    #barplot_HC(rv$groupGO_data)
     barplot(rv$groupGO_data)
 })
 
@@ -357,8 +353,10 @@ output$nonIdentifiedProteins <- renderDataTable({
     if (is.null(rv$current.obj) ){return(NULL)}
     if (is.null(rv$ProtIDList) ){return(NULL)}
     
-        as.data.frame(fData(rv$current.obj)[which(is.na(rv$ProtIDList)),])
-    
+    data <- as.data.frame(fData(rv$current.obj)[which(is.na(rv$ProtIDList)),])
+    if( nrow(data) != 0){
+        data
+    }
 })
 
 observeEvent(input$ValidGOAnalysis,{ 

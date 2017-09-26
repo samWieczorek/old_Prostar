@@ -34,8 +34,8 @@ output$diffAnalysis_sidebarPanelTab1 <- renderUI({
         uiOutput("RenderLimmaCond1"),
         uiOutput("RenderLimmaCond2"),
         selectInput("diffAnaMethod","Choose the statistical test",
-                                choices = c("Limma", "Welch"),
-                                selected = "Limma"),
+                                choices = anaDiffMethod_Choices,
+                                selected = anaDiffMethod_Choices[1]),
 
         numericInput("seuilLogFC", "Define log(FC) threshold",
                                   min = 0,value = threshold_logFC, step=0.1),
@@ -61,11 +61,7 @@ output$diffAnalysis_sidebarPanelTab2 <- renderUI({
     tagList(
                      selectInput("calibrationMethod", 
                                  "Choose the calibration method",
-                                 choices = c("st.boot", "st.spline", 
-                                             "langaas","jiang", "histo", 
-                                             "pounds", "abh","slim", 
-                                             "Benjamini-Hochberg", 
-                                             "numeric value"),
+                                 choices = calibMethod_Choices,
                                  selected = calibMethod),
                      uiOutput("numericalValForCalibrationPlot"))
 })
@@ -636,7 +632,7 @@ output$equivPVal <- renderText ({
     if (is.null(input$condition1) || is.null(input$condition2))
     {return()}
     if (is.null(input$seuilPVal)){return()}
-    if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None"))
+    if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr))
     {return(NULL)}
     if ((input$condition1 == input$condition2)) {return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -716,7 +712,7 @@ output$nbSelectedItems <- renderUI({
     if (is.null(rv$resAnaDiff$logFC) || is.null(rv$current.obj)){
         return()}
     
-    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")){
+    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
         return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}

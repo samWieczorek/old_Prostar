@@ -51,8 +51,8 @@ ClearMemory <- function(){
         updateSelectInput(session, 
                           "datasets",  
                           "Dataset versions", 
-                          choices = "none")
-        updateRadioButtons(session,"typeOfData",selected = "peptide" )
+                          choices = G_noneStr)
+        updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
         updateRadioButtons(session, "autoID", selected = "Auto ID")
         
@@ -86,7 +86,7 @@ loadObjectInMemoryFromConverter <- reactive({
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
     #If there are already pVal values, then do no compute them 
-    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+    if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
         rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC

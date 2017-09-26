@@ -24,7 +24,7 @@ tabPanel("Convert data",
                        uiOutput("helpTextDataID"),
                        radioButtons("autoID", width="500px",
                                     "If you choose the automatic ID, Prostar will build an index.", 
-                                    choices=c("Auto ID" = "Auto ID", "User ID" = "user ID")),
+                                    choices=G_ConvertDataID_Choices),
                        conditionalPanel(
                            condition = 'input.autoID == "user ID"',
                            uiOutput("id"),

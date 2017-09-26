@@ -8,6 +8,7 @@ library(highcharter)
 require(compiler)
 enableJIT(3)
 ###
+source(file.path(".", "global.R"),  local = TRUE)$value
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 

@@ -400,5 +400,44 @@ findSequences <- function(v){
 
 
 
+typeProtein <- "protein"
+typePeptide <- "peptide"
+
+calibMethod_Choices <- c("st.boot", "st.spline", 
+                         "langaas","jiang", "histo", 
+                         "pounds", "abh","slim", 
+                         "Benjamini-Hochberg", 
+                         "numeric value")
+
+anaDiffMethod_Choices <- c("Limma", "Welch")
 
 
+G_noneStr <- "None"
+G_emptyStr <- ""
+G_heatmapDistance_Choices <- list(euclidean ="euclidean",
+                                  manhattan="manhattan")
+
+G_heatmapLinkage_Choices <- list(average="average",
+                                 ward.D="ward.D")
+
+
+G_logFC_Column <- "logFC"
+
+
+G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",
+  "Choose a file" = "extFile")
+
+G_ontology_Choices <- c("Molecular Function (MF)"="MF" , 
+                        "Biological Process (BP)" = "BP", 
+                        "Cellular Component (CC)" = "CC")
+
+G_universe_Choices <- c("Entire organism" = "Entire organism",
+  "Entire dataset" = "Entire dataset",
+  "Custom" = "Custom")
+
+G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
+
+G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
+
+G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "User ID" = "user ID")
+G_exportFileFormat_Choices <- c( "MSnset","Excel")

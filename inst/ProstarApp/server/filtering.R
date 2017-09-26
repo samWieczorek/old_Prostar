@@ -636,8 +636,8 @@ output$id_Reverse <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)  }
     
-    .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
-    names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
+    .choices <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
+    names(.choices) <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
     selectInput("idBoxReverse", 
                 label = "Choose column", 
                 choices = .choices , 

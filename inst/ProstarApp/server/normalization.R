@@ -205,7 +205,7 @@ observeEvent(input$perform.normalization,{
                 
                 createPNG_BeforeNormalization()
                 
-                if (input$normalization.method == "None"){
+                if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
                     
@@ -306,7 +306,7 @@ observeEvent(input$valid.normalization,{
     isolate({
         result = tryCatch(
             {
-                if (input$normalization.method != "None") {
+                if (input$normalization.method != G_noneStr) {
                     
                     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
