@@ -1,0 +1,18 @@
+# GO analysis
+
+Parameters used for the GO analysis :
+
+* Ontology : `r params$listGOAnalysis$ontology` 
+* Organism : `r params$listGOAnalysis$organism`
+* Universe : `r params$listGOAnalysis$universe`
+
+                                                       
+                                                       
+                                                       
+```{r,out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"))
+```
+
+

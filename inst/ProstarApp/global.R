@@ -212,9 +212,10 @@ gGraphicsFilenames <- list(
     volcanoPlot_1 = "volcanoPlot_1.png",
     volcanoPlot_3 = "volcanoPlot_3.png",
     calibrationPlot = "calibrationPlot.png",
-    calibrationPlotAll = "calibrationPlotAll.png"
-
-    
+    calibrationPlotAll = "calibrationPlotAll.png",
+    GOEnrichDotplot = "GOEnrichDotplot.png",
+    GOEnrichBarplot = "GOEnrichBarplot.png",
+    GOClassification = "GOClassification.png"
 )
 
 defaultGradientRate <- 0.9

@@ -17,7 +17,7 @@ params:
     listImputation: !r as.list(NA)
     listAggregation: !r as.list(NA)
     listAnaDiff: !r as.list(NA)
-    fwidth: !r as.list
+    listGOAnalysis: !r as.list(NA)
 ---
 
 ***

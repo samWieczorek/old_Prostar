@@ -57,7 +57,7 @@ output$GOAnalysisMenu <- renderUI({
                                  ),
                                  tagList(
                                      busyIndicator("Calculation in progress",wait = 0),
-                                     plotOutput("GOplotGroup",  width = "80%"),
+                                     highchartOutput("GOplotGroup",  width = "80%"),
                                      dataTableOutput("GODatatable")
                                      
                                  )
@@ -234,6 +234,7 @@ output$warnDifferentSizeID <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.GO.button,{
     rv$current.obj
+    input$universe
     input$perform.GO.button
     input$Organism
     input$Ontology
@@ -300,29 +301,43 @@ observeEvent(input$perform.GO.button,{
 
 
 
-output$GOplotGroup <- renderPlot({
-
+GOplotGroup <- reactive({
     rv$groupGO_data
     if (is.null(rv$groupGO_data)) {return(NULL)}
     
-    #barplot_HC(rv$groupGO_data)
-    barplot(rv$groupGO_data)
+    barplotGroupGO_HC(rv$groupGO_data)
+    #barplot(rv$groupGO_data)
+    
+})
+
+output$GOplotGroup <- renderHighchart({
+    GOplotGroup()
+    
 })
 
 
-output$GObarplotEnrich <- renderPlot({
+GObarplotEnrich <- reactive({
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
     
     barplot(rv$enrichGO_data)
+})
+
+output$GObarplotEnrich <- renderPlot({
+    GObarplotEnrich()
 
 })
 
-output$GOdotplotEnrich <- renderPlot({
+GOdotplotEnrich <- reactive({
+    
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
     
     dotplot(rv$enrichGO_data)
+    })
+
+output$GOdotplotEnrich <- renderPlot({
+    GOdotplotEnrich()
     
 })
 
@@ -359,6 +374,8 @@ output$nonIdentifiedProteins <- renderDataTable({
     }
 })
 
+
+## Validation of the GO analysis
 observeEvent(input$ValidGOAnalysis,{ 
     input$Organism
     input$Ontology
@@ -462,10 +479,10 @@ observeEvent(input$ValidGOAnalysis,{
                 
                 
                 ## Add the necessary text to the Rmd file
-                # txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
-                # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                # createPNG_DifferentialAnalysis()
+                txt2Rmd <- readLines("Rmd_sources/GOanalysis_Rmd.Rmd")
+                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                createPNG_GOAnalysis()
                 
                 
                 
@@ -474,7 +491,7 @@ observeEvent(input$ValidGOAnalysis,{
             #    shinyjs::info(conditionMessage(w))
             #}
             , error = function(e) {
-                shinyjs::info(paste("Valid Diff Ana",":",
+                shinyjs::info(paste("Valid GO Ana",":",
                                     conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code 

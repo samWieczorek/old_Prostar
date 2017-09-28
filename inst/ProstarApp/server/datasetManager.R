@@ -779,6 +779,50 @@ createPNG_DifferentialAnalysis <- reactive({
 })
 
 
+
+###--------------------------------------------------------------------------
+createPNG_GOAnalysis<- reactive({
+    
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
+    #viewComparisonNorm()
+    #dev.off()
+    print("ecriture des fichiers image")
+    
+   # plotPNG(function(){GOplotGroup()}, 
+    #        filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"), 
+    #        width = pngWidth, 
+    #        height=pngHeight,
+    #        res=resolution)
+    
+    
+    tempplot <- GOplotGroup()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"),
+                     delay = 5
+                     ,zoom = zoomWebshot
+    )
+    
+    
+    plotPNG(function(){GObarplotEnrich()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
+    
+    
+    plotPNG(function(){GOdotplotEnrich()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
+    
+    
+    
+})
+
+
+
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
     print(tempdir())
@@ -919,7 +963,13 @@ output$downloadReport <- downloadHandler(
                                                        seuilLogFC = rv$seuilLogFC,
                                                        method = input$diffAnaMethod,
                                                        fdr = round(100*rv$fdr, digits=2),
-                                                       nbSelected = rv$nbSelected_Step3)
+                                                       nbSelected = rv$nbSelected_Step3),
+                                    listGOAnalysis = list(ontology = input$Ontology, 
+                                                       organism = input$Organism,
+                                                       universe = input$universe)
+                                    
+                                    
+                                    
                                     ),
                         switch(
                           input$format,
