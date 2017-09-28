@@ -49,12 +49,10 @@ output$DS_sidebarPanel_heatmap <- renderUI({
     tagList(
                      h3("Clustering Options"),
                      radioButtons("distance","Distance",
-                                  choices = list(euclidean ="euclidean",
-                                                 manhattan="manhattan")),
+                                  choices = G_heatmapDistance_Choices),
                      br(),
                      radioButtons("linkage","Linkage for clustering",
-                                  choices=list(average="average",
-                                               ward.D="ward.D")))
+                                  choices=G_heatmapLinkage_Choices))
 })
 
 #----------------------------------------------
@@ -581,7 +579,8 @@ corrMatrix <- reactive({
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-    else{gradient <- input$expGradientRate}
+    else{
+        gradient <- input$expGradientRate}
     
     result = tryCatch(
         {

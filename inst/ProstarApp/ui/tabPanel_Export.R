@@ -1,9 +1,10 @@
 tabPanel("Export",
          value = "export",
          icon = icon("upload"),
+         h3("Export dataset"),
          helpText("Choose the export format of the dataset and choose a name."),
          selectInput("fileformatExport", "File format", 
-                     choices=  c( "MSnset","Excel")),
+                     choices=  G_exportFileFormat_Choices),
          
          br(),
          helpText("Select the columns you want to keep as metadata. 
@@ -16,9 +17,15 @@ tabPanel("Export",
          
          br(),
          downloadButton('downloadMSnSet', 'Download'),
+         br(),br(),hr(),
+         h3("Generate report"),
          
+          
          br(),br(),
-         radioButtons('format', 'Document format', c('PDF', 'HTML', 'Word'),
-                      inline = TRUE),
-         downloadButton('downloadReport', "Download report")
+         fluidRow(
+             column(width= 4, radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
+                                           inline = TRUE)),
+             column(width= 4, downloadButton('downloadReport', "Download report"))
+         )
+         
          )

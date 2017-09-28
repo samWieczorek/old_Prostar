@@ -8,6 +8,9 @@ library(highcharter)
 require(compiler)
 enableJIT(3)
 ###
+source(file.path(".", "global.R"),  local = TRUE)$value
+
+source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 # initialize data with colnames
 df <- data.frame(matrix(c("0","0"), 1, 2))
@@ -57,7 +60,7 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "aggregation.R"),  local = TRUE)$value
     source(file.path("server", "datasetManager.R"),  local = TRUE)$value
     source(file.path("server", "help.R"),  local = TRUE)$value
-     
+    source(file.path("server", "GO_enrichment.R"),  local = TRUE)$value
 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
 })

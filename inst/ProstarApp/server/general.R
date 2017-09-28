@@ -51,8 +51,8 @@ ClearMemory <- function(){
         updateSelectInput(session, 
                           "datasets",  
                           "Dataset versions", 
-                          choices = "none")
-        updateRadioButtons(session,"typeOfData",selected = "peptide" )
+                          choices = G_noneStr)
+        updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
         updateRadioButtons(session, "autoID", selected = "Auto ID")
         
@@ -86,7 +86,7 @@ loadObjectInMemoryFromConverter <- reactive({
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
     #If there are already pVal values, then do no compute them 
-    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+    if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
         rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC
@@ -193,6 +193,14 @@ initializeProstar <- reactive({
     rv$nbSelectedAnaDiff = NULL
     rv$nbSelectedTotal_Step3 = NULL
     rv$nbSelected_Step3 = NULL
+    rv$groupGO_data = NULL
+    rv$enrichGO_data = NULL
+    rv$universeData = NULL
+    rv$uniprotID = NULL
+
+    rv$ProtIDList = NULL
+
+    
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
@@ -249,7 +257,13 @@ rv <- reactiveValues(
     nbSelectedAnaDiff = NULL,
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
-    nbSelected_Step3 = NULL
+    nbSelected_Step3 = NULL,
+    enrichGO_data = NULL,
+    groupGO_data = NULL,
+    universeData = NULL,
+    uniprotID = NULL,
+    ProtIDList = NULL
+
     )
 
 
@@ -278,10 +292,31 @@ catchToList <- function(expr) {
 
 
 
+# 
+# output$disableBioanalysisTool <- renderUI({
+#     rv$current.obj
+#     
+#     if (!is.null(rv$current.obj))
+#     {
+#         if (rv$current.obj@experimentData@other$typeOfData == "peptide")
+#         {
+#             hideTab(inputId = "tabsetPanelGO", target = "GO Setup")
+#             #disable(selector = "#navPage li a[data-value=GO_Analysis]")
+#             #tags$style(
+#             #    type="text/css","#navPage li a[data-value=GO_Analysis] { color:lightgrey;}")
+#             
+#             
+#         } else {
+#             enable(selector = "#navPage li a[data-value=GO_Analysis]")
+#             
+#         }
+#     }
+#     
+# })
 
 output$disableAggregationTool <- renderUI({
     rv$current.obj
-    
+
     if (!is.null(rv$current.obj))
     {
         if (rv$current.obj@experimentData@other$typeOfData == "protein")
@@ -289,14 +324,14 @@ output$disableAggregationTool <- renderUI({
     disable(selector = "#navPage li a[data-value=Aggregation]")
     tags$style(
 type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
-            
-            
+
+
         } else {
             enable(selector = "#navPage li a[data-value=Aggregation]")
-            
+
         }
     }
-    
+
 })
 
 

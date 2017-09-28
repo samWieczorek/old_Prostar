@@ -21,11 +21,14 @@ library(highcharter)
 library(webshot)
 library(htmlwidgets)
 
+
 # Declaration of global variables
 
 
-ppi <- 300
-
+resolution <- 300
+pngWidth <- 1200
+pngHeight <- 1200
+zoomWebshot <- 3
 
 commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"
@@ -39,6 +42,39 @@ gAgregateMethod <- list("none" = "none",
                         "sum overall" = "sum overall",
                         "mean" = "mean",
                         "sum on top n" = "sum on top n")
+
+
+
+list_org_db <- data.frame(
+                shortName = c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db",
+                 "org.Cf.eg.db","org.Gg.eg.db","org.Pt.eg.db",
+                 "org.EcK12.eg.db","org.EcSakai.eg.db","org.Dm.eg.db",
+                 "org.Hs.eg.db","org.Pf.plasmo.db","org.Mm.eg.db",
+                 "org.Ss.eg.db","org.Rn.eg.db","org.Mmu.eg.db",
+                 "org.Ce.eg.db","org.Xl.eg.db","org.Sc.sgd.db", "org.Dr.eg.db"),
+                longName = c("Anopheles (org.Ag.eg.db)",
+                             "Arabidopsis (org.At.tair.db)",
+                             "Bovine (org.Bt.eg.db)",
+                             "Canine (org.Cf.eg.db)",
+                             "Chicken (org.Gg.eg.db)",
+                             "Chimp (org.Pt.eg.db)",
+                             "E coli strain K12 (org.EcK12.eg.db)",
+                             "E coli strain Sakai (org.EcSakai.eg.db)",
+                             "Fly (org.Dm.eg.db)",
+                             "Human (org.Hs.eg.db)",
+                            "Malaria (org.Pf.plasmo.db)",
+                             "Mouse (org.Mm.eg.db)",
+                             "Pig (org.Ss.eg.db)",
+                             "Rat (org.Rn.eg.db)",
+                             "Rhesus (org.Mmu.eg.db)",
+                             "Worm (org.Ce.eg.db)",
+                             "Xenopus (org.Xl.eg.db)",
+                             "Yeast (org.Sc.sgd.db)",
+                             "Zebrafish (org.Dr.eg.db)"),
+                stringsAsFactors = FALSE
+                 )
+rownames(list_org_db) <- list_org_db$shortName
+
 
 gFiltersList <- list()
 gFiltersList[["None"]] <- "none"
@@ -366,5 +402,44 @@ findSequences <- function(v){
 
 
 
+typeProtein <- "protein"
+typePeptide <- "peptide"
+
+calibMethod_Choices <- c("st.boot", "st.spline", 
+                         "langaas","jiang", "histo", 
+                         "pounds", "abh","slim", 
+                         "Benjamini-Hochberg", 
+                         "numeric value")
+
+anaDiffMethod_Choices <- c("Limma", "Welch")
 
 
+G_noneStr <- "None"
+G_emptyStr <- ""
+G_heatmapDistance_Choices <- list(euclidean ="euclidean",
+                                  manhattan="manhattan")
+
+G_heatmapLinkage_Choices <- list(average="average",
+                                 ward.D="ward.D")
+
+
+G_logFC_Column <- "logFC"
+
+
+G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",
+  "Choose a file" = "extFile")
+
+G_ontology_Choices <- c("Molecular Function (MF)"="MF" , 
+                        "Biological Process (BP)" = "BP", 
+                        "Cellular Component (CC)" = "CC")
+
+G_universe_Choices <- c("Entire organism" = "Entire organism",
+  "Entire dataset" = "Entire dataset",
+  "Custom" = "Custom")
+
+G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
+
+G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
+
+G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "User ID" = "user ID")
+G_exportFileFormat_Choices <- c( "MSnset","Excel")

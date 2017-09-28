@@ -9,8 +9,8 @@ Parameters used for the differential analysis :
 * seuilPValue = `r params$listAnaDiff$seuilPValue`
 * seuilLogFC = `r params$listAnaDiff$seuilLogFC`
 * Method : `r params$listAnaDiff$method`
-* FDR = `r params$listAnaDiff$fdr` %
-* nb of selected entities = `r params$listAnaDiff$nbSelected`
+* __FDR__ = `r params$listAnaDiff$fdr` %
+* Nb of selected entities = `r params$listAnaDiff$nbSelected`
                                                        
                                                        
                                                        

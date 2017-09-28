@@ -3,6 +3,7 @@ options(shiny.reactlog=TRUE)
 
 
 library(highcharter)
+source(file.path(".", "global.R"),  local = TRUE)$value
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -11,6 +12,8 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- tagList(
+    
+    
     useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
     #,tags$head(includeScript("piwik.js"))
@@ -25,15 +28,18 @@ shinyUI <- tagList(
     ),
 
     
+    
+    
 titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
 
 
-,uiOutput("disableAggregationTool")
+#,uiOutput("disableAggregationTool")
+#,uiOutput("disableBioanalysisTool")
 ,navbarPage(
-    #id = "navPage",
+    id = "navPage",
     absolutePanel(
         id  = "#AbsolutePanel",
                 top = 10,
@@ -69,7 +75,8 @@ navbarMenu("Data processing",
     source(file.path("ui", "tabPanel_Normalization.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Aggregation.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value
+    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value,
+    source(file.path("ui", "tabPanel_GO_Enrich.R"),  local = TRUE)$value
     ),
 
 source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value

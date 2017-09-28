@@ -55,10 +55,6 @@ output$warningNonUniqueID <- renderUI({
     rv$tab1
     if (is.null(rv$tab1)) {return(NULL)  }
     if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
-    print(length(as.data.frame(rv$tab1)[, input$idBox]))
-    
-    print(length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-    
     
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -273,10 +269,7 @@ output$viewProcessingData <- DT::renderDataTable({
         }, finally = {
             #cleanup-code 
         })
-    
-    
-    
-    
+
 },
 option=list(pageLength=DT_pagelength,
             orderClasses = TRUE,
@@ -436,7 +429,7 @@ observeEvent(input$createMSnsetButton,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$autoID == "User ID") {
+                if (input$autoID == "user ID") {
                     indexForIDBox <- match(input$idBox, colnames(rv$tab1))
                     }
                 
@@ -657,7 +650,7 @@ tempplot <- histo_missvalues_per_lines_per_conditions_DS()
 htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
 webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                  file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS_BeforeFiltering, sep="/"),
-                 zoom = 0.50)
+                 zoom = zoomWebshot)
 
 
 ##second plot of descriptive statistics
@@ -665,14 +658,14 @@ tempplot <- histo_missvalues_per_lines_DS()
 htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
 webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                  file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS_BeforeFiltering, sep="/"),
-                 zoom = 0.50)
+                 zoom = zoomWebshot)
 
 # first plot of descriptive statistics
 tempplot <- histoMV_Image_DS()
 htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
 webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                  file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS_BeforeFiltering, sep="/"),
-                 zoom = 0.50)
+                 zoom = zoomWebshot)
 
 })
 
@@ -685,16 +678,21 @@ createPNG_Filtering <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 })
 
 ###--------------------------------------------------------------------------
 createPNG_Normalization <- reactive({
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
-    viewComparisonNorm()
-    dev.off()
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
+    #viewComparisonNorm()
+    #dev.off()
 
+    plotPNG(function(){viewComparisonNorm()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
     
 })
 
@@ -707,12 +705,18 @@ createPNG_BeforeNormalization <- reactive({
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotBeforeNorm, sep="/"),
                      delay = 1,
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
     
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"))
-    viewBoxPlotNorm()
-    dev.off()
+    # png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"))
+    # viewBoxPlotNorm()
+    # dev.off()
+    # 
+    plotPNG(function(){viewBoxPlotNorm()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
     
 })
 
@@ -749,30 +753,55 @@ createPNG_DifferentialAnalysis <- reactive({
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"),
                      delay = 5
-                     ,zoom = 0.50
+                     ,zoom = zoomWebshot
                      )
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
-    calibrationPlot()
-    Sys.sleep(5)
-    dev.off()
+    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
+    # calibrationPlot()
+    # Sys.sleep(5)
+    # dev.off()
+    # 
+    plotPNG(function(){calibrationPlot()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
-    calibrationPlotAll()
-    dev.off()
+    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
+    # calibrationPlotAll()
+    # dev.off()
+    # 
+    plotPNG(function(){calibrationPlotAll()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
 })
 
 
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
+    print(tempdir())
+    # png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/")
+    # )
+    # boxPlot()
+    # dev.off()
+    # 
+    plotPNG(function(){boxPlot()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
-    boxPlot()
-    dev.off()
     
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
-    violinPlot2()
-    dev.off()
+    # png(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
+    # violinPlot2()
+    # dev.off()
+     plotPNG(function(){violinPlot2()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
 
 
     tempplot <- Densityplot_DS()
@@ -780,7 +809,7 @@ createPNG_DescriptiveStatistics <- reactive({
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
                      delay = 1,
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 
 
 
@@ -789,19 +818,25 @@ createPNG_DescriptiveStatistics <- reactive({
      webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                       file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
                       delay = 1,
-                      zoom = 0.50)
+                      zoom = zoomWebshot)
 
 
     tempplot <-corrMatrix()
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 
 
-    png(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
-    heatmap()
-    dev.off()
+    #png(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
+    #heatmap()
+    #dev.off()
+    
+    plotPNG(function(){heatmap()}, 
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"), 
+            width = pngWidth, 
+            height=pngHeight,
+            res=resolution)
 
 
     ##last plot of descriptive statistics
@@ -809,7 +844,7 @@ createPNG_DescriptiveStatistics <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 
 
     ##second plot of descriptive statistics
@@ -817,14 +852,14 @@ createPNG_DescriptiveStatistics <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 
     # first plot of descriptive statistics
     tempplot <-histoMV_Image_DS()
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
-                     zoom = 0.50)
+                     zoom = zoomWebshot)
 
 
     

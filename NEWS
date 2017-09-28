@@ -1,15 +1,24 @@
+    CHANGES IN VERSION 1.9.10
+------------------------ 
+
+NEW FEATURES
+    * Bioanalyse tab
+    
+    
+
+    CHANGES IN VERSION 1.9.3
+------------------------ 
+
+BUG FIXES
+    * A new package (readxl) is used to read xls or xlxs files. In certain circumstances, the functions of the package openxlsx is not able to decode properly Excel files
+    
+    
     CHANGES IN VERSION 1.8.8
 ------------------------ 
 
 BUG FIXES
     * Fixed the bug in the Normalization panel where the graph for the comparison of the dataset before/after the normalisation did not display correctly
-    
-    CHANGES IN VERSION 1.8.7
------------------------- 
 
-BUG FIXES
-    * August bug
-    
     
     CHANGES IN VERSION 1.8.3
 ------------------------ 

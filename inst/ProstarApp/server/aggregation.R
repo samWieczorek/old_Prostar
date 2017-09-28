@@ -1,3 +1,18 @@
+observe({
+    rv$current.obj
+    if(is.null(rv$current.obj)) {return (NULL)}
+    
+    if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+    { 
+        hideTab(inputId ="navPage", target = "Aggregation")
+    } else {
+        showTab(inputId ="navPage", target = "Aggregation")
+    }
+})
+
+
+
+
 ########################################################
 RunAggregation <- reactive({
     rv$matAdj
@@ -213,7 +228,7 @@ observeEvent(input$proteinId,{
     {return(NULL)}
     
     
-    if (rv$current.obj@experimentData@other$typeOfData == "protein") {
+    if (rv$current.obj@experimentData@other$typeOfData == typeProtein) {
         return(NULL)}
     
     result = tryCatch(
@@ -438,7 +453,7 @@ output$ChooseAggregationMethod <- renderUI({
 output$AggregationSideBar_Step1 <-  renderUI({
     rv$current.obj
     if (is.null(rv$current.obj) || 
-        (rv$current.obj@experimentData@other$typeOfData == "protein"))
+        (rv$current.obj@experimentData@other$typeOfData == typeProtein))
     {return (NULL)}
     
     wellPanel(id = "sidebar_Aggregation",
@@ -466,7 +481,7 @@ output$AggregationWellPanel_Step1 <- renderUI({
     if (is.null(rv$current.obj))
     {return (NULL)}
     
-    if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
+    if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
         tagList(
             HTML("Please select first the id of protein in your dataset. 
                 <br>Then, the stats will be showed and it will be possible to 
@@ -508,7 +523,7 @@ output$Aggregation_Step2 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return (NULL)}
     
-    if (rv$current.obj@experimentData@other$typeOfData == "peptide") {
+    if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
         tagList(
             fluidRow(
                 #column(width=3,

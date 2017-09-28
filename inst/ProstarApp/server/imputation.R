@@ -26,7 +26,7 @@ output$imp4pLAPALA_distribution_option <- renderUI({
     if (is.null(input$missing.value.algorithm)){return (NULL)}
     
     if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala == TRUE)){
-        radioButtons("imp4pLAPALA_distrib", "Distribution type", choices = c("uniform" = "unif", "beta" = "beta"))
+        radioButtons("imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)
     }
     
 })

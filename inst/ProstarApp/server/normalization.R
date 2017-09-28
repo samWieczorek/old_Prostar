@@ -205,7 +205,7 @@ observeEvent(input$perform.normalization,{
                 
                 createPNG_BeforeNormalization()
                 
-                if (input$normalization.method == "None"){
+                if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
                     
@@ -306,7 +306,7 @@ observeEvent(input$valid.normalization,{
     isolate({
         result = tryCatch(
             {
-                if (input$normalization.method != "None") {
+                if (input$normalization.method != G_noneStr) {
                     
                     rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
@@ -337,7 +337,7 @@ observeEvent(input$valid.normalization,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
+                shinyjs::info(info("Validate the normalization :",conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -488,10 +488,10 @@ output$viewDensityplotNorm<- renderHighchart({
 })   
 
 
-
-
 #######################
-output$viewComparisonNorm<- renderPlot({
+
+viewComparisonNorm <- reactive({
+
     
     rv$dataset[[input$datasets]]
     rv$current.obj
@@ -555,6 +555,12 @@ output$viewComparisonNorm<- renderPlot({
         })
     
 })
+
+#######################
+output$viewComparisonNorm<- renderPlot({
+    viewComparisonNorm()
+})
+
 
 
 
