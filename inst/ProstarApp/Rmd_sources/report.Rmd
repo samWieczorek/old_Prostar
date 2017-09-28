@@ -6,13 +6,9 @@ output:
   html_document:
     toc: true
     theme: united
-    fig.width: 10
-    fig.height: 6
   pdf_document:
     toc: true
     theme: united
-    fig.width: 10
-    fig.height: 6
 
 params:
     listOverview: !r as.list(NA)
@@ -21,7 +17,7 @@ params:
     listImputation: !r as.list(NA)
     listAggregation: !r as.list(NA)
     listAnaDiff: !r as.list(NA)
-
+    fwidth: !r as.list
 ---
 
 ***
@@ -38,12 +34,12 @@ knitr::opts_chunk$set(cache=TRUE)
 #### Quick overview of the dataset
 
 
-* There is `r params$listOverview$nSamples` samples in the dataset
+* Number of samplesin the dataset : `r params$listOverview$nSamples`
 * There are `r params$listOverview$nEntities` `r params$typeOfData` in the dataset
-* Pourcentage de valeurs manquantes : `r params$listOverview$pourcentageNA` 
-* Number of lines with only NA values = `r params$listOverview$nNAlines` %
+* Pourcentage de valeurs manquantes = `r params$listOverview$pourcentageNA` %
+* Number of lines with only NA values = `r params$listOverview$nNAlines`
 
-```{r fig_ds,out.width = "50%", echo=FALSE}
+```{r fig_ds,out.width = "75%", echo=FALSE}
 layout(t(1:3))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))

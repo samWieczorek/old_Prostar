@@ -25,8 +25,10 @@ library(htmlwidgets)
 # Declaration of global variables
 
 
-ppi <- 300
-
+resolution <- 300
+pngWidth <- 1200
+pngHeight <- 1200
+zoomWebshot <- 3
 
 commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"

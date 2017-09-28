@@ -579,7 +579,8 @@ corrMatrix <- reactive({
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-    else{gradient <- input$expGradientRate}
+    else{
+        gradient <- input$expGradientRate}
     
     result = tryCatch(
         {

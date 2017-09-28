@@ -337,7 +337,7 @@ observeEvent(input$valid.normalization,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(info("Validate the normalization",":",conditionMessage(e), sep=" "))
+                shinyjs::info(info("Validate the normalization :",conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -488,9 +488,7 @@ output$viewDensityplotNorm<- renderHighchart({
 })   
 
 
-
-#######################
-output$viewComparisonNorm<- renderPlot({
+viewComparisonNorm <- reactive({
     
     rv$dataset[[input$datasets]]
     rv$current.obj
@@ -551,6 +549,10 @@ output$viewComparisonNorm<- renderPlot({
             #cleanup-code 
         })
     
+})
+#######################
+output$viewComparisonNorm<- renderPlot({
+    viewComparisonNorm()
 })
 
 
