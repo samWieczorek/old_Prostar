@@ -87,7 +87,7 @@ output$GOAnalysisMenu <- renderUI({
                                  ),
                                  tagList(
                                      busyIndicator("Calculation in progress",wait = 0),
-                                     plotOutput("GObarplotEnrich", width = "80%"),
+                                     highchartOutput("GObarplotEnrich", width = "80%"),
                                      plotOutput("GOdotplotEnrich", width = "80%")
                                      #plotOutput("GOEnrichMap")
                                      
@@ -320,10 +320,11 @@ GObarplotEnrich <- reactive({
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
     
-    barplot(rv$enrichGO_data)
+    barplotEnrichGO_HC(rv$enrichGO_data)
+    #barplot(rv$enrichGO_data)
 })
 
-output$GObarplotEnrich <- renderPlot({
+output$GObarplotEnrich <- renderHighchart({
     GObarplotEnrich()
 
 })

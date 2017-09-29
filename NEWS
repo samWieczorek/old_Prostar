@@ -3,6 +3,7 @@
 
 NEW FEATURES
     * Bioanalyse tab
+    * The rownames of the dataset are no longer exported within Excel files
     
     
 
