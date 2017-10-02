@@ -34,7 +34,7 @@ output$DP_sidebar_FilterTab2 <- renderUI({
                      uiOutput("choosePrefixReverse"),
                      br(),
                      actionButton("perform.filtering.Contaminants",
-                                  "Perform string based filtering")
+                                  "Perform string-based filtering")
     )
 })
 
@@ -156,10 +156,10 @@ GlobalPieChart <- reactive({
     
     
     rv$current.obj
-    input$idBoxContaminants
-    input$idBoxReverse
-    input$prefixReverse
-    input$prefixContaminants
+    #input$idBoxContaminants
+    #input$idBoxReverse
+    #input$prefixReverse
+    #input$prefixContaminants
     if (is.null(rv$current.obj)) {return()}
     
     p <- rep("",4)
@@ -175,7 +175,7 @@ GlobalPieChart <- reactive({
     if (is.null(input$prefixReverse)) {p[4] <- ""}
     else {p[4] <-input$prefixReverse}
     
-    
+    isolate({
     result = tryCatch(
         {
             proportionConRev_HC(rv$current.obj,p[1], p[3], p[2],p[4])
@@ -192,7 +192,7 @@ GlobalPieChart <- reactive({
         }, finally = {
             #cleanup-code 
         })
-    
+    })
     
 })
 

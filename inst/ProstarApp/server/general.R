@@ -199,9 +199,9 @@ initializeProstar <- reactive({
     rv$uniprotID = NULL
 
     rv$ProtIDList = NULL
-
-    
-    
+    rv$GOWarningMessage = NULL
+    rv$proteinsNotMapped = NULL
+    rv$gene = NULL
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
@@ -262,7 +262,10 @@ rv <- reactiveValues(
     groupGO_data = NULL,
     universeData = NULL,
     uniprotID = NULL,
-    ProtIDList = NULL
+    ProtIDList = NULL,
+    GOWarningMessage = NULL,
+    proteinsNotMapped = NULL,
+    gene = NULL
 
     )
 
