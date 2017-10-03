@@ -1,3 +1,50 @@
+output$detQuantileParams <- renderUI({
+  rv$current.obj
+    input$missing.value.basic.algorithm
+  if (is.null(rv$current.obj) ) {return (NULL)}
+  if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
+  
+  if (input$missing.value.basic.algorithm == "detQuantile"){
+    tagList(
+      h4("Det quantile parameters"),
+      numericInput("detQuant_quantile", "Quantile", value = 2.5, step=1, min=0, max=100),
+      numericInput("detQuant_factor", "Factor", value = 1, step=1, min=0, max=10)
+    )
+  }
+  
+  
+  
+})
+
+
+
+output$detQuant_impValues <- renderUI({
+    rv$current.obj
+    input$detQuant_quantile
+    input$detQuant_factor
+    input$missing.value.basic.algorithm
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
+    
+    if (input$missing.value.basic.algorithm == 'detQuantile')
+        h5("The missing values will be imputed by the following values :")
+
+})
+
+output$TAB_detQuant_impValues <- renderDataTable({
+    rv$current.obj
+    input$detQuant_quantile
+    input$detQuant_factor
+    input$missing.value.basic.algorithm
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
+    
+    
+    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$detQuant_quantile/100, input$detQuant_factor)
+    if (input$missing.value.basic.algorithm == 'detQuantile'){
+    DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+}
+})
 
 output$MVI_options <- renderUI({
     
@@ -166,28 +213,28 @@ observeEvent(input$perform.imputation.button,{
                                           selected = input$missing.value.basic.algorithm)
                         
                     } 
-                    # else if (input$missing.value.basic.algorithm ==  "dummy censored")
-                    # {
-                    #     
-                    #     
-                    #     rv$current.obj <- wrapper.impute.pa2(rv$dataset[[input$datasets]], 
-                    #                                          q.min = (input$OnlyLAPALA_qmin/100),
-                    #                                          distribution = input$OnlyLAPALA_distrib)
-                    #     #write log command file
-                    #     writeToCommandLogFile(
-                    #         paste("current.obj <- wrapper.impute.pa2(",
-                    #               "dataset[['", input$datasets,"']])",sep="")
-                    #     )
-                    #     
-                    #     updateSelectInput(session, 
-                    #                       "missing.value.algorithm", 
-                    #                       selected = input$missing.value.algorithm)
-                    #     updateSelectInput(session,"missing.value.basic.algorithm",
-                    #                       selected = input$missing.value.basic.algorithm)
-                    #     updateSelectInput(session,"OnlyLAPALA_distrib",
-                    #                       selected = input$OnlyLAPALA_distrib)
-                    #     
-                    # }
+                    else if (input$missing.value.basic.algorithm ==  "detQuantile")
+                    {
+                        rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
+                                                             qval = (input$detQuant_quantile/100),
+                                                             factor = input$detQuant_factor)
+                        #write log command file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.impute.detQuant(",
+                                  "dataset[['", input$datasets,"']])",sep="")
+                        )
+
+                        updateSelectInput(session,
+                                          "missing.value.algorithm",
+                                          selected = input$missing.value.algorithm)
+                        updateSelectInput(session,"missing.value.basic.algorithm",
+                                          selected = input$missing.value.basic.algorithm)
+                        updateSelectInput(session,"detQuant_quantile",
+                                          selected = input$detQuant_quantile)
+                        updateSelectInput(session,"detQuant_factor",
+                                          selected = input$detQuant_factor)
+
+                    }
                 }
                 }
                 createPNG_AfterImputation()

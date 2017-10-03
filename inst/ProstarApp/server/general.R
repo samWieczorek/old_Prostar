@@ -197,6 +197,7 @@ initializeProstar <- reactive({
     rv$enrichGO_data = NULL
     rv$universeData = NULL
     rv$uniprotID = NULL
+    rv$ratio = NULL
 
     rv$ProtIDList = NULL
     rv$GOWarningMessage = NULL
@@ -265,7 +266,8 @@ rv <- reactiveValues(
     ProtIDList = NULL,
     GOWarningMessage = NULL,
     proteinsNotMapped = NULL,
-    gene = NULL
+    gene = NULL,
+    ratio=NULL
 
     )
 

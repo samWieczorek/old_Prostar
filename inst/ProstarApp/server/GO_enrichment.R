@@ -35,13 +35,15 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",
                                                         choices = G_ontology_Choices)
+                                           ,actionButton("mapProtein.GO.button",
+                                                         "Map proteins IDs")
                                  )
                                  ,tagList(
                                      uiOutput("warnDifferentSizeID"),
                                      uiOutput("infoIDProt_NA"),
                                      br(), br(),
                                      uiOutput("GeneMappedRatio"),
-                                     
+                                     br(), br(),
                                      dataTableOutput("nonIdentifiedProteins", width = "80%")
                                      
                                  )
@@ -228,19 +230,34 @@ output$warnDifferentSizeID <- renderUI({
 })
 
 
-
-output$GeneMappedRatio <- renderUI({
-    rv$gene
+observeEvent(input$mapProtein.GO.button,{
+    input$UniprotIDCol
+    input$Organism
     input$idFrom
-    rv$ProtIDList
-    if (is.null(rv$gene)) {return(NULL)}
-    if (is.null(rv$ProtIDList)){return (NULL)}
-
-    index <- GetDataIndexForAnalysis()
     
-    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% as.character(rv$gene[input$idFrom])) == FALSE)
-    ratio <- 100*length(rv$proteinsNotMapped) / length(index)
-    h3(paste(as.character(ratio), " % of the proteins were matched.", sep=""))
+    if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  
+        rv$ProtIDList <- NULL
+        return (NULL)}
+
+    rv$ratio <- NULL
+    rv$gene <- NULL
+    
+rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
+index <- GetDataIndexForAnalysis()
+
+tryCatch({
+rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+}, warning = function(w) {
+    rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+    }, error = function(e) {
+       # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
+        rv$ratio <- 100
+    }, finally = {
+
+    })
+rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
+rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
+
 })
 
 
@@ -256,21 +273,21 @@ observeEvent(input$perform.GO.button,{
     input$pvalueCutoff
     rv$ProtIDList
     input$idFrom
-
+    rv$ratio
     input$GO_level
     rv$uniprotID
     if (is.null(input$perform.GO.button) ){return(NULL)}
     if (is.null(rv$ProtIDList)){return(NULL)}
+    if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
     
     require(clusterProfiler)
     #isolate({
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 idTo <- "ENTREZID"
                 data <- NULL
                
                index <- GetDataIndexForAnalysis()
-               rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType=idTo, OrgDb=input$Organism)
                
                     rv$groupGO_data <- group_GO(rv$ProtIDList[index],
                                                 input$idFrom, 
@@ -300,21 +317,21 @@ observeEvent(input$perform.GO.button,{
                                    universe = rv$universeData )
 
                      
-            }
-            , warning = function(w) {
-              #h3(w)
-                #print(paste("Warning__ : ",w, sep=""))
-                #shinyjs::info(conditionMessage(w))
-                #rv$GOWarningMessage <- w
-            }, error = function(e) {
-                #rv$GOErrorMessage <- e
-                #print(paste("Error : ",e, sep=""))
-                #h3(e)
-                shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
-                #shinyjs::info(paste("test", sep=" "))
-            }, finally = {
-                #cleanup-code
-            })
+            # }
+            # , warning = function(w) {
+            #   #h3(w)
+            #     print(paste("Warning__ : ",w, sep=""))
+            #     #shinyjs::info(conditionMessage(w))
+            #     #rv$GOWarningMessage <- w
+            # }, error = function(e) {
+            #     #rv$GOErrorMessage <- e
+            #     print(paste("Error : ",e, sep=""))
+            #     #h3(e)
+            #     shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
+            #     #shinyjs::info(paste("test", sep=" "))
+            # }, finally = {
+            #     #cleanup-code
+            # })
         
         
    # })
@@ -384,6 +401,26 @@ output$GODatatable <- renderDataTable({
 })
 
 
+# GetProteinMappedRatio <- reactive({
+#     
+#     
+#     print(ratio)
+#     return(ratio)
+# })
+
+
+output$GeneMappedRatio <- renderUI({
+    
+    rv$ratio
+    if (is.null(rv$ratio)) {return (NULL)}
+    tagList(
+        h5(paste(as.character(rv$ratio), " % of the proteins were not mapped.", sep="")),
+    if (rv$ratio == 100){
+        h5(paste("Advice a rediger", sep=""))
+    })
+})
+
+
 
 output$nonIdentifiedProteins <- renderDataTable({
     rv$ProtIDList
@@ -396,17 +433,8 @@ output$nonIdentifiedProteins <- renderDataTable({
     
     
     index <- GetDataIndexForAnalysis()
-    print(index)
-    print(rv$ProtIDList[index])
-    print(as.character(rv$gene[input$idFrom]))
-    print((rv$ProtIDList[index] %in% as.character(rv$gene[input$idFrom])))
-    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% as.character(rv$gene[input$idFrom])) == FALSE)
-    print(rv$proteinsNotMapped)
-    
-    print(fData(rv$current.obj)[index[rv$proteinsNotMapped],"Majority protein IDs"])
-    
-    
-    data <- as.data.frame(fData(rv$current.obj)[index[rv$proteinsNotMapped],])
+    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
+   data <- as.data.frame(fData(rv$current.obj)[index[rv$proteinsNotMapped],])
     
     
     if( nrow(data) != 0){

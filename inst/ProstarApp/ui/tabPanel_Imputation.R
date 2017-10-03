@@ -9,6 +9,7 @@ tabPanel("Miss. values imputation",
                                ,br()
                                ,uiOutput("chooseImputationMethod"),
                                uiOutput("chooseBasicImputationMethod"),
+                               uiOutput("detQuantileParams"),
                                uiOutput("MVI_options"),
                                uiOutput("MVI_qmin_option"),
                                uiOutput("imp4pLAPALA_distribution_option"),
@@ -27,9 +28,10 @@ tabPanel("Miss. values imputation",
                                #br(),
                                #uiOutput(outputId = "progressOne")
                      ),
-                     conditionalPanel(id="test",
-                                      condition= "true" ,
-                                      uiOutput("showImputationPanel"),
+                     tagList(
+                         uiOutput("showImputationPanel"),
+                         uiOutput("detQuant_impValues"),
+                         dataTableOutput("TAB_detQuant_impValues"),
                                       busyIndicator("Calculation in progress",wait = 0),
                                       #imageOutput("viewNAbyMean"),
                                       fluidRow(
@@ -39,7 +41,6 @@ tabPanel("Miss. values imputation",
                                           ))
                                       )
                      )      
-
                      
          )
 )
