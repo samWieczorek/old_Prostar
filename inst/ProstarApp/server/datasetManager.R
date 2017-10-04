@@ -795,29 +795,59 @@ createPNG_GOAnalysis<- reactive({
     #        res=resolution)
     
     
-    tempplot <- GOplotGroup()
+    tempplot <- GOplotGroup_level2()
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"),
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level2, sep="/"),
+                     delay = 5
+                     ,zoom = zoomWebshot
+    )
+    
+    tempplot <- GOplotGroup_level3()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level3, sep="/"),
+                     delay = 5
+                     ,zoom = zoomWebshot
+    )
+    
+    tempplot <- GOplotGroup_level4()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level4, sep="/"),
                      delay = 5
                      ,zoom = zoomWebshot
     )
     
     
-    plotPNG(function(){GObarplotEnrich()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
+    # plotPNG(function(){GObarplotEnrich()}, 
+    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"), 
+    #         width = pngWidth, 
+    #         height=pngHeight,
+    #         res=resolution)
+    # 
+    # 
+    # plotPNG(function(){GOdotplotEnrich()}, 
+    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"), 
+    #         width = pngWidth, 
+    #         height=pngHeight,
+    #         res=resolution)
     
+    tempplot <- GObarplotEnrich()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"),
+                     delay = 5
+                     ,zoom = zoomWebshot
+    )
     
-    plotPNG(function(){GOdotplotEnrich()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-    
-    
+    tempplot <- GOdotplotEnrich()
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
+                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"),
+                     delay = 5
+                     ,zoom = zoomWebshot
+    )
     
 })
 

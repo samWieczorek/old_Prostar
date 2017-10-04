@@ -215,11 +215,7 @@ observeEvent(input$perform.imputation.button,{
                     } 
                     else if (input$missing.value.basic.algorithm ==  "detQuantile")
                     {
-<<<<<<< HEAD
 
-
-=======
->>>>>>> a0cc7bbfb80f30f898b8215deec9395f6a9c1153
                         rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
                                                              qval = (input$detQuant_quantile/100),
                                                              factor = input$detQuant_factor)

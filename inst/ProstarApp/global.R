@@ -216,7 +216,9 @@ gGraphicsFilenames <- list(
     calibrationPlotAll = "calibrationPlotAll.png",
     GOEnrichDotplot = "GOEnrichDotplot.png",
     GOEnrichBarplot = "GOEnrichBarplot.png",
-    GOClassification = "GOClassification.png"
+    GOClassification_level3 = "GOClassification_level2.png",
+    GOClassification_level3 = "GOClassification_level3.png",
+    GOClassification_level3 = "GOClassification_level4.png"
 )
 
 defaultGradientRate <- 0.9

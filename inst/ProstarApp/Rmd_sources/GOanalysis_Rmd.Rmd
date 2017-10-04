@@ -10,7 +10,9 @@ Parameters used for the GO analysis :
                                                        
                                                        
 ```{r,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level2, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level3, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level4, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"))
 ```
