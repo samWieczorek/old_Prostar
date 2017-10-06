@@ -141,7 +141,8 @@ output$aboutText <- renderUI({
                   <br><br><br>
                   <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
                   software suite for quantitative analysis of mass spectrometry 
-                  based proteomics, more specifically designed to process 
+                  based proteomics.<br>
+                  More specifically it is designed to process 
                   relative quantitative data from discovery experiments.<br>
                   It is composed of two distinct R packages : <br>", 
                   "<ul style=\"list-style-type:disc;\">
@@ -160,10 +161,6 @@ output$aboutText <- renderUI({
                   <a href=\"the https://cran.r-project.org/\" title=\"here\" target=\"_blank\">
                   CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
                   title=\"here\" target=\"_blank\">Bioconductor</a>.
-                  #, among which 
-                  #<a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
-                  #title=\"here\" target=\"_blank\">MSnbase</a>, which has introduced Msnsets, 
-                  #the data structure on which all the processing are based.
                   <br>
                   Here is a brief overview of the available functionalities:
                   <ul style=\"list-style-type:disc;\">
