@@ -1,5 +1,5 @@
 tabPanel("Filter data",
-         icon = icon("download"),
+         #icon = icon("download"),
          
          tabsetPanel(
              id = "DP_Filtering_tabSetPanel",
