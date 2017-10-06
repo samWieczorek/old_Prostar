@@ -84,7 +84,7 @@ output$GOAnalysisMenu <- renderUI({
                                            numericInput("pvalueCutoff", "FDR (Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            actionButton("perform.GO.button",
-                                                        "Perform enrichment analysis"),
+                                                        "Perform enrichment analysis!"),
                                            busyIndicator("Calculation in progress",wait = 0)
                                  ),
                                  tagList(
