@@ -667,12 +667,6 @@ output$overviewDemoDataset <- renderUI({
 
 
 
-observeEvent(input$GenerateReport, {
-    
-    #createPNG_DescriptiveStatistics()
-
-})
-
 ######-----------------------------------------------------------------
 output$downloadReport <- downloadHandler(
     #createPNG(),

@@ -48,10 +48,10 @@ output$DS_sidebarPanel_heatmap <- renderUI({
     
     tagList(
                      h3("Clustering Options"),
-                     radioButtons("distance","Distance",
+                     selectInput("distance","Distance",
                                   choices = G_heatmapDistance_Choices),
                      br(),
-                     radioButtons("linkage","Linkage for clustering",
+                     selectInput("linkage","Linkage for clustering",
                                   choices=G_heatmapLinkage_Choices))
 })
 
@@ -609,8 +609,8 @@ heatmap <- reactive({
     input$linkage
     input$distance
     if (is.null(rv$current.obj)) {return(NULL)}
-    
-    
+    print(input$linkage)
+    print(input$distance)
     if (!is.null(input$linkage) && !is.null(input$distance)
         #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
     ) {
