@@ -21,7 +21,7 @@ Prostar/inst/doc/Prostar_Tutorial.pdf\"
          <strong><font size=\"4\">Contact:</font></strong><br>
          If you need any help, but also if you wish to make comments 
          or suggestions, please contact Samuel Wieczorek, Florence Combes or 
-         Thomas Burger (firstname.lastname@cea.fr)<br><br>
+         Thomas Burger (firstname.lastname@cea.fr).<br><br>
          
          
          <strong><font size=\"4\">Additional ressources:</font></strong>
@@ -40,12 +40,12 @@ packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\"
          <li> MSnbase package: <a href=\"https://www.bioconductor.org/packages/
 release/bioc/html/MSnbase.html\" title=\"here\" target=\"_blank\">here</a>
          </li>
-         <li> Cp4p tutorial: <a href=\"https://cran.r-project.org/web/
+         <li> Calibration of p-values (CP4P tutorial): <a href=\"https://cran.r-project.org/web/
 packages/cp4p/cp4p.pdf\"
          title=\"here\" target=\"_blank\">here</a>
          </li>
          </ul>
-         <br><br>
+         <br>
          
          <strong><font size=\"4\">Our referenced works:</font></strong>
          <ol>
@@ -85,7 +85,7 @@ packages/cp4p/cp4p.pdf\"
          
          </ol>
          
-         <br><br>
+         <br>
          
          <strong><font size=\"4\">Other references:</font></strong>
          <ol start=6>
