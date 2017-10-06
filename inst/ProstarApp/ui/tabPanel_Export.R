@@ -1,6 +1,6 @@
 tabPanel("Export",
          value = "export",
-         icon = icon("upload"),
+         #icon = icon("upload"),
          h3("Export dataset"),
          helpText("Choose the export format of the dataset and choose a name."),
          selectInput("fileformatExport", "File format", 
