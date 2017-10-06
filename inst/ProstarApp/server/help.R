@@ -75,6 +75,9 @@ packages/cp4p/cp4p.pdf\"
          (under review). 
          </li>
 
+        <li> L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
+        from relative quantitative proteomics data using shared peptides. (under review).
+
          <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
          T. Burger. Multiple imputation strategy for mass spectrometry-based 
          proteomic data. (in preparation).
@@ -86,22 +89,25 @@ packages/cp4p/cp4p.pdf\"
          
          <strong><font size=\"4\">Other references:</font></strong>
          <ol start=6>
-         <li> Bolstad BM (2016). preprocessCore: A collection of pre-processing 
-        functions. R package version 1.36.0, 
+         <li> Bolstad BM (2017). preprocessCore: A collection of pre-processing 
+        functions. R package version 1.38.1, 
         <a href=\"https://github.com/bmbolstad/preprocessCore\"
          title=\"here\" target=\"_blank\">
         https://github.com/bmbolstad/preprocessCore</a>
 
-         <li> Hastie T, Tibshirani R, Narasimhan B and Chu G (2016). 
-        impute: Imputation for microarray data. R package version 1.48.0
+         <li> Hastie T, Tibshirani R, Narasimhan B and Chu G (2017). 
+        impute: Imputation for microarray data. R package version 1.50.1
          </li>
 
-         <li> Ported to R by Alvaro A. Novo. Original by Joseph L. Schafer 
-        <jls@stat.psu.edu>. (2013). norm: Analysis of
-        multivariate normal datasets with missing values. R package 
-        version 1.0-9.5.
-        <a href=\"https://CRAN.R-project.org/package=norm\"
-         title=\"norm on CRAN\" target=\"_blank\">norm on CRAN</a>
+         <li> Gatto L and Lilley K (2012). 
+         MSnbase - an R/Bioconductor package for isobaric tagged mass spectrometry data visualization, processing and quantitation.
+         Bioinformatics, 28, pp. 288-289.
+         </li>
+
+         <li> Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK (2015). 
+         Limma powers differential expression analyses for RNA-sequencing and microarray studies. 
+         Nucleic Acids Research, 43(7), pp. e47.
+         
          </li>
          </ol>"
          
