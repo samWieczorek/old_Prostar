@@ -235,7 +235,6 @@ observeEvent(input$perform.normalization,{
                         if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
                         {quant <- as.numeric(input$normalization.quantile)}
                         else {quant <- as.numeric(input$normalization.quantileOther)}
-                        print(quant)
                         rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
@@ -393,7 +392,6 @@ viewBoxPlotNorm <- reactive({
     if (is.null(rv$current.obj) || is.null(rv$dataset[[input$datasets]]) ||
         is.null(input$normalization.method)) {return(NULL)}
     
-    print(input$legendXAxis)
     gToColorNorm <- NULL
     
     if (is.null(input$whichGroup2Color)){
@@ -432,16 +430,14 @@ output$viewBoxPlotNorm <- renderPlot({
 
 viewDensityplotNorm <- reactive({
     
-    rv$dataset[[input$datasets]]
     rv$current.obj
-    input$legendXAxis
-    input$whichGroup2Color
-    input$lab2Show
-    input$normalization.method
+    #input$legendXAxis
+    #input$whichGroup2Color
+   # input$lab2Show
+    #input$normalization.method
     input$perform.normalization
     
-    if (is.null(rv$current.obj) || is.null(rv$dataset[[input$datasets]]) ||
-        is.null(input$normalization.method)) {return(NULL)}
+    if (is.null(rv$current.obj)) {return(NULL)}
     
     
     leg <- NULL
@@ -498,25 +494,23 @@ output$viewDensityplotNorm<- renderHighchart({
 
 #######################
 
-viewComparisonNorm <- reactive({
+viewComparisonNorm2 <- reactive({
+
     
-    
-    rv$dataset[[input$datasets]]
-    rv$current.obj
-    input$legendXAxis
-    input$whichGroup2Color
-    input$lab2Show
+    #rv$dataset[[input$datasets]]
+    #rv$current.obj
+    #input$legendXAxis
+    #input$whichGroup2Color
+    #input$lab2Show
     #input$normalization.method
-    input$perform.normalization
+    #input$perform.normalization
     
     
     
-    if (is.null(rv$current.obj) 
-        || is.null(rv$dataset[[input$datasets]]) 
-        || 
-        (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
-        print("Oups")
-        return(NULL)}
+    # if (is.null(rv$current.obj) || 
+    #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
+    #     print("Oups")
+    #     return(NULL)}
     
     print("in Comp")
     leg <- NULL
@@ -546,33 +540,99 @@ viewComparisonNorm <- reactive({
                             sep= "_")
     }
     
-    #result = tryCatch(
-    #    {
-            print(Biobase::exprs(rv$dataset[[input$datasets]]))
-            print(Biobase::exprs(rv$current.obj))
-                print(labelsNorm)
-             print(as.numeric(labelsToShowNorm)) 
-             print(gToColorNorm)
-                compareNormalizationD(Biobase::exprs(rv$dataset[[input$datasets]]),
-                                  Biobase::exprs(rv$current.obj),
+    result = tryCatch(
+       {
+            wrapper.compareNormalizationD(rv$dataset[[input$datasets]],
+                                  rv$current.obj,
                                   labelsNorm,
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
-        # }
-        # #, warning = function(w) {
-        # #   shinyjs::info(conditionMessage(w))
-        # #}
-        # , error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
+           
+        }
+        #, warning = function(w) {
+        #   shinyjs::info(conditionMessage(w))
+        #}
+        , error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code
+        })
+    
+    
+})
+
+
+
+viewComparisonNorm <- reactive({
+    
+    
+    #rv$dataset[[input$datasets]]
+    #rv$current.obj
+    #input$legendXAxis
+    #input$whichGroup2Color
+    #input$lab2Show
+    #input$normalization.method
+    #input$perform.normalization
+    
+    
+    
+    # if (is.null(rv$current.obj) || 
+    #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
+    #     print("Oups")
+    #     return(NULL)}
+    
+     leg <- NULL
+    grp <- NULL
+    
+    labelsNorm <- NULL
+    labelsToShowNorm <- NULL
+    gToColorNorm <- NULL
+    if (is.null(input$lab2Show)) { 
+        labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+    }
+    else { labelsToShowNorm <- input$lab2Show}
+    
+    if (is.null(input$whichGroup2Color)){
+        gToColorNorm <- "Condition"
+    }else{gToColorNorm <- input$whichGroup2Color}
+    
+    
+    if (is.null(input$whichGroup2Color) 
+        || (input$whichGroup2Color == "Condition")){
+        labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
+    }else {
+        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                            Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                            Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                            Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+                            sep= "_")
+    }
+    
+    result = tryCatch(
+        {
+            wrapper.compareNormalizationD(rv$dataset[[input$datasets]],
+                                          rv$current.obj,
+                                          labelsNorm,
+                                          as.numeric(labelsToShowNorm),
+                                          gToColorNorm)
+            #boxplot(Biobase::exprs(rv$current.obj))
+            
+        }
+        #, warning = function(w) {
+        #   shinyjs::info(conditionMessage(w))
+        #}
+        , error = function(e) {
+            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        }, finally = {
+            #cleanup-code
+        })
     
     
 })
 
 #######################
 output$viewComparisonNorm_DS<- renderPlot({
+    
     viewComparisonNorm()
 })
 

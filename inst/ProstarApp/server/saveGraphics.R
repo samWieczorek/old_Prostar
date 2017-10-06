@@ -217,11 +217,8 @@ createPNG_Filtering <- reactive({
 ###--------------------------------------------------------------------------
 createPNG_Normalization <- reactive({
     
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
-    #viewComparisonNorm()
-    #dev.off()
     
-    plotPNG(function(){viewComparisonNorm()}, 
+    plotPNG(function(){viewComparisonNorm2()}, 
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"), 
             width = pngWidth, 
             height=pngHeight,
@@ -241,10 +238,7 @@ createPNG_BeforeNormalization <- reactive({
                      zoom = zoomWebshot)
     
     
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"))
-    # viewBoxPlotNorm()
-    # dev.off()
-    # 
+    
     plotPNG(function(){viewBoxPlotNorm()}, 
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"), 
             width = pngWidth, 
@@ -289,21 +283,14 @@ createPNG_DifferentialAnalysis <- reactive({
                      ,zoom = zoomWebshot
     )
     
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
-    # calibrationPlot()
-    # Sys.sleep(5)
-    # dev.off()
-    # 
+    
     plotPNG(function(){calibrationPlot()}, 
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"), 
             width = pngWidth, 
             height=pngHeight,
             res=resolution)
     
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
-    # calibrationPlotAll()
-    # dev.off()
-    # 
+    
     plotPNG(function(){calibrationPlotAll()}, 
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"), 
             width = pngWidth, 
@@ -312,6 +299,7 @@ createPNG_DifferentialAnalysis <- reactive({
 })
 
 
+###--------------------------------------------------------------------------
 
 createPNG_Enrichment <- reactive({
     
@@ -334,6 +322,7 @@ createPNG_Enrichment <- reactive({
 })
 
 
+###--------------------------------------------------------------------------
 createPNG_GroupGO <- reactive({
     input$GO_level
     
@@ -388,7 +377,6 @@ createPNG_GOAnalysis<- reactive({
     #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
     #viewComparisonNorm()
     #dev.off()
-    print("ecriture des fichiers image")
     
     # plotPNG(function(){GOplotGroup()}, 
     #        filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"), 

@@ -841,7 +841,6 @@ observe({
             } else if ((ext == "xls") || (ext == "xlsx") ){
                 # rv$tab1 <- read.xlsx(input$file1$datapath, 
                 #                      sheet=input$XLSsheets)
-                print(input$file1$datapath)
                 rv$tab1 <- readExcel(input$file1$datapath, ext, 
                                      sheet=input$XLSsheets)
     
