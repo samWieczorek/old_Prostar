@@ -37,9 +37,10 @@ tabPanel("Filter data",
                                           uiOutput("DP_sidebar_FilterTab2")
                                           
                                 ),
-                                conditionalPanel(id = "wellPanelMVFilterTab2",
-                                                 condition = "true",
-                                                 highchartOutput("GlobalPieChart")
+                                tagList(
+                                  busyIndicator("Calculation in progress",wait = 0),
+                                  highchartOutput("GlobalPieChart"),
+                                  uiOutput("ObserverStringBasedFilteringDone")
                                 )
                     )
          )

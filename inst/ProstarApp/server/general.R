@@ -1,7 +1,7 @@
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent( input$datasets,{ 
+observeEvent( input$datasets,ignoreInit = TRUE,{ 
     
     
     isolate({
@@ -98,18 +98,21 @@ loadObjectInMemoryFromConverter <- reactive({
     name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
     
+    if (input$showCommandLog){
+        txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
+                 rv$typeOfDataset, "\"", "\n",
+                 "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
+                 sep="")
+        writeToCommandLogFile(txt)
     
-    writeToCommandLogFile("dataset <- list()")
-    writeToCommandLogFile(paste("dataset[['", name,"']] <- current.obj",sep=""))
-    writeToCommandLogFile(paste("typeOfDataset <- \"",  rv$typeOfDataset, "\"", sep=""))
-    writeToCommandLogFile("colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)")
+    
     #writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
     
     
     if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
         writeToCommandLogFile("current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
     } 
-    
+    }
     
     UpdateFilterWidgets()
     
@@ -203,6 +206,8 @@ initializeProstar <- reactive({
     rv$GOWarningMessage = NULL
     rv$proteinsNotMapped = NULL
     rv$gene = NULL
+    rv$stringBasedFiltering_Done = FALSE
+    
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
@@ -267,7 +272,8 @@ rv <- reactiveValues(
     GOWarningMessage = NULL,
     proteinsNotMapped = NULL,
     gene = NULL,
-    ratio=NULL
+    ratio=NULL,
+    stringBasedFiltering_Done = FALSE
 
     )
 

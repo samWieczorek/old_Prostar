@@ -153,33 +153,30 @@ output$seuilNADelete <- renderUI({
 
 
 GlobalPieChart <- reactive({
-    
-    
     rv$current.obj
-    #input$idBoxContaminants
-    #input$idBoxReverse
-    #input$prefixReverse
-    #input$prefixContaminants
+    rv$nbContaminantsDeleted
+    rv$nbReverseDeleted
     if (is.null(rv$current.obj)) {return()}
+    if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
     
-    p <- rep("",4)
-    if (is.null(input$idBoxContaminants)) {p[1] <- ""}
-    else {p[1] <-input$idBoxContaminants}
+    # p <- rep("",4)
+    # if (is.null(input$idBoxContaminants)) {p[1] <- ""}
+    # else {p[1] <-input$idBoxContaminants}
+    # 
+    # if (is.null(input$idBoxReverse)) {p[2] <- ""}
+    # else {p[2] <-input$idBoxReverse}
+    # 
+    # if (is.null(input$prefixContaminants)) {p[3] <- ""}
+    # else {p[3] <-input$prefixContaminants}
+    # 
+    # if (is.null(input$prefixReverse)) {p[4] <- ""}
+    # else {p[4] <-input$prefixReverse}
     
-    if (is.null(input$idBoxReverse)) {p[2] <- ""}
-    else {p[2] <-input$idBoxReverse}
-    
-    if (is.null(input$prefixContaminants)) {p[3] <- ""}
-    else {p[3] <-input$prefixContaminants}
-    
-    if (is.null(input$prefixReverse)) {p[4] <- ""}
-    else {p[4] <-input$prefixReverse}
-    
-    isolate({
+   # isolate({
     result = tryCatch(
         {
-            proportionConRev_HC(rv$current.obj,p[1], p[3], p[2],p[4])
-            
+            #proportionConRev_HC(rv$current.obj,p[1], p[3], p[2],p[4])
+          proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(rv$current.obj))
             
         }
         #, warning = function(w) {
@@ -191,12 +188,18 @@ GlobalPieChart <- reactive({
                                 sep=" "))
         }, finally = {
             #cleanup-code 
-        })
+       # })
     })
     
 })
 
 output$GlobalPieChart <- renderHighchart({
+  rv$current.obj
+  rv$nbContaminantsDeleted
+  rv$nbReverseDeleted
+  if (is.null(rv$current.obj)) {return()}
+  if (is.null(rv$nbContaminantsDeleted==0) || is.null(rv$nbReverseDeleted)){return(NULL)}
+  
     GlobalPieChart()
 })
 
@@ -348,31 +351,25 @@ observeEvent(input$perform.filtering.MV,{
                         # )
                         
                         
-                        writeToCommandLogFile(
-                            paste("keepThat <- mvFilterGetIndices(dataset[['",
-                                  input$datasets, 
-                                  "']], '",
-                                  input$ChooseFilters, "', '",
-                                  input$seuilNA, "')", sep="")
-                        )
-                        writeToCommandLogFile(
-                            "deleted.mv <- current.obj[-keepThat]")
-                        writeToCommandLogFile(paste("txt <- '",
-                                        GetFilterText(input$ChooseFilters,
-                                                      input$seuilNA),
-                                                    "'",
-                                                    sep ="")
-                        )
-                        writeToCommandLogFile(
-                            paste("current.obj <- mvFilterFromIndices(",
-                                        "current.obj, keepThat, '",
-                                        GetFilterText(input$ChooseFilters,
-                                                        input$seuilNA),
-                                                    "')",
-                                                    sep ="")
-                        )
+                        if (input$showCommandLog){
+                        txt <- paste("keepThat <- mvFilterGetIndices(dataset[['",
+                                     input$datasets, 
+                                     "']], '",
+                                     input$ChooseFilters, "', '",
+                                     input$seuilNA, "')","\n",
+                                     "deleted.mv <- current.obj[-keepThat]","\n",
+                                    "txt <- '",GetFilterText(input$ChooseFilters,input$seuilNA),
+                                                    "'","\n",
+                                    "current.obj <- mvFilterFromIndices(",
+                                    "current.obj, keepThat, '",
+                                    GetFilterText(input$ChooseFilters,
+                                                  input$seuilNA),
+                                    "')",              
+                                     sep="")
+
+                       
+                        writeToCommandLogFile(txt)
                     }
-                    
                     
                     updateSelectInput(session, "ChooseFilters", 
                                       selected = input$ChooseFilters)
@@ -383,7 +380,7 @@ observeEvent(input$perform.filtering.MV,{
             }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))
-            #}
+            }
             , error = function(e) {
                 shinyjs::info(paste("Perform missing values filtering",":",
                                     conditionMessage(e), 
@@ -398,7 +395,51 @@ observeEvent(input$perform.filtering.MV,{
 })
 
 
+
+observe({
+  rv$current.obj
+  input$idBoxContaminants
+  input$prefixContaminants
+  input$idBoxReverse
+  input$prefixReverse
+
+  if (is.null(rv$current.obj)){return (NULL)}
+  if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
+      is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
+      is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
+      is.null(input$prefixReverse) || (input$prefixReverse == "")
+       ) {return(NULL)}
+if (!is.null(rv$nbReverseDeleted) || !is.null(rv$nbContaminantsDeleted)){return (NULL)}
+  
+  
+  ind <- getIndicesOfLinesToRemove(rv$current.obj,
+                                   input$idBoxContaminants,
+                                   input$prefixContaminants)
+  if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
+  
+  ind <- getIndicesOfLinesToRemove(rv$current.obj,
+                                   input$idBoxReverse,
+                                   input$prefixReverse)
+  if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
+  
+})
+
+
+
+#########################
 observeEvent(input$perform.filtering.Contaminants,{
+  rv$current.obj
+  input$idBoxContaminants
+  input$prefixContaminants
+  input$idBoxReverse
+  input$prefixReverse
+  
+  if (is.null(rv$current.obj)){return (NULL)}
+  if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
+      is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
+      is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
+      is.null(input$prefixReverse) || (input$prefixReverse == "")
+  ) {return(NULL)}
     if (is.null(input$perform.filtering.Contaminants) ){return()}
     if (input$perform.filtering.Contaminants == 0){return()}
     
@@ -425,21 +466,17 @@ observeEvent(input$perform.filtering.Contaminants,{
                             )
                             
                             #write command log
-                            writeToCommandLogFile(
-                    paste(
-                "indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", 
-                input$idBoxContaminants,
-                "\", \"",input$prefixContaminants,"\")", 
-                                    sep="")
-                            )
-                            
-            writeToCommandLogFile(
-                    "deleted.contaminants <- current.obj[indContaminants]")
-            writeToCommandLogFile(
-                    paste("txt <- \"",length(ind),
-                        " contaminants were removed from dataset.\"",sep=""))
-            writeToCommandLogFile(
-    "current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)")
+                            if (input$showCommandLog){
+                                txt <- paste("indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", 
+                                         input$idBoxContaminants,
+                                         "\", \"",input$prefixContaminants,"\")","\n",
+                                         "deleted.contaminants <- current.obj[indContaminants]","\n",
+                                         "txt <- \"",length(ind), " contaminants were removed from dataset.\"","\n",
+                                         "current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)",
+                                         sep=""
+                                         )
+                            writeToCommandLogFile(txt)
+                        }
                         }
                     }
                 }
@@ -462,21 +499,22 @@ observeEvent(input$perform.filtering.Contaminants,{
                                     sep="")
                             )
                             
-        writeToCommandLogFile(
-            paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", 
-                  input$idBoxReverse,
-                    "\", \"",input$prefixReverse,"\")",sep="")
-                )
+                            if (input$showCommandLog){
+                                txt <- paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", 
+                                         input$idBoxReverse,
+                                         "\", \"",input$prefixReverse,"\")", "\n",
+                                         "deleted.reverse <- current.obj[indReverse]", "\n",
+                                         "txt <- \"",length(ind)," reverse were removed from dataset.\"", "\n",
+                                         "current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)", sep="")
                             
-        writeToCommandLogFile("deleted.reverse <- current.obj[indReverse]")
-        writeToCommandLogFile(
-paste("txt <- \"",length(ind)," reverse were removed from dataset.\"",sep=""))
-writeToCommandLogFile(
-    "current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)")
+
+                            writeToCommandLogFile(txt)
+                        }
                         }
                     }
                 }
                 rv$current.obj <- temp
+                rv$stringBasedFiltering_Done = TRUE
                 
                 updateSelectInput(session, 
                                   "idBoxReverse",
@@ -519,6 +557,20 @@ writeToCommandLogFile(
 
 
 
+#-----------------------------------------------
+output$ObserverStringBasedFilteringDone <- renderUI({
+  rv$current.obj
+  rv$stringBasedFiltering_Done
+  if (is.null(rv$current.obj)) {return(NULL)}
+  isolate({
+    if (!rv$stringBasedFiltering_Done) 
+    {return(NULL)  }
+    else {
+      h3("String-based filtering done")
+    }
+    
+  })
+})
 
 
 
@@ -547,8 +599,10 @@ observeEvent(input$ValidateFilters,{
                     rv$dataset[[name]] <- rv$current.obj
                     
                     ###### write to commandLog File
-                    writeToCommandLogFile(  
+                    if (input$showCommandLog){
+                        writeToCommandLogFile(  
                         paste("dataset[['",name, "']] <- current.obj", sep=""))
+                    }
                     ###### end write to command log file
                     
                     
@@ -568,9 +622,9 @@ observeEvent(input$ValidateFilters,{
                     
                     
                     ## Add the necessary text to the Rmd file
-                    txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
-                    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                    write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    #txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
+                    #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                    #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                     createPNG_Filtering()
                     
                 }

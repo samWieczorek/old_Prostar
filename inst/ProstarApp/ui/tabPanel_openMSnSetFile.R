@@ -7,9 +7,8 @@ tabPanel("Open MSnset file",
                                           "Open a MSnset file",
                                           multiple = FALSE)
                      ),
-                     conditionalPanel(id = "wellPanelOpenFile",
-                                      condition = "true",
-                                      h3("Quick overview of the dataset"),
+                     tagList(
+                         h3("Quick overview of the dataset"),
                                       uiOutput("overview"),
                                       uiOutput("infoAboutAggregationTool")
                      )

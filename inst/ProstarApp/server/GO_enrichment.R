@@ -26,7 +26,7 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
-                                           ,h4("General GO setup")
+                                           ,h4("General setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
                                                           choices = G_sourceOfProtID_Choices)
                                            
@@ -54,11 +54,10 @@ output$GOAnalysisMenu <- renderUI({
             tabPanel("GO Classification",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                     #             wellPanel(id = "sidebar_GO",
-                     #                       height = "100%",
-                     #                       numericInput("GO_level", "Level",min = 0, max = 10, step = 1, value = 2)
-                     #                       
-                     actionButton("group.GO.perform.button","Perform GO grouping")
+                                 wellPanel(id = "sidebar_GO",
+                                           height = "100%",
+                                           checkboxGroupInput("GO_level", "Level",choices =c(2:4), selected=2),
+                                            actionButton("group.GO.perform.button","Perform GO grouping")
                                   ),
                                  tagList(
                                      busyIndicator("Calculation in progress",wait = 0),
@@ -70,7 +69,7 @@ output$GOAnalysisMenu <- renderUI({
                                  )
                                  
                                  
-                    # )
+                     )
             ),
             tabPanel("GO Enrichment",
                      id = "tabPanelEnrichGO",
@@ -80,8 +79,8 @@ output$GOAnalysisMenu <- renderUI({
                                            height = "100%",
                                            radioButtons("universe", "Universe", choices = G_universe_Choices),
                                            uiOutput("chooseUniverseFile"),
-                                           selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                           numericInput("pvalueCutoff", "FDR (Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
+                                          # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
+                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),
@@ -221,14 +220,14 @@ output$chooseUniverseFile <- renderUI({
 #})
 
 
-observeEvent(input$UniprotIDCol,{ 
+observeEvent(input$UniprotIDCol,ignoreInit =  TRUE,{ 
     if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  rv$ProtIDList <- return (NULL)}
     else {
         rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
     }
 })
 
-observeEvent(input$UNIPROTID_File,{ 
+observeEvent(input$UNIPROTID_File,ignoreInit =  TRUE,{ 
     rv$ProtIDList <- read.table(input$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
 })
 
@@ -245,7 +244,7 @@ output$warnDifferentSizeID <- renderUI({
 })
 
 
-observeEvent(input$mapProtein.GO.button,{
+observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
     input$UniprotIDCol
     input$Organism
     input$idFrom
@@ -284,22 +283,21 @@ observeEvent(input$mapProtein.GO.button,{
 
 ##' Reactive behavior : GO analysis of data
 ##' @author Samuel Wieczorek
-observeEvent(input$perform.GO.button,{
+observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
      input$universe
     input$Organism
     input$Ontology
-    input$PAdjustMethod
+    #input$PAdjustMethod
     input$pvalueCutoff
     rv$ProtIDList
     input$idFrom
-    rv$ratio
      rv$uniprotID
     if (is.null(input$perform.GO.button) ){return(NULL)}
     if (is.null(rv$ProtIDList)){return(NULL)}
     if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
     
     require(clusterProfiler)
-    isolate({
+
         # result = tryCatch(
         #     {
                 
@@ -311,40 +309,42 @@ observeEvent(input$perform.GO.button,{
                         rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
                     }
                     
-                    
+                    index <- GetDataIndexForAnalysis()
                     rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
                                     idFrom = input$idFrom, 
                                     idTo = "ENTREZID", 
                                     orgdb = input$Organism, 
                                     ont = input$Ontology, 
-                                    pAdj = input$PAdjustMethod, 
+                                    #pAdj = input$PAdjustMethod, 
                                     pval = input$pvalueCutoff, 
                                     universe = rv$universeData )
-})
-})
+        })
 
 
 
 
-observeEvent(input$group.GO.perform.button, {
+
+observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     input$Organism
     input$Ontology
     rv$ProtIDList
-    rv$ratio
     rv$uniprotID
+    input$idFrom
+    input$GO_level
     if (is.null(rv$ProtIDList)){return(NULL)}
     if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
     
-    
+    levelIndex <- sort(input$GO_level)
     index <- GetDataIndexForAnalysis()
     rv$groupGO_data <- list()
-    for (i in 1:3){
-        rv$groupGO_data[[i]] <- group_GO(rv$ProtIDList[index],
+    for (i in 1:length(levelIndex)){
+        rv$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
+                                     ggo_res = group_GO(rv$ProtIDList[index],
                                 input$idFrom, 
                                 "ENTREZID", 
                                 orgdb = input$Organism, 
                                 ont=input$Ontology, 
-                                level=i+1)
+                                level=as.numeric(levelIndex[i])))
     }
     
     
@@ -355,7 +355,12 @@ observeEvent(input$group.GO.perform.button, {
 GOplotGroup_level2 <- reactive({
     rv$groupGO_data
     if (is.null(rv$groupGO_data)){return(NULL)}
-    barplotGroupGO_HC(rv$groupGO_data[[1]])
+    
+    isolate({
+        if (length(rv$groupGO_data) >=1){
+        barplotGroupGO_HC(rv$groupGO_data[[1]]$ggo_res, 
+                          title = paste("Groups at level ", rv$groupGO_data[[1]]$level, sep=""))}
+    })
 })
 
 
@@ -366,9 +371,12 @@ output$GOplotGroup_level2 <- renderHighchart({
 
 GOplotGroup_level3 <- reactive({
     rv$groupGO_data
-    if (is.null(rv$groupGO_data)){return(NULL)}
     
-    barplotGroupGO_HC(rv$groupGO_data[[2]])
+    if (is.null(rv$groupGO_data)|| (length(rv$groupGO_data) < 2)){return(NULL)}
+    isolate({
+    if (length(rv$groupGO_data) >=2){
+        barplotGroupGO_HC(rv$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[2]]$level))}
+    })
 })
 
 
@@ -378,9 +386,12 @@ output$GOplotGroup_level3 <- renderHighchart({
 
 GOplotGroup_level4 <- reactive({
     rv$groupGO_data
-    if (is.null(rv$groupGO_data)){return(NULL)}
     
-    barplotGroupGO_HC(rv$groupGO_data[[3]])
+    if (is.null(rv$groupGO_data) || (length(rv$groupGO_data) != 3)){return(NULL)}
+    isolate({
+        if (length(rv$groupGO_data) ==3){
+        barplotGroupGO_HC(rv$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[3]]$level))}
+    })
 })
 
 
@@ -402,7 +413,6 @@ output$GObarplotEnrich <- renderHighchart({
 })
 
 GOdotplotEnrich <- reactive({
-    
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
     
@@ -410,10 +420,10 @@ GOdotplotEnrich <- reactive({
     scatterplotEnrichGO_HC(rv$enrichGO_data)
     })
 
-# output$GOdotplotEnrich <- renderHighchart({
-#     GOdotplotEnrich()
-#     
-# })
+output$GOdotplotEnrich <- renderHighchart({
+    GOdotplotEnrich()
+
+})
 
 # output$GOEnrichMap <- renderPlot({
 #     rv$enrichGO_data
@@ -494,10 +504,9 @@ output$chooseGOtoSave <- renderUI({
 
 
 ## Validation of the GO analysis
-observeEvent(input$ValidGOAnalysis,{ 
+observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{ 
     input$Organism
     input$Ontology
-    input$PAdjustMethod
     input$pvalueCutoff
     rv$current.obj
     rv$enrichGO_data
@@ -516,37 +525,29 @@ observeEvent(input$ValidGOAnalysis,{
         result = tryCatch(
             {
                if (input$whichGO2Save == "Both"){
-                    temp <- DAPAR::GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                rv$groupGO_data ,
-                                                rv$enrichGO_data ,
-                                                input$Organism,
-                                                input$Ontology,
-                                                input$GO_level,
-                                                input$PAdjustMethod,
-                                                input$pvalueCutoff,
-                                                input$universe)
+                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                  ggo_res = rv$groupGO_data ,
+                                                  ego_res = rv$enrichGO_data ,
+                                                  organism = input$Organism,
+                                                  ontology = input$Ontology,
+                                                    level = input$GO_level,
+                                                    pvalueCutoff = input$pvalueCutoff,
+                                                    typeUniverse = input$universe)
                }
                 else if  (input$whichGO2Save == "Classification"){
-                    temp <- DAPAR::GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                  rv$groupGO_data ,
-                                                  NULL ,
-                                                  input$Organism,
-                                                  input$Ontology,
-                                                  input$GO_level,
-                                                  input$PAdjustMethod,
-                                                  input$pvalueCutoff,
-                                                  input$universe)
+                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                  ggo_res = rv$groupGO_data ,
+                                                  organism = input$Organism,
+                                                  ontology = input$Ontology,
+                                                  level = input$GO_level)
                 }
                 else if (input$whichGO2Save == "Enrichment"){
-                    temp <- DAPAR::GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                  NULL ,
-                                                  rv$enrichGO_data ,
-                                                  input$Organism,
-                                                  input$Ontology,
-                                                  input$GO_level,
-                                                  input$PAdjustMethod,
-                                                  input$pvalueCutoff,
-                                                  input$universe)
+                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                  ego_res = rv$enrichGO_data ,
+                                                  organism = input$Organism,
+                                                  ontology = input$Ontology,
+                                                  pvalueCutoff = input$pvalueCutoff,
+                                                  typeUniverse = input$universe)
                 }
                 
                 name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
@@ -621,10 +622,30 @@ observeEvent(input$ValidGOAnalysis,{
                 
                 
                 ## Add the necessary text to the Rmd file
-                txt2Rmd <- readLines("Rmd_sources/GOanalysis_Rmd.Rmd")
-                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                createPNG_GOAnalysis()
+                 if  (input$whichGO2Save == "Both"){
+                     # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
+                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                     createPNG_GroupGO()
+                     
+                     
+                     # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
+                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    createPNG_Enrichment()
+                    }
+                 else if  (input$whichGO2Save == "Classification"){
+                    # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
+                    # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                    # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    createPNG_GroupGO()
+                    }
+                 else if (input$whichGO2Save == "Enrichment"){
+                     # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
+                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                     createPNG_Enrichment()
+                 }
                 
                 
                 
@@ -633,7 +654,7 @@ observeEvent(input$ValidGOAnalysis,{
             #    shinyjs::info(conditionMessage(w))
             #}
             , error = function(e) {
-                shinyjs::info(paste("Valid GO Ana",":",
+                shinyjs::info(paste("Valid GO Analysis",":",
                                     conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code 

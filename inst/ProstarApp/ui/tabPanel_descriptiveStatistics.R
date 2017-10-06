@@ -117,9 +117,7 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_densityplot",
                                                     uiOutput("DS_sidebarPanel_Densityplot")
                                           ),
-                                          conditionalPanel(id = "wellPanelBoxplot",
-                                                           condition = "true",
-                                                           highchartOutput("viewDensityplot_DS",
+                                          tagList(highchartOutput("viewDensityplot_DS",
                                                                       width = plotWidth,
                                                                       height = plotHeight)
                                           )

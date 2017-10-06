@@ -14,12 +14,14 @@ library(data.table)
 library(reshape2)
 library(DT)
 library(MSnbase)
-library(openxlsx)
+#library(openxlsx)
 library(sm)
 library(imp4p)
 library(highcharter)
 library(webshot)
 library(htmlwidgets)
+library(formattable)
+
 
 
 # Declaration of global variables
@@ -216,9 +218,9 @@ gGraphicsFilenames <- list(
     calibrationPlotAll = "calibrationPlotAll.png",
     GOEnrichDotplot = "GOEnrichDotplot.png",
     GOEnrichBarplot = "GOEnrichBarplot.png",
-    GOClassification_level3 = "GOClassification_level2.png",
-    GOClassification_level3 = "GOClassification_level3.png",
-    GOClassification_level3 = "GOClassification_level4.png"
+    GOClassification_img1 = "GOClassification_img1.png",
+    GOClassification_img2 = "GOClassification_img2.png",
+    GOClassification_img3 = "GOClassification_img3.png"
 )
 
 defaultGradientRate <- 0.9

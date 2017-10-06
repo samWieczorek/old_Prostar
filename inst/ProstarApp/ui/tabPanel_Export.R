@@ -19,13 +19,13 @@ tabPanel("Export",
          downloadButton('downloadMSnSet', 'Download'),
          br(),br(),hr(),
          h3("Generate report"),
-         
-          
          br(),br(),
          fluidRow(
              column(width= 4, radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
                                            inline = TRUE)),
-             column(width= 4, downloadButton('downloadReport', "Download report"))
+             column(width= 4, busyIndicator("Calculation in progress",wait = 0),
+                    actionButton('GenerateReport', "Generate report"),
+                    downloadButton('downloadReport', "Download report"))
          )
          
          )

@@ -1,0 +1,31 @@
+# GO classification analysis
+
+Parameters used for the GO analysis :
+
+* Ontology : `r params$listGOClassifAnalysis$ontology` 
+* Organism : `r params$listGOClassifAnalysis$organism`
+
+
+                                                       
+   
+   
+```{r conditional_block1, eval=params$listGOClassifAnalysis$group1, out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img1, sep="/"))
+library(knitr)
+kable(params$listGOClassifAnalysis$df1)
+```                                                    
+
+```{r conditional_block2, eval=params$listGOClassifAnalysis$group2, out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img2, sep="/"))
+library(knitr)
+kable(params$listGOClassifAnalysis$df2)
+```                                                    
+
+```{r conditional_block3, eval=params$listGOClassifAnalysis$group3, out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img3, sep="/"))
+library(knitr)
+kable(params$listGOClassifAnalysis$df3)
+```                                                    
+
+
+

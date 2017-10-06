@@ -1,3 +1,5 @@
+
+
 output$chooseDataset <- renderUI({
     
     if(require("DAPARdata")){
@@ -124,6 +126,7 @@ output$chooseExportFilename <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
+    input$showCommandLog
     
     # isolate({
     ClearMemory()
@@ -144,15 +147,18 @@ observeEvent(input$loadDemoDataset,{
     
     result = tryCatch(
         {
-            writeToCommandLogFile("library(DAPARdata)")
+            if (input$showCommandLog){
+                writeToCommandLogFile("library(DAPARdata)")
             writeToCommandLogFile(paste("utils::data(",
                                         input$demoDataset,")", 
                                         sep=""))
             writeToCommandLogFile(paste("current.obj <- ",
                                         input$demoDataset, 
                                         sep=""))
+            }
+            
             loadObjectInMemoryFromConverter()
-            initRmd()
+            #initRmd()
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -169,20 +175,11 @@ observeEvent(input$loadDemoDataset,{
 })
 
 
-initRmd <- function(){
-    
-    ## Init the Rmd file for the report
-    src <- normalizePath('Rmd_sources/report.Rmd')
-    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-    file.copy(src, filename, overwrite = TRUE)
-    
-    createPNG_DescriptiveStatistics()
-    
-}
+
 
 
 ##-- Open a MSnset File --------------------------------------------
-observeEvent(input$file,{ 
+observeEvent(input$file,ignoreInit =TRUE,{ 
     
     #isolate({
     exts <- c("MSnset","MSnSet")
@@ -235,11 +232,12 @@ observeEvent(input$file,{
             
         }
         
-        initRmd()
+        #initRmd()
         #createPNG_DescriptiveStatistics()
-        writeToCommandLogFile(
+        if (input$showCommandLog){
+            writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
-        )
+        )}
         
         loadObjectInMemoryFromConverter()
         
@@ -302,19 +300,22 @@ output$downloadMSnSet <- downloadHandler(
                 data.frame(fData(rv$current.obj)[,input$colsToExport])
             colnames( Biobase::fData(rv$current.obj)) <- input$colsToExport
             t <- buildWritableVector(input$colsToExport)
-            writeToCommandLogFile(
+            if (input$showCommandLog){
+                writeToCommandLogFile(
                 paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
                       sep="")
             )
+            }
         }
         else if (length(input$colsToExport) > 1){
             Biobase::fData(rv$current.obj) <- 
                 data.frame(fData(rv$current.obj)[,input$colsToExport])
-            t <- buildWritableVector(input$colsToExport)
-            writeToCommandLogFile(
-                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
-                      sep="")
+            if (input$showCommandLog){
+                t <- buildWritableVector(input$colsToExport)
+                writeToCommandLogFile(
+                        paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
             )
+            }
         }
         
         rv$current.obj@experimentData@other$Prostar_Version <- 
@@ -340,11 +341,13 @@ output$downloadMSnSet <- downloadHandler(
         if (input$fileformatExport == gFileFormatExport$excel) {
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
             writeMSnsetToExcel(rv$current.obj, input$nameExport)
-            writeToCommandLogFile(
+            if (input$showCommandLog){
+                writeToCommandLogFile(
                 paste("writeMSnsetToExcel(current.obj,\"", 
                       input$nameExport, "\")", 
                       sep="")
             )
+            }
             
             
             file.copy(fname, file)
@@ -354,9 +357,11 @@ output$downloadMSnSet <- downloadHandler(
         else if  (input$fileformatExport == gFileFormatExport$msnset) {
             fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
             saveRDS(rv$current.obj,file=fname)
-            writeToCommandLogFile(
+            if (input$showCommandLog){
+                writeToCommandLogFile(
                 paste("saveRDS(current.obj, \"", fname, "\")", sep="")
             )
+            }
             file.copy(fname, file)
             file.remove(fname)
         }
@@ -394,15 +399,16 @@ output$MSnsetView <- renderPrint({
 
 
 #######################################
-observeEvent(input$createMSnsetButton,{
+observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
     {return(NULL)}
     
     isolate({
         result = tryCatch(
             {
-                ext <- GetExtension(input$file1$name)
-                if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
+                if (input$showCommandLog){
+                    ext <- GetExtension(input$file1$name)
+                    if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
                     
                     writeToCommandLogFile(
                         paste("tab1 <- read.csv(\"",
@@ -411,12 +417,13 @@ observeEvent(input$createMSnsetButton,{
                               sep="")
                     )
                     
-                } else if ((ext == "xls") || (ext == "xlsx") ){
+                    } else if ((ext == "xls") || (ext == "xlsx") ){
                     writeToCommandLogFile(
                         paste("tab1 <- read.xlsx(",input$file1$name,
                               ",sheet=", input$XLSsheets,")",
                               sep="")
                     )
+                    }
                 }
                 
                 # input$hot
@@ -449,6 +456,10 @@ observeEvent(input$createMSnsetButton,{
                 )
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+                
+                
+                
+                if (input$showCommandLog){
                 
                  metadata <- as.data.frame(metadata)
                  t <- "metadata <- data.frame("
@@ -519,8 +530,10 @@ observeEvent(input$createMSnsetButton,{
                     paste("current.obj <- createMSnset(tab1, metadata, indexForEData, indexForFData, indexForIDBox,logData, replaceZeros, pep_prot_data)")
                 )
                 
+                
+            }
                 loadObjectInMemoryFromConverter()
-                initRmd()
+                #initRmd()
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
@@ -591,8 +604,10 @@ output$showDatasetDoc <- renderUI({
 
 output$overviewDemoDataset <- renderUI({
     rv$current.obj
+    input$showDemoDatasetPDF
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)}
+    if (is.null(input$showDemoDatasetPDF)) {return(NULL)}
     
     isolate({
         result = tryCatch(
@@ -643,306 +658,28 @@ output$overviewDemoDataset <- renderUI({
 
 
 
-###--------------------------------------------------------------------------
-createPNG_BeforeFiltering <- reactive({
-##last plot of descriptive statistics
-tempplot <- histo_missvalues_per_lines_per_conditions_DS()
-htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS_BeforeFiltering, sep="/"),
-                 zoom = zoomWebshot)
 
 
-##second plot of descriptive statistics
-tempplot <- histo_missvalues_per_lines_DS()
-htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS_BeforeFiltering, sep="/"),
-                 zoom = zoomWebshot)
 
-# first plot of descriptive statistics
-tempplot <- histoMV_Image_DS()
-htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                 file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS_BeforeFiltering, sep="/"),
-                 zoom = zoomWebshot)
+# observeEvent(rv$current.obj,{
+#     createPNG_DescriptiveStatistics()
+# })
+
+
+
+observeEvent(input$GenerateReport, {
+    
+    #createPNG_DescriptiveStatistics()
 
 })
-
-
-
-###--------------------------------------------------------------------------
-createPNG_Filtering <- reactive({
-    
-    tempplot <-GlobalPieChart()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
-                     zoom = zoomWebshot)
-})
-
-###--------------------------------------------------------------------------
-createPNG_Normalization <- reactive({
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
-    #viewComparisonNorm()
-    #dev.off()
-
-    plotPNG(function(){viewComparisonNorm()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-    
-})
-
-
-###--------------------------------------------------------------------------
-createPNG_BeforeNormalization <- reactive({
-    
-    tempplot <- viewDensityplotNorm()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotBeforeNorm, sep="/"),
-                     delay = 1,
-                     zoom = zoomWebshot)
-    
-    
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"))
-    # viewBoxPlotNorm()
-    # dev.off()
-    # 
-    plotPNG(function(){viewBoxPlotNorm()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplotBeforeNorm, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-    
-})
-
-###--------------------------------------------------------------------------
-createPNG_BeforeImputation <- reactive({
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_BeforeImputation, sep="/"))
-    #showImageNA()
-    #dev.off()
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"))
-    #viewNAbyMean()
-    #dev.off()
-})
-
-createPNG_AfterImputation <- reactive({
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_AfterImputation, sep="/"))
-    #showImageNA()
-    #dev.off()
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_AfterImputation, sep="/"))
-    #viewNAbyMean()
-    #dev.off()
-})
-
-###--------------------------------------------------------------------------
-createPNG_Aggregation <- reactive({
-    
-})
-
-###--------------------------------------------------------------------------
-createPNG_DifferentialAnalysis <- reactive({
-    tempplot <- volcanoplot_rCharts_Step3()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-                     )
-    
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
-    # calibrationPlot()
-    # Sys.sleep(5)
-    # dev.off()
-    # 
-    plotPNG(function(){calibrationPlot()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-    
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
-    # calibrationPlotAll()
-    # dev.off()
-    # 
-    plotPNG(function(){calibrationPlotAll()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-})
-
-
-
-###--------------------------------------------------------------------------
-createPNG_GOAnalysis<- reactive({
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
-    #viewComparisonNorm()
-    #dev.off()
-    print("ecriture des fichiers image")
-    
-   # plotPNG(function(){GOplotGroup()}, 
-    #        filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"), 
-    #        width = pngWidth, 
-    #        height=pngHeight,
-    #        res=resolution)
-    
-    
-    tempplot <- GOplotGroup_level2()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level2, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
-    
-    tempplot <- GOplotGroup_level3()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level3, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
-    
-    tempplot <- GOplotGroup_level4()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_level4, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
-    
-    
-    # plotPNG(function(){GObarplotEnrich()}, 
-    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"), 
-    #         width = pngWidth, 
-    #         height=pngHeight,
-    #         res=resolution)
-    # 
-    # 
-    # plotPNG(function(){GOdotplotEnrich()}, 
-    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"), 
-    #         width = pngWidth, 
-    #         height=pngHeight,
-    #         res=resolution)
-    
-    tempplot <- GObarplotEnrich()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
-    
-    tempplot <- GOdotplotEnrich()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
-    
-})
-
-
-
-###--------------------------------------------------------------------------
-createPNG_DescriptiveStatistics <- reactive({
-    print(tempdir())
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/")
-    # )
-    # boxPlot()
-    # dev.off()
-    # 
-    plotPNG(function(){boxPlot()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-    
-    
-    # png(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
-    # violinPlot2()
-    # dev.off()
-     plotPNG(function(){violinPlot2()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-
-
-    tempplot <- Densityplot_DS()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
-                     delay = 1,
-                     zoom = zoomWebshot)
-
-
-
-     tempplot <-viewDistCV()
-     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                      file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
-                      delay = 1,
-                      zoom = zoomWebshot)
-
-
-    tempplot <-corrMatrix()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
-                     zoom = zoomWebshot)
-
-
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
-    #heatmap()
-    #dev.off()
-    
-    plotPNG(function(){heatmap()}, 
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
-
-
-    ##last plot of descriptive statistics
-    tempplot <-histo_missvalues_per_lines_per_conditions_DS()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
-                     zoom = zoomWebshot)
-
-
-    ##second plot of descriptive statistics
-    tempplot <-histo_missvalues_per_lines_DS()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
-                     zoom = zoomWebshot)
-
-    # first plot of descriptive statistics
-    tempplot <-histoMV_Image_DS()
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
-                     zoom = zoomWebshot)
-
-
-    
-})
-
 
 ######-----------------------------------------------------------------
 output$downloadReport <- downloadHandler(
     #createPNG(),
+    #rv$groupGO_data
+    
+    #initRmd(),
+    completeRmd(),
     
     filename = function() {
         paste('__ProStaR report', sep = '.', switch(
@@ -956,7 +693,6 @@ output$downloadReport <- downloadHandler(
         
         #file.copy(src, filename, overwrite = TRUE)
         library(rmarkdown)
-        
         #paramRmd <- list(current.obj=rv$current.obj)
         out <- render(filename, 
                       output_file = file,
@@ -994,12 +730,34 @@ output$downloadReport <- downloadHandler(
                                                        method = input$diffAnaMethod,
                                                        fdr = round(100*rv$fdr, digits=2),
                                                        nbSelected = rv$nbSelected_Step3),
-                                    listGOAnalysis = list(ontology = input$Ontology, 
+                                    listGOClassifAnalysis = list(ontology = input$Ontology, 
                                                        organism = input$Organism,
-                                                       universe = input$universe)
-                                    
-                                    
-                                    
+                                                       universe = input$universe,
+                                                       group1 = (length(rv$groupGO_data)==1),
+                                                       group2 = (length(rv$groupGO_data)==2),
+                                                       group3 = (length(rv$groupGO_data)==3),
+                                                       df1 = if (length(rv$groupGO_data)==1){
+                                                                    dat <- rv$groupGO_data[[1]]$ggo_res@result
+                                                                    dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                    dat[1:5,c("Description", "Count", "GeneRatio")]},
+                                                       df2 = if (length(rv$groupGO_data)==2){
+                                                                dat <- rv$groupGO_data[[2]]$ggo_res@result
+                                                                dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                dat[1:5,c("Description", "Count", "GeneRatio")]},
+                                                       df3 = if (length(rv$groupGO_data)==3){
+                                                                dat <- rv$groupGO_data[[3]]$ggo_res@result
+                                                                dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                dat[1:5,c("Description", "Count", "GeneRatio")]}
+                                                       ),
+                                    listGOEnrichmentAnalysis = list(ontology = input$Ontology, 
+                                                        organism = input$Organism,
+                                                        universe = input$universe,
+                                                        pval = input$pvalueCutoff,
+                                                        df = if (!is.null(rv$enrichGO_data)){
+                                                            dat <- rv$enrichGO_data@result
+                                                            dat <- dat[order(dat$pvalue, decreasing=FALSE),]
+                                                            dat[seq(1:10),c("Description", "GeneRatio", "p.adjust", "Count")]}
+                                                        )
                                     ),
                         switch(
                           input$format,
@@ -1171,7 +929,7 @@ LogTabPanel <- reactive({
 
 
 
-observeEvent(input$fData.box,{
+observeEvent(input$fData.box,ignoreInit =  TRUE,{
     
     choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
     names(choices) = 

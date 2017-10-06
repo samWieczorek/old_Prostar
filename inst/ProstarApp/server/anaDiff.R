@@ -483,36 +483,37 @@ observeEvent(input$ValidDiffAna,{
                 
                 
                 ####write command Log file
-                writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
-                writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
-                writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
-                if (input$diffAnaMethod == "Limma"){
-                    writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)")
-                } else if (input$diffAnaMethod == "Welch"){
+                if (input$showCommandLog){
+                    writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
+                    writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
+                    writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                    if (input$diffAnaMethod == "Limma"){
+                        writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)")
+                    } else if (input$diffAnaMethod == "Welch"){
                     writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
-                }
+                    }
                 
                 
-                writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
-                writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
+                    writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
+                    writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
                 
-                writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
-                if (input$calibrationMethod == "Benjamini-Hochberg") { 
-                    writeToCommandLogFile("m <- 1") }
-                else if (input$calibrationMethod == "numeric value") 
-                { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
-                else {writeToCommandLogFile("m <- calibMethod")}
+                    writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
+                    if (input$calibrationMethod == "Benjamini-Hochberg") { 
+                        writeToCommandLogFile("m <- 1") }
+                    else if (input$calibrationMethod == "numeric value") 
+                        { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
+                    else {writeToCommandLogFile("m <- calibMethod")}
                 
-                writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
+                    writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
                 
                 
-                writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
+                    writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
                                             input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
-                writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
+                    writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
                                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
-                writeToCommandLogFile("dataset[[name]] <- temp")
-                writeToCommandLogFile("current.obj <- temp")
-                
+                    writeToCommandLogFile("dataset[[name]] <- temp")
+                    writeToCommandLogFile("current.obj <- temp")
+                }
                 
                 
                 cMethod <- NULL
@@ -541,10 +542,10 @@ observeEvent(input$ValidDiffAna,{
                 
                 
                 ## Add the necessary text to the Rmd file
-                txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
-                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                createPNG_DifferentialAnalysis()
+                # txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
+                # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                 createPNG_DifferentialAnalysis()
                 }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))
@@ -935,7 +936,7 @@ dat <- DT::datatable(getDataInfosVolcano(),
                         id / nrow(getDataInfosVolcano()),
                         ").node()).css({'background-color': 'lightblue'});")
                         ),collapse = "\n"),"}" ))
-                        ,server = FALSE))
+                        ,server = TRUE))
     }
     dat
     
@@ -1217,7 +1218,7 @@ as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointC
                         id / nrow(getDataInfosVolcano_Step3()),
                         ").node()).css({'background-color': 'lightblue'});")
                         ),collapse = "\n"),"}" ))
-                            ,server = FALSE))
+                            ,server = TRUE))
     }
     dat
     

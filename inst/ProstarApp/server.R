@@ -51,6 +51,7 @@ shinyServer(function(input, output, session) {
     hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
+    source(file.path("server", "saveGraphics.R"), local = TRUE)$value
     source(file.path("server", "general.R"), local = TRUE)$value
     source(file.path("server", "filtering.R"),  local = TRUE)$value
     source(file.path("server", "imputation.R"),  local = TRUE)$value

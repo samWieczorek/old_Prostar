@@ -4,6 +4,7 @@ tabPanel("Demo mode",
          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                      wellPanel(id = "chooseDatasetFromDAPARdata_wellPanel"
                                ,uiOutput("chooseDataset")
+                               ,checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE)
                                ,actionButton("loadDemoDataset", "Load demo dataset")
                      ),
                      conditionalPanel(id = "wellPanelOpenFile",

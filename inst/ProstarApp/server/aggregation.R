@@ -32,7 +32,8 @@ RunAggregation <- reactive({
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithSharedPeptides, 
                                     n)
-                txt <- paste(
+                if (input$showCommandLog){
+                    txt <- paste(
                     "data <- pepAgregate(current.obj, '",
                     input$proteinId, "', '",
                     input$aggregationMethod, 
@@ -40,7 +41,7 @@ RunAggregation <- reactive({
                     sep=""
                 )
                 writeToCommandLogFile(txt)
-                
+                }
                 
             }else{
                 data <- pepAgregate(rv$current.obj, 
@@ -48,7 +49,8 @@ RunAggregation <- reactive({
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithUniquePeptides
                                     , n)
-                writeToCommandLogFile(
+                if (input$showCommandLog){
+                    writeToCommandLogFile(
                     paste(
                         "data <- pepAgregate(current.obj, '",
                         input$proteinId, "', '",
@@ -57,6 +59,7 @@ RunAggregation <- reactive({
                         sep=""
                     )
                 )
+                }
             }
             
             return(data)
@@ -97,9 +100,10 @@ observeEvent(input$valid.aggregation,{
                 m <- NULL
                 if (input$checkSharedPeptides){ 
                     m <- rv$matAdj$matWithSharedPeptides
-                    writeToCommandLogFile("m <- mat$matWithSharedPeptides")
+                    if (input$showCommandLog){
+                        writeToCommandLogFile("m <- mat$matWithSharedPeptides")}
                 }else{ m <-rv$matAdj$matWithUniquePeptides
-                writeToCommandLogFile("m <- mat$matWithUniquePeptides")
+                if (input$showCommandLog){writeToCommandLogFile("m <- mat$matWithUniquePeptides")}
                 }
                 #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
                 
@@ -134,7 +138,8 @@ observeEvent(input$valid.aggregation,{
                 
                 
                 ######
-                l <- buildWritableVector(input$columnsForProteinDataset.box)
+                if (input$showCommandLog){
+                    l <- buildWritableVector(input$columnsForProteinDataset.box)
                 writeToCommandLogFile(
                     paste("columnsForProteinDataset <- ",l, sep="") )
                 
@@ -151,7 +156,7 @@ observeEvent(input$valid.aggregation,{
                     paste("dataset[['",name, "']] <- current.obj", sep="")
                 )
                 #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
-                
+                }
                 
                 updateSelectInput(session, "datasets", 
                                   paste("Dataset versions of",
@@ -243,7 +248,8 @@ observeEvent(input$proteinId,{
             rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
                               matWithUniquePeptides=matUniquePeptides)
             
-            writeToCommandLogFile(
+            if (input$showCommandLog){
+                writeToCommandLogFile(
             paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
                       input$proteinId,"\",FALSE)", sep="")
             )
@@ -256,7 +262,7 @@ observeEvent(input$proteinId,{
             "mat <- list(matWithSharedPeptides=matSharedPeptides,
             matWithUniquePeptides=matUniquePeptides)"
     )
-            
+            }
             
         }
     #, warning = function(w) {
@@ -414,7 +420,7 @@ observeEvent(input$perform.aggregation,{
                 if (input$aggregationMethod != "none")
                 {
                     rv$temp.aggregate <- RunAggregation()
-                    writeToCommandLogFile("temp.aggregate <- data")
+                    if (input$showCommandLog){writeToCommandLogFile("temp.aggregate <- data")}
                 }
                 
             }

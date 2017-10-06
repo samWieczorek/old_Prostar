@@ -217,13 +217,15 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
                         ## Write command log file
-                        writeToCommandLogFile(
+                        if (input$showCommandLog){
+                            writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
                                   input$datasets, 
                                   "']],'",input$normalization.method, "','", input$normalization.type,"')",
                                   sep="")
                         )
+                        }
                     }
                     else if (input$normalization.method =="Quantile Centering"){
                         
@@ -247,7 +249,8 @@ observeEvent(input$perform.normalization,{
                             updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)}
                         
                         ## Write command log file
-                        writeToCommandLogFile(
+                        if (input$showCommandLog){
+                            writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
                                   input$datasets, 
@@ -255,6 +258,7 @@ observeEvent(input$perform.normalization,{
                                   "', quant =", quant,")",
                                   sep="")
                         )
+                        }
                         
                     }   
                     else if (input$normalization.method =="Mean Centering"){
@@ -268,7 +272,8 @@ observeEvent(input$perform.normalization,{
                         if( !is.null(input$normalization.variance.reduction)){scale <- input$normalization.variance.reduction}
                         
                         ## Write command log file
-                        writeToCommandLogFile(
+                        if (input$showCommandLog){
+                            writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
                                   input$datasets, 
@@ -276,6 +281,7 @@ observeEvent(input$perform.normalization,{
                                   "', scaling =", input$normalization.variance.reduction,")",
                                   sep="")
                         )
+                        }
                     } 
                     
                     createPNG_Normalization()
@@ -314,9 +320,11 @@ observeEvent(input$valid.normalization,{
                     
                     
                     #write command log file
-                    writeToCommandLogFile(
+                    if (input$showCommandLog){
+                        writeToCommandLogFile(
                         paste("dataset[['",name,"']] <- current.obj", sep="")
                     )
+                    }
                     
                     updateSelectInput(session, "datasets", 
                                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
@@ -327,9 +335,9 @@ observeEvent(input$valid.normalization,{
                     
                     
                     ## Add the necessary text to the Rmd file
-                    txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
-                    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                    write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                    #txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
+                    #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                    #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                     createPNG_Normalization()
                     
                 }
@@ -337,7 +345,7 @@ observeEvent(input$valid.normalization,{
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))
             }, error = function(e) {
-                shinyjs::info(info("Validate the normalization :",conditionMessage(e), sep=" "))
+                shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code 
             })
@@ -490,12 +498,7 @@ output$viewDensityplotNorm<- renderHighchart({
 
 #######################
 
-# viewComparisonNorm <- reactive({
-# 
-# })
-
-#######################
-output$viewComparisonNorm<- renderPlot({
+viewComparisonNorm <- reactive({
     
     
     rv$dataset[[input$datasets]]
@@ -503,18 +506,19 @@ output$viewComparisonNorm<- renderPlot({
     input$legendXAxis
     input$whichGroup2Color
     input$lab2Show
-    input$normalization.method
+    #input$normalization.method
     input$perform.normalization
     
     
     
     if (is.null(rv$current.obj) 
         || is.null(rv$dataset[[input$datasets]]) 
-        || is.null(input$normalization.method)
         || 
-        (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {return(NULL)}
+        (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
+        print("Oups")
+        return(NULL)}
     
-    
+    print("in Comp")
     leg <- NULL
     grp <- NULL
     
@@ -542,23 +546,34 @@ output$viewComparisonNorm<- renderPlot({
                             sep= "_")
     }
     
-    result = tryCatch(
-        {
-            compareNormalizationD(Biobase::exprs(rv$dataset[[input$datasets]]),
+    #result = tryCatch(
+    #    {
+            print(Biobase::exprs(rv$dataset[[input$datasets]]))
+            print(Biobase::exprs(rv$current.obj))
+                print(labelsNorm)
+             print(as.numeric(labelsToShowNorm)) 
+             print(gToColorNorm)
+                compareNormalizationD(Biobase::exprs(rv$dataset[[input$datasets]]),
                                   Biobase::exprs(rv$current.obj),
                                   labelsNorm,
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
-        }
-        #, warning = function(w) {
-        #   shinyjs::info(conditionMessage(w))
-        #}
-        , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
+        # }
+        # #, warning = function(w) {
+        # #   shinyjs::info(conditionMessage(w))
+        # #}
+        # , error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
     
+    
+})
+
+#######################
+output$viewComparisonNorm_DS<- renderPlot({
+    viewComparisonNorm()
 })
 
 

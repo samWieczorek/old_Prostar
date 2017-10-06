@@ -115,7 +115,7 @@ output$viewExprs <- renderDataTable(
                         ").node()).css({'background-color': 'lightblue'});")
                   ),collapse = "\n"),"}" )
         ), 
-        serverSide = FALSE)
+        server = TRUE)
     
     
     # id <- which(is.na(df))
@@ -498,6 +498,8 @@ Densityplot_DS <- reactive({
     input$lab2Show_DS
     input$whichGroup2Color_DS
     if (is.null(rv$current.obj)) {return(NULL)}
+    if (is.null(input$lab2Show_DS)) {return(NULL)}
+    if (is.null(input$whichGroup2Color_DS)) {return(NULL)}
     
     labels_DS <- NULL
     labelsToShow_DS <- NULL
@@ -522,23 +524,23 @@ Densityplot_DS <- reactive({
                            sep= "_")
     }
     
-    result = tryCatch(
-        {
+    #result = tryCatch(
+    #    {
             wrapper.densityPlotD_HC(rv$current.obj, 
                                     labels_DS, 
                                     as.numeric(labelsToShow_DS), 
                                     gToColor_DS)
-
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
+            
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
     
     
     
@@ -730,7 +732,7 @@ output$table <- renderDataTable(
         #           paste( "$(this.api().cell(",indewq() %% nrow(data())-1,",",trunc(indewq() / nrow(getData()))+1,").node()).css({'background-color': 'lightblue'});")
         #       ),collapse = "\n"),"}" ))
         
-    ),server = FALSE)
+    ),server = TRUE)
 
 
 
