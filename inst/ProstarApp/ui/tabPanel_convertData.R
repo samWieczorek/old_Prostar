@@ -1,5 +1,5 @@
 tabPanel("Convert data",
-         icon = icon("download"),
+         #icon = icon("download"),
          value = "import",
          helpText("These steps allow to create a MSnSet file 
                   from a tabulated-text file."),
