@@ -119,17 +119,19 @@ output$aboutText <- renderUI({
     text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
                   S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
                 L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
-                C. Bruley, T. Burger. <i>\"DAPAR & ProStaR: software to 
-                perform statistical analyses in quantitative discovery 
-                proteomics\"</i>, <i>Bioinformatics</i>, 2016
+                C. Bruley and T. Burger. <br>
+                <u>\"DAPAR & ProStaR: software to perform statistical 
+                analyses in quantitative discovery 
+                proteomics\"</u><br>
+                <i>Bioinformatics 33(1), 135–136</i>, <strong>2017</strong><br>
+                <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
+                  title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
                   
                   <br><br><br>
                   <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
                   software suite for quantitative analysis of mass spectrometry 
                   based proteomics, more specifically designed to process 
-                  relative quantitative data from discovery experiments.<br> <br>
-                  
-                  
+                  relative quantitative data from discovery experiments.<br>
                   It is composed of two distinct R packages : <br>", 
                   "<ul style=\"list-style-type:disc;\">
                   <li>
@@ -143,14 +145,14 @@ output$aboutText <- renderUI({
                   collection of tools and graphs dedicated to proteomic analysis
                   </li>
                   </ul> 
-                  
-                  In addition, it is bind to numerous other R packages available on 
+                  DAPAR includes wrappers to numerous other R packages, either available on 
                   <a href=\"the https://cran.r-project.org/\" title=\"here\" target=\"_blank\">
                   CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
-                  title=\"here\" target=\"_blank\">Bioconductor</a>, among which 
-                  <a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
-                  title=\"here\" target=\"_blank\">MSnbase</a>, which has introduced Msnsets, 
-                  the data structure on which all the processing are based.
+                  title=\"here\" target=\"_blank\">Bioconductor</a>.
+                  #, among which 
+                  #<a href=\"http://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\"
+                  #title=\"here\" target=\"_blank\">MSnbase</a>, which has introduced Msnsets, 
+                  #the data structure on which all the processing are based.
                   <br>
                   Here is a brief overview of the available functionalities:
                   <ul style=\"list-style-type:disc;\">
@@ -180,7 +182,7 @@ output$aboutText <- renderUI({
                   </li>
 
                 <li>
-                  <strong>Gene Ontology (GO) analysis</strong>, XXXXXXXXXXXXXX.
+                  <strong>Gene Ontology (GO) analysis</strong> allows is to map protein list on GO terms and to test category enrichment.
                   </li>
                   </ul>
                   
