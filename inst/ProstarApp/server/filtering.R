@@ -14,7 +14,7 @@ output$DP_sidebar_FilterTab1 <- renderUI({
                          condition='input.ChooseFilters != "None"',
                          uiOutput("seuilNADelete"))
                      ,actionButton("perform.filtering.MV", 
-                                   "Perform filtering MV")
+                                   "Perform MV filtering")
     )
 })
 
