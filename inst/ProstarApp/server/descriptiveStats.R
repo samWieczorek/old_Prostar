@@ -777,7 +777,7 @@ output$overviewNewData <- renderUI({
         pourcentage <- 100 * round(sum(NA.count)/
                                 (dim(Biobase::exprs(rv$current.obj))[1]*
                             dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
-        txt3 <- paste("Percentage of missing values:",pourcentage , "%")
+        txt3 <- paste("Percentage of missing values:",pourcentage , "%.")
         
         nb.empty.lines <- sum(apply(
             is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
@@ -792,7 +792,7 @@ output$overviewNewData <- renderUI({
             
             txt4 <- paste("There ", verb, " ",
                           nb.empty.lines ," line",
-                          plurial," with only NA values !!"
+                          plurial," with only NA values."
                           ,sep="")
         }
         

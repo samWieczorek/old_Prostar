@@ -15,12 +15,11 @@ tabPanel("Filter data",
                                    ),
                                    conditionalPanel(id = "wellPanelMVFilterTab1",
                                                     condition = "true",
-                                                    HTML("The filter below allows keeping the lines that 
-                                                         contain a certain amount of quantitative data rather than NA values. <br>
-                                                         The threshold to define corresponds to the number of quantitative values in a 
-                                                         line and means that the lines which contain <br> at least this threshold value 
-                                                         are kept. This filtering threshold may be applied on the whole  dataset, on 
-                                                         each condition <br> or on at least one condition."),
+                                                    HTML("The user-defined threshold allows it to tune the minimum amount of non-NA
+                                                         values for each line to <br> be kept in the dataset 
+                                                         (the line is filtered out otherwise). 
+                                                         The threshold either applies on the whole  <br> dataset, on 
+                                                         each condition or on at least one condition."),
                                                     fluidRow(
                                                         column(width = 4, highchartOutput("histoMV_Image")),
                                                         column(width = 4,highchartOutput("histo_missvalues_per_lines_Image")),

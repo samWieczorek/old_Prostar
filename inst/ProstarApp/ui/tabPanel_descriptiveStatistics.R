@@ -1,6 +1,5 @@
 tabPanel("Descriptive statistics",
          #id="tabView",
-         icon = icon("bar-chart-o"),
          tabsetPanel(id="DS_tabSetPanel",
                      #------------------------------------------------------------
                      tabPanel("Overview",
@@ -13,8 +12,7 @@ tabPanel("Descriptive statistics",
                          "Miss. values",
                          value = "DS_tabOverviewMV",
                          
-                         helpText("Those bargraph plots display some information to
-                                  view the distribution of missing values."),
+                         helpText("These barplots display the distribution of missing values in the dataset."),
                          fluidRow(
                              column(width = 4,
                                     highchartOutput("histoMV_Image_DS")
@@ -49,7 +47,7 @@ tabPanel("Descriptive statistics",
                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                           wellPanel(id = "sidebar_Corrmatrix",
                                                     sliderInput("expGradientRate",
-                                                                "Tune to modify the gradient of color",
+                                                                "Tune to modify the color gradient",
                                                                 min = 0,max = 1,value = defaultGradientRate,step=0.01)
                                           ),
                                           highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
@@ -127,8 +125,8 @@ tabPanel("Descriptive statistics",
                      #-----------------------------------------------------------
                      tabPanel("CV distr.", 
                               value="DS_tabDistVar",
-                              p("This graphics shows, for each condition, the distribution 
-                                of the CV of the log-intensities."),
+                              p("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
+                                of the protein/peptides. For better visualization, it is advised to zoom in the [0,20] interval."),
                               highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)
