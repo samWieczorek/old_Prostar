@@ -832,7 +832,7 @@ output$nGroup_DS <- renderUI({
     if (is.null(rv$current.obj) ) {return(NULL) }
     
     radioButtons("whichGroup2Color_DS",
-                 "Plot to show",
+                 "Color lines",
                  choices=list("By condition" = "Condition",
                               "By replicate" = "Replicate"))
     
@@ -859,7 +859,7 @@ output$nShow_DS <- renderUI({
         
         
         checkboxGroupInput("lab2Show_DS"
-                           , label = "Select data to show"
+                           , label = "Hide/show replicates"
                            , choices = label.names
                            , selected = unlist(label.names))
     })

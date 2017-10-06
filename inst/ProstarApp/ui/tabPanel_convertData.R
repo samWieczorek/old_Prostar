@@ -1,4 +1,5 @@
 tabPanel("Convert data",
+
          value = "import",
          helpText("These steps allow to create a MSnSet file 
                   from a tabulated-text file."),

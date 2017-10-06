@@ -1,5 +1,5 @@
 tabPanel("Filter data",
-         tabsetPanel(
+tabsetPanel(
              id = "DP_Filtering_tabSetPanel",
              
              tabPanel( "1 - Missing values",

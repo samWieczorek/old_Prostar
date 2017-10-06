@@ -13,7 +13,7 @@ tabPanel("Log session",
                           DT::dataTableOutput("logSession")
                       )
              ),
-            tabPanel("R source code", 
+            tabPanel("R source code (Beta)", 
                       uiOutput("code")
              )
          )
