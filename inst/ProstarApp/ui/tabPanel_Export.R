@@ -18,7 +18,7 @@ tabPanel("Export",
          br(),
          downloadButton('downloadMSnSet', 'Download'),
          br(),br(),hr(),
-         h3("Generate report"),
+         h3("Generate report (Beta)"),
          br(),br(),
          fluidRow(
              column(width= 4, radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
