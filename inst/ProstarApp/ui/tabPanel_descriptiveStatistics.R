@@ -1,6 +1,5 @@
 tabPanel("Descriptive statistics",
          #id="tabView",
-         icon = icon("bar-chart-o"),
          tabsetPanel(id="DS_tabSetPanel",
                      #------------------------------------------------------------
                      tabPanel("Overview",
