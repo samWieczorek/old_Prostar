@@ -126,7 +126,7 @@ tabPanel("Descriptive statistics",
                      tabPanel("CV distr.", 
                               value="DS_tabDistVar",
                               p("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
-                                of the protein/peptides. For better visualization, it is advised to zoom in the [0,20] interval."),
+                                of the protein/peptides.<br> For better visualization, it is advised to zoom in the [0,20] interval."),
                               highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)
