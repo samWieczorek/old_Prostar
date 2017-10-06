@@ -50,29 +50,34 @@ packages/cp4p/cp4p.pdf\"
          <strong><font size=\"4\">Our referenced works:</font></strong>
          <ol>
          <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
-        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley, T. Burger. 
+        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. 
         DAPAR & ProStaR: software to perform statistical analyses in 
-        quantitative discovery proteomics, <i>Bioinformatics</i>, 2016
+        quantitative discovery proteomics, <i>Bioinformatics</i>, 33(1):135-136, 2017
          </li>
          <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
          for the multiple natures of missing values in label-free quantitative 
          proteomics datasets to compare imputation strategies. <i>Journal of 
-         Proteome Research</i>, 15(4):1116-25, 2016. 
+         Proteome Research</i>, 15(4):1116-1125, 2016. 
          </li>
-         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Coute, 
+         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Coute and 
          T. Burger. Calibration Plot for Proteomics (cp4p): A graphical tool 
          to visually check the assumptions underlying FDR control in 
          quantitative experiments. <i>Proteomics</i>, 16(1):29-32, 2016. 
          </li>
          
-         <li> Q. Giai Gianetto, Y. Coute, C. Bruley, T. Burger. Uses and 
+         <li> Q. Giai Gianetto, Y. Coute, C. Bruley and T. Burger. Uses and 
          misuses of the fudge factor in quantitative discovery proteomics. 
          <i>Proteomics</i>, 16(14):1955-60, 2016. 
          </li>
 
+         <li> T. Burger. A gentle introduction to the statistical 
+         foundations of false discovery rate in quantitative proteomics. 
+         (under review). 
+         </li>
+
          <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
          T. Burger. Multiple imputation strategy for mass spectrometry-based 
-         proteomic data (under preparation)
+         proteomic data. (in preparation).
          </li>
          
          </ol>
