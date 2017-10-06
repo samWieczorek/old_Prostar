@@ -422,11 +422,11 @@ anaDiffMethod_Choices <- c("Limma", "Welch")
 
 G_noneStr <- "None"
 G_emptyStr <- ""
-G_heatmapDistance_Choices <- list(euclidean ="Euclidean",
-                                  manhattan="Manhattan")
+G_heatmapDistance_Choices <- list(Euclidean ="euclidean",
+                                  Manhattan="manhattan")
 
-G_heatmapLinkage_Choices <- list(average="average",
-                                 ward.D="Ward.D")
+G_heatmapLinkage_Choices <- list(Average="average",
+                                 Ward.D="ward.D")
 
 
 G_logFC_Column <- "logFC"
