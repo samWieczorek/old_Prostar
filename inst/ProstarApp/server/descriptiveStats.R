@@ -832,7 +832,7 @@ output$nGroup_DS <- renderUI({
     if (is.null(rv$current.obj) ) {return(NULL) }
     
     radioButtons("whichGroup2Color_DS",
-                 "Plot to show",
+                 "Color lines",
                  choices=list("By condition" = "Condition",
                               "By replicate" = "Replicate"))
     
