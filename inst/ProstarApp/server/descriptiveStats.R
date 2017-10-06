@@ -859,7 +859,7 @@ output$nShow_DS <- renderUI({
         
         
         checkboxGroupInput("lab2Show_DS"
-                           , label = "Select data to show"
+                           , label = "Hide/show replicates"
                            , choices = label.names
                            , selected = unlist(label.names))
     })
