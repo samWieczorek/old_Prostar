@@ -195,7 +195,6 @@ output$aboutText <- renderUI({
                   </ul>
                   
                   <br>
-                  <br>
                   For more details, please refer to the \"Help\" tab.", sep="")
     
     HTML(text)
