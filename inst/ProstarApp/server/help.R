@@ -182,7 +182,7 @@ output$aboutText <- renderUI({
                   </li>
 
                 <li>
-                  <strong>Gene Ontology (GO) analysis</strong> allows is to map protein list on GO terms and to test category enrichment.
+                  <strong>Gene Ontology (GO) analysis</strong> allows is to map protein list onto GO terms and to test category enrichment.
                   </li>
                   </ul>
                   
