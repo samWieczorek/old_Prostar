@@ -595,10 +595,12 @@ heatmap <- reactive({
         
         result = tryCatch(
             {
-                
+                rv$PlotParams$HeatmapLinkage <- input$linkage
+      rv$PlotParams$HeatmapDistance <- input$distance
+      
                 wrapper.heatmapD(rv$current.obj,
-                                 input$distance, 
-                                 input$linkage,
+                                 rv$PlotParams$HeatmapDistance, 
+                                 rv$PlotParams$HeatmapLinkage,
                                  TRUE)
 
             }
