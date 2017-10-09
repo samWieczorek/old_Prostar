@@ -483,7 +483,7 @@ observeEvent(input$ValidDiffAna,{
                 
                 
                 ####write command Log file
-                if (input$showCommandLog){
+                #if (input$showCommandLog){
                     writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
                     writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
                     writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
@@ -513,7 +513,7 @@ observeEvent(input$ValidDiffAna,{
                                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
                     writeToCommandLogFile("dataset[[name]] <- temp")
                     writeToCommandLogFile("current.obj <- temp")
-                }
+               # }
                 
                 
                 cMethod <- NULL
@@ -545,7 +545,7 @@ observeEvent(input$ValidDiffAna,{
                 # txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
                 # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                 # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                 createPNG_DifferentialAnalysis()
+                 #createPNG_DifferentialAnalysis()
                 }
             #, warning = function(w) {
             #    shinyjs::info(conditionMessage(w))

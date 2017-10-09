@@ -2,8 +2,8 @@ output$detQuantileParams <- renderUI({
   rv$current.obj
     input$missing.value.basic.algorithm
   if (is.null(rv$current.obj) ) {return (NULL)}
-  if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
-  
+    if ((input$missing.value.algorithm != "Basic methods") || is.null(input$missing.value.algorithm)) {return(NULL)}
+    
   if (input$missing.value.basic.algorithm == "detQuantile"){
     tagList(
       h4("Det quantile parameters"),
@@ -146,7 +146,7 @@ observeEvent(input$perform.imputation.button,{
                 if (input$missing.value.algorithm == "None"){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
-                    createPNG_BeforeImputation()
+                    #createPNG_BeforeImputation()
                     
                     if (input$missing.value.algorithm == "imp4p")
                 {
@@ -159,12 +159,12 @@ observeEvent(input$perform.imputation.button,{
                                                                   q.min = input$imp4p_qmin / 100,
                                                                   distribution = as.character(input$imp4pLAPALA_distrib))
                         #write log command file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.dapar.impute.mi(",
                                   "dataset[['",input$datasets,"']], nb.iter=",input$imp4p_nbiter,
                                   ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ", distribution = ", input$imp4pLAPALA_distrib, ")",sep=""))
-                        }
+                        #}
                         
                         updateSelectInput(session, 
                                           "imp4p_withLapala", 
@@ -183,12 +183,12 @@ observeEvent(input$perform.imputation.button,{
                                                                   nb.iter = input$imp4p_nbiter,
                                                                   lapala = input$imp4p_withLapala)
                         #write log command file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.dapar.impute.mi(",
                                   "dataset[['",input$datasets,"']] nb.iter=",input$imp4p_nbiter,
                                   ", lapala = ", input$imp4p_withLapala, ")",sep=""))
-                        }
+                       # }
                     }
                     
                     updateSelectInput(session, 
@@ -207,12 +207,12 @@ observeEvent(input$perform.imputation.button,{
                                                                input$missing.value.basic.algorithm)
                         
                         #write log command file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.mvImputation(",
                                   "dataset[['",input$datasets, "']],'",input$missing.value.basic.algorithm,"')", sep="")
                         )
-                        }
+                        #}
                         
                         updateSelectInput(session, "missing.value.algorithm", 
                                           selected = input$missing.value.algorithm)
@@ -227,12 +227,12 @@ observeEvent(input$perform.imputation.button,{
                                                              qval = (input$detQuant_quantile/100),
                                                              factor = input$detQuant_factor)
                         #write log command file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.impute.detQuant(",
                                   "dataset[['", input$datasets,"']])",sep="")
                         )
-                        }
+                        #}
 
                         updateSelectInput(session,
                                           "missing.value.algorithm",
@@ -247,7 +247,7 @@ observeEvent(input$perform.imputation.button,{
                     }
                 }
                 }
-                createPNG_AfterImputation()
+                #createPNG_AfterImputation()
             }
             , warning = function(w) {
                 print(w)

@@ -351,7 +351,7 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
 })
 
 
-
+##########################################
 GOplotGroup_level2 <- reactive({
     rv$groupGO_data
     if (is.null(rv$groupGO_data)){return(NULL)}
@@ -363,12 +363,13 @@ GOplotGroup_level2 <- reactive({
     })
 })
 
-
+##########################################
 output$GOplotGroup_level2 <- renderHighchart({
     GOplotGroup_level2()
 })
 
 
+##########################################
 GOplotGroup_level3 <- reactive({
     rv$groupGO_data
     
@@ -626,25 +627,25 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                      # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
                      # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                      # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                     createPNG_GroupGO()
+                     #createPNG_GroupGO()
                      
                      
                      # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
                      # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                      # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    createPNG_Enrichment()
+                    #createPNG_Enrichment()
                     }
                  else if  (input$whichGO2Save == "Classification"){
                     # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    createPNG_GroupGO()
+                    #createPNG_GroupGO()
                     }
                  else if (input$whichGO2Save == "Enrichment"){
                      # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
                      # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                      # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                     createPNG_Enrichment()
+                     #createPNG_Enrichment()
                  }
                 
                 

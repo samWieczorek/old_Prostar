@@ -15,7 +15,7 @@ Parameters used for the differential analysis :
                                                        
                                                        
 ```{r,out.width = "50%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"))
 ```

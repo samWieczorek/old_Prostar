@@ -203,7 +203,7 @@ observeEvent(input$perform.normalization,{
                 
                 #.temp <- unlist(strsplit(input$normalization.method, " - "))
                 
-                createPNG_BeforeNormalization()
+                #createPNG_BeforeNormalization()
                 
                 if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -217,7 +217,7 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
                         ## Write command log file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
@@ -225,7 +225,7 @@ observeEvent(input$perform.normalization,{
                                   "']],'",input$normalization.method, "','", input$normalization.type,"')",
                                   sep="")
                         )
-                        }
+                       # }
                     }
                     else if (input$normalization.method =="Quantile Centering"){
                         
@@ -248,7 +248,7 @@ observeEvent(input$perform.normalization,{
                             updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)}
                         
                         ## Write command log file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
@@ -257,7 +257,7 @@ observeEvent(input$perform.normalization,{
                                   "', quant =", quant,")",
                                   sep="")
                         )
-                        }
+                       # }
                         
                     }   
                     else if (input$normalization.method =="Mean Centering"){
@@ -271,7 +271,7 @@ observeEvent(input$perform.normalization,{
                         if( !is.null(input$normalization.variance.reduction)){scale <- input$normalization.variance.reduction}
                         
                         ## Write command log file
-                        if (input$showCommandLog){
+                        #if (input$showCommandLog){
                             writeToCommandLogFile(
                             paste("current.obj <- wrapper.normalizeD2(",
                                   "dataset[['",
@@ -280,10 +280,10 @@ observeEvent(input$perform.normalization,{
                                   "', scaling =", input$normalization.variance.reduction,")",
                                   sep="")
                         )
-                        }
+                        #}
                     } 
                     
-                    createPNG_Normalization()
+                    #createPNG_Normalization()
                     
                 }
             }
@@ -319,11 +319,11 @@ observeEvent(input$valid.normalization,{
                     
                     
                     #write command log file
-                    if (input$showCommandLog){
+                    #if (input$showCommandLog){
                         writeToCommandLogFile(
                         paste("dataset[['",name,"']] <- current.obj", sep="")
                     )
-                    }
+                    #}
                     
                     updateSelectInput(session, "datasets", 
                                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
@@ -337,7 +337,7 @@ observeEvent(input$valid.normalization,{
                     #txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
                     #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                     #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    createPNG_Normalization()
+                    #createPNG_Normalization()
                     
                 }
             }
@@ -512,7 +512,6 @@ viewComparisonNorm2 <- reactive({
     #     print("Oups")
     #     return(NULL)}
     
-    print("in Comp")
     leg <- NULL
     grp <- NULL
     
@@ -542,8 +541,16 @@ viewComparisonNorm2 <- reactive({
     
     result = tryCatch(
        {
-            wrapper.compareNormalizationD(rv$dataset[[input$datasets]],
-                                  rv$current.obj,
+           if (input$datasets == paste("Normalized", rv$typeOfDataset, sep=" - ")){
+               obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+               obj2 <- rv$dataset[[input$datasets]]
+           }
+           else {
+               obj1 <-rv$dataset[[input$datasets]]
+               obj2 <- rv$current.obj
+               
+           }
+            wrapper.compareNormalizationD(obj1, obj2,
                                   labelsNorm,
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
@@ -610,8 +617,18 @@ viewComparisonNorm <- reactive({
     
     result = tryCatch(
         {
-            wrapper.compareNormalizationD(rv$dataset[[input$datasets]],
-                                          rv$current.obj,
+            dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
+                if (input$datasets == dname){
+                obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+                obj2 <- rv$dataset[[input$datasets]]
+            }
+            else {
+                obj1 <-rv$dataset[[input$datasets]]
+                obj2 <- rv$current.obj
+                
+            }
+            
+            wrapper.compareNormalizationD(obj1, obj2,
                                           labelsNorm,
                                           as.numeric(labelsToShowNorm),
                                           gToColorNorm)

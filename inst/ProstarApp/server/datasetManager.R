@@ -125,9 +125,12 @@ output$chooseExportFilename <- renderUI({
 })
 
 
+
+
 observeEvent(input$loadDemoDataset,{
     input$showCommandLog
-    
+    if (is.null(input$demoDataset)){return (NULL)}
+  
     # isolate({
     ClearMemory()
     utils::data(list = input$demoDataset)
@@ -147,7 +150,7 @@ observeEvent(input$loadDemoDataset,{
     
     result = tryCatch(
         {
-            if (input$showCommandLog){
+            #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
             writeToCommandLogFile(paste("utils::data(",
                                         input$demoDataset,")", 
@@ -155,7 +158,7 @@ observeEvent(input$loadDemoDataset,{
             writeToCommandLogFile(paste("current.obj <- ",
                                         input$demoDataset, 
                                         sep=""))
-            }
+            #}
             
             loadObjectInMemoryFromConverter()
             #initRmd()
@@ -234,10 +237,11 @@ observeEvent(input$file,ignoreInit =TRUE,{
         
         #initRmd()
         #createPNG_DescriptiveStatistics()
-        if (input$showCommandLog){
+        #if (input$showCommandLog){
             writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
-        )}
+            )
+            #}
         
         loadObjectInMemoryFromConverter()
         
@@ -299,23 +303,24 @@ output$downloadMSnSet <- downloadHandler(
             Biobase::fData(rv$current.obj) <- 
                 data.frame(fData(rv$current.obj)[,input$colsToExport])
             colnames( Biobase::fData(rv$current.obj)) <- input$colsToExport
-            t <- buildWritableVector(input$colsToExport)
-            if (input$showCommandLog){
-                writeToCommandLogFile(
+            #if (input$showCommandLog){
+              t <- buildWritableVector(input$colsToExport)
+              
+              writeToCommandLogFile(
                 paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
                       sep="")
             )
-            }
+            #}
         }
         else if (length(input$colsToExport) > 1){
             Biobase::fData(rv$current.obj) <- 
                 data.frame(fData(rv$current.obj)[,input$colsToExport])
-            if (input$showCommandLog){
+            #if (input$showCommandLog){
                 t <- buildWritableVector(input$colsToExport)
                 writeToCommandLogFile(
                         paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
             )
-            }
+           # }
         }
         
         rv$current.obj@experimentData@other$Prostar_Version <- 
@@ -341,13 +346,13 @@ output$downloadMSnSet <- downloadHandler(
         if (input$fileformatExport == gFileFormatExport$excel) {
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
             writeMSnsetToExcel(rv$current.obj, input$nameExport)
-            if (input$showCommandLog){
+            #if (input$showCommandLog){
                 writeToCommandLogFile(
                 paste("writeMSnsetToExcel(current.obj,\"", 
                       input$nameExport, "\")", 
                       sep="")
             )
-            }
+            #}
             
             
             file.copy(fname, file)
@@ -357,11 +362,11 @@ output$downloadMSnSet <- downloadHandler(
         else if  (input$fileformatExport == gFileFormatExport$msnset) {
             fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
             saveRDS(rv$current.obj,file=fname)
-            if (input$showCommandLog){
+           # if (input$showCommandLog){
                 writeToCommandLogFile(
                 paste("saveRDS(current.obj, \"", fname, "\")", sep="")
             )
-            }
+           # }
             file.copy(fname, file)
             file.remove(fname)
         }
@@ -406,7 +411,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     isolate({
         result = tryCatch(
             {
-                if (input$showCommandLog){
+                #if (input$showCommandLog){
                     ext <- GetExtension(input$file1$name)
                     if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
                     
@@ -424,7 +429,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                               sep="")
                     )
                     }
-                }
+                #}
                 
                 # input$hot
                 input$filenameToCreate
@@ -459,7 +464,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                 
                 
-                if (input$showCommandLog){
+                #if (input$showCommandLog){
                 
                  metadata <- as.data.frame(metadata)
                  t <- "metadata <- data.frame("
@@ -531,7 +536,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 )
                 
                 
-            }
+            #}
                 loadObjectInMemoryFromConverter()
                 #initRmd()
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
@@ -587,8 +592,10 @@ output$logSession <- DT::renderDataTable({
 
 output$showDatasetDoc <- renderUI({
     input$demoDataset
+  input$showDemoDatasetPDF
     if (is.null(input$demoDataset)) { return(NULL)}
-    
+  if (!input$showDemoDatasetPDF) { return(NULL)}
+  
     file<- paste(system.file(package = "DAPARdata"),"/doc/",
                  input$demoDataset,".pdf", sep="")
     cmd <- paste("cp ",file," www/.", sep="")
@@ -673,7 +680,7 @@ output$downloadReport <- downloadHandler(
     #rv$groupGO_data
     
     #initRmd(),
-    completeRmd(),
+    #completeRmd(),
     
     filename = function() {
         paste('__ProStaR report', sep = '.', switch(
@@ -922,8 +929,8 @@ LogTabPanel <- reactive({
 
 
 
-observeEvent(input$fData.box,ignoreInit =  TRUE,{
-    
+observeEvent(input$fData.box,ignoreInit = TRUE,{
+
     choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
     names(choices) = 
         colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
@@ -959,3 +966,14 @@ output$code <- renderUI({
     
 })
 
+
+output$choosedataTobuildReport <- renderUI({
+  rv$dataset
+  if (is.null(rv$dataset)){return (NULL)}
+  
+  checkboxGroupInput("chooseDatasetToExport", 
+                     "Choose the datasets to export",
+                     choices = names(rv$dataset),
+                     selected = names(rv$dataset))
+  
+})

@@ -236,11 +236,6 @@ option=list(orderClasses = TRUE,
 
 
 
-initRmd <- function()
-{
-    
-}
-
 ##' Quick overview of the MSnbase object
 ##' @author Florence Combes
 output$overview <- renderUI({
@@ -308,8 +303,7 @@ histo_missvalues_per_lines_Image <- reactive({
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.mvPerLinesHisto_HC(rv$current.obj, 
-                                       c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            wrapper.mvPerLinesHisto_HC(rv$current.obj)
             
         }
         , warning = function(w) {
@@ -331,8 +325,7 @@ histo_missvalues_per_lines_per_conditions_Image <- reactive({
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
-                                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj)
             
             
             
@@ -363,8 +356,10 @@ histo_missvalues_per_lines_DS <- reactive({
             #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
             
             
-            wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+            rv$tempplot$mvPerLinesHisto_HC <- 
+              wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            rv$tempplot$mvPerLinesHisto_HC
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -388,8 +383,9 @@ histo_missvalues_per_lines_per_conditions_DS <- reactive({
     
     result = tryCatch(
         {
-            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+            rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+            rv$tempplot$histo_missvalues_per_lines_per_conditions 
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -412,19 +408,7 @@ histo_missvalues_per_lines_per_conditions_DS <- reactive({
 
 
 
-output$ChooseLegendForAxisViolin_DS <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    isolate(rv$current.obj)
-    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-    tags$head(tags$link(rel="stylesheet", type="text/css", 
-                        href="css/overrides.css"))
-    
-    checkboxGroupInput("legendXAxisViolin_DS",
-                       label = "Choose data to show in legend",
-                       choices = .names,
-                       selected = .names[1])
-})
+
 
 
 
@@ -433,16 +417,12 @@ boxPlot <- reactive({
     input$legendXAxis_DS
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    legDS <- NULL
-    if (is.null(input$legendXAxis_DS)){
-        .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-        legDS <- .names[1]}
-    else{legDS <- input$legendXAxis_DS}
+    if (!is.null(input$legendXAxis_DS)){
+        rv$legDS <- input$legendXAxis_DS}
     
     result = tryCatch(
         {
-            wrapper.boxPlotD(rv$current.obj,  legDS)
-            
+          wrapper.boxPlotD(rv$current.obj,  rv$legDS)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -464,19 +444,16 @@ boxPlot <- reactive({
 
 violinPlot2 <- reactive({
     rv$current.obj
-    input$legendXAxis_DS
+    input$legendXAxisViolin_DS
     if (is.null(rv$current.obj)) {return(NULL)}
     
     
-    legDS <- NULL
-    if (is.null(input$legendXAxis_DS)){
-        .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-        legDS <- .names[1]}
-    else{legDS <- input$legendXAxis_DS}
+    if (!is.null(input$legendXAxisViolin_DS)){
+      rv$PlotParams$legDS_Violinplot <- input$legendXAxisViolin_DS}
     
     result = tryCatch(
         {
-            wrapper.violinPlotD(rv$current.obj,  legDS)
+            wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -526,11 +503,11 @@ Densityplot_DS <- reactive({
     
     #result = tryCatch(
     #    {
-            wrapper.densityPlotD_HC(rv$current.obj, 
+    rv$tempplot$Density <- wrapper.densityPlotD_HC(rv$current.obj, 
                                     labels_DS, 
                                     as.numeric(labelsToShow_DS), 
                                     gToColor_DS)
-            
+            rv$tempplot$Density
         # }
         # , warning = function(w) {
         #     shinyjs::info(conditionMessage(w))
@@ -555,8 +532,8 @@ viewDistCV <- reactive({
     if (is.null(rv$current.obj)) {return(NULL)}
     result = tryCatch(
         {
-            wrapper.CVDistD_HC(rv$current.obj)
-            
+            rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)
+            rv$tempplot$varDist
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -586,7 +563,8 @@ corrMatrix <- reactive({
     
     result = tryCatch(
         {
-            wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+            rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+            rv$tempplot$corrMatrix
             
         }
         , warning = function(w) {
@@ -807,7 +785,23 @@ output$overviewNewData <- renderUI({
 })
 
 
+# options for vioplot
+output$ChooseLegendForAxisViolin_DS <- renderUI({
+  rv$current.obj
+  if (is.null(rv$current.obj)){return(NULL)}
+  isolate(rv$current.obj)
+  .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+  tags$head(tags$link(rel="stylesheet", type="text/css", 
+                      href="css/overrides.css"))
+  
+  checkboxGroupInput("legendXAxisViolin_DS",
+                     label = "Choose data to show in legend",
+                     choices = .names,
+                     selected = .names[1])
+})
 
+
+# options for boxplot
 #------------------------------------------------------
 output$ChooseLegendForAxis_DS <- renderUI({
     rv$current.obj
@@ -875,8 +869,8 @@ histoMV_Image_DS <- reactive({
     
     result = tryCatch(
         {
-            wrapper.mvHisto_HC(rv$current.obj)
-            
+            rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
+            rv$tempplot$mvHisto_HC
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))

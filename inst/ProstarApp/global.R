@@ -20,7 +20,7 @@ library(imp4p)
 library(highcharter)
 library(webshot)
 library(htmlwidgets)
-library(formattable)
+
 
 
 
@@ -202,9 +202,9 @@ gGraphicsFilenames <- list(
     violinplot = "violinplot.png",
     varDist = "varDist.png",
     densityPlot = "densityPlot.png",
-    densityPlotBeforeNorm = "densityPlotBeforeNorm.png",
+    densityPlotAfterNorm = "densityPlotAfterNorm.png",
     propContRev = "propContRev.png",
-    boxplotBeforeNorm = "boxplotBeforeNorm.png",
+    boxplotAfterNorm = "boxplotAfterNorm.png",
     compareNorm = "compareNorm.png",
     MVtypePlot_BeforeImputation = "MVtypePlot_BeforeImputation.png",
     imageNA_BeforeImputation = "imageNA_BeforeImputation.png",
@@ -417,7 +417,7 @@ calibMethod_Choices <- c("st.boot", "st.spline",
                          "Benjamini-Hochberg", 
                          "numeric value")
 
-anaDiffMethod_Choices <- c("Limma", "Welch")
+anaDiffMethod_Choices <- c("Limma")
 
 
 G_noneStr <- "None"

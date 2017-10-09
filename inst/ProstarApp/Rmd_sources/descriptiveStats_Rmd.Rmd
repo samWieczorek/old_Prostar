@@ -10,9 +10,9 @@
 
 ```{r fig_ds,out.width = "75%", echo=FALSE}
 layout(t(1:3))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
 
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
@@ -20,3 +20,4 @@ knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPl
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"))
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
 ```
+

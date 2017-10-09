@@ -98,7 +98,8 @@ loadObjectInMemoryFromConverter <- reactive({
     name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
     
-    if (input$showCommandLog){
+
+    #if (input$showCommandLog){
         txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
                  rv$typeOfDataset, "\"", "\n",
                  "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
@@ -108,13 +109,13 @@ loadObjectInMemoryFromConverter <- reactive({
     
     #writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
     
-    
+
     if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
         writeToCommandLogFile("current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
     } 
-    }
+   # }
     
-    UpdateFilterWidgets()
+    #UpdateFilterWidgets()
     
     ## update widgets for normalization panels
 
@@ -135,12 +136,12 @@ loadObjectInMemoryFromConverter <- reactive({
 
 writeToCommandLogFile <- function(txt, verbose = FALSE){
     rv$commandLog <- c(rv$commandLog, txt)
-    cat(rv$commandLog,
-        file = paste(tempdir(), sessionID, commandLogFile, sep="/"),
-        txt,
-        sep = "\n",
-        append = TRUE)
-    if (verbose) print(txt)
+    # cat(rv$commandLog,
+    #     file = paste(tempdir(), sessionID, commandLogFile, sep="/"),
+    #     txt,
+    #     sep = "\n",
+    #     append = TRUE)
+    # if (verbose) print(txt)
 }
 
 dirSessionPath <- paste(tempdir(), sessionID, sep="/")
@@ -208,6 +209,16 @@ initializeProstar <- reactive({
     rv$gene = NULL
     rv$stringBasedFiltering_Done = FALSE
     
+    rv$tempplot = list(Density = NULL,
+                       corrMatrix = NULL,
+                       varDist = NULL,
+                       mvHisto_HC = NULL,
+                       mvHisto_perLines_HC = NULL,
+                       histo_missvalues_per_lines_per_conditions = NULL)
+    rv$PlotParams = list(legDS = NULL,
+                         corrMatrixGradient = defaultGradientRate,
+                         legDS_Violinplot = NULL)
+    
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
@@ -273,8 +284,17 @@ rv <- reactiveValues(
     proteinsNotMapped = NULL,
     gene = NULL,
     ratio=NULL,
-    stringBasedFiltering_Done = FALSE
-
+    stringBasedFiltering_Done = FALSE,
+    tempplot = list(Density = NULL,
+                    corrMatrix = NULL,
+                    mvHisto_HC = NULL,
+                    mvHisto_perLines_HC = NULL,
+                    histo_missvalues_per_lines_per_conditions = NULL),
+    PlotParams = list(legDS = NULL,
+                      corrMatrixGradient = defaultGradientRate,
+                      legDS_Violinplot = NULL
+                      )
+    
     )
 
 

@@ -3,6 +3,7 @@ options(shiny.reactlog=TRUE)
 
 
 library(highcharter)
+
 source(file.path(".", "global.R"),  local = TRUE)$value
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
@@ -64,7 +65,7 @@ sidebarPanelWidth()
               source(file.path("ui", "tabPanel_convertData.R"),  local = TRUE)$value,
               source(file.path("ui", "tabPanel_DemoMode.R"),  local = TRUE)$value,
               source(file.path("ui", "tabPanel_Export.R"),  local = TRUE)$value,
-              source(file.path("ui", "tabPanel_Settings.R"),  local = TRUE)$value,
+              #source(file.path("ui", "tabPanel_Settings.R"),  local = TRUE)$value,
               source(file.path("ui", "tabPanel_logSession.R"),  local = TRUE)$value
               
    ),

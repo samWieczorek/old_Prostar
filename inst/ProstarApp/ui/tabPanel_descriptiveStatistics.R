@@ -80,11 +80,11 @@ tabPanel("Descriptive statistics",
                               sidebarCustom(),
                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                           wellPanel(id = "sidebar_boxplot",
-                                                    uiOutput("DS_sidebarPanel_Boxplot")
+                                                    #uiOutput("DS_sidebarPanel_Boxplot")
+                                                    uiOutput("ChooseLegendForAxis_DS")
                                           ),
-                                          conditionalPanel(id = "wellPanelBoxplot",
-                                                           condition = "true",
-                                                           plotOutput("viewBoxPlot_DS",width = plotWidth,
+                                         tagList(
+                                                 plotOutput("viewBoxPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
                               )
@@ -97,11 +97,11 @@ tabPanel("Descriptive statistics",
                               sidebarCustom(),
                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                           wellPanel(id = "sidebar_Violonplot",
-                                                    uiOutput("DS_sidebarPanel_Violinplot")
+                                                    #uiOutput("DS_sidebarPanel_Violinplot")
+                                                    uiOutput("ChooseLegendForAxisViolin_DS")
                                           ),
-                                          conditionalPanel(id = "wellPanelViolinplot",
-                                                           condition = "true",
-                                                           plotOutput("viewViolinPlot_DS",width = plotWidth,
+                                          tagList(
+                                            plotOutput("viewViolinPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
                               )
@@ -125,8 +125,9 @@ tabPanel("Descriptive statistics",
                      #-----------------------------------------------------------
                      tabPanel("CV distr.", 
                               value="DS_tabDistVar",
-                              p("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
-                                of the protein/peptides.<br> For better visualization, it is advised to zoom in the [0,20] interval."),
+                              helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
+                                of the protein/peptides."),
+                                helpText("For better visualization, it is advised to zoom in the [0,20] interval."),
                               highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)

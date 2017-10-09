@@ -1,6 +1,8 @@
 tabPanel("Export",
+         tabsetPanel(
+             id = "Export_tabSetPanel",
+             tabPanel("Export to file",
          value = "export",
-         h3("Export dataset"),
          helpText("Choose the export format of the dataset and choose a name."),
          selectInput("fileformatExport", "File format", 
                      choices=  G_exportFileFormat_Choices),
@@ -15,15 +17,23 @@ tabPanel("Export",
          uiOutput("chooseExportFilename"),
          
          br(),
-         downloadButton('downloadMSnSet', 'Download'),
-         br(),br(),hr(),
-         h3("Generate report (Beta)"),
-         br(),br(),
-         fluidRow(
-             column(width= 4, radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
-                                           inline = TRUE)),
-             column(width= 4, busyIndicator("Calculation in progress",wait = 0),
-                    downloadButton('downloadReport', "Download report"))
+         downloadButton('downloadMSnSet', 'Download')
+             ),
+         tabPanel("Generate report (Beta)",
+                  tagList(
+                      uiOutput("choosedataTobuildReport"),
+         br(),
+         actionButton("generateReport", "Generate report"),
+         
+         
+             br(),radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
+                                           inline = TRUE),
+             busyIndicator("Calculation in progress",wait = 0),
+             br(),
+             downloadButton('downloadReport', "Download report"),
+             uiOutput("test")
+                    )
          )
          
+         )
          )
