@@ -2,7 +2,9 @@ output$detQuantileParams <- renderUI({
   rv$current.obj
     input$missing.value.basic.algorithm
   if (is.null(rv$current.obj) ) {return (NULL)}
-    if ((input$missing.value.algorithm != "Basic methods") || is.null(input$missing.value.algorithm)) {return(NULL)}
+    if ((input$missing.value.algorithm != "Basic methods") 
+        || is.null(input$missing.value.algorithm)
+        || is.null(input$missing.value.basic.algorithm)) {return(NULL)}
     
   if (input$missing.value.basic.algorithm == "detQuantile"){
     tagList(
