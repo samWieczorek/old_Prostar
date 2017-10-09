@@ -196,12 +196,23 @@ createPNG_DescriptiveStatistics <- reactive({
 
 
 
-  # plotPNG(function(){heatmap()},
-  #           filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"),
-  #           width = pngWidth,
-  #           height=pngHeight,
-  #           res=resolution)
-  #
+  plotPNG(function(){
+    if (is.null (rv$PlotParams$HeatmapDistance) && 
+        is.null(rv$PlotParams$HeatmapLinkage)) {
+          wrapper.heatmapD(obj)
+                           }
+        else {
+              wrapper.heatmapD(obj,
+                               rv$PlotParams$HeatmapDistance, 
+                               rv$PlotParams$HeatmapLinkage,
+                               TRUE)
+          }},
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"),
+            width = pngWidth,
+            height=pngHeight,
+            res=resolution)
+
+    
     
     
 })
