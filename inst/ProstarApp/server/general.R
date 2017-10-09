@@ -217,7 +217,10 @@ initializeProstar <- reactive({
                        histo_missvalues_per_lines_per_conditions = NULL)
     rv$PlotParams = list(legDS = NULL,
                          corrMatrixGradient = defaultGradientRate,
-                         legDS_Violinplot = NULL)
+                         legDS_Violinplot = NULL,
+                        HeatmapLinkage = NULL,
+                      HeatmapDistance = NULL
+                      )
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
@@ -292,7 +295,10 @@ rv <- reactiveValues(
                     histo_missvalues_per_lines_per_conditions = NULL),
     PlotParams = list(legDS = NULL,
                       corrMatrixGradient = defaultGradientRate,
-                      legDS_Violinplot = NULL
+                      legDS_Violinplot = NULL,
+                      HeatmapLinkage = NULL,
+                      HeatmapDistance = NULL
+                      
                       )
     
     )
