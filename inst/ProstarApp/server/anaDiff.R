@@ -586,7 +586,7 @@ output$RenderLimmaCond1 <- renderUI({
     
     labels <- unique(Biobase::pData(rv$current.obj)[,"Label"])
     labels <- setNames(as.list(labels),labels)
-    condition1 <- labels[[1]]
+    condition1 <- labels[[2]]
     if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
         condition1 <- rv$current.obj@experimentData@other$condition1
     }
@@ -607,7 +607,7 @@ output$RenderLimmaCond2 <- renderUI({
     isolate({
         labels <- unique(Biobase::pData(rv$current.obj)[,"Label"])
         labels <- setNames(as.list(labels),labels)
-        condition2 <- labels[[2]]
+        condition2 <- labels[[1]]
         if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
             condition2 <- rv$current.obj@experimentData@other$condition2
         }

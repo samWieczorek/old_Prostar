@@ -454,14 +454,26 @@ output$GODatatable <- renderDataTable({
 
 
 output$GeneMappedRatio <- renderUI({
+    rv$ProtIDList
+    rv$current.obj
+    rv$gene
+    input$idFrom
+    if (is.null(rv$current.obj) ){return(NULL)}
+    if (is.null(rv$ProtIDList) ){return(NULL)}
+    if (is.null(rv$gene)) {return(NULL)}
     
     rv$ratio
     if (is.null(rv$ratio)) {return (NULL)}
-    
+    index <- GetDataIndexForAnalysis()
+    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
+    nProtMapped <- length(rv$proteinsNotMapped)
+    nProtTotal <-length(index)
+        
     tagList(
-        h5(paste(round(rv$ratio, digits=2), " % of the proteins have not been mapped.", sep="")),
+        h5(paste(round(rv$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
+        helpText("These proteins are listed in the table below."),
         if (rv$ratio == 100){
-            h3(paste("Advice a rediger", sep=""))
+            h3(paste("Tip: You should check the organism which has been selected.", sep=""))
         }
         )
 })
