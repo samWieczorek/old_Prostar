@@ -1,12 +1,3 @@
-# 
- initRmd <- reactive({
-     
-     ## Init the Rmd file for the report
-     src <- normalizePath('Rmd_sources/report.Rmd')
-     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-     file.copy(src, filename, overwrite = TRUE)
-     
- })
 
  
  output$test <- renderUI({
@@ -49,11 +40,12 @@ observeEvent(input$generateReport,{
         write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
     }
     
-    # if (paste("Imputed", rv$typeOfDataset, sep=" - ") %in% listDatasets) {
-    #     txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
-    #     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-    #     write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    # }
+     if (paste("Imputed", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
+        createPNG_Imputation()
+         txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
+         filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+         write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+     }
     
     nameOfDataset <- paste("DiffAnalysis.Limma", rv$typeOfDataset, sep=" - ")
     if (nameOfDataset %in% input$chooseDatasetToExport) {
@@ -158,10 +150,6 @@ createPNG_DescriptiveStatistics <- reactive({
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
                      zoom = zoomWebshot)
 
-
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
-    #heatmap()
-    #dev.off()
 
 
     ##last plot of descriptive statistics
@@ -304,27 +292,17 @@ createPNG_Normalization <- reactive({
 })
 
 
-
-
 ###--------------------------------------------------------------------------
-createPNG_BeforeImputation <- reactive({
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_BeforeImputation, sep="/"))
-    #showImageNA()
-    #dev.off()
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"))
-    #viewNAbyMean()
-    #dev.off()
-})
+createPNG_Imputation <- reactive({
+  dname <- paste("Imputed", rv$typeOfDataset, sep=" - ")
+  obj <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+  
+  plotPNG(function(){wrapper.mvTypePlot(obj)},
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"),
+            width = pngWidth,
+            height=pngHeight,
+            res=resolution)
 
-createPNG_AfterImputation <- reactive({
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_AfterImputation, sep="/"))
-    #showImageNA()
-    #dev.off()
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_AfterImputation, sep="/"))
-    #viewNAbyMean()
-    #dev.off()
 })
 
 ###--------------------------------------------------------------------------
