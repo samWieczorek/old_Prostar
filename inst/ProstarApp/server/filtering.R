@@ -168,39 +168,9 @@ GlobalPieChart <- reactive({
     #     {
     #         
     isolate({
-        print("dans GlobalPieCHart")
-            # ind <- getIndicesOfLinesToRemove(rv$current.obj,
-            #                                  input$idBoxContaminants,
-            #                                  input$prefixContaminants)
-            # if (!is.null(ind)){ 
-            #     rv$nbContaminantsDeleted <- length(ind)
-            # print(rv$nbContaminantsDeleted)
-            # }
-            # 
-            # ind <- getIndicesOfLinesToRemove(rv$current.obj,
-            #                                  input$idBoxReverse,
-            #                                  input$prefixReverse)
-            # if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
-            # 
-            # 
-            
-            
-            
-            
+        
            proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(rv$current.obj))
-            
-        # }
-        # #, warning = function(w) {
-        # #     shinyjs::info(conditionMessage(w))
-        # #}
-        # , error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",
-        #                         conditionMessage(e), 
-        #                         sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-           
+      
     })
     
 })
