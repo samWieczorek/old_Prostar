@@ -8,14 +8,11 @@ Parameters used for the imputation step :
 * __OnlyLAPALA_qmin__ `r params$listImputation$OnlyLAPALA_qmin`
 * __OnlyLAPALA_distrib__ `r params$listImputation$OnlyLAPALA_distrib`
 * __imp4pLAPALA_distrib__ `r params$listImputation$imp4pLAPALA_distrib`
-* __DetQuantile_quantile__ `r params$listImputation$detQuant_factor`
-* __ DetQuantile_factor__ `r params$listImputation$detQuant_quantile`
+* __DetQuantile_quantile__ `r params$listImputation$detQuant_quantile`
+* __DetQuantile_factor__ `r params$listImputation$detQuant_factor`
 
 ```{r ,out.width = "50%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_BeforeImputation, sep="/"))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_AfterImputation, sep="/"))
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$imageNA_AfterImputation, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"))
 ```
 
 
