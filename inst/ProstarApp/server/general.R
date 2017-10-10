@@ -208,7 +208,7 @@ initializeProstar <- reactive({
     rv$proteinsNotMapped = NULL
     rv$gene = NULL
     rv$stringBasedFiltering_Done = FALSE
-    
+    rv$iDat = NULL
     rv$tempplot = list(Density = NULL,
                        corrMatrix = NULL,
                        varDist = NULL,
@@ -287,6 +287,7 @@ rv <- reactiveValues(
     proteinsNotMapped = NULL,
     gene = NULL,
     ratio=NULL,
+    iDat = NULL,
     stringBasedFiltering_Done = FALSE,
     tempplot = list(Density = NULL,
                     corrMatrix = NULL,

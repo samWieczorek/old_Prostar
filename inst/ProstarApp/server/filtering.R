@@ -33,7 +33,7 @@ output$DP_sidebar_FilterTab2 <- renderUI({
                      uiOutput("id_Reverse"),
                      uiOutput("choosePrefixReverse"),
                      br(),
-                    actionButton("resetFilterParamsButton","Reset parameters"),
+                    #actionButton("resetFilterParamsButton","Reset parameters"),
                      actionButton("perform.filtering.Contaminants",
                                   "Perform string-based filtering")
     )
@@ -155,14 +155,14 @@ output$seuilNADelete <- renderUI({
 
 GlobalPieChart <- reactive({
     #rv$current.obj
-    #rv$nbContaminantsDeleted
-    #rv$nbReverseDeleted
+    rv$nbContaminantsDeleted
+    rv$nbReverseDeleted
     #input$idBoxContaminants
     #input$prefixContaminants
     #input$idBoxReverse
    # input$prefixReverse
    # if (is.null(rv$current.obj)) {return()}
-    #if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
+    if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
    
     # result = tryCatch(
     #     {
@@ -389,42 +389,42 @@ observeEvent(input$perform.filtering.MV,{
 
 
 observe({
-  rv$current.obj
   input$idBoxContaminants
   input$prefixContaminants
   input$idBoxReverse
   input$prefixReverse
 
-  #print(input$prefixContaminants)
-
-  if (is.null(rv$current.obj)){return (NULL)}
+    if (is.null(rv$current.obj)){return (NULL)}
+  
   if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
       (input$prefixContaminants == "") || (input$prefixReverse == ""))
       {return(NULL)}
-   # if (!is.null(rv$nbReverseDeleted) || !is.null(rv$nbContaminantsDeleted)){return (NULL)}
-
-  #rv$nbReverseDeleted <- NULL
-  #rv$nbContaminantsDeleted <- NULL
-
-  ind <- getIndicesOfLinesToRemove(rv$current.obj,
+    
+  l <- length(rv$dataset)
+        if (l ==1){ #Original dataset
+            obj <- rv$dataset[[1]]
+        } else {
+            dname <- unlist(strsplit(names(rv$Dataset)[l], " - "))[1]
+            if (dname == "Filtered") {
+                obj <- rv$dataset[[l - 1]]
+            } else {
+                obj <- rv$dataset[[l]]
+            }
+        }
+  
+  
+   ind <- getIndicesOfLinesToRemove(obj,
                                    input$idBoxContaminants,
                                    input$prefixContaminants)
-  if (!is.null(ind)){ 
-      #print("dans observ")
-      #                print(rv$nbContaminantsDeleted)
-                      rv$nbContaminantsDeleted <- length(ind)
-      #                print(rv$nbContaminantsDeleted)
-  }
+  if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
 
-  ind <- getIndicesOfLinesToRemove(rv$current.obj,
+  ind <- getIndicesOfLinesToRemove(obj,
                                    input$idBoxReverse,
                                    input$prefixReverse)
   if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
 
-  #print(rv$nbContaminantsDeleted)
-  #print(rv$nbReverseDeleted)
 })
 
 
@@ -451,7 +451,7 @@ observeEvent(input$perform.filtering.Contaminants,{
    
     
     isolate({
-        shinyjs::disable("resetFilterParamsButton")
+        #shinyjs::disable("resetFilterParamsButton")
         
         result = tryCatch(
             {
@@ -660,15 +660,15 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
 
 
 
-observeEvent(input$resetFilterParamsButton, ignoreInit = TRUE,{
-  updateSelectInput(session, "idBoxContaminants", selected="")
-  updateSelectInput(session, "idBoxReverse", selected="")
-  updateTextInput(session, "prefixContaminants", value="")
-  updateTextInput(session, "prefixReverse", value="")
-  
-  #rv$nbReverseDeleted <- NULL
-  #rv$nbContaminantsDeleted <- NULL
-})
+# observeEvent(input$resetFilterParamsButton, ignoreInit = TRUE,{
+#   updateSelectInput(session, "idBoxContaminants", selected="")
+#   updateSelectInput(session, "idBoxReverse", selected="")
+#   updateTextInput(session, "prefixContaminants", value="")
+#   updateTextInput(session, "prefixReverse", value="")
+#   
+#   #rv$nbReverseDeleted <- NULL
+#   #rv$nbContaminantsDeleted <- NULL
+# })
 
 
 

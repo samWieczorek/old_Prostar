@@ -17,7 +17,7 @@ tabPanel("Differential analysis",
                                                 column(width=6, uiOutput("selectTooltipInfo"))
                                                 ),
                                         DT::dataTableOutput("infosVolcanoTable"),
-                                        busyIndicator("Calculation in progress",wait = 0),
+                                        busyIndicator("Building plot, please wait",wait = 0),
                                         highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
                                                    
                                   )
@@ -35,10 +35,10 @@ tabPanel("Differential analysis",
                                   conditionalPanel(id = "wellPanel_DifferentialAnalysisTab2",
                                                    condition = "true",
                                                    htmlOutput("errMsgCalibrationPlotAll"),
-                                                   busyIndicator("Calculation in progress",wait = 0),
+                                                   busyIndicator("Building plot, please wait",wait = 0),
                                                    plotOutput("calibrationPlotAll"),
                                                    uiOutput("errMsgCalibrationPlot"),
-                                                   busyIndicator("Calculation in progress",wait = 0),
+                                                   busyIndicator("Building plot, please wait",wait = 0),
                                                    plotOutput("calibrationPlot")
                                   )
                       )
@@ -62,6 +62,7 @@ tabPanel("Differential analysis",
                                                 column(width= 4, htmlOutput("showFDR"))
                                                 ),
                                         #DT::dataTableOutput("infosVolcanoTableStep3"),
+                                        busyIndicator("Building plot, please wait",wait = 0),
                                         highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
                                         )
                       )

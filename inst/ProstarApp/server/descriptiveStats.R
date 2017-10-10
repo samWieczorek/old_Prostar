@@ -446,6 +446,7 @@ violinPlot2 <- reactive({
     rv$current.obj
     input$legendXAxisViolin_DS
     if (is.null(rv$current.obj)) {return(NULL)}
+    if (is.null(input$legendXAxisViolin_DS)) {return(NULL)}
     
     
     if (!is.null(input$legendXAxisViolin_DS)){
@@ -453,7 +454,11 @@ violinPlot2 <- reactive({
     
     result = tryCatch(
         {
-            wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
+            if (is.null(rv$PlotParams$legDS_Violinplot)) {
+                wrapper.violinPlotD(rv$current.obj)
+                }  else {
+                    wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
+                }
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))

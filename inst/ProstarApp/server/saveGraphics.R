@@ -5,6 +5,9 @@
      shinyjs::disable("downloadReport")
  })
  
+ 
+ 
+ ######---------------------------------------------------------------------
 observeEvent(input$generateReport,{
     if (is.null(input$generateReport)) {return (NULL)}
     input$chooseDatasetToExport
@@ -12,78 +15,81 @@ observeEvent(input$generateReport,{
     input$whichGO2Save
     if (is.null(input$chooseDatasetToExport)){return(NULL)}
     
+
      ## Init the Rmd file for the report
     src <- normalizePath('Rmd_sources/report.Rmd')
     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
     file.copy(src, filename, overwrite = TRUE)
     
     
-     if (paste("Original", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
-         createPNG_DescriptiveStatistics()
-
-         txt2Rmd <- readLines("Rmd_sources/descriptiveStats_Rmd.Rmd")
-         filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-         write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-     }
-
-    if (paste("Filtered", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
-        createPNG_Filtering()
-        txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
-        filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-        write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    }
     
-    if (paste("Normalized", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
-        createPNG_Normalization()
-        txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
-        filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-        write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    }
-    
-     if (paste("Imputed", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
-        createPNG_Imputation()
-         txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
-         filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-         write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-     }
-    
-    nameOfDataset <- paste("DiffAnalysis.Limma", rv$typeOfDataset, sep=" - ")
-    if (nameOfDataset %in% input$chooseDatasetToExport) {
-        createPNG_DifferentialAnalysis()
-        txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
-        filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-        write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    }
-    
-    
-    
-    if (paste("GOAnalysis", rv$typeOfDataset, sep=" - ") %in% input$chooseDatasetToExport) {
-        if  (input$whichGO2Save == "Both"){
-            createPNG_Enrichment()
-            createPNG_GroupGO()
-            txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-            filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-            write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-            
-            txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-            filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-            write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-        }
-        else if  (input$whichGO2Save == "Classification"){
-            createPNG_GroupGO()
-            txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-            filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-            write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-        }
-        else if (input$whichGO2Save == "Enrichment"){
-            createPNG_Enrichment()
-            txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-            filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-            write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-        }
+    for (iDat in input$chooseDatasetToExport){
+        print(iDat)
+        rv$iDat <- iDat
+        dname <- unlist(strsplit(iDat, " - "))[1]
+        type <- unlist(strsplit(iDat, " - "))[2]
         
-    }
-    
+        switch(dname, 
+               Original={
+                   createPNG_DescriptiveStatistics()
+                   txt2Rmd <- readLines("Rmd_sources/descriptiveStats_Rmd.Rmd")
+                   filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                   write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                        },
+               Filtered={
+                   createPNG_Filtering()
+                   txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
+                   filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                   write(txt2Rmd, file = filename,append = TRUE, sep = "\n") 
+               },
+               Normalized={
+                   createPNG_Normalization()
+                   txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
+                   filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                   write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+               },
+               Imputed={
+                   createPNG_Imputation()
+                   txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
+                   filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                   write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+               },
+               DiffAnalysis.Limma={
+                   createPNG_DifferentialAnalysis()
+                   txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
+                   filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                   write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+               },
+               GOAnalysis={
+                   switch(input$whichGO2Save,
+                          Both={
+                                createPNG_Enrichment()
+                                createPNG_GroupGO()
+                                txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
+                                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                       
+                                txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
+                                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                                },
+                            Classification={
+                                createPNG_GroupGO()
+                                txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
+                                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                                write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                                },
+                            Enrichment={
+                                createPNG_Enrichment()
+                                txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
+                                filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                                 write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+                                }
+                        )
+               }
+        )
+        
+}
     shinyjs::enable("downloadReport")
     
 })
@@ -94,8 +100,7 @@ observeEvent(input$generateReport,{
 
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
-    dname <- paste("Original", rv$typeOfDataset, sep=" - ")
-    obj <- rv$dataset[[dname]]
+    obj <- rv$dataset[[rv$iDat]]
   
   if (is.null(rv$tempplot$Density)) {
     tempplot <- wrapper.densityPlotD_HC(obj)}
@@ -239,8 +244,7 @@ createPNG_DescriptiveStatistics <- reactive({
 
 ###--------------------------------------------------------------------------
 createPNG_Filtering <- reactive({
-  dname <- paste("Filtered", rv$typeOfDataset, sep=" - ")
-  obj <- rv$dataset[[dname]]
+  obj <- rv$dataset[[rv$iDat]]
   
     if (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted)) {
         tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
@@ -256,10 +260,8 @@ createPNG_Filtering <- reactive({
 
 ###--------------------------------------------------------------------------
 createPNG_Normalization <- reactive({
-  dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
-  
-    obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-    obj2 <- rv$dataset[[dname]]
+    obj1 <- rv$dataset[[(which(names(rv$dataset)==rv$iDat) - 1)]]
+    obj2 <- rv$dataset[[rv$iDat]]
       
       
     plotPNG(function(){wrapper.compareNormalizationD(obj1, obj2)}, 
@@ -297,8 +299,7 @@ createPNG_Normalization <- reactive({
 
 ###--------------------------------------------------------------------------
 createPNG_Imputation <- reactive({
-  dname <- paste("Imputed", rv$typeOfDataset, sep=" - ")
-  obj <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+  obj <- rv$dataset[[(which(names(rv$dataset)==rv$iDat) - 1)]]
   
   plotPNG(function(){wrapper.mvTypePlot(obj)},
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"),
@@ -310,16 +311,14 @@ createPNG_Imputation <- reactive({
 
 ###--------------------------------------------------------------------------
 createPNG_Aggregation <- reactive({
-  dname <- paste("Aggregated", rv$typeOfDataset, sep=" - ")
-  obj <- rv$dataset[[dname]]
+  obj <- rv$dataset[[rv$iDat]]
   
   
 })
 
 ###--------------------------------------------------------------------------
 createPNG_DifferentialAnalysis <- reactive({
-  nameOfDataset <- paste("DiffAnalysis.Limma", rv$typeOfDataset, sep=" - ")
-  obj <- rv$dataset[[nameOfDataset]]
+  obj <- rv$dataset[[rv$iDat]]
   
     df <- data.frame(x=fData(obj)$logFC,
                      y = -log10(fData(obj)$P_Value))
@@ -362,8 +361,7 @@ createPNG_DifferentialAnalysis <- reactive({
 ###--------------------------------------------------------------------------
 
 createPNG_Enrichment <- reactive({
-  nameOfDataset <- paste("GOAnalysis", rv$typeOfDataset, sep=" - ")
-  obj <- rv$dataset[[nameOfDataset]]
+  obj <- rv$dataset[[rv$iDat]]
   
   
     tempplot <- barplotEnrichGO_HC(rv$enrichGO_data)
@@ -427,60 +425,12 @@ createPNG_GroupGO <- reactive({
     }
     
 })
-###--------------------------------------------------------------------------
-createPNG_GOAnalysis<- reactive({
-    input$whichGO2Save
-    
-    
-    if (input$whichGO2Save == "Both"){
-        createPNG_GroupGO()
-        createPNG_Enrichment()
-    }
-    else if (input$whichGO2Save == "Classification"){ createPNG_GroupGO()}
-    else if (input$whichGO2Save == "Enrichment"){createPNG_Enrichment()}
-    
-    
-    
-    #png(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
-    #viewComparisonNorm()
-    #dev.off()
-    
-    # plotPNG(function(){GOplotGroup()}, 
-    #        filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification, sep="/"), 
-    #        width = pngWidth, 
-    #        height=pngHeight,
-    #        res=resolution)
-    
-    
-    
-    
-    # plotPNG(function(){GObarplotEnrich()}, 
-    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"), 
-    #         width = pngWidth, 
-    #         height=pngHeight,
-    #         res=resolution)
-    # 
-    # 
-    # plotPNG(function(){GOdotplotEnrich()}, 
-    #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"), 
-    #         width = pngWidth, 
-    #         height=pngHeight,
-    #         res=resolution)
-    
-    
-    
-})
 
 
 
 ######-----------------------------------------------------------------
 output$downloadReport <- downloadHandler(
-    #createPNG(),
-    #rv$groupGO_data
-    
-    #initRmd(),
-    #completeRmd(),
-    
+   
     filename = function() {
         paste('__ProStaR report', sep = '.', switch(
             input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
@@ -505,7 +455,9 @@ output$downloadReport <- downloadHandler(
                                     listFiltering= list(filter = input$ChooseFilters,
                                                         seuilNA = as.integer(input$seuilNA),
                                                         nbReverseDeleted = rv$nbReverseDeleted,
-                                                        nbContaminantsDeleted = rv$nbContaminantsDeleted),
+                                                        nbContaminantsDeleted = rv$nbContaminantsDeleted,
+                                                        stringBasedFiltered = (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted))
+                                                        ),
                                     
                                     listNormalization = list(method=input$normalization.method,
                                                              type = input$normalization.type,
