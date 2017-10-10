@@ -181,11 +181,6 @@ return (
 
 
 gGraphicsFilenames <- list(
-    #histoMVPerLines_DS = "histoMissvaluesPerLines_DS.png",
-    #histoMVPerLinesConditions_DS = "histoMVPerLinesPerConditions_DS.png",
-    #histoMV = "histoMV_DS.png",
-    #histoMVPerLines = "histoMissvaluesPerLines.png",
-    #histoMVPerLinesConditions = "histoMVPerLinesPerConditions.png",
     
     histoMV_Image_DS = "histoMV_Image_DS.png",
     histo_missvalues_per_lines_DS = "histo_missvalues_per_lines_DS.png",
@@ -206,10 +201,8 @@ gGraphicsFilenames <- list(
     propContRev = "propContRev.png",
     boxplotAfterNorm = "boxplotAfterNorm.png",
     compareNorm = "compareNorm.png",
-    MVtypePlot_BeforeImputation = "MVtypePlot_BeforeImputation.png",
-    imageNA_BeforeImputation = "imageNA_BeforeImputation.png",
-    MVtypePlot_AfterImputation = "MVtypePlot_AfterImputation.png",
-    imageNA_AfterImputation = "imageNA_AfterImputation.png",
+    MVtypePlot = "MVtypePlot.png",
+    imageNA = "imageNA.png",
     AgregMatUniquePeptides = "AgregMatUniquePeptides.png",
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
     volcanoPlot_1 = "volcanoPlot_1.png",
