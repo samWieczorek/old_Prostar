@@ -298,7 +298,7 @@ createPNG_Imputation <- reactive({
   obj <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
   
   plotPNG(function(){wrapper.mvTypePlot(obj)},
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot_BeforeImputation, sep="/"),
+            filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"),
             width = pngWidth,
             height=pngHeight,
             res=resolution)
