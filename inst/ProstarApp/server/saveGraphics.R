@@ -512,6 +512,8 @@ output$downloadReport <- downloadHandler(
                                     
                                     listImputation = list(algorithm = input$missing.value.algorithm,
                                                           basicAlgo = input$missing.value.basic.algorithm,
+                                                          detQuantile_quantile = input$detQuant_quantile,
+                                                          detQuantile_factor = input$detQuant_factor,
                                                           imp4p_withLapala = input$imp4p_withLapala,
                                                           OnlyLAPALA_qmin = input$OnlyLAPALA_qmin,
                                                           OnlyLAPALA_distrib = input$OnlyLAPALA_distrib,
