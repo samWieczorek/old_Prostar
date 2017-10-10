@@ -242,12 +242,15 @@ createPNG_Filtering <- reactive({
   dname <- paste("Filtered", rv$typeOfDataset, sep=" - ")
   obj <- rv$dataset[[dname]]
   
-    tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
+    if (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted)) {
+        tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
                      zoom = zoomWebshot)
+    }
 })
+
 
 
 
