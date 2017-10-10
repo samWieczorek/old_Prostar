@@ -489,3 +489,102 @@ createPNG_GOAnalysis<- reactive({
     
     
 })
+
+
+
+######-----------------------------------------------------------------
+output$downloadReport <- downloadHandler(
+    #createPNG(),
+    #rv$groupGO_data
+    
+    #initRmd(),
+    #completeRmd(),
+    
+    filename = function() {
+        paste('__ProStaR report', sep = '.', switch(
+            input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
+        ))
+    },
+    
+    content = function(file) {
+        #src <- normalizePath('report.Rmd')
+        filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+        
+        #file.copy(src, filename, overwrite = TRUE)
+        library(rmarkdown)
+        #paramRmd <- list(current.obj=rv$current.obj)
+        out <- render(filename, 
+                      output_file = file,
+                      params = list(listOverview = list(pourcentageNA = rv$pourcentageNA,
+                                                        nEntities = dim(Biobase::exprs(rv$current.obj))[1],
+                                                        typeOfData = rv$typeOfDataset,
+                                                        nNAlines = rv$nb.empty.lines,
+                                                        nSamples = dim(Biobase::exprs(rv$current.obj))[2]),
+                                    
+                                    listFiltering= list(filter = input$ChooseFilters,
+                                                        seuilNA = as.integer(input$seuilNA),
+                                                        nbReverseDeleted = rv$nbReverseDeleted,
+                                                        nbContaminantsDeleted = rv$nbContaminantsDeleted),
+                                    
+                                    listNormalization = list(method=input$normalization.method,
+                                                             type = input$normalization.type,
+                                                             quantile=input$normalization.quantile,
+                                                             quantileOther = input$normalization.quantileOther,
+                                                             scaling = input$normalization.variance.reduction),
+                                    
+                                    listImputation = list(algorithm = input$missing.value.algorithm,
+                                                          basicAlgo = input$missing.value.basic.algorithm,
+                                                          imp4p_withLapala = input$imp4p_withLapala,
+                                                          OnlyLAPALA_qmin = input$OnlyLAPALA_qmin,
+                                                          OnlyLAPALA_distrib = input$OnlyLAPALA_distrib,
+                                                          imp4pLAPALA_distrib = input$imp4pLAPALA_distrib),
+                                    
+                                    listAggregation = list(a=3, b=4, c=8),
+                                    listAnaDiff = list(condition1 = input$condition1, 
+                                                       condition2 = input$condition2,
+                                                       calibrationMethod = input$calibrationMethod,
+                                                       numericValCalibration = input$numericValCalibration,
+                                                       seuilPValue = rv$seuilPVal,
+                                                       seuilLogFC = rv$seuilLogFC,
+                                                       method = input$diffAnaMethod,
+                                                       fdr = round(100*rv$fdr, digits=2),
+                                                       nbSelected = rv$nbSelected_Step3),
+                                    listGOClassifAnalysis = list(ontology = input$Ontology, 
+                                                       organism = input$Organism,
+                                                       universe = input$universe,
+                                                       group1 = (length(rv$groupGO_data)==1),
+                                                       group2 = (length(rv$groupGO_data)==2),
+                                                       group3 = (length(rv$groupGO_data)==3),
+                                                       df1 = if (length(rv$groupGO_data)==1){
+                                                                    dat <- rv$groupGO_data[[1]]$ggo_res@result
+                                                                    dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                    dat[1:5,c("Description", "Count", "GeneRatio")]},
+                                                       df2 = if (length(rv$groupGO_data)==2){
+                                                                dat <- rv$groupGO_data[[2]]$ggo_res@result
+                                                                dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                dat[1:5,c("Description", "Count", "GeneRatio")]},
+                                                       df3 = if (length(rv$groupGO_data)==3){
+                                                                dat <- rv$groupGO_data[[3]]$ggo_res@result
+                                                                dat <- dat[order(dat$Count, decreasing=TRUE),]
+                                                                dat[1:5,c("Description", "Count", "GeneRatio")]}
+                                                       ),
+                                    listGOEnrichmentAnalysis = list(ontology = input$Ontology, 
+                                                        organism = input$Organism,
+                                                        universe = input$universe,
+                                                        pval = input$pvalueCutoff,
+                                                        df = if (!is.null(rv$enrichGO_data)){
+                                                            dat <- rv$enrichGO_data@result
+                                                            dat <- dat[order(dat$pvalue, decreasing=FALSE),]
+                                                            dat[seq(1:10),c("Description", "GeneRatio", "p.adjust", "Count")]}
+                                                        )
+                                    ),
+                        switch(
+                          input$format,
+                          PDF = pdf_document(), 
+                          HTML = html_document(), 
+                          Word = word_document()
+                      ))
+
+    }
+)
+
