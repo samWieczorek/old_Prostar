@@ -13,6 +13,7 @@ tabPanel("Descriptive statistics",
                          value = "DS_tabOverviewMV",
                          
                          helpText("These barplots display the distribution of missing values in the dataset."),
+                         busyIndicator("Building plot. Please wait...",wait = 0),
                          fluidRow(
                              column(width = 4,
                                     highchartOutput("histoMV_Image_DS")
@@ -50,6 +51,7 @@ tabPanel("Descriptive statistics",
                                                                 "Tune to modify the color gradient",
                                                                 min = 0,max = 1,value = defaultGradientRate,step=0.01)
                                           ),
+                                          busyIndicator("Building plot. Please wait...",wait = 0),
                                           highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
                               )
                      ),
@@ -68,7 +70,7 @@ tabPanel("Descriptive statistics",
                                                            #     does not contains any NA lines. <br> Please check 
                                                            #     your data and use Filtering options or missing 
                                                            #     values imputation."),
-                                                           busyIndicator("Calculation in progress",wait = 0),
+                                                           busyIndicator("Building plot. Please wait...",wait = 0),
                                                            uiOutput("DS_PlotHeatmap")
                                           )
                               )

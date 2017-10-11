@@ -19,17 +19,22 @@ tabPanel("Export",
          br(),
          downloadButton('downloadMSnSet', 'Download')
              ),
+         
+         
          tabPanel("Generate report (Beta)",
                   tagList(
                       uiOutput("choosedataTobuildReport"),
          br(),
-         actionButton("generateReport", "Generate report"),
          
          
              br(),radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
                                            inline = TRUE),
-             busyIndicator("Calculation in progress",wait = 0),
-             br(),
+             #busyIndicator("Calculation in progress",wait = 0),
+         br(),br(),
+         br(),br(),
+         busyIndicator("Building report, please wait...",wait = 0),
+         actionButton("generateReport", "Generate report"),
+         
              downloadButton('downloadReport', "Download report"),
              uiOutput("test")
                     )

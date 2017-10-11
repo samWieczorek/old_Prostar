@@ -34,7 +34,7 @@ output$DP_sidebar_FilterTab2 <- renderUI({
                      uiOutput("choosePrefixReverse"),
                      br(),
                     #actionButton("resetFilterParamsButton","Reset parameters"),
-                     actionButton("perform.filtering.Contaminants",
+                     actionButton("performFilteringContaminants",
                                   "Perform string-based filtering")
     )
 })
@@ -380,33 +380,57 @@ observeEvent(input$perform.filtering.MV,{
             }, finally = {
                 #cleanup-code 
             })
-        
-        
-        
     })
 })
 
 
-
 observe({
+    input$idBoxContaminants
+    input$prefixContaminants
+    input$idBoxReverse
+    input$prefixReverse
+    
+    if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
+        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
+        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
+        (input$prefixContaminants == "") || (input$prefixReverse == ""))
+    {
+        shinyjs::disable("performFilteringContaminants")
+        rv$nbContaminantsDeleted <- NULL
+        rv$nbReverseDeleted <- NULL
+        
+        return(NULL)
+    }
+    else {
+        shinyjs::enable("performFilteringContaminants")
+        
+    }
+})
+
+majPropContaminants <- reactive({
+    input$performFilteringContaminants
+    
   input$idBoxContaminants
   input$prefixContaminants
   input$idBoxReverse
   input$prefixReverse
 
-    if (is.null(rv$current.obj)){return (NULL)}
-  
+    if (is.null(input$performFilteringContaminants)){return (NULL)}
+  if (is.null(rv$current.obj)){return (NULL)}
   if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
       (input$prefixContaminants == "") || (input$prefixReverse == ""))
-      {return(NULL)}
+  {
+      return(NULL)
+      }
     
+  isolate({
   l <- length(rv$dataset)
         if (l ==1){ #Original dataset
             obj <- rv$dataset[[1]]
         } else {
-            dname <- unlist(strsplit(names(rv$Dataset)[l], " - "))[1]
+            dname <- unlist(strsplit(names(rv$dataset)[l], " - "))[1]
             if (dname == "Filtered") {
                 obj <- rv$dataset[[l - 1]]
             } else {
@@ -425,13 +449,14 @@ observe({
                                    input$prefixReverse)
   if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
 
+  })
 })
 
 
 
 
 #########################
-observeEvent(input$perform.filtering.Contaminants,{
+observeEvent(input$performFilteringContaminants,{
 
   rv$current.obj
   #input$idBoxContaminants
@@ -521,6 +546,7 @@ observeEvent(input$perform.filtering.Contaminants,{
                         }
                     }
                 }
+                majPropContaminants()
                 rv$current.obj <- temp
                 rv$stringBasedFiltering_Done = TRUE
                 

@@ -108,7 +108,7 @@ createPNG_DescriptiveStatistics <- reactive({
   htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
   webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                    file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
-                   delay = 1,
+                   delay = 3,
                    zoom = zoomWebshot)
 
 
@@ -140,7 +140,7 @@ createPNG_DescriptiveStatistics <- reactive({
         htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
-                     delay = 1,
+                     delay = 3,
                      zoom = zoomWebshot)
 
 
@@ -153,6 +153,7 @@ createPNG_DescriptiveStatistics <- reactive({
         htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
+                     delay = 3,
                      zoom = zoomWebshot)
 
 
@@ -164,6 +165,7 @@ createPNG_DescriptiveStatistics <- reactive({
         htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
+                     delay = 3,
                      zoom = zoomWebshot)
 
 
@@ -175,6 +177,7 @@ createPNG_DescriptiveStatistics <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
+                     delay = 3,
                      zoom = zoomWebshot)
 
 
@@ -185,6 +188,7 @@ createPNG_DescriptiveStatistics <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
+                     delay = 3,
                      zoom = zoomWebshot)
 
 
@@ -251,6 +255,7 @@ createPNG_Filtering <- reactive({
     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
+                     delay = 3,
                      zoom = zoomWebshot)
     }
 })
