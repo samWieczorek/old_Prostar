@@ -10,10 +10,14 @@ Parameters used for the GO analysis :
 
 
 
-```{r enrichGO_block,  out.width = "75%", echo=FALSE, result = 'asis'}
+```{r enrichGO_barplot,  out.width = "75%", echo=FALSE, result = 'asis'}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"))
+```
+
+```{r enrichGO_dotplot,  out.width = "75%", echo=FALSE, result = 'asis'}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"))
 ```
+
 
 ```{r enrichGO_table,  out.width = "75%", echo=FALSE, result = 'asis'}
 library(knitr)
