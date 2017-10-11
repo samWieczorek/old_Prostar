@@ -21,7 +21,7 @@ observeEvent(input$generateReport,{
     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
     file.copy(src, filename, overwrite = TRUE)
     
-    
+    print(input$whichGO2Save)
     
     for (iDat in input$chooseDatasetToExport){
         print(iDat)

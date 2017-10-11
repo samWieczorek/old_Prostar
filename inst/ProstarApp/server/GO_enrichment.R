@@ -573,7 +573,8 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                         rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
-                
+                updateRadioButtons(session, "whichGO2Save", 
+                                  selected = input$whichGO2Save)
                 
                 # 
                 # ####write command Log file
