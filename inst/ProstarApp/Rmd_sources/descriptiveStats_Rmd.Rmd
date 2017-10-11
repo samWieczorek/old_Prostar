@@ -8,16 +8,35 @@
 * Pourcentage de valeurs manquantes = `r params$listOverview$pourcentageNA` %
 * Number of lines with only NA values = `r params$listOverview$nNAlines`
 
-```{r fig_ds,out.width = "75%", echo=FALSE}
-layout(t(1:3))
+```{r fig_histoMV,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
+```
 
+```{r fig_histoMVperLines,out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
+```
+
+```{r fig_histoMVperCond,out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
+```
+
+```{r fig_corMatrix,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"))
+```
+
+```{r fig_boxplot,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
+```
+
+```{r fig_dentistyPlot,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"))
+```
+
+```{r fig_varDist,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"))
+```
+
+```{r fig_vioplot,out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
 ```
 
