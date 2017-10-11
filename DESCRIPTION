@@ -26,4 +26,7 @@ Imports: DAPAR (>= 1.9.13), DAPARdata, rhandsontable, data.table,
         shinyjs, DT, shiny, shinyAce, highcharter, htmlwidgets, webshot
 NeedsCompilation: no
 RoxygenNote: 6.0.1
+<<<<<<< HEAD
 Packaged: 2017-09-06 07:38:48 UTC; sw175264
+=======
+>>>>>>> upstream/master
