@@ -10,10 +10,15 @@ Parameters used for the normalization step :
                                                              
                                                              
                                                              
-```{r,out.width = "50%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotAfterNorm, sep="/"))
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
+```{r fig_boxplotNorm,out.width = "50%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplotAfterNorm, sep="/"))
 ```
 
+```{r fig_densityplotNorm,out.width = "50%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotAfterNorm, sep="/"))
+```
+
+```{r fig_compNorm,out.width = "50%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"))
+```
 
