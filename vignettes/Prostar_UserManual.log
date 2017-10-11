@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.9)  11 OCT 2017 14:45
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.9)  11 OCT 2017 16:27
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -898,28 +898,28 @@ Environment Schunk is already defined, stay with former definition)
 (./Prostar_UserManual.aux)
 \openout1 = `Prostar_UserManual.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 38.
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 38.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 38.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 39.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 39.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 39.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 38.
-LaTeX Font Info:    Try loading font information for T1+lmss on input line 38.
+LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Try loading font information for T1+lmss on input line 39.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
@@ -939,7 +939,7 @@ File: t1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 \everyMPtoPDFconversion=\toks32
 )
 \AtBeginShipoutBox=\box34
-Package hyperref Info: Link coloring ON on input line 38.
+Package hyperref Info: Link coloring ON on input line 39.
  (/usr/local/texlive/2015/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 
@@ -948,9 +948,9 @@ Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
 \c@section@level=\count139
 )
-LaTeX Info: Redefining \ref on input line 38.
-LaTeX Info: Redefining \pageref on input line 38.
-LaTeX Info: Redefining \nameref on input line 38.
+LaTeX Info: Redefining \ref on input line 39.
+LaTeX Info: Redefining \pageref on input line 39.
+LaTeX Info: Redefining \nameref on input line 39.
 
 (./Prostar_UserManual.out) (./Prostar_UserManual.out)
 \@outlinefile=\write5
@@ -993,7 +993,7 @@ LaTeX Info: Redefining \nameref on input line 38.
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
 ABD: EverySelectfont initializing macros
-LaTeX Info: Redefining \selectfont on input line 38.
+LaTeX Info: Redefining \selectfont on input line 39.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
@@ -1012,31 +1012,31 @@ e
 ))
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-Package caption Info: We need package `ragged2e' on input line 38.
+Package caption Info: We need package `ragged2e' on input line 39.
 
 (./Prostar_UserManual-concordance.tex)
-LaTeX Font Info:    Try loading font information for T1+phv on input line 42.
+LaTeX Font Info:    Try loading font information for T1+phv on input line 43.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 )
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <24.88> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 42.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 43.
 LaTeX Font Info:    Font shape `T1/phv/bx/sl' in size <24.88> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 42.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 43.
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <17.28> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 42.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 43.
 
-Overfull \hbox (26.83282pt too wide) in paragraph at lines 42--42
+Overfull \hbox (26.83282pt too wide) in paragraph at lines 43--43
 []\T1/lmss/m/n/10 firstname.lastname@cea.fr  
  []
 
 LaTeX Font Info:    Font shape `T1/lmss/bx/it' in size <12> not available
-(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 42.
+(Font)              Font shape `T1/lmss/bx/sl' tried instead on input line 43.
 LaTeX Font Info:    Font shape `T1/lmss/m/it' in size <12> not available
-(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 42.
+(Font)              Font shape `T1/lmss/m/sl' tried instead on input line 43.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 49.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 50.
 [1{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
 ]
@@ -1048,54 +1048,54 @@ LaTeX Font Info:    Font shape `T1/phv/bx/sl' in size <12> not available
 \openout6 = `Prostar_UserManual.toc'.
 
  [3]
-Underfull \hbox (badness 10000) in paragraph at lines 72--79
+Underfull \hbox (badness 10000) in paragraph at lines 73--80
 
  []
 
-LaTeX Font Info:    Try loading font information for TS1+lmss on input line 83.
+LaTeX Font Info:    Try loading font information for TS1+lmss on input line 84.
 
 (/usr/local/texlive/2015/texmf-dist/tex/latex/lm/ts1lmss.fd
 File: ts1lmss.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-Overfull \hbox (14.13115pt too wide) in paragraph at lines 90--92
+Overfull \hbox (14.13115pt too wide) in paragraph at lines 91--93
 []\T1/lmss/m/n/12 Compute and dis-play mean-ing-ful statis-tics re-gard-ing the
  quan-ti-ta-tive dataset. 
  []
 
 [4]
-LaTeX Font Info:    Try loading font information for T1+fvm on input line 168.
+LaTeX Font Info:    Try loading font information for T1+fvm on input line 169.
  (/usr/local/texlive/2015/texmf-dist/tex/latex/bera/t1fvm.fd
 File: t1fvm.fd 2004/09/07 scalable font definitions for T1/fvm.
 )
 LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
-(Font)              scaled to size 9.57605pt on input line 168.
+(Font)              scaled to size 9.57605pt on input line 169.
 LaTeX Font Info:    Font shape `T1/fvm/m/sl' will be
-(Font)              scaled to size 9.57605pt on input line 168.
+(Font)              scaled to size 9.57605pt on input line 169.
  [5]
 LaTeX Font Info:    Font shape `T1/fvm/m/n' will be
-(Font)              scaled to size 7.98004pt on input line 211.
+(Font)              scaled to size 7.98004pt on input line 212.
 
-Underfull \hbox (badness 10000) in paragraph at lines 210--213
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 215--220
+Underfull \hbox (badness 10000) in paragraph at lines 211--214
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 221--229
+Underfull \hbox (badness 10000) in paragraph at lines 216--221
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 221--229
+Underfull \hbox (badness 10000) in paragraph at lines 222--230
 
  []
 
 
-Overfull \hbox (67.65802pt too wide) in paragraph at lines 230--232
+Underfull \hbox (badness 10000) in paragraph at lines 222--230
+
+ []
+
+
+Overfull \hbox (67.65802pt too wide) in paragraph at lines 231--233
 []\T1/lmss/m/n/12 Now, the ap-pli-ca-tion should be avail-able via a web browse
 r at http://\T1/lmss/m/sl/12 servername\T1/lmss/m/n/12 :\T1/lmss/m/sl/12 port\T
 1/lmss/m/n/12 /Prostar. 
@@ -1105,12 +1105,12 @@ r at http://\T1/lmss/m/sl/12 servername\T1/lmss/m/n/12 :\T1/lmss/m/sl/12 port\T
 File: images/defaultProstar1.png Graphic file (type png)
 
 <use images/defaultProstar1.png>
-Package pdftex.def Info: images/defaultProstar1.png used on input line 283.
+Package pdftex.def Info: images/defaultProstar1.png used on input line 284.
 (pdftex.def)             Requested size: 221.91899pt x 103.54968pt.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 284.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 285.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 284--284
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 285--285
 [] [] 
  []
 
@@ -1118,20 +1118,20 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 284--284
 File: images/open_msnset.png Graphic file (type png)
 
 <use images/open_msnset.png>
-Package pdftex.def Info: images/open_msnset.png used on input line 336.
+Package pdftex.def Info: images/open_msnset.png used on input line 337.
 (pdftex.def)             Requested size: 341.43018pt x 139.8373pt.
 
-Overfull \hbox (6.79707pt too wide) in paragraph at lines 336--337
+Overfull \hbox (6.79707pt too wide) in paragraph at lines 337--338
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 337--337
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 338--338
 [] [] 
  []
 
 [8 <./images/defaultProstar1.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 350--352
+Underfull \hbox (badness 10000) in paragraph at lines 351--353
 
  []
 
@@ -1140,15 +1140,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 350--352
 File: images/convert_selectfile.png Graphic file (type png)
 
 <use images/convert_selectfile.png>
-Package pdftex.def Info: images/convert_selectfile.png used on input line 438.
+Package pdftex.def Info: images/convert_selectfile.png used on input line 439.
 (pdftex.def)             Requested size: 341.43423pt x 196.80925pt.
 
-Overfull \hbox (6.80113pt too wide) in paragraph at lines 438--439
+Overfull \hbox (6.80113pt too wide) in paragraph at lines 439--440
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 439--439
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 440--440
 [] [] 
  []
 
@@ -1156,10 +1156,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 439--439
 File: images/convert_dataID.png Graphic file (type png)
 
 <use images/convert_dataID.png>
-Package pdftex.def Info: images/convert_dataID.png used on input line 452.
+Package pdftex.def Info: images/convert_dataID.png used on input line 453.
 (pdftex.def)             Requested size: 256.07968pt x 97.52821pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 453--453
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 454--454
 [] [] 
  []
 
@@ -1167,16 +1167,16 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 453--453
 File: images/convert_exp_featdata.png Graphic file (type png)
 
 <use images/convert_exp_featdata.png>
-Package pdftex.def Info: images/convert_exp_featdata.png used on input line 464
+Package pdftex.def Info: images/convert_exp_featdata.png used on input line 465
 .
 (pdftex.def)             Requested size: 341.4285pt x 116.17805pt.
 
-Overfull \hbox (6.7954pt too wide) in paragraph at lines 464--465
+Overfull \hbox (6.7954pt too wide) in paragraph at lines 465--466
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 465--465
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 466--466
 [] [] 
  []
 
@@ -1184,10 +1184,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 465--465
 File: images/convert_sampledata.png Graphic file (type png)
 
 <use images/convert_sampledata.png>
-Package pdftex.def Info: images/convert_sampledata.png used on input line 484.
+Package pdftex.def Info: images/convert_sampledata.png used on input line 485.
 (pdftex.def)             Requested size: 228.74886pt x 104.32083pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 485--485
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 486--486
 [] [] 
  []
 
@@ -1196,15 +1196,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 485--485
 File: images/convert_convert.png Graphic file (type png)
 
 <use images/convert_convert.png>
-Package pdftex.def Info: images/convert_convert.png used on input line 494.
+Package pdftex.def Info: images/convert_convert.png used on input line 495.
 (pdftex.def)             Requested size: 307.28845pt x 91.5106pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 495--495
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 496--496
 [] [] 
  []
 
 ! Undefined control sequence.
-l.505 \subsubsubsection
+l.506 \subsubsubsection
                        {Export to a file}
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1215,17 +1215,17 @@ and I'll forget about whatever was undefined.
 <images/export.png, id=441, 932.48375pt x 512.91624pt>
 File: images/export.png Graphic file (type png)
  <use images/export.png>
-Package pdftex.def Info: images/export.png used on input line 516.
+Package pdftex.def Info: images/export.png used on input line 517.
 (pdftex.def)             Requested size: 307.2795pt x 169.02026pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 517--517
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 518--518
 [] [] 
  []
 
 [12 <./images/convert_exp_featdata.png> <./images/convert_sampledata.png> <./im
 ages/convert_convert.png>]
 ! Undefined control sequence.
-l.539 \subsubsubsection
+l.540 \subsubsubsection
                        {Export plots as report}
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -1237,15 +1237,15 @@ and I'll forget about whatever was undefined.
 File: images/demomode.png Graphic file (type png)
 
 <use images/demomode.png>
-Package pdftex.def Info: images/demomode.png used on input line 555.
+Package pdftex.def Info: images/demomode.png used on input line 556.
 (pdftex.def)             Requested size: 307.28679pt x 236.89973pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 556--556
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 557--557
 [] [] 
  []
 
 
-Overfull \hbox (22.65186pt too wide) in paragraph at lines 562--572
+Overfull \hbox (22.65186pt too wide) in paragraph at lines 563--573
 []\T1/lmss/m/n/12 Each time the user val-i-dates a pro-cess-ing step (by click-
 ing on the "Save <\T1/lmss/m/sl/12 the_step\T1/lmss/m/n/12 >"
  []
@@ -1255,20 +1255,20 @@ ing on the "Save <\T1/lmss/m/sl/12 the_step\T1/lmss/m/n/12 >"
 File: images/logSession.png Graphic file (type png)
 
 <use images/logSession.png>
-Package pdftex.def Info: images/logSession.png used on input line 575.
+Package pdftex.def Info: images/logSession.png used on input line 576.
 (pdftex.def)             Requested size: 256.07597pt x 82.88026pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 576--576
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 577--577
 [] [] 
  []
 
 <images/Rcode.png, id=475, 949.5475pt x 453.695pt>
 File: images/Rcode.png Graphic file (type png)
  <use images/Rcode.png>
-Package pdftex.def Info: images/Rcode.png used on input line 586.
+Package pdftex.def Info: images/Rcode.png used on input line 587.
 (pdftex.def)             Requested size: 256.07698pt x 122.3539pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 588--588
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 589--589
 [] [] 
  []
 
@@ -1277,15 +1277,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 588--588
 File: images/desc_missValues.png Graphic file (type png)
 
 <use images/desc_missValues.png>
-Package pdftex.def Info: images/desc_missValues.png used on input line 609.
+Package pdftex.def Info: images/desc_missValues.png used on input line 610.
 (pdftex.def)             Requested size: 256.0784pt x 105.03362pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 610--610
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 611--611
 [] [] 
  []
 
 
-Overfull \hbox (39.69933pt too wide) in paragraph at lines 628--631
+Overfull \hbox (39.69933pt too wide) in paragraph at lines 629--632
 []\T1/lmss/m/n/12 for an ob-ject of class MSnSet: [][]\T1/fvm/m/n/12 wrap[][]pe
 r.mvPerLinesHisto()[]\T1/lmss/m/n/12 , [][]\T1/fvm/m/n/12 wrap[][]per.mvHisto()
 []
@@ -1296,10 +1296,10 @@ r.mvPerLinesHisto()[]\T1/lmss/m/n/12 , [][]\T1/fvm/m/n/12 wrap[][]per.mvHisto()
 File: images/desc_quantiData.png Graphic file (type png)
 
 <use images/desc_quantiData.png>
-Package pdftex.def Info: images/desc_quantiData.png used on input line 644.
+Package pdftex.def Info: images/desc_quantiData.png used on input line 645.
 (pdftex.def)             Requested size: 273.1475pt x 132.6956pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 645--645
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 646--646
 [] [] 
  []
 
@@ -1307,10 +1307,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 645--645
 File: images/desc_fdata.png Graphic file (type png)
 
 <use images/desc_fdata.png>
-Package pdftex.def Info: images/desc_fdata.png used on input line 654.
+Package pdftex.def Info: images/desc_fdata.png used on input line 655.
 (pdftex.def)             Requested size: 273.14883pt x 137.42403pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 655--655
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 656--656
 [] [] 
  []
 
@@ -1318,15 +1318,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 655--655
 File: images/desc_pdata.png Graphic file (type png)
 
 <use images/desc_pdata.png>
-Package pdftex.def Info: images/desc_pdata.png used on input line 664.
+Package pdftex.def Info: images/desc_pdata.png used on input line 665.
 (pdftex.def)             Requested size: 341.43602pt x 126.57596pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 664--665
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 665--666
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 665--665
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 666--666
 [] [] 
  []
 
@@ -1335,15 +1335,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 665--665
 File: images/desc_heatmap.png Graphic file (type png)
 
 <use images/desc_heatmap.png>
-Package pdftex.def Info: images/desc_heatmap.png used on input line 703.
+Package pdftex.def Info: images/desc_heatmap.png used on input line 704.
 (pdftex.def)             Requested size: 341.43785pt x 195.42824pt.
 
-Overfull \hbox (6.80475pt too wide) in paragraph at lines 703--704
+Overfull \hbox (6.80475pt too wide) in paragraph at lines 704--705
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 704--704
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 705--705
 [] [] 
  []
 
@@ -1351,15 +1351,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 704--704
 File: images/desc_corrmatrix.png Graphic file (type png)
 
 <use images/desc_corrmatrix.png>
-Package pdftex.def Info: images/desc_corrmatrix.png used on input line 723.
+Package pdftex.def Info: images/desc_corrmatrix.png used on input line 724.
 (pdftex.def)             Requested size: 341.42398pt x 215.60458pt.
 
-Overfull \hbox (6.79088pt too wide) in paragraph at lines 723--724
+Overfull \hbox (6.79088pt too wide) in paragraph at lines 724--725
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 724--724
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 725--725
 [] [] 
  []
 
@@ -1368,15 +1368,15 @@ orrmatrix.png>] <images/desc_boxplot.png, id=542, 1131.22626pt x 697.60625pt>
 File: images/desc_boxplot.png Graphic file (type png)
 
 <use images/desc_boxplot.png>
-Package pdftex.def Info: images/desc_boxplot.png used on input line 746.
+Package pdftex.def Info: images/desc_boxplot.png used on input line 747.
 (pdftex.def)             Requested size: 204.85474pt x 126.33011pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 747--747
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 748--748
 [] [] 
  []
 
 
-Overfull \hbox (4.70364pt too wide) in paragraph at lines 764--769
+Overfull \hbox (4.70364pt too wide) in paragraph at lines 765--770
 []\T1/lmss/m/n/12 The pro-tein dis-tri-bu-tion by repli-cates is sum-ma-rized w
 ith vi-o-lin plots (see Fig. [][]19[][]).
  []
@@ -1385,10 +1385,10 @@ ith vi-o-lin plots (see Fig. [][]19[][]).
 File: images/desc_violinplot.png Graphic file (type png)
 
 <use images/desc_violinplot.png>
-Package pdftex.def Info: images/desc_violinplot.png used on input line 772.
+Package pdftex.def Info: images/desc_violinplot.png used on input line 773.
 (pdftex.def)             Requested size: 204.85173pt x 129.12975pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 773--773
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 774--774
 [] [] 
  []
 
@@ -1396,10 +1396,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 773--773
 File: images/desc_CVDist.png Graphic file (type png)
 
 <use images/desc_CVDist.png>
-Package pdftex.def Info: images/desc_CVDist.png used on input line 796.
+Package pdftex.def Info: images/desc_CVDist.png used on input line 797.
 (pdftex.def)             Requested size: 256.06654pt x 172.99326pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 797--797
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 798--798
 [] [] 
  []
 
@@ -1408,10 +1408,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 797--797
 File: images/desc_density.png Graphic file (type png)
 
 <use images/desc_density.png>
-Package pdftex.def Info: images/desc_density.png used on input line 809.
+Package pdftex.def Info: images/desc_density.png used on input line 810.
 (pdftex.def)             Requested size: 228.7482pt x 148.31606pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 810--810
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 811--811
 [] [] 
  []
 
@@ -1419,15 +1419,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 810--810
 <images/filter1.png, id=576, 1288.815pt x 640.3925pt>
 File: images/filter1.png Graphic file (type png)
  <use images/filter1.png>
-Package pdftex.def Info: images/filter1.png used on input line 871.
+Package pdftex.def Info: images/filter1.png used on input line 872.
 (pdftex.def)             Requested size: 341.43602pt x 169.65434pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 871--872
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 872--873
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 872--872
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 873--873
 [] [] 
  []
 
@@ -1436,15 +1436,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 872--872
 File: images/filter2.png Graphic file (type png)
 
 <use images/filter2.png>
-Package pdftex.def Info: images/filter2.png used on input line 877.
+Package pdftex.def Info: images/filter2.png used on input line 878.
 (pdftex.def)             Requested size: 341.42316pt x 184.50917pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 877--878
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 878--879
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 878--878
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 879--879
 [] [] 
  []
 
@@ -1452,15 +1452,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 878--878
 File: images/filter3.png Graphic file (type png)
 
 <use images/filter3.png>
-Package pdftex.def Info: images/filter3.png used on input line 883.
+Package pdftex.def Info: images/filter3.png used on input line 884.
 (pdftex.def)             Requested size: 341.43602pt x 219.38062pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 883--884
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 884--885
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 884--884
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 885--885
 [] [] 
  []
 
@@ -1469,25 +1469,25 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 884--884
 File: images/normalisation.png Graphic file (type png)
 
 <use images/normalisation.png>
-Package pdftex.def Info: images/normalisation.png used on input line 962.
+Package pdftex.def Info: images/normalisation.png used on input line 963.
 (pdftex.def)             Requested size: 341.42316pt x 255.391pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 962--963
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 963--964
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 963--963
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 964--964
 [] [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 984--987
+Underfull \hbox (badness 10000) in paragraph at lines 985--988
 
  []
 
 [24]
-Underfull \hbox (badness 10000) in paragraph at lines 1000--1003
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1004
 
  []
 
@@ -1496,20 +1496,20 @@ Underfull \hbox (badness 10000) in paragraph at lines 1000--1003
 File: images/imputation.png Graphic file (type png)
 
 <use images/imputation.png>
-Package pdftex.def Info: images/imputation.png used on input line 1137.
+Package pdftex.def Info: images/imputation.png used on input line 1138.
 (pdftex.def)             Requested size: 341.43385pt x 247.38785pt.
 
-Overfull \hbox (6.80075pt too wide) in paragraph at lines 1137--1138
+Overfull \hbox (6.80075pt too wide) in paragraph at lines 1138--1139
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1138--1138
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1139--1139
 [] [] 
  []
 
 [27 <./images/imputation.png>]
-Overfull \hbox (30.90643pt too wide) in paragraph at lines 1186--1188
+Overfull \hbox (30.90643pt too wide) in paragraph at lines 1187--1189
 []\T1/lmss/m/n/12 for an ob-ject of class MSnSet: [][]\T1/fvm/m/n/12 wrap[][]pe
 r.mvTypePlot()[] \T1/lmss/m/n/12 and [][]\T1/fvm/m/n/12 wrap[][]per.mvImage()[]
 \T1/lmss/m/n/12 . 
@@ -1519,15 +1519,15 @@ r.mvTypePlot()[] \T1/lmss/m/n/12 and [][]\T1/fvm/m/n/12 wrap[][]per.mvImage()[]
 File: images/agregation1.png Graphic file (type png)
 
 <use images/agregation1.png>
-Package pdftex.def Info: images/agregation1.png used on input line 1213.
+Package pdftex.def Info: images/agregation1.png used on input line 1214.
 (pdftex.def)             Requested size: 341.42564pt x 190.38243pt.
 
-Overfull \hbox (6.79254pt too wide) in paragraph at lines 1213--1214
+Overfull \hbox (6.79254pt too wide) in paragraph at lines 1214--1215
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1214--1214
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1215--1215
 [] [] 
  []
 
@@ -1535,15 +1535,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 1214--1214
 File: images/agregation2.png Graphic file (type png)
 
 <use images/agregation2.png>
-Package pdftex.def Info: images/agregation2.png used on input line 1219.
+Package pdftex.def Info: images/agregation2.png used on input line 1220.
 (pdftex.def)             Requested size: 341.42316pt x 50.05014pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 1219--1220
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 1220--1221
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1220--1220
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1221--1221
 [] [] 
  []
 
@@ -1551,15 +1551,15 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 1220--1220
 <images/anaDiff1.png, id=691, 1132.23pt x 815.045pt>
 File: images/anaDiff1.png Graphic file (type png)
  <use images/anaDiff1.png>
-Package pdftex.def Info: images/anaDiff1.png used on input line 1333.
+Package pdftex.def Info: images/anaDiff1.png used on input line 1334.
 (pdftex.def)             Requested size: 204.84647pt x 147.46039pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1334--1334
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1335--1335
 [] [] 
  []
 
 
-Overfull \hbox (38.7855pt too wide) in paragraph at lines 1339--1345
+Overfull \hbox (38.7855pt too wide) in paragraph at lines 1340--1346
 \T1/lmss/m/n/12 google . com / site / thomasburgerswebpage / download / tutoria
 l-[]CP4P-[]4 . pdf ? attredirects =
  []
@@ -1568,10 +1568,10 @@ l-[]CP4P-[]4 . pdf ? attredirects =
 File: images/anaDiff2.png Graphic file (type png)
 
 <use images/anaDiff2.png>
-Package pdftex.def Info: images/anaDiff2.png used on input line 1348.
+Package pdftex.def Info: images/anaDiff2.png used on input line 1349.
 (pdftex.def)             Requested size: 204.84894pt x 171.32484pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1349--1349
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1350--1350
 [] [] 
  []
 
@@ -1580,10 +1580,10 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 1349--1349
 File: images/anaDiff3.png Graphic file (type png)
 
 <use images/anaDiff3.png>
-Package pdftex.def Info: images/anaDiff3.png used on input line 1356.
+Package pdftex.def Info: images/anaDiff3.png used on input line 1357.
 (pdftex.def)             Requested size: 204.86136pt x 158.37566pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1357--1357
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1358--1358
 [] [] 
  []
 
@@ -1592,44 +1592,44 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 1357--1357
 File: images/anaDiff4.png Graphic file (type png)
 
 <use images/anaDiff4.png>
-Package pdftex.def Info: images/anaDiff4.png used on input line 1395.
+Package pdftex.def Info: images/anaDiff4.png used on input line 1396.
 (pdftex.def)             Requested size: 341.43436pt x 200.96707pt.
 
-Overfull \hbox (6.80125pt too wide) in paragraph at lines 1395--1397
+Overfull \hbox (6.80125pt too wide) in paragraph at lines 1396--1398
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1397--1397
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1398--1398
 [] [] 
  []
 
 [33 <./images/anaDiff4.png>] [34]
-Overfull \hbox (77.62027pt too wide) in paragraph at lines 1522--1523
+Overfull \hbox (77.62027pt too wide) in paragraph at lines 1523--1524
 []\T1/fvm/m/n/12 /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/lib
 Rblas.0.dylib  
  []
 
 [35]
-Overfull \hbox (77.62027pt too wide) in paragraph at lines 1523--1524
+Overfull \hbox (77.62027pt too wide) in paragraph at lines 1524--1525
 []\T1/fvm/m/n/12 /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/lib
 Rlapack.dylib  
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1535.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1536.
 [36]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1535.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1536.
  (./Prostar_UserManual.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1535.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1535.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1536.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1536.
 
 Package rerunfilecheck Info: File `Prostar_UserManual.out' has not changed.
 (rerunfilecheck)             Checksum: D961EA2EAC69B8575D33C999CB279895;2430.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1535.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1536.
  )
 (\end occurred inside a group at level 1)
 
-### simple group (level 1) entered at line 350 ({)
+### simple group (level 1) entered at line 351 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
  11912 strings out of 493089

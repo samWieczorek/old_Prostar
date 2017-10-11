@@ -115,10 +115,11 @@ imputationAlgorithms <- list("None" = "None",
                              "Basic methods" = "Basic methods")
 
 basicMethodsImputationAlgos <- list(
-                             #"dummy censored" = "dummy censored",
+                                "detQuantile" = "detQuantile",
+                                #"dummy censored" = "dummy censored",
                                 "KNN" = "KNN",
-                            "MLE" = "MLE",
-                            "detQuantile" = "detQuantile")
+                                "MLE" = "MLE"
+                            )
 
 
 JSCSSTags <- function() 

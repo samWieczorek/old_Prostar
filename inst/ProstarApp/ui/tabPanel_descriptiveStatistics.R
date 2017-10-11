@@ -51,8 +51,10 @@ tabPanel("Descriptive statistics",
                                                                 "Tune to modify the color gradient",
                                                                 min = 0,max = 1,value = defaultGradientRate,step=0.01)
                                           ),
-                                          busyIndicator("Building plot. Please wait...",wait = 0),
+                                          tagList(
+                                              busyIndicator("Building plot. Please wait...",wait = 0),
                                           highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
+                                          )
                               )
                      ),
                      
@@ -86,7 +88,8 @@ tabPanel("Descriptive statistics",
                                                     uiOutput("ChooseLegendForAxis_DS")
                                           ),
                                          tagList(
-                                                 plotOutput("viewBoxPlot_DS",width = plotWidth,
+                                             busyIndicator("Calculation in progress",wait = 0),
+                                             plotOutput("viewBoxPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
                               )
@@ -103,7 +106,8 @@ tabPanel("Descriptive statistics",
                                                     uiOutput("ChooseLegendForAxisViolin_DS")
                                           ),
                                           tagList(
-                                            plotOutput("viewViolinPlot_DS",width = plotWidth,
+                                              busyIndicator("Calculation in progress",wait = 0),
+                                              plotOutput("viewViolinPlot_DS",width = plotWidth,
                                                                       height = plotHeight)
                                           )
                               )
@@ -117,7 +121,9 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_densityplot",
                                                     uiOutput("DS_sidebarPanel_Densityplot")
                                           ),
-                                          tagList(highchartOutput("viewDensityplot_DS",
+                                          tagList(
+                                              busyIndicator("Calculation in progress",wait = 0),
+                                              highchartOutput("viewDensityplot_DS",
                                                                       width = plotWidth,
                                                                       height = plotHeight)
                                           )
@@ -130,6 +136,7 @@ tabPanel("Descriptive statistics",
                               helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
                                 of the protein/peptides."),
                                 helpText("For better visualization, it is possible to zoom in by click-and-drag."),
+                              busyIndicator("Calculation in progress",wait = 0),
                               highchartOutput("viewDistCV",
                                          width = plotWidth,
                                          height = plotHeight)
