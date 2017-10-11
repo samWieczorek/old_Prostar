@@ -9,23 +9,32 @@ Parameters used for the GO analysis :
                                                        
    
    
-```{r conditional_block1, eval=params$listGOClassifAnalysis$group1, out.width = "75%", echo=FALSE}
+```{r fig_GOClassif1, eval=params$listGOClassifAnalysis$group1, out.width = "75%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img1, sep="/"))
+```                                                    
+
+```{r tab_GOClassif1, eval=params$listGOClassifAnalysis$group1, out.width = "75%", echo=FALSE}
 library(knitr)
 kable(params$listGOClassifAnalysis$df1)
+```  
+
+
+```{r fig_GOClassif2, eval=params$listGOClassifAnalysis$group2, out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img2, sep="/"))
 ```                                                    
 
-```{r conditional_block2, eval=params$listGOClassifAnalysis$group2, out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img2, sep="/"))
+```{r tab_GOClassif2, eval=params$listGOClassifAnalysis$group2, out.width = "75%", echo=FALSE}
 library(knitr)
 kable(params$listGOClassifAnalysis$df2)
+```    
+
+```{r fig_GOClassif3, eval=params$listGOClassifAnalysis$group3, out.width = "75%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img3, sep="/"))
 ```                                                    
 
-```{r conditional_block3, eval=params$listGOClassifAnalysis$group3, out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img3, sep="/"))
+```{r tab_GOClassif3, eval=params$listGOClassifAnalysis$group3, out.width = "75%", echo=FALSE}
 library(knitr)
 kable(params$listGOClassifAnalysis$df3)
 ```                                                    
-
 
 
