@@ -489,9 +489,9 @@ on the top of the left panel, above the menu.
 from a CSV file is \Rfunction{createMSnSet()}.
 
 
-\subsubsection{Export}
+%\subsubsection{Export}
 
-\subsubsubsection{Export to a file}
+\subsubsection{Export dataset to a file}
 Once an MSnSet has been created, it is possible to save it as a MSnSet binary 
 object (so that next time, it is not necessary to create it, and a simple 
 uploads makes it, as described in Section~\ref{sec:load}). It is also possible 
@@ -525,9 +525,19 @@ right-clicking on the plot. A contextual menu appears and let the user
 choose either "Save image as" or "Copy image". In the latter case, he/she has 
 to paste the image in appropriate software.}
 
-\subsubsubsection{Export plots as report}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Export plots as report (Beta)}\label{sec:Report}
+To complete the exported datasets (see previous section), the user can generate and download a report dynamically created on demand (e.g. at the end of an analysis).
 
+The upper part of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected.
+The user has to choose which results have to be included in the report.
+Even if no analysis has been done (e.g. the upload of a dataset), the plots of the Descriptive Statistics are available.
 
+The second part of the interface is to let the user choose the format of the report; it can be a pdf file, a HTML file or a Word file. He/she has also to specify the name of the file.
+
+Once those options choosen, the user clicks on the button called "Generate a report". Then, ProStaR creates all the images needed and include them in the report file. During this step, the button "Download" is disabled. It become enabled only when the report if ready (in background) to be downloaded.
+
+Finally, the user clicks on the 'Download' button to get the report.
 
 \subsubsection{Demo mode} \label{sec:demomode}
 
@@ -1144,6 +1154,8 @@ conservative way is a real issue as the imputation cannot rely on any observed
 value in a given condition. The parameter "Upper LAPALA bound" defines the 
 maximum imputed value as a centile of the observed distribution (a tuning 
 between 0\% and 10\% is advised). 
+
+xxxxxxxxxxxxxxx
 \item Alternatively, it is possible to use KNN ($K$ Nearest Neighbors) from package 
 \Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package 
 \Biocpkg{norm}.
@@ -1401,6 +1413,8 @@ user defining the thresholds on the $p$-values and on the Fold Change, so has
 to be more or less stringent on the number of proteins called "Significant".
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{GO analysis (Beta)}\label{sec:GOAnalysis}
 
 
 

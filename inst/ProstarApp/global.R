@@ -32,6 +32,11 @@ pngWidth <- 1200
 pngHeight <- 1200
 zoomWebshot <- 3
 
+
+WaitMsgPlot <- "Building plot. Please wait..."
+WaitMsgCalc <- "Calculation in progress"
+
+
 commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"
 gFileExtension <- list(txt = ".txt",

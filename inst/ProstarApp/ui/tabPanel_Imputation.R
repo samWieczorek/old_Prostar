@@ -32,7 +32,7 @@ tabPanel("Miss. values imputation",
                          uiOutput("showImputationPanel"),
                          uiOutput("detQuant_impValues"),
                          dataTableOutput("TAB_detQuant_impValues"),
-                                      busyIndicator("Calculation in progress",wait = 0),
+                                      busyIndicator(WaitMsgPlot,wait = 0),
                                       #imageOutput("viewNAbyMean"),
                                       fluidRow(
                                           column(width = 5, plotOutput("viewNAbyMean"

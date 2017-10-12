@@ -21,10 +21,8 @@ observeEvent(input$generateReport,{
     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
     file.copy(src, filename, overwrite = TRUE)
     
-    print(input$whichGO2Save)
     
     for (iDat in input$chooseDatasetToExport){
-        print(iDat)
         rv$iDat <- iDat
         dname <- unlist(strsplit(iDat, " - "))[1]
         type <- unlist(strsplit(iDat, " - "))[2]
@@ -53,6 +51,12 @@ observeEvent(input$generateReport,{
                    txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
                    filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                    write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
+               },
+               Aggregated={
+                 createPNG_Aggregation()
+                 txt2Rmd <- readLines("Rmd_sources/aggregation_Rmd.Rmd")
+                 filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
+                 write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                },
                DiffAnalysis.Limma={
                    createPNG_DifferentialAnalysis()
@@ -435,9 +439,9 @@ createPNG_GroupGO <- reactive({
 
 ######-----------------------------------------------------------------
 output$downloadReport <- downloadHandler(
-   
+   input$reportFilename,
     filename = function() {
-        paste('__ProStaR report', sep = '.', switch(
+        paste(input$reportFilename, sep = '.', switch(
             input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
         ))
     },
@@ -479,7 +483,8 @@ output$downloadReport <- downloadHandler(
                                                           OnlyLAPALA_distrib = input$OnlyLAPALA_distrib,
                                                           imp4pLAPALA_distrib = input$imp4pLAPALA_distrib),
                                     
-                                    listAggregation = list(a=3, b=4, c=8),
+                                    listAggregation = list(method = input$aggregationMethod,
+                                                           df=rv$AggregProtStats),
                                     listAnaDiff = list(condition1 = input$condition1, 
                                                        condition2 = input$condition2,
                                                        calibrationMethod = input$calibrationMethod,

@@ -311,49 +311,55 @@ output$aggregationStats <- renderUI ({
     input$proteinId
     rv$current.obj
     rv$matAdj
-    if (is.null( input$proteinId) 
-        || (input$proteinId == "None")
-        || is.null(rv$matAdj))
-    {return(NULL)}
+    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
+      {return(NULL)}
     if (is.null( rv$current.obj)){return(NULL)}
     
     res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
                             rv$matAdj$matWithSharedPeptides)
     
+    
+    rv$AggregProtStats$nb <- c(nrow(rv$matAdj$matWithSharedPeptides),
+                               nrow(rv$matAdj$matWithUniquePeptides),
+                               nrow(rv$matAdj$matWithSharedPeptides)-nrow(rv$matAdj$matWithUniquePeptides),
+                               ncol(rv$matAdj$matWithSharedPeptides),
+                               length(res$protOnlyUniquePep),
+                               length(res$protOnlySharedPep),
+                               length(res$protMixPep))
+    
     text <- paste("<ul style=\"list-style-type:disc;\">
-                  <li>
-                  Number of peptides: ", 
-                  nrow(rv$matAdj$matWithSharedPeptides),
+                  <li>",
+                  rv$AggregProtStats$name[1],": ", 
+                  rv$AggregProtStats$nb[1],
                   "</li>
                   
-                  <li>
-                  Number of specific peptides: ", 
-                  nrow(rv$matAdj$matWithUniquePeptides),
+                  <li>",
+                  rv$AggregProtStats$name[2],": ", 
+                  rv$AggregProtStats$nb[2],
                   "</li>
                   
                   
-                  <li>
-                  Number of shared peptides: ",
-                  nrow(rv$matAdj$matWithSharedPeptides)
-                  -nrow(rv$matAdj$matWithUniquePeptides),
+                  <li>",
+                  rv$AggregProtStats$name[3],": ",
+                  rv$AggregProtStats$nb[3],
                   "</li>
                   
-                  <li>
-                  Number of proteins:  ", ncol(rv$matAdj$matWithSharedPeptides),
+                  <li>",
+                  rv$AggregProtStats$name[4],":  ", rv$AggregProtStats$nb[4],
                   " </li>
-                  <li>
-                  Number of proteins only defined by specific peptides: ", 
-                  length(res$protOnlyUniquePep), 
+                  <li>",
+                  rv$AggregProtStats$name[5],": ", 
+                  rv$AggregProtStats$nb[5], 
                   "</li>
                   
-                  <li>
-                  Number of proteins only defined by shared peptides:  ", 
-                  length(res$protOnlySharedPep), 
+                  <li>",
+                  rv$AggregProtStats$name[6],":  ", 
+                  rv$AggregProtStats$nb[6], 
                   "</li>
                   
-                  <li>
-                  Number of proteins defined both by shared and specific peptides:  ", 
-                  length(res$protMixPep), 
+                  <li>",
+                  rv$AggregProtStats$name[7],":  ", 
+                  rv$AggregProtStats$nb[7], 
                   "</li>
                   
                   </ul>" , sep="")
@@ -501,7 +507,7 @@ output$AggregationWellPanel_Step1 <- renderUI({
                 column(width=6, h4("Only specific peptides")),
                 column(width=6, h4("All (specific & shared) peptides"))
                 ),
-            busyIndicator("Calculation in progress",wait = 0),
+            busyIndicator(WaitMsgPlot,wait = 0),
             fluidRow(
                 column(width=6, plotOutput("aggregationPlotUnique")),
                 column(width=6, plotOutput("aggregationPlotShared"))
@@ -551,6 +557,8 @@ output$Aggregation_Step2 <- renderUI({
             
             helpText("Select the columns of the meta-data (related to proteins)
                     that have to be recorded in the new protein dataset."),
+            helpText("(e.g. the column which contains the protein ID if you wish 
+                     to perform a GO analysis."),
             div(class="row"),
             div(class="span5", "",
                 uiOutput("columnsForProteinDataset"),

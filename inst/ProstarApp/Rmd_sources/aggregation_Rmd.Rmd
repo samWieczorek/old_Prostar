@@ -1,0 +1,14 @@
+# Aggregation 
+
+Parameters used for the aggregation step :
+
+* Method of aggregation : `r params$listAggregation$method`
+* Statistics about the protein graph
+
+
+```{r tab_agregStats,out.width = "50%", echo=FALSE}
+library(knitr)
+kable(params$listAggregation$df)
+```
+
+

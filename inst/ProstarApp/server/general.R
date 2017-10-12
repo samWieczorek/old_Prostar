@@ -222,6 +222,17 @@ initializeProstar <- reactive({
                       HeatmapDistance = NULL
                       )
     
+    rv$AggregProtStats = data.frame(name = c("Number of peptides",
+                                              "Number of specific peptides",
+                                              "Number of shared peptides", 
+                                              "Number of proteins",
+                                              "Number of proteins only defined by specific peptides",
+                                              "Number of proteins only defined by shared peptides",
+                                              "Number of proteins defined both by shared and specific peptides"),
+                                     nb = rep(0,7))
+    
+    
+    
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
@@ -300,7 +311,16 @@ rv <- reactiveValues(
                       HeatmapLinkage = NULL,
                       HeatmapDistance = NULL
                       
-                      )
+                      ),
+    
+    AggregProtStats = data.frame(name = c("Number of peptides",
+                                              "Number of specific peptides",
+                                              "Number of shared peptides", 
+                                              "Number of proteins",
+                                              "Number of proteins only defined by specific peptides",
+                                              "Number of proteins only defined by shared peptides",
+                                              "Number of proteins defined both by shared and specific peptides"),
+                                     nb = rep(0,7))
     
     )
 
