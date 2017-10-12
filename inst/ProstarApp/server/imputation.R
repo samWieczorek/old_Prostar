@@ -204,7 +204,7 @@ observeEvent(input$perform.imputation.button,{
                     if (input$missing.value.basic.algorithm %in% c("KNN", "MLE")) 
                     {
                         
-                        busyIndicator("Calculation in progress",wait = 0)
+                        busyIndicator(WaitMsgCalc,wait = 0)
                         rv$current.obj <- wrapper.mvImputation(rv$dataset[[input$datasets]],
                                                                input$missing.value.basic.algorithm)
                         

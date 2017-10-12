@@ -35,7 +35,8 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",
                                                         choices = G_ontology_Choices)
-                                           ,actionButton("mapProtein.GO.button",
+                                           ,busyIndicator(WaitMsgCalc,wait = 0),
+                                           actionButton("mapProtein.GO.button",
                                                          "Map proteins IDs")
                                  )
                                  ,tagList(
@@ -60,7 +61,7 @@ output$GOAnalysisMenu <- renderUI({
                                             actionButton("group.GO.perform.button","Perform GO grouping")
                                   ),
                                  tagList(
-                                     busyIndicator("Calculation in progress",wait = 0),
+                                     busyIndicator(WaitMsgCalc,wait = 0),
                                      highchartOutput("GOplotGroup_level2",  width = "80%"),
                                      highchartOutput("GOplotGroup_level3",  width = "80%"),
                                      highchartOutput("GOplotGroup_level4",  width = "80%")
@@ -84,10 +85,10 @@ output$GOAnalysisMenu <- renderUI({
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),
-                                           busyIndicator("Calculation in progress",wait = 0)
+                                           busyIndicator(WaitMsgCalc,wait = 0)
                                  ),
                                  tagList(
-                                     busyIndicator("Calculation in progress",wait = 0),
+                                     busyIndicator(WaitMsgCalc,wait = 0),
                                      highchartOutput("GObarplotEnrich", width = "80%"),
                                      highchartOutput("GOdotplotEnrich", width = "80%")
                                      #plotOutput("GOEnrichMap")
@@ -109,7 +110,7 @@ output$GOAnalysisMenu <- renderUI({
                                                         styleclass = "primary")
                                  ),
                                  tagList(
-                                     busyIndicator("Calculation in progress",wait = 0)
+                                     busyIndicator(WaitMsgCalc,wait = 0)
                                      
                                  )
                      )
@@ -403,7 +404,7 @@ output$GOplotGroup_level4 <- renderHighchart({
 GObarplotEnrich <- reactive({
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
-    
+    print(rv$enrichGO_data)
     barplotEnrichGO_HC(rv$enrichGO_data)
     #barplot(rv$enrichGO_data)
 })

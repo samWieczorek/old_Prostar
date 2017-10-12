@@ -57,7 +57,7 @@ tabPanel("Convert data",
                        htmlOutput("msgAlertCreateMSnset"),
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
-                       busyIndicator("Calculation in progress",wait = 0),
+                       busyIndicator(WaitMsgCalc,wait = 0),
                        actionButton("createMSnsetButton","Convert data")
                        ,uiOutput("conversionDone")
              )

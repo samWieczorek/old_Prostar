@@ -638,7 +638,7 @@ output$DS_PlotHeatmap <- renderUI({
     # if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
     
     tagList(
-        busyIndicator("Calculation in progress",wait = 0),
+        busyIndicator(WaitMsgPlot,wait = 0),
         plotOutput("heatmap", width = "900px", height = "600px")
     )
 })

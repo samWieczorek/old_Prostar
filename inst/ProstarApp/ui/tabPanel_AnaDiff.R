@@ -74,7 +74,7 @@ tabPanel("Differential analysis",
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(id = "sidebar_DiffAna4",
                                             height = "100%",
-                                            busyIndicator("Calculation in progress",wait = 0),
+                                            busyIndicator(WaitMsgCalc,wait = 0),
                                             actionButton("ValidDiffAna","Save diff analysis")
                                   ),
                                   conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",

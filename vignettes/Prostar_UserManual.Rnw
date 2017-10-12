@@ -2,11 +2,11 @@
 %\VignetteKeywords{MassSpectrometry, Proteomics, DAPAR}
 %\VignettePackage{Prostar}
 
+
 \documentclass[12pt]{article}
 \usepackage{soul}
 \usepackage{url}
 \usepackage[utf8]{inputenc}
-
 
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
 \newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
@@ -527,17 +527,25 @@ to paste the image in appropriate software.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Export plots as report (Beta)}\label{sec:Report}
-To complete the exported datasets (see previous section), the user can generate and download a report dynamically created on demand (e.g. at the end of an analysis).
+Int addition to the exported datasets (see previous section), the user can generate and download a report dynamically created on demand (e.g. at the end of an analysis) ((Fig.~\ref{fig:exportReport}).
 
-The upper part of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected.
+The left part of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected.
 The user has to choose which results have to be included in the report.
 Even if no analysis has been done (e.g. the upload of a dataset), the plots of the Descriptive Statistics are available.
 
-The second part of the interface is to let the user choose the format of the report; it can be a pdf file, a HTML file or a Word file. He/she has also to specify the name of the file.
+The right part of the interface is to let the user choose the format of the report; it can be a pdf file, a HTML file or a Word file. He/she has also to specify the name of the file.
 
 Once those options choosen, the user clicks on the button called "Generate a report". Then, ProStaR creates all the images needed and include them in the report file. During this step, the button "Download" is disabled. It become enabled only when the report if ready (in background) to be downloaded.
 
 Finally, the user clicks on the 'Download' button to get the report.
+
+\begin {figure}
+\centering
+\fbox{\includegraphics[width=0.9\textwidth]{images/exportReport.png}}
+\caption{Exporting analysis as a report.}\label{fig:exportReport}
+\end {figure}
+
+
 
 \subsubsection{Demo mode} \label{sec:demomode}
 
@@ -909,16 +917,16 @@ Afterwards, the user can choose to remove contaminants and reverses in the
 second tab called "String based filtering". To do so, he/she selects the 
 appropriate columns of the metadata listed in the dropdown menus. Then, 
 he/she specifies in each of these columns the prefix chain of characters 
-that identifies the analytes to filter.
+that identifies the analytes to filter. Note : the button "Perform string-based 
+filtering" is disabled until all the fields are complete.
 
 \textbf{Remark:} If he/she has no idea of the prefixes, he/she can switch to 
 the Data Explorer in the Descriptive Statistics menu, so as to visualize the 
 corresponding metadata. 
 
-For each fullfilled option, the barplot below is updated: it shows the 
-proportion of quantitative data, contaminants and reverses. Once the choices 
-are made, the user click on "Perform string based filtering" to remove 
-corresponding lines.
+Once the choices are made, the user click on "Perform string-based filtering" 
+to remove corresponding lines. Then, the barplot below  shows the 
+proportion of quantitative data, contaminants and reverses. 
 
 {Once the filtering is appropriately tuned, the user goes to the last tab 
 (called "visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
@@ -1135,7 +1143,6 @@ missingness or censoring of the low intensities).
 \caption{Interface of the imputation of missing values tool.}\label{fig:impu}
 \end {figure}
 
-\textcolor{red}{
 The user can choose one of the several available imputation methods, depending 
 on the type of missing values:
 \begin{itemize}
@@ -1153,14 +1160,15 @@ are (partially or totally) visible in others. Their specific accounting in a
 conservative way is a real issue as the imputation cannot rely on any observed 
 value in a given condition. The parameter "Upper LAPALA bound" defines the 
 maximum imputed value as a centile of the observed distribution (a tuning 
-between 0\% and 10\% is advised). 
+between 0\% and 10\% is advised).
 
-xxxxxxxxxxxxxxx
+xxxxxxxxxxxxx
+
 \item Alternatively, it is possible to use KNN ($K$ Nearest Neighbors) from package 
 \Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package 
 \Biocpkg{norm}.
 \end{itemize}
-}
+
 
 The user can visualize the effect of an imputation method without changing 
 the current dataset. If the imputation does not produce the expected effect, 

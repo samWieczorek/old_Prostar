@@ -23,7 +23,7 @@ tabPanel("Aggregation",
                       #),
                       #conditionalPanel(id = "wellPanel_Imputation",
                       #                 condition = "true",
-                      busyIndicator("Calculation in progress",wait = 0),
+                      busyIndicator(WaitMsgCalc,wait = 0),
                       uiOutput("Aggregation_Step2")
              )
          )

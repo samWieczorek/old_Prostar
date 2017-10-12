@@ -34,7 +34,7 @@ tabsetPanel(
                                           
                                 ),
                                 tagList(
-                                  busyIndicator("Calculation in progress",wait = 0),
+                                  busyIndicator(WaitMsgCalc,wait = 0),
                                   highchartOutput("GlobalPieChart"),
                                   uiOutput("ObserverStringBasedFilteringDone")
                                 )

@@ -1089,8 +1089,9 @@ volcanoplot_rCharts_Step3 <- reactive({
     input$condition2
     input$diffAnaMethod
     rv$resAnaDiff
+    input$seuilPVal
     
-    if (is.null(input$condition1) || is.null(input$condition2) ||
+    if (is.null(input$condition1) ||  is.null(input$seuilPVal) ||is.null(input$condition2) ||
         is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
         (input$condition1 == input$condition2) ||

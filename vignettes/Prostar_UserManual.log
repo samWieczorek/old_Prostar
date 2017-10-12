@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.12)  12 OCT 2017 07:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.10.12)  12 OCT 2017 10:55
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1314,675 +1314,444 @@ Overfull \hbox (42.67912pt too wide) in paragraph at lines 518--518
 
 [12 <./images/convert_exp_featdata.png> <./images/convert_sampledata.png> <./im
 ages/convert_convert.png>] [13 <./images/export.png>]
-<images/demomode.png, id=480, 1174.3875pt x 905.3825pt>
+<images/exportReport.png, id=478, 919.435pt x 615.29875pt>
+File: images/exportReport.png Graphic file (type png)
+
+<use images/exportReport.png>
+Package pdftex.def Info: images/exportReport.png used on input line 556.
+(pdftex.def)             Requested size: 307.2866pt x 205.64049pt.
+
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 557--557
+[] [] 
+ []
+
+<images/demomode.png, id=484, 1174.3875pt x 905.3825pt>
 File: images/demomode.png Graphic file (type png)
 
 <use images/demomode.png>
-Package pdftex.def Info: images/demomode.png used on input line 566.
+Package pdftex.def Info: images/demomode.png used on input line 574.
 (pdftex.def)             Requested size: 307.28679pt x 236.89973pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 567--567
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 575--575
 [] [] 
  []
 
 
-Overfull \hbox (22.65186pt too wide) in paragraph at lines 573--583
+Overfull \hbox (22.65186pt too wide) in paragraph at lines 581--591
 []\T1/lmss/m/n/12 Each time the user val-i-dates a pro-cess-ing step (by click-
 ing on the "Save <\T1/lmss/m/sl/12 the_step\T1/lmss/m/n/12 >"
  []
 
-[14 <./images/demomode.png>]
-<images/logSession.png, id=492, 1175.39125pt x 380.42125pt>
+<images/logSession.png, id=488, 1175.39125pt x 380.42125pt>
 File: images/logSession.png Graphic file (type png)
 
 <use images/logSession.png>
-Package pdftex.def Info: images/logSession.png used on input line 586.
+Package pdftex.def Info: images/logSession.png used on input line 594.
 (pdftex.def)             Requested size: 256.07597pt x 82.88026pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 587--587
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 595--595
 [] [] 
  []
 
-<images/Rcode.png, id=494, 949.5475pt x 453.695pt>
+[14 <./images/exportReport.png>]
+<images/Rcode.png, id=499, 949.5475pt x 453.695pt>
 File: images/Rcode.png Graphic file (type png)
  <use images/Rcode.png>
-Package pdftex.def Info: images/Rcode.png used on input line 597.
+Package pdftex.def Info: images/Rcode.png used on input line 605.
 (pdftex.def)             Requested size: 256.07698pt x 122.3539pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 599--599
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 607--607
 [] [] 
  []
 
-<images/desc_missValues.png, id=495, 1363.0925pt x 559.08875pt>
+[15 <./images/demomode.png> <./images/logSession.png>]
+<images/desc_missValues.png, id=509, 1363.0925pt x 559.08875pt>
 File: images/desc_missValues.png Graphic file (type png)
 
 <use images/desc_missValues.png>
-Package pdftex.def Info: images/desc_missValues.png used on input line 620.
+Package pdftex.def Info: images/desc_missValues.png used on input line 628.
 (pdftex.def)             Requested size: 256.0784pt x 105.03362pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 621--621
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 629--629
 [] [] 
  []
 
-[15 <./images/logSession.png> <./images/Rcode.png>]
-Overfull \hbox (39.69933pt too wide) in paragraph at lines 639--642
+
+Overfull \hbox (39.69933pt too wide) in paragraph at lines 647--650
 []\T1/lmss/m/n/12 for an ob-ject of class MSnSet: [][]\T1/fvm/m/n/12 wrap[][]pe
 r.mvPerLinesHisto()[]\T1/lmss/m/n/12 , [][]\T1/fvm/m/n/12 wrap[][]per.mvHisto()
 []
  []
 
-<images/desc_quantiData.png, id=509, 1307.88625pt x 635.37375pt>
+[16 <./images/Rcode.png> <./images/desc_missValues.png>]
+<images/desc_quantiData.png, id=522, 1307.88625pt x 635.37375pt>
 File: images/desc_quantiData.png Graphic file (type png)
 
 <use images/desc_quantiData.png>
-Package pdftex.def Info: images/desc_quantiData.png used on input line 655.
+Package pdftex.def Info: images/desc_quantiData.png used on input line 663.
 (pdftex.def)             Requested size: 273.1475pt x 132.6956pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 656--656
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 664--664
 [] [] 
  []
 
-<images/desc_fdata.png, id=511, 1290.8225pt x 649.42625pt>
+<images/desc_fdata.png, id=524, 1290.8225pt x 649.42625pt>
 File: images/desc_fdata.png Graphic file (type png)
 
 <use images/desc_fdata.png>
-Package pdftex.def Info: images/desc_fdata.png used on input line 665.
+Package pdftex.def Info: images/desc_fdata.png used on input line 673.
 (pdftex.def)             Requested size: 273.14883pt x 137.42403pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 666--666
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 674--674
 [] [] 
  []
 
-<images/desc_pdata.png, id=513, 1288.815pt x 477.785pt>
+<images/desc_pdata.png, id=526, 1288.815pt x 477.785pt>
 File: images/desc_pdata.png Graphic file (type png)
 
 <use images/desc_pdata.png>
-Package pdftex.def Info: images/desc_pdata.png used on input line 675.
+Package pdftex.def Info: images/desc_pdata.png used on input line 683.
 (pdftex.def)             Requested size: 341.43602pt x 126.57596pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 675--676
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 683--684
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 676--676
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 684--684
 [] [] 
  []
 
-[16 <./images/desc_missValues.png>] [17 <./images/desc_quantiData.png> <./image
-s/desc_fdata.png> <./images/desc_pdata.png>]
-<images/desc_heatmap.png, id=538, 1220.56pt x 698.61pt>
+[17 <./images/desc_quantiData.png> <./images/desc_fdata.png>]
+<images/desc_heatmap.png, id=542, 1220.56pt x 698.61pt>
 File: images/desc_heatmap.png Graphic file (type png)
 
 <use images/desc_heatmap.png>
-Package pdftex.def Info: images/desc_heatmap.png used on input line 714.
+Package pdftex.def Info: images/desc_heatmap.png used on input line 722.
 (pdftex.def)             Requested size: 341.43785pt x 195.42824pt.
 
-Overfull \hbox (6.80475pt too wide) in paragraph at lines 714--715
+Overfull \hbox (6.80475pt too wide) in paragraph at lines 722--723
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 715--715
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 723--723
 [] [] 
  []
 
-<images/desc_corrmatrix.png, id=541, 1141.26375pt x 720.6925pt>
+<images/desc_corrmatrix.png, id=545, 1141.26375pt x 720.6925pt>
 File: images/desc_corrmatrix.png Graphic file (type png)
 
 <use images/desc_corrmatrix.png>
-Package pdftex.def Info: images/desc_corrmatrix.png used on input line 734.
+Package pdftex.def Info: images/desc_corrmatrix.png used on input line 742.
 (pdftex.def)             Requested size: 341.42398pt x 215.60458pt.
 
-Overfull \hbox (6.79088pt too wide) in paragraph at lines 734--735
+Overfull \hbox (6.79088pt too wide) in paragraph at lines 742--743
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 735--735
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 743--743
 [] [] 
  []
 
-[18 <./images/desc_heatmap.png>]
-<images/desc_boxplot.png, id=553, 1131.22626pt x 697.60625pt>
+[18 <./images/desc_pdata.png>] [19 <./images/desc_heatmap.png> <./images/desc_c
+orrmatrix.png>] <images/desc_boxplot.png, id=566, 1131.22626pt x 697.60625pt>
 File: images/desc_boxplot.png Graphic file (type png)
 
 <use images/desc_boxplot.png>
-Package pdftex.def Info: images/desc_boxplot.png used on input line 757.
+Package pdftex.def Info: images/desc_boxplot.png used on input line 765.
 (pdftex.def)             Requested size: 204.85474pt x 126.33011pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 758--758
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 766--766
 [] [] 
  []
 
-[19 <./images/desc_corrmatrix.png> <./images/desc_boxplot.png>]
-Overfull \hbox (4.70364pt too wide) in paragraph at lines 775--780
+
+Overfull \hbox (4.70364pt too wide) in paragraph at lines 783--788
 []\T1/lmss/m/n/12 The pro-tein dis-tri-bu-tion by repli-cates is sum-ma-rized w
-ith vi-o-lin plots (see Fig. [][]19[][]).
+ith vi-o-lin plots (see Fig. [][]20[][]).
  []
 
-<images/desc_violinplot.png, id=566, 1124.2pt x 708.6475pt>
+<images/desc_violinplot.png, id=569, 1124.2pt x 708.6475pt>
 File: images/desc_violinplot.png Graphic file (type png)
 
 <use images/desc_violinplot.png>
-Package pdftex.def Info: images/desc_violinplot.png used on input line 783.
+Package pdftex.def Info: images/desc_violinplot.png used on input line 791.
 (pdftex.def)             Requested size: 204.85173pt x 129.12975pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 784--784
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 792--792
 [] [] 
  []
 
-<images/desc_CVDist.png, id=569, 1126.2075pt x 760.8425pt>
+<images/desc_CVDist.png, id=572, 1126.2075pt x 760.8425pt>
 File: images/desc_CVDist.png Graphic file (type png)
 
 <use images/desc_CVDist.png>
-Package pdftex.def Info: images/desc_CVDist.png used on input line 807.
+Package pdftex.def Info: images/desc_CVDist.png used on input line 815.
 (pdftex.def)             Requested size: 256.06654pt x 172.99326pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 808--808
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 816--816
 [] [] 
  []
 
-<images/desc_density.png, id=572, 1116.17pt x 723.70375pt>
+[20 <./images/desc_boxplot.png>]
+<images/desc_density.png, id=586, 1116.17pt x 723.70375pt>
 File: images/desc_density.png Graphic file (type png)
 
 <use images/desc_density.png>
-Package pdftex.def Info: images/desc_density.png used on input line 820.
+Package pdftex.def Info: images/desc_density.png used on input line 828.
 (pdftex.def)             Requested size: 228.7482pt x 148.31606pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 821--821
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 829--829
 [] [] 
  []
 
-[20 <./images/desc_violinplot.png>] [21 <./images/desc_CVDist.png> <./images/de
-sc_density.png>] <images/filter1.png, id=595, 1288.815pt x 640.3925pt>
+[21 <./images/desc_violinplot.png> <./images/desc_CVDist.png>]
+<images/filter1.png, id=599, 1288.815pt x 640.3925pt>
 File: images/filter1.png Graphic file (type png)
-
-<use images/filter1.png>
-Package pdftex.def Info: images/filter1.png used on input line 882.
+ <use images/filter1.png>
+Package pdftex.def Info: images/filter1.png used on input line 890.
 (pdftex.def)             Requested size: 341.43602pt x 169.65434pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 882--883
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 890--891
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 883--883
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 891--891
 [] [] 
  []
 
-<images/filter2.png, id=596, 1266.7325pt x 684.5575pt>
+[22 <./images/desc_density.png>]
+<images/filter2.png, id=612, 1266.7325pt x 684.5575pt>
 File: images/filter2.png Graphic file (type png)
 
 <use images/filter2.png>
-Package pdftex.def Info: images/filter2.png used on input line 888.
+Package pdftex.def Info: images/filter2.png used on input line 896.
 (pdftex.def)             Requested size: 341.42316pt x 184.50917pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 888--889
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 896--897
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 889--889
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 897--897
 [] [] 
  []
 
-<images/filter3.png, id=597, 1288.815pt x 828.09375pt>
+<images/filter3.png, id=613, 1288.815pt x 828.09375pt>
 File: images/filter3.png Graphic file (type png)
 
 <use images/filter3.png>
-Package pdftex.def Info: images/filter3.png used on input line 894.
+Package pdftex.def Info: images/filter3.png used on input line 902.
 (pdftex.def)             Requested size: 341.43602pt x 219.38062pt.
 
-Overfull \hbox (6.80292pt too wide) in paragraph at lines 894--895
+Overfull \hbox (6.80292pt too wide) in paragraph at lines 902--903
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 895--895
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 903--903
 [] [] 
  []
 
-[22] [23 <./images/filter1.png> <./images/filter2.png>] [24 <./images/filter3.p
-ng>] <images/normalisation.png, id=636, 1266.7325pt x 947.54pt>
+[23 <./images/filter1.png> <./images/filter2.png>] [24 <./images/filter3.png>]
+<images/normalisation.png, id=641, 1266.7325pt x 947.54pt>
 File: images/normalisation.png Graphic file (type png)
 
 <use images/normalisation.png>
-Package pdftex.def Info: images/normalisation.png used on input line 973.
+Package pdftex.def Info: images/normalisation.png used on input line 981.
 (pdftex.def)             Requested size: 341.42316pt x 255.391pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 973--974
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 981--982
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 974--974
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 982--982
 [] [] 
  []
 
-[25 <./images/normalisation.png>]
-Underfull \hbox (badness 10000) in paragraph at lines 995--998
+[25]
+Underfull \hbox (badness 10000) in paragraph at lines 1003--1006
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1011--1014
+Underfull \hbox (badness 10000) in paragraph at lines 1019--1022
 
  []
 
-[26] <images/imputation.png, id=655, 1242.6425pt x 900.36375pt>
+[26 <./images/normalisation.png>] [27]
+<images/imputation.png, id=667, 1242.6425pt x 900.36375pt>
 File: images/imputation.png Graphic file (type png)
 
 <use images/imputation.png>
-Package pdftex.def Info: images/imputation.png used on input line 1148.
+Package pdftex.def Info: images/imputation.png used on input line 1156.
 (pdftex.def)             Requested size: 341.43385pt x 247.38785pt.
 
-Overfull \hbox (6.80075pt too wide) in paragraph at lines 1148--1149
+Overfull \hbox (6.80075pt too wide) in paragraph at lines 1156--1157
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1149--1149
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1157--1157
 [] [] 
  []
 
-[27]
-Runaway argument?
-{ The user can choose one of the several available imputation methods\ETC.
-! Paragraph ended before \@textcolor was complete.
-<to be read again> 
-                   \par 
-l.1171 
-       
-I suspect you've forgotten a `}', causing me to apply this
-control sequence to too much text. How can we recover?
-My plan is to forget the whole thing and hope for the best.
-
-
-! LaTeX Error: Lonely \item--perhaps a missing list environment.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1173 \item A
-              lternatively, it is possible to use KNN ($K$ Nearest Neighbors...
-
-Try typing  <return>  to proceed.
-If that doesn't work, type  X <return>  to quit.
-
-
-Underfull \hbox (badness 10000) detected at line 1173
-[][]
- []
-
-! Undefined control sequence.
-\enit@enditemize ->\enit@after 
-                               \endlist \ifx \enit@series \relax \else \ifnu...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@enditemize ...x \else \ifnum \enit@resuming 
-                                                  =\@ne \enit@setresumekeys ...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Missing number, treated as zero.
-<to be read again> 
-                   =
-l.1176 \end{itemize}
-                    
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-
-! Undefined control sequence.
-\enit@setresumekeys ...xpandafter {\enit@savekeys 
-                                                  }\xdef \enit@afterlist {#2...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@setresumekeys ...it@toks }\ifnum \enit@type 
-                                                  =\z@ #3\def \enit@noexcs {...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Missing number, treated as zero.
-<to be read again> 
-                   =
-l.1176 \end{itemize}
-                    
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-
-! Undefined control sequence.
-<argument> enit@resume@series@\enit@series 
-                                           
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@setresumekeys ...me@#1}{\csname c@\@listctr 
-                                                  \endcsname \the \csname c@...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@setresumekeys ...e \the \csname c@\@listctr 
-                                                  \endcsname }\fi }
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! You can't use `\relax' after \the.
-<recently read> \c@ 
-                    
-l.1176 \end{itemize}
-                    
-I'm forgetting what you said and using zero instead.
-
-! Undefined control sequence.
-\enit@enditemize ...ist \fi \ifnum \enit@resuming 
-                                                  =\thr@@ \enit@setresumekey...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Missing number, treated as zero.
-<to be read again> 
-                   =
-l.1176 \end{itemize}
-                    
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-
-! Undefined control sequence.
-\enit@setresumekeys ...xpandafter {\enit@savekeys 
-                                                  }\xdef \enit@afterlist {#2...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@setresumekeys ...it@toks }\ifnum \enit@type 
-                                                  =\z@ #3\def \enit@noexcs {...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Missing number, treated as zero.
-<to be read again> 
-                   =
-l.1176 \end{itemize}
-                    
-A number should have been here; I inserted `0'.
-(If you can't figure out why I needed to see a number,
-look up `weird error' in the index to The TeXbook.)
-
-! Undefined control sequence.
-\enit@setresumekeys ...me@#1}{\csname c@\@listctr 
-                                                  \endcsname \the \csname c@...
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! Undefined control sequence.
-\enit@setresumekeys ...e \the \csname c@\@listctr 
-                                                  \endcsname }\fi }
-l.1176 \end{itemize}
-                    
-The control sequence at the end of the top line
-of your error message was never \def'ed. If you have
-misspelled it (e.g., `\hobx'), type `I' and the correct
-spelling (e.g., `I\hbox'). Otherwise just continue,
-and I'll forget about whatever was undefined.
-
-! You can't use `\relax' after \the.
-<recently read> \c@ 
-                    
-l.1176 \end{itemize}
-                    
-I'm forgetting what you said and using zero instead.
-
-
-! LaTeX Error: \begin{document} ended by \end{itemize}.
-
-See the LaTeX manual or LaTeX Companion for explanation.
-Type  H <return>  for immediate help.
- ...                                              
-                                                  
-l.1176 \end{itemize}
-                    
-Your command was ignored.
-Type  I <command> <return>  to replace it with another command,
-or  <return>  to continue without it.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.1176 \end{itemize}
-                    
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Extra \endgroup.
-<recently read> \endgroup 
-                          
-l.1176 \end{itemize}
-                    
-Things are pretty mixed up, but I think the worst is over.
-
-! Too many }'s.
-l.1177 }
-        
-You've closed more groups than you opened.
-Such booboos are generally harmless, so keep going.
-
 [28 <./images/imputation.png>]
-Overfull \hbox (30.90643pt too wide) in paragraph at lines 1199--1201
+Overfull \hbox (30.90643pt too wide) in paragraph at lines 1207--1209
 []\T1/lmss/m/n/12 for an ob-ject of class MSnSet: [][]\T1/fvm/m/n/12 wrap[][]pe
 r.mvTypePlot()[] \T1/lmss/m/n/12 and [][]\T1/fvm/m/n/12 wrap[][]per.mvImage()[]
 \T1/lmss/m/n/12 . 
  []
 
-<images/agregation1.png, id=675, 1411.2725pt x 786.94pt>
+[29] <images/agregation1.png, id=687, 1411.2725pt x 786.94pt>
 File: images/agregation1.png Graphic file (type png)
 
 <use images/agregation1.png>
-Package pdftex.def Info: images/agregation1.png used on input line 1226.
+Package pdftex.def Info: images/agregation1.png used on input line 1234.
 (pdftex.def)             Requested size: 341.42564pt x 190.38243pt.
 
-Overfull \hbox (6.79254pt too wide) in paragraph at lines 1226--1227
+Overfull \hbox (6.79254pt too wide) in paragraph at lines 1234--1235
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1227--1227
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1235--1235
 [] [] 
  []
 
-<images/agregation2.png, id=676, 1266.7325pt x 185.69376pt>
+<images/agregation2.png, id=688, 1266.7325pt x 185.69376pt>
 File: images/agregation2.png Graphic file (type png)
 
 <use images/agregation2.png>
-Package pdftex.def Info: images/agregation2.png used on input line 1232.
+Package pdftex.def Info: images/agregation2.png used on input line 1240.
 (pdftex.def)             Requested size: 341.42316pt x 50.05014pt.
 
-Overfull \hbox (6.79005pt too wide) in paragraph at lines 1232--1233
+Overfull \hbox (6.79005pt too wide) in paragraph at lines 1240--1241
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1233--1233
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1241--1241
 [] [] 
  []
 
-[29 <./images/agregation1.png> <./images/agregation2.png>] [30]
-<images/anaDiff1.png, id=703, 1132.23pt x 815.045pt>
+[30 <./images/agregation1.png> <./images/agregation2.png>] [31]
+<images/anaDiff1.png, id=716, 1132.23pt x 815.045pt>
 File: images/anaDiff1.png Graphic file (type png)
  <use images/anaDiff1.png>
-Package pdftex.def Info: images/anaDiff1.png used on input line 1346.
+Package pdftex.def Info: images/anaDiff1.png used on input line 1354.
 (pdftex.def)             Requested size: 204.84647pt x 147.46039pt.
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1347--1347
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1355--1355
 [] [] 
  []
 
 
-Overfull \hbox (38.7855pt too wide) in paragraph at lines 1352--1358
+Overfull \hbox (38.7855pt too wide) in paragraph at lines 1360--1366
 \T1/lmss/m/n/12 google . com / site / thomasburgerswebpage / download / tutoria
 l-[]CP4P-[]4 . pdf ? attredirects =
  []
 
-<images/anaDiff2.png, id=709, 1110.1475pt x 928.46875pt>
+<images/anaDiff2.png, id=722, 1110.1475pt x 928.46875pt>
 File: images/anaDiff2.png Graphic file (type png)
 
 <use images/anaDiff2.png>
-Package pdftex.def Info: images/anaDiff2.png used on input line 1361.
+Package pdftex.def Info: images/anaDiff2.png used on input line 1369.
 (pdftex.def)             Requested size: 204.84894pt x 171.32484pt.
-
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1362--1362
-[] [] 
- []
-
-<images/anaDiff3.png, id=710, 1141.26375pt x 882.29625pt>
-File: images/anaDiff3.png Graphic file (type png)
-
-<use images/anaDiff3.png>
-Package pdftex.def Info: images/anaDiff3.png used on input line 1369.
-(pdftex.def)             Requested size: 204.86136pt x 158.37566pt.
 
 Overfull \hbox (42.67912pt too wide) in paragraph at lines 1370--1370
 [] [] 
  []
 
-[31] [32 <./images/anaDiff1.png> <./images/anaDiff2.png> <./images/anaDiff3.png
->] <images/anaDiff4.png, id=737, 1144.275pt x 673.51625pt>
+<images/anaDiff3.png, id=723, 1141.26375pt x 882.29625pt>
+File: images/anaDiff3.png Graphic file (type png)
+
+<use images/anaDiff3.png>
+Package pdftex.def Info: images/anaDiff3.png used on input line 1377.
+(pdftex.def)             Requested size: 204.86136pt x 158.37566pt.
+
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1378--1378
+[] [] 
+ []
+
+[32] [33 <./images/anaDiff1.png> <./images/anaDiff2.png> <./images/anaDiff3.png
+>] <images/anaDiff4.png, id=749, 1144.275pt x 673.51625pt>
 File: images/anaDiff4.png Graphic file (type png)
 
 <use images/anaDiff4.png>
-Package pdftex.def Info: images/anaDiff4.png used on input line 1408.
+Package pdftex.def Info: images/anaDiff4.png used on input line 1416.
 (pdftex.def)             Requested size: 341.43436pt x 200.96707pt.
 
-Overfull \hbox (6.80125pt too wide) in paragraph at lines 1408--1410
+Overfull \hbox (6.80125pt too wide) in paragraph at lines 1416--1418
  [] 
  []
 
 
-Overfull \hbox (42.67912pt too wide) in paragraph at lines 1410--1410
+Overfull \hbox (42.67912pt too wide) in paragraph at lines 1418--1418
 [] [] 
  []
 
-[33 <./images/anaDiff4.png>] [34] [35]
-Overfull \hbox (77.62027pt too wide) in paragraph at lines 1537--1538
+[34 <./images/anaDiff4.png>] [35] [36]
+Overfull \hbox (77.62027pt too wide) in paragraph at lines 1545--1546
 [][]\T1/fvm/m/n/12 /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/l
 ibRblas.0.dylib  
  []
 
 
-Overfull \hbox (77.62027pt too wide) in paragraph at lines 1538--1539
+Overfull \hbox (77.62027pt too wide) in paragraph at lines 1546--1547
 [][]\T1/fvm/m/n/12 /Library/Frameworks/R.framework/Versions/3.4/Resources/lib/l
 ibRlapack.dylib  
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1550.
-[36]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1550.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1558.
+[37]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1558.
  (./Prostar_UserManual.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1550.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1550.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1558.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1558.
 
 Package rerunfilecheck Info: File `Prostar_UserManual.out' has not changed.
 (rerunfilecheck)             Checksum: B715F10BBC4A43B1DDB0A99F67B45EB2;2629.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1550.
- ) 
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1558.
+ )
+(\end occurred inside a group at level 1)
+
+### simple group (level 1) entered at line 351 ({)
+### bottom level 
 Here is how much of TeX's memory you used:
- 12093 strings out of 492995
- 181523 string characters out of 6132703
- 293052 words of memory out of 5000000
+ 12096 strings out of 492995
+ 181622 string characters out of 6132703
+ 293117 words of memory out of 5000000
  15272 multiletter control sequences out of 15000+600000
  88362 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 44i,14n,59p,1083b,664s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/local/
-texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/texlive/2017/te
-xmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</usr/local/texlive/2017/texmf-dist/font
-s/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texmf-dist/fonts/t
-ype1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf-dist/fonts/ty
-pe1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-dist/fonts/type
-1/public/bera/fvmr8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public
-/bera/fvmro8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lms
-s10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmss12.pfb></
-usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmss8.pfb></usr/local/t
-exlive/2017/texmf-dist/fonts/type1/public/lm/lmssbo10.pfb></usr/local/texlive/2
-017/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/local/texlive/2017/texm
-f-dist/fonts/type1/public/lm/lmsso10.pfb></usr/local/texlive/2017/texmf-dist/fo
-nts/type1/public/lm/lmsso12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1
-/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw/he
-lvetic/uhvbo8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/urw/helvetic
-/uhvr8a.pfb>
-Output written on Prostar_UserManual.pdf (36 pages, 1380459 bytes).
+ 44i,14n,59p,1083b,674s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ec.en
+c}{/usr/local/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.enc}{/usr/local/t
+exlive/2017/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}</usr/local/texlive/2017/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2017/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2017/texm
+f-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2017/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2017/texmf-d
+ist/fonts/type1/public/bera/fvmr8a.pfb></usr/local/texlive/2017/texmf-dist/font
+s/type1/public/bera/fvmro8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1
+/public/lm/lmss10.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm
+/lmss12.pfb></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmss8.pfb
+></usr/local/texlive/2017/texmf-dist/fonts/type1/public/lm/lmssbo10.pfb></usr/l
+ocal/texlive/2017/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/local/tex
+live/2017/texmf-dist/fonts/type1/public/lm/lmsso10.pfb></usr/local/texlive/2017
+/texmf-dist/fonts/type1/public/lm/lmsso12.pfb></usr/local/texlive/2017/texmf-di
+st/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2017/texmf-dist/font
+s/type1/urw/helvetic/uhvbo8a.pfb></usr/local/texlive/2017/texmf-dist/fonts/type
+1/urw/helvetic/uhvr8a.pfb>
+Output written on Prostar_UserManual.pdf (37 pages, 1424196 bytes).
 PDF statistics:
- 853 PDF objects out of 1000 (max. 8388607)
- 691 compressed objects within 7 object streams
- 110 named destinations out of 1000 (max. 500000)
- 453 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 869 PDF objects out of 1000 (max. 8388607)
+ 703 compressed objects within 8 object streams
+ 112 named destinations out of 1000 (max. 500000)
+ 458 words of extra memory for PDF output out of 10000 (max. 10000000)
 

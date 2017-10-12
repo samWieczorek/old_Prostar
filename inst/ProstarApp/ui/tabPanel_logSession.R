@@ -14,7 +14,7 @@ tabPanel("Log session",
                       )
              ),
             tabPanel("R source code (Beta)", 
-                     busyIndicator("Calculation in progress",wait = 0),
+                     busyIndicator(WaitMsgCalc,wait = 0),
                      
                       uiOutput("code")
              )

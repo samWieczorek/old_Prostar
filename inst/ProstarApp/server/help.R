@@ -120,7 +120,7 @@ packages/cp4p/cp4p.pdf\"
 
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
-    busyIndicator("Calculation in progress",wait = 0)
+    busyIndicator(WaitMsgCalc,wait = 0)
     
     t <- sessionInfo()
     daparVersion <- installed.packages()["DAPAR","Version"]

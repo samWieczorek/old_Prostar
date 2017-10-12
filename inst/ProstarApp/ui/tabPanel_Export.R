@@ -23,16 +23,20 @@ tabPanel("Export",
          
          tabPanel("Generate report (Beta)",
                   tagList(
-                      uiOutput("choosedataTobuildReport"),
-         br(),
-         
-         
-             br(),radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
-                                           inline = TRUE),
-         textInput("reportFilename",
-                   label = "Enter the name of the report",
-                   value = ""),
-             #busyIndicator("Calculation in progress",wait = 0),
+                      fluidRow(
+                          column(width=6, uiOutput("choosedataTobuildReport")),
+                          column(width=6, tagList(
+                              radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
+                                                       inline = TRUE),
+                              br(), br(),
+                              textInput("reportFilename",
+                                        label = "Enter the name of the report",
+                                        value = ""))
+                      )
+                      ),
+
+             br(),
+             #busyIndicator(WaitMsgCalc,wait = 0),
          br(),br(),
          br(),br(),
          busyIndicator("Building report, please wait...",wait = 0),
