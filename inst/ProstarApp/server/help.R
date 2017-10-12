@@ -182,6 +182,10 @@ output$aboutText <- renderUI({
                  <strong>Missing values imputation</strong> with different methods, depending 
                 on the nature of  the missing values;
                   </li>
+
+                <li>  
+                 <strong>Aggregation</strong> from peptide to protein intensity values;
+                  </li>
                   
                   <li>
                   <strong>Differential analysis</strong>, which includes null hypothesis 
