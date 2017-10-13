@@ -14,11 +14,11 @@
 \contentsline {subsubsection}{\numberline {3.2.4}Export plots as report (Beta)}{13}{subsubsection.3.2.4}
 \contentsline {subsubsection}{\numberline {3.2.5}Demo mode}{14}{subsubsection.3.2.5}
 \contentsline {subsubsection}{\numberline {3.2.6}Session log}{14}{subsubsection.3.2.6}
-\contentsline {subsection}{\numberline {3.3}Descriptive statistics}{15}{subsection.3.3}
+\contentsline {subsection}{\numberline {3.3}Descriptive statistics}{16}{subsection.3.3}
 \contentsline {subsubsection}{\numberline {3.3.1}Missing value summary}{16}{subsubsection.3.3.1}
 \contentsline {subsubsection}{\numberline {3.3.2}Data explorer}{17}{subsubsection.3.3.2}
-\contentsline {subsubsection}{\numberline {3.3.3}Heatmap}{18}{subsubsection.3.3.3}
-\contentsline {subsubsection}{\numberline {3.3.4}Correlation matrix}{18}{subsubsection.3.3.4}
+\contentsline {subsubsection}{\numberline {3.3.3}Correlation matrix}{18}{subsubsection.3.3.3}
+\contentsline {subsubsection}{\numberline {3.3.4}Heatmap}{18}{subsubsection.3.3.4}
 \contentsline {subsubsection}{\numberline {3.3.5}Boxplot}{20}{subsubsection.3.3.5}
 \contentsline {subsubsection}{\numberline {3.3.6}Violin plot}{20}{subsubsection.3.3.6}
 \contentsline {subsubsection}{\numberline {3.3.7}CV distribution}{21}{subsubsection.3.3.7}
@@ -29,7 +29,7 @@
 \contentsline {subsubsection}{\numberline {3.4.3}Imputation}{27}{subsubsection.3.4.3}
 \contentsline {subsubsection}{\numberline {3.4.4}Aggregation}{30}{subsubsection.3.4.4}
 \contentsline {subsubsection}{\numberline {3.4.5}Differential analysis}{31}{subsubsection.3.4.5}
-\contentsline {subsubsection}{\numberline {3.4.6}GO analysis (Beta)}{35}{subsubsection.3.4.6}
+\contentsline {subsubsection}{\numberline {3.4.6}Gene Ontology analysis (Beta)}{35}{subsubsection.3.4.6}
 \contentsline {subsection}{\numberline {3.5}Help}{35}{subsection.3.5}
 \contentsline {subsection}{\numberline {3.6}Versions of dataset}{35}{subsection.3.6}
 \contentsline {section}{\numberline {4}Bugs}{36}{section.4}
