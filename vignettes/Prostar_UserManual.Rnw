@@ -533,7 +533,7 @@ The left part of the interface shows a list of checkboxes (one for each dataset 
 The user has to choose which results have to be included in the report.
 Even if no analysis has been done (e.g. the upload of a dataset), the plots of the Descriptive Statistics are available.
 
-The right part of the interface is to let the user choose the format of the report; it can be a pdf file, a HTML file or a Word file. He/she has also to specify the name of the file.
+The right part of the interface is to let the user choose the format of the report; it can be a pdf, a HTML or a Word file. He/she has also to specify the name of the file.
 
 Once those options choosen, the user clicks on the button called "Generate a report". Then, ProStaR creates all the images needed and include them in the report file. During this step, the button "Download" is disabled. It become enabled only when the report if ready (in background) to be downloaded.
 
