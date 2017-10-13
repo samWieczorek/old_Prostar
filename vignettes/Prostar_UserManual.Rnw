@@ -1318,8 +1318,10 @@ different tab:
 \textbf {Volcano plot} (see Fig.~\ref{fig:anadiff1}): It is a scatter plot 
 where each analyte is represented by 2 coordinates, namely a $p$-value on the 
 Y-axis (more precisely -log10($p$-value)) and a fold change (FC) on the 
-X-axis. Regarding the computation of the $p$-values, one test is available 
-in \Biocpkg{DAPAR}: the moderated $t$-test (from package \Biocpkg{limma}).
+X-axis. Regarding the computation of the $p$-values, two tests are available 
+in \Biocpkg{DAPAR}, depending on the user's choice: the Welch $t$-test 
+(from package \CRANpkg{stats}) and the moderated $t$-test (from package 
+\Biocpkg{limma}).
 As an option, it is possible to redefined the sets of conditions that are 
 tested one against the other. 
 Then, the $p$-values are computed and a volcanoplot is displayed. 
@@ -1414,8 +1416,9 @@ each type of <test>.
 analysis tool.}\label{fig:anadiff4}
 \end{figure}
 
-\hl{\bf Command line:} The \Biocpkg{DAPAR} function for the moderated $t$-test 
-is \Rfunction{diffAnaLimma()}. This function return a 
+\hl{\bf Command line:} The \Biocpkg{DAPAR} functions for the Welch $t$-test 
+and moderated $t$-test are \Rfunction{diffAnaWelch()} and 
+\Rfunction{diffAnaLimma()}, respectively. These functions return a 
 \Rcode{data.frame} which contains 2 columns: the p-values and the Fold Change 
 of the test. These columns can be added to the current MSnSet object 
 \Robject{imputed\_dataset} (as explained earlier) with the function 

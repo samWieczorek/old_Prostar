@@ -15,6 +15,11 @@ observeEvent(input$generateReport,{
     input$whichGO2Save
     if (is.null(input$chooseDatasetToExport)){return(NULL)}
     
+    
+    withProgress(message = 'Calculation in progress',
+                 detail = '', value = 0, {
+                     
+                 
 
      ## Init the Rmd file for the report
     src <- normalizePath('Rmd_sources/report.Rmd')
@@ -26,6 +31,7 @@ observeEvent(input$generateReport,{
         rv$iDat <- iDat
         dname <- unlist(strsplit(iDat, " - "))[1]
         type <- unlist(strsplit(iDat, " - "))[2]
+        incProgress(1/length(input$chooseDatasetToExport), detail = paste("Computing plot for", iDat))
         
         switch(dname, 
                Original={
@@ -93,127 +99,170 @@ observeEvent(input$generateReport,{
                }
         )
         
-}
+    }
+                 })
     shinyjs::enable("downloadReport")
     
 })
 
 
 
-
+ func_density <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     if (is.null(rv$tempplot$Density)) {
+         tempplot <- wrapper.densityPlotD_HC(obj)}
+     else{ tempplot <- rv$tempplot$Density}
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ func_boxplot <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     plotPNG(function(){if (!is.null(rv$PlotParams$legDS)) {
+         wrapper.boxPlotD(obj,  rv$PlotParams$legDS)
+     } else {
+         wrapper.boxPlotD(obj)}
+     },
+     filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"),
+     width = pngWidth,
+     height=pngHeight,
+     res=resolution)
+ })
+ 
+ 
+ func_violinPlot <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     plotPNG(function(){if (!is.null(rv$PlotParams$legDS_Violinplot)) {
+         wrapper.violinPlotD(obj,  rv$PlotParams$legDS_Violinplot)
+     } else {
+         wrapper.violinPlotD(obj)}
+     },
+     filename=paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"),
+     width = pngWidth,
+     height=pngHeight,
+     res=resolution)
+ })
+ 
+ func_varDist <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     if (is.null(rv$tempplot$varDist)) {tempplot <- wrapper.CVDistD_HC(obj)}
+     else{ tempplot <- rv$tempplot$varDist}
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ func_corrMatrix <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     if (is.null(rv$tempplot$corrMatrix)) {
+         tempplot <- wrapper.corrMatrixD_HC(obj) }
+     else {
+         tempplot <- rv$tempplot$corrMatrix
+     }
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ func_mvHisto_1 <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     ##last plot of descriptive statistics
+     if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
+         tempplot <- wrapper.mvPerLinesHistoPerCondition_HC(obj)}
+     else{ tempplot <- rv$tempplot$histo_missvalues_per_lines_per_conditions}
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ 
+ func_mvHisto_2 <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     ##second plot of descriptive statistics
+     if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
+         tempplot <- wrapper.mvPerLinesHisto_HC(obj)}
+     else{
+         tempplot <- rv$tempplot$mvHisto_perLines_HC}
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ func_mvHisto_3 <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     # first plot of descriptive statistics
+     if (is.null(rv$tempplot$mvHisto_HC)) {
+         tempplot <- wrapper.mvHisto_HC(obj)}
+     else{ tempplot <- rv$tempplot$mvHisto_HC}
+     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
+     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
+                      delay = 3,
+                      zoom = zoomWebshot)
+ })
+ 
+ func_heatmap <- reactive({
+     obj <- rv$dataset[[rv$iDat]]
+     plotPNG(function(){
+         if (is.null (rv$PlotParams$HeatmapDistance) && 
+             is.null(rv$PlotParams$HeatmapLinkage)) {
+             wrapper.heatmapD(obj)
+         }
+         else {
+             wrapper.heatmapD(obj,
+                              rv$PlotParams$HeatmapDistance, 
+                              rv$PlotParams$HeatmapLinkage,
+                              TRUE)
+         }},
+         filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"),
+         width = pngWidth,
+         height=pngHeight,
+         res=resolution)
+ })
 
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
     obj <- rv$dataset[[rv$iDat]]
   
-  if (is.null(rv$tempplot$Density)) {
-    tempplot <- wrapper.densityPlotD_HC(obj)}
-      else{ tempplot <- rv$tempplot$Density}
-  htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-  webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                   file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
-                   delay = 3,
-                   zoom = zoomWebshot)
-
-
-  plotPNG(function(){if (!is.null(rv$PlotParams$legDS)) {
-    wrapper.boxPlotD(obj,  rv$PlotParams$legDS)
-    } else {
-    wrapper.boxPlotD(obj)}
-      },
-          filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"),
-          width = pngWidth,
-          height=pngHeight,
-          res=resolution)
-
-
-  plotPNG(function(){if (!is.null(rv$PlotParams$legDS_Violinplot)) {
-      wrapper.violinPlotD(obj,  rv$PlotParams$legDS_Violinplot)
-  } else {
-      wrapper.violinPlotD(obj)}
-    },
-    filename=paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"),
-    width = pngWidth,
-    height=pngHeight,
-    res=resolution)
-
-
-
-  if (is.null(rv$tempplot$varDist)) {tempplot <- wrapper.CVDistD_HC(obj)}
-  else{ tempplot <- rv$tempplot$varDist}
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
-                     delay = 3,
-                     zoom = zoomWebshot)
-
-
-
-    if (is.null(rv$tempplot$corrMatrix)) {
-    tempplot <- wrapper.corrMatrixD_HC(obj) }
-    else {
-      tempplot <- rv$tempplot$corrMatrix
-    }
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
-                     delay = 3,
-                     zoom = zoomWebshot)
-
-
-
-    ##last plot of descriptive statistics
-    if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
-      tempplot <- wrapper.mvPerLinesHistoPerCondition_HC(obj)}
-    else{ tempplot <- rv$tempplot$histo_missvalues_per_lines_per_conditions}
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
-                     delay = 3,
-                     zoom = zoomWebshot)
-
-
-    ##second plot of descriptive statistics
-    if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
-      tempplot <- wrapper.mvPerLinesHisto_HC(obj)}
-    else{
-      tempplot <- rv$tempplot$mvHisto_perLines_HC}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
-                     delay = 3,
-                     zoom = zoomWebshot)
-
-
-    # first plot of descriptive statistics
-    if (is.null(rv$tempplot$mvHisto_HC)) {
-      tempplot <- wrapper.mvHisto_HC(obj)}
-    else{ tempplot <- rv$tempplot$mvHisto_HC}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
-                     delay = 3,
-                     zoom = zoomWebshot)
-
-
-
-  plotPNG(function(){
-    if (is.null (rv$PlotParams$HeatmapDistance) && 
-        is.null(rv$PlotParams$HeatmapLinkage)) {
-          wrapper.heatmapD(obj)
-                           }
-        else {
-              wrapper.heatmapD(obj,
-                               rv$PlotParams$HeatmapDistance, 
-                               rv$PlotParams$HeatmapLinkage,
-                               TRUE)
-          }},
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"),
-            width = pngWidth,
-            height=pngHeight,
-            res=resolution)
-
     
+    # func_heatmap()
+    #                func_mvHisto_3()
+    #                func_mvHisto_2()
+    #                func_mvHisto_1()
+    #                func_corrMatrix()
+    #                func_varDist()
+    #                func_violinPlot()
+    #                func_boxplot()
+    #                func_density()
+    # 
+                   
+      list_f <- list(func_heatmap,
+                     func_mvHisto_3,
+                     func_mvHisto_2,
+                     func_mvHisto_1,
+                     func_corrMatrix,
+                     func_varDist,
+                     func_violinPlot,
+                     func_boxplot,
+                     func_density)             
+     
+      require(doParallel)
+      registerDoParallel()  
+      foreach(i=1:length(list_f)) %dopar% {
+         list_f[[i]]
+     }
+     
     
     
 })

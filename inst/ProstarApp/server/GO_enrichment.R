@@ -404,8 +404,8 @@ output$GOplotGroup_level4 <- renderHighchart({
 GObarplotEnrich <- reactive({
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
-    print(rv$enrichGO_data)
-    barplotEnrichGO_HC(rv$enrichGO_data)
+        barplotEnrichGO_HC(rv$enrichGO_data)
+
     #barplot(rv$enrichGO_data)
 })
 
