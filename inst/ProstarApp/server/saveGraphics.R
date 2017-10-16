@@ -266,10 +266,11 @@ createPNG_DescriptiveStatistics <- reactive({
                      func_mvHisto_2,
                      func_mvHisto_1)             
      
-      require(doParallel)
-      registerDoParallel()  
-      foreach(i=1:length(list_f)) %dopar% {
-         list_f[[i]]()
+     # require(doParallel)
+     # registerDoParallel()  
+     # foreach(i=1:length(list_f)) %dopar% {
+      foreach(i=1:length(list_f)) %do% {
+          list_f[[i]]()
      }
      
     
