@@ -1,22 +1,29 @@
 output$References <- renderText({
     
     
+    
+    # <strong><font size=\"4\">User manual:</font></strong>
+    #      <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/
+    # Prostar/inst/doc/Prostar_UserManual.pdf\"
+    # title=\"here\" target=\"_blank\">here</a>
+    # <br><br>
+
+    # <strong><font size=\"4\">Tutorial:</font></strong>
+    #      <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
+    # Prostar/inst/doc/Prostar_Tutorial.pdf\"
+    # title=\"here\" target=\"_blank\">here</a>
+    # <br><br>
+
+
     txt<- "<strong><font size=\"5\">HELP</font></strong>
          <br><hr color:\"blue\"><br>
          
-         <strong><font size=\"4\">User manual:</font></strong>
-         <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/
-Prostar/inst/doc/Prostar_UserManual.pdf\"
-         title=\"here\" target=\"_blank\">here</a>
-         <br><br>
+         <strong><font size=\"4\"><a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf\">User manual</a></font></strong>
+          <br><br>
+         <strong><font size=\"4\"><a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
+Prostar/inst/doc/Prostar_Tutorial.pdf\">Tutorial</a></font></strong>
          
-         
-         
-         <strong><font size=\"4\">Tutorial:</font></strong>
-         <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
-Prostar/inst/doc/Prostar_Tutorial.pdf\"
-         title=\"here\" target=\"_blank\">here</a>
-         <br><br>
+        <br><br>
          
          <strong><font size=\"4\">Contact:</font></strong><br>
          If you need any help, but also if you wish to make comments 
@@ -26,23 +33,19 @@ Prostar/inst/doc/Prostar_Tutorial.pdf\"
          
          <strong><font size=\"4\">Additional ressources:</font></strong>
          <ul>
-         <li> ProStaR reference manual:  
+         <li>  
          <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/
-Prostar/man/Prostar.pdf\"
-         title=\"here\" target=\"_blank\">here</a>
+Prostar/man/Prostar.pdf\">ProStaR reference manual</a>
          </li>
-         <li> DAPAR reference manual: <a href=\"https://www.bioconductor.org/
-packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\"
-         title=\"here\" target=\"_blank\">here</a>
+         <li> <a href=\"https://www.bioconductor.org/
+packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf\">DAPAR reference manual</a>
          
          
          </li>
-         <li> MSnbase package: <a href=\"https://www.bioconductor.org/packages/
-release/bioc/html/MSnbase.html\" title=\"here\" target=\"_blank\">here</a>
+         <li> <a href=\"https://www.bioconductor.org/packages/
+release/bioc/html/MSnbase.html\">MSnbase package</a>
          </li>
-         <li> Calibration of p-values (CP4P tutorial): <a href=\"https://cran.r-project.org/web/
-packages/cp4p/cp4p.pdf\"
-         title=\"here\" target=\"_blank\">here</a>
+         <li> <a href=\"https://cran.r-project.org/web/packages/cp4p/cp4p.pdf\">Calibration of p-values (CP4P tutorial)</a>
          </li>
          </ul>
          <br>
