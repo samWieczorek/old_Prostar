@@ -11,10 +11,9 @@
 \newcommand{\shellcmd}[1]{\\\indent\indent\texttt{\footnotesize\# #1}}
 \newcommand{\bordurefigure}[1]{\fbox{\includegraphics{#1}}}
 
-<<style-Sweave, eval=TRUE, echo=FALSE, results=tex>>=
-BiocStyle::latex()
-@
+\RequirePackage{C:/Users/FC219170/Documents/R/R-3.4.1/library/BiocStyle/resources/tex/Bioconductor}
 
+\AtBeginDocument{\bibliographystyle{C:/Users/FC219170/Documents/R/R-3.4.1/library/BiocStyle/resources/tex/unsrturl}}
 
 \bioctitle{\Biocpkg{DAPAR} and \Biocpkg{ProStaR} user manual}
 
@@ -29,9 +28,10 @@ $^\ast$\url{firstname.lastname@cea.fr}
 
 
 
+\usepackage{Sweave}
 \begin{document}
 
-\SweaveOpts{concordance=TRUE, eval=FALSE}
+\input{Prostar_UserManual-concordance}
 
 \maketitle
 
@@ -158,10 +158,12 @@ machine if \Biocpkg{ProStaR} is run locally.
 To run the stand-alone version, it is necessary to install the package in a 
 directory where the user have read/write permissions. If the user have 
 administrator privileges, then in a R console, enter:
-<< installProstaRBiocond>>=
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("Prostar")
-@
+\begin{Schunk}
+\begin{Sinput}
+> source("http://www.bioconductor.org/biocLite.R")
+> biocLite("Prostar")
+\end{Sinput}
+\end{Schunk}
 
 This step will automatically install the following packages: \CRANpkg{shiny}, 
 \Githubpkg{jrowen/rhandsontable}, \Biocpkg{DAPARdata}, \Biocpkg{DAPAR},
@@ -171,10 +173,12 @@ This step will automatically install the following packages: \CRANpkg{shiny},
         
         
 Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
-<< runProstarStandalone>>=
-library(Prostar)
-Prostar()
-@
+\begin{Schunk}
+\begin{Sinput}
+> library(Prostar)
+> Prostar()
+\end{Sinput}
+\end{Schunk}
 
 A new window of the default web browser opens. 
 
@@ -192,9 +196,11 @@ installed.
 Then, execute the following line in order to get the install directory of 
 Prostar:
 
-<< getProstarInstallDir>>=
-installed.packages()["Prostar","LibPath"]
-@
+\begin{Schunk}
+\begin{Sinput}
+> installed.packages()["Prostar","LibPath"]
+\end{Sinput}
+\end{Schunk}
 
 
 Change the owner of the shiny-server directory and log as shiny
@@ -228,10 +234,12 @@ http://\emph{servername}:\emph{port}/Prostar.
 To install the package \Biocpkg{DAPAR} from the source file with administrator 
 rights, start R and enter:
 
-<< installDAPARBiocond>>=
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("DAPAR")
-@
+\begin{Schunk}
+\begin{Sinput}
+> source("http://www.bioconductor.org/biocLite.R")
+> biocLite("DAPAR")
+\end{Sinput}
+\end{Schunk}
 
 This step will automatically install the following packages:
 \begin{itemize}
@@ -250,10 +258,12 @@ This step will automatically install the following packages:
 
 The installation of the package \Biocpkg{DAPARdata} follows 
 the classical way for Bioconductor packages. In a R console, enter:
-<< installDAPARdata>>=
-source("http://www.bioconductor.org/biocLite.R")
-biocLite("DAPARdata")
-@
+\begin{Schunk}
+\begin{Sinput}
+> source("http://www.bioconductor.org/biocLite.R")
+> biocLite("DAPARdata")
+\end{Sinput}
+\end{Schunk}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -335,9 +345,11 @@ function \Rfunction{readRDS()}.
 {The user can find examples of MSnSet file in the 'extdata' directory 
 of \Biocpkg{DAPARdata}. The user can find this directory by entering:\newline
 
-<< getProstarInstallDir>>=
-installed.packages()["DAPARdata","LibPath"]
-@
+\begin{Schunk}
+\begin{Sinput}
+> installed.packages()["DAPARdata","LibPath"]
+\end{Sinput}
+\end{Schunk}
 
 
 % 
@@ -684,9 +696,11 @@ Similarly, the "Dataset history" information is also accessible. In fact,
 it is stored in the slot (\Rcode{processingData}) of the current MSnSet 
 object. In a R console, if \Rcode{obj} is the current dataset, it can be 
 accessed by entering:
-<<sessionLog, echo=TRUE, cache=FALSE, tidy=FALSE>>=
-getProcessingInfo(obj)
-@
+\begin{Schunk}
+\begin{Sinput}
+> getProcessingInfo(obj)
+\end{Sinput}
+\end{Schunk}
 %% $
 
 
@@ -1431,10 +1445,12 @@ and moderated $t$-test are \Rfunction{diffAnaWelch()} and
 of the test. These columns can be added to the current MSnSet object 
 \Robject{imputed\_dataset} (as explained earlier) with the function 
 \Rfunction{diffAnaSave()}:
-<< diffAnalysis>>=
-res <- diffAnaLimma(imputed_dataset, condition1, condition2)
-obj <- diffAnaSave(imputed_dataset, res, "limma", condition1, condition2)
-@
+\begin{Schunk}
+\begin{Sinput}
+> res <- diffAnaLimma(imputed_dataset, condition1, condition2)
+> obj <- diffAnaSave(imputed_dataset, res, "limma", condition1, condition2)
+\end{Sinput}
+\end{Schunk}
 Moreover, \Rfunction{diffAnaSave()} adds the aforementioned third column 
 named "Significant" to the MSnSet object. Two optional arguments allows the 
 user defining the thresholds on the $p$-values and on the Fold Change, so has 
@@ -1667,10 +1683,18 @@ feedbacks):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Session information}\label{sec:sessionInfo}
-<<sessioninfo, results=tex, echo=FALSE, eval=TRUE, cache=FALSE>>=
-toLatex(sessionInfo())
-@
-
+\begin{itemize}\raggedright
+  \item R version 3.4.1 (2017-06-30), \verb|x86_64-w64-mingw32|
+  \item Locale: \verb|LC_COLLATE=French_France.1252|, \verb|LC_CTYPE=French_France.1252|, \verb|LC_MONETARY=French_France.1252|, \verb|LC_NUMERIC=C|, \verb|LC_TIME=French_France.1252|
+  \item Running under: \verb|Windows 7 x64 (build 7601) Service Pack 1|
+  \item Matrix products: default
+  \item Base packages: base, datasets, graphics, grDevices, methods, stats,
+    utils
+  \item Loaded via a namespace (and not attached): backports~1.1.1,
+    BiocStyle~2.4.1, compiler~3.4.1, digest~0.6.12, evaluate~0.10.1,
+    htmltools~0.3.6, knitr~1.17, magrittr~1.5, Rcpp~0.12.12, rmarkdown~1.6,
+    rprojroot~1.2, stringi~1.1.5, stringr~1.2.0, tools~3.4.1, yaml~2.1.14
+\end{itemize}
 %\bibliography{\Biocpkg{ProStaR}}
 
 
