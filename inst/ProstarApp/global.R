@@ -417,7 +417,7 @@ calibMethod_Choices <- c("st.boot", "st.spline",
                          "Benjamini-Hochberg", 
                          "numeric value")
 
-anaDiffMethod_Choices <- c("Limma")
+anaDiffMethod_Choices <- c("Limma", "Welch")
 
 
 G_noneStr <- "None"

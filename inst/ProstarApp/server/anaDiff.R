@@ -105,16 +105,19 @@ observe({
         result = tryCatch(
             {
                 
-                if (input$diffAnaMethod == "Limma"){
-                    rv$resAnaDiff <- wrapper.diffAnaLimma(rv$current.obj, 
+                switch(input$diffAnaMethod,
+                        Limma={
+                            rv$resAnaDiff <- wrapper.diffAnaLimma(rv$current.obj, 
+                                                          input$condition1, 
+                                                          input$condition2)},
+                        Welch={
+                            rv$resAnaDiff <- wrapper.diffAnaWelch(rv$current.obj, 
                                                           input$condition1, 
                                                           input$condition2)
-                    
-                } else if (input$diffAnaMethod == "Welch"){
-                    rv$resAnaDiff <- wrapper.diffAnaWelch(rv$current.obj, 
-                                                          input$condition1, 
-                                                          input$condition2)
-                }
+                })
+                
+                
+                
                 colnames(rv$resAnaDiff) <- gsub(".", "_", colnames(rv$resAnaDiff), fixed=TRUE)
                 
             }
