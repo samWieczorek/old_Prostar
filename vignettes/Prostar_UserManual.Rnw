@@ -20,17 +20,10 @@ BiocStyle::latex()
 
 
 \author{
-Samuel Wieczorek\footnote{firstname.lastname@cea.fr} ,
+Samuel Wieczorek$^\ast$,
 Florence Combes$^\ast$,
-Cosmin Lazar,
-Quentin Giai Gianetto,\\
-Laurent Gatto,
-Alexia Dorffer,
-Anne-Marie Hesse,
-Yohann Coute,\\
-Myriam Ferro,
-Christophe Bruley
-and Thomas Burger$^\ast$
+and Thomas Burger$^\ast$\\
+$^\ast$\url{firstname.lastname@cea.fr}
 }
 
 
@@ -528,16 +521,13 @@ to paste the image in appropriate software.}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Export plots as report (Beta)}\label{sec:Report}
-xxxxxxxxx
-In addition to the exported datasets (see previous section), the user can generate and download a report dynamically created on demand (e.g. at the end of an analysis) (Fig.~\ref{fig:exportReport}).
+In addition to the exported datasets (see previous section), the user can generate and download a report, dynamically created on demand (e.g. at the end of an analysis), through the interface presented on Fig.~\ref{fig:exportReport}.
 
-The left part of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected. The user has to choose which results have to be included in the report. Even if no analysis has been done (e.g. the upload of a dataset), the plots of the Descriptive Statistics are available.
+The left hand side of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected. The user chooses which results to include in the report. Even if no analysis has been performed (e.g. right after the upload of a dataset), the plots of the Descriptive Statistics panel are available.
 
-The right part of the interface is to let the user choose the format of the report; it can be a pdf, a HTML or a Word file. He/she has also to specify the name of the file.
+The right hand side of the interface allows the user to choose the format of the report: PDF, HTML or DOC file. 
 
-Once those options have been choosen, the user clicks on the button called "Generate a report". Then, ProStaR creates all the images needed and include them in the report file. During this step, the button "Download" is disabled. It becomes enabled when the report is ready to be downloaded.
-
-Finally, the user clicks on the 'Download' button to get the report.
+After selecting the desired options, one clicks on the button "Generate a report". Then, ProStaR rebuilds all the required images and includes them in the report file. During this step, the button "Download" remains disabled. Only when the report is ready, the "Download" buttons is enabled.
 
 \begin {figure}
 \centering
@@ -545,10 +535,13 @@ Finally, the user clicks on the 'Download' button to get the report.
 \caption{Exporting analysis as a report.}\label{fig:exportReport}
 \end {figure}
 
-As this feature is in its Bêta version, some functionalities are not implemented yet:
+Please note this report generation functionality is still in Beta version, so that some bugs may remain. In the future, and depending on the users' expectations, the report will be completed: 
 \begin{itemize}
-\item The R commands run during the generation of the report are not shown in the log console (See \ref{sec:sessionlog}).
+\item So far, the R commands run for the report generation does not appear in the log console (see \ref{sec:sessionlog});
+\item The texts accompanying the figures is minimal;
+\item The report cannot be customized.
 \end{itemize}
+In the future, we hope to improve it, as well as to generate additional ready-to-use files for  publication (Material \& Methods sketch, R script for reproducibility, etc.)
 
 \subsubsection{Demo mode} \label{sec:demomode}
 
@@ -1167,14 +1160,14 @@ The user can choose one of the several available imputation methods, depending
 on the type of missing values:
 \begin{itemize}
 \item If the missing values are due to a mixture of censorship and of randomness
-, it is advised to use the functions of the package \CRANpkg{imp4p}. This 
+mechanisms, it is advised to use the functions of the package \CRANpkg{imp4p}. This 
 package is a collection of proteomic-specific 
 multiple imputation methods that operate on peptide-level datasets and which 
 propose to impute each missing value according to its nature (censored or 
 random). Two parameters are available: the number of iterations (the more 
 iterations, the more accurate the results, yet the more time-consuming) and a 
 checkbox to let the user choose if he/she wants to impute the LAPALA. This
-term coined from French "là/pas-là"(meaning "here/not-here") refers to analytes 
+term coined from French "l\`a/pas-l\`a"(meaning "here/not-here") refers to analytes 
 (peptides or proteins) that are entirely missing in some conditions while they
 are (partially or totally) visible in others. Their specific accounting in a 
 conservative way is a real issue as the imputation cannot rely on any observed 
@@ -1183,10 +1176,18 @@ maximum imputed value as a centile of the observed distribution (a tuning
 between 0\% and 10\% is advised).
 
 
-\item Alternatively, it is possible to use KNN ($K$ Nearest Neighbors) from package 
-\Biocpkg{impute} or MLE (Maximum Likelihood Estimation) from package 
-\Biocpkg{norm} or a deterministic quantile (xxxxxxxx)
+\item As an alternative, it is possible to rely on several basics methods from
+the state of the art to perform imputation: KNN ($K$ Nearest Neighbors) 
+from \Biocpkg{impute} package, 
+MLE (Maximum Likelihood Estimation) from \Biocpkg{norm} package, 
+or deterministic quantile imputation. In the latter, the user tunes a specific 
+quantile, which is computed replicate-wise, so as to provide an imputation value
+for each replicate. Possibly, it is possible to multiply these values by a user-tuned
+factor (for instance, one may use $q(5\%) \times 0.9$ instead of $q(1\%)$).
 \end{itemize}
+
+To date, we advise to use IMP4P for peptide-level imputation and other methods for protein-level
+imputation.
 
 
 The user can visualize the effect of an imputation method without changing 
@@ -1227,7 +1228,7 @@ step is made for.
 First, the user chooses the "protein id" of the dataset, i.e. the column in 
 the metadata, that contains the IDs of all the parent proteins for each 
 peptide. 
-Two barplots show up (Fig.~\ref{fig:agreg1} ). They provide the distribution 
+Two barplots show up (Fig.~\ref{fig:agreg1}). They provide the distribution 
 of proteins according to their number of peptides (either all of them, or 
 only those which are specific to a single protein). These statistics are 
 helpful to visualize the adjacency matrix of the peptide-protein graph, that 
