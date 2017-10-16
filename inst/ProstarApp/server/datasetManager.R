@@ -105,8 +105,10 @@ output$helpTextDataID <- renderUI({
     input$typeOfData
     
     t <- ""
-    if (input$typeOfData == "protein") {t <- "proteins"}
-    else if (input$typeOfData == "peptide") {t <- "peptides"}
+    switch(input$typeOfData,
+           protein = {t <- "proteins"},
+           peptide = {t <- "peptides"}
+    )
     txt <- paste ("Please select among the columns ofyour data the one that 
                   corresponds to a unique ID of the ", t, ".", sep=" ")
     helpText(txt)
@@ -413,22 +415,18 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
             {
                 #if (input$showCommandLog){
                     ext <- GetExtension(input$file1$name)
-                    if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
-                    
-                    writeToCommandLogFile(
-                        paste("tab1 <- read.csv(\"",
-                              input$file1$name,
-                              "\",header=TRUE, sep=\"\t\", as.is=T)", 
-                              sep="")
-                    )
-                    
-                    } else if ((ext == "xls") || (ext == "xlsx") ){
-                    writeToCommandLogFile(
-                        paste("tab1 <- read.xlsx(",input$file1$name,
-                              ",sheet=", input$XLSsheets,")",
-                              sep="")
-                    )
-                    }
+                    txtTab <-  paste("tab1 <- read.csv(\"", input$file1$name,
+                            "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
+                    txtXls <-  paste("tab1 <- read.xlsx(",input$file1$name,
+                              ",sheet=", input$XLSsheets,")",sep="")
+                    switch(ext,
+                           txt = writeToCommandLogFile(txtTab),
+                           csv = writeToCommandLogFile(txtTab),
+                           tsv = writeToCommandLogFile(txtTab),
+                           xls= writeToCommandLogFile(txtXls),
+                           xlsx = writeToCommandLogFile(txtXls)
+                            )
+                   
                 #}
                 
                 # input$hot
@@ -615,7 +613,6 @@ output$overviewDemoDataset <- renderUI({
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)}
     if (is.null(input$showDemoDatasetPDF)) {return(NULL)}
-    
     isolate({
         result = tryCatch(
             {
@@ -626,9 +623,12 @@ output$overviewDemoDataset <- renderUI({
                             (dim(Biobase::exprs(rv$current.obj))[1]*
                             dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
                 d <- "lines"
-                if (rv$typeOfDataset == "peptide") {d <- "peptides"}
-                else if (rv$typeOfDataset == "protein") {d <- "proteins"}
-                else {d <- "analytes"}
+                
+                switch(rv$typeOfDataset,
+                       peptide = {d <- "peptides"},
+                       protein = {d <- "proteins"},
+                       {d <- "analytes"}
+                )
                 
                 nb.empty.lines <- sum(apply(
                     is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
@@ -789,7 +789,6 @@ output$infoAboutAggregationTool <- renderUI({
     rv$current.obj
     rv$typeOfDataset
     if (is.null(rv$current.obj)) {return(NULL)    }
-    
     NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
     
 nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))

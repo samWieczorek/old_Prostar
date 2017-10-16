@@ -509,7 +509,6 @@ viewComparisonNorm2 <- reactive({
     
     # if (is.null(rv$current.obj) || 
     #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
-    #     print("Oups")
     #     return(NULL)}
     
     leg <- NULL
@@ -585,7 +584,6 @@ viewComparisonNorm <- reactive({
     
     # if (is.null(rv$current.obj) || 
     #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
-    #     print("Oups")
     #     return(NULL)}
     
      leg <- NULL

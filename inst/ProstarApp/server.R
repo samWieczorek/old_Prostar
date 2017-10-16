@@ -8,8 +8,8 @@ library(highcharter)
 require(compiler)
 enableJIT(3)
 ###
-source(file.path(".", "global.R"),  local = TRUE)$value
 
+source(file.path(".", "global.R"),  local = TRUE)$value
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 # initialize data with colnames
@@ -30,7 +30,6 @@ shinyServer(function(input, output, session) {
     sessionID <- Sys.getpid()
     
     serverAdmin <- FALSE
-    
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()
         print(hname)

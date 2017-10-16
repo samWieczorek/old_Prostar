@@ -108,7 +108,8 @@ observeEvent(input$generateReport,{
 
 
  func_density <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+    
+   obj <- rv$dataset[[rv$iDat]]
      if (is.null(rv$tempplot$Density)) {
          tempplot <- wrapper.densityPlotD_HC(obj)}
      else{ tempplot <- rv$tempplot$Density}
@@ -120,7 +121,8 @@ observeEvent(input$generateReport,{
  })
  
  func_boxplot <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+ 
+   obj <- rv$dataset[[rv$iDat]]
      plotPNG(function(){if (!is.null(rv$PlotParams$legDS)) {
          wrapper.boxPlotD(obj,  rv$PlotParams$legDS)
      } else {
@@ -134,7 +136,8 @@ observeEvent(input$generateReport,{
  
  
  func_violinPlot <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+
+   obj <- rv$dataset[[rv$iDat]]
      plotPNG(function(){if (!is.null(rv$PlotParams$legDS_Violinplot)) {
          wrapper.violinPlotD(obj,  rv$PlotParams$legDS_Violinplot)
      } else {
@@ -147,7 +150,8 @@ observeEvent(input$generateReport,{
  })
  
  func_varDist <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+
+   obj <- rv$dataset[[rv$iDat]]
      if (is.null(rv$tempplot$varDist)) {tempplot <- wrapper.CVDistD_HC(obj)}
      else{ tempplot <- rv$tempplot$varDist}
      htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
@@ -158,7 +162,8 @@ observeEvent(input$generateReport,{
  })
  
  func_corrMatrix <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+
+   obj <- rv$dataset[[rv$iDat]]
      if (is.null(rv$tempplot$corrMatrix)) {
          tempplot <- wrapper.corrMatrixD_HC(obj) }
      else {
@@ -172,7 +177,8 @@ observeEvent(input$generateReport,{
  })
  
  func_mvHisto_1 <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+
+   obj <- rv$dataset[[rv$iDat]]
      ##last plot of descriptive statistics
      if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
          tempplot <- wrapper.mvPerLinesHistoPerCondition_HC(obj)}
@@ -186,7 +192,8 @@ observeEvent(input$generateReport,{
  
  
  func_mvHisto_2 <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+
+   obj <- rv$dataset[[rv$iDat]]
      ##second plot of descriptive statistics
      if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
          tempplot <- wrapper.mvPerLinesHisto_HC(obj)}
@@ -200,6 +207,7 @@ observeEvent(input$generateReport,{
  })
  
  func_mvHisto_3 <- reactive({
+
      obj <- rv$dataset[[rv$iDat]]
      # first plot of descriptive statistics
      if (is.null(rv$tempplot$mvHisto_HC)) {
@@ -213,7 +221,8 @@ observeEvent(input$generateReport,{
  })
  
  func_heatmap <- reactive({
-     obj <- rv$dataset[[rv$iDat]]
+   
+   obj <- rv$dataset[[rv$iDat]]
      plotPNG(function(){
          if (is.null (rv$PlotParams$HeatmapDistance) && 
              is.null(rv$PlotParams$HeatmapLinkage)) {
@@ -234,7 +243,7 @@ observeEvent(input$generateReport,{
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
     obj <- rv$dataset[[rv$iDat]]
-  
+
     
     # func_heatmap()
     #                func_mvHisto_3()
@@ -248,19 +257,19 @@ createPNG_DescriptiveStatistics <- reactive({
     # 
                    
       list_f <- list(func_heatmap,
-                     func_mvHisto_3,
-                     func_mvHisto_2,
-                     func_mvHisto_1,
                      func_corrMatrix,
                      func_varDist,
                      func_violinPlot,
                      func_boxplot,
-                     func_density)             
+                     func_density,
+                     func_mvHisto_3,
+                     func_mvHisto_2,
+                     func_mvHisto_1)             
      
       require(doParallel)
       registerDoParallel()  
       foreach(i=1:length(list_f)) %dopar% {
-         list_f[[i]]
+         list_f[[i]]()
      }
      
     

@@ -15,22 +15,26 @@ output$DS_sidebarPanel_tab <- renderUI({
     rv$typeOfDataset
     
     .choices<- NULL
-    if (rv$typeOfDataset == "protein") {
-        .choices <- list("Quantitative data" = "tabExprs",
-                         "Proteins metadata" = "tabfData",
-                         "Replicate metadata" = "tabpData",
-                         "Dataset history" = "processingData")
-    } else if (rv$typeOfDataset == "peptide"){
-        .choices <- list("Quantitative data" = "tabExprs",
-                         "Peptides metadata" = "tabfData",
-                         "Replicate metadata" = "tabpData",
-                         "Dataset history" = "processingData")
-    } else if (rv$typeOfDataset == ""){
-        .choices <- list("Quantitative data" = "tabExprs",
-                         "Analyte metadata" = "tabfData",
-                         "Replicate metadata" = "tabpData",
-                         "Dataset history" = "processingData")
-    }
+    switch(rv$typeOfDataset,
+           protein = {
+                      .choices <- list("Quantitative data" = "tabExprs",
+                                        "Proteins metadata" = "tabfData",
+                                        "Replicate metadata" = "tabpData",
+                                        "Dataset history" = "processingData")
+                      },
+        peptide = {
+                      .choices <- list("Quantitative data" = "tabExprs",
+                                       "Peptides metadata" = "tabfData",
+                                        "Replicate metadata" = "tabpData",
+                                        "Dataset history" = "processingData")
+                      },
+                {
+                .choices <- list("Quantitative data" = "tabExprs",
+                                "Analyte metadata" = "tabfData",
+                                "Replicate metadata" = "tabpData",
+                                "Dataset history" = "processingData")
+                }
+    )
     
     tagList(
                      radioButtons("DS_TabsChoice", "Choose the tab to display",
@@ -63,13 +67,15 @@ output$tabToShow <- renderUI({
     if (is.null(input$DS_TabsChoice)) {return(NULL)}
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    if (input$DS_TabsChoice == "tabExprs"){DT::dataTableOutput("table")}
-    else if (input$DS_TabsChoice == "tabfData"){DT::dataTableOutput("viewfData")}
-    else if (input$DS_TabsChoice == "tabpData"){DT::dataTableOutput("viewpData")}
-    else if (input$DS_TabsChoice == "processingData"){
-        helpText("Previous operations made on the original dataset :")
-        DT::dataTableOutput("viewProcessingData")
-    }
+    switch(input$DS_TabsChoice,
+          tabExprs = DT::dataTableOutput("table"),
+          tabfData = DT::dataTableOutput("viewfData"),
+          tabpData = DT::dataTableOutput("viewpData"),
+          processingData = {
+                      helpText("Previous operations made on the original dataset :")
+                      DT::dataTableOutput("viewProcessingData")
+                      }
+    )
     
 })
 
@@ -260,9 +266,11 @@ output$overview <- renderUI({
                                     dim(Biobase::exprs(rv$current.obj))[2]), 
                                     digits=4)
                 d <- "lines"
-                if (rv$typeOfDataset == "peptide") {d <- "peptides"}
-                else if (rv$typeOfDataset == "protein") {d <- "proteins"}
-                else {d <- "analytes"}
+                switch(rv$typeOfDataset,
+                       peptide = {d <- "peptides"},
+                       protein = {d <- "proteins"},
+                       {d <- "analytes"}
+                       )
                 
                 rv$nb.empty.lines <- sum(apply(
                     is.na(as.matrix(exprs(rv$current.obj))), 1, all))
@@ -592,8 +600,6 @@ heatmap <- reactive({
     input$linkage
     input$distance
     if (is.null(rv$current.obj)) {return(NULL)}
-    print(input$linkage)
-    print(input$distance)
     if (!is.null(input$linkage) && !is.null(input$distance)
         #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
     ) {

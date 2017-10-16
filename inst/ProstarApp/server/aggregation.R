@@ -161,6 +161,9 @@ observeEvent(input$valid.aggregation,{
                 #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
                 #}
                 
+                updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
+                #updateTabsetPanel(session, "Aggregation", selected = "configureProteinDataset")
+                
                 updateSelectInput(session, "datasets", 
                                   paste("Dataset versions of",
                                         rv$current.obj.name, sep=" "),
@@ -558,7 +561,7 @@ output$Aggregation_Step2 <- renderUI({
             helpText("Select the columns of the meta-data (related to proteins)
                     that have to be recorded in the new protein dataset."),
             helpText("(e.g. the column which contains the protein ID if you wish 
-                     to perform a GO analysis."),
+                     to perform a GO analysis.)"),
             div(class="row"),
             div(class="span5", "",
                 uiOutput("columnsForProteinDataset"),

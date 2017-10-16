@@ -3,7 +3,7 @@
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
     
-    
+  
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
@@ -38,8 +38,6 @@ session$onSessionEnded(function() {
 
 
 ClearMemory <- function(){
-        
-        
         initializeProstar()
         rv$hot = port
         #rv$indexNA <- NULL
@@ -82,7 +80,7 @@ ClearMemory <- function(){
 loadObjectInMemoryFromConverter <- reactive({
     
     ClearMemory()
-    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+  rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
     #If there are already pVal values, then do no compute them 
@@ -348,29 +346,6 @@ catchToList <- function(expr) {
     list(value = val, warnings = myWarnings, error=myError)
 } 
 
-
-
-# 
-# output$disableBioanalysisTool <- renderUI({
-#     rv$current.obj
-#     
-#     if (!is.null(rv$current.obj))
-#     {
-#         if (rv$current.obj@experimentData@other$typeOfData == "peptide")
-#         {
-#             hideTab(inputId = "tabsetPanelGO", target = "GO Setup")
-#             #disable(selector = "#navPage li a[data-value=GO_Analysis]")
-#             #tags$style(
-#             #    type="text/css","#navPage li a[data-value=GO_Analysis] { color:lightgrey;}")
-#             
-#             
-#         } else {
-#             enable(selector = "#navPage li a[data-value=GO_Analysis]")
-#             
-#         }
-#     }
-#     
-# })
 
 output$disableAggregationTool <- renderUI({
     rv$current.obj

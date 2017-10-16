@@ -72,6 +72,7 @@ sidebarPanelWidth()
 source(file.path("ui", "tabPanel_descriptiveStatistics.R"),  local = TRUE)$value,
 
 navbarMenu("Data processing",
+           
     source(file.path("ui", "tabPanel_Filtering.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Normalization.R"),  local = TRUE)$value,
     source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,

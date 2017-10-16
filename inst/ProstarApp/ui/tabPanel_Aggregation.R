@@ -1,9 +1,9 @@
 tabPanel("Aggregation",
-         id = "Aggregation",
+         #id = "Aggregation",
          value="Aggregation",
          tabsetPanel(
              #"agreagationTabsetPanel",
-             id = "agreagationTabsetPanel",
+             #id = "agreagationTabsetPanel",
              tabPanel("1 - Aggregate peptides",
                       value = "aggregation",
                       sidebarCustom(),

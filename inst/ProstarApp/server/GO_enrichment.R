@@ -21,6 +21,7 @@ output$GOAnalysisMenu <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == "protein") {
         
         tabsetPanel(
+            id = "tabsetPanel_GO",
             tabPanel("GO Setup",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -73,7 +74,7 @@ output$GOAnalysisMenu <- renderUI({
                      )
             ),
             tabPanel("GO Enrichment",
-                     id = "tabPanelEnrichGO",
+                     #id = "tabPanelEnrichGO",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
@@ -99,7 +100,7 @@ output$GOAnalysisMenu <- renderUI({
                      )
             ),
             tabPanel("Save GO analysis",
-                     id = "tabPanelSaveGO",
+                     value = "tabPanelSaveGO",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO4",
@@ -447,9 +448,6 @@ output$GODatatable <- renderDataTable({
 
 
 # GetProteinMappedRatio <- reactive({
-#     
-#     
-#     print(ratio)
 #     return(ratio)
 # })
 
@@ -538,31 +536,40 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
         
         result = tryCatch(
             {
-               if (input$whichGO2Save == "Both"){
-                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+              
+              
+              textGOParams <- paste("Dataset of ",
+                                    rv$typeOfDataset,"GO analysis with ",
+                                    "organism = ", input$Organism,
+                                    "ontology = ", input$Ontology, sep= " ")
+              
+              
+              switch(input$whichGO2Save,
+              Both =
+                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
                                                   ggo_res = rv$groupGO_data ,
                                                   ego_res = rv$enrichGO_data ,
                                                   organism = input$Organism,
                                                   ontology = input$Ontology,
                                                     level = input$GO_level,
                                                     pvalueCutoff = input$pvalueCutoff,
-                                                    typeUniverse = input$universe)
-               }
-                else if  (input$whichGO2Save == "Classification"){
-                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                    typeUniverse = input$universe)},
+                Classification = 
+                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
                                                   ggo_res = rv$groupGO_data ,
                                                   organism = input$Organism,
                                                   ontology = input$Ontology,
-                                                  level = input$GO_level)
-                }
-                else if (input$whichGO2Save == "Enrichment"){
-                    temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                                  level = input$GO_level)},
+                    
+                Enrichment = 
+                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
                                                   ego_res = rv$enrichGO_data ,
                                                   organism = input$Organism,
                                                   ontology = input$Ontology,
                                                   pvalueCutoff = input$pvalueCutoff,
-                                                  typeUniverse = input$universe)
-                }
+                                                  typeUniverse = input$universe)}
+                    
+              )
                 
                 name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- temp
@@ -618,51 +625,76 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 #                      input$numericValCalibration, sep= " ")}
                 # else {cMethod <-input$calibrationMethod }
                 # 
-                # text <- paste("Dataset of ", 
-                #               rv$typeOfDataset,
-                #               ": differential analysis with", 
-                #               input$diffAnaMethod, 
-                #               "Selection with the following threshold values :logFC =",
-                #               rv$seuilLogFC,
-                #               "The calibration was made with the method", cMethod,
-                #               ", -log10(p-value) = ",
-                #               rv$seuilPVal,
-                #               "corresponding to a FDR = ", round(100*rv$fdr, digits=2),
-                #               sep=" ")
-                # UpdateLog(text,name)
-                # 
-                 updateTabsetPanel(session, "abc", selected = "tabPanelEnrichGO")
+                
+                text2Log <- NULL
+                text <- NULL
+                
+                switch(input$whichGO2Save,
+                       Both =
+                       {
+                  text <- paste(textGOParams,", GO grouping for level(s):",
+                                        input$GO_level,
+                                ", GO enrichment with",
+                                ", adj p-value cutoff = ", input$pvalueCutoff,
+                                ", universe =", input$universe, sep= " ")
+                  
+                  
+                  text2Log <- paste(
+                      "ProtIDList <- Biobase::fData(current.obj)[,\"",input$UniprotIDCol,"]\"\n",
+                      "levelIndex <- sort(",input$GO_level,") \n",
+                      
+                      "index <- NULL\n",
+                      "if (\"Significant.Welch\" %in% names(Biobase::fData(current.obj) )){\n",
+                          "index <- which(Biobase::fData(current.obj)$Significant.Welch == TRUE)\n",
+                      "} else if (\"Significant.limma\" %in% names(Biobase::fData(current.obj) )){",
+                          "index <- which(Biobase::fData(current.obj)$Significant.limma == TRUE)\n",
+                      "} else{ index <- seq(1:nrow(current.obj))}\n",
+                      "groupGO_data <- list()\n",
+                      "for (i in 1:length(levelIndex)){\n",
+                          "groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),\n",
+                                                       "ggo_res = group_GO(ProtIDList[index],\n",
+                                                                          "\"",input$idFrom,"\", 
+                                                                          \"ENTREZID\", \n",
+                                                                          "orgdb = \"",input$Organism,"\",\n", 
+                                                                          "ont=",input$Ontology,",\n", 
+                                                                          "level=as.numeric(levelIndex[i]))) }\n",
+                      # index <- GetDataIndexForAnalysis()
+                      # rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
+                      #                               idFrom = input$idFrom, 
+                      #                               idTo = "ENTREZID", 
+                      #                               orgdb = input$Organism, 
+                      #                               ont = input$Ontology, 
+                      #                               #pAdj = input$PAdjustMethod, 
+                      #                               pval = input$pvalueCutoff, 
+                      #                               universe = rv$universeData )
+                      # 
+                      
+                      
+                      "temp <- GOAnalysisSave(dataset[[datasets]],ggo_res = groupGO_data ,
+                                             ego_res = enrichGO_data ,
+                                             organism = \"",input$Organism,"\",ontology = \"", input$Ontology,"\",\n",
+                                             "level = ", input$GO_level,", pvalueCutoff = ", input$pvalueCutoff,",\n",
+                                             "typeUniverse = \"", input$universe,"\")\n",
+                      " name <- \"GOAnalysis", " - ", rv$typeOfDataset,"\"",
+                      "dataset[[name]] <- temp\n",
+                      "current.obj <- temp\n", sep= " ")
+                 # writeToCommandLogFile(text2Log)
+                 },
+                Enrichment ={
+                  text <- paste(textGOParams, " GO enrichment with",
+                                      ", adj p-value cutoff = ", input$pvalueCutoff,
+                                      ", universe =", input$universe, sep= " ")
+                },
+                Classification= {
+                  text <- paste(textGOParams,", GO grouping for level(s):",
+                                        input$GO_level,sep=" ")
+                  }
+                )
+                UpdateLog(text,name)
+
+                 updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
  
-                
-                
-                
-                ## Add the necessary text to the Rmd file
-                 if  (input$whichGO2Save == "Both"){
-                     # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                     #createPNG_GroupGO()
-                     
-                     
-                     # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    #createPNG_Enrichment()
-                    }
-                 else if  (input$whichGO2Save == "Classification"){
-                    # txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-                    # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                    # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    #createPNG_GroupGO()
-                    }
-                 else if (input$whichGO2Save == "Enrichment"){
-                     # txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-                     # filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                     # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                     #createPNG_Enrichment()
-                 }
-                
-                
+               
                 
             }
             #, warning = function(w) {

@@ -566,6 +566,7 @@ When the user chooses one of those datasets, it is automatically loaded in
 \caption{Loadind a demo dataset.}\label{fig:demomodeFig}
 \end {figure}
 
+A checkbox allows the user to show the PDF file in the interface; by default, it is unchecked.
 
 \subsubsection{Session log}\label{sec:sessionlog}
 
@@ -798,14 +799,20 @@ correspond to the different conditions (column \textbf{Label} in the table of
 
 \subsubsection{CV distribution}
 This plot shows the distribution of the CV of the log-intensity of 
-proteins for each condition (see Fig.~\ref{fig:sdvd}). For better visualization, 
-the user can zoom in by click-and-drag.
+proteins for each condition (see Fig.~\ref{fig:sdvdZoomOut}). For better visualization, 
+the user can zoom in by click-and-drag (see Fig.~\ref{fig:sdvdZoomIn}).
 
 
 \begin {figure}
 \centering
-\includegraphics[width=0.75\textwidth]{images/desc_CVDist.png}
-\caption{CV distribution for the quantitative data.}\label{fig:sdvd}
+\includegraphics[width=0.75\textwidth]{images/desc_CVDist_zoomOut.png}
+\caption{CV distribution for the quantitative data.}\label{fig:sdvdZoomOut}
+\end {figure}
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/desc_CVDist_ZoomIn.png}
+\caption{Zoom in of the CV distribution for the quantitative data.}\label{fig:sdvdZoomIn}
 \end {figure}
 
 
@@ -1210,21 +1217,21 @@ are obtained with respectively:
 \subsubsection{Aggregation}\label{aggregation}
 
 
-{When working on a protein dataset, this step should be bypassed. On the other 
+When working on a protein dataset, this step should be bypassed. On the other 
 hand, when working on peptide datasets, one may want to conduct the 
 differential analysis at protein level, for proteins are the biological units 
 of interest. To do so, it is necessary to estimate the abundance of the 
 proteins on the basis of those of the peptides. This is what the Aggregation 
-step is made for.}
+step is made for.
 
-{First, the user chooses the "protein id" of the dataset, i.e. the column in 
+First, the user chooses the "protein id" of the dataset, i.e. the column in 
 the metadata, that contains the IDs of all the parent proteins for each 
 peptide. 
 Two barplots show up (Fig.~\ref{fig:agreg1} ). They provide the distribution 
 of proteins according to their number of peptides (either all of them, or 
 only those which are specific to a single protein). These statistics are 
 helpful to visualize the adjacency matrix of the peptide-protein graph, that 
-is sometime rather big.}
+is sometime rather big.
 
 
 \begin {figure}
@@ -1262,12 +1269,12 @@ recorded in the Session log tab (see section~\ref{sec:sessionlog}). This new
 dataset becomes the new current dataset and the name "Aggregated" appears in 
 "Dataset versions". All plots and tables in other menus are automatically 
 updated.
+As the new dataset is a protein one, the "Aggregation" menu has been disabled. Thus, the interface automatically switches to the "Descriptive Statistics" menu in order to let the user check the results of the aggreation step.
 
 The aggregation being more computationaly demanding than other processing 
 steps, the current version of \Biocpkg{ProStaR} does not provide the same 
-flexibility regarding the parameter tuning: Here, it is necessary to save the 
-aggregation result first, then, to go to "descriptive statistics" to check 
-the results, and possibly to go back to the imputed dataset with the "Dataset 
+flexibility regarding the parameter tuning. Here, it is necessary to save the 
+aggregation result first, then, check the results in the "descriptive statistics", and possibly to go back to the imputed dataset with the "Dataset 
 versions" dropdown menu to test another aggregation tuning. Contrarily to 
 other processing steps, it is not possible to visualize on-the-fly the 
 consequences of the parameter tuning, and to save it afterwards. We are 
@@ -1437,6 +1444,41 @@ to be more or less stringent on the number of proteins called "Significant".
 \subsubsection{Gene Ontology analysis (Beta)}\label{sec:GOAnalysis}
 
 
+
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/GO_tab1.png}
+\caption{Options for the GO analysis.}\label{fig:GO_tab1}
+\end {figure}
+
+
+
+
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/GO_tab2.png}
+\caption{Perform GO classification}\label{fig:GO_tab2}
+\end {figure}
+
+
+
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/GO_tab3.png}
+\caption{Perform GO enrichment.}\label{fig:GO_tab3}
+\end {figure}
+
+
+
+
+\begin {figure}
+\centering
+\includegraphics[width=0.75\textwidth]{images/GO_tab4.png}
+\caption{Saving the GO analysis.}\label{fig:GO_tab4}
+\end {figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Menu
