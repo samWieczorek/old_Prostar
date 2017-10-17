@@ -1560,9 +1560,9 @@ on the right-hand side of the panel (see Fig.~\ref{fig:GO_tab3}).
 The first one (top) is a barplot showing the five most significant categories. The 
 length of each bar represents the number of proteins within the corresponding category. 
 The second one (bottom) is a dotplot ranked by decreasing \textit{GeneRatio}, which reads: 
-%$$ \text{\textit{GeneRatio}} = \frac{\#(\text{Genes of the input list in this category})}{\#(\text{Total number of Genes in %the
-%category})}.
-%$$
+$$ \text{\textit{GeneRatio}} = \frac{\#(\text{Genes of the input list in this category})}{\#(\text{Total number of Genes in the
+category})}.
+$$
 
 
 \hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO 
