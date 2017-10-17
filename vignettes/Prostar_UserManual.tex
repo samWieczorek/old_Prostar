@@ -1578,9 +1578,12 @@ on the right-hand side of the panel (see Fig.~\ref{fig:GO_tab3}).
 The first one (top) is a barplot showing the five most significant categories. The 
 length of each bar represents the number of proteins within the corresponding category. 
 The second one (bottom) is a dotplot ranked by decreasing \textit{GeneRatio}, which reads: 
-%$$ \text{\textit{GeneRatio}} = \frac{\#(\text{Genes of the input list in this category})}{\#(\text{Total number of Genes in %the
-%category})}.
-%$$
+$$
+{\textit{GeneRatio}}
+=
+\frac{\#(\mbox{Genes of the input list in this category})}
+{\#(\mbox{Total number of Genes in the category})}.
+$$
 
 
 \hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO 
@@ -1627,16 +1630,16 @@ manager menu , either in MSnSet or in Excel format.
 \end{Schunk}
 
 
-
 \textbf{Nota Bene}: Evolution of the GO Analysis functionalities (what we think 
-about ... but feel free to propose) :
+about ... but feel free to propose), it would be better:
 \begin{itemize}
-\item \textbf{ID format} It would be better to have a larger range of input 
+\item \textbf{ID format} to have a larger range of input 
 format ID that can be handled
-\item \textbf{External mapping file between ID and GO ontology} (or even a 
-custom ontology) in order to be able to work on other organisms than those for 
-which a Bioconductor annotation package exist. 
+\item \textbf{to handle external mapping file between ID and GO ontology} 
+(or even a custom ontology). Goal: to be able to work on other organisms than 
+those for which a Bioconductor annotation package exist. 
 \end{itemize}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

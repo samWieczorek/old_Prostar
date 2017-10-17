@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.24)  17 OCT 2017 12:06
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2016.3.24)  17 OCT 2017 12:19
 entering extended mode
 **./Prostar_UserManual.tex
 (Prostar_UserManual.tex
@@ -1419,16 +1419,16 @@ d=777, 846.16125pt x 325.215pt>
 File: images/GO_tab4.png Graphic file (type png)
 
 <use images/GO_tab4.png>
-Package pdftex.def Info: images/GO_tab4.png used on input line 1619.
+Package pdftex.def Info: images/GO_tab4.png used on input line 1622.
 (pdftex.def)             Requested size: 375.36299pt x 144.26616pt.
  [37 <./images/GO_tab4.png>] [38]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1752.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1755.
  [39]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1752.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1755.
 
 (Prostar_UserManual.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1752.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1752.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1755.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1755.
 
 Package rerunfilecheck Info: File `Prostar_UserManual.out' has not changed.
 (rerunfilecheck)             Checksum: C94525F4BECD4AE0FBA478CD37EA9DEC;2676.
@@ -1436,7 +1436,7 @@ Package rerunfilecheck Info: File `Prostar_UserManual.out' has not changed.
 
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1752.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 1755.
  )
 (\end occurred inside a group at level 1)
 
@@ -1465,7 +1465,7 @@ s/type1/public/amsfonts/cm/cmssi10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1
 ts/cm/cmsy10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cm
 tt10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 >
-Output written on Prostar_UserManual.pdf (39 pages, 1693329 bytes).
+Output written on Prostar_UserManual.pdf (39 pages, 1694024 bytes).
 PDF statistics:
  883 PDF objects out of 1000 (max. 8388607)
  122 named destinations out of 1000 (max. 500000)
