@@ -115,7 +115,7 @@ observeEvent(input$valid.aggregation,{
                 #delta <- round(total / length(input$columnsForProteinDataset.box))
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
-                    newCol <- BuildColumnToProteinDataset(
+                    newCol <- BuildColumnToProteinDataset_par(
                         Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 

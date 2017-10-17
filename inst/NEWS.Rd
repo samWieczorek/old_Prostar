@@ -2,11 +2,12 @@
 \title{Prostar News}
 
 
-\section{CHANGES IN VERSION 1.9.12}{
+\section{CHANGES IN VERSION 1.9.13}{
 
 \subsection{BUG FIXES}{
   \itemize{
    \item When the aggregation step has been performed, the interface switches to the first tab of the 'Descriptive Statistics' in order to view informations aout the new dataset (the protein one).
+   \item Implementation of a parallel version of the function which saves the (new) protein dataset after the aggregation step.
    }
    }
   \subsection{NEW FEATURES}{
