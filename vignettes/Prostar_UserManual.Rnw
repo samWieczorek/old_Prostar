@@ -1608,17 +1608,14 @@ GOAnalysisSave
 @
 
 
-\textbf{Nota Bene}: Evolution of the GO Analysis functionalities (what we think 
-about, but feel free to propose), it would be better:
+\textbf{Nota Bene}: The GO Analysis functionalities are in beta version and improvements will be considered in the future, such as for instance:
 \begin{itemize}
-\item to have a larger range of input 
-format ID that can be handled
-\item to handle external mapping file between ID and GO ontology
+\item authorizing a larger range of input  format ID;
+\item handling external mapping file between ID and GO ontology
 (or even a custom ontology), so as to be able to work on other organisms than 
 those for which a Bioconductor annotation package exists. 
 \end{itemize}
-
-
+Any additional suggestion is welcome.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Menu
