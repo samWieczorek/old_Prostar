@@ -30,7 +30,7 @@
 \contentsline {subsubsection}{\numberline {3.4.4}Aggregation}{28}{subsubsection.3.4.4}
 \contentsline {subsubsection}{\numberline {3.4.5}Differential analysis}{30}{subsubsection.3.4.5}
 \contentsline {subsubsection}{\numberline {3.4.6}Gene Ontology analysis (Beta)}{34}{subsubsection.3.4.6}
-\contentsline {subsection}{\numberline {3.5}Help}{37}{subsection.3.5}
+\contentsline {subsection}{\numberline {3.5}Help}{38}{subsection.3.5}
 \contentsline {subsection}{\numberline {3.6}Versions of dataset}{38}{subsection.3.6}
-\contentsline {section}{\numberline {4}Bugs}{38}{section.4}
+\contentsline {section}{\numberline {4}Bugs}{39}{section.4}
 \contentsline {section}{\numberline {5}Session information}{39}{section.5}
