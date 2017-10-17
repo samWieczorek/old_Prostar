@@ -798,7 +798,7 @@ the user can zoom in by click-and-drag (see Fig.~\ref{fig:sdvdZoomIn}).
 
 \begin {figure}
 \centering
-\includegraphics[width=0.75\textwidth]{images/desc_CVDist_zoomOut.png}
+\includegraphics[width=0.75\textwidth]{images/desc_CVDist_ZoomOut.png}
 \caption{CV distribution for the quantitative data.}\label{fig:sdvdZoomOut}
 \end {figure}
 
