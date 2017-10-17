@@ -1514,8 +1514,8 @@ The plot as seen in the GOClassification tab of ProStaR
 function. 
 
 <<GOClassif>>=
-ggo<-group_GO(data, idFrom="UNIPROT", orgdb=org.Hs.eg.db, ont="MF", level=2)
-barplot(ggo)
+ggo <- group_GO(data, idFrom="UNIPROT", orgdb=org.Hs.eg.db, ont="MF", level=2)
+barplotGroupGO_HC(ggo)
 @
 
 
@@ -1568,8 +1568,8 @@ $$
 $$
 
 
-\hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO 
-Enrichment is \Rfunction{enrich\_GO()}. It returns an 'enrichResult' instance.
+\hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO Enrichment 
+is \Rfunction{enrich\_GO()}. It returns an 'enrichResult' instance.
 The plots as seen in the GO Enrichment tab of ProStaR 
 (see Fig.~\ref{fig:GO_tab3}) can be generated with the \Rfunction{barplot()} and
 \Rfunction{dotplot()} functions. 
@@ -1585,8 +1585,8 @@ the annotation package with the \Biocpkg{DAPAR} function
 univ.Hs<-univ_AnnotDbPkg(org.Hs.eg.db)
 ego<-group_GO(data, idFrom="UNIPROT", orgdb=org.Hs.eg.db, ont="MF", 
               universe=univ.Hs, pval=0.05, pAdjustMethod="BH")
-barplot(ego)
-dotplot(ego)
+barplotEnrichGO_HC(ego)
+scatterplotEnrichGO_HC(ego)
 @
 
 
@@ -1603,9 +1603,8 @@ manager menu , either in MSnSet or in Excel format.
 \caption{Saving the GO analysis.}\label{fig:GO_tab4}
 \end {figure}
 
-<<SaveGOAnalysis>>=
-GOAnalysisSave
-@
+\hl{\bf Command line:} In \Biocpkg{DAPAR}, the function to save the results of the GO analysis in the MSnSet
+dataset is \Rfunction{GOAnalysisSave()}.
 
 
 \textbf{Nota Bene}: The GO Analysis functionalities are in beta version and improvements will be considered in the future, such as for instance:
