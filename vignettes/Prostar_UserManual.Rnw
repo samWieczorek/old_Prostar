@@ -1441,7 +1441,7 @@ user defining the thresholds on the $p$-values and on the Fold Change, so has
 to be more or less stringent on the number of proteins called "Significant".
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Gene Ontology analysis (Beta)}\label{sec:GOAnalysis}
 
 The Gene Ontology (GO, \url{www.geneontology.org}) is a controlled vocabulary for
@@ -1458,7 +1458,7 @@ to a reference (GO Enrichment tab).
 \Biocpkg{Prostar} relies on the \Biocpkg{clusterProfiler} pacakge to perform both GO 
 Classification and GO Enrichment. We propose a GO analysis interface with
 four separated tabs (see Fig.~\ref{fig:GO_tab1}): 
-\begin{itemize}
+    \begin{itemize}
 \item GO Setup 
 \item GO classification
 \item Go Enrichement
@@ -1480,20 +1480,24 @@ dataset or chooses a file (1 ID per line).
 \item Ontology: the level of the ontology to work with. 
 \end{itemize}
 
-
 Once these parameters filled, clicking on "Map proteins IDs" launches the  mapping
 of the IDs onto the GO categories of the annotation package. 
 Then, on the right-hand side of the panel, 
 the proportion of proteins that cannot be mapped onto the annotation package
-is indicated (this informative 
-ouput does not interrupt the process, unless no protein maps). 
+is indicated (this informative ouput does not interrupt the process, unless no 
+protein maps). 
 
 
-\hl{\bf Command line:}
+\hl{\bf Command line:} The R function to map protein IDs on the annotation 
+package is \Rfunction{bitr()} (function of the Bioconductor package 
+\Biocpkg{clusterProfiler}). 
+In \Biocpkg{DAPAR}, the call to the \Rfunction{bitr} is integrated inside the 
+\Rfunction{group\_GO()} and \Rfunction{enrich\_GO()} functions. The mapping is 
+done implicitly and the user does not have to perform the mapping. 
 
 
-Next step is to perform either GO Classification or GO Enrichment (or 
-both). 
+
+Next step is to perform either GO Classification or GO Enrichment (or both). 
 
 In the \textbf{GO Classification} tab (see Fig.~\ref{fig:GO_tab2}), one has to 
 indicate which level(s) of the ontology to consider.
@@ -1503,7 +1507,16 @@ The graphics shows the most represented GO categories for a user-defined
 ontology at (a) user-defined level(s).
 
 
-\hl{\bf Command line:}
+\hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO 
+classification is \Rfunction{group\_GO()}. It returns a 'groupGOResult' instance.
+The plot as seen in the GOClassification tab of ProStaR 
+(see Fig.~\ref{fig:GO_tab2}) can be generated with the \Rfunction{barplot()} 
+function. 
+
+<<GOClassif>>=
+ggo<-group_GO(data, idFrom="UNIPROT", orgdb=org.Hs.eg.db, ont="MF", level=2)
+barplot(ggo)
+@
 
 
 \begin {figure}
@@ -1513,7 +1526,7 @@ ontology at (a) user-defined level(s).
 \end {figure}
 
 The \textbf{GO Enrichment} tab (see Fig.~\ref{fig:GO_tab3}) allows it to know which
-GO categories are significantly enriched in the user's list, compared 
+GO categories are significantly enriched in the users list, compared 
 to a chosen reference ('background' or 'universe'). 
 This background can either be : 
 
@@ -1522,8 +1535,9 @@ organism (in this case, the totality of the proteins identified with an
 "ENTREZGENE" ID in the annotation package specified in the GO Setup tab 
 constitutes the background), or 
 
-(ii) the entire dataset loaded in ProStaR (e.g. all the proteins IDs of the 'Leading\_razor\_protein' column of the 
-dataset, as illustrated on Fig.~\ref{fig:GO_tab1}), or 
+(ii) the entire dataset loaded in ProStaR (e.g. all the proteins IDs of the 
+'Leading\_razor\_protein' column of the dataset, as illustrated on 
+Fig.~\ref{fig:GO_tab1}), or 
 
 (iii) a custom IDs list provided in a separate file by the user (one ID per line). 
 
@@ -1533,7 +1547,6 @@ dataset, as illustrated on Fig.~\ref{fig:GO_tab1}), or
 \includegraphics[width=0.75\textwidth]{images/GO_tab3.png}
 \caption{GO enrichment tab.}\label{fig:GO_tab3}
 \end {figure}
-
 
 The enrichment tab calls the \Rfunction{groupGO()} function of the 
 \Biocpkg{clusterProfiler} package. This function performs a significance test
@@ -1547,27 +1560,50 @@ on the right-hand side of the panel (see Fig.~\ref{fig:GO_tab3}).
 The first one (top) is a barplot showing the five most significant categories. The 
 length of each bar represents the number of proteins within the corresponding category. 
 The second one (bottom) is a dotplot ranked by decreasing \textit{GeneRatio}, which reads: 
-$$ \text{\textit{GeneRatio}} = \frac{\#(\text{Genes of the input list in this category})}{\#(\text{Total number of Genes in the
-category})}.
-$$
+%$$ \text{\textit{GeneRatio}} = \frac{\#(\text{Genes of the input list in this category})}{\#(\text{Total number of Genes in %the
+%category})}.
+%$$
 
 
-\hl{\bf Command line:}
+\hl{\bf Command line:} The \Biocpkg{DAPAR()} function to perform the GO 
+Enrichment is \Rfunction{enrich\_GO()}. It returns an 'enrichResult' instance.
+The plots as seen in the GO Enrichment tab of ProStaR 
+(see Fig.~\ref{fig:GO_tab3}) can be generated with the \Rfunction{barplot()} and
+\Rfunction{dotplot()} functions. 
+The universe argument allows to indicate the list of IDs considered as the 
+reference (or background) to which the IDs input list of the user will be 
+compared. 
+To consider the whole organism IDs as a reference, one can extract it from 
+the annotation package with the \Biocpkg{DAPAR} function 
+\Rfunction{univ\_AnnotDbPkg()}. (see code below)
+
+
+<<GOEnrichment>>=
+univ.Hs<-univ_AnnotDbPkg(org.Hs.eg.db)
+ego<-group_GO(data, idFrom="UNIPROT", orgdb=org.Hs.eg.db, ont="MF", 
+              universe=univ.Hs, pval=0.05, pAdjustMethod="BH")
+barplot(ego)
+dotplot(ego)
+@
 
 
 The last tab is the \textbf{Save GO analysis} one. It allows saving the results:
 GO classification, GO enrichment, or both (see Fig.~\ref{fig:GO_tab4}).
 Then, a new GOAnalysis dataset is created and loaded in memory. 
 
-As usual in ProStaR, it is possible to export this new dataset via the 'Dataset
-manager' menu , either in MSnSet or in Excel format. 
-
+As usual in ProStaR, it is possible to export this new dataset via the Dataset
+manager menu , either in MSnSet or in Excel format. 
 
 \begin {figure}
 \centering
 \includegraphics[width=0.75\textwidth]{images/GO_tab4.png}
 \caption{Saving the GO analysis.}\label{fig:GO_tab4}
 \end {figure}
+
+<<SaveGOAnalysis>>=
+GOAnalysisSave
+@
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Menu
