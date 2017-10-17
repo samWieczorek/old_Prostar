@@ -1455,7 +1455,7 @@ impacted (in a biological point of view) in his/her experiment, by showing which
 GO terms are represented (GO classification tab), or over-represented compared 
 to a reference (GO Enrichment tab). 
 
-\Biocpkg{Prostar} relies on the \Biocpkg{clusterProfiler} pacakge to perform both GO 
+\Biocpkg{Prostar} relies on the package \Biocpkg{clusterProfiler} to perform both GO 
 Classification and GO Enrichment. We propose a GO analysis interface with
 four separated tabs (see Fig.~\ref{fig:GO_tab1}): 
     \begin{itemize}
