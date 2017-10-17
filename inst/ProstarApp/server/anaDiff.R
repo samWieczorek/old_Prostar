@@ -922,7 +922,11 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
+    data <- rv$current.obj@experimentData@other$isMissingValues
+    if (!is.null(data)){
     data <- as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked,]
+    }
+    
     id <-  which(data==1)
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano(), 
