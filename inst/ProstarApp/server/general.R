@@ -31,7 +31,9 @@ session$onSessionEnded(function() {
     #setwd(tempdir())
     graphics.off()
     unlink(sessionID, recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
+    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), "*html", sep="/"))
     unlink("www/*pdf")
 })
 

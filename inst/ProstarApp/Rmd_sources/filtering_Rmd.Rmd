@@ -1,5 +1,5 @@
 # Filtering
-                    
+
 #### Parameters used for the filtering step on missing values :
 
 * Type of filtering = `r params$listFiltering$filter`

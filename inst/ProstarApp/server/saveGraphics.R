@@ -107,11 +107,9 @@ observeEvent(input$generateReport,{
 
 
 
-func_density <- function(obj, plot){
-    if (is.null(plot)) {
+func_density <- function(obj, tempplot){
+    if (is.null(tempplot)) {
         tempplot <- wrapper.densityPlotD_HC(obj)
-    } else{ 
-            tempplot <- plot
     }
     createPNGFromWidget(tempplot, "temp_density.html", gGraphicsFilenames$densityPlot)
 }
@@ -255,44 +253,12 @@ createPNG_DescriptiveStatistics <- reactive({
 
 
 ###--------------------------------------------------------------------------
-# createPNG_BeforeFiltering <- reactive({
-#     ##last plot of descriptive statistics
-#     tempplot <- histo_missvalues_per_lines_per_conditions_DS()
-#     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-#     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-#                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS_BeforeFiltering, sep="/"),
-#                      zoom = zoomWebshot)
-#     
-#     
-#     ##second plot of descriptive statistics
-#     tempplot <- histo_missvalues_per_lines_DS()
-#     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-#     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-#                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS_BeforeFiltering, sep="/"),
-#                      zoom = zoomWebshot)
-#     
-#     # first plot of descriptive statistics
-#     tempplot <- histoMV_Image_DS()
-#     htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-#     webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-#                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS_BeforeFiltering, sep="/"),
-#                      zoom = zoomWebshot)
-#     
-# })
-
-
-
-###--------------------------------------------------------------------------
 createPNG_Filtering <- reactive({
     obj <- rv$dataset[[rv$iDat]]
     
     if (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted)) {
         tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-        webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                         file = paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"),
-                         delay = 3,
-                         zoom = zoomWebshot)
+        createPNGFromWidget(tempplot, "tempplot_proportionConRev_HC.html", gGraphicsFilenames$propContRev)
     }
 })
 
@@ -315,11 +281,8 @@ createPNG_Normalization <- reactive({
     if (is.null(rv$tempplot$Density)) {
         tempplot <- wrapper.densityPlotD_HC(obj2)}
     else{ tempplot <- rv$tempplot$Density}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlotAfterNorm, sep="/"),
-                     delay = 1,
-                     zoom = zoomWebshot)
+    createPNGFromWidget(tempplot, "tempplot_densityPlotAfterNorm.html", gGraphicsFilenames$densityPlotAfterNorm)
+   
     
     
     plotPNG(function(){if (!is.null(rv$PlotParams$legDS)) {
@@ -372,13 +335,8 @@ createPNG_DifferentialAnalysis <- reactive({
                                            threshold_logFC = logFC,
                                            threshold_pVal = pval,
                                            conditions = cond    )
-    
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"),
-                     delay = 10
-                     ,zoom = zoomWebshot
-    )
+    createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot_3)
+
     
     
     # plotPNG(function(){calibrationPlot()},
@@ -406,63 +364,32 @@ createPNG_Enrichment <- reactive({
     
     
     tempplot <- barplotEnrichGO_HC(rv$enrichGO_data)
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichBarplot, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
+    createPNGFromWidget(tempplot, "tempplot_barplotEnrichGO.html", gGraphicsFilenames$GOEnrichBarplot)
+    
     
     tempplot <- scatterplotEnrichGO_HC(rv$enrichGO_data)
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                     file = paste(tempdir(), sessionID, gGraphicsFilenames$GOEnrichDotplot, sep="/"),
-                     delay = 5
-                     ,zoom = zoomWebshot
-    )
+    createPNGFromWidget(tempplot, "tempplot_scatterplotEnrichGO.html", gGraphicsFilenames$GOEnrichDotplot)
+    
     
 })
 
 
 ###--------------------------------------------------------------------------
 createPNG_GroupGO <- reactive({
-    #input$GO_level
     
     l <- length(rv$groupGO_data)
-    if (l == 1){
-        
-        tempplot <- barplotGroupGO_HC(rv$groupGO_data[[1]]$ggo_res, 
-                                      title = paste("Groups at level ",  rv$groupGO_data[[1]]$level))
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-        webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                         file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img1, sep="/"),
-                         delay = 5
-                         ,zoom = zoomWebshot
-        )}
+    pngNames <- c(gGraphicsFilenames$GOClassification_img1,
+                  gGraphicsFilenames$GOClassification_img2,
+                  gGraphicsFilenames$GOClassification_img3)
     
-    if (l == 2){
-        
-        tempplot <- barplotGroupGO_HC(rv$groupGO_data[[2]]$ggo_res, 
-                                      title = paste("Groups at level ",  rv$groupGO_data[[2]]$level))
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-        webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                         file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img2, sep="/"),
-                         delay = 5
-                         ,zoom = zoomWebshot
-        )
-    }
-    
-    if (l== 3){
-        
-        tempplot <- tempplot <- barplotGroupGO_HC(rv$groupGO_data[[3]]$ggo_res, 
-                                                  title = paste("Groups at level ", rv$groupGO_data[[3]]$level))
-        
-        htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-        webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"), 
-                         file = paste(tempdir(), sessionID, gGraphicsFilenames$GOClassification_img3, sep="/"),
-                         delay = 5
-                         ,zoom = zoomWebshot
-        )
+    require(doParallel)
+    registerDoParallel(detectCores()-1 )
+    foreach(i=1:l) %dopar% {
+        tempplot <- barplotGroupGO_HC(rv$groupGO_data[[i]]$ggo_res, 
+                                      title = paste("Groups at level ",  rv$groupGO_data[[i]]$level))
+        file <- paste("tempplot_barplotGroupGO", i, ".html", sep="")
+        createPNGFromWidget(tempplot, file, pngNames[i])
+   
     }
     
 })
@@ -479,10 +406,8 @@ output$downloadReport <- downloadHandler(
     },
     
     content = function(file) {
-        #src <- normalizePath('report.Rmd')
         filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
         
-        #file.copy(src, filename, overwrite = TRUE)
         library(rmarkdown)
         #paramRmd <- list(current.obj=rv$current.obj)
         out <- render(filename, 
@@ -498,7 +423,7 @@ output$downloadReport <- downloadHandler(
                                                         nbReverseDeleted = rv$nbReverseDeleted,
                                                         nbContaminantsDeleted = rv$nbContaminantsDeleted,
                                                         stringBasedFiltered = (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted))
-                                    ),
+                                                        ),
                                     
                                     listNormalization = list(method=input$normalization.method,
                                                              type = input$normalization.type,
@@ -529,14 +454,14 @@ output$downloadReport <- downloadHandler(
                                     listGOClassifAnalysis = list(ontology = input$Ontology, 
                                                                  organism = input$Organism,
                                                                  universe = input$universe,
-                                                                 group1 = (length(rv$groupGO_data)==1),
-                                                                 group2 = (length(rv$groupGO_data)==2),
+                                                                 group1 = (length(rv$groupGO_data)>=1),
+                                                                 group2 = (length(rv$groupGO_data)>=2),
                                                                  group3 = (length(rv$groupGO_data)==3),
-                                                                 df1 = if (length(rv$groupGO_data)==1){
+                                                                 df1 = if (length(rv$groupGO_data)>=1){
                                                                      dat <- rv$groupGO_data[[1]]$ggo_res@result
                                                                      dat <- dat[order(dat$Count, decreasing=TRUE),]
                                                                      dat[1:5,c("Description", "Count", "GeneRatio")]},
-                                                                 df2 = if (length(rv$groupGO_data)==2){
+                                                                 df2 = if (length(rv$groupGO_data)>=2){
                                                                      dat <- rv$groupGO_data[[2]]$ggo_res@result
                                                                      dat <- dat[order(dat$Count, decreasing=TRUE),]
                                                                      dat[1:5,c("Description", "Count", "GeneRatio")]},

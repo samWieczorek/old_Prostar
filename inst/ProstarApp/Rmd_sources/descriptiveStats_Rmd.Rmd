@@ -43,3 +43,5 @@ knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplo
 ```{r fig_heatmap,out.width = "100%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
 ```
+
+

@@ -335,7 +335,7 @@ function \Rfunction{readRDS()}.
 {The user can find examples of MSnSet file in the 'extdata' directory 
 of \Biocpkg{DAPARdata}. The user can find this directory by entering:\newline
 
-<< getProstarInstallDir>>=
+<< getDAPARdataInstallDir>>=
 installed.packages()["DAPARdata","LibPath"]
 @
 

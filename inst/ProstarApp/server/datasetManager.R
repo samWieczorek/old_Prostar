@@ -738,19 +738,20 @@ observe({
         {
             ClearMemory()
             ext <- GetExtension(input$file1$name)
-            if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
-                rv$tab1 <- read.csv(input$file1$datapath, 
-                                    header=TRUE, 
-                                    sep="\t", 
-                                    as.is=T)
-            } else if ((ext == "xls") || (ext == "xlsx") ){
-                # rv$tab1 <- read.xlsx(input$file1$datapath, 
-                #                      sheet=input$XLSsheets)
-                rv$tab1 <- readExcel(input$file1$datapath, ext, 
-                                     sheet=input$XLSsheets)
-    
+            # if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
+            #    { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)}
+            # } else if ((ext == "xls") || (ext == "xlsx") ){
+            #     # rv$tab1 <- read.xlsx(input$file1$datapath, 
+            #     #                      sheet=input$XLSsheets)
+            #     {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)}
                 
-            }
+            switch(ext,
+                    txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+                    csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+                    tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+                    xls = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)},
+                    xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)}
+                    )
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))

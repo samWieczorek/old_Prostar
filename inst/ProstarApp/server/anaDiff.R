@@ -490,12 +490,12 @@ observeEvent(input$ValidDiffAna,{
                     writeToCommandLogFile(paste("cond1 <- '", input$condition1, "'", sep=""))
                     writeToCommandLogFile(paste("cond2 <- '", input$condition2, "'", sep=""))
                     writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
-                    if (input$diffAnaMethod == "Limma"){
-                        writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)")
-                    } else if (input$diffAnaMethod == "Welch"){
-                    writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
-                    }
-                
+                    
+                    switch(input$diffAnaMethod,
+                           Limma = writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"),
+                           Welch =  writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
+                    )
+
                 
                     writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
                     writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))

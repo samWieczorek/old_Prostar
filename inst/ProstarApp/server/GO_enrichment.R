@@ -342,10 +342,10 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     for (i in 1:length(levelIndex)){
         rv$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
                                      ggo_res = group_GO(rv$ProtIDList[index],
-                                input$idFrom, 
-                                "ENTREZID", 
-                                orgdb = input$Organism, 
-                                ont=input$Ontology, 
+                                input$idFrom,
+                                "ENTREZID",
+                                orgdb = input$Organism,
+                                ont=input$Ontology,
                                 level=as.numeric(levelIndex[i])))
     }
     
