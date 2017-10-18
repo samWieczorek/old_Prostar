@@ -40,6 +40,6 @@ knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$varDist, 
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
 ```
 
-```{r fig_heatmap,out.width = "75%", echo=FALSE}
+```{r fig_heatmap,out.width = "100%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
 ```
