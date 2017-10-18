@@ -113,8 +113,8 @@ func_density <- reactive({
     if (is.null(rv$tempplot$Density)) {
         tempplot <- wrapper.densityPlotD_HC(obj)}
     else{ tempplot <- rv$tempplot$Density}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_density.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_density.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -154,8 +154,8 @@ func_varDist <- reactive({
     obj <- rv$dataset[[rv$iDat]]
     if (is.null(rv$tempplot$varDist)) {tempplot <- wrapper.CVDistD_HC(obj)}
     else{ tempplot <- rv$tempplot$varDist}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_varDist.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_varDist.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -169,8 +169,8 @@ func_corrMatrix <- reactive({
     else {
         tempplot <- rv$tempplot$corrMatrix
     }
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_corrMatrix.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_corrMatrix.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -183,8 +183,8 @@ func_mvHisto_1 <- reactive({
     if (is.null(rv$tempplot$mvHisto_perLines_HC)) {
         tempplot <- wrapper.mvPerLinesHistoPerCondition_HC(obj)}
     else{ tempplot <- rv$tempplot$histo_missvalues_per_lines_per_conditions}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_mvHisto_1.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_mvHisto_1.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -199,8 +199,8 @@ func_mvHisto_2 <- reactive({
         tempplot <- wrapper.mvPerLinesHisto_HC(obj)}
     else{
         tempplot <- rv$tempplot$mvHisto_perLines_HC}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_mvHisto_2.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_mvHisto_2.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -213,8 +213,8 @@ func_mvHisto_3 <- reactive({
     if (is.null(rv$tempplot$mvHisto_HC)) {
         tempplot <- wrapper.mvHisto_HC(obj)}
     else{ tempplot <- rv$tempplot$mvHisto_HC}
-    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "tempplot.html", sep="/"))
-    webshot::webshot(url = paste(tempdir(), sessionID, "tempplot.html", sep="/"),
+    htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), sessionID, "temp_mvHisto_3.html", sep="/"))
+    webshot::webshot(url = paste(tempdir(), sessionID, "temp_mvHisto_3.html", sep="/"),
                      file = paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"),
                      delay = 3,
                      zoom = zoomWebshot)
@@ -266,10 +266,10 @@ createPNG_DescriptiveStatistics <- reactive({
                    func_mvHisto_2,
                    func_mvHisto_1)             
     
-    # require(doParallel)
-    # registerDoParallel()  
-    # foreach(i=1:length(list_f)) %dopar% {
-    foreach(i=1:length(list_f)) %do% {
+     require(doParallel)
+     registerDoParallel()  
+     foreach(i=1:length(list_f)) %dopar% {
+    #foreach(i=1:length(list_f)) %do% {
         list_f[[i]]()
     }
     
