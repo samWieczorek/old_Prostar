@@ -525,7 +525,7 @@ In addition to the exported datasets (see previous section), the user can genera
 
 The left hand side of the interface shows a list of checkboxes (one for each dataset created during the analysis). By default, all the datasets are selected. The user chooses which results to include in the report. Even if no analysis has been performed (e.g. right after the upload of a dataset), the plots of the Descriptive Statistics panel are available.
 
-The right hand side of the interface allows the user to choose the format of the report: PDF, HTML or DOC file. 
+The right hand side of the interface allows the user to choose the size and resolution of the images and the format of the report: PDF, HTML or DOC file. 
 
 After selecting the desired options, one clicks on the button "Generate a report". Then, ProStaR rebuilds all the required images and includes them in the report file. During this step, the button "Download" remains disabled. Only when the report is ready, the "Download" buttons is enabled.
 

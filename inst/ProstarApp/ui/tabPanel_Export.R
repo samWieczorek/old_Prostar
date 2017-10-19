@@ -24,14 +24,18 @@ tabPanel("Export",
          tabPanel("Generate report (Beta)",
                   tagList(
                       fluidRow(
-                          column(width=6, uiOutput("choosedataTobuildReport")),
-                          column(width=6, tagList(
-                              radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
-                                                       inline = TRUE),
-                              br(), br(),
-                              textInput("reportFilename",
-                                        label = "Enter the name of the report",
-                                        value = ""))
+                          column(width=4, uiOutput("choosedataTobuildReport")),
+                          column(width=4, tagList(
+                              selectInput("sizePNGplots", "Choose the size of images (PNG)", choices = c("1200 * 800")),
+                              selectInput("resoPNGplots", "Choose the resolution", choices = c(150)))
+                              ),
+                           column(width=4, tagList(
+                                  radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
+                                               inline = TRUE),
+                                  br(),
+                                  textInput("reportFilename",
+                                            label = "Enter the name of the report",
+                                            value = ""))
                       )
                       ),
 
@@ -39,9 +43,9 @@ tabPanel("Export",
              #busyIndicator(WaitMsgCalc,wait = 0),
          br(),br(),
          br(),br(),
-         busyIndicator("Building report, please wait...",wait = 0),
+         #busyIndicator("Building graphics, please wait...",wait = 0),
          actionButton("generateReport", "Generate report"),
-         
+         busyIndicator("Compiling report, please wait...",wait = 0),
              downloadButton('downloadReport', "Download report"),
              uiOutput("test")
                     )

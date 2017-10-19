@@ -273,9 +273,9 @@ createPNG_Normalization <- reactive({
     
     plotPNG(function(){wrapper.compareNormalizationD(obj1, obj2)}, 
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$compareNorm, sep="/"), 
-            width = pngWidth, 
-            height=pngHeight,
-            res=resolution)
+            width = 1200, 
+            height=800,
+            res=150)
     
     
     if (is.null(rv$tempplot$Density)) {
@@ -291,9 +291,9 @@ createPNG_Normalization <- reactive({
         wrapper.boxPlotD(obj2)}
     },
     filename=paste(tempdir(), sessionID, gGraphicsFilenames$boxplotAfterNorm, sep="/"),
-    width = pngWidth,
-    height=pngHeight,
-    res=resolution)
+    width = 1200,
+    height=800,
+    res=150)
     
     
     
@@ -307,9 +307,9 @@ createPNG_Imputation <- reactive({
     
     plotPNG(function(){wrapper.mvTypePlot(obj)},
             filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"),
-            width = pngWidth,
-            height=pngHeight,
-            res=resolution)
+            width = 1200,
+            height=800,
+            res=150)
     
 })
 
@@ -351,9 +351,9 @@ createPNG_DifferentialAnalysis <- reactive({
         t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
         wrapperCalibrationPlot(t, "ALL")},
         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"),
-        width = pngWidth,
-        height=pngHeight,
-        res=resolution)
+        width = 1200,
+        height=800,
+        res=150)
 })
 
 
