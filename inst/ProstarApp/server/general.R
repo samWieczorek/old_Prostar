@@ -23,9 +23,7 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
 
 
 
-
-
-
+###-------------------------------------------------------------------
 
 session$onSessionEnded(function() {
     #setwd(tempdir())
@@ -38,7 +36,7 @@ session$onSessionEnded(function() {
 })
 
 
-
+###-------------------------------------------------------------------
 ClearUI <- reactive({
         
         #rv$commandLog <- ""
@@ -75,8 +73,6 @@ ClearUI <- reactive({
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
     
-    #ClearMemory()
-    #ClearUI()
   rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
@@ -120,6 +116,7 @@ loadObjectInMemoryFromConverter <- reactive({
 
 
 
+###-------------------------------------------------------------------
 writeToCommandLogFile <- function(txt, verbose = FALSE){
     rv$commandLog <- c(rv$commandLog, txt)
     # cat(rv$commandLog,
@@ -130,6 +127,7 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
     # if (verbose) print(txt)
 }
 
+###-------------------------------------------------------------------
 dirSessionPath <- paste(tempdir(), sessionID, sep="/")
 if (!dir.exists(dirSessionPath)){
     dir.create(dirSessionPath)
@@ -139,6 +137,7 @@ if (!dir.exists(dirSessionPath)){
 
 
 
+###-------------------------------------------------------------------
 ClearMemory <- function(){
     
     rv$current.obj = NULL
@@ -320,6 +319,7 @@ rv <- reactiveValues(
 
 
 
+###-------------------------------------------------------------------
 catchToList <- function(expr) {
     val <- NULL
     myWarnings <- NULL
@@ -339,6 +339,7 @@ catchToList <- function(expr) {
 } 
 
 
+###-------------------------------------------------------------------
 output$disableAggregationTool <- renderUI({
     rv$current.obj
 
@@ -360,6 +361,7 @@ type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
 })
 
 
+###-------------------------------------------------------------------
 output$CurrentDataset <- renderUI({
     txt <- paste("Current dataset :",input$datasets, sep=" ")
     txt
@@ -367,7 +369,7 @@ output$CurrentDataset <- renderUI({
 
 
 
-######################################
+###-------------------------------------------------------------------
 GetNbNA <- reactive({
     nb <- sum(is.na(Biobase::exprs(rv$current.obj))==TRUE)
     return(nb)
@@ -375,6 +377,7 @@ GetNbNA <- reactive({
 
 
 
+###-------------------------------------------------------------------
 output$currentObjLoaded <- reactive({
     rv$current.obj
     return(!is.null(rv$current.obj))})

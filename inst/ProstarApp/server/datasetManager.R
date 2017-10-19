@@ -134,8 +134,6 @@ observeEvent(input$loadDemoDataset,{
     input$showCommandLog
     if (is.null(input$demoDataset)){return (NULL)}
   
-    # isolate({
-    
     
     result = tryCatch(
         {
@@ -167,7 +165,6 @@ observeEvent(input$loadDemoDataset,{
             #}
             
             loadObjectInMemoryFromConverter()
-            #initRmd()
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -178,8 +175,7 @@ observeEvent(input$loadDemoDataset,{
         }, finally = {
             #cleanup-code 
         })
-    
-    # })
+
     
 })
 
@@ -189,8 +185,7 @@ observeEvent(input$loadDemoDataset,{
 
 ##-- Open a MSnset File --------------------------------------------
 observeEvent(input$file,ignoreInit =TRUE,{ 
-    
-    #isolate({
+
     exts <- c("MSnset","MSnSet")
     if( is.na(match(GetExtension(input$file$name), exts))) {
         shinyjs::info("Warning : this file is not a MSnset file ! 
@@ -242,8 +237,6 @@ observeEvent(input$file,ignoreInit =TRUE,{
             
         }
         
-        #initRmd()
-        #createPNG_DescriptiveStatistics()
         #if (input$showCommandLog){
             writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
@@ -253,8 +246,8 @@ observeEvent(input$file,ignoreInit =TRUE,{
         loadObjectInMemoryFromConverter()
         
     }
-    #})
-    })
+
+})
 
 
 
@@ -418,7 +411,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     isolate({
         result = tryCatch(
             {
-                #if (input$showCommandLog){
                     ext <- GetExtension(input$file1$name)
                     txtTab <-  paste("tab1 <- read.csv(\"", input$file1$name,
                             "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
@@ -431,13 +423,8 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                            xls= writeToCommandLogFile(txtXls),
                            xlsx = writeToCommandLogFile(txtXls)
                             )
-                   
-                #}
-                
-                # input$hot
+
                 input$filenameToCreate
-                # input$file1
-                #inFile1 <- input$file1
                 rv$tab1
                 
                 indexForEData <- match(input$eData.box, colnames(rv$tab1))
@@ -539,11 +526,8 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 writeToCommandLogFile(
                     paste("current.obj <- createMSnset(tab1, metadata, indexForEData, indexForFData, indexForIDBox,logData, replaceZeros, pep_prot_data)")
                 )
-                
-                
-            #}
+
                 loadObjectInMemoryFromConverter()
-                #initRmd()
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
@@ -663,23 +647,9 @@ output$overviewDemoDataset <- renderUI({
             }, finally = {
                 #cleanup-code 
             })
-        
-        
-        
-        
+
     })
 })
-
-
-
-
-
-
-# observeEvent(rv$current.obj,{
-#     createPNG_DescriptiveStatistics()
-# })
-
-
 
 
 
@@ -745,13 +715,7 @@ observe({
             ClearUI()
             ClearMemory()
             ext <- GetExtension(input$file1$name)
-            # if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
-            #    { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)}
-            # } else if ((ext == "xls") || (ext == "xlsx") ){
-            #     # rv$tab1 <- read.xlsx(input$file1$datapath, 
-            #     #                      sheet=input$XLSsheets)
-            #     {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)}
-                
+              
             switch(ext,
                     txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
                     csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
