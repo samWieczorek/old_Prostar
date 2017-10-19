@@ -13,6 +13,7 @@
    \item Disable the extra row appearing in the metadata table when convertinga text file to a MSnSet file.
     \item  A new package (readxl) is used to read xls or xlxs files. In certain circumstances, the functions of the previsous package openxlsx is not able to decode properly Excel files.
     \item When converting a new (text or Excel) file in Prostar : the missing values were not registered as expected. Especially, they did not appear in blue in the table above the volcanoplot. Bug fixed
+    \item A bug occured when the user load successively several datasets in Prostar. The previous ones were note correctly erased and this has lead to side effects. This bug is now fixed
    }
    }
    

@@ -39,14 +39,8 @@ session$onSessionEnded(function() {
 
 
 
-ClearMemory <- function(){
-        initializeProstar()
-        rv$hot = port
-        #rv$indexNA <- NULL
-        rv$text.log <- data.frame(Date="", 
-                                  Dataset="", 
-                                  History="", 
-                                  stringsAsFactors=F)
+ClearUI <- reactive({
+        
         #rv$commandLog <- ""
         updateSelectInput(session, 
                           "datasets",  
@@ -71,7 +65,7 @@ ClearMemory <- function(){
         # updateSelectInput(session,"type.of.missvalues", selected= "Majoritary" )
         #updateSelectInput(session,"typeImputationMNAR",selected= "QRILC" )
         
-    }
+    })
 
 
 
@@ -81,7 +75,8 @@ ClearMemory <- function(){
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
     
-    ClearMemory()
+    #ClearMemory()
+    #ClearUI()
   rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
@@ -99,7 +94,6 @@ loadObjectInMemoryFromConverter <- reactive({
     rv$dataset[[name]] <- rv$current.obj
     
 
-    #if (input$showCommandLog){
         txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
                  rv$typeOfDataset, "\"", "\n",
                  "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
@@ -107,18 +101,10 @@ loadObjectInMemoryFromConverter <- reactive({
         writeToCommandLogFile(txt)
     
     
-    #writeToCommandLogFile("colnames(pData(current.obj)) <- gsub(\".\", \"_\", colnames(pData(current.obj)), fixed=TRUE)")
-    
-
     if (!is.null(rv$current.obj@experimentData@other$isMissingValues)){
         writeToCommandLogFile("current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
     } 
-   # }
-    
-    #UpdateFilterWidgets()
-    
-    ## update widgets for normalization panels
-
+   
     updateSelectInput(session, "datasets", 
                       label = paste("Dataset versions of",
                                     rv$current.obj.name, sep=" "),
@@ -153,7 +139,7 @@ if (!dir.exists(dirSessionPath)){
 
 
 
-initializeProstar <- reactive({
+ClearMemory <- function(){
     
     rv$current.obj = NULL
     rv$current.obj.name = NULL
@@ -202,7 +188,11 @@ initializeProstar <- reactive({
     rv$universeData = NULL
     rv$uniprotID = NULL
     rv$ratio = NULL
-
+    rv$hot = port
+    rv$text.log <- data.frame(Date="", 
+                              Dataset="", 
+                              History="", 
+                              stringsAsFactors=F)
     rv$ProtIDList = NULL
     rv$GOWarningMessage = NULL
     rv$proteinsNotMapped = NULL
@@ -236,7 +226,7 @@ initializeProstar <- reactive({
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
-})
+}
 
 
 

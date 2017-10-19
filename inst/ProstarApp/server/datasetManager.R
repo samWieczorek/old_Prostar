@@ -135,24 +135,27 @@ observeEvent(input$loadDemoDataset,{
     if (is.null(input$demoDataset)){return (NULL)}
   
     # isolate({
-    ClearMemory()
-    utils::data(list = input$demoDataset)
-    rv$current.obj <- get(input$demoDataset)
-    rv$current.obj.name <- input$demoDataset
-    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-    rv$indexNA <- which(is.na(rv$current.obj))
-    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-    names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-    #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
-    #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
     
-    
-    if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-        rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
-    }
     
     result = tryCatch(
         {
+            ClearMemory()
+            ClearUI()
+            utils::data(list = input$demoDataset)
+            rv$current.obj <- get(input$demoDataset)
+            rv$current.obj.name <- input$demoDataset
+            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+            rv$indexNA <- which(is.na(rv$current.obj))
+            colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+            names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+            #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
+            #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
+            
+            
+            if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
+                rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            }
+            
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
             writeToCommandLogFile(paste("utils::data(",
@@ -195,6 +198,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
     }
     else {
         ClearMemory()
+        ClearUI()
         rv$current.obj <- readRDS(input$file$datapath)
         rv$current.obj.name <- DeleteFileExtension(input$file$name)
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
@@ -448,8 +452,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
                 
-                
-                rv$current.obj <- createMSnset(rv$tab1, 
+                tmp <- createMSnset(rv$tab1, 
                                                metadata, 
                                                indexForEData, 
                                                indexForFData, 
@@ -458,6 +461,9 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                                input$replaceAllZeros,
                                                pep_prot_data = input$typeOfData
                 )
+                ClearUI()
+                ClearMemory()
+                rv$current.obj <- tmp
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
@@ -736,6 +742,7 @@ observe({
     
     result = tryCatch(
         {
+            ClearUI()
             ClearMemory()
             ext <- GetExtension(input$file1$name)
             # if ((ext == "txt") || (ext == "csv") || (ext == "tsv") ){
