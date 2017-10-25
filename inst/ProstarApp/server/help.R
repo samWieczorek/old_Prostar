@@ -75,7 +75,7 @@ release/bioc/html/MSnbase.html\">MSnbase package</a>
 
          <li> T. Burger. A gentle introduction to the statistical 
          foundations of false discovery rate in quantitative proteomics. 
-         (under review). 
+         <i>Journal of Proteome Research</i>, accepted for publication, 2017. 
          </li>
 
         <li> L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
