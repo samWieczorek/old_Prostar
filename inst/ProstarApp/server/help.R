@@ -43,31 +43,42 @@ output$References <- renderText({
          
          <strong><font size=\"4\">Our referenced works:</font></strong>
          <ol>
-         <li> S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
-        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. 
-        DAPAR & ProStaR: software to perform statistical analyses in 
-        quantitative discovery proteomics, <i>Bioinformatics</i>, 33(1):135-136, 2017
-         </li>
-         <li> C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
-         for the multiple natures of missing values in label-free quantitative 
-         proteomics datasets to compare imputation strategies. <i>Journal of 
-         Proteome Research</i>, 15(4):1116-1125, 2016. 
-         </li>
-         <li> Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Coute and 
+         <li>
+         <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/calib-final.pdf?attredirects=0\">
+         Q. Giai Gianetto, F. Combes, C. Ramus, C. Bruley, Y. Coute and 
          T. Burger. Calibration Plot for Proteomics (cp4p): A graphical tool 
          to visually check the assumptions underlying FDR control in 
          quantitative experiments. <i>Proteomics</i>, 16(1):29-32, 2016. 
-         </li>         
-         <li> Q. Giai Gianetto, Y. Coute, C. Bruley and T. Burger. Uses and 
+         </a></li>
+         <li>
+         <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/natureOfMV-Vsubmited2.pdf?attredirects=0\">
+         C. Lazar, L. Gatto, M. Ferro, C. Bruley, T. Burger. Accounting 
+         for the multiple natures of missing values in label-free quantitative 
+         proteomics datasets to compare imputation strategies. <i>Journal of 
+         Proteome Research</i>, 15(4):1116-1125, 2016. 
+         </a></li>         
+         <li>
+         <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/OnTheMissuseOfFudgeFactorInProteomics_FV.pdf?attredirects=0\">
+         Q. Giai Gianetto, Y. Coute, C. Bruley and T. Burger. Uses and 
          misuses of the fudge factor in quantitative discovery proteomics. 
          <i>Proteomics</i>, 16(14):1955-60, 2016. 
-         </li>
-         <li> T. Burger. A gentle introduction to the statistical 
+         </a></li>
+         <li>
+         <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/prostar.pdf?attredirects=0\">
+         S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
+        A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. 
+        DAPAR & ProStaR: software to perform statistical analyses in 
+        quantitative discovery proteomics, <i>Bioinformatics</i>, 33(1):135-136, 2017
+         </a></li>
+         <li>
+         <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/fdrtuto.pdf?attredirects=0\">
+         T. Burger. A gentle introduction to the statistical 
          foundations of false discovery rate in quantitative proteomics. 
          <i>Journal of Proteome Research</i>, accepted for publication, 2017. 
-         </li>
+         </a></li>
         <li> L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
         from relative quantitative proteomics data using shared peptides. (under review).
+         </li>
          <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
          T. Burger. Multiple imputation strategy for mass spectrometry-based 
          proteomic data. (in preparation).
