@@ -30,11 +30,7 @@ output$References <- renderText({
          </ul>
          <br>
 
-#          <strong><font size=\"4\"><a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf\">User manual</a></font></strong>
-#          <br><br>
-#          <strong><font size=\"4\"><a href=\"http://bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_Tutorial.pdf\">Tutorial</a></font></strong>
-#          <br><br>
-         
+
          <strong><font size=\"4\">Contact:</font></strong><br>
          If you need any help, but also if you wish to make comments 
          or suggestions, please contact Samuel Wieczorek, Florence Combes or 
