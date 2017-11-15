@@ -337,11 +337,12 @@ output$downloadMSnSet <- downloadHandler(
         
         if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
             rv$current.obj@experimentData@other$isMissingValues <- 
-                Matrix(as.numeric(is.na(rv$current.obj)),
+                Matrix::Matrix(as.numeric(is.na(rv$current.obj)),
                        nrow = nrow(rv$current.obj), 
                        sparse=TRUE)
         }
         
+        print(is.null(rv$current.obj@experimentData@other$isMissingValues))
         
         if (input$fileformatExport == gFileFormatExport$excel) {
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
