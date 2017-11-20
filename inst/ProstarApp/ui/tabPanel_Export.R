@@ -5,7 +5,7 @@ tabPanel("Export",
          value = "export",
          helpText("Choose the export format of the dataset and choose a name."),
          selectInput("fileformatExport", "File format", 
-                     choices=  G_exportFileFormat_Choices),
+                     choices=  gFileFormatExport),
          
          br(),
          helpText("Select the columns you want to keep as metadata. 

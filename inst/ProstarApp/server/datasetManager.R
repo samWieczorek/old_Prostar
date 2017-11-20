@@ -295,6 +295,10 @@ output$downloadMSnSet <- downloadHandler(
         else if (input$fileformatExport == gFileFormatExport$msnset)
         {
             paste(input$nameExport,gFileExtension$msnset,  sep="")}
+        else if (input$fileformatExport == gFileFormatExport$zip)
+        {
+            paste(input$nameExport,gFileExtension$zip,  sep="")}
+        
     },
     content = function(file) {
         
@@ -337,7 +341,7 @@ output$downloadMSnSet <- downloadHandler(
         
         if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
             rv$current.obj@experimentData@other$isMissingValues <- 
-                Matrix::Matrix(as.numeric(is.na(rv$current.obj)),
+                Matrix(as.numeric(is.na(rv$current.obj)),
                        nrow = nrow(rv$current.obj), 
                        sparse=TRUE)
         }
@@ -371,8 +375,28 @@ output$downloadMSnSet <- downloadHandler(
             file.copy(fname, file)
             file.remove(fname)
         }
+        
+        else if  (input$fileformatExport == gFileFormatExport$zip) {
+            fname <- paste(input$nameExport,gFileExtension$zip,  sep="")
+            writeMSnsetToCSV(rv$current.obj,fname)
+            # if (input$showCommandLog){
+            writeToCommandLogFile(
+                paste("writeMSnsetToCSV(current.obj, \"", fname, "\")", sep="")
+            )
+            # }
+            file.copy(fname, file)
+            file.remove(fname)
+        }
     }
 )
+
+
+
+
+
+
+
+
 
 # --- Shows in the sidebar panel the name of the opened file
 output$fileopened <- renderUI({

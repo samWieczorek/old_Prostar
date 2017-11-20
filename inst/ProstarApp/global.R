@@ -40,11 +40,7 @@ WaitMsgCalc <- "Calculation in progress"
 
 commandLogFile <- "cmdLog.R"
 logfilename <- "log.txt"
-gFileExtension <- list(txt = ".txt",
-                       tsv = ".tsv",
-                        msnset = ".MSnset",
-                        excel = ".xlsx",
-                        zip = ".zip")
+
 
 gAgregateMethod <- list("none" = "none",
                         "sum overall" = "sum overall",
@@ -229,7 +225,6 @@ defaultGradientRate <- 0.9
 
 
 # variables for different extensions files format
-gFileFormatExport <- list(msnset = "MSnset",excel = "Excel")
 
 # Not used yet 
 GetLogFilename <- function(){
@@ -458,4 +453,10 @@ G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
 G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
 
 G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "User ID" = "user ID")
-G_exportFileFormat_Choices <- c( "MSnset","Excel")
+G_exportFileFormat_Choices <- c( "MSnset","Excel", "zip")
+gFileFormatExport <- list(msnset = "MSnset",excel = "Excel", zip="zip")
+gFileExtension <- list(txt = ".txt",
+                       tsv = ".tsv",
+                       msnset = ".MSnset",
+                       excel = ".xlsx",
+                       zip = ".zip")
