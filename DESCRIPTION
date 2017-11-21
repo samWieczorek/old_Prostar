@@ -1,8 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.10.1
-Date: 2017-11-15
+Version: 1.11.1
+Date: 2017-11-21
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -23,7 +23,7 @@ License: Artistic-2.0
 Depends: R (>= 3.4.1)
 Suggests: BiocStyle, testthat
 Imports: DAPAR (>= 1.9.15), DAPARdata (>= 1.7.1), rhandsontable, data.table,
-        shinyjs, DT, shiny, shinyAce, highcharter, htmlwidgets, webshot
+        shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot
 NeedsCompilation: no
 RoxygenNote: 6.0.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264

@@ -6,6 +6,9 @@ library(rhandsontable)
 library(data.table)
 library(shinyjs)
 library(shinyAce)
+library(shinyBS)
+
+
 library(tidyr)
 library(dplyr)
 library(data.table)
@@ -460,3 +463,11 @@ gFileExtension <- list(txt = ".txt",
                        msnset = ".MSnset",
                        excel = ".xlsx",
                        zip = ".zip")
+
+
+bsButtonRight <- function(...) {
+    btn <- bsButton(...)
+    # Directly inject the style into the shiny element.
+    btn$attribs$style <- "float: right;"
+    btn
+}

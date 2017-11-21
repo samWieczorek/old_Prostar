@@ -334,9 +334,6 @@ histo_missvalues_per_lines_per_conditions_Image <- reactive({
     result = tryCatch(
         {
             wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj)
-            
-            
-            
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -347,11 +344,10 @@ histo_missvalues_per_lines_per_conditions_Image <- reactive({
         }, finally = {
             #cleanup-code 
         })
-    
-    
 })
 
-   
+ 
+  
 
 
 histo_missvalues_per_lines_DS <- reactive({
@@ -901,6 +897,9 @@ histoMV_Image_DS <- reactive({
 output$histoMV_Image_DS <- renderHighchart({
     histoMV_Image_DS()
 })
+addPopover(session, "histoMV_Image_DS", "Info", 
+           content = paste0("<p>Test",
+                            "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
 
@@ -932,6 +931,9 @@ output$viewDensityplot_DS <- renderHighchart({
 output$histo_missvalues_per_lines_Image <- renderHighchart({
     histo_missvalues_per_lines_Image()
 })
+addPopover(session, "histo_missvalues_per_lines_Image", "Info", 
+           content = paste0("<p>Test",
+                            "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
 ##' distribution of missing values in current.obj
@@ -939,7 +941,9 @@ output$histo_missvalues_per_lines_Image <- renderHighchart({
 output$histo_missvalues_per_lines_per_conditions_Image <- renderHighchart({
     histo_missvalues_per_lines_per_conditions_Image()
 }) 
-
+addPopover(session, "histo_missvalues_per_lines_per_conditions_Image", "Info", 
+           content = paste0("<p>Test",
+                            "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
 ##' distribution of missing values in current.obj
@@ -947,6 +951,9 @@ output$histo_missvalues_per_lines_per_conditions_Image <- renderHighchart({
 output$histo_missvalues_per_lines_per_conditions_DS <- renderHighchart({
     histo_missvalues_per_lines_per_conditions_DS()
 })
+addPopover(session, "histo_missvalues_per_lines_per_conditions_DS", "Info", 
+           content = paste0("<p>Test",
+                            "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
 
@@ -956,6 +963,10 @@ output$histo_missvalues_per_lines_DS <- renderHighchart({
     histo_missvalues_per_lines_DS()
     
 })
+addPopover(session, "histo_missvalues_per_lines_DS", "Info", 
+           content = paste0("<p>Test",
+                            "test</p><p>Explanation .</p>"), trigger = 'click')
+
 
 ##' Draw a heatmap of current data
 ##' 

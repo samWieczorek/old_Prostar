@@ -15,9 +15,10 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 shinyUI <- tagList(
     
     
-    useShinyjs(),
+    shinyjs::useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
     #,tags$head(includeScript("piwik.js"))
+    tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
     
     inlineCSS(appCSS),
     

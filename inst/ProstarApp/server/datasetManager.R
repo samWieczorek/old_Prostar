@@ -346,7 +346,6 @@ output$downloadMSnSet <- downloadHandler(
                        sparse=TRUE)
         }
         
-        print(is.null(rv$current.obj@experimentData@other$isMissingValues))
         
         if (input$fileformatExport == gFileFormatExport$excel) {
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
