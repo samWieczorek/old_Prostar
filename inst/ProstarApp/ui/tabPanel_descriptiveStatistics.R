@@ -1,10 +1,11 @@
+
+
 tabPanel("Descriptive statistics",
          valueid="Descriptive statistics",
          tabsetPanel(id="DS_tabSetPanel",
                      #------------------------------------------------------------
                      tabPanel("Overview",
                               value = "DS_tabGeneral",
-                              
                               uiOutput("overviewNewData")
                      ),
                      
@@ -14,16 +15,7 @@ tabPanel("Descriptive statistics",
                          
                          helpText("These barplots display the distribution of missing values in the dataset."),
                          busyIndicator("Building plot. Please wait...",wait = 0),
-                         fluidRow(
-                             column(width = 4,
-                                    highchartOutput("histoMV_Image_DS")
-                             ),
-                             column(width = 4,
-                                    highchartOutput("histo_missvalues_per_lines_DS")),
-                             column(width = 4,
-                                    highchartOutput("histo_missvalues_per_lines_per_conditions_DS"))
-                         )
-
+                         missingValuesPlotsUI("MVPlots_DS")
                          ),
                      
                      #-------------------------------------------------------------
@@ -89,8 +81,9 @@ tabPanel("Descriptive statistics",
                                           ),
                                          tagList(
                                              busyIndicator("Building plot. Please wait...",wait = 0),
-                                             plotOutput("viewBoxPlot_DS",width = plotWidth,
-                                                                      height = plotHeight)
+                                             moduleBoxplotUI("boxPlot_DS")
+                                            # plotOutput("viewBoxPlot_DS",width = plotWidth,
+                                             #                         height = plotHeight)
                                           )
                               )
                      ),
@@ -123,9 +116,10 @@ tabPanel("Descriptive statistics",
                                           ),
                                           tagList(
                                               busyIndicator("Building plot. Please wait...",wait = 0),
-                                              highchartOutput("viewDensityplot_DS",
-                                                                      width = plotWidth,
-                                                                      height = plotHeight)
+                                              moduleDensityplotUI("densityPlot_DS")
+                                          # highchartOutput("viewDensityplot_DS",
+                                          #                             width = plotWidth,
+                                          #                             height = plotHeight)
                                           )
                               )
                      ),
@@ -143,3 +137,6 @@ tabPanel("Descriptive statistics",
                               )
                      )
          )
+
+
+

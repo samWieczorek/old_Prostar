@@ -1,9 +1,86 @@
 
+#################### MODULES DEFINITION #################################
+
+
+
+missingValuesPlots <- function(input, output, session) {
+    
+    output$histo_MV <- renderHighchart({
+        histo_MV()
+    })
+    
+    output$histo_MV_per_lines <- renderHighchart({
+        histo_MV_per_lines()
+    })
+    
+    output$histo_MV_per_lines_per_conditions <- renderHighchart({
+        histo_MV_per_lines_per_conditions()
+    })
+}
+
+moduleDensityplot <- function(input, output, session) {
+    
+    output$Densityplot <- renderHighchart({
+        DensityPlot()
+    })
+}
+
+moduleBoxplot <- function(input, output, session) {
+    
+    output$BoxPlot <- renderPlot({
+        BoxPlot()
+    })
+}
 
 
 
 
+callModule(moduleDensityplot, "densityPlot_DS")
+callModule(moduleDensityplot,"densityPlot_Norm")
 
+
+callModule(missingValuesPlots, "MVPlots_DS")
+callModule(missingValuesPlots,"MVPlots_filtering")
+
+
+
+callModule(moduleBoxplot, "boxPlot_DS")
+callModule(moduleBoxplot,"boxPlot_Norm")
+
+
+activatePopover <- function(){
+    txt_histo_M <- paste0("<p>Test",
+                          "test</p><p>Explanation .</p>")
+    
+    txt_histo_MV_per_lines <- paste0("<p>Test",
+                          "test</p><p>Explanation .</p>")
+    
+    
+    txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
+                          "test</p><p>Explanation .</p>")
+    
+    
+    addPopover(session, "MVPlots_DS-histo_MV", "Info", 
+               content = txt_histo_M, trigger = 'click')
+    
+    addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
+               content = txt_histo_MV_per_lines, trigger = 'click')
+    
+    addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
+               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+    
+    
+    addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
+               content = txt_histo_M, trigger = 'click')
+    
+    addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
+               content = txt_histo_MV_per_lines, trigger = 'click')
+    
+    addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
+               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+    
+    
+}
 
 
 #######################################
@@ -305,52 +382,52 @@ output$overview <- renderUI({
 })
 
 
-
-histo_missvalues_per_lines_Image <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            wrapper.mvPerLinesHisto_HC(rv$current.obj)
-            
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-})
-
-
+# 
+# histo_missvalues_per_lines_Image <- reactive({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)}
+#     result = tryCatch(
+#         {
+#             wrapper.mvPerLinesHisto_HC(rv$current.obj)
+#             
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste(match.call()[[1]],":",
+#                                 conditionMessage(e), 
+#                                 sep=" "))
+#         }, finally = {
+#             #cleanup-code 
+#         })
+# })
 
 
-histo_missvalues_per_lines_per_conditions_Image <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-})
+
+# 
+# histo_missvalues_per_lines_per_conditions_Image <- reactive({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)}
+#     result = tryCatch(
+#         {
+#             wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj)
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste(match.call()[[1]],":",
+#                                 conditionMessage(e), 
+#                                 sep=" "))
+#         }, finally = {
+#             #cleanup-code 
+#         })
+# })
 
  
   
 
 
-histo_missvalues_per_lines_DS <- reactive({
+histo_MV_per_lines <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
@@ -381,7 +458,7 @@ histo_missvalues_per_lines_DS <- reactive({
 
 
 
-histo_missvalues_per_lines_per_conditions_DS <- reactive({
+histo_MV_per_lines_per_conditions <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
@@ -405,18 +482,7 @@ histo_missvalues_per_lines_per_conditions_DS <- reactive({
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-boxPlot <- reactive({
+BoxPlot <- reactive({
     rv$current.obj
     input$legendXAxis_DS
     if (is.null(rv$current.obj)) {return(NULL)}
@@ -479,13 +545,13 @@ violinPlot2 <- reactive({
 
 
 
-Densityplot_DS <- reactive({
+DensityPlot <- reactive({
     rv$current.obj
     input$lab2Show_DS
     input$whichGroup2Color_DS
     if (is.null(rv$current.obj)) {return(NULL)}
-    if (is.null(input$lab2Show_DS)) {return(NULL)}
-    if (is.null(input$whichGroup2Color_DS)) {return(NULL)}
+    #if (is.null(input$lab2Show_DS)) {return(NULL)}
+    #if (is.null(input$whichGroup2Color_DS)) {return(NULL)}
     
     labels_DS <- NULL
     labelsToShow_DS <- NULL
@@ -872,7 +938,7 @@ output$nShow_DS <- renderUI({
 
 
 
-histoMV_Image_DS <- reactive({
+histo_MV <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
@@ -894,21 +960,14 @@ histoMV_Image_DS <- reactive({
 
 
 
-output$histoMV_Image_DS <- renderHighchart({
-    histoMV_Image_DS()
-})
-addPopover(session, "histoMV_Image_DS", "Info", 
-           content = paste0("<p>Test",
-                            "test</p><p>Explanation .</p>"), trigger = 'click')
-
 
 
 ##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
-output$viewBoxPlot_DS <- renderPlot({
-    boxPlot()
-    
-})
+# output$viewBoxPlot <- renderPlot({
+#     boxPlot()
+#     
+# })
 
 
 output$viewViolinPlot_DS <- renderPlot({
@@ -917,55 +976,27 @@ output$viewViolinPlot_DS <- renderPlot({
 
 
 
-##' Distribution of intensities in current.obj
+
+##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$viewDensityplot_DS <- renderHighchart({
-    Densityplot_DS()
-    
+output$histo_MV_per_lines <- renderHighchart({
+    histo_MV_per_lines()
 })
+
+
 
 
 
 ##' distribution of missing values in current.obj
 ##' @author Samuel Wieczorek
-output$histo_missvalues_per_lines_Image <- renderHighchart({
-    histo_missvalues_per_lines_Image()
+output$histo_MV_per_lines_per_conditions <- renderHighchart({
+    histo_missvalues_per_lines_per_conditions()
 })
-addPopover(session, "histo_missvalues_per_lines_Image", "Info", 
+addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info", 
            content = paste0("<p>Test",
                             "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo_missvalues_per_lines_per_conditions_Image <- renderHighchart({
-    histo_missvalues_per_lines_per_conditions_Image()
-}) 
-addPopover(session, "histo_missvalues_per_lines_per_conditions_Image", "Info", 
-           content = paste0("<p>Test",
-                            "test</p><p>Explanation .</p>"), trigger = 'click')
-
-
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo_missvalues_per_lines_per_conditions_DS <- renderHighchart({
-    histo_missvalues_per_lines_per_conditions_DS()
-})
-addPopover(session, "histo_missvalues_per_lines_per_conditions_DS", "Info", 
-           content = paste0("<p>Test",
-                            "test</p><p>Explanation .</p>"), trigger = 'click')
-
-
-
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo_missvalues_per_lines_DS <- renderHighchart({
-    histo_missvalues_per_lines_DS()
-    
-})
-addPopover(session, "histo_missvalues_per_lines_DS", "Info", 
-           content = paste0("<p>Test",
-                            "test</p><p>Explanation .</p>"), trigger = 'click')
 
 
 ##' Draw a heatmap of current data
@@ -994,6 +1025,8 @@ output$viewDistCV <- renderHighchart({
 output$corrMatrix <- renderHighchart({
     corrMatrix()
 }) 
+
+
 
 
 

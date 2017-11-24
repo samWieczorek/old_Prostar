@@ -135,7 +135,8 @@ output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)
     
     t <- sessionInfo()
-    daparVersion <- installed.packages()["DAPAR","Version"]
+    print(DAPAR.loc)
+    daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
     ProstarVersion <- installed.packages()["Prostar","Version"]
     
     

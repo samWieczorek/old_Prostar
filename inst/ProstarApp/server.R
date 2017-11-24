@@ -63,4 +63,6 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "GO_enrichment.R"),  local = TRUE)$value
 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
+    
+    activatePopover()
 })

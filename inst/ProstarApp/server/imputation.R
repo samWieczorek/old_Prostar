@@ -353,29 +353,29 @@ output$chooseBasicImputationMethod <- renderUI({
 
 
 
-histoMV_Image <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            if (!is.null(rv$current.obj)){wrapper.mvHisto_HC(rv$current.obj)}
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-})
+# histoMV_Image <- reactive({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)}
+#     result = tryCatch(
+#         {
+#             if (!is.null(rv$current.obj)){wrapper.mvHisto_HC(rv$current.obj)}
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+#         }, finally = {
+#             #cleanup-code 
+#         })
+#     
+# })
 
-
-output$histoMV_Image <- renderHighchart({
-   
-    histoMV_Image()
-    
-})
+# 
+# output$histoMV_Image <- renderHighchart({
+#    
+#     histoMV_Image()
+#     
+# })
 
 
 showImageNA <- reactive({

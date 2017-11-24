@@ -5,9 +5,10 @@ tabsetPanel(
              tabPanel( "1 - Missing values",
                        #id =  "DP_FilterMissingValues",
                        value = "DP_FilterMissingValues",
-                       sidebarCustom(),
+                       #sidebarCustom(),
                        splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                    wellPanel(id = "sidebar_Filter1"
+                                             ,height = "100%"
                                              ,uiOutput("DP_sidebar_FilterTab1")
                                              
                                    ),
@@ -17,12 +18,13 @@ tabsetPanel(
                                                          (the line is filtered out otherwise). 
                                                          The threshold either applies on the whole  <br> dataset, on 
                                                          each condition or on at least one condition."),
-                                                    fluidRow(
-                                                        column(width = 4, highchartOutput("histoMV_Image")),
-                                                        column(width = 4,highchartOutput("histo_missvalues_per_lines_Image")),
-                                                        column(width = 4,highchartOutput("histo_missvalues_per_lines_per_conditions_Image"))
+                                            tags$div(
+                                                style="margin-bottom:200px;",
+                                                missingValuesPlotsUI("MVPlots_filtering")
+                                            )
+
                                                     )
-                                                    )
+
                        )
          )
          ,tabPanel( "2 - String based filtering",

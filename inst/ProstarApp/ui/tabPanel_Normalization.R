@@ -20,14 +20,13 @@ tabPanel("Normalization",
                                              "Save normalization",
                                              width="170px")
                      )
-                     ,conditionalPanel(id = "wellPanlNormalization",
-                                       condition = "true",
-                                       uiOutput("helpForNormalizationMethods"),
+                     ,tagList(uiOutput("helpForNormalizationMethods"),
                                        #plotOutput("viewBoxPlotNorm")
                                        fluidRow(
-                                           column(width=6, highchartOutput("viewDensityplotNorm")),
+                                           column(width=6, moduleDensityplotUI("densityPlot_Norm")),
                                            column(width=6, plotOutput("viewComparisonNorm_DS"))),
-                                       plotOutput("viewBoxPlotNorm")
+                                       moduleBoxplotUI("boxPlot_Norm")
+                                       #plotOutput("viewBoxPlotNorm")
                      )
          ),
          tags$head(

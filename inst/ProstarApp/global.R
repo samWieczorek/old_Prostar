@@ -1,6 +1,11 @@
 
-library(DAPAR)
+
+DAPAR.loc = "/home/shiny/Rlibs_dev"
+Prostar.loc = "/home/shiny/Rlibs_dev"
+
 library(DAPARdata)
+library(DAPAR, lib.loc = DAPAR.loc)
+
 library(shiny)
 library(rhandsontable)
 library(data.table)
