@@ -1,6 +1,10 @@
+DAPAR.loc = NULL
+Prostar.loc = NULL
 
-library(DAPAR)
+
 library(DAPARdata)
+library(DAPAR, lib.loc = DAPAR.loc)
+
 library(shiny)
 library(rhandsontable)
 library(data.table)

@@ -126,8 +126,8 @@ output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)
     
     t <- sessionInfo()
-    daparVersion <- installed.packages()["DAPAR","Version"]
-    ProstarVersion <- installed.packages()["Prostar","Version"]
+    daparVersion <- installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+    ProstarVersion <- installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
     
     
     text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
