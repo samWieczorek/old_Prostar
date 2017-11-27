@@ -622,62 +622,6 @@ output$showDatasetDoc <- renderUI({
 
 
 
-output$overviewDemoDataset <- renderUI({
-    rv$current.obj
-    input$showDemoDatasetPDF
-    rv$typeOfDataset
-    if (is.null(rv$current.obj)) {return(NULL)}
-    if (is.null(input$showDemoDatasetPDF)) {return(NULL)}
-    isolate({
-        result = tryCatch(
-            {
-                rv$current.obj
-                rv$typeOfDataset
-                NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
-                pourcentage <- 100 * round(sum(NA.count)/
-                            (dim(Biobase::exprs(rv$current.obj))[1]*
-                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
-                d <- "lines"
-                
-                switch(rv$typeOfDataset,
-                       peptide = {d <- "peptides"},
-                       protein = {d <- "proteins"},
-                       {d <- "analytes"}
-                )
-                
-                nb.empty.lines <- sum(apply(
-                    is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
-                h3("Quick overview of the dataset")
-                tags$ul(
-                    tags$li(paste("There are", 
-                                  dim(Biobase::exprs(rv$current.obj))[2], 
-                                  " samples in your data.", sep=" ")),
-                    
-                    tags$li(paste("There are", 
-                                  dim(Biobase::exprs(rv$current.obj))[1], d,
-                                  " in your data.", sep=" ")), 
-                    tags$li(paste("Percentage of missing values:",
-                                  pourcentage , "%", sep=" ")),
-                    tags$li(paste("Number of lines with only NA values =",
-                                  nb.empty.lines , sep=" "))
-                )
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-
-    })
-})
-
-
-
-
 # store the object in binary file
 saveMSnset <- function(name, fileExt, obj ){
     saveRDS(obj,file=paste(rv$dirname,"/", name, fileExt,sep=""))

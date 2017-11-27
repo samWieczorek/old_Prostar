@@ -32,8 +32,7 @@ tabsetPanel(
                     value = "DP_FilterContaminants",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter2",
-                                          uiOutput("DP_sidebar_FilterTab2")
-                                          
+                                          moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
                                 ),
                                 tagList(
                                   busyIndicator(WaitMsgCalc,wait = 0),

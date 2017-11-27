@@ -1,3 +1,4 @@
+
 library(shiny)
 library(highcharter)
 
@@ -28,3 +29,16 @@ moduleBoxplotUI <- function(id) {
     plotOutput(ns("BoxPlot"))
 }
 
+
+moduleDatasetOverviewUI <- function(id) {
+    ns <- NS(id)
+    
+    uiOutput(ns("DatasetOverview"))
+}
+
+
+moduleFilterStringbasedOptionsUI <- function(id) {
+    ns <- NS(id)
+    
+    uiOutput(ns("FilterStringbasedOptions"))
+}

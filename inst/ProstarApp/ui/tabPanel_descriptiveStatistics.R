@@ -6,7 +6,7 @@ tabPanel("Descriptive statistics",
                      #------------------------------------------------------------
                      tabPanel("Overview",
                               value = "DS_tabGeneral",
-                              uiOutput("overviewNewData")
+                              moduleDatasetOverviewUI("overview_DS")
                      ),
                      
                      tabPanel(

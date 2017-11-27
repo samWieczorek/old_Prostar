@@ -10,7 +10,7 @@ tabPanel("Demo mode",
                      conditionalPanel(id = "wellPanelOpenFile",
                                       condition = "true",
                                       h3("Quick overview of the dataset"),
-                                      uiOutput("overviewDemoDataset"),
+                                      moduleDatasetOverviewUI("overview_DemoMode"),
                                       uiOutput("showDatasetDoc")
                                       
                                       # uiOutput("infoAboutDemoDataset")

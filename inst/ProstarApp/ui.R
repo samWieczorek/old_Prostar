@@ -4,8 +4,6 @@ options(shiny.reactlog=TRUE)
 
 library(highcharter)
 
-source(file.path(".", "global.R"),  local = TRUE)$value
-source(file.path("ui", "modulesUI.R"),  local = TRUE)$value
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 

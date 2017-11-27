@@ -1,7 +1,8 @@
 
+DAPAR.loc <- Prostar.loc <- NULL
 
-DAPAR.loc = "/home/shiny/Rlibs_dev"
-Prostar.loc = "/home/shiny/Rlibs_dev"
+#DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_dev"
+#Prostar.loc = "/home/shiny/Rlibs_dev"
 
 library(DAPARdata)
 library(DAPAR, lib.loc = DAPAR.loc)
@@ -30,8 +31,7 @@ library(vioplot)
 library(ggplot2)
 library(gplots)
 
-
-
+source(file.path(".", "modules.R"),  local = TRUE)$value
 
 # Declaration of global variables
 

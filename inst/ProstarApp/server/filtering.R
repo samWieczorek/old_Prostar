@@ -20,26 +20,6 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     )
 })
 
-output$DP_sidebar_FilterTab2 <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return()}
-    
-    tagList(
-        h4("String based filtering options")
-                     ,hr()
-                     ,h4("Filter contaminants"),
-                     uiOutput("id_Contaminants"),
-                     uiOutput("choosePrefixContaminants"),
-                     br(),
-                     h4("Filter reverse"),
-                     uiOutput("id_Reverse"),
-                     uiOutput("choosePrefixReverse"),
-                     br(),
-                    #actionButton("resetFilterParamsButton","Reset parameters"),
-                     actionButton("performFilteringContaminants",
-                                  "Perform string-based filtering")
-    )
-})
 
 
 output$DP_sidebar_FilterTab3 <- renderUI({

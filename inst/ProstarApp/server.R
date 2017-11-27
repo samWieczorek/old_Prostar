@@ -9,7 +9,6 @@ require(compiler)
 enableJIT(3)
 ###
 
-source(file.path(".", "global.R"),  local = TRUE)$value
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 # initialize data with colnames
@@ -50,6 +49,7 @@ shinyServer(function(input, output, session) {
     hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
+    source(file.path("server", "modulesSrv.R"),  local = TRUE)$value
     source(file.path("server", "saveGraphics.R"), local = TRUE)$value
     source(file.path("server", "general.R"), local = TRUE)$value
     source(file.path("server", "filtering.R"),  local = TRUE)$value
@@ -61,7 +61,7 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "datasetManager.R"),  local = TRUE)$value
     source(file.path("server", "help.R"),  local = TRUE)$value
     source(file.path("server", "GO_enrichment.R"),  local = TRUE)$value
-
+    
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
     activatePopover()

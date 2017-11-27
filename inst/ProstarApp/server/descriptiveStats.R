@@ -1,37 +1,4 @@
 
-#################### MODULES DEFINITION #################################
-
-
-
-missingValuesPlots <- function(input, output, session) {
-    
-    output$histo_MV <- renderHighchart({
-        histo_MV()
-    })
-    
-    output$histo_MV_per_lines <- renderHighchart({
-        histo_MV_per_lines()
-    })
-    
-    output$histo_MV_per_lines_per_conditions <- renderHighchart({
-        histo_MV_per_lines_per_conditions()
-    })
-}
-
-moduleDensityplot <- function(input, output, session) {
-    
-    output$Densityplot <- renderHighchart({
-        DensityPlot()
-    })
-}
-
-moduleBoxplot <- function(input, output, session) {
-    
-    output$BoxPlot <- renderPlot({
-        BoxPlot()
-    })
-}
-
 
 
 
@@ -46,6 +13,12 @@ callModule(missingValuesPlots,"MVPlots_filtering")
 
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleBoxplot,"boxPlot_Norm")
+
+callModule(moduleDatasetOverview,"overview_DS")
+callModule(moduleDatasetOverview,"overview_DemoMode")
+
+callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
+
 
 
 activatePopover <- function(){
@@ -317,114 +290,6 @@ option=list(orderClasses = TRUE,
                             columnDefs.targets=c(list(0),list(1),list(2)))))
 )
 
-
-
-##' Quick overview of the MSnbase object
-##' @author Florence Combes
-output$overview <- renderUI({
-    rv$current.obj
-    rv$typeOfDataset
-    if (is.null(rv$current.obj)) {return(NULL)    }
-    
-    isolate({
-        
-        
-        result = tryCatch(
-            {
-                
-                rv$current.obj
-                rv$typeOfDataset
-                NA.count <- 
-                    apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                          2, 
-                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
-                rv$pourcentageNA <- 100 * round(sum(NA.count)/
-                                    (dim(Biobase::exprs(rv$current.obj))[1]*
-                                    dim(Biobase::exprs(rv$current.obj))[2]), 
-                                    digits=4)
-                d <- "lines"
-                switch(rv$typeOfDataset,
-                       peptide = {d <- "peptides"},
-                       protein = {d <- "proteins"},
-                       {d <- "analytes"}
-                       )
-                
-                rv$nb.empty.lines <- sum(apply(
-                    is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-                tags$ul(
-                    tags$li(paste("There are", 
-                                  dim(Biobase::exprs(rv$current.obj))[2], 
-                                  " samples in your data.", sep=" ")),
-                    
-                    tags$li(paste("There are", 
-                                  dim(Biobase::exprs(rv$current.obj))[1], d,
-                                  " in your data.", sep=" ")), 
-                    tags$li(paste("Percentage of missing values:",
-                                  rv$pourcentageNA , "%", sep=" ")),
-                    tags$li(paste("Number of lines with only NA values =",
-                                  rv$nb.empty.lines , sep=" "))
-                )
-                
-               # initRmd()
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
-        
-    })
-})
-
-
-# 
-# histo_missvalues_per_lines_Image <- reactive({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)}
-#     result = tryCatch(
-#         {
-#             wrapper.mvPerLinesHisto_HC(rv$current.obj)
-#             
-#         }
-#         , warning = function(w) {
-#             shinyjs::info(conditionMessage(w))
-#         }, error = function(e) {
-#             shinyjs::info(paste(match.call()[[1]],":",
-#                                 conditionMessage(e), 
-#                                 sep=" "))
-#         }, finally = {
-#             #cleanup-code 
-#         })
-# })
-
-
-
-# 
-# histo_missvalues_per_lines_per_conditions_Image <- reactive({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)}
-#     result = tryCatch(
-#         {
-#             wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj)
-#         }
-#         , warning = function(w) {
-#             shinyjs::info(conditionMessage(w))
-#         }, error = function(e) {
-#             shinyjs::info(paste(match.call()[[1]],":",
-#                                 conditionMessage(e), 
-#                                 sep=" "))
-#         }, finally = {
-#             #cleanup-code 
-#         })
-# })
-
- 
-  
 
 
 histo_MV_per_lines <- reactive({
@@ -789,75 +654,6 @@ output$table <- renderDataTable(
 
 
 
-
-
-
-
-output$overviewNewData <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    isolate({
-        
-        verb <- NULL
-        plurial <- NULL
-        
-        
-        if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
-            verb <- "are"
-            plurial <- "s"} else {
-                verb <- "is"
-                plurial <- ""}
-        
-        
-        
-        txt1 <- paste("There ", verb, " " ,
-                      dim(Biobase::exprs(rv$current.obj))[2],
-                      " sample", plurial, " in your data.", sep="")
-        
-        if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
-            verb <- "are"
-            plurial <- "s"} else {
-                verb <- "is"
-                plurial <- ""}
-        txt2 <- paste("There ", verb, " ",
-                      dim(Biobase::exprs(rv$current.obj))[1], 
-                      " line", plurial, " in your data.", sep="")
-        
-        NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                        2, 
-                        function(x) length(which(is.na(data.frame(x))==TRUE)) )
-        pourcentage <- 100 * round(sum(NA.count)/
-                                (dim(Biobase::exprs(rv$current.obj))[1]*
-                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
-        txt3 <- paste("Percentage of missing values:",pourcentage , "%.")
-        
-        nb.empty.lines <- sum(apply(
-            is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
-        txt4 <- NULL
-        if (nb.empty.lines > 0){
-            if( nb.empty.lines > 1){
-                verb <- "are"
-                plurial <- "s"} else {
-                    verb <- "is"
-                    plurial <- ""}
-            
-            
-            txt4 <- paste("There ", verb, " ",
-                          nb.empty.lines ," line",
-                          plurial," with only NA values."
-                          ,sep="")
-        }
-        
-        tags$ul(
-            tags$li(txt1), 
-            tags$li(txt2), 
-            tags$li(txt3),
-            if (!is.null(txt4)){tags$li(txt4)}
-        )
-        
-    })
-})
 
 
 # options for vioplot
