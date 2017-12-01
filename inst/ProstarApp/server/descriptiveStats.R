@@ -16,7 +16,8 @@ callModule(moduleBoxplot,"boxPlot_Norm")
 
 callModule(moduleDatasetOverview,"overview_DS")
 callModule(moduleDatasetOverview,"overview_DemoMode")
-
+callModule(moduleDatasetOverview,"overview_openMSnset")
+callModule(moduleDatasetOverview,"overview_convertData")
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 
 

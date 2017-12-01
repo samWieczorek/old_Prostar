@@ -555,9 +555,18 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
+                if ("production de NaN" == conditionMessage(w)){
+                    shinyjs::info(paste("Warning : Your original dataset may contain negative values",
+                                        "so that they cannot be logged. Please check back the dataset or", 
+                                        "the log option in the first tab.",
+                                        sep=" "))
+                } else {
+                shinyjs::info(paste("Warning in CreateMSnSet",":",
+                                    conditionMessage(w), 
+                                    sep=" "))
+                }
             }, error = function(e) {
-                shinyjs::info(paste("CreateMSnSet",":",
+                shinyjs::info(paste("Error :","CreateMSnSet",":",
                                     conditionMessage(e), 
                                     sep=" "))
             }, finally = {

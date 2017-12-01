@@ -58,8 +58,11 @@ tabPanel("Convert data",
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
                        busyIndicator(WaitMsgCalc,wait = 0),
-                       actionButton("createMSnsetButton","Convert data")
-                       ,uiOutput("conversionDone")
+                       actionButton("createMSnsetButton","Convert data"),
+                       moduleDatasetOverviewUI("overview_convertData"),
+                       uiOutput("conversionDone")
+                       
+                       
              )
          )
 )

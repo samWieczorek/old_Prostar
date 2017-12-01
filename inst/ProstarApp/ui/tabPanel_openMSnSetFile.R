@@ -9,8 +9,8 @@ tabPanel("Open MSnset file",
                      ),
                      tagList(
                          h3("Quick overview of the dataset"),
-                                      uiOutput("overview"),
-                                      uiOutput("infoAboutAggregationTool")
+                         moduleDatasetOverviewUI("overview_openMSnset"),
+                        uiOutput("infoAboutAggregationTool")
                      )
          )
 )
