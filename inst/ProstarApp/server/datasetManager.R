@@ -323,10 +323,11 @@ output$downloadMSnSet <- downloadHandler(
            # }
         }
         
+        
         rv$current.obj@experimentData@other$Prostar_Version <- 
-            installed.packages()["Prostar","Version"]
+            installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
         rv$current.obj@experimentData@other$DAPAR_Version <- 
-            installed.packages()["DAPAR","Version"]
+            installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
         colnames(fData(rv$current.obj)) <- gsub(".", "_", 
                                                 colnames(fData(rv$current.obj)), 
                                                 fixed=TRUE)
