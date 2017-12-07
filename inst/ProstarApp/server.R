@@ -1,4 +1,4 @@
-options(shiny.maxRequestSize=100*1024^2) 
+options(shiny.maxRequestSize=300*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 #if (!interactive()) sink(stderr(), type = "output")

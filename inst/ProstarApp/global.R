@@ -55,7 +55,7 @@ gAgregateMethod <- list("none" = "none",
                         "mean" = "mean",
                         "sum on top n" = "sum on top n")
 
-
+limitHeatmap <- 20000
 
 list_org_db <- data.frame(
                 shortName = c("org.Ag.eg.db","org.At.tair.db","org.Bt.eg.db",
