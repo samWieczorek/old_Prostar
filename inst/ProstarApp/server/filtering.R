@@ -39,7 +39,8 @@ output$DP_sidebar_FilterTab3 <- renderUI({
                             choices=
                             list("Deleted on missing values" = "MissingValues",
                             "Deleted contaminants" = "Contaminants",
-                            "Deleted reverse" = "Reverse"))
+                            "Deleted reverse" = "Reverse",
+                            "Both contaminants and reverse" = "Both"))
                      ,br(),br()
                      ,checkboxInput("nDigitsMV", 
                                     "Show full length intensities"
@@ -92,6 +93,14 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                        round(Biobase::exprs(obj), digits=nDigitsMV))
         }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
                              Biobase::fData(obj))}
+    } else if ((input$ChooseViewAfterFiltering == "Both") 
+              && !is.null(rv$deleted.both)){
+        obj <- rv$deleted.both
+        if(input$ChooseTabAfterFiltering == "quantiData" )
+        {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                       round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
+                             Biobase::fData(obj))}
     }
     
     
@@ -139,6 +148,7 @@ GlobalPieChart <- reactive({
     #rv$current.obj
     rv$nbContaminantsDeleted
     rv$nbReverseDeleted
+    rv$nbBothDeleted
     #input$idBoxContaminants
     #input$prefixContaminants
     #input$idBoxReverse
@@ -150,8 +160,10 @@ GlobalPieChart <- reactive({
     #     {
     #         
     isolate({
-        
-           proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(rv$current.obj))
+        proportionConRev_HC(rv$nbBothDeleted,
+                            rv$nbContaminantsDeleted, 
+                            rv$nbReverseDeleted, 
+                            nrow(rv$current.obj))
       
     })
     
@@ -291,14 +303,9 @@ observeEvent(input$perform.filtering.MV,{
         
         result = tryCatch(
             {
-                
-                #createPNG_BeforeFiltering()
-                
-                
                 if (input$ChooseFilters == gFilterNone){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
-                    
                     
                     keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
                                                    input$ChooseFilters,
@@ -380,6 +387,7 @@ observe({
         shinyjs::disable("performFilteringContaminants")
         rv$nbContaminantsDeleted <- NULL
         rv$nbReverseDeleted <- NULL
+        rv$nbBothDeleted <- NULL
         
         return(NULL)
     }
@@ -388,51 +396,54 @@ observe({
         
     }
 })
-
-majPropContaminants <- reactive({
-    input$performFilteringContaminants
-    
-  input$idBoxContaminants
-  input$prefixContaminants
-  input$idBoxReverse
-  input$prefixReverse
-
-    if (is.null(input$performFilteringContaminants)){return (NULL)}
-  if (is.null(rv$current.obj)){return (NULL)}
-  if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
-       is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
-       (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
-      (input$prefixContaminants == "") || (input$prefixReverse == ""))
-  {
-      return(NULL)
-      }
-    
-  isolate({
-  l <- length(rv$dataset)
-        if (l ==1){ #Original dataset
-            obj <- rv$dataset[[1]]
-        } else {
-            dname <- unlist(strsplit(names(rv$dataset)[l], " - "))[1]
-            if (dname == "Filtered") {
-                obj <- rv$dataset[[l - 1]]
-            } else {
-                obj <- rv$dataset[[l]]
-            }
-        }
-  
-  
-   ind <- getIndicesOfLinesToRemove(obj,
-                                   input$idBoxContaminants,
-                                   input$prefixContaminants)
-  if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
-
-  ind <- getIndicesOfLinesToRemove(obj,
-                                   input$idBoxReverse,
-                                   input$prefixReverse)
-  if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
-
-  })
-})
+# 
+# majPropContaminants <- reactive({
+#     input$performFilteringContaminants
+#     
+#   input$idBoxContaminants
+#   input$prefixContaminants
+#   input$idBoxReverse
+#   input$prefixReverse
+# 
+#     if (is.null(input$performFilteringContaminants)){return (NULL)}
+#   if (is.null(rv$current.obj)){return (NULL)}
+#   if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
+#        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
+#        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
+#       (input$prefixContaminants == "") || (input$prefixReverse == ""))
+#   {
+#       return(NULL)
+#       }
+#     
+#   isolate({
+#   l <- length(rv$dataset)
+#         if (l ==1){ #Original dataset
+#             obj <- rv$dataset[[1]]
+#         } else {
+#             dname <- unlist(strsplit(names(rv$dataset)[l], " - "))[1]
+#             if (dname == "Filtered") {
+#                 obj <- rv$dataset[[l - 1]]
+#             } else {
+#                 obj <- rv$dataset[[l]]
+#             }
+#         }
+#   
+#   
+#    ind <- getIndicesOfLinesToRemove(obj,
+#                                    input$idBoxContaminants,
+#                                    input$prefixContaminants)
+#   if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
+# 
+#   ind <- getIndicesOfLinesToRemove(obj,
+#                                    input$idBoxReverse,
+#                                    input$prefixReverse)
+#   if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
+#   
+#   
+#   
+# 
+#   })
+# })
 
 
 
@@ -463,73 +474,22 @@ observeEvent(input$performFilteringContaminants,{
         result = tryCatch(
             {
                 temp <- rv$current.obj
-                if (!is.null(input$idBoxContaminants)
-                    || (input$idBoxContaminants != "")) {
-                    ind <- getIndicesOfLinesToRemove(temp,
-                                                     input$idBoxContaminants, 
-                                                     input$prefixContaminants)
-                    
-                    if (!is.null(ind)){
-                        #rv$nbContaminantsDeleted = length(ind)
-                        if (length(ind) > 0)  {
-                            rv$deleted.contaminants <- temp[ind]
-                            
-                            temp <- deleteLinesFromIndices(temp, ind, 
-                                paste("\"", 
-                                length(ind), 
-                                " contaminants were removed from dataset.\"",
-                                sep="")
-                            )
-                            
-                            #write command log
-                            #if (input$showCommandLog){
-                                txt <- paste("indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", 
-                                         input$idBoxContaminants,
-                                         "\", \"",input$prefixContaminants,"\")","\n",
-                                         "deleted.contaminants <- current.obj[indContaminants]","\n",
-                                         "txt <- \"",length(ind), " contaminants were removed from dataset.\"","\n",
-                                         "current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)",
-                                         sep=""
-                                         )
-                            writeToCommandLogFile(txt)
-                       # }
-                        }
-                    }
-                }
                 
+                res <- StringBasedFiltering(temp,input$idBoxContaminants, 
+                                            input$prefixContaminants,
+                                            input$idBoxReverse,
+                                            input$prefixReverse
+                                            )
+                rv$deleted.both <- res[["deleted.both"]]
+                rv$deleted.contaminants <-res[["deleted.contaminants"]]
+                rv$deleted.reverse <-res[["deleted.reverse"]]
                 
-                if (!is.null(input$idBoxReverse)  || (input$idBoxReverse != "")){
-                    ind <- getIndicesOfLinesToRemove(temp,
-                                                     input$idBoxReverse,
-                                                     input$prefixReverse)
-                    
-                    if (!is.null(ind)){
-                        #rv$nbReverseDeleted = length(ind)
-                        if(length(ind) >0)  {
-                            rv$deleted.reverse <- temp[ind]
-                            temp <- deleteLinesFromIndices(
-                                temp, ind, 
-                                paste(length(ind), 
-                                    " reverse were removed from dataset",
-                                    sep="")
-                            )
-                            
-                            #if (input$showCommandLog){
-                                txt <- paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", 
-                                         input$idBoxReverse,
-                                         "\", \"",input$prefixReverse,"\")", "\n",
-                                         "deleted.reverse <- current.obj[indReverse]", "\n",
-                                         "txt <- \"",length(ind)," reverse were removed from dataset.\"", "\n",
-                                         "current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)", sep="")
-                            
-
-                            writeToCommandLogFile(txt)
-                       # }
-                        }
-                    }
-                }
-                majPropContaminants()
-                rv$current.obj <- temp
+                # majPropContaminants()
+                rv$nbReverseDeleted <- nrow(rv$deleted.reverse)
+                rv$nbContaminantsDeleted <- nrow(rv$deleted.contaminants)
+                rv$nbBothDeleted <- nrow(rv$deleted.both)
+                
+                rv$current.obj <- res[["obj"]]
                 rv$stringBasedFiltering_Done = TRUE
                 
                 updateSelectInput(session, 

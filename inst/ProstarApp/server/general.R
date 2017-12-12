@@ -143,6 +143,7 @@ ClearMemory <- function(){
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
+    rv$deleted.both = NULL
     rv$deleted.contaminants = NULL
     rv$deleted.reverse = NULL
     # variable to keep memory of previous datasets before 
@@ -176,6 +177,7 @@ ClearMemory <- function(){
     rv$pourcentageNA = 0
     rv$nb.empty.lines = 0
     rv$nbContaminantsDeleted = NULL
+    rv$nbBothDeleted = NULL
     rv$nbReverseDeleted = NULL
     rv$fdr = NULL
     rv$nbTotalAnaDiff = NULL
@@ -240,6 +242,7 @@ rv <- reactiveValues(
     current.obj.name = NULL,
     deleted.mvLines = NULL,
     deleted.contaminants = NULL,
+    deleted.both = NULL,
     deleted.reverse = NULL,
     # variable to keep memory of previous datasets before 
     # transformation of the data
@@ -272,6 +275,7 @@ rv <- reactiveValues(
     pourcentageNA = 0,
     nb.empty.lines = 0,
     nbReverseDeleted = NULL,
+    nbBothDeleted = NULL,
     nbContaminantsDeleted = NULL,
     fdr = NULL,
     nbSelectedAnaDiff = NULL,

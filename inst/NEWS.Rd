@@ -1,8 +1,15 @@
 \name{Prostar-NEWS}
 \title{Prostar News}
 
-
-
+\section{CHANGES IN VERSION 1.11.4}{
+\subsection{BUG FIXES}{
+  \itemize{
+        \item A bug in the string-based filtering tool was fixed. The case where an entity could be both contaminants and reverse was not takien into account.This lead to wrong number in the plot.
+        }
+        
+        }
+        
+        
 \section{CHANGES IN VERSION 1.9.15}{
 
 \subsection{BUG FIXES}{

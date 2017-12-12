@@ -186,7 +186,7 @@ func_mvHisto_3 <- function(obj, plot){
 
 ###-------------------------------------------------
 func_heatmap <- function(obj, distance, link){
-    
+    print("In heatmpa function")
     plotPNG(function(){
         if (is.null (distance) && is.null(link)) {
             wrapper.heatmapD(obj)
@@ -212,12 +212,9 @@ createPNGFromWidget <- function(tempplot, tmp_filename, png_filename){
 ###--------------------------------------------------------------------------
 createPNG_DescriptiveStatistics <- reactive({
     
-    print(tempdir())
     obj <- rv$dataset[[rv$iDat]]
     
-    
-    list_f <- list(func_heatmap,
-                   func_corrMatrix,
+    list_f <- list(func_corrMatrix,
                    func_varDist,
                    func_violinPlot,
                    func_boxplot,
@@ -226,8 +223,7 @@ createPNG_DescriptiveStatistics <- reactive({
                    func_mvHisto_2,
                    func_mvHisto_1)             
     
-    list_params <- list(list(obj,rv$PlotParams$HeatmapDistance,rv$PlotParams$HeatmapLinkage),
-                        list(obj,rv$tempplot$corrMatrix),
+    list_params <- list(list(obj,rv$tempplot$corrMatrix),
                         list(obj,rv$tempplot$varDist),
                         list(obj,rv$PlotParams$legDS_Violinplot),
                         list(obj,rv$PlotParams$legDS),
@@ -236,6 +232,14 @@ createPNG_DescriptiveStatistics <- reactive({
                         list(obj,rv$tempplot$mvHisto_perLines_HC),
                         list(obj,rv$tempplot$histo_missvalues_per_lines_per_conditions))
     
+ 
+    
+    if (nrow(obj) < limitHeatmap){
+        list_f <- append(list_f,list(func_heatmap) ) 
+        list_params <- c(list_params, list(list(obj,rv$PlotParams$HeatmapDistance,rv$PlotParams$HeatmapLinkage)))
+    }
+    
+   
     
      require(doParallel)
     #registerDoParallel(detectCores()-1)  

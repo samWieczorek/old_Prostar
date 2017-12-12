@@ -3,45 +3,76 @@
 #### Quick overview of the dataset
 
 
-* Number of samplesin the dataset : `r params$listOverview$nSamples`
+* Number of samples in the dataset : `r params$listOverview$nSamples`
 * There are `r params$listOverview$nEntities` `r params$typeOfData` in the dataset
 * Pourcentage de valeurs manquantes = `r params$listOverview$pourcentageNA` %
 * Number of lines with only NA values = `r params$listOverview$nNAlines`
 
 ```{r fig_histoMV,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$histoMV_Image_DS, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_histoMVperLines,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_histoMVperCond,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/")
 ```
 
 ```{r fig_corMatrix,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_boxplot,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_dentistyPlot,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/"))
+paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_varDist,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_vioplot,out.width = "75%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/"))
+paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
+```
 ```
 
 ```{r fig_heatmap,out.width = "100%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/"))
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
 ```
 
 
