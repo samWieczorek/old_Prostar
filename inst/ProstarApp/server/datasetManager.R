@@ -43,10 +43,16 @@ output$hot <- renderRHandsontable({
     }
     
     if (!is.null(DT))
-        rhandsontable(DT, fillHandle = list(direction='vertical', autoInsertRow=FALSE)) %>% 
+        rhandsontable(DT, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
+                                            maxRows=nrow(DT))) %>%
         hot_cols(colWidths = c(200, 100, 100, 100, 100) ) %>%
         hot_rows(rowHeights = 30) %>%
-        hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE) %>%
+        hot_context_menu(allowRowEdit = TRUE, allowColEdit = FALSE,
+                         allowInsertRow = FALSE,
+                         allowInsertColumn = FALSE,
+                         allowRemoveRow = TRUE,
+                         allowRemoveColumn = FALSE,
+                         autoInsertRow=FALSE     ) %>%
         hot_col(col = "Experiment", readOnly = TRUE)
         
 })
