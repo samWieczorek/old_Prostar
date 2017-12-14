@@ -5,10 +5,11 @@
 \subsection{BUG FIXES}{
   \itemize{
         \item A bug in the string-based filtering tool was fixed. The case where an entity could be both contaminants and reverse was not takien into account.This lead to wrong number in the plot.
+        \item Correction of the beahviour of the table in the experimental design (convert Data tool). When the user copy-paste some lines it may add unneeded rows. These rows can be deleted with an option in the contextual menu.
         }
         
         }
-        
+ }       
         
 \section{CHANGES IN VERSION 1.9.15}{
 

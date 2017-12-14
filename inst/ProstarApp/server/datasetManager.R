@@ -466,7 +466,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                     }
                 
                 
-                metadata <- hot_to_r(input$hot)
+                metadata <- hot_to_r(input$hot)[1:ncol(rv$tab1),]
                 logData <- (input$checkDataLogged == "no")
                 
                 tmp <- createMSnset(rv$tab1, 
