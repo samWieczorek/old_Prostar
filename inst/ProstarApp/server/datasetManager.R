@@ -466,7 +466,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                     }
                 
                 
-                metadata <- hot_to_r(input$hot)[1:ncol(rv$tab1),]
+                metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
                 
                 tmp <- createMSnset(rv$tab1, 
@@ -561,7 +561,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {
-                if ("production de NaN" == conditionMessage(w)){
+                if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
                     shinyjs::info(paste("Warning : Your original dataset may contain negative values",
                                         "so that they cannot be logged. Please check back the dataset or", 
                                         "the log option in the first tab.",
