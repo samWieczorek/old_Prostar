@@ -192,9 +192,6 @@ output$showFDR <- renderText({
             }, finally = {
                 #cleanup-code 
             })
-        
-        
-        
     })
 })
 
@@ -924,7 +921,7 @@ output$infosVolcanoTable <- DT::renderDataTable({
     
     data <- rv$current.obj@experimentData@other$isMissingValues
     if (!is.null(data)){
-    data <- as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked,]
+    data <- as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked+1,]
     }
     
     id <-  which(data==1)
@@ -1190,9 +1187,9 @@ getDataInfosVolcano_Step3 <- reactive({
     
     test.table <- data.frame(
         lapply(
-    Biobase::exprs(rv$current.obj)[as.character(input$eventPointClicked),],
+    Biobase::exprs(rv$current.obj)[input$eventPointClicked+1,],
                                     function(x) t(data.frame(x))))
-    rownames(test.table) <- input$eventPointClicked
+    rownames(test.table) <-  rownames(rv$current.obj)[input$eventPointClicked +1]
     test.table <- round(test.table, digits=3)
     test.table
     
@@ -1208,7 +1205,7 @@ output$infosVolcanoTableStep3 <- renderDataTable({
     if (is.null(rv$current.obj)){ data.frame()}
     
     data <- 
-as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked,]
+as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked+1,]
     id <-  which(data==1)
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano_Step3(), 
