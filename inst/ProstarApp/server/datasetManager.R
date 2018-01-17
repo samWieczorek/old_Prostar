@@ -108,6 +108,27 @@ output$eData <- renderUI({
 
 
 
+
+output$chooseOriginOfValues <- renderUI({
+    input$eData.box
+    input$file1
+    rv$tab1
+    if (is.null(rv$tab1)) {return(NULL)  }
+    
+    choices <- colnames(rv$tab1)
+    names(choices) <- colnames(rv$tab1)
+    
+    tagList(
+        if (length(input$eData.box) >= 1) {
+            lapply(1:length(input$eData.box), function(entry) {
+            selectInput(paste0("colForOriginValue_", entry), input$eData.box[entry], choices = choices,
+                    multiple = FALSE, width='500px')
+            }
+        )
+        }
+  )  
+})
+
 output$helpTextDataID <- renderUI({
     input$typeOfData
     
@@ -156,8 +177,8 @@ observeEvent(input$loadDemoDataset,{
             #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
             
             
-            if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-                rv$current.obj@experimentData@other$isMissingValues <- Matrix(as.numeric(is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+                rv$current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
             }
             
             #if (input$showCommandLog){
@@ -211,9 +232,9 @@ observeEvent(input$file,ignoreInit =TRUE,{
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-            rv$current.obj@experimentData@other$isMissingValues <- 
-                Matrix(as.numeric(is.na(rv$current.obj)),
+        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+            rv$current.obj@experimentData@other$OriginOfValues <- 
+                Matrix(as.numeric(!is.na(rv$current.obj)),
                        nrow = nrow(rv$current.obj), 
                        sparse=TRUE)
         }
@@ -345,9 +366,9 @@ output$downloadMSnSet <- downloadHandler(
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        if (is.null(rv$current.obj@experimentData@other$isMissingValues)){
-            rv$current.obj@experimentData@other$isMissingValues <- 
-                Matrix(as.numeric(is.na(rv$current.obj)),
+        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+            rv$current.obj@experimentData@other$OriginOfValues <- 
+                Matrix(as.numeric(!is.na(rv$current.obj)),
                        nrow = nrow(rv$current.obj), 
                        sparse=TRUE)
         }
@@ -469,11 +490,20 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
                 
-                tmp <- createMSnset(rv$tab1, 
+                
+                indexForOriginOfValue <- NULL
+                for (i in 1:length(input$eData.box)){
+                    indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
+                }
+               
+                
+                
+                    tmp <- createMSnset(rv$tab1, 
                                                metadata, 
                                                indexForEData, 
                                                indexForFData, 
                                                indexForIDBox,
+                                               indexForOriginOfValue,
                                                logData, 
                                                input$replaceAllZeros,
                                                pep_prot_data = input$typeOfData

@@ -61,7 +61,7 @@ tabPanel("Differential analysis",
                                                 column(width= 4, htmlOutput("equivPVal")),
                                                 column(width= 4, htmlOutput("showFDR"))
                                                 ),
-                                        #DT::dataTableOutput("infosVolcanoTableStep3"),
+                                        DT::dataTableOutput("infosVolcanoTableStep3"),
                                         busyIndicator("Building plot, please wait",wait = 0),
                                         highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
                                         )

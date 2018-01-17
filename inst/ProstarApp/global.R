@@ -101,6 +101,14 @@ list_org_db <- data.frame(
 rownames(list_org_db) <- list_org_db$shortName
 
 
+originOfValue <- list()
+originOfValue[["Missing"]] <- 0
+originOfValue[["Unknown"]] <- 1
+originOfValue[["ByMSMS"]] <- 2
+originOfValue[["ByAlignment"]] <- 3
+
+
+
 gFiltersList <- list()
 gFiltersList[["None"]] <- "none"
 gFiltersList[["Whole matrix"]] <- "wholeMatrix"

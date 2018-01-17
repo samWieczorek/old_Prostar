@@ -8,10 +8,14 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     if (!is.null(tag)) { filter <- tag}
     tagList(
         h4("Missing values filtering options")
+        ,bsButton("button1", label = "?", block = F, style="danger", size="extra-small")
+        ,bsTooltip(id = "button1", title = "Button 1 Explanation", placement = "right", trigger = "click")
+        
                      ,hr()
                      ,radioButtons("ChooseFilters","", 
                                    choices = gFiltersList,
                                    selected = filter)
+        
                      ,conditionalPanel(
                          condition='input.ChooseFilters != "None"',
                          uiOutput("seuilNADelete"))
@@ -313,9 +317,11 @@ observeEvent(input$perform.filtering.MV,{
                     
                     if (!is.null(keepThat))
                     {
-                        rv$deleted.mvLines <- 
-                            rv$dataset[[input$datasets]][-keepThat]
-                        
+                        rv$deleted.mvLines <- tabOperator(rv$dataset[[input$datasets]],-keepThat)
+                        #rv$deleted.mvLines@experimentData@other$OriginOfValues <- rv$dataset[[input$datasets]]@experimentData@other$OriginOfValues[-keepThat]
+                            
+                            
+                            
                         rv$current.obj <- 
                             mvFilterFromIndices(rv$dataset[[input$datasets]],
                                 keepThat,
@@ -474,12 +480,19 @@ observeEvent(input$performFilteringContaminants,{
         result = tryCatch(
             {
                 temp <- rv$current.obj
+                # print(temp)
+                # print(input$idBoxContaminants)
+                # print(input$prefixContaminants)
+                # print(input$idBoxReverse)
+                # print(input$prefixReverse)
+                # 
                 
                 res <- StringBasedFiltering(temp,input$idBoxContaminants, 
                                             input$prefixContaminants,
                                             input$idBoxReverse,
                                             input$prefixReverse
                                             )
+                #print(str(res))
                 rv$deleted.both <- res[["deleted.both"]]
                 rv$deleted.contaminants <-res[["deleted.contaminants"]]
                 rv$deleted.reverse <-res[["deleted.reverse"]]

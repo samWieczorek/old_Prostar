@@ -33,11 +33,14 @@ tabPanel("Convert data",
              
              tabPanel( "3 - Exp. and feat. data",
                        value = "Import1",
+                       
                        helpText("Select the columns that are quantitation values 
                                 by clicking in the field below."),
                        div(class="row"),
                        div(class="span5", "Quantitative  Data",
-                           uiOutput("eData",width = widthWellPanel))
+                           uiOutput("eData",width = widthWellPanel)),
+                       uiOutput("chooseOriginOfValues")
+                       
                        ),
              
              tabPanel( "4 - Samples metadata",

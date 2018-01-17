@@ -900,6 +900,8 @@ output$selectTooltipInfo <- renderUI({
                    multiple = TRUE, width='500px')
 })
 
+
+######################
 getDataInfosVolcano <- reactive({
 input$eventPointClicked
 rv$current.obj
@@ -914,6 +916,27 @@ test.table
 })
 
 
+getDataInfosVolcano_Step3 <- reactive({
+    rv$current$obj
+    input$eventPointClicked
+    #if (is.null(input$eventPointClicked)){ return()}
+    if (is.null(rv$current.obj)){ return()}
+    
+    test.table <- data.frame(
+        lapply(
+            Biobase::exprs(rv$current.obj)[input$eventPointClicked+1,],
+            function(x) t(data.frame(x))))
+    #rownames(test.table) <- input$eventPointClicked
+    rownames(test.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
+    test.table <- round(test.table, digits=3)
+    test.table
+    
+    
+})
+
+
+#################
+
 
 output$infosVolcanoTable <- DT::renderDataTable({
     rv$current.obj
@@ -922,12 +945,14 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
-    data <- rv$current.obj@experimentData@other$isMissingValues
+    data <- rv$current.obj@experimentData@other$OriginOfValues
     if (!is.null(data)){
-    data <- as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked,]
+    data <- as.matrix(rv$current.obj@experimentData@other$OriginOfValues)[input$eventPointClicked+1,]
     }
     
-    id <-  which(data==1)
+    id <-  which(data=="NA")
+    print(input$eventPointClicked)
+    print(data)
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano(), 
                              options=list(dom='t',ordering=F))
@@ -1182,22 +1207,7 @@ output$volcanoplot_rCharts_Step3 <- renderHighchart({
 
 
 
-getDataInfosVolcano_Step3 <- reactive({
-    rv$current$obj
-    input$eventPointClicked
-    if (is.null(input$eventPointClicked)){ return()}
-    if (is.null(rv$current.obj)){ return()}
-    
-    test.table <- data.frame(
-        lapply(
-    Biobase::exprs(rv$current.obj)[as.character(input$eventPointClicked),],
-                                    function(x) t(data.frame(x))))
-    rownames(test.table) <- input$eventPointClicked
-    test.table <- round(test.table, digits=3)
-    test.table
-    
-    
-})
+
 
 
 output$infosVolcanoTableStep3 <- renderDataTable({
@@ -1208,8 +1218,8 @@ output$infosVolcanoTableStep3 <- renderDataTable({
     if (is.null(rv$current.obj)){ data.frame()}
     
     data <- 
-as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked,]
-    id <-  which(data==1)
+as.matrix(rv$current.obj@experimentData@other$OriginOfValues)[input$eventPointClicked+1,]
+    id <-  which(data=="NA")
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano_Step3(), 
                              options=list(dom='t',ordering=F))
