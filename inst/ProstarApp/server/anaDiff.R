@@ -945,14 +945,14 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
-    data <- rv$current.obj@experimentData@other$OriginOfValues
+    data <- fData(rv$current.obj)[, rv$current.obj@experimentData@other$OriginOfValues]
     if (!is.null(data)){
-    data <- as.matrix(rv$current.obj@experimentData@other$OriginOfValues)[input$eventPointClicked+1,]
+    data <- as.matrix(data)[input$eventPointClicked+1,]
     }
     
     id <-  which(data=="NA")
-    print(input$eventPointClicked)
-    print(data)
+    #print(input$eventPointClicked)
+    #print(data)
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano(), 
                              options=list(dom='t',ordering=F))
@@ -1218,7 +1218,7 @@ output$infosVolcanoTableStep3 <- renderDataTable({
     if (is.null(rv$current.obj)){ data.frame()}
     
     data <- 
-as.matrix(rv$current.obj@experimentData@other$OriginOfValues)[input$eventPointClicked+1,]
+as.matrix(fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])[input$eventPointClicked+1,]
     id <-  which(data=="NA")
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano_Step3(), 

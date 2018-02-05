@@ -50,10 +50,9 @@ tabsetPanel(
                                           ,actionButton("ValidateFilters","Save filtered dataset",
                                                         styleclass = "primary")
                                 ),
-                                conditionalPanel(id = "wellPanelMVFilterTab3"
-                                                 ,condition = "true"
-                                                 ,DT::dataTableOutput("VizualizeFilteredData")
-                                                 ,uiOutput("helpTextMV")
+                                tagList(
+                                    DT::dataTableOutput("VizualizeFilteredData"),
+                                    uiOutput("helpTextMV")
                                 )
                     )
          )

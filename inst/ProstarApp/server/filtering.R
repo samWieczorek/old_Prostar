@@ -58,65 +58,72 @@ output$DP_sidebar_FilterTab3 <- renderUI({
 output$VizualizeFilteredData <- DT::renderDataTable({
      rv$current.obj
      input$nDigitsMV
+     rv$deleted.mvLines
      input$ChooseViewAfterFiltering
      input$ChooseTabAfterFiltering
      
+      
      if (is.null(input$ChooseTabAfterFiltering)
          ||is.null(input$ChooseViewAfterFiltering) 
          ||is.null(input$nDigitsMV) 
-         ||(is.null(rv$current.obj))) {return()}
+         #||is.null(rv$current.obj)
+          ){
+         
+         return(NULL)
+         }
      
-     
+    
     if (is.null(input$nDigitsMV)){nDigits = 1e100}
      else {nDigitsMV = 3}
     
+  
     data <- NULL
-    if ((input$ChooseViewAfterFiltering == "MissingValues") 
-        && !is.null(rv$deleted.mvLines))
+    
+    
+    
+    if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
         {
         obj <- rv$deleted.mvLines
         if(input$ChooseTabAfterFiltering == "quantiData" )
             {
-            data <- cbind(ID = rownames(Biobase::fData(obj)),
-                          round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                             Biobase::fData(obj))}
-    } else if ((input$ChooseViewAfterFiltering == "Contaminants") 
-               && !is.null(rv$deleted.contaminants)) { 
+            data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {
+            data <- cbind(ID = rownames(Biobase::fData(obj)), Biobase::fData(obj))
+            }
+    } 
+    
+    else if ((input$ChooseViewAfterFiltering == "Contaminants") && !is.null(rv$deleted.contaminants)) {
         obj <- rv$deleted.contaminants
         if(input$ChooseTabAfterFiltering == "quantiData" )
-        {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                       round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                             Biobase::fData(obj))}
-    } else if ((input$ChooseViewAfterFiltering == "Reverse") 
-               && !is.null(rv$deleted.reverse)){
+        {
+            data <- cbind(ID = rownames(Biobase::fData(obj)), round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {
+            data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))
+            }
+    } else if ((input$ChooseViewAfterFiltering == "Reverse") && !is.null(rv$deleted.reverse)){
         obj <- rv$deleted.reverse
         if(input$ChooseTabAfterFiltering == "quantiData" )
-        {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                       round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                             Biobase::fData(obj))}
-    } else if ((input$ChooseViewAfterFiltering == "Both") 
-              && !is.null(rv$deleted.both)){
+        {
+            data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {
+            data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))
+            }
+    } else if ((input$ChooseViewAfterFiltering == "Both") && !is.null(rv$deleted.both)){
         obj <- rv$deleted.both
         if(input$ChooseTabAfterFiltering == "quantiData" )
-        {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                       round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {data <- cbind(ID = rownames(Biobase::fData(obj)),
-                             Biobase::fData(obj))}
+        {
+            data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
+        }else {
+            data <- cbind(ID = rownames(Biobase::fData(obj)), Biobase::fData(obj))
+            }
     }
-    
-    
-    #if (!is.null(data)){
-        DT::datatable(data, 
+
+   DT::datatable(as.data.frame(data),
                          options=list(pageLength=DT_pagelength,
                                       orderClasses = TRUE,
                                       autoWidth=FALSE)
     )
-    
-    #dat
-    #}
+
 })
 
 
@@ -314,14 +321,10 @@ observeEvent(input$perform.filtering.MV,{
                     keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
                                                    input$ChooseFilters,
                                                    as.integer(input$seuilNA))
-                    
                     if (!is.null(keepThat))
                     {
-                        rv$deleted.mvLines <- tabOperator(rv$dataset[[input$datasets]],-keepThat)
-                        #rv$deleted.mvLines@experimentData@other$OriginOfValues <- rv$dataset[[input$datasets]]@experimentData@other$OriginOfValues[-keepThat]
-                            
-                            
-                            
+                        rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
+                         print(dim(rv$deleted.mvLines))
                         rv$current.obj <- 
                             mvFilterFromIndices(rv$dataset[[input$datasets]],
                                 keepThat,

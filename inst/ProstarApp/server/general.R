@@ -97,9 +97,9 @@ loadObjectInMemoryFromConverter <- reactive({
         writeToCommandLogFile(txt)
     
     
-    if (!is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-        writeToCommandLogFile("current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
-    } 
+    #if (!is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+    #    writeToCommandLogFile("current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
+    #} 
    
     updateSelectInput(session, "datasets", 
                       label = paste("Dataset versions of",

@@ -131,13 +131,13 @@ output$chooseOriginOfValues <- renderUI({
 
 output$helpTextDataID <- renderUI({
     input$typeOfData
-    
+    if (is.null(input$typeOfData)){return(NULL)}
     t <- ""
     switch(input$typeOfData,
            protein = {t <- "proteins"},
            peptide = {t <- "peptides"}
     )
-    txt <- paste ("Please select among the columns ofyour data the one that 
+    txt <- paste ("Please select among the columns of your data the one that 
                   corresponds to a unique ID of the ", t, ".", sep=" ")
     helpText(txt)
     
@@ -177,9 +177,9 @@ observeEvent(input$loadDemoDataset,{
             #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
             
             
-            if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-                rv$current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
-            }
+            #if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+            #    rv$current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
+            #}
             
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
@@ -232,12 +232,12 @@ observeEvent(input$file,ignoreInit =TRUE,{
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-            rv$current.obj@experimentData@other$OriginOfValues <- 
-                Matrix(as.numeric(!is.na(rv$current.obj)),
-                       nrow = nrow(rv$current.obj), 
-                       sparse=TRUE)
-        }
+        # if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+        #     rv$current.obj@experimentData@other$OriginOfValues <- 
+        #         Matrix(as.numeric(!is.na(rv$current.obj)),
+        #                nrow = nrow(rv$current.obj), 
+        #                sparse=TRUE)
+        # }
         
         ## check the information about normalizations and convert if needed
         if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {
@@ -366,12 +366,12 @@ output$downloadMSnSet <- downloadHandler(
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-            rv$current.obj@experimentData@other$OriginOfValues <- 
-                Matrix(as.numeric(!is.na(rv$current.obj)),
-                       nrow = nrow(rv$current.obj), 
-                       sparse=TRUE)
-        }
+        # if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+        #     rv$current.obj@experimentData@other$OriginOfValues <- 
+        #         Matrix(as.numeric(!is.na(rv$current.obj)),
+        #                nrow = nrow(rv$current.obj), 
+        #                sparse=TRUE)
+        # }
         
         
         if (input$fileformatExport == gFileFormatExport$excel) {
@@ -496,7 +496,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                     indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                 }
                
-                
                 
                     tmp <- createMSnset(rv$tab1, 
                                                metadata, 
