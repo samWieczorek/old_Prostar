@@ -200,6 +200,18 @@ observeEvent(input$perform.imputation.button,{
                                       "imp4p_nbiter", 
                                       selected = input$imp4p_nbiter)
                     
+                } else if (input$missing.value.algorithm == "SLSA")
+                {
+                        rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
+                        
+                        #write log command file
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.impute.slsa(",
+                                  "dataset[['",input$datasets,"']])",sep=""))
+
+                    updateSelectInput(session, 
+                                      "missing.value.algorithm", 
+                                      selected = input$missing.value.algorithm)
                 } else if (input$missing.value.algorithm == "Basic methods"){
                     if (input$missing.value.basic.algorithm %in% c("KNN", "MLE")) 
                     {
@@ -328,10 +340,17 @@ output$chooseImputationMethod <- renderUI({
     m <- NULL
     tag <- rv$current.obj@experimentData@other$imputation.method
     if (!is.null(tag)){ m <- tag}
+    
+    algo <- NULL
+    switch(rv$typeOfDataset,
+           protein = {algo <- imputationAlgorithmsProteins},
+           peptide = {algo <- imputationAlgorithmsPeptides}
+           )
+    
     selectInput("missing.value.algorithm",
                 "Choose algorithm",
-                choices = names(imputationAlgorithms),
-                selected = names(which(imputationAlgorithms == tag))
+                choices = names(algo),
+                selected = names(which(algo == tag))
     )
     
 })
@@ -343,7 +362,7 @@ output$chooseBasicImputationMethod <- renderUI({
     if ((input$missing.value.algorithm != "Basic methods") || is.null(input$missing.value.algorithm)) {return(NULL)}
     
     selectInput("missing.value.basic.algorithm",
-                "Choose algorithm",
+                 "Choose algorithm",
                 choices = names(basicMethodsImputationAlgos)
                 #, selected = names(which(basicMethodsImputationAlgos == tag))
     )

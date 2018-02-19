@@ -167,7 +167,7 @@ This step will automatically install the following packages: \CRANpkg{shiny},
 \Githubpkg{jrowen/rhandsontable}, \Biocpkg{DAPARdata}, \Biocpkg{DAPAR},
 \CRANpkg{data.table}, \CRANpkg{DT}, \CRANpkg{shinyjs}, 
 \CRANpkg{openxlsx}, \CRANpkg{shinyAce}, \CRANpkg{highcharter},
-\CRANpkg{rhandsontable}, \CRANpkg{htmlwidgets}, \CRANpkg{webshot}.
+\CRANpkg{rhandsontable}, \CRANpkg{htmlwidgets}, \CRANpkg{webshot}, \CRANpkg{R.utils}.
         
         
 Once the package is installed, to launch \Biocpkg{ProStaR}, then enter:
@@ -185,7 +185,7 @@ This version uses a Shiny Server
 makes Shiny applications available over the web. Please follow installation 
 instructions if you do not have a server yet.
 
-The first step is to install \Biocpkg{Prostar} as described in 
+Once a Shiny server is available in your network, the first step is to install \Biocpkg{Prostar} as described in 
 Section~\ref{sec:daparProstarstandalone} in order to have the dependencies 
 installed.
 
@@ -196,23 +196,34 @@ Prostar:
 installed.packages()["Prostar","LibPath"]
 @
 
+The result of this command is now refered as \emph{/path\_to\_Prostar}.
 
 Change the owner of the shiny-server directory and log as shiny
 \shellcmd{sudo chown shiny /srv/shiny-server}
-\shellcmd{su shiny}\newline
+\shellcmd{sudo su shiny}\newline
 
 
 Create a directory named \Biocpkg{ProStaR} in the Shiny Server directory with 
 the user shiny as owner and then copy the Prostar files.\newline
-\shellcmd{mkdir /srv/shiny-server/Prostar}
-\shellcmd{chown -R shiny /srv/shiny-server/Prostar}
-\shellcmd{cp -R prostarDir/ProstarApp/* /srv/shiny-server/ProStaR/.}
 
-Then, complete the installation by copying the 'www' directory of 
-\Biocpkg{ProStaR} and giving the following permissions:\newline
-\shellcmd{cp -R inst/extdata/www /srv/shiny-server/Prostar/.}
+Create the directory for the shiny application 
+\shellcmd{mkdir /srv/shiny-server/Prostar}\newline
+Copy the ProstarApp directory within the shiny-server directory
+\shellcmd{sudo cp -r /path\_to\_Prostar/ProstarApp/ /srv/shiny-server/Prostar}\newline
+Change the owner of the shiny-server directory
+\shellcmd{sudo chown -R shiny /srv/shiny-server}\newline
+Give the following permissions to the www directory
 \shellcmd{chmod 755 /srv/shiny-server/Prostar/www}\newline
-\newline
+
+
+
+%Then, complete the installation by copying the 'www' directory of 
+%\Biocpkg{ProStaR} and giving the following permissions:\newline
+%\shellcmd{cp -R inst/extdata/www /srv/shiny-server/Prostar/.}
+%\shellcmd{chmod 755 /srv/shiny-server/Prostar/www}\newline
+%\newline
+
+
 Check if the configuration file of shiny-server is correct.\newline
 For more details, please visit 
 \url{http://rstudio.github.io/shiny-server/latest/}.

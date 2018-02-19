@@ -141,11 +141,16 @@ normMethods <- list("None" = "None",
  )
 
 
-imputationAlgorithms <- list("None" = "None",
+imputationAlgorithmsPeptides <- list("None" = "None",
                              "imp4p" = "imp4p",
                              "Basic methods" = "Basic methods")
 
+imputationAlgorithmsProteins <- list("None" = "None",
+                                     "SLSA" = "SLSA",
+                                     "Basic methods" = "Basic methods")
+
 basicMethodsImputationAlgos <- list(
+                                "None" = "None",
                                 "detQuantile" = "detQuantile",
                                 #"dummy censored" = "dummy censored",
                                 "KNN" = "KNN",

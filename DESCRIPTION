@@ -22,8 +22,8 @@ biocViews: MassSpectrometry, Normalization, Preprocessing,
 License: Artistic-2.0
 Depends: R (>= 3.4.1)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.10.0), DAPARdata (>= 1.7.1), rhandsontable, data.table,
-        shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot
+Imports: DAPAR (>= 1.11.6), DAPARdata (>= 1.7.1), rhandsontable, data.table,
+        shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils
 NeedsCompilation: no
 RoxygenNote: 6.0.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264

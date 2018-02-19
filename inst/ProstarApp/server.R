@@ -1,6 +1,7 @@
 options(shiny.maxRequestSize=300*1024^2) 
 options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
+options(shiny.maxRequestsPerProc = 1)
 #if (!interactive()) sink(stderr(), type = "output")
 
 library(R.utils)
@@ -31,7 +32,7 @@ shinyServer(function(input, output, session) {
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()
-        print(hname)
+        #print(hname)
         
         clientdataText <- observe({
             rv$IP_Client = session$clientData$url_hostname

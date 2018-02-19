@@ -156,7 +156,7 @@ output$seuilNADelete <- renderUI({
 
 
 GlobalPieChart <- reactive({
-    #rv$current.obj
+    rv$current.obj
     rv$nbContaminantsDeleted
     rv$nbReverseDeleted
     rv$nbBothDeleted
@@ -165,7 +165,7 @@ GlobalPieChart <- reactive({
     #input$idBoxReverse
    # input$prefixReverse
    # if (is.null(rv$current.obj)) {return()}
-    if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
+   # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
    
     # result = tryCatch(
     #     {
@@ -182,7 +182,8 @@ GlobalPieChart <- reactive({
 
 output$GlobalPieChart <- renderHighchart({
   rv$current.obj
-  rv$nbContaminantsDeleted
+    rv$nbBothDeleted
+    rv$nbContaminantsDeleted
   rv$nbReverseDeleted
   input$idBoxContaminants
   input$prefixContaminants
@@ -196,6 +197,8 @@ output$GlobalPieChart <- renderHighchart({
       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
       is.null(input$prefixReverse) || (input$prefixReverse == "")
   ) {return(NULL)}
+  
+
   
     GlobalPieChart()
 })
@@ -475,27 +478,20 @@ observeEvent(input$performFilteringContaminants,{
     #if (is.null(input$perform.filtering.Contaminants) ){return()}
     #if (input$perform.filtering.Contaminants == 0){return()}
     
-   
-    
     isolate({
-        #shinyjs::disable("resetFilterParamsButton")
         
         result = tryCatch(
             {
                 temp <- rv$current.obj
-                # print(temp)
-                # print(input$idBoxContaminants)
-                # print(input$prefixContaminants)
-                # print(input$idBoxReverse)
-                # print(input$prefixReverse)
-                # 
                 
-                res <- StringBasedFiltering(temp,input$idBoxContaminants, 
+                res <- StringBasedFiltering(temp,
+                                            input$idBoxContaminants, 
                                             input$prefixContaminants,
                                             input$idBoxReverse,
                                             input$prefixReverse
                                             )
-                #print(str(res))
+                
+                
                 rv$deleted.both <- res[["deleted.both"]]
                 rv$deleted.contaminants <-res[["deleted.contaminants"]]
                 rv$deleted.reverse <-res[["deleted.reverse"]]
@@ -508,22 +504,13 @@ observeEvent(input$performFilteringContaminants,{
                 rv$current.obj <- res[["obj"]]
                 rv$stringBasedFiltering_Done = TRUE
                 
-                updateSelectInput(session, 
-                                  "idBoxReverse",
-                                  selected = input$idBoxReverse)
-                updateSelectInput(session, 
-                                  "idBoxContaminants",
-                                  selected = input$idBoxContaminants)
-                updateSelectInput(session, 
-                                  "prefixContaminants", 
-                                  selected = input$prefixContaminants)
-                updateSelectInput(session, 
-                                  "prefixReverse",
-                                  selected = input$prefixReverse)
+                updateSelectInput(session, "idBoxReverse", selected = input$idBoxReverse)
+                updateSelectInput(session, "idBoxContaminants", selected = input$idBoxContaminants)
+                updateSelectInput(session, "prefixContaminants",  selected = input$prefixContaminants)
+                updateSelectInput(session,  "prefixReverse", selected = input$prefixReverse)
                 
-                updateTabsetPanel(session, 
-                                  "tabFilter", 
-                                  selected = "FilterContaminants")
+                updateTabsetPanel(session, "tabFilter",  selected = "FilterContaminants")
+                
                 #disableActionButton("resetFilterParamsButton", session)
                 #createPNG_Filtering()
             }
