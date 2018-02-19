@@ -154,7 +154,7 @@ output$seuilNADelete <- renderUI({
 
 
 GlobalPieChart <- reactive({
-    #rv$current.obj
+    rv$current.obj
     rv$nbContaminantsDeleted
     rv$nbReverseDeleted
     rv$nbBothDeleted
