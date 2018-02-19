@@ -157,6 +157,7 @@ GlobalPieChart <- reactive({
     #rv$current.obj
     rv$nbContaminantsDeleted
     rv$nbReverseDeleted
+    rv$nbBothDeleted
     #input$idBoxContaminants
     #input$prefixContaminants
     #input$idBoxReverse
@@ -168,8 +169,10 @@ GlobalPieChart <- reactive({
     #     {
     #         
     isolate({
-        
-           proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(rv$current.obj))
+        proportionConRev_HC(rv$nbBothDeleted,
+                            rv$nbContaminantsDeleted, 
+                            rv$nbReverseDeleted, 
+                            nrow(rv$current.obj))
       
     })
     
