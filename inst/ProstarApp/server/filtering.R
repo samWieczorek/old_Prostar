@@ -295,10 +295,7 @@ GetMaxValueThresholdFilter <- function(){
         }, finally = {
             #cleanup-code 
         })
-    
-    
-    
-    
+
 }
 
 
@@ -460,115 +457,55 @@ majPropContaminants <- reactive({
 
 #########################
 observeEvent(input$performFilteringContaminants,{
-
-  rv$current.obj
-  #input$idBoxContaminants
-  #input$prefixContaminants
-  #input$idBoxReverse
-  #input$prefixReverse
-  
-  if (is.null(rv$current.obj)){return (NULL)}
-  if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-      is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-      is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-      is.null(input$prefixReverse) || (input$prefixReverse == "")
-  ) {return(NULL)}
+    
+    rv$current.obj
+    #input$idBoxContaminants
+    #input$prefixContaminants
+    #input$idBoxReverse
+    #input$prefixReverse
+    
+    if (is.null(rv$current.obj)){return (NULL)}
+    if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
+        is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
+        is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
+        is.null(input$prefixReverse) || (input$prefixReverse == "")
+    ) {return(NULL)}
     #if (is.null(input$perform.filtering.Contaminants) ){return()}
     #if (input$perform.filtering.Contaminants == 0){return()}
     
-   
-    
     isolate({
-        #shinyjs::disable("resetFilterParamsButton")
         
         result = tryCatch(
             {
                 temp <- rv$current.obj
-                if (!is.null(input$idBoxContaminants)
-                    || (input$idBoxContaminants != "")) {
-                    ind <- getIndicesOfLinesToRemove(temp,
-                                                     input$idBoxContaminants, 
-                                                     input$prefixContaminants)
-                    
-                    if (!is.null(ind)){
-                        #rv$nbContaminantsDeleted = length(ind)
-                        if (length(ind) > 0)  {
-                            rv$deleted.contaminants <- temp[ind]
-                            
-                            temp <- deleteLinesFromIndices(temp, ind, 
-                                paste("\"", 
-                                length(ind), 
-                                " contaminants were removed from dataset.\"",
-                                sep="")
-                            )
-                            
-                            #write command log
-                            #if (input$showCommandLog){
-                                txt <- paste("indContaminants <- getIndicesOfLinesToRemove(current.obj,\"", 
-                                         input$idBoxContaminants,
-                                         "\", \"",input$prefixContaminants,"\")","\n",
-                                         "deleted.contaminants <- current.obj[indContaminants]","\n",
-                                         "txt <- \"",length(ind), " contaminants were removed from dataset.\"","\n",
-                                         "current.obj <- deleteLinesFromIndices(current.obj, indContaminants, txt)",
-                                         sep=""
-                                         )
-                            writeToCommandLogFile(txt)
-                       # }
-                        }
-                    }
-                }
+                
+                res <- StringBasedFiltering(temp,
+                                            input$idBoxContaminants, 
+                                            input$prefixContaminants,
+                                            input$idBoxReverse,
+                                            input$prefixReverse
+                )
                 
                 
-                if (!is.null(input$idBoxReverse)  || (input$idBoxReverse != "")){
-                    ind <- getIndicesOfLinesToRemove(temp,
-                                                     input$idBoxReverse,
-                                                     input$prefixReverse)
-                    
-                    if (!is.null(ind)){
-                        #rv$nbReverseDeleted = length(ind)
-                        if(length(ind) >0)  {
-                            rv$deleted.reverse <- temp[ind]
-                            temp <- deleteLinesFromIndices(
-                                temp, ind, 
-                                paste(length(ind), 
-                                    " reverse were removed from dataset",
-                                    sep="")
-                            )
-                            
-                            #if (input$showCommandLog){
-                                txt <- paste("indReverse <- getIndicesOfLinesToRemove(current.obj, \"", 
-                                         input$idBoxReverse,
-                                         "\", \"",input$prefixReverse,"\")", "\n",
-                                         "deleted.reverse <- current.obj[indReverse]", "\n",
-                                         "txt <- \"",length(ind)," reverse were removed from dataset.\"", "\n",
-                                         "current.obj <- deleteLinesFromIndices(current.obj, indReverse, txt)", sep="")
-                            
-
-                            writeToCommandLogFile(txt)
-                       # }
-                        }
-                    }
-                }
-                majPropContaminants()
-                rv$current.obj <- temp
+                rv$deleted.both <- res[["deleted.both"]]
+                rv$deleted.contaminants <-res[["deleted.contaminants"]]
+                rv$deleted.reverse <-res[["deleted.reverse"]]
+                
+                # majPropContaminants()
+                rv$nbReverseDeleted <- nrow(rv$deleted.reverse)
+                rv$nbContaminantsDeleted <- nrow(rv$deleted.contaminants)
+                rv$nbBothDeleted <- nrow(rv$deleted.both)
+                
+                rv$current.obj <- res[["obj"]]
                 rv$stringBasedFiltering_Done = TRUE
                 
-                updateSelectInput(session, 
-                                  "idBoxReverse",
-                                  selected = input$idBoxReverse)
-                updateSelectInput(session, 
-                                  "idBoxContaminants",
-                                  selected = input$idBoxContaminants)
-                updateSelectInput(session, 
-                                  "prefixContaminants", 
-                                  selected = input$prefixContaminants)
-                updateSelectInput(session, 
-                                  "prefixReverse",
-                                  selected = input$prefixReverse)
+                updateSelectInput(session, "idBoxReverse", selected = input$idBoxReverse)
+                updateSelectInput(session, "idBoxContaminants", selected = input$idBoxContaminants)
+                updateSelectInput(session, "prefixContaminants",  selected = input$prefixContaminants)
+                updateSelectInput(session,  "prefixReverse", selected = input$prefixReverse)
                 
-                updateTabsetPanel(session, 
-                                  "tabFilter", 
-                                  selected = "FilterContaminants")
+                updateTabsetPanel(session, "tabFilter",  selected = "FilterContaminants")
+                
                 #disableActionButton("resetFilterParamsButton", session)
                 #createPNG_Filtering()
             }
@@ -590,7 +527,6 @@ observeEvent(input$performFilteringContaminants,{
         
     })
 })
-
 
 
 disableActionButton <- function(id,session) {
