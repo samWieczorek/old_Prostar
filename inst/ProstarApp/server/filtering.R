@@ -162,8 +162,8 @@ GlobalPieChart <- reactive({
     #input$prefixContaminants
     #input$idBoxReverse
    # input$prefixReverse
-   # if (is.null(rv$current.obj)) {return()}
-   # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
+    if (is.null(rv$current.obj)) {return()}
+    if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
    
     # result = tryCatch(
     #     {
