@@ -924,6 +924,7 @@ output$infosVolcanoTable <- DT::renderDataTable({
     data <- as.matrix(rv$current.obj@experimentData@other$isMissingValues)[input$eventPointClicked+1,]
     }
     
+   # print(head(data))
     id <-  which(data==1)
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano(), 
@@ -1026,7 +1027,7 @@ volcanoplot_rCharts <- reactive({
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste("titi",match.call()[[1]],":",
+            shinyjs::info(paste("volcanoplot_rCharts",match.call()[[1]],":",
                                 conditionMessage(e),
                                 sep=" "))
         }, finally = {
