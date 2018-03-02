@@ -1001,14 +1001,13 @@ volcanoplot_rCharts <- reactive({
             
             if ("logFC" %in% names(fData(rv$current.obj) )){
                 
-                df <- data.frame(x=fData(rv$current.obj)$logFC, 
+                df <- data_frame(x=fData(rv$current.obj)$logFC, 
                                  y = -log10(fData(rv$current.obj)$P_Value),
-                                 index = as.character(rownames(rv$current.obj)),
-                                 stringsAsFactors = FALSE)
+                                 index = as.character(rownames(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
                 }
-                rownames(df) <- rownames(rv$current.obj)
+                #rownames(df) <- rownames(rv$current.obj)
                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
                 names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
                 
@@ -1021,19 +1020,18 @@ volcanoplot_rCharts <- reactive({
                 #             print("avant 5")
                 cond <- c(rv$current.obj@experimentData@other$condition1,
                           rv$current.obj@experimentData@other$condition2)
-                diffAnaVolcanoplot_rCharts(df,
+                diffAnaVolcanoplot_rCharts2(df,
                                            threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
                                            conditions = cond,
                                            clickFunction=hc_clickFunction) 
             } else {
-                df <- data.frame(x=rv$resAnaDiff$logFC, 
+                df <- data_frame(x=rv$resAnaDiff$logFC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
-                                 index = 1:nrow(fData(rv$current.obj)),
-                                 stringsAsFactors = FALSE)
+                                 index = 1:nrow(fData(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
                 }
-                rownames(df) <- rownames(rv$current.obj)
+                #rownames(df) <- rownames(rv$current.obj)
                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
                 if (ncol(df) > 3){
                     colnames(df)[4:ncol(df)] <- 
@@ -1043,7 +1041,7 @@ volcanoplot_rCharts <- reactive({
                     JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
                 #             print("avant 5")
                 cond <- c(input$condition1, input$condition2)
-                diffAnaVolcanoplot_rCharts(df,
+                diffAnaVolcanoplot_rCharts2(df,
                                            threshold_logFC = rv$seuilLogFC,
                                            conditions = cond,
                                            clickFunction=hc_clickFunction)
@@ -1136,10 +1134,9 @@ volcanoplot_rCharts_Step3 <- reactive({
         {
             
             if ("logFC" %in% names(fData(rv$current.obj) )){
-                df <- data.frame(x=fData(rv$current.obj)$logFC, 
+                df <- data_frame(x=fData(rv$current.obj)$logFC, 
                                  y = -log10(fData(rv$current.obj)$P_Value),
-                                 index = as.character(rownames(rv$current.obj)),
-                                 stringsAsFactors = FALSE)
+                                 index = as.character(rownames(rv$current.obj)))
                 
                 if (!is.null(input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
@@ -1154,7 +1151,7 @@ volcanoplot_rCharts_Step3 <- reactive({
                     "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
                 )
                 
-                diffAnaVolcanoplot_rCharts(df,
+                diffAnaVolcanoplot_rCharts2(df,
                                            threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
                                            threshold_pVal = rv$current.obj@experimentData@other$threshold_p_value,
                                            conditions = c(rv$current.obj@experimentData@other$condition1,
@@ -1164,10 +1161,9 @@ volcanoplot_rCharts_Step3 <- reactive({
             }else{
                 cond <- c(input$condition1, input$condition2)
                 
-                df <- data.frame(x=rv$resAnaDiff$logFC, 
+                df <- data_frame(x=rv$resAnaDiff$logFC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
-                                 index = as.character(rownames(rv$current.obj)),
-                                 stringsAsFactors = FALSE)
+                                 index = as.character(rownames(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
                 }
@@ -1181,7 +1177,7 @@ volcanoplot_rCharts_Step3 <- reactive({
                     "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
                 )
                 
-                diffAnaVolcanoplot_rCharts(df,
+                diffAnaVolcanoplot_rCharts2(df,
                                            threshold_logFC = rv$seuilLogFC,
                                            threshold_pVal = rv$seuilPVal,
                                            conditions = cond,
