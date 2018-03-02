@@ -25,6 +25,7 @@ port <- data.table(Experiment=list(),
 
 shinyServer(function(input, output, session) {
     cat(file=stderr())
+    #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
