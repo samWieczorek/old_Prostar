@@ -954,7 +954,7 @@ to remove corresponding lines. Then, the barplot beside shows the proportion
 of quantitative data, contaminants and reverses that were filtered out. 
 
 {Once the filtering is appropriately tuned, the user goes to the last tab 
-(called "visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
+(called "Visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
 the set of analytes that have been previously filtered. On the left panel, 
 one chooses among the lines filtered on missing values, contaminants or 
 reverse; Then, the corresponding data table is diplayed on the right panel. 
