@@ -958,7 +958,7 @@ of quantitative data, contaminants and reverses that were filtered out.
 the set of analytes that have been previously filtered. On the left panel, 
 one chooses among the lines filtered on missing values, contaminants or 
 reverse; Then, the corresponding data table is diplayed on the right panel. 
-Finally, one clicks on "Apply filter" so as to validate the user's choice and 
+Finally, one clicks on "Save filtered dataset" so as to validate the user's choice and 
 to apply it to the dataset. The information related to the type of filtering 
 as well as to the chosen options appears in the Session log tab (see 
 Section~\ref{sec:sessionlog}). A new dataset is created; it becomes the new 
