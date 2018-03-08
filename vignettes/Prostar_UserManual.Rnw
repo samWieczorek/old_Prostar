@@ -950,8 +950,8 @@ the Data Explorer in the Descriptive Statistics menu, so as to visualize the
 corresponding metadata. 
 
 Once the choices are made, the user click on "Perform string-based filtering" 
-to remove corresponding lines. Then, the barplot below  shows the 
-proportion of quantitative data, contaminants and reverses. 
+to remove corresponding lines. Then, the barplot beside shows the proportion 
+of quantitative data, contaminants and reverses that were filtered out. 
 
 {Once the filtering is appropriately tuned, the user goes to the last tab 
 (called "visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
