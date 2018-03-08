@@ -482,7 +482,8 @@ more than one protein, proteins names should be separated by ";".
 \textbf {Convert}: Finally, enter the name of the MSnSet to be created 
 (Fig.~\ref{fig:imp5}) and click on "Convert data". The data are converted 
 and automatically loaded in \Biocpkg{ProStaR}. The name of the file appears 
-on the top of the left panel, above the menu.
+in the upper right hand side of the screen, as a title to the drop-down menu
+"Dataset version of <dataset_name>".
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.9\textwidth]{images/convert_convert.png}}
