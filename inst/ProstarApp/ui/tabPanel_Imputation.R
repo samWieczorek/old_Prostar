@@ -4,17 +4,17 @@ tabPanel("Miss. values imputation",
          sidebarCustom(),
          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                      wellPanel(id = "sidebar_imputation",
-                               height = "100%"
-                               ,h4("Miss. values imputation options")
-                               ,br()
-                               ,uiOutput("chooseImputationMethod"),
-                               uiOutput("chooseBasicImputationMethod"),
-                               uiOutput("detQuantileParams"),
-                               uiOutput("MVI_options"),
-                               uiOutput("MVI_qmin_option"),
-                               uiOutput("imp4pLAPALA_distribution_option"),
-                               uiOutput("OnlyLAPALA_qmin_option"),
-                               uiOutput("OnlyLAPALA_distribution_option"),
+                               height = "100%",
+                               h4("Miss. values imputation options"),
+                               br(),
+                               uiOutput("ClassicalMV_chooseImputationMethod"),
+                               uiOutput("ClassicalMV_Params"),
+
+                               
+                               checkboxInput("imputeLapala", "Impute Lapala", value = FALSE),
+                               uiOutput("Lapala_chooseImputationMethod"),
+                               uiOutput("Lapala_Params"),
+                               
                                actionButton("perform.imputation.button",
                                             "Perform imputation"),
                                actionButton("ValidImputation", 
@@ -30,8 +30,11 @@ tabPanel("Miss. values imputation",
                      ),
                      tagList(
                          uiOutput("showImputationPanel"),
-                         uiOutput("detQuant_impValues"),
-                         dataTableOutput("TAB_detQuant_impValues"),
+                         uiOutput("ClassicalMV_detQuant_impValues"),
+                         dataTableOutput("TAB_ClassicalMV_detQuant_impValues"),
+                         br(),
+                         uiOutput("Lapala_detQuant_impValues"),
+                         dataTableOutput("TAB_Lapala_detQuant_impValues"),
                                       busyIndicator(WaitMsgPlot,wait = 0),
                                       #imageOutput("viewNAbyMean"),
                                       fluidRow(

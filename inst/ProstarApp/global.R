@@ -142,21 +142,32 @@ normMethods <- list("None" = "None",
  )
 
 
-imputationAlgorithmsPeptides <- list("None" = "None",
-                             "imp4p" = "imp4p",
-                             "Basic methods" = "Basic methods")
+imputationAlgorithmsPeptides_ClassicalMV <- list("None" = "None",
+                                                 "slsa" = "slsa",
+                                                "detQuantile" = "detQuantile",
+                                                "KNN" = "KNN")
 
-imputationAlgorithmsProteins <- list("None" = "None",
-                                     "SLSA" = "SLSA",
-                                     "Basic methods" = "Basic methods")
+imputationAlgorithmsProteins_ClassicalMV <- list(
+                                                "None" = "None",
+                                                "slsa" = "slsa",
+                                                 "detQuantile" = "detQuantile",
+                                                 "KNN" = "KNN")
 
-basicMethodsImputationAlgos <- list(
-                                "None" = "None",
-                                "detQuantile" = "detQuantile",
-                                #"dummy censored" = "dummy censored",
-                                "KNN" = "KNN",
-                                "MLE" = "MLE"
-                            )
+imputationAlgorithmsPeptides_Lapala<- list("None" = "None",
+                                           "detQuantile" = "detQuantile",
+                                           "fixedValue" = "fixedValue")
+
+imputationAlgorithmsProteins_Lapala <- list("None" = "None",
+                                            "detQuantile" = "detQuantile",
+                                            "fixedValue" = "fixedValue")
+
+# basicMethodsImputationAlgos <- list(
+#                                 "None" = "None",
+#                                 "detQuantile" = "detQuantile",
+#                                 #"dummy censored" = "dummy censored",
+#                                 "KNN" = "KNN",
+#                                 "MLE" = "MLE"
+#                             )
 
 
 JSCSSTags <- function() 

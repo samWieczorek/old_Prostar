@@ -1,84 +1,228 @@
-output$detQuantileParams <- renderUI({
-  rv$current.obj
-    input$missing.value.basic.algorithm
-  if (is.null(rv$current.obj) ) {return (NULL)}
-    if ((input$missing.value.algorithm != "Basic methods") 
-        || is.null(input$missing.value.algorithm)
-        || is.null(input$missing.value.basic.algorithm)) {return(NULL)}
+
+
+
+
+observeEvent(input$ClassicalMV_missing.value.algorithm,{
     
-  if (input$missing.value.basic.algorithm == "detQuantile"){
-    tagList(
-      h4("Det quantile parameters"),
-      numericInput("detQuant_quantile", "Quantile", value = 2.5, step=1, min=0, max=100),
-      numericInput("detQuant_factor", "Factor", value = 1, step=1, min=0, max=10)
+    if (is.null(input$ClassicalMV_missing.value.algorithm) )
+    {
+        shinyjs::disable("imputeLapala")
+        return(NULL)
+    }
+    else {
+        shinyjs::enable("imputeLapala")
+    }
+    
+  print("new datatset")
+  # if  (input$ClassicalMV_missing.value.algorithm == "None"){
+       rv$current.obj <- rv$dataset[[input$datasets]]
+  # }
+})
+
+
+observeEvent(input$Lapala_missing.value.algorithm,{
+    rv$current.obj <- reIntroduceLapala(rv$current.obj, rv$lapalaIndex)
+})
+
+
+
+output$ClassicalMV_chooseImputationMethod <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) {return(NULL)}
+    m <- NULL
+    tag <- rv$current.obj@experimentData@other$classicalMV_imputation.method
+    if (!is.null(tag)){ m <- tag}
+    
+    algo <- NULL
+    switch(rv$typeOfDataset,
+           protein = {algo <- imputationAlgorithmsProteins_ClassicalMV},
+           peptide = {algo <- imputationAlgorithmsPeptides_ClassicalMV}
     )
-  }
-  
-  
-  
+    
+    selectInput("ClassicalMV_missing.value.algorithm",
+                "Choose algorithm for classical MV",
+                choices = names(algo),
+                selected = names(which(algo == tag))
+    )
+    
+})
+
+
+output$Lapala_chooseImputationMethod <- renderUI({
+    rv$current.obj
+    input$imputeLapala
+    
+    if (is.null(rv$current.obj)) {return(NULL)}
+    if ((input$imputeLapala == FALSE) || is.null(input$imputeLapala)) {return(NULL)}
+    m <- NULL
+    tag <- rv$current.obj@experimentData@other$classicalMV_imputation.method
+    if (!is.null(tag)){ m <- tag}
+    
+    algo <- NULL
+    switch(rv$typeOfDataset,
+           protein = {algo <- imputationAlgorithmsProteins_Lapala},
+           peptide = {algo <- imputationAlgorithmsPeptides_Lapala}
+    )
+    
+    selectInput("Lapala_missing.value.algorithm",
+                "Choose algorithm for Lapala MV",
+                choices = names(algo),
+                selected = names(which(algo == tag))
+    )
+    
 })
 
 
 
-output$detQuant_impValues <- renderUI({
-    rv$current.obj
-    input$detQuant_quantile
-    input$detQuant_factor
-    input$missing.value.basic.algorithm
-    if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
+
+
+
+output$ClassicalMV_Params <- renderUI({
+  rv$current.obj
+    input$ClassicalMV_missing.value.algorithm
+  if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$ClassicalMV_missing.value.algorithm)) {return(NULL)}
     
-    if (input$missing.value.basic.algorithm == 'detQuantile')
-        h5("The missing values will be imputed by the following values :")
+  switch(input$ClassicalMV_missing.value.algorithm,
+    detQuantile = {
+            tagList(
+                h4("Det quantile parameters"),
+                numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = 2.5, step=1, min=0, max=100),
+                numericInput("ClassicalMV_detQuant_factor", "Factor", value = 1, step=1, min=0, max=10)
+                )
+    }
+  )
+})
+
+
+
+output$Lapala_Params <- renderUI({
+    rv$current.obj
+    input$Lapala_missing.value.algorithm
+    input$imputeLapala
+    if (is.null(input$imputeLapala) || !input$imputeLapala) {return (NULL)}
+    
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$Lapala_missing.value.algorithm)) {return(NULL)}
+    
+    switch (input$Lapala_missing.value.algorithm,
+            detQuantile = {
+                    tagList(
+                        h4("Det quantile parameters"),
+                        numericInput("Lapala_detQuant_quantile", "Quantile", value = 2.5, step=1, min=0, max=100),
+                        numericInput("Lapala_detQuant_factor", "Factor", value = 1, step=1, min=0, max=10)
+                        )
+                    },
+            fixedvalue = {
+                tagList(
+                    #h4("Fixed value"),
+                    numericInput("Lapala_fixedValue", "Fixed value", value = 2.5, step=1, min=0, max=100)
+                    )
+                 })
+})
+
+
+
+
+
+
+output$ClassicalMV_detQuant_impValues <- renderUI({
+    rv$current.obj
+    input$ClassicalMV_detQuant_quantile
+    input$ClassicalMV_detQuant_factor
+    input$ClassicalMV_missing.value.algorithm
+    if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$ClassicalMV_missing.value.algorithm)){return (NULL)}
+    
+    if (input$ClassicalMV_missing.value.algorithm == 'detQuantile')
+        h5("The classical missing values will be imputed by the following values :")
 
 })
 
-output$TAB_detQuant_impValues <- renderDataTable({
+output$TAB_ClassicalMV_detQuant_impValues <- renderDataTable({
     rv$current.obj
-    input$detQuant_quantile
-    input$detQuant_factor
-    input$missing.value.basic.algorithm
+    input$ClassicalMV_detQuant_quantile
+    input$ClassicalMV_detQuant_factor
+    input$ClassicalMV_missing.value.basic.algorithm
     if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.basic.algorithm)){return (NULL)}
+    if (is.null(input$ClassicalMV_missing.value.algorithm)){return (NULL)}
     
     
-    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$detQuant_quantile/100, input$detQuant_factor)
-    if (input$missing.value.basic.algorithm == 'detQuantile'){
-    DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+    if (input$ClassicalMV_missing.value.algorithm == 'detQuantile'){
+
+        values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$ClassicalMV_detQuant_quantile/100, input$ClassicalMV_detQuant_factor)
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+
 }
 })
 
-output$MVI_options <- renderUI({
-    
+
+
+
+output$Lapala_detQuant_impValues <- renderUI({
     rv$current.obj
-    if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.algorithm)){return (NULL)}
+    input$Lapala_detQuant_quantile
+    input$Lapala_detQuant_factor
+    input$Lapala_missing.value.algorithm
+    input$imputeLapala
+    if (is.null(input$imputeLapala) || !input$imputeLapala) {return (NULL)}
+     if (is.null(rv$current.obj) ) {return (NULL)}
+    if (is.null(input$Lapala_missing.value.algorithm)){return (NULL)}
     
-    if (input$missing.value.algorithm == "imp4p"){
-        tagList(
-            h4("imp4p options"),
-            numericInput("imp4p_nbiter", "Number of iterations", value = 10, step=1, min=1),
-            checkboxInput("imp4p_withLapala", "with Lapala", value = FALSE)
-        )
-    }
+    if (input$Lapala_missing.value.algorithm == 'detQuantile')
+        h5("The Lapala will be imputed by the following values :")
     
 })
 
-
-
-output$imp4pLAPALA_distribution_option <- renderUI({
+output$TAB_Lapala_detQuant_impValues <- renderDataTable({
     rv$current.obj
-    input$missing.value.algorithm
-    input$imp4p_withLapala
-    if (is.null(input$imp4p_withLapala) ) {return (NULL)}
+    input$Lapala_detQuant_quantile
+    input$Lapala_detQuant_factor
+    input$Lapala_missing.value.algorithm
+    input$imputeLapala
+    if (is.null(input$imputeLapala) || !input$imputeLapala) {return (NULL)}
     if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.algorithm)){return (NULL)}
+    if (is.null(input$Lapala_missing.value.algorithm)){return (NULL)}
+   
     
-    if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala == TRUE)){
-        radioButtons("imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)
+    
+    if (input$Lapala_missing.value.algorithm == 'detQuantile'){
+        values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$Lapala_detQuant_quantile/100, input$Lapala_detQuant_factor)
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
     }
-    
 })
+
+# output$MVI_options <- renderUI({
+#     
+#     rv$current.obj
+#     if (is.null(rv$current.obj) ) {return (NULL)}
+#     if (is.null(input$missing.value.algorithm)){return (NULL)}
+#     
+#     if (input$missing.value.algorithm == "imp4p"){
+#         tagList(
+#             h4("imp4p options"),
+#             numericInput("imp4p_nbiter", "Number of iterations", value = 10, step=1, min=1),
+#             checkboxInput("imp4p_withLapala", "with Lapala", value = FALSE)
+#         )
+#     }
+#     
+# })
+
+
+
+# output$imp4pLAPALA_distribution_option <- renderUI({
+#     rv$current.obj
+#     input$missing.value.algorithm
+#     input$imp4p_withLapala
+#     if (is.null(input$imp4p_withLapala) ) {return (NULL)}
+#     if (is.null(rv$current.obj) ) {return (NULL)}
+#     if (is.null(input$missing.value.algorithm)){return (NULL)}
+#     
+#     if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala == TRUE)){
+#         radioButtons("imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)
+#     }
+#     
+# })
 
 
 
@@ -114,154 +258,78 @@ output$imp4pLAPALA_distribution_option <- renderUI({
 
 
 
-output$MVI_qmin_option <- renderUI({
-    
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return (NULL)}
-    if (is.null(input$missing.value.algorithm)){return (NULL)}
-    if (is.null(input$imp4p_withLapala)){return(NULL)}
-    
-    if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala==TRUE)){
-        numericInput("imp4p_qmin", "Upper lapala bound", value = 2.5, step=0.1, min=0, max=100)
-    }
-    
+# output$MVI_qmin_option <- renderUI({
+#     
+#     rv$current.obj
+#     if (is.null(rv$current.obj) ) {return (NULL)}
+#     if (is.null(input$missing.value.algorithm)){return (NULL)}
+#     if (is.null(input$imp4p_withLapala)){return(NULL)}
+#     
+#     if ((input$missing.value.algorithm == "imp4p") && (input$imp4p_withLapala==TRUE)){
+#         numericInput("imp4p_qmin", "Upper lapala bound", value = 2.5, step=0.1, min=0, max=100)
+#     }
+#     
+# })
+
+
+
+observeEvent(input$reset.imputation.button,{
+
+        rv$current.obj <- rv$dataset[[input$datasets]]
+        updateCheckboxInput(session,"imputeLapala", value = FALSE)
+        updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = "slsa")
+        
+        
 })
 
 
-
-# 
-#------------------------------------------
-##' Missing values imputation - reactivity behavior
-##' @author Samuel Wieczorek
 observeEvent(input$perform.imputation.button,{
-    input$missing.value.algorithm
-    input$missing.value.basic.algorithm
-    input$imp4p_withLapala
-    input$OnlyLAPALA_qmin
-    input$OnlyLAPALA_distrib
-    input$imp4pLAPALA_distrib
+    input$Lapala_missing.value.algorithm
+    input$ClassicalMV_missing.value.algorithm
+    input$imputeLapala
     
     isolate({
         result = tryCatch(
             {
+               
+                busyIndicator(WaitMsgCalc,wait = 0)
+                switch(input$ClassicalMV_missing.value.algorithm,
+                           slsa = {
+                               rv$lapalaIndex <- findLapalaBlock(obj)
+                               rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
+                               rv$current.obj <- reIntroduceLapala(rv$current.obj, rv$lapalaIndex)
+                           },
+                           detQuantile = {
+                               rv$lapalaIndex <- findLapalaBlock(obj)
+                               rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+                                                                     qval = input$ClassicalMV_detQuant_quantile/100,
+                                                                     factor = input$ClassicalMV_detQuant_factor)
+                               rv$current.obj <- reIntroduceLapala(rv$current.obj, rv$lapalaIndex)
+                           },
+                           KNN = {
+                               
+                           }
+                    )
+                    
+                    if (input$imputeLapala) {
+                        switch(input$Lapala_missing.value.algorithm,
+                               detQuantile = {
+                                   rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
+                                                                             qval = input$Lapala_detQuant_quantile/100,
+                                                                           factor = input$Lapala_detQuant_factor)
+                               },
+                               fixedValue = {
+                                   rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
+                                                         fixVal = input$Lapala_impute_FixVal)
+                               }
+                        )
+
+                    }
+                    
+                updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = input$ClassicalMV_missing.value.algorithm)
+                updateSelectInput(session,"Lapala_missing.value.algorithm",  selected = input$Lapala_missing.value.algorithm)
+                updateCheckboxInput(session,"imputeLapala", value = input$imputeLapala)
                 
-                if (input$missing.value.algorithm == "None"){
-                    rv$current.obj <- rv$dataset[[input$datasets]]
-                } else {
-                    #createPNG_BeforeImputation()
-                    
-                    if (input$missing.value.algorithm == "imp4p")
-                {
-                    if (input$imp4p_withLapala) {
-                        
-                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
-                                                                  #eps = input$imp4p_eps,
-                                                                  nb.iter = input$imp4p_nbiter,
-                                                                  lapala = input$imp4p_withLapala,
-                                                                  q.min = input$imp4p_qmin / 100,
-                                                                  distribution = as.character(input$imp4pLAPALA_distrib))
-                        #write log command file
-                        #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.dapar.impute.mi(",
-                                  "dataset[['",input$datasets,"']], nb.iter=",input$imp4p_nbiter,
-                                  ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ", distribution = ", input$imp4pLAPALA_distrib, ")",sep=""))
-                        #}
-                        
-                        updateSelectInput(session, 
-                                          "imp4p_withLapala", 
-                                          selected = input$imp4p_withLapala)
-                        updateSelectInput(session, 
-                                          "imp4pLAPALA_distrib", 
-                                          selected = input$imp4pLAPALA_distrib)
-                        
-                        updateSelectInput(session, 
-                                          "imp4p_qmin", 
-                                          selected = input$imp4p_qmin)
-                        
-                        } else {
-                        rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
-                                                                  #eps = input$imp4p_eps,
-                                                                  nb.iter = input$imp4p_nbiter,
-                                                                  lapala = input$imp4p_withLapala)
-                        #write log command file
-                        #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.dapar.impute.mi(",
-                                  "dataset[['",input$datasets,"']] nb.iter=",input$imp4p_nbiter,
-                                  ", lapala = ", input$imp4p_withLapala, ")",sep=""))
-                       # }
-                    }
-                    
-                    updateSelectInput(session, 
-                                      "missing.value.algorithm", 
-                                      selected = input$missing.value.algorithm)
-                    updateSelectInput(session, 
-                                      "imp4p_nbiter", 
-                                      selected = input$imp4p_nbiter)
-                    
-                } else if (input$missing.value.algorithm == "SLSA")
-                {
-                        rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
-                        
-                        #write log command file
-                        writeToCommandLogFile(
-                            paste("current.obj <- wrapper.impute.slsa(",
-                                  "dataset[['",input$datasets,"']])",sep=""))
-
-                    updateSelectInput(session, 
-                                      "missing.value.algorithm", 
-                                      selected = input$missing.value.algorithm)
-                } else if (input$missing.value.algorithm == "Basic methods"){
-                    if (input$missing.value.basic.algorithm %in% c("KNN", "MLE")) 
-                    {
-                        
-                        busyIndicator(WaitMsgCalc,wait = 0)
-                        rv$current.obj <- wrapper.mvImputation(rv$dataset[[input$datasets]],
-                                                               input$missing.value.basic.algorithm)
-                        
-                        #write log command file
-                        #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.mvImputation(",
-                                  "dataset[['",input$datasets, "']],'",input$missing.value.basic.algorithm,"')", sep="")
-                        )
-                        #}
-                        
-                        updateSelectInput(session, "missing.value.algorithm", 
-                                          selected = input$missing.value.algorithm)
-                        updateSelectInput(session,"missing.value.basic.algorithm",
-                                          selected = input$missing.value.basic.algorithm)
-                        
-                    } 
-                    else if (input$missing.value.basic.algorithm ==  "detQuantile")
-                    {
-
-                        rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
-                                                             qval = (input$detQuant_quantile/100),
-                                                             factor = input$detQuant_factor)
-                        #write log command file
-                        #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.impute.detQuant(",
-                                  "dataset[['", input$datasets,"']])",sep="")
-                        )
-                        #}
-
-                        updateSelectInput(session,
-                                          "missing.value.algorithm",
-                                          selected = input$missing.value.algorithm)
-                        updateSelectInput(session,"missing.value.basic.algorithm",
-                                          selected = input$missing.value.basic.algorithm)
-                        updateSelectInput(session,"detQuant_quantile",
-                                          selected = input$detQuant_quantile)
-                        updateSelectInput(session,"detQuant_factor",
-                                          selected = input$detQuant_factor)
-
-                    }
-                }
-                }
-                #createPNG_AfterImputation()
             }
             , warning = function(w) {
                 print(w)
@@ -269,13 +337,167 @@ observeEvent(input$perform.imputation.button,{
                 shinyjs::info(paste("Perform missing values imputation",":",conditionMessage(e), sep=" "))
             }, finally = {
                 #cleanup-code
-                
             }
             
         )
     })
 })
 
+
+
+
+
+
+
+
+
+# 
+#------------------------------------------
+##' Missing values imputation - reactivity behavior
+##' @author Samuel Wieczorek
+# observeEvent(input$perform.imputation.button,{
+#     input$missing.value.algorithm
+#     input$missing.value.basic.algorithm
+#     input$imp4p_withLapala
+#     input$OnlyLAPALA_qmin
+#     input$OnlyLAPALA_distrib
+#     input$imp4pLAPALA_distrib
+#     
+#     isolate({
+#         result = tryCatch(
+#             {
+#                 
+#                 if (input$missing.value.algorithm == "None"){
+#                     rv$current.obj <- rv$dataset[[input$datasets]]
+#                 } else {
+#                     #createPNG_BeforeImputation()
+#                     
+#                     if (input$missing.value.algorithm == "imp4p")
+#                 {
+#                     if (input$imp4p_withLapala) {
+#                         
+#                         rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
+#                                                                   #eps = input$imp4p_eps,
+#                                                                   nb.iter = input$imp4p_nbiter,
+#                                                                   lapala = input$imp4p_withLapala,
+#                                                                   q.min = input$imp4p_qmin / 100,
+#                                                                   distribution = as.character(input$imp4pLAPALA_distrib))
+#                         #write log command file
+#                         #if (input$showCommandLog){
+#                             writeToCommandLogFile(
+#                             paste("current.obj <- wrapper.dapar.impute.mi(",
+#                                   "dataset[['",input$datasets,"']], nb.iter=",input$imp4p_nbiter,
+#                                   ", lapala = ", input$imp4p_withLapala, ", q.min = ", input$imp4p_qmin / 100, ", distribution = ", input$imp4pLAPALA_distrib, ")",sep=""))
+#                         #}
+#                         
+#                         updateSelectInput(session, 
+#                                           "imp4p_withLapala", 
+#                                           selected = input$imp4p_withLapala)
+#                         updateSelectInput(session, 
+#                                           "imp4pLAPALA_distrib", 
+#                                           selected = input$imp4pLAPALA_distrib)
+#                         
+#                         updateSelectInput(session, 
+#                                           "imp4p_qmin", 
+#                                           selected = input$imp4p_qmin)
+#                         
+#                         } else {
+#                         rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
+#                                                                   #eps = input$imp4p_eps,
+#                                                                   nb.iter = input$imp4p_nbiter,
+#                                                                   lapala = input$imp4p_withLapala)
+#                         #write log command file
+#                         #if (input$showCommandLog){
+#                             writeToCommandLogFile(
+#                             paste("current.obj <- wrapper.dapar.impute.mi(",
+#                                   "dataset[['",input$datasets,"']] nb.iter=",input$imp4p_nbiter,
+#                                   ", lapala = ", input$imp4p_withLapala, ")",sep=""))
+#                        # }
+#                     }
+#                     
+#                     updateSelectInput(session, 
+#                                       "missing.value.algorithm", 
+#                                       selected = input$missing.value.algorithm)
+#                     updateSelectInput(session, 
+#                                       "imp4p_nbiter", 
+#                                       selected = input$imp4p_nbiter)
+#                     
+#                 } else if (input$missing.value.algorithm == "SLSA")
+#                 {
+#                         rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]])
+#                         
+#                         #write log command file
+#                         writeToCommandLogFile(
+#                             paste("current.obj <- wrapper.impute.slsa(",
+#                                   "dataset[['",input$datasets,"']])",sep=""))
+# 
+#                     updateSelectInput(session, 
+#                                       "missing.value.algorithm", 
+#                                       selected = input$missing.value.algorithm)
+#                 } else if (input$missing.value.algorithm == "Basic methods"){
+#                     if (input$missing.value.basic.algorithm %in% c("KNN", "MLE")) 
+#                     {
+#                         
+#                         busyIndicator(WaitMsgCalc,wait = 0)
+#                         rv$current.obj <- wrapper.mvImputation(rv$dataset[[input$datasets]],
+#                                                                input$missing.value.basic.algorithm)
+#                         
+#                         #write log command file
+#                         #if (input$showCommandLog){
+#                             writeToCommandLogFile(
+#                             paste("current.obj <- wrapper.mvImputation(",
+#                                   "dataset[['",input$datasets, "']],'",input$missing.value.basic.algorithm,"')", sep="")
+#                         )
+#                         #}
+#                         
+#                         updateSelectInput(session, "missing.value.algorithm", 
+#                                           selected = input$missing.value.algorithm)
+#                         updateSelectInput(session,"missing.value.basic.algorithm",
+#                                           selected = input$missing.value.basic.algorithm)
+#                         
+#                     } 
+#                     else if (input$missing.value.basic.algorithm ==  "detQuantile")
+#                     {
+# 
+#                         rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
+#                                                              qval = (input$detQuant_quantile/100),
+#                                                              factor = input$detQuant_factor)
+#                         #write log command file
+#                         #if (input$showCommandLog){
+#                             writeToCommandLogFile(
+#                             paste("current.obj <- wrapper.impute.detQuant(",
+#                                   "dataset[['", input$datasets,"']])",sep="")
+#                         )
+#                         #}
+# 
+#                         updateSelectInput(session,
+#                                           "missing.value.algorithm",
+#                                           selected = input$missing.value.algorithm)
+#                         updateSelectInput(session,"missing.value.basic.algorithm",
+#                                           selected = input$missing.value.basic.algorithm)
+#                         updateSelectInput(session,"detQuant_quantile",
+#                                           selected = input$detQuant_quantile)
+#                         updateSelectInput(session,"detQuant_factor",
+#                                           selected = input$detQuant_factor)
+# 
+#                     }
+#                 }
+#                 }
+#                 #createPNG_AfterImputation()
+#             }
+#             , warning = function(w) {
+#                 print(w)
+#             }, error = function(e) {
+#                 shinyjs::info(paste("Perform missing values imputation",":",conditionMessage(e), sep=" "))
+#             }, finally = {
+#                 #cleanup-code
+#                 
+#             }
+#             
+#         )
+#     })
+# })
+# 
 
 
 
@@ -331,43 +553,6 @@ observeEvent(input$ValidImputation,{
 
 
 
-
-
-
-
-output$chooseImputationMethod <- renderUI({
-    if (is.null(rv$current.obj)) {return(NULL)}
-    m <- NULL
-    tag <- rv$current.obj@experimentData@other$imputation.method
-    if (!is.null(tag)){ m <- tag}
-    
-    algo <- NULL
-    switch(rv$typeOfDataset,
-           protein = {algo <- imputationAlgorithmsProteins},
-           peptide = {algo <- imputationAlgorithmsPeptides}
-           )
-    
-    selectInput("missing.value.algorithm",
-                "Choose algorithm",
-                choices = names(algo),
-                selected = names(which(algo == tag))
-    )
-    
-})
-
-
-output$chooseBasicImputationMethod <- renderUI({
-    input$missing.value.algorithm
-    if (is.null(rv$current.obj)) {return(NULL)}
-    if ((input$missing.value.algorithm != "Basic methods") || is.null(input$missing.value.algorithm)) {return(NULL)}
-    
-    selectInput("missing.value.basic.algorithm",
-                 "Choose algorithm",
-                choices = names(basicMethodsImputationAlgos)
-                #, selected = names(which(basicMethodsImputationAlgos == tag))
-    )
-    
-})
 
 
 
@@ -611,7 +796,7 @@ viewNAbyMean <- reactive({
 ##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
 output$viewNAbyMean <- renderPlot({
-    
+    rv$current.obj
     viewNAbyMean()
 })
 

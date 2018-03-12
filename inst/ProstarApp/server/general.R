@@ -190,6 +190,7 @@ ClearMemory <- function(){
     rv$uniprotID = NULL
     rv$ratio = NULL
     rv$hot = port
+    rv$lapalaIndex = NULL
     rv$text.log <- data.frame(Date="", 
                               Dataset="", 
                               History="", 
@@ -292,6 +293,7 @@ rv <- reactiveValues(
     gene = NULL,
     ratio=NULL,
     iDat = NULL,
+    lapalaIndex = NULL,
     stringBasedFiltering_Done = FALSE,
     tempplot = list(Density = NULL,
                     corrMatrix = NULL,
