@@ -10,6 +10,7 @@ import(shinyBS)
 import(highcharter)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
+import(R.utils)
 
 
 importFrom(shiny,

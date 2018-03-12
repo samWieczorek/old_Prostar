@@ -482,8 +482,8 @@ more than one protein, proteins names should be separated by ";".
 \textbf {Convert}: Finally, enter the name of the MSnSet to be created 
 (Fig.~\ref{fig:imp5}) and click on "Convert data". The data are converted 
 and automatically loaded in \Biocpkg{ProStaR}. The name of the file appears 
-in the upper right hand side of the screen, as a title to the drop-down menu
-"Dataset version of <dataset_name>".
+in the upper right hand side of the screen, as a title to the drop-down menu 
+"Dataset version of <dataset\_name>". 
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.9\textwidth]{images/convert_convert.png}}
@@ -494,16 +494,12 @@ in the upper right hand side of the screen, as a title to the drop-down menu
 \hl{\bf Command line:} In \Biocpkg{DAPAR}, the function to create an MSnSet 
 from a CSV file is \Rfunction{createMSnSet()}.
 
-
-%\subsubsection{Export}
-
 \subsubsection{Export dataset to a file}
 Once an MSnSet has been created, it is possible to save it as a MSnSet binary 
 object (so that next time, it is not necessary to create it, and a simple 
 uploads makes it, as described in Section~\ref{sec:load}). It is also possible 
 to export it as an Excel spreadsheet (in xlsx format). To do so, one simply 
-goes on the corresponding tab and select the appropriate option 
-(Fig.~\ref{fig:export}).
+goes on the corresponding tab and select the appropriate option (Fig.~\ref{fig:export}).
 
 
 \begin {figure}

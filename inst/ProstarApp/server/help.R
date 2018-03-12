@@ -146,7 +146,7 @@ output$aboutText <- renderUI({
                   <u>\"DAPAR & ProStaR: software to perform statistical 
                   analyses in quantitative discovery 
                   proteomics\"</u><br>
-                  <i>Bioinformatics 33(1), 135–136</i>, <strong>2017</strong><br>
+                  <i>Bioinformatics 33(1), 135-136</i>, <strong>2017</strong><br>
                   <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
                   title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
                   
