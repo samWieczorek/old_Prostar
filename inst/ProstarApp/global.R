@@ -173,7 +173,9 @@ imputationAlgorithmsProteins_Lapala <- list("None" = "None",
 JSCSSTags <- function() 
 { 
 list(
-    tags$script(src="js/jquery.js",type="text/javascript"),
+  tags$script(src="////code.highcharts.com/highcharts.js",type="text/javascript"),
+  
+  tags$script(src="js/jquery.js",type="text/javascript"),
     tags$script(src="js/jquery.dataTables.js",type="text/javascript"),
     tags$link(href='css/jquery.dataTables.css', rel="stylesheet", 
             type="text/css"), 

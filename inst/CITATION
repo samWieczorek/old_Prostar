@@ -16,9 +16,9 @@ citEntry(entry="article",
            person(given="Christophe", family="Bruley"),
            person(given="Thomas", family="Burger")),
         journal = "Bioinformatics",
-        year = "2016",
+        year = "2017",
         textVersion = paste("Samuel Wieczorek et al.",
             "DAPAR & ProStaR: software to perform statistical analyses in 
             quantitative discovery proteomics",
-            "Bioinformatics, 2016.")
+            "Bioinformatics 33(1), p135-136, 2017.")
          )

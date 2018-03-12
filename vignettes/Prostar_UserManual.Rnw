@@ -482,7 +482,8 @@ more than one protein, proteins names should be separated by ";".
 \textbf {Convert}: Finally, enter the name of the MSnSet to be created 
 (Fig.~\ref{fig:imp5}) and click on "Convert data". The data are converted 
 and automatically loaded in \Biocpkg{ProStaR}. The name of the file appears 
-on the top of the left panel, above the menu.
+in the upper right hand side of the screen, as a title to the drop-down menu
+"Dataset version of <dataset_name>".
 \begin {figure}
 \centering
 \fbox{\includegraphics[width=0.9\textwidth]{images/convert_convert.png}}
@@ -949,15 +950,15 @@ the Data Explorer in the Descriptive Statistics menu, so as to visualize the
 corresponding metadata. 
 
 Once the choices are made, the user click on "Perform string-based filtering" 
-to remove corresponding lines. Then, the barplot below  shows the 
-proportion of quantitative data, contaminants and reverses. 
+to remove corresponding lines. Then, the barplot beside shows the proportion 
+of quantitative data, contaminants and reverses that were filtered out. 
 
 {Once the filtering is appropriately tuned, the user goes to the last tab 
-(called "visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
+(called "Visualize and Validate") (see Fig.~\ref{fig:filter3}), to visualize 
 the set of analytes that have been previously filtered. On the left panel, 
 one chooses among the lines filtered on missing values, contaminants or 
 reverse; Then, the corresponding data table is diplayed on the right panel. 
-Finally, one clicks on "Apply filter" so as to validate the user's choice and 
+Finally, one clicks on "Save filtered dataset" so as to validate the user's choice and 
 to apply it to the dataset. The information related to the type of filtering 
 as well as to the chosen options appears in the Session log tab (see 
 Section~\ref{sec:sessionlog}). A new dataset is created; it becomes the new 
