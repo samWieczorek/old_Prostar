@@ -51,6 +51,13 @@ sidebarCustom <- function(){
         tags$style(type="text/css", 
                    paste("#sidebar_DiffAna4 { height:",heightSidebarPanel,"; }", sep="")),
         
+        tags$style(type="text/css", 
+                   paste("#sidebar_Imputation1 { height:",heightSidebarPanel,"; }", sep="")),
+        tags$style(type="text/css", 
+                   paste("#sidebar_Imputation2 { height:",heightSidebarPanel,"; }", sep="")),
+        tags$style(type="text/css", 
+                   paste("#sidebar_Imputation3 { height:",heightSidebarPanel,"; }", sep="")),
+        
         
         tags$style(type="text/css", 
                    paste("#chooseDatasetFromDAPARdata_wellPanel { height:",heightSidebarPanel,"; }", sep="")),

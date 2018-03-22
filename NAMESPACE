@@ -72,7 +72,7 @@ importFrom(shiny,
             updateSliderInput ,
             updateTabsetPanel  ,
             updateTextInput ,
-            validate ,
+            #validate ,
             wellPanel ,
             withTags 
             )

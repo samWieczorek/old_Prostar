@@ -16,11 +16,11 @@ output$DP_sidebar_FilterTab1 <- renderUI({
                                    choices = gFiltersList,
                                    selected = filter)
         
-                     ,conditionalPanel(
-                         condition='input.ChooseFilters != "None"',
-                         uiOutput("seuilNADelete"))
-                     ,actionButton("perform.filtering.MV", 
+                     ,tagList(
+                         uiOutput("seuilNADelete"),
+                     actionButton("perform.filtering.MV", 
                                    "Perform MV filtering")
+    )
     )
 })
 
@@ -327,7 +327,6 @@ observeEvent(input$perform.filtering.MV,{
                     if (!is.null(keepThat))
                     {
                         rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
-                         print(dim(rv$deleted.mvLines))
                         rv$current.obj <- 
                             mvFilterFromIndices(rv$dataset[[input$datasets]],
                                 keepThat,

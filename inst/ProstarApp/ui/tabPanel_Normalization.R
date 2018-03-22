@@ -26,7 +26,7 @@ tabPanel("Normalization",
                                            column(width=6, moduleDensityplotUI("densityPlot_Norm")),
                                            column(width=6, plotOutput("viewComparisonNorm_DS"))),
                                        moduleBoxplotUI("boxPlot_Norm")
-                                       #plotOutput("viewBoxPlotNorm")
+
                      )
          ),
          tags$head(

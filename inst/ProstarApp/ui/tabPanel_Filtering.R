@@ -1,14 +1,13 @@
 tabPanel("Filter data",
 tabsetPanel(
              id = "DP_Filtering_tabSetPanel",
-             
              tabPanel( "1 - Missing values",
                        #id =  "DP_FilterMissingValues",
                        value = "DP_FilterMissingValues",
                        #sidebarCustom(),
                        splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                    wellPanel(id = "sidebar_Filter1"
-                                             ,height = "100%"
+                                             #,height = "100%"
                                              ,uiOutput("DP_sidebar_FilterTab1")
                                              
                                    ),

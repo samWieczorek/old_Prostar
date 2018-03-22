@@ -10,7 +10,6 @@ callModule(missingValuesPlots, "MVPlots_DS")
 callModule(missingValuesPlots,"MVPlots_filtering")
 
 
-
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleBoxplot,"boxPlot_Norm")
 

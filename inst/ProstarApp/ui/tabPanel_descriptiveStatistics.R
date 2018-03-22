@@ -82,8 +82,6 @@ tabPanel("Descriptive statistics",
                                          tagList(
                                              busyIndicator("Building plot. Please wait...",wait = 0),
                                              moduleBoxplotUI("boxPlot_DS")
-                                            # plotOutput("viewBoxPlot_DS",width = plotWidth,
-                                             #                         height = plotHeight)
                                           )
                               )
                      ),

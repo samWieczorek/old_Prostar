@@ -2,7 +2,6 @@
 #################### MODULES DEFINITION #################################
 
 
-
 missingValuesPlots <- function(input, output, session) {
     
     output$histo_MV <- renderHighchart({
@@ -31,6 +30,36 @@ moduleBoxplot <- function(input, output, session) {
         BoxPlot()
     })
 }
+
+
+
+
+moduleMVPlots <- function(input, output, session, data) {
+    output$plot_viewNAbyMean <- renderPlot({
+        viewNAbyMean(data)
+    })
+    
+    output$plot_showImageNA <- renderPlot({
+        showImageNA(data)
+    })
+}
+
+# moduleViewNAbyMean <- function(input, output, session) {
+#     
+#     output$viewNAbyMean <- renderPlot({
+#         viewNAbyMean()
+#     })
+# }
+# 
+
+
+
+# moduleShowImageNA <- function(input, output, session) {
+#     
+#     output$showImageNA <- renderPlot({
+#         showImageNA()
+#     })
+# }
 
 
 

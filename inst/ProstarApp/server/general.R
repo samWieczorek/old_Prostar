@@ -189,8 +189,10 @@ ClearMemory <- function(){
     rv$universeData = NULL
     rv$uniprotID = NULL
     rv$ratio = NULL
+    rv$impute_Step = 0
     rv$hot = port
     rv$lapalaIndex = NULL
+    rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
                               Dataset="", 
                               History="", 
@@ -201,6 +203,9 @@ ClearMemory <- function(){
     rv$gene = NULL
     rv$stringBasedFiltering_Done = FALSE
     rv$iDat = NULL
+    rv$imputePlotsSteps = list(step0 = NULL,
+                            step1 = NULL,
+                            step2 = NULL)
     rv$tempplot = list(Density = NULL,
                        corrMatrix = NULL,
                        varDist = NULL,
@@ -291,10 +296,15 @@ rv <- reactiveValues(
     GOWarningMessage = NULL,
     proteinsNotMapped = NULL,
     gene = NULL,
+    impute_Step = 0,
     ratio=NULL,
     iDat = NULL,
+    tempDatasetImputation = NULL,
     lapalaIndex = NULL,
     stringBasedFiltering_Done = FALSE,
+    imputePlotsSteps = list(step0 = NULL,
+                            step1 = NULL,
+                            step2 = NULL),
     tempplot = list(Density = NULL,
                     corrMatrix = NULL,
                     mvHisto_HC = NULL,
