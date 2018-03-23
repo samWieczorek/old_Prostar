@@ -16,11 +16,11 @@ tabPanel("Miss. values imputation",
                                   ),
                                   tagList(
                                       busyIndicator(WaitMsgCalc,wait = 0),
+                                      uiOutput("ImputationStep1Done"),
                                       htmlOutput("helpForImputation"),
                                       uiOutput("ClassicalMV_detQuant_impValues"),
                                       dataTableOutput("TAB_ClassicalMV_detQuant_impValues"),
-                                      moduleMVPlotsUI("mvImputationPlots_MV"),
-                                      uiOutput("ImputationStep1Done")
+                                      moduleMVPlotsUI("mvImputationPlots_MV")
                                       )
                                       
                                   )
@@ -38,10 +38,10 @@ tabPanel("Miss. values imputation",
                                   tagList(
                                       htmlOutput("warningLapalaImputation"),
                                       busyIndicator(WaitMsgCalc,wait = 0),
+                                      uiOutput("ImputationStep2Done"),
                                       uiOutput("Lapala_detQuant_impValues"),
                                       dataTableOutput("TAB_Lapala_detQuant_impValues"),
-                                      moduleMVPlotsUI("mvImputationPlots_LAPALA"),
-                                      uiOutput("ImputationStep2Done")
+                                      moduleMVPlotsUI("mvImputationPlots_LAPALA")
                                       
                                   )
                       )

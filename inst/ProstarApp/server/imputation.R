@@ -408,7 +408,11 @@ output$ImputationSaved <- renderUI({
 output$ImputationStep1Done <- renderUI({
     rv$impute_Step
     if (rv$impute_Step >= 1) {
-        h4("Classical missing values imputation done. Updated graphs cans be seen on tab \"2 - xxxxxxx\".")
+       tagList(
+           h4("Classical missing values imputation done."),
+           # br(),
+            h4("Updated graphs can be seen on tab \"2 - Missing on the Entire Condition\".")
+        )
 }
 })
 
@@ -416,7 +420,9 @@ output$ImputationStep1Done <- renderUI({
 output$ImputationStep2Done <- renderUI({
     rv$impute_Step
     if (rv$impute_Step >= 2) {
-        h4("MEC imputation done. Updated graphs cans be seen on tab \"3 - Validate and save\".")
+        tagList(
+        h4("MEC imputation done."),
+        h4("Updated graphs cans be seen on tab \"3 - Validate and save\"."))
     }
 })
 
