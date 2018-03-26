@@ -530,7 +530,7 @@ viewNAbyMean <- function(data){
     isolate({
         result = tryCatch(
             {
-                wrapper.mvTypePlot(data)
+                wrapper.hc_mvTypePlot2(data)
             }
             , warning = function(w) {
                 shinyjs::info(conditionMessage(w))

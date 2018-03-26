@@ -35,7 +35,7 @@ moduleBoxplot <- function(input, output, session) {
 
 
 moduleMVPlots <- function(input, output, session, data) {
-    output$plot_viewNAbyMean <- renderPlot({
+    output$plot_viewNAbyMean <- renderHighchart({
         viewNAbyMean(data)
     })
     

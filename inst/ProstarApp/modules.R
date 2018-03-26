@@ -25,7 +25,7 @@ moduleDensityplotUI <- function(id) {
 moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
      fluidRow(
-        column(width = 5, plotOutput(ns("plot_viewNAbyMean"))),
+        column(width = 5, highchartOutput(ns("plot_viewNAbyMean"))),
         column(width = 7, plotOutput(ns("plot_showImageNA")))
     )
 }
