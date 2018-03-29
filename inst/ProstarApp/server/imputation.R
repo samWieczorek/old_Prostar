@@ -1,11 +1,15 @@
 
 
-callModule(moduleMVPlots,"mvImputationPlots_MV", rv$current.obj)
+callModule(moduleMVPlots,"mvImputationPlots_MV", getToto())
 callModule(moduleMVPlots,"mvImputationPlots_LAPALA", rv$imputePlotsSteps[["step1"]])
 callModule(moduleMVPlots,"mvImputationPlots_Valid", rv$imputePlotsSteps[["step2"]])
 
 
-
+getToto <- reactive({
+    dataset[[input$datasets]]
+    
+    return(dataset[[input$datasets]])
+})
 
 # observe({
 #     input$perform.imputationClassical.button
@@ -524,7 +528,7 @@ output$helpForImputation <- renderText({
 
 viewNAbyMean <- function(data){
     #rv$current.obj
-    
+    dataset[[input$datasets]]
     if (is.null(data)) {return(NULL)}
     
     isolate({
