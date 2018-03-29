@@ -18,6 +18,23 @@ output$warningNA <- renderUI({
 
 
 
+output$diffAnalysis_GlobalOptions_SB <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)) { return()}
+    
+    tagList(
+        checkboxGroupInput("anaDiff_Design", "Design", choices=c("1 vs 1", "1 vs ALL")),
+        numericInput("foldChange", "Fold change", min=0, step=0.1, value=0),
+        selectInput("statisticalTest","Choose the statistical test",
+                    choices = anaDiffMethod_Choices,
+                    selected = anaDiffMethod_Choices[1])
+    ) })
+
+
+
+
+
+
 
 output$diffAnalysis_sidebarPanelTab1 <- renderUI({
     rv$current.obj

@@ -2,8 +2,25 @@ tabPanel("Differential analysis",
          tabsetPanel(
              #"diffAnalysis_tabSetPanel",
              id = "diffAnalysis_tabSetPanel",
-             tabPanel("1 - Volcano plot",
-                      value = "DiffAnalysis_Volcanoplot",
+             tabPanel("1 - Global tuning",
+                      value = "DiffAnalysis_GlobalTuning",
+                      sidebarCustom(),
+                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                  wellPanel(id = "sidebar_DiffAna1",
+                                            height = "100%"
+                                            ,h4("Differential analysis global options")
+                                            ,uiOutput("diffAnalysis_GlobalTuning_SB")
+                                  ),
+                                  tagList(
+                                      busyIndicator("Building plot, please wait",wait = 0),
+                                      highchartOutput("FoldChangePlot", height="500px", width="600px")
+                                      
+                                  )
+                      )
+             ),
+             
+             tabPanel("2 - Pairwise comparison",
+                      value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(id = "sidebar_DiffAna1",
@@ -12,18 +29,43 @@ tabPanel("Differential analysis",
                                             ,uiOutput("diffAnalysis_sidebarPanelTab1")
                                   ),
                                   tagList(
-                                       fluidRow(
-                                                column(width=6, uiOutput("nbSelectedItems")),
-                                                column(width=6, uiOutput("selectTooltipInfo"))
-                                                ),
-                                        DT::dataTableOutput("infosVolcanoTable"),
-                                        busyIndicator("Building plot, please wait",wait = 0),
-                                        highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
-                                                   
+                                      fluidRow(
+                                          column(width=6, uiOutput("nbSelectedItems")),
+                                          column(width=6, uiOutput("selectTooltipInfo"))
+                                      ),
+                                      DT::dataTableOutput("infosVolcanoTable"),
+                                      busyIndicator("Building plot, please wait",wait = 0),
+                                      highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+                                      
                                   )
                       )
              ),
-             tabPanel("2 - p-value calibration",
+             
+             
+             
+             
+             # tabPanel("1 - Volcano plot",
+             #          value = "DiffAnalysis_Volcanoplot",
+             #          sidebarCustom(),
+             #          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+             #                      wellPanel(id = "sidebar_DiffAna1",
+             #                                height = "100%"
+             #                                ,h4("Differential analysis options")
+             #                                ,uiOutput("diffAnalysis_sidebarPanelTab1")
+             #                      ),
+             #                      tagList(
+             #                           fluidRow(
+             #                                    column(width=6, uiOutput("nbSelectedItems")),
+             #                                    column(width=6, uiOutput("selectTooltipInfo"))
+             #                                    ),
+             #                            DT::dataTableOutput("infosVolcanoTable"),
+             #                            busyIndicator("Building plot, please wait",wait = 0),
+             #                            highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+             #                                       
+             #                      )
+             #          )
+             # ),
+             tabPanel("3 - p-value calibration",
                       value = "DiffAnalysis_Calibrate",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -43,7 +85,7 @@ tabPanel("Differential analysis",
                                   )
                       )
              ),
-             tabPanel("3 - FDR",
+             tabPanel("4 - FDR",
                       id = "DiffAnalysis_viewFDR",
                       value = "DiffAnalysis_viewFDR",
                       sidebarCustom(),
@@ -67,7 +109,7 @@ tabPanel("Differential analysis",
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"
-             tabPanel("4 - Validate & save",
+             tabPanel("5 - Validate & save",
                       id = "panelDiffAnaSave",
                       value = "DiffAnalysis_ValidateAndSave",
                       sidebarCustom(),
