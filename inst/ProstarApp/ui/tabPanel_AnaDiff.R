@@ -6,10 +6,11 @@ tabPanel("Differential analysis",
                       value = "DiffAnalysis_GlobalTuning",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  wellPanel(id = "sidebar_DiffAna1",
+                                  wellPanel(
+                                      #id = "sidebar_DiffAna1",
                                             height = "100%"
-                                            ,h4("Differential analysis global options")
-                                            ,uiOutput("diffAnalysis_GlobalTuning_SB")
+                                            #,h4("Differential analysis global options")
+                                            ,uiOutput("diffAnalysis_GlobalOptions_SB")
                                   ),
                                   tagList(
                                       busyIndicator("Building plot, please wait",wait = 0),
@@ -19,52 +20,52 @@ tabPanel("Differential analysis",
                       )
              ),
              
+             # tabPanel("2 - Pairwise comparison",
+             #          value = "DiffAnalysis_PairewiseComparison",
+             #          sidebarCustom(),
+             #          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+             #                      wellPanel(id = "sidebar_DiffAna1",
+             #                                height = "100%"
+             #                                ,h4("Comparisons options")
+             #                                ,uiOutput("diffAnalysis_PairwiseComp_SB")
+             #                      ),
+             #                      tagList(
+             #                          fluidRow(
+             #                              column(width=6, uiOutput("nbSelectedItems")),
+             #                              column(width=6, uiOutput("selectTooltipInfo"))
+             #                          ),
+             #                          DT::dataTableOutput("infosVolcanoTable"),
+             #                          busyIndicator("Building plot, please wait",wait = 0),
+             #                          highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+             #                          
+             #                      )
+             #          )
+             # ),
+             # 
+             
+             
+             
              tabPanel("2 - Pairwise comparison",
                       value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(id = "sidebar_DiffAna1",
                                             height = "100%"
-                                            ,h4("Differential analysis options")
-                                            ,uiOutput("diffAnalysis_sidebarPanelTab1")
+                                            ,h4("Comparisons options")
+                                            ,uiOutput("diffAnalysis_PairwiseComp_SB")
                                   ),
                                   tagList(
-                                      fluidRow(
-                                          column(width=6, uiOutput("nbSelectedItems")),
-                                          column(width=6, uiOutput("selectTooltipInfo"))
-                                      ),
-                                      DT::dataTableOutput("infosVolcanoTable"),
-                                      busyIndicator("Building plot, please wait",wait = 0),
-                                      highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
-                                      
+                                       fluidRow(
+                                                column(width=6, uiOutput("nbSelectedItems")),
+                                                column(width=6, uiOutput("selectTooltipInfo"))
+                                                ),
+                                        DT::dataTableOutput("infosVolcanoTable"),
+                                        busyIndicator("Building plot, please wait",wait = 0),
+                                        highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+
                                   )
                       )
              ),
-             
-             
-             
-             
-             # tabPanel("1 - Volcano plot",
-             #          value = "DiffAnalysis_Volcanoplot",
-             #          sidebarCustom(),
-             #          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-             #                      wellPanel(id = "sidebar_DiffAna1",
-             #                                height = "100%"
-             #                                ,h4("Differential analysis options")
-             #                                ,uiOutput("diffAnalysis_sidebarPanelTab1")
-             #                      ),
-             #                      tagList(
-             #                           fluidRow(
-             #                                    column(width=6, uiOutput("nbSelectedItems")),
-             #                                    column(width=6, uiOutput("selectTooltipInfo"))
-             #                                    ),
-             #                            DT::dataTableOutput("infosVolcanoTable"),
-             #                            busyIndicator("Building plot, please wait",wait = 0),
-             #                            highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
-             #                                       
-             #                      )
-             #          )
-             # ),
              tabPanel("3 - p-value calibration",
                       value = "DiffAnalysis_Calibrate",
                       sidebarCustom(),
@@ -72,7 +73,7 @@ tabPanel("Differential analysis",
                                   wellPanel(id = "sidebar_DiffAna2",
                                             height = "100%"
                                             ,h4("Calibration")
-                                            ,uiOutput("diffAnalysis_sidebarPanelTab2")
+                                            ,uiOutput("diffAnalysis_Calibration_SB")
                                   ),
                                   conditionalPanel(id = "wellPanel_DifferentialAnalysisTab2",
                                                    condition = "true",
@@ -93,7 +94,7 @@ tabPanel("Differential analysis",
                                   wellPanel(id = "sidebar_DiffAna3",
                                             height = "100%"
                                             ,h4("Compute FDR")
-                                            ,uiOutput("diffAnalysis_sidebarPanelTab3")
+                                            ,uiOutput("diffAnalysis_FDR_SB")
                                   ),
                                   
                                   tagList(
@@ -119,11 +120,11 @@ tabPanel("Differential analysis",
                                             busyIndicator(WaitMsgCalc,wait = 0),
                                             actionButton("ValidDiffAna","Save diff analysis")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab4",
-                                                   condition = "true",
-                                                   DT::dataTableOutput("showSelectedItems"),
-                                                   br()
-                                                   ,uiOutput("DiffAnalysisSaved")
+                                  tagList(
+                                      DT::dataTableOutput("showSelectedItems"),
+                                      br(),
+                                      uiOutput("DiffAnalysisSaved")
+
                                   )
                       )
              ) # end tabPanel(title = "4 - Validate and Save", 

@@ -154,6 +154,7 @@ ClearMemory <- function(){
                              Dataset="", 
                              History="", 
                              stringsAsFactors=F)
+    rv$listLogFC = list()
     rv$seuilLogFC = 0
     rv$seuilPVal = 1e-60
     rv$tab1 = NULL
@@ -255,6 +256,7 @@ rv <- reactiveValues(
     dataset = list(),
     # Variable that contains the log for the current R session
     text.log = data.frame(Date="", Dataset="", History="", stringsAsFactors=F),
+    listLogFC = list(),
     seuilLogFC = 0,
     seuilPVal = 1e-60,
     tab1 = NULL,
