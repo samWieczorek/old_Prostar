@@ -175,7 +175,7 @@ observeEvent(input$loadDemoDataset,{
             names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
             #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
             #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
-            
+            rv$current.obj@experimentData@other$RawPValues <- FALSE
             
             #if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
             #    rv$current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
@@ -228,6 +228,10 @@ observeEvent(input$file,ignoreInit =TRUE,{
         
         colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
         names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        
+        if (is.null(rv$current.obj@experimentData@other$RawPValues ))
+            rv$current.obj@experimentData@other$RawPValues <- FALSE
+        
         
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)

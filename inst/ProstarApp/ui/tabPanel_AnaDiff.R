@@ -49,7 +49,8 @@ tabPanel("Differential analysis",
                       value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  wellPanel(id = "sidebar_DiffAna1",
+                                  wellPanel(
+                                      #id = "sidebar_DiffAna1",
                                             height = "100%"
                                             ,h4("Comparisons options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")
@@ -70,14 +71,14 @@ tabPanel("Differential analysis",
                       value = "DiffAnalysis_Calibrate",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  wellPanel(id = "sidebar_DiffAna2",
+                                  wellPanel(
+                                      id = "sidebar_DiffAna3",
                                             height = "100%"
                                             ,h4("Calibration")
                                             ,uiOutput("diffAnalysis_Calibration_SB")
                                   ),
-                                  conditionalPanel(id = "wellPanel_DifferentialAnalysisTab2",
-                                                   condition = "true",
-                                                   htmlOutput("errMsgCalibrationPlotAll"),
+                                  tagList(
+                                      htmlOutput("errMsgCalibrationPlotAll"),
                                                    busyIndicator("Building plot, please wait",wait = 0),
                                                    plotOutput("calibrationPlotAll"),
                                                    uiOutput("errMsgCalibrationPlot"),
@@ -91,7 +92,7 @@ tabPanel("Differential analysis",
                       value = "DiffAnalysis_viewFDR",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  wellPanel(id = "sidebar_DiffAna3",
+                                  wellPanel(id = "sidebar_DiffAna4",
                                             height = "100%"
                                             ,h4("Compute FDR")
                                             ,uiOutput("diffAnalysis_FDR_SB")
@@ -106,7 +107,8 @@ tabPanel("Differential analysis",
                                                 ),
                                         DT::dataTableOutput("infosVolcanoTableStep3"),
                                         busyIndicator("Building plot, please wait",wait = 0),
-                                        highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px")
+                                        highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px"),
+                                        DT::dataTableOutput("showSelectedItems")
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"
@@ -115,14 +117,12 @@ tabPanel("Differential analysis",
                       value = "DiffAnalysis_ValidateAndSave",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  wellPanel(id = "sidebar_DiffAna4",
+                                  wellPanel(id = "sidebar_DiffAna5",
                                             height = "100%",
                                             busyIndicator(WaitMsgCalc,wait = 0),
                                             actionButton("ValidDiffAna","Save diff analysis")
                                   ),
                                   tagList(
-                                      DT::dataTableOutput("showSelectedItems"),
-                                      br(),
                                       uiOutput("DiffAnalysisSaved")
 
                                   )

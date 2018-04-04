@@ -173,7 +173,8 @@ ClearMemory <- function(){
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
     test = NULL
-    rv$resAnaDiff = list(logFC=NULL, P_Value=NULL)
+    rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
+    rv$res_AllPairwiseComparisons = data.frame()
     indexNA = NULL
     rv$pourcentageNA = 0
     rv$nb.empty.lines = 0
@@ -275,7 +276,8 @@ rv <- reactiveValues(
     normalizationMethod = NULL, 
     matAdj = NULL,
     test = NULL, 
-    resAnaDiff = list(logFC=NULL, P_Value=NULL),
+    resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
+    res_AllPairwiseComparisons = data.frame(),
     wb = NULL,
     progressImputation = 0,
     indexNA = NULL,
