@@ -175,12 +175,29 @@ observeEvent(input$loadDemoDataset,{
             names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
             #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
             #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
-            rv$current.obj@experimentData@other$RawPValues <- FALSE
             
-            #if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-            #    rv$current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(rv$current.obj)),nrow = nrow(rv$current.obj), sparse=TRUE)
-            #}
+            if (is.null(rv$current.obj@experimentData@other$RawPValues ))
+                rv$current.obj@experimentData@other$RawPValues <- FALSE
             
+            
+            if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+                
+                OriginOfValues <- data.frame(matrix(rep("unknown", dim(exprs(rv$current.obj))[1]*dim(exprs(rv$current.obj))[2]), 
+                                                    nrow=nrow(exprs(rv$current.obj)),
+                                                    ncol=ncol(exprs(rv$current.obj))))
+                OriginOfValues[is.na(rv$current.obj)] <-  NA
+                
+                rownames(OriginOfValues) <- rownames(exprs(rv$current.obj))
+                colnames(OriginOfValues) <- paste0("OriginOfValue",colnames(exprs(rv$current.obj)))
+                
+                indMin <- length(colnames(fData(rv$current.obj)))
+                indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
+                fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
+                
+                rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
+            }
+            
+
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
             writeToCommandLogFile(paste("utils::data(",
@@ -236,12 +253,23 @@ observeEvent(input$file,ignoreInit =TRUE,{
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        # if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-        #     rv$current.obj@experimentData@other$OriginOfValues <- 
-        #         Matrix(as.numeric(!is.na(rv$current.obj)),
-        #                nrow = nrow(rv$current.obj), 
-        #                sparse=TRUE)
-        # }
+        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
+            
+            OriginOfValues <- data.frame(matrix(rep("unknown", dim(exprs(rv$current.obj))[1]*dim(exprs(rv$current.obj))[2]), 
+                                                nrow=nrow(exprs(rv$current.obj)),
+                                                ncol=ncol(exprs(rv$current.obj))))
+            OriginOfValues[is.na(rv$current.obj)] <-  NA
+            
+            rownames(OriginOfValues) <- rownames(exprs(rv$current.obj))
+            colnames(OriginOfValues) <- paste0("OriginOfValue",colnames(exprs(rv$current.obj)))
+            
+            indMin <- length(colnames(fData(rv$current.obj)))
+            indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
+            fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
+            
+            #print(colnames(OriginOfValues))
+            rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
+        }
         
         ## check the information about normalizations and convert if needed
         if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {

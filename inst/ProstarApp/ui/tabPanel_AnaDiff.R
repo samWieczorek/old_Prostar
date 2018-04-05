@@ -7,7 +7,7 @@ tabPanel("Differential analysis",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(
-                                      #id = "sidebar_DiffAna1",
+                                      id = "sidebar_DiffAna1",
                                             height = "100%"
                                             #,h4("Differential analysis global options")
                                             ,uiOutput("diffAnalysis_GlobalOptions_SB")
@@ -20,37 +20,13 @@ tabPanel("Differential analysis",
                       )
              ),
              
-             # tabPanel("2 - Pairwise comparison",
-             #          value = "DiffAnalysis_PairewiseComparison",
-             #          sidebarCustom(),
-             #          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-             #                      wellPanel(id = "sidebar_DiffAna1",
-             #                                height = "100%"
-             #                                ,h4("Comparisons options")
-             #                                ,uiOutput("diffAnalysis_PairwiseComp_SB")
-             #                      ),
-             #                      tagList(
-             #                          fluidRow(
-             #                              column(width=6, uiOutput("nbSelectedItems")),
-             #                              column(width=6, uiOutput("selectTooltipInfo"))
-             #                          ),
-             #                          DT::dataTableOutput("infosVolcanoTable"),
-             #                          busyIndicator("Building plot, please wait",wait = 0),
-             #                          highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
-             #                          
-             #                      )
-             #          )
-             # ),
-             # 
-             
-             
-             
+
              tabPanel("2 - Pairwise comparison",
                       value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(
-                                      #id = "sidebar_DiffAna1",
+                                      id = "sidebar_DiffAna2",
                                             height = "100%"
                                             ,h4("Comparisons options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")

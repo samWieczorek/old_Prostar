@@ -26,6 +26,7 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
     tagList(
         selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
         selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+        uiOutput("OptionsForT_tests"),
         numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
         
         #actionButton("anaDiff_Next1_Button", "Next")
@@ -33,7 +34,12 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
 
 
 
-
+output$OptionsForT_tests <- renderUI({
+    input$diffAnaMethod
+    if (input$diffAnaMethod != "ttests"){return()}
+    radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"))
+    
+})
 
 AnaDiff_GetMaxValueThresholdFilter <- function(){
     input$AnaDiff_ChooseFilters
@@ -106,8 +112,8 @@ observeEvent(input$swapVolcano,{
     if (is.null(input$swapVolcano)){return()}
     if (is.null(rv$resAnaDiff$logFC)){return()}
       
-    if(input$swapVolcano) rv$resAnaDiff$logFC <- - (rv$resAnaDiff$logFC)
-    else rv$resAnaDiff$logFC <- - (rv$resAnaDiff$logFC)
+    rv$resAnaDiff$logFC <- - (rv$resAnaDiff$logFC)
+
 })
 
 
@@ -116,7 +122,7 @@ GetCurrentResAnaDiff <- reactive({
     if (is.null(input$selectComparison) || (input$selectComparison== "None")){return()}
     if (is.null(rv$res_AllPairwiseComparisons) ){return()}
     
-    index <- grep(paste(input$selectComparison, "_logFC", sep=""), colnames(rv$res_AllPairwiseComparisons$FC))
+    index <- which(paste(input$selectComparison, "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
     
     rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$FC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
@@ -275,10 +281,13 @@ observe({
     rv$current.obj
     input$anaDiff_Design
     input$seuilLogFC
+    input$ttest_options
+    
     if (is.null(rv$current.obj)){ return()}
 
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod=="None")) {return ()}
     if (is.null(rv$current.obj)) {return ()}
+    if (is.null(input$ttest_options)) {return ()}
     if (is.null(input$anaDiff_Design) || (input$anaDiff_Design=="None")) {return ()}
     if (is.null(input$seuilLogFC)) {return ()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -288,8 +297,8 @@ observe({
            Limma={
              rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
              },
-           Welch={
-             #rv$res_AllPairwiseComparisons <- wrapper.diffAnaWelch(rv$current.obj)
+           ttests={
+             rv$res_AllPairwiseComparisons <- wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
            })
     
     rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons)[[1]]

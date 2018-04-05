@@ -33,14 +33,12 @@ shinyServer(function(input, output, session) {
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()
-        #print(hname)
         
         clientdataText <- observe({
             rv$IP_Client = session$clientData$url_hostname
         })
         
         #verbose <- TRUE
-        #print(cdata$url_hostname)
         sessionLogFile <- paste("www/sessionLogs_", gsub("\\.", "_", rv$IP_Client), "_", sessionID, ".txt",sep="")
         if (!interactive()) sink(sessionLogFile, type = "output")
     }
