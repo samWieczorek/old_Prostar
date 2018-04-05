@@ -177,7 +177,7 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
 if (input$AnaDiff_ChooseFilters == gFilterNone){
     GetCurrentResAnaDiff()
 } else {
-        keepThat <- pvalue_FilterGetIndices(rv$dataset[[input$datasets]],
+        keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
                                                    input$AnaDiff_ChooseFilters,
                                                    as.integer(input$AnaDiff_seuilNA))
         if (!is.null(keepThat))
