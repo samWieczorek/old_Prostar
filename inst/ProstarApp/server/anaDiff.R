@@ -298,7 +298,7 @@ observe({
              rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
              },
            ttests={
-             rv$res_AllPairwiseComparisons <- wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
+             rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, input$anaDiff_Design)
            })
     
     rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons)[[1]]
