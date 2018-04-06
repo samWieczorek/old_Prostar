@@ -622,7 +622,9 @@ observeEvent(input$ValidDiffAna,{
                 {m <- as.numeric(input$numericValCalibration)}
                 else {m <- input$calibrationMethod }
                 
-                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff, rv$seuilPVal, rv$seuilLogFC, m)
+                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff[["FC"]], 
+                                            rv$resAnaDiff[["P_Value"]],
+                                            rv$seuilPVal, rv$seuilLogFC, m)
                 
                 
                 temp <- DAPAR::diffAnaSave(temp,
