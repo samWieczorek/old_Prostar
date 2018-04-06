@@ -136,7 +136,8 @@ pData.complete.list <- list("Label" = "Label",
 
 
 normMethods <- list("None" = "None",
-                    "Global Alignment" = "Global Alignment",
+                    "Global quantile alignment" = "Global quantile alignment",
+                    "Sum by columns" = "Sum by columns",
                     "Quantile Centering" = "Quantile Centering",
                     "Mean Centering" = "Mean Centering" 
  )
@@ -460,7 +461,9 @@ calibMethod_Choices <- c("st.boot", "st.spline",
                          "Benjamini-Hochberg", 
                          "numeric value")
 
-anaDiffMethod_Choices <- c("None"="None","Limma"="Limma", "t-tests"="ttests")
+anaDiffMethod_Choices <- c("None"="None",
+                           "Limma"="Limma", 
+                           "t-tests"="ttests")
 
 
 G_noneStr <- "None"
@@ -482,7 +485,7 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Median" = "median")
 
 
-G_logFC_Column <- "logFC"
+G_logFC_Column <- "FC"
 
 
 G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",

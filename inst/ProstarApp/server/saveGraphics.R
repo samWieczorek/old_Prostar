@@ -328,15 +328,15 @@ createPNG_Aggregation <- reactive({
 createPNG_DifferentialAnalysis <- reactive({
     obj <- rv$dataset[[rv$iDat]]
     
-    df <- data.frame(x=fData(obj)$logFC,
+    df <- data.frame(x=fData(obj)$FC,
                      y = -log10(fData(obj)$P_Value))
-    logFC <- obj@experimentData@other$threshold_logFC
+    FC <- obj@experimentData@other$threshold_logFC
     pval <-obj@experimentData@other$threshold_p_value
     cond <-c(obj@experimentData@other$condition1,
              obj@experimentData@other$condition2)
     
     tempplot <- diffAnaVolcanoplot_rCharts(df,
-                                           threshold_logFC = logFC,
+                                           threshold_logFC = FC,
                                            threshold_pVal = pval,
                                            conditions = cond    )
     createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot_3)
@@ -352,7 +352,7 @@ createPNG_DifferentialAnalysis <- reactive({
     
     plotPNG(function(){
         t <- rv$resAnaDiff$P_Value
-        t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
+        t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
         wrapperCalibrationPlot(t, "ALL")},
         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"),
         width = 1200,

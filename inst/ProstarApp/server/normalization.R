@@ -124,7 +124,7 @@ output$choose_normalizationType <- renderUI({
     
     
     
-    if (input$normalization.method %in% c("Quantile Centering", "Mean Centering")){
+    if (input$normalization.method %in% c("Quantile Centering", "Mean Centering", "Sum by columns")){
         
         # check if the normalisation has already been performed
         type <- c("overall", "within conditions")
@@ -132,21 +132,19 @@ output$choose_normalizationType <- renderUI({
         if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
             typeSelected <- rv$current.obj@experimentData@other$normalizationType
         }
-        # if (GetNbNA() == 0){
-        #     choices <- c("overall", "within conditions")
-        # } else {
-        #     choices <- c("overall", "within conditions")
-        # } 
-        # 
         
-    } else if (input$normalization.method %in% c("Global Alignment")){
-        type <- c("sum by columns", "Alignment on all quantiles")
-        typeSelected <- NULL
-        if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
-            typeSelected <- rv$current.obj@experimentData@other$normalizationType
-        }
-    }
-    selectInput("normalization.type", "Choose normalization type",  choices = type, selected = typeSelected)
+        selectInput("normalization.type", "Choose normalization type",  choices = type, selected = typeSelected)
+
+    } 
+    
+    # else if (input$normalization.method %in% c("Global quantile alignment")){
+    #     type <- c("sum by columns", "Alignment on all quantiles")
+    #     typeSelected <- NULL
+    #     if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
+    #         typeSelected <- rv$current.obj@experimentData@other$normalizationType
+    #     }
+    # }
+    
 })
 
 
@@ -194,35 +192,23 @@ observeEvent(input$perform.normalization,{
     isolate({
         result = tryCatch(
             {
-                # input$normalization.quantile
-                # input$normalization.quantileOther
-                # input$normalization.scaling
-                # input$normalization.type
-                # input$normalization.method
-                # 
-                
-                #.temp <- unlist(strsplit(input$normalization.method, " - "))
-                
-                #createPNG_BeforeNormalization()
                 
                 if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
                     
-                    if (input$normalization.method == "Global Alignment"){
-                        rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
-                                                              input$normalization.method, 
-                                                              input$normalization.type)
+                    if (input$normalization.method == "Global quantile alignment"){
+                        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                              input$normalization.method)
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
-                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
                         ## Write command log file
                         #if (input$showCommandLog){
                             writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD2(",
+                            paste("current.obj <- wrapper.normalizeD(",
                                   "dataset[['",
                                   input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,"')",
+                                  "']],'",input$normalization.method, "')",
                                   sep="")
                         )
                        # }
@@ -235,7 +221,7 @@ observeEvent(input$perform.normalization,{
                         if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
                         {quant <- as.numeric(input$normalization.quantile)}
                         else {quant <- as.numeric(input$normalization.quantileOther)}
-                        rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
+                        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
                                                               quantile = quant)
@@ -250,7 +236,7 @@ observeEvent(input$perform.normalization,{
                         ## Write command log file
                         #if (input$showCommandLog){
                             writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD2(",
+                            paste("current.obj <- wrapper.normalizeD(",
                                   "dataset[['",
                                   input$datasets, 
                                   "']],'",input$normalization.method, "','", input$normalization.type,
@@ -261,7 +247,7 @@ observeEvent(input$perform.normalization,{
                         
                     }   
                     else if (input$normalization.method =="Mean Centering"){
-                        rv$current.obj <- wrapper.normalizeD2(rv$dataset[[input$datasets]], 
+                        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
                                                               scaling=input$normalization.variance.reduction)
@@ -273,7 +259,7 @@ observeEvent(input$perform.normalization,{
                         ## Write command log file
                         #if (input$showCommandLog){
                             writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD2(",
+                            paste("current.obj <- wrapper.normalizeD(",
                                   "dataset[['",
                                   input$datasets, 
                                   "']],'",input$normalization.method, "','", input$normalization.type,
@@ -282,7 +268,24 @@ observeEvent(input$perform.normalization,{
                         )
                         #}
                     } 
-                    
+                    else if (input$normalization.method =="Sum by columns"){
+                        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                              input$normalization.method, 
+                                                              input$normalization.type)
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                        
+                        ## Write command log file
+                        #if (input$showCommandLog){
+                        writeToCommandLogFile(
+                            paste("current.obj <- wrapper.normalizeD(",
+                                  "dataset[['",
+                                  input$datasets, 
+                                  "']],'",input$normalization.method, "','", input$normalization.type,
+                                  ")",sep="")
+                        )
+                        #}
+                    }
                     #createPNG_Normalization()
                     
                 }

@@ -78,7 +78,7 @@ loadObjectInMemoryFromConverter <- reactive({
     
     #If there are already pVal values, then do no compute them 
     if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
-        rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
+        rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$FC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
         rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC
         rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold_p_value
@@ -173,7 +173,7 @@ ClearMemory <- function(){
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
     test = NULL
-    rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
+    rv$resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
     rv$res_AllPairwiseComparisons = data.frame()
     indexNA = NULL
     rv$pourcentageNA = 0
@@ -276,7 +276,7 @@ rv <- reactiveValues(
     normalizationMethod = NULL, 
     matAdj = NULL,
     test = NULL, 
-    resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
+    resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
     res_AllPairwiseComparisons = data.frame(),
     wb = NULL,
     progressImputation = 0,

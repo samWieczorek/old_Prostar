@@ -110,9 +110,9 @@ output$AnaDiff_seuilNADelete <- renderUI({
 observeEvent(input$swapVolcano,{
     rv$resAnaDiff
     if (is.null(input$swapVolcano)){return()}
-    if (is.null(rv$resAnaDiff$logFC)){return()}
+    if (is.null(rv$resAnaDiff$FC)){return()}
       
-    rv$resAnaDiff$logFC <- - (rv$resAnaDiff$logFC)
+    rv$resAnaDiff$FC <- - (rv$resAnaDiff$FC)
 
 })
 
@@ -122,9 +122,9 @@ GetCurrentResAnaDiff <- reactive({
     if (is.null(input$selectComparison) || (input$selectComparison== "None")){return()}
     if (is.null(rv$res_AllPairwiseComparisons) ){return()}
     
-    index <- which(paste(input$selectComparison, "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
+    index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
     
-    rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$FC)[,index],
+    rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
                           condition1 = strsplit(input$selectComparison, "_")[[1]][1],
                           condition2 = strsplit(input$selectComparison, "_")[[1]][3]
@@ -154,7 +154,7 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
     if (is.null(rv$res_AllPairwiseComparisons)) { return()}
   
     .choices <- colnames(rv$res_AllPairwiseComparisons$FC)
-    .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_logFC"))
+    .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_FC"))
     tagList(
         
         selectInput("selectComparison","Select comparison",
@@ -238,7 +238,7 @@ output$diffAnalysis_Calibration_SB <- renderUI({
     if (is.null(rv$current.obj)){ return()}
     
     calibMethod <- "pounds"
-    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+    if ("FC" %in% names(Biobase::fData(rv$current.obj) )){
         calibMethod <- rv$current.obj@experimentData@other$calibrationMethod
         if (is.null(calibMethod)) calibMethod <- "pounds"
     }
@@ -259,7 +259,7 @@ output$diffAnalysis_FDR_SB <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return ()}
     threshold.PVal <- 0
-    if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+    if ("FC" %in% names(Biobase::fData(rv$current.obj) )){
         threshold.PVal <- rv$current.obj@experimentData@other$threshold_p_value
     }
     
@@ -287,7 +287,7 @@ observe({
 
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod=="None")) {return ()}
     if (is.null(rv$current.obj)) {return ()}
-    if (is.null(input$ttest_options)) {return ()}
+    #if (is.null(input$ttest_options)) {return ()}
     if (is.null(input$anaDiff_Design) || (input$anaDiff_Design=="None")) {return ()}
     if (is.null(input$seuilLogFC)) {return ()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -298,7 +298,9 @@ observe({
              rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
              },
            ttests={
-             rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, input$anaDiff_Design)
+             rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
+                                                                      Contrast=input$anaDiff_Design,
+                                                                      type=input$ttest_options)
            })
     
     rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons)[[1]]
@@ -334,7 +336,7 @@ output$showFDR <- renderText({
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return()}
     if (is.null(rv$current.obj)) {return()}
-    if (is.null(rv$resAnaDiff$logFC)) {return()}
+    if (is.null(rv$resAnaDiff$FC)) {return()}
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
     {return()}
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
@@ -349,7 +351,8 @@ output$showFDR <- renderText({
                     m <- as.numeric(input$numericValCalibration)} 
                 else {m <- input$calibrationMethod }
                 
-                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff, 
+                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff[["FC"]], 
+                                            rv$resAnaDiff[["P_Value"]],
                                             rv$seuilPVal, 
                                             rv$seuilLogFC, 
                                             m)
@@ -387,7 +390,7 @@ histPValue <- reactive({
     
     t <- NULL
     # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-    if (isContainedIn(c("logFC","P_Value"),names(Biobase::fData(rv$current.obj)) ) ){
+    if (isContainedIn(c("FC","P_Value"),names(Biobase::fData(rv$current.obj)) ) ){
         t <- Biobase::fData(rv$current.obj)[,"P_Value"]
     } else{
         data <- RunDiffAna()
@@ -449,7 +452,7 @@ calibrationPlot <- reactive({
     if (is.null(rv$current.obj) ) {return()}
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$logFC) == 0)) { return()}
+        (length(rv$resAnaDiff$FC) == 0)) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
@@ -460,7 +463,7 @@ calibrationPlot <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
+    t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
     
     l <- NULL
     
@@ -551,7 +554,7 @@ calibrationPlotAll <- reactive({
     if (is.null(rv$current.obj) ) {return()}
     
     if ( is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$logFC) == 0)) { return()}
+        (length(rv$resAnaDiff$FC) == 0)) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
@@ -562,7 +565,7 @@ calibrationPlotAll <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)]
+    t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
     
     l <- NULL
     result = tryCatch(
@@ -692,7 +695,7 @@ observeEvent(input$ValidDiffAna,{
                               rv$typeOfDataset,
                               ": differential analysis with", 
                               input$diffAnaMethod, 
-                              "Selection with the following threshold values :logFC =",
+                              "Selection with the following threshold values :FC =",
                               rv$seuilLogFC,
                               "The calibration was made with the method", cMethod,
                               ", -log10(p-value) = ",
@@ -785,7 +788,7 @@ observeEvent(rv$current.obj,{
         updateNumericInput(session,
                            "seuilLogFC", 
                            min = 0, 
-                           max = max(abs(Biobase::fData(rv$current.obj)$logFC)), 
+                           max = max(abs(Biobase::fData(rv$current.obj)$FC)), 
                            value = rv$current.obj@experimentData@other$threshold_logFC, 
                            step=0.1)
     }
@@ -810,7 +813,7 @@ output$nbSelectedItems <- renderUI({
     rv$resAnaDiff
     
     
-    if (is.null(rv$resAnaDiff$logFC) || is.null(rv$current.obj)){
+    if (is.null(rv$resAnaDiff$FC) || is.null(rv$current.obj)){
         return()}
     
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
@@ -827,7 +830,7 @@ output$nbSelectedItems <- renderUI({
             upItemsLogFC <- NULL
             
             
-            upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
+            upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
             rv$nbTotalAnaDiff_Step1 <- nrow(Biobase::exprs(rv$current.obj))
             rv$nbSelectedAnaDiff_Step1 <- NULL
             t <- NULL
@@ -878,7 +881,7 @@ output$nbSelectedItemsStep3 <- renderUI({
             p <- NULL
             if ("P_Value"  %in% names(fData(rv$current.obj))){
                 p$P_Value <- fData(rv$current.obj)$P_Value
-                p$logFC <- fData(rv$current.obj)$logFC
+                p$FC <- fData(rv$current.obj)$FC
             }else {
                 
                 p <- rv$resAnaDiff
@@ -890,7 +893,7 @@ output$nbSelectedItemsStep3 <- renderUI({
             
             
             upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
-            upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
+            upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
             
             
             rv$nbSelectedTotal_Step3 <- nrow(Biobase::exprs(rv$current.obj))
@@ -942,7 +945,7 @@ observeEvent(rv$current.obj,{
         result = tryCatch(
             {
                 #Si on a deja des pVal, alors, ne pas recalculer 
-                if ("logFC" %in% names(Biobase::fData(rv$current.obj) )){
+                if ("FC" %in% names(Biobase::fData(rv$current.obj) )){
                     updateNumericInput(session, 
                                        "seuilLogFC",
                                        value= rv$current.obj@experimentData@other$threshold_logFC)
@@ -1080,7 +1083,7 @@ volcanoplot_rCharts <- reactive({
     input$tooltipInfo
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
-    if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
+    if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
     if (is.null(rv$current.obj) ){return()}
     #if (is.null(input$tooltipInfo)) {        return()}
     
@@ -1090,9 +1093,9 @@ volcanoplot_rCharts <- reactive({
     result = tryCatch(
         {
             
-            if ("logFC" %in% names(fData(rv$current.obj) )){
+            if ("FC" %in% names(fData(rv$current.obj) )){
                 
-                df <- data_frame(x=fData(rv$current.obj)$logFC, 
+                df <- data_frame(x=fData(rv$current.obj)$FC, 
                                  y = -log10(fData(rv$current.obj)$P_Value),
                                  index = as.character(rownames(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
@@ -1111,12 +1114,12 @@ volcanoplot_rCharts <- reactive({
                 #             print("avant 5")
                 cond <- c(rv$current.obj@experimentData@other$condition1,
                           rv$current.obj@experimentData@other$condition2)
-                diffAnaVolcanoplot_rCharts2(df,
+                diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
                                             conditions = cond,
                                             clickFunction=hc_clickFunction) 
             } else {
-                df <- data_frame(x=rv$resAnaDiff$logFC, 
+                df <- data_frame(x=rv$resAnaDiff$FC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
                                  index = 1:nrow(fData(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
@@ -1132,7 +1135,7 @@ volcanoplot_rCharts <- reactive({
                     JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
                 #             print("avant 5")
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-                diffAnaVolcanoplot_rCharts2(df,
+                diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$seuilLogFC,
                                             conditions = cond,
                                             clickFunction=hc_clickFunction)
@@ -1166,7 +1169,7 @@ volcanoplot <- reactive({
     rv$current.obj
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$logFC) == 0) || is.null(rv$current.obj)) { 
+        (length(rv$resAnaDiff$FC) == 0) || is.null(rv$current.obj)) { 
         return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -1175,7 +1178,7 @@ volcanoplot <- reactive({
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
     result = tryCatch(
         {
-            diffAnaVolcanoplot(logFC = rv$resAnaDiff$logFC, 
+            diffAnaVolcanoplot(FC = rv$resAnaDiff$FC, 
                                pVal = rv$resAnaDiff$P_Value, 
                                threshold_logFC = rv$seuilLogFC,
                                conditions = cond)
@@ -1209,7 +1212,7 @@ volcanoplot_rCharts_Step3 <- reactive({
     if ( is.null(input$seuilPVal) ||
         is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
-        (length(rv$resAnaDiff$logFC) == 0) ||  is.null(rv$current.obj)) { 
+        (length(rv$resAnaDiff$FC) == 0) ||  is.null(rv$current.obj)) { 
         return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()} 
@@ -1217,8 +1220,8 @@ volcanoplot_rCharts_Step3 <- reactive({
     result = tryCatch(
         {
             
-            if ("logFC" %in% names(fData(rv$current.obj) )){
-                df <- data_frame(x=fData(rv$current.obj)$logFC, 
+            if ("FC" %in% names(fData(rv$current.obj) )){
+                df <- data_frame(x=fData(rv$current.obj)$FC, 
                                  y = -log10(fData(rv$current.obj)$P_Value),
                                  index = as.character(rownames(rv$current.obj)))
                 
@@ -1235,7 +1238,7 @@ volcanoplot_rCharts_Step3 <- reactive({
                     "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
                 )
                 
-                diffAnaVolcanoplot_rCharts2(df,
+                diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$current.obj@experimentData@other$threshold_logFC,
                                             threshold_pVal = rv$current.obj@experimentData@other$threshold_p_value,
                                             conditions = c(rv$current.obj@experimentData@other$condition1,
@@ -1245,7 +1248,7 @@ volcanoplot_rCharts_Step3 <- reactive({
             }else{
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
                 
-                df <- data_frame(x=rv$resAnaDiff$logFC, 
+                df <- data_frame(x=rv$resAnaDiff$FC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
                                  index = as.character(rownames(rv$current.obj)))
                 if (!is.null(input$tooltipInfo)){
@@ -1261,7 +1264,7 @@ volcanoplot_rCharts_Step3 <- reactive({
                     "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
                 )
                 
-                diffAnaVolcanoplot_rCharts2(df,
+                diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$seuilLogFC,
                                             threshold_pVal = rv$seuilPVal,
                                             conditions = cond,
@@ -1333,15 +1336,15 @@ volcanoplotStep3 <- reactive({
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
-        (length(rv$resAnaDiff$logFC) == 0) ||  is.null(rv$current.obj)) { 
+        (length(rv$resAnaDiff$FC) == 0) ||  is.null(rv$current.obj)) { 
         return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()} 
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
     result = tryCatch(
         {
-            if ("logFC" %in% names(fData(rv$current.obj) )){
-                diffAnaVolcanoplot(fData(rv$current.obj)$logFC,
+            if ("FC" %in% names(fData(rv$current.obj) )){
+                diffAnaVolcanoplot(fData(rv$current.obj)$FC,
                                    fData(rv$current.obj)$P_Value, 
                                    rv$current.obj@experimentData@other$threshold_p_value,
                                    rv$current.obj@experimentData@other$threshold_logFC,
@@ -1351,7 +1354,7 @@ volcanoplotStep3 <- reactive({
             }else{
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
                 
-                diffAnaVolcanoplot(rv$resAnaDiff$logFC, 
+                diffAnaVolcanoplot(rv$resAnaDiff$FC, 
                                    rv$resAnaDiff$P_Value, 
                                    rv$seuilPVal, 
                                    rv$seuilLogFC,
@@ -1403,22 +1406,22 @@ output$showSelectedItems <- DT::renderDataTable({
             # isolate({
             t <- NULL
             # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-            if (isContainedIn(c("logFC","P_Value"),
+            if (isContainedIn(c("FC","P_Value"),
                               names(Biobase::fData(rv$current.obj)) ) ){
                 selectedItems <- 
                     (which(Biobase::fData(rv$current.obj)$Significant == TRUE)) 
                 t <- data.frame(id =  
                                     rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                                 Biobase::fData(rv$current.obj)[selectedItems,
-                                                               c("logFC", "P_Value", "Significant")])
+                                                               c("FC", "P_Value", "Significant")])
             } else{
                 data <- rv$resAnaDiff
                 upItems1 <- which(-log10(data$P_Value) >= rv$seuilPVal)
-                upItems2 <- which(abs(data$logFC) >= rv$seuilLogFC)
+                upItems2 <- which(abs(data$FC) >= rv$seuilLogFC)
                 selectedItems <- intersect(upItems1, upItems2)
                 t <- data.frame(id =  
                                     rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-                                logFC = data$logFC,
+                                FC = data$FC,
                                 P_Value = data$P_Value)
             }
             t
