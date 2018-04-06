@@ -336,7 +336,7 @@ output$showFDR <- renderText({
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return()}
     if (is.null(rv$current.obj)) {return()}
-    if (is.null(rv$resAnaDiff$FC)) {return()}
+    if (is.null(rv$resAnaDiff)) {return()}
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
     {return()}
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
