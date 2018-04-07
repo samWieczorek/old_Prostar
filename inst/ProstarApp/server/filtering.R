@@ -1,5 +1,6 @@
 
 
+
 output$DP_sidebar_FilterTab1 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return()}
@@ -136,12 +137,9 @@ output$seuilNADelete <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)   }
     if (input$ChooseFilters==gFilterNone) {return(NULL)   }
     
-    choix <- list()
-    vMax <- GetMaxValueThresholdFilter()
-    choix[[1]] <- 0
-    for (i in 2:(vMax+1)){
-        choix[[i]] <- i-1
-    }
+    
+    choix <- GetMaxValueThresholdFilter()
+    
     ch <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.threshold
     
@@ -269,13 +267,15 @@ UpdateFilterWidgets <- function(){
 GetMaxValueThresholdFilter <- function(){
     input$ChooseFilters
     vMax <- 0
-    
+    choix <- list()
     
     result = tryCatch(
         {
             isolate({
                 if (input$ChooseFilters == gFilterWholeMat) { 
-                    vMax <- ncol(Biobase::exprs(rv$current.obj))}
+                    vMax <- ncol(Biobase::exprs(rv$current.obj))
+                    choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
+                    }
                 else if (input$ChooseFilters == gFilterAllCond 
                          || input$ChooseFilters == gFilterOneCond){ 
                     ll <- NULL
@@ -286,9 +286,12 @@ GetMaxValueThresholdFilter <- function(){
                     }
                     
                     vMax <- min(ll)
+                    choix[[1]] <- 0
+                    for (i in 2:(vMax+1)){
+                      choix[[i]] <- i-1
+                    }
                 }
-                
-                return(vMax)
+                return(choix)
             })
         }
         , warning = function(w) {
@@ -716,4 +719,5 @@ output$helpTextMV <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)}
     helpText("After checking the data, validate the filters.")
 })
+
 
