@@ -299,7 +299,8 @@ observe({
              rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
              },
            ttests={
-             rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
+            if (is.null(input$ttest_options)) {return()}
+               rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
                                                                       Contrast=input$anaDiff_Design,
                                                                       type=input$ttest_options)
            })
