@@ -12,7 +12,8 @@ tabsetPanel(
                                              
                                    ),
                                    tagList(
-                                            HTML("The user-defined threshold allows it to tune the minimum amount of non-NA
+                                     busyIndicator(WaitMsgCalc,wait = 0),
+                                     HTML("The user-defined threshold allows it to tune the minimum amount of non-NA
                                                          values for each line to <br> be kept in the dataset 
                                                          (the line is filtered out otherwise). 
                                                          The threshold either applies on the whole  <br> dataset, on 
@@ -57,3 +58,4 @@ tabsetPanel(
          )
 )
 )
+
