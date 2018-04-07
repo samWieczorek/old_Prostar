@@ -48,23 +48,28 @@ AnaDiff_GetMaxValueThresholdFilter <- function(){
     
     result = tryCatch(
         {
-            isolate({
-                if (input$AnaDiff_ChooseFilters == gFilterWholeMat) { 
-                    vMax <- ncol(Biobase::exprs(rv$current.obj))}
-                else if (input$AnaDiff_ChooseFilters == gFilterAllCond 
-                         || input$AnaDiff_ChooseFilters == gFilterOneCond){ 
-                    ll <- NULL
-                    for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
-                        ll <- c(ll, length(which(
-                            Biobase::pData(rv$current.obj)$Label==
-                                unique(Biobase::pData(rv$current.obj)$Label)[i])))
-                    }
-                    
-                    vMax <- min(ll)
-                }
-                
-                return(vMax)
-            })
+          isolate({
+            if (input$ChooseFilters == gFilterWholeMat) { 
+              vMax <- ncol(Biobase::exprs(rv$current.obj))
+              choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
+            }
+            else if (input$ChooseFilters == gFilterAllCond 
+                     || input$ChooseFilters == gFilterOneCond){ 
+              ll <- NULL
+              for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
+                ll <- c(ll, length(which(
+                  Biobase::pData(rv$current.obj)$Label==
+                    unique(Biobase::pData(rv$current.obj)$Label)[i])))
+              }
+              
+              vMax <- min(ll)
+              choix[[1]] <- 0
+              for (i in 2:(vMax+1)){
+                choix[[i]] <- i-1
+              }
+            }
+            return(choix)
+          })
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -88,12 +93,8 @@ output$AnaDiff_seuilNADelete <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)   }
     if (input$AnaDiff_ChooseFilters==gFilterNone) {return(NULL)   }
     
-    choix <- list()
-    vMax <- AnaDiff_GetMaxValueThresholdFilter()
-    choix[[1]] <- 0
-    for (i in 2:(vMax+1)){
-        choix[[i]] <- i-1
-    }
+    choix <- AnaDiff_GetMaxValueThresholdFilter()
+   
     #ch <- NULL
     #tag <- rv$current.obj@experimentData@other$mvFilter.threshold
     
