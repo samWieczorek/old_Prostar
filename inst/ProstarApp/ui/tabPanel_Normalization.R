@@ -22,7 +22,8 @@ tabPanel("Normalization",
                      )
                      ,tagList(uiOutput("helpForNormalizationMethods"),
                                        #plotOutput("viewBoxPlotNorm")
-                                       fluidRow(
+                              busyIndicator("Building plot, please wait",wait = 0),
+                              fluidRow(
                                            column(width=6, moduleDensityplotUI("densityPlot_Norm")),
                                            column(width=6, plotOutput("viewComparisonNorm_DS"))),
                                        moduleBoxplotUI("boxPlot_Norm")
