@@ -37,11 +37,11 @@ moduleBoxplot <- function(input, output, session) {
 moduleMVPlots <- function(input, output, session, data) {
     
     output$plot_viewNAbyMean <- renderHighchart({
-        viewNAbyMean(data)
+        viewNAbyMean(data())
     })
     
     output$plot_showImageNA <- renderPlot({
-        showImageNA(data)
+        showImageNA(data())
     })
 }
 
