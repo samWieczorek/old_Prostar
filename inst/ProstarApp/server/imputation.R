@@ -1,8 +1,8 @@
 
 
-callModule(moduleMVPlots,"mvImputationPlots_MV", getToto())
-callModule(moduleMVPlots,"mvImputationPlots_LAPALA", rv$imputePlotsSteps[["step1"]])
-callModule(moduleMVPlots,"mvImputationPlots_Valid", rv$imputePlotsSteps[["step2"]])
+callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$dataset[[input$datasets]]))
+callModule(moduleMVPlots,"mvImputationPlots_LAPALA", data=reactive(rv$imputePlotsSteps[["step1"]]))
+callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
 
 getToto <- reactive({
@@ -527,25 +527,8 @@ output$helpForImputation <- renderText({
 
 
 viewNAbyMean <- function(data){
-    #rv$current.obj
-    dataset[[input$datasets]]
-    if (is.null(data)) {return(NULL)}
-    
-    isolate({
-        result = tryCatch(
-            {
-                wrapper.hc_mvTypePlot2(data)
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
-        
-    })
+       if (is.null(data)) {return(NULL)}
+         wrapper.hc_mvTypePlot2(data)
     
 }
 
@@ -553,24 +536,8 @@ viewNAbyMean <- function(data){
 
 showImageNA <- function(data){
     if(is.null(data)){return()}
-    # rv$current.obj
     
-    isolate({
-        
-        #if (is.null(rv$current.obj)) {return(NULL)}
-        result = tryCatch(
-            {
-                wrapper.mvImage(data)
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
-    })
+    wrapper.mvImage(data)
     
 }
 ##' boxplot of intensities in current.obj
