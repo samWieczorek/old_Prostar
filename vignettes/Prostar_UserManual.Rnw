@@ -646,7 +646,7 @@ plots are:
 
 \subsubsection {Data explorer}\label{sec:dataexplorer}
 This panel allows viewing the content of the MSnSet structure. It is made of 
-four tables, that are represented in a tab each. 
+four tables, which can be displayed one at a time thanks to the radio button on the left menu. 
 %by the three tables of the MSnSet format.
 The first one, named "Quantitative data" contains quantitative values 
 (see Fig.~\ref{fig:sdqv1}). The missing values are represented by empty cells.
@@ -658,7 +658,7 @@ The first one, named "Quantitative data" contains quantitative values
 \end {figure}
 
 
-The second tab is named "Analyte metadata". It contains the metadata of the 
+The second tab is named "Protein metadata" or "Peptide metadata". It contains the metadata of the 
 proteins (see Fig.~\ref{fig:sdqv2}).
 
 \begin {figure}
@@ -667,7 +667,7 @@ proteins (see Fig.~\ref{fig:sdqv2}).
 \caption{View of feature meta-data in the MSnSet dataset}\label{fig:sdqv2}
 \end {figure}
 
-The thrid tab is named "Replicate metadata". The information displayed here 
+The third tab is named "Replicate metadata". The information displayed here 
 is the one entered by the user during the import step 
 (see Fig.~\ref{fig:sdqv3}).
 
