@@ -608,7 +608,7 @@ session in ProStaR.}\label{fig:Rcode}
 
 Several plots (one plot per tab) are proposed to help the user to have a 
 quick and as complete as possible overview of his/her dataset. This menu is 
-an essentiel element for the user to check that each processing step indeed 
+an essential element for the user to check that each processing step indeed 
 gave the expected result.
 %It is a crucial step to choose the statistical methods further.
 
