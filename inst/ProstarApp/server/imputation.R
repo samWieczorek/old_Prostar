@@ -1,15 +1,9 @@
 
 
-callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$dataset[[input$datasets]]))
+callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSteps[["step0"]]))
 callModule(moduleMVPlots,"mvImputationPlots_LAPALA", data=reactive(rv$imputePlotsSteps[["step1"]]))
 callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
-
-getToto <- reactive({
-    dataset[[input$datasets]]
-    
-    return(dataset[[input$datasets]])
-})
 
 # observe({
 #     input$perform.imputationClassical.button
@@ -20,12 +14,24 @@ getToto <- reactive({
 # })
 # 
 
+
+# observeEvent(input$datasets,{
+#     if (length(grep("Imputed", input$datasets))==0){
+#         shinyjs::enable("perform.imputationClassical.button")
+#     } else {
+#         shinyjs::disable("perform.imputationClassical.button")
+#     }
+#     
+# })
+
+
 observeEvent(input$ClassicalMV_missing.value.algorithm,{
 
     rv$impute_Step <- 0
     #if (is.null(input$ClassicalMV_missing.value.algorithm) || input$ClassicalMV_missing.value.algorithm == "None")
     #{
-        shinyjs::disable("perform.imputationLAPALA.button")
+    shinyjs::disable("perform.imputationClassical.button")
+    shinyjs::disable("perform.imputationLAPALA.button")
         shinyjs::disable("ValidImputation")
         updateSelectInput(session, "Lapala_missing.value.algorithm", selected = "None")
     #}
@@ -57,6 +63,13 @@ output$sidebar_imputation_step1 <- renderUI({
     tag <- rv$current.obj@experimentData@other$classicalMV_imputation.method
     if (!is.null(tag)){ m <- tag}
     
+    if (length(grep("Imputed", input$datasets))==0){
+        rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
+        shinyjs::enable("perform.imputationClassical.button")
+    } else {
+        shinyjs::disable("perform.imputationClassical.button")
+    }
+    
     algo <- NULL
     switch(rv$typeOfDataset,
            protein = {algo <- imputationAlgorithmsProteins_ClassicalMV},
@@ -71,15 +84,9 @@ output$sidebar_imputation_step1 <- renderUI({
                 selected = .choice
                 # selected = names(which(algo == tag))
     ),
-    uiOutput("ClassicalMV_Params"),
-    actionButton("perform.imputationClassical.button",
-                 "Perform classical MV imputation")
-)
-})
-
-
-output$ClassicalMV_chooseImputationMethod <- renderUI({
-    
+    uiOutput("ClassicalMV_Params")
+    )
+   
 })
 
 
@@ -224,8 +231,8 @@ observeEvent(input$perform.imputationClassical.button,{
        # result = tryCatch(
     #        {
                 rv$lapalaIndex <-NULL
-                rv$current.obj <- rv$dataset[[input$datasets]]
-                rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
+                rv$current.obj <- rv$imputePlotsSteps[["step0"]]
+                
                 rv$lapalaIndex <- findLapalaBlock(rv$current.obj)
                 busyIndicator(WaitMsgCalc,wait = 0)
                 switch(input$ClassicalMV_missing.value.algorithm,
@@ -344,6 +351,9 @@ observeEvent(input$ValidImputation,{
                 updateNumericInput(session,"Lapala_detQuant_factor", "Factor", value = input$Lapala_detQuant_factor)
                 updateNumericInput(session,"Lapala_fixedValue", "Fixed value", value = input$Lapala_fixedValue)
                 
+                #shinyjs::disable("perform.imputationClassical.button")
+                shinyjs::disable("perform.imputationLAPALA.button")
+                shinyjs::disable("ValidImputation")
                 
                 ## Add the necessary text to the Rmd file
                 #txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
@@ -355,47 +365,6 @@ observeEvent(input$ValidImputation,{
 
 
 
-
-
-
-# histoMV_Image <- reactive({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)}
-#     result = tryCatch(
-#         {
-#             if (!is.null(rv$current.obj)){wrapper.mvHisto_HC(rv$current.obj)}
-#         }
-#         , warning = function(w) {
-#             shinyjs::info(conditionMessage(w))
-#         }, error = function(e) {
-#             shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-#         }, finally = {
-#             #cleanup-code 
-#         })
-#     
-# })
-
-# 
-# output$histoMV_Image <- renderHighchart({
-#    
-#     histoMV_Image()
-#     
-# })
-
-
-
-##' xxxxxxxxxxxxxxxxxxxxxxxx
-##' @author Samuel Wieczorek
-# output$showImageNA <- renderPlot({
-#     showImageNA()
-# })
-
-
-##' xxxxxxxxxxxxxxxxxxxxxxxx
-##' @author Samuel Wieczorek
-# output$showImageNA_LAPALA <- renderPlot({
-#     showImageNA()
-# })
 
 
 output$ImputationSaved <- renderUI({
@@ -446,30 +415,6 @@ output$warningLapalaImputation<- renderText({
     
 
 })
-
-
-
-
-###################
-
-
-# 
-# output$warningLapala <- renderUI({
-#     input$imp4p_withLapala
-#     if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
-#     
-#     
-#     t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-#         to analytes (peptides or proteins) <br>that are entirely missing in some 
-#         conditions while they are (partially or totally) <br>visible in others. There 
-#         specific accounting in a conservative way is a real issue as the imputation <br>
-#         cannot rely on any observed value in a given condition.
-#         <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
-#         value as a centile of the observed
-#         distribution (a tuning between 0% and 10% is advised). <br>
-#         Warning: imputed lapala values must be very cautiously interpreted"
-#     HTML(t)
-# })
 
 
 
@@ -540,18 +485,3 @@ showImageNA <- function(data){
     wrapper.mvImage(data)
     
 }
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-# output$viewNAbyMean <- renderPlot({
-#     rv$current.obj
-#     viewNAbyMean()
-# })
-
-
-
-
-# output$viewNAbyMean_LAPALA <- renderPlot({
-#     rv$current.obj
-#     viewNAbyMean()
-# })
-

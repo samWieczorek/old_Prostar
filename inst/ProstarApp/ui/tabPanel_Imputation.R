@@ -11,7 +11,9 @@ tabPanel("Miss. values imputation",
                                             height = "100%",
                                             h4("Miss. values imputation options"),
                                             br(),
-                                            uiOutput("sidebar_imputation_step1")
+                                            uiOutput("sidebar_imputation_step1"),
+                                            actionButton("perform.imputationClassical.button",
+                                                         "Perform classical MV imputation")
                                             
                                   ),
                                   tagList(
