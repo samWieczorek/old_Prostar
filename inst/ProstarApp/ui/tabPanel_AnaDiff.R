@@ -10,7 +10,15 @@ tabPanel("Differential analysis",
                                       id = "sidebar_DiffAna1",
                                             height = "100%"
                                             #,h4("Differential analysis global options")
-                                            ,uiOutput("diffAnalysis_GlobalOptions_SB")
+                                            ,
+                                      tagList(
+                                        selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
+                                        selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+                                        uiOutput("OptionsForT_tests"),
+                                        numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
+                                        
+                                        #actionButton("anaDiff_Next1_Button", "Next")
+                                      )
                                   ),
                                   tagList(
                                       busyIndicator("Building plot, please wait",wait = 0),
@@ -28,8 +36,10 @@ tabPanel("Differential analysis",
                                   wellPanel(
                                       id = "sidebar_DiffAna2",
                                             height = "100%"
-                                            ,h4("Comparisons options")
+                                            ,uiOutput("newComparisonUI")
+                                          ,h4("Comparisons options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")
+                                      ,actionButton("AnaDiff_perform.filtering.MV", "Perform previous MV filtering")
                                   ),
                                   tagList(
                                        fluidRow(
