@@ -16,22 +16,33 @@ output$warningNA <- renderUI({
 
 
 
-
-
-
-output$diffAnalysis_GlobalOptions_SB <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) { return()}
+output$newComparisonUI <- renderUI({
+  rv$current.obj
+  
+  if (is.null(rv$current.obj)){ return()}
+  
+  if ("Significant" %in% colnames(Biobase::fData(rv$current.obj))){
     
-    tagList(
-        selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
-        selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
-        uiOutput("OptionsForT_tests"),
-        numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
-        
-        #actionButton("anaDiff_Next1_Button", "Next")
-    ) })
+      actionButton("newComparison", "New comparison")
+  }
+  
+})
 
+# 
+# 
+# output$diffAnalysis_GlobalOptions_SB <- renderUI({
+#    # rv$current.obj
+#     #if (is.null(rv$current.obj)) { return()}
+#     
+#     tagList(
+#         selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
+#         selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+#         uiOutput("OptionsForT_tests"),
+#         numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
+#         
+#         #actionButton("anaDiff_Next1_Button", "Next")
+#     ) })
+# 
 
 
 output$OptionsForT_tests <- renderUI({
@@ -41,59 +52,15 @@ output$OptionsForT_tests <- renderUI({
     
 })
 
-AnaDiff_GetMaxValueThresholdFilter <- function(){
-    input$AnaDiff_ChooseFilters
-    vMax <- 0
-    
-    
-    result = tryCatch(
-        {
-          isolate({
-            if (input$ChooseFilters == gFilterWholeMat) { 
-              vMax <- ncol(Biobase::exprs(rv$current.obj))
-              choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
-            }
-            else if (input$ChooseFilters == gFilterAllCond 
-                     || input$ChooseFilters == gFilterOneCond){ 
-              ll <- NULL
-              for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
-                ll <- c(ll, length(which(
-                  Biobase::pData(rv$current.obj)$Label==
-                    unique(Biobase::pData(rv$current.obj)$Label)[i])))
-              }
-              
-              vMax <- min(ll)
-              choix[[1]] <- 0
-              for (i in 2:(vMax+1)){
-                choix[[i]] <- i-1
-              }
-            }
-            return(choix)
-          })
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-    
-    
-}
 
 
 output$AnaDiff_seuilNADelete <- renderUI({ 
-    input$ChooseFilters
-    
+    input$AnaDiff_ChooseFilters
+  rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)   }
     if (input$AnaDiff_ChooseFilters==gFilterNone) {return(NULL)   }
     
-    choix <- AnaDiff_GetMaxValueThresholdFilter()
+    choix <- getListNbValuesInLines(rv$current.obj, type=input$AnaDiff_ChooseFilters)
    
     #ch <- NULL
     #tag <- rv$current.obj@experimentData@other$mvFilter.threshold
@@ -149,9 +116,9 @@ if (input$selectComparison== "None"){
 
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
-    rv$current.obj
+    #rv$current.obj
     rv$res_AllPairwiseComparisons
-    if (is.null(rv$current.obj)) { return()}
+    #if (is.null(rv$current.obj)) { return()}
     if (is.null(rv$res_AllPairwiseComparisons)) { return()}
   
     .choices <- colnames(rv$res_AllPairwiseComparisons$FC)
@@ -163,8 +130,7 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         h4("Filtering options"),
         radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersList),
-        uiOutput("AnaDiff_seuilNADelete"),
-        actionButton("AnaDiff_perform.filtering.MV", "Perform previous MV filtering")
+        uiOutput("AnaDiff_seuilNADelete")
     ) })
 
 
@@ -638,9 +604,7 @@ observeEvent(input$ValidDiffAna,{
                                            input$calibrationMethod)
                 
                 
-                name <- paste("DiffAnalysis.", input$diffAnaMethod, " - ", 
-                              rv$typeOfDataset, 
-                              sep="")
+                name <- paste("DiffAnalysis - ", rv$typeOfDataset, sep="")
                 
                 rv$dataset[[name]] <- temp
                 rv$current.obj <- temp
@@ -651,7 +615,15 @@ observeEvent(input$ValidDiffAna,{
                                         rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
+                updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
+                updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod)
+                updateNumericInput(session, "seuilLogFC", value=input$seuilLogFC)
+                updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
                 
+                updateSelectInput(session,"selectComparison", selected=input$selectComparison)
+                updateCheckboxInput(session,"swapVolcano", value=input$swapVolcano )
+                updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=input$AnaDiff_ChooseFilters)
+                updateSelectInput(session, "AnaDiff_seuilNA", selected=input$AnaDiff_seuilNA)
                 
                 
                 ####write command Log file
@@ -993,7 +965,9 @@ observeEvent(rv$current.obj,{
 
 output$selectTooltipInfo <- renderUI({
     rv$current.obj
+  input$selectComparison
     if (is.null(rv$current.obj)){return()}
+  if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
     
     #selectInput("tooltipInfo", "Select the info you want to see", choices = colnames(fData(rv$current.obj)))
     selectizeInput("tooltipInfo",
@@ -1447,34 +1421,34 @@ output$showSelectedItems <- DT::renderDataTable({
 
 
 # ---- Download of only significat data --------------
-output$linkWelch <- renderUI({
-    input$ExportWelchTest
-    if (input$ExportWelchTest == 0) {return() }
-    
-    saveMSnset(input$filenameWelchData,
-               gFileExtension$msnset,
-               rv$current.obj[
-                   which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)])
-    filename <- paste(input$filenameWelchData, gFileExtension$msnset, sep="")
-    
-    completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
-    a(filename, href=completeFilename)
-    
-})
+# output$linkWelch <- renderUI({
+#     input$ExportWelchTest
+#     if (input$ExportWelchTest == 0) {return() }
+#     
+#     saveMSnset(input$filenameWelchData,
+#                gFileExtension$msnset,
+#                rv$current.obj[
+#                    which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)])
+#     filename <- paste(input$filenameWelchData, gFileExtension$msnset, sep="")
+#     
+#     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
+#     a(filename, href=completeFilename)
+#     
+# })
 
 # ---- Download of only significat data --------------
-output$linkLimma <- renderUI({
-    input$ExportdiffAnaLimma
-    if (input$ExportdiffAnaLimma == 0) {return() }
-    
-    saveMSnset(input$filenameLimmaData, gFileExtension$msnset, 
-               rv$current.obj[
-                   which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)])
-    filename <- paste(input$filenameLimmaData, gFileExtension$msnset, sep="")
-    completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
-    a(filename, href=completeFilename)
-    
-})
+# output$linkLimma <- renderUI({
+#     input$ExportdiffAnaLimma
+#     if (input$ExportdiffAnaLimma == 0) {return() }
+#     
+#     saveMSnset(input$filenameLimmaData, gFileExtension$msnset, 
+#                rv$current.obj[
+#                    which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)])
+#     filename <- paste(input$filenameLimmaData, gFileExtension$msnset, sep="")
+#     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
+#     a(filename, href=completeFilename)
+#     
+# })
 
 
 
