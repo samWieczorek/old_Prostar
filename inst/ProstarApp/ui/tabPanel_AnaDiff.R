@@ -11,13 +11,12 @@ tabPanel("Differential analysis",
                                             height = "100%"
                                             #,h4("Differential analysis global options")
                                             ,
+                                      #uiOutput("diffAnalysis_GlobalOptions_SB")
                                       tagList(
-                                        selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
-                                        selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
-                                        uiOutput("OptionsForT_tests"),
-                                        numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
-                                        
-                                        #actionButton("anaDiff_Next1_Button", "Next")
+                                          selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
+                                          selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+                                          uiOutput("OptionsForT_tests"),
+                                          numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
                                       )
                                   ),
                                   tagList(

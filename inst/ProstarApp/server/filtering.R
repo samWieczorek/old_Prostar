@@ -22,43 +22,58 @@ output$symbolicFilters <- renderUI({
 ##############################################################################
 
 
+
+output$nbDeletedUI <- renderUI({
+    req( rv$nbDeletedInfos)
+    
+    print(rv$nbDeletedInfos)
+    HTML(rv$nbDeletedInfos)
+})
+
+
+
 observeEvent(input$Filter,{
   shinyjs::enable("addSymbolicFilterModule")
-  print("Action button filter")
-  print(paste0("number of modules:", length(symbolicFilterModules)))
   iLast <- length(symbolicFilterModules)
   duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", iLast)
   cname <- input[[paste0(duplicateSymbolicFilterid,"-cname")]]
     tagName <- input[[paste0(duplicateSymbolicFilterid,"-tagName")]]
-  #print(paste0(cname, "  ", tagName))
-
   
   temp <- rv$current.obj
   
   res <- StringBasedFiltering2(temp,cname, tagName)
   
-  rv$deleted.stringBased <- res[["deleted"]]
+  rv$deleted.stringBased.exprsData <- rbind(rv$deleted.stringBased.exprsData,Biobase::exprs(res[["deleted"]]))
+   rv$deleted.stringBased.fData <- rbind(rv$deleted.stringBased.fData, Biobase::fData(res[["deleted"]])) 
+
+   rv$nbDeleted <-  c(rv$nbDeleted ,nrow(res[["deleted"]]))
   
-  # if (is.null(rv$deleted.stringBased)){
-  #   rv$deleted.stringBased <- res[["deleted"]]
-  # } else {
-  #   exprs(rv$deleted.stringBased) <- rbind(exprs(rv$deleted.stringBased), exprs(res[["deleted"]]))
-  #   fData(rv$deleted.stringBased) <- rbind(fData(rv$deleted.stringBased), fData(res[["deleted"]]))
-  #   
-  # }
-   rv$nbDeleted <-  rv$nbDeleted + nrow(rv$deleted.stringBased)
-  
+   rv$nbDeletedInfos <- paste0(rv$nbDeletedInfos, "<br>", cname, " : ", nrow(res[["deleted"]]), " lines deleted")
+                               
   rv$current.obj <- res[["obj"]]
   rv$stringBasedFiltering_Done = TRUE
-  print(paste0("nb deleted:",rv$nbDeleted))
   
-  
+  for (i in 1:(iLast)){
+      duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", i)
+      updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-cname"),
+                        selected=input[[paste0(duplicateSymbolicFilterid,"-cname")]])
+      updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-tagName"),
+                        selected=input[[paste0(duplicateSymbolicFilterid,"-tagName")]])
+  }
 })
 
 
 
 observeEvent(input$addSymbolicFilterModule,{
  shinyjs::disable("addSymbolicFilterModule")
+    iLast <- length(symbolicFilterModules)
+    for (i in 1:(iLast-1)){
+        duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", i)
+        updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-cname"),
+                      selected=input[[paste0(duplicateSymbolicFilterid,"-cname")]])
+        updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-tagName"),
+                      selected=input[[paste0(duplicateSymbolicFilterid,"-tagName")]])
+    }
 })
 
 
@@ -121,25 +136,19 @@ output$VizualizeFilteredData <- DT::renderDataTable({
      rv$deleted.mvLines
      input$ChooseViewAfterFiltering
      input$ChooseTabAfterFiltering
-     
+     rv$deleted.stringBased.exprsData
+     rv$deleted.stringBased.fData
       
      if (is.null(input$ChooseTabAfterFiltering)
          ||is.null(input$ChooseViewAfterFiltering) 
-         ||is.null(input$nDigitsMV) 
-         #||is.null(rv$current.obj)
-          ){
-         
+         ||is.null(input$nDigitsMV) ){
          return(NULL)
          }
      
-    
     if (is.null(input$nDigitsMV)){nDigits = 1e100}
      else {nDigitsMV = 3}
     
-  
     data <- NULL
-    
-    
     
     if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
         {
@@ -152,17 +161,16 @@ output$VizualizeFilteredData <- DT::renderDataTable({
             }
     } 
     
-    else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
-        obj <- rv$deleted.stringBased
+    else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased.exprsData)) {
+        
         if(input$ChooseTabAfterFiltering == "quantiData" )
         {
-            data <- cbind(ID = rownames(Biobase::fData(obj)), round(Biobase::exprs(obj), digits=nDigitsMV))
+            data <-  round(rv$deleted.stringBased.exprsData, digits=nDigitsMV)
         }else {
-            data <- cbind(ID = rownames(Biobase::fData(obj)),Biobase::fData(obj))
+            data <- rv$deleted.stringBased.fData
             }
     } 
  
-
    DT::datatable(as.data.frame(data),
                          options=list(pageLength=DT_pagelength,
                                       orderClasses = TRUE,
@@ -196,54 +204,54 @@ output$seuilNADelete <- renderUI({
     
 })
 
-
-GlobalPieChart <- reactive({
-    rv$current.obj
-    rv$nbContaminantsDeleted
-    rv$nbReverseDeleted
-    rv$nbBothDeleted
-    #input$idBoxContaminants
-    #input$prefixContaminants
-    #input$idBoxReverse
-   # input$prefixReverse
-   # if (is.null(rv$current.obj)) {return()}
-   # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-   
-    # result = tryCatch(
-    #     {
-    #         
-    isolate({
-        proportionConRev_HC(rv$nbBothDeleted,
-                            rv$nbContaminantsDeleted, 
-                            rv$nbReverseDeleted, 
-                            nrow(rv$current.obj))
-      
-    })
-    
-})
-
-output$GlobalPieChart <- renderHighchart({
-  rv$current.obj
-    rv$nbBothDeleted
-    rv$nbContaminantsDeleted
-  rv$nbReverseDeleted
-  input$idBoxContaminants
-  input$prefixContaminants
-  input$idBoxReverse
-  input$prefixReverse
-  
-  if (is.null(rv$current.obj)) {return()}
-  #if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-  if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-      is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-      is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-      is.null(input$prefixReverse) || (input$prefixReverse == "")
-  ) {return(NULL)}
-  
-
-  
-    GlobalPieChart()
-})
+# 
+# GlobalPieChart <- reactive({
+#     rv$current.obj
+#     rv$nbContaminantsDeleted
+#     rv$nbReverseDeleted
+#     rv$nbBothDeleted
+#     #input$idBoxContaminants
+#     #input$prefixContaminants
+#     #input$idBoxReverse
+#    # input$prefixReverse
+#    # if (is.null(rv$current.obj)) {return()}
+#    # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
+#    
+#     # result = tryCatch(
+#     #     {
+#     #         
+#     isolate({
+#         proportionConRev_HC(rv$nbBothDeleted,
+#                             rv$nbContaminantsDeleted, 
+#                             rv$nbReverseDeleted, 
+#                             nrow(rv$current.obj))
+#       
+#     })
+#     
+# })
+# 
+# output$GlobalPieChart <- renderHighchart({
+#   rv$current.obj
+#     rv$nbBothDeleted
+#     rv$nbContaminantsDeleted
+#   rv$nbReverseDeleted
+#   input$idBoxContaminants
+#   input$prefixContaminants
+#   input$idBoxReverse
+#   input$prefixReverse
+#   
+#   if (is.null(rv$current.obj)) {return()}
+#   #if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
+#   if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
+#       is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
+#       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
+#       is.null(input$prefixReverse) || (input$prefixReverse == "")
+#   ) {return(NULL)}
+#   
+# 
+#   
+#     GlobalPieChart()
+# })
 
 
 
@@ -613,19 +621,9 @@ output$ObserverStringBasedFilteringDone <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
     
-    if(is.null(input$ChooseFilters) || (input$ValidateFilters == 0)) 
-    {return(NULL)}
+    #if( (input$ValidateFilters == 0)) {return(NULL)}
     if(is.null(rv$current.obj)) {return(NULL)}
-    
-    isolate({
-        
-        
-        result = tryCatch(
-            {
-                
-                if((input$ChooseFilters != gFilterNone) 
-                   || !is.null(input$idBoxContaminants) 
-                   || !is.null(input$idBoxReverse)){
+            if((input$ChooseFilters != gFilterNone) || (sum(rv$nbDeleted )>0)){
                     
                     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
@@ -662,20 +660,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
                     
                 }
                 
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste("Validate filters",":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
-        
-    })
-    
+
 })
 
 
@@ -691,58 +676,58 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
 # })
 
 
-
-output$choosePrefixContaminants <- renderUI({
-    rv$current.obj
-    input$idBoxContaminants
-    if (is.null(rv$current.obj)) {return(NULL)  }
-   # if (input$idBoxContaminants=="") {return(NULL)  }
-    if (is.null(input$idBoxContaminants) ) {return(NULL)  }
-    
-   # if (input$idBoxContaminants != ""){
-      textInput("prefixContaminants", label = "Choose prefix",value = "")
-   # }
-})
-
-
-output$choosePrefixReverse <- renderUI({
-    rv$current.obj
-    input$idBoxReverse
-    if (is.null(rv$current.obj)) {return(NULL)  }
-    #if (input$idBoxReverse == "") {return(NULL)  }
-    if (is.null(input$idBoxReverse) ) {return(NULL)  }
-    
-   # if (input$idBoxReverse != ""){
-      textInput("prefixReverse", label = "Choose prefix",value = "")
-   # }
-})
+# 
+# output$choosePrefixContaminants <- renderUI({
+#     rv$current.obj
+#     input$idBoxContaminants
+#     if (is.null(rv$current.obj)) {return(NULL)  }
+#    # if (input$idBoxContaminants=="") {return(NULL)  }
+#     if (is.null(input$idBoxContaminants) ) {return(NULL)  }
+#     
+#    # if (input$idBoxContaminants != ""){
+#       textInput("prefixContaminants", label = "Choose prefix",value = "")
+#    # }
+# })
 
 
+# output$choosePrefixReverse <- renderUI({
+#     rv$current.obj
+#     input$idBoxReverse
+#     if (is.null(rv$current.obj)) {return(NULL)  }
+#     #if (input$idBoxReverse == "") {return(NULL)  }
+#     if (is.null(input$idBoxReverse) ) {return(NULL)  }
+#     
+#    # if (input$idBoxReverse != ""){
+#       textInput("prefixReverse", label = "Choose prefix",value = "")
+#    # }
+# })
+# 
 
-output$id_Contaminants <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)  }
-    
-    .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
-    names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
-    selectInput("idBoxContaminants", 
-                label = "Choose column", 
-                choices = .choices , 
-                selected = "")
-})
+# 
+# output$id_Contaminants <- renderUI({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)  }
+#     
+#     .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
+#     names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
+#     selectInput("idBoxContaminants", 
+#                 label = "Choose column", 
+#                 choices = .choices , 
+#                 selected = "")
+# })
 
-
-output$id_Reverse <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)  }
-    
-    .choices <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-    names(.choices) <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-    selectInput("idBoxReverse", 
-                label = "Choose column", 
-                choices = .choices , 
-                selected = "")
-})
+# 
+# output$id_Reverse <- renderUI({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)  }
+#     
+#     .choices <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
+#     names(.choices) <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
+#     selectInput("idBoxReverse", 
+#                 label = "Choose column", 
+#                 choices = .choices , 
+#                 selected = "")
+# })
 
 
 

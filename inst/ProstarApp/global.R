@@ -32,7 +32,7 @@ library(vioplot)
 library(ggplot2)
 library(gplots)
 
-source(file.path(".", "modules.R"),  local = TRUE)$value
+source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 # Declaration of global variables
 

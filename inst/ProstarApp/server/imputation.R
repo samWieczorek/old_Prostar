@@ -32,7 +32,7 @@ observeEvent(input$ClassicalMV_missing.value.algorithm,{
     #{
     shinyjs::disable("perform.imputationClassical.button")
     shinyjs::disable("perform.imputationLAPALA.button")
-        shinyjs::disable("ValidImputation")
+    shinyjs::disable("ValidImputation")
         updateSelectInput(session, "Lapala_missing.value.algorithm", selected = "None")
     #}
     #else {
@@ -54,6 +54,17 @@ observeEvent(input$ClassicalMV_missing.value.algorithm,{
 
 
 
+# 
+# observe({
+#     rv$datasets
+#     if (length(grep("Imputed", input$datasets))==0){
+#     rv$imputePlotsSteps[["step1"]] <- NULL
+#     rv$imputePlotsSteps[["step2"]] <- NULL
+#     updateSelectInput(session, "ClassicalMV_missing.value.algorithm", selected="None")
+#     }
+# })
+
+
 output$sidebar_imputation_step1 <- renderUI({
     
      rv$current.obj
@@ -66,6 +77,7 @@ output$sidebar_imputation_step1 <- renderUI({
     if (length(grep("Imputed", input$datasets))==0){
         rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
         shinyjs::enable("perform.imputationClassical.button")
+        
     } else {
         shinyjs::disable("perform.imputationClassical.button")
     }

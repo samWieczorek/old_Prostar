@@ -193,6 +193,7 @@ observeEvent(input$loadDemoDataset,{
                 indMin <- length(colnames(fData(rv$current.obj)))
                 indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
                 fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
+                colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
                 
                 rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
             }
@@ -266,6 +267,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
             indMin <- length(colnames(fData(rv$current.obj)))
             indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
             fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
+            colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
             
             #print(colnames(OriginOfValues))
             rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)

@@ -6,9 +6,8 @@ moduleSymbolicFilter <- function(input, output, session) {
 
     output$SymbolicFilter <- renderUI({
         req(rv$current.obj)
-        #if (is.null(rv$current.obj)) {return(NULL)}
-
-        data <- colnames(Biobase::fData(rv$current.obj))
+        
+        data <- c("",colnames(Biobase::fData(rv$current.obj)))
         fluidRow(
           column(width = 4, selectInput(session$ns("cname"), "Column name", choices = data)),
           column(width = 4, textInput(session$ns("tagName"), "Tag", value = ""))

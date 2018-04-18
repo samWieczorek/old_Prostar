@@ -28,6 +28,18 @@ output$newComparisonUI <- renderUI({
   
 })
 
+
+observeEvent(input$newComparison, {
+    
+    updateSelectInput(session,"selectComparison", selected="None")
+    updateCheckboxInput(session,"swapVolcano", value=FALSE )
+    updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=gFilterNone)
+    
+    updateSelectInput(session,"calibrationMethod", selected="pounds")
+    updateNumericInput(session, "seuilPVal", value=0)
+    
+    
+})
 # 
 # 
 # output$diffAnalysis_GlobalOptions_SB <- renderUI({
@@ -114,6 +126,46 @@ if (input$selectComparison== "None"){
 })
 
 
+
+observeEvent(input$datasets,{
+    if (length(grep("DiffAnalysis", input$datasets))!=0){
+        shinyjs::disable("anaDiff_Design")
+        shinyjs::disable("diffAnaMethod")
+        shinyjs::disable("seuilLogFC")
+        
+    }
+    else {
+        
+        shinyjs::enable("anaDiff_Design")
+        shinyjs::enable("diffAnaMethod")
+        shinyjs::enable("seuilLogFC")
+    }
+})
+output$diffAnalysis_GlobalOptions_SB <- renderUI({
+    input$datasets
+    # if (length(grep("DiffAnalysis", input$datasets))!=0){
+    #     shinyjs::disable("seuilLogFC")
+    #     shinyjs::disable("anaDiff_Design")
+    #     shinyjs::disable("diffAnaMethod")
+    # } 
+    # else {
+    #     shinyjs::enable("seuilLogFC")
+    #     shinyjs::enable("anaDiff_Design")
+    #     shinyjs::enable("diffAnaMethod")
+    # }
+    # 
+    # tagList(
+    #     selectInput("anaDiff_Design", "Design", choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
+    #     selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+    #     uiOutput("OptionsForT_tests"),
+    #     numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
+    #     
+    #    
+    # )
+    
+   
+    
+})
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
     #rv$current.obj
@@ -299,9 +351,11 @@ output$showFDR <- renderText({
     input$numericValCalibration
     input$calibrationMethod
     rv$resAnaDiff
-    
+    input$selectComparison
     
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
+    {return()}
+    if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
     if (is.null(rv$current.obj)) {return()}
     if (is.null(rv$resAnaDiff)) {return()}
@@ -577,7 +631,7 @@ observeEvent(input$ValidDiffAna,{
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
 
-     temp <-   rv$current.obj         
+     temp <-   rv$current.obj
     if (!rv$current.obj@experimentData@other$RawPValues ){
             temp <- diffAnaSaveRAW_Data(temp,rv$res_AllPairwiseComparisons)
                 }
@@ -681,7 +735,9 @@ observeEvent(input$ValidDiffAna,{
                 UpdateLog(text,name)
                 
                 updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
-                
+                #shinyjs::disable("seuilLogFC")
+                #shinyjs::disable("anaDiff_Design")
+                #shinyjs::disable("diffAnaMethod")
                 
                 
                 
@@ -714,7 +770,11 @@ output$equivPVal <- renderText ({
     input$seuilPVal
     input$diffAnaMethod
     rv$current.obj
+    input$selectComparison
+    
     if (is.null(rv$current.obj)){return()}
+    
+    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
     if (is.null(input$seuilPVal)){return()}
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr))
     {return(NULL)}
@@ -842,7 +902,11 @@ output$nbSelectedItemsStep3 <- renderUI({
     rv$seuilLogFC
     input$diffAnaMethod
     rv$current.obj
+    input$selectComparison
     
+    
+    if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
+    {return()}
     if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")
         || is.null(rv$current.obj)){
         return()}
@@ -1025,10 +1089,8 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (!is.null(data)){
         data <- as.matrix(data)[input$eventPointClicked+1,]
     }
-    
-    id <-  which(data=="NA")
-    #print(input$eventPointClicked)
-    #print(data)
+    #id <-  which(data=="NA")
+    id <-  which(is.na(data))
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano(), 
                              options=list(dom='t',ordering=F))
@@ -1139,44 +1201,44 @@ output$volcanoplot_rCharts <- renderHighchart({
 })   
 
 
-volcanoplot <- reactive({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
-    rv$current.obj
-    
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$FC) == 0) || is.null(rv$current.obj)) { 
-        return()}
-    
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
-    
-    cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-    result = tryCatch(
-        {
-            diffAnaVolcanoplot(FC = rv$resAnaDiff$FC, 
-                               pVal = rv$resAnaDiff$P_Value, 
-                               threshold_logFC = rv$seuilLogFC,
-                               conditions = cond)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-})
+# volcanoplot <- reactive({
+#     rv$seuilPVal
+#     rv$seuilLogFC
+#     input$diffAnaMethod
+#     rv$resAnaDiff
+#     rv$current.obj
+#     
+#     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
+#         (length(rv$resAnaDiff$FC) == 0) || is.null(rv$current.obj)) { 
+#         return()}
+#     
+#     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
+#         return()}
+#     
+#     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+#     result = tryCatch(
+#         {
+#             diffAnaVolcanoplot(FC = rv$resAnaDiff$FC, 
+#                                pVal = rv$resAnaDiff$P_Value, 
+#                                threshold_logFC = rv$seuilLogFC,
+#                                conditions = cond)
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste(match.call()[[1]],":",
+#                                 conditionMessage(e), 
+#                                 sep=" "))
+#         }, finally = {
+#             #cleanup-code 
+#         })
+#     
+#     
+# })
 
-output$volcanoplot <- renderPlot({
-    volcanoplot()
-})   
+# output$volcanoplot <- renderPlot({
+#     volcanoplot()
+# })   
 
 
 volcanoplot_rCharts_Step3 <- reactive({
@@ -1280,7 +1342,7 @@ output$infosVolcanoTableStep3 <- renderDataTable({
     
     data <- 
         as.matrix(fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])[input$eventPointClicked+1,]
-    id <-  which(data=="NA")
+    id <-  which(is.na(data))
     if (length(id) == 0){
         dat <- DT::datatable(getDataInfosVolcano_Step3(), 
                              options=list(dom='t',ordering=F))
@@ -1365,9 +1427,11 @@ output$showSelectedItems <- DT::renderDataTable({
     input$diffAnaMethod
     input$seuilLogFC
     input$seuilPVal
-    print("tutu")
+    input$selectComparison
     
     
+    if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
+    {return()}
     if ( is.null(rv$current.obj) ||
          is.null(input$seuilLogFC)    ||
          is.null(input$seuilPVal)
@@ -1378,10 +1442,7 @@ output$showSelectedItems <- DT::renderDataTable({
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
-  #  result = tryCatch(
-  #      {
-            
-            # isolate({
+
             t <- NULL
             # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
             if (isContainedIn(c("FC","P_Value"),
@@ -1397,23 +1458,13 @@ output$showSelectedItems <- DT::renderDataTable({
                 upItems1 <- which(-log10(data$P_Value) >= rv$seuilPVal)
                 upItems2 <- which(abs(data$FC) >= rv$seuilLogFC)
                 selectedItems <- intersect(upItems1, upItems2)
-                t <- data.frame(id =  
-                                    rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-                                FC = data$FC,
-                                P_Value = data$P_Value)
+                
+                 t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+                                FC = data$FC[selectedItems],
+                                P_Value = data$P_Value[selectedItems])
             }
             t
-  #      }
-   #     , warning = function(w) {
-   #         shinyjs::info(conditionMessage(w))
-   #     }, error = function(e) {
-    #        shinyjs::info(paste("showSelectedItems",match.call()[[1]],":",
-   #                             conditionMessage(e), 
-   #                             sep=" "))
-   #     }, finally = {
-    #        #cleanup-code 
-   #     })
-    
+
 })
 
 

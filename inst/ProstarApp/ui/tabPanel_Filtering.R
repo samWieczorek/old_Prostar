@@ -34,7 +34,8 @@ tabsetPanel(
                                 wellPanel(id = "sidebar_Filter2",
                                           tagList(
                                             actionButton("addSymbolicFilterModule", "Add symbolicFilter Module"),
-                                          actionButton("Filter", "Filter")
+                                          actionButton("Filter", "Filter"),
+                                          uiOutput("nbDeletedUI")
                                           )
                                          # moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
                                 ),
