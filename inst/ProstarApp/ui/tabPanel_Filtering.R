@@ -32,12 +32,19 @@ tabsetPanel(
                     value = "DP_FilterContaminants",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter2",
-                                          moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
+                                          tagList(
+                                            actionButton("addSymbolicFilterModule", "Add symbolicFilter Module"),
+                                          actionButton("Filter", "Filter")
+                                          )
+                                         # moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
                                 ),
                                 tagList(
                                   busyIndicator(WaitMsgCalc,wait = 0),
-                                  highchartOutput("GlobalPieChart"),
-                                  uiOutput("ObserverStringBasedFilteringDone")
+                                  #highchartOutput("GlobalPieChart"),
+                                  tags$div(
+                                    style="margin-bottom:400px;",
+                                    uiOutput("symbolicFilters"))
+                                 # uiOutput("ObserverStringBasedFilteringDone")
                                 )
                     )
          )
@@ -58,4 +65,5 @@ tabsetPanel(
          )
 )
 )
+
 
