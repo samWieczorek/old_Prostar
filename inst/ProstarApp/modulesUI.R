@@ -7,6 +7,13 @@ moduleSymbolicFilterUI <- function(id) {
 
 
 
+moduleSymbolicFilterUI <- function(id) {
+  ns <- NS(id)
+  uiOutput(ns("SymbolicFilter"))
+}
+
+
+
 
 missingValuesPlotsUI <- function(id) {
     ns <- NS(id)
