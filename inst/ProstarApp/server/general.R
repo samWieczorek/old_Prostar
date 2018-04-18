@@ -143,9 +143,8 @@ ClearMemory <- function(){
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
-    rv$deleted.both = NULL
-    rv$deleted.contaminants = NULL
-    rv$deleted.reverse = NULL
+    rv$deleted.stringBased = NULL
+
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -178,9 +177,7 @@ ClearMemory <- function(){
     indexNA = NULL
     rv$pourcentageNA = 0
     rv$nb.empty.lines = 0
-    rv$nbContaminantsDeleted = NULL
-    rv$nbBothDeleted = NULL
-    rv$nbReverseDeleted = NULL
+    rv$nbDeleted = 0
     rv$fdr = NULL
     rv$nbTotalAnaDiff = NULL
     rv$nbSelectedAnaDiff = NULL
@@ -249,9 +246,7 @@ rv <- reactiveValues(
     current.obj = NULL,
     current.obj.name = NULL,
     deleted.mvLines = NULL,
-    deleted.contaminants = NULL,
-    deleted.both = NULL,
-    deleted.reverse = NULL,
+    deleted.stringBased = NULL,
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),
@@ -284,9 +279,7 @@ rv <- reactiveValues(
     IP_Client= "",
     pourcentageNA = 0,
     nb.empty.lines = 0,
-    nbReverseDeleted = NULL,
-    nbBothDeleted = NULL,
-    nbContaminantsDeleted = NULL,
+    nbDeleted = NULL,
     fdr = NULL,
     nbSelectedAnaDiff = NULL,
     nbTotalAnaDiff = NULL,
