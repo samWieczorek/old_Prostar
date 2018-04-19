@@ -182,18 +182,17 @@ observeEvent(input$loadDemoDataset,{
             
             if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
                 
-                OriginOfValues <- data.frame(matrix(rep("unknown", dim(exprs(rv$current.obj))[1]*dim(exprs(rv$current.obj))[2]), 
+                OriginOfValues <- data.frame(matrix(rep("unknown", nrow(exprs(rv$current.obj))*ncol(exprs(rv$current.obj))), 
                                                     nrow=nrow(exprs(rv$current.obj)),
                                                     ncol=ncol(exprs(rv$current.obj))))
                 OriginOfValues[is.na(rv$current.obj)] <-  NA
                 
                 rownames(OriginOfValues) <- rownames(exprs(rv$current.obj))
                 colnames(OriginOfValues) <- paste0("OriginOfValue",colnames(exprs(rv$current.obj)))
+                colnames(OriginOfValues) <- gsub(".", "_", colnames(OriginOfValues), fixed=TRUE)
                 
-                indMin <- length(colnames(fData(rv$current.obj)))
-                indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
                 fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
-                colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+                #colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
                 
                 rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
             }
@@ -242,7 +241,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
         rv$current.obj <- readRDS(input$file$datapath)
         rv$current.obj.name <- DeleteFileExtension(input$file$name)
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-        #rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+        rv$indexNA <- which(is.na(exprs(rv$current.obj)))
         
         colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
         names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)

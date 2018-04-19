@@ -181,6 +181,7 @@ ClearMemory <- function(){
     rv$nbDeleted = 0
     rv$nbDeletedInfos = NULL
     rv$fdr = NULL
+    rv$ValidImputationClicked = FALSE
     rv$nbTotalAnaDiff = NULL
     rv$nbSelectedAnaDiff = NULL
     rv$nbSelectedTotal_Step3 = NULL
@@ -269,6 +270,7 @@ rv <- reactiveValues(
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
     widthSidebar = 3,
+    ValidImputationClicked = FALSE,
     commandLog = "", 
     normalizationFamily = NULL,
     normalizationMethod = NULL, 

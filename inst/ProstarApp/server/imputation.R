@@ -5,25 +5,6 @@ callModule(moduleMVPlots,"mvImputationPlots_LAPALA", data=reactive(rv$imputePlot
 callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
 
-# observe({
-#     input$perform.imputationClassical.button
-#     if (is.null(input$perform.imputationClassical.button)) {return(NULL)}
-#     shinyjs::enable("perform.imputationLAPALA.button")
-#     shinyjs::enable("ValidImputation")
-#     
-# })
-# 
-
-
-# observeEvent(input$datasets,{
-#     if (length(grep("Imputed", input$datasets))==0){
-#         shinyjs::enable("perform.imputationClassical.button")
-#     } else {
-#         shinyjs::disable("perform.imputationClassical.button")
-#     }
-#     
-# })
-
 
 observeEvent(input$ClassicalMV_missing.value.algorithm,{
 
@@ -40,30 +21,6 @@ observeEvent(input$ClassicalMV_missing.value.algorithm,{
    # }
 
 })
-
-# 
- # observeEvent(input$Lapala_missing.value.algorithm,{
- #     rv$lapalaIndex
- #     if (is.null(rv$lapalaIndex)) {return(NULL)}
- #     if (is.null(input$Lapala_missing.value.algorithm)){return(NULL)}
- #     rv$current.obj <- reIntroduceLapala(rv$current.obj, rv$lapalaIndex)
- #     
- #     #updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = input$ClassicalMV_missing.value.algorithm)
- #     #updateSelectInput(session, "Lapala_missing.value.algorithm",  selected = input$input$Lapala_missing.value.algorithm)
- # })
-
-
-
-# 
-# observe({
-#     rv$datasets
-#     if (length(grep("Imputed", input$datasets))==0){
-#     rv$imputePlotsSteps[["step1"]] <- NULL
-#     rv$imputePlotsSteps[["step2"]] <- NULL
-#     updateSelectInput(session, "ClassicalMV_missing.value.algorithm", selected="None")
-#     }
-# })
-
 
 output$sidebar_imputation_step1 <- renderUI({
     
@@ -82,6 +39,15 @@ output$sidebar_imputation_step1 <- renderUI({
         shinyjs::disable("perform.imputationClassical.button")
     }
     
+    if (length(grep("Imputed", input$datasets))==0 && rv$ValidImputationClicked){
+        updateSelectInput(session, "ClassicalMV_missing.value.algorithm", selected= "None")
+        rv$imputePlotsSteps[["step1"]] <- NULL
+        rv$imputePlotsSteps[["step2"]] <- NULL
+        rv$ValidImputationClicked <- FALSE
+    }
+    
+    
+    
     algo <- NULL
     switch(rv$typeOfDataset,
            protein = {algo <- imputationAlgorithmsProteins_ClassicalMV},
@@ -91,7 +57,7 @@ output$sidebar_imputation_step1 <- renderUI({
     if(!is.null(input$ClassicalMV_missing.value.algorithm)){.choice <- input$ClassicalMV_missing.value.algorithm}
     tagList(
                 selectInput("ClassicalMV_missing.value.algorithm",
-                "Choose algorithm for classical MV",
+                "Choose algorithm for POV",
                 choices = names(algo),
                 selected = .choice
                 # selected = names(which(algo == tag))
@@ -118,7 +84,7 @@ output$Lapala_chooseImputationMethod <- renderUI({
     )
     
     selectInput("Lapala_missing.value.algorithm",
-                "Choose algorithm for Lapala MV",
+                "Choose algorithm for MEC",
                 choices = names(algo),
                 selected = names(which(algo == tag))
     )
@@ -138,13 +104,13 @@ output$ClassicalMV_Params <- renderUI({
   switch(input$ClassicalMV_missing.value.algorithm,
     detQuantile = {
             tagList(
-                h4("Det quantile parameters"),
+                #h4("Det quantile parameters"),
                 numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
                 numericInput("ClassicalMV_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
                 )
     },
     KNN = {
-        h4("KNN parameters")
+        #h4("KNN parameters")
         numericInput("KNN_nbNeighbors", "# neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj))
         
     }
@@ -160,14 +126,14 @@ output$Lapala_Params <- renderUI({
     switch (input$Lapala_missing.value.algorithm,
             detQuantile = {
                     tagList(
-                        h4("Det quantile parameters"),
+                        #h4("Det quantile parameters"),
                         numericInput("Lapala_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
                         numericInput("Lapala_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
                         )
                     },
             fixedValue = {
                 tagList(
-                    h4("Fixed value"),
+                    #h4("Fixed value"),
                     numericInput("Lapala_fixedValue", "Fixed value", value = 0, step=0.1, min=0, max=100)
                     )
                  })
@@ -213,7 +179,7 @@ output$Lapala_detQuant_impValues <- renderUI({
     if (is.null(input$Lapala_missing.value.algorithm)){return (NULL)}
     
     if (input$Lapala_missing.value.algorithm == 'detQuantile')
-        h5("The Lapala will be imputed by the following values :")
+        h5("MEC will be imputed as follows:")
     
 })
 
@@ -240,8 +206,7 @@ observeEvent(input$perform.imputationClassical.button,{
    # rv$current.obj
     
     isolate({
-       # result = tryCatch(
-    #        {
+
                 rv$lapalaIndex <-NULL
                 rv$current.obj <- rv$imputePlotsSteps[["step0"]]
                 
@@ -273,18 +238,7 @@ observeEvent(input$perform.imputationClassical.button,{
                 
                 shinyjs::enable("perform.imputationLAPALA.button")
                 shinyjs::enable("ValidImputation")
-                
-                
-           # }
-            #, warning = function(w) {
-            #    print("warning while processing MV imputation step 1")
-            #}, error = function(e) {
-            #    shinyjs::info(paste("Perform missing values imputation",":",conditionMessage(e), sep=" "))
-            #}, finally = {
-                #cleanup-code
-            #}
-            
-        #)
+
     })
 })
 
@@ -366,6 +320,8 @@ observeEvent(input$ValidImputation,{
                 #shinyjs::disable("perform.imputationClassical.button")
                 shinyjs::disable("perform.imputationLAPALA.button")
                 shinyjs::disable("ValidImputation")
+                rv$ValidImputationClicked <- TRUE
+                
                 
                 ## Add the necessary text to the Rmd file
                 #txt2Rmd <- readLines("Rmd_sources/imputation_Rmd.Rmd")
@@ -412,20 +368,10 @@ output$ImputationStep2Done <- renderUI({
 })
 
 output$warningLapalaImputation<- renderText({
-    
-    
-    t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-    to analytes (peptides or proteins) <br>that are entirely missing in some 
-    conditions while they are (partially or totally) <br>visible in others. There 
-    specific accounting in a conservative way is a real issue as the imputation <br>
-    cannot rely on any observed value in a given condition.
-    <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
-    value as a centile of the observed <br>
-    distribution (a tuning between 0% and 10% is advised). <br>
-    <font color=\"red\"><strong>Warning:</strong> Imputed lapala values must be very cautiously interpreted.</font color=\"red\">"
+    t <- "<font color=\"red\"><strong>Warning:</strong> Warning: Imputing MEC in a conservative way 
+    <br>is a real issue as, in the given condition, there is no observed value to rely on. 
+    <br> Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.</font color=\"red\">"
     HTML(t)
-    
-
 })
 
 
@@ -484,7 +430,8 @@ output$helpForImputation <- renderText({
 
 
 viewNAbyMean <- function(data){
-       if (is.null(data)) {return(NULL)}
+      req(data)
+    #if (is.null(data)) {return(NULL)}
          wrapper.hc_mvTypePlot2(data)
     
 }
@@ -492,7 +439,8 @@ viewNAbyMean <- function(data){
 
 
 showImageNA <- function(data){
-    if(is.null(data)){return()}
+    req(data)
+    #if (is.null(data)) {return(NULL)}
     
     wrapper.mvImage(data)
     
