@@ -145,7 +145,11 @@ ClearMemory <- function(){
     rv$deleted.mvLines = NULL
     rv$deleted.stringBased.exprsData = NULL
     rv$deleted.stringBased.fData = NULL
-    
+    rv$DT_filterSummary = data.frame(Filtre=NULL, 
+                                     Prefix=NULL,
+                                     nbDeleted=NULL, 
+                                     Total=NULL, 
+                                     stringsAsFactors=F)
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -251,6 +255,11 @@ rv <- reactiveValues(
     deleted.mvLines = NULL,
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
+    DT_filterSummary = data.frame(Filtre=NULL, 
+                                  Prefix=NULL,
+                                  nbDeleted=NULL, 
+                                  Total=NULL, 
+                                  stringsAsFactors=F),
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),

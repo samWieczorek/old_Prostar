@@ -1,17 +1,8 @@
 
-moduleSymbolicFilterUI <- function(id) {
-    ns <- NS(id)
-    uiOutput(ns("SymbolicFilter"))
-}
-
-
-
-
-moduleSymbolicFilterUI <- function(id) {
-  ns <- NS(id)
-  uiOutput(ns("SymbolicFilter"))
-}
-
+# moduleSymbolicFilterUI <- function(id) {
+#     ns <- NS(id)
+#     uiOutput(ns("SymbolicFilter"))
+# }
 
 
 

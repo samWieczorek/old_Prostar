@@ -32,21 +32,13 @@ tabsetPanel(
                     value = "DP_FilterContaminants",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter2",
-                                          tagList(
-                                            actionButton("addSymbolicFilterModule", "Add symbolicFilter Module"),
-                                          actionButton("Filter", "Filter"),
-                                          uiOutput("nbDeletedUI")
-                                          )
+                                          uiOutput("SymbolicFilterOptions")
                                          # moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
                                 ),
                                 tagList(
-                                  busyIndicator(WaitMsgCalc,wait = 0),
-                                  #highchartOutput("GlobalPieChart"),
-                                  tags$div(
-                                    style="margin-bottom:400px;",
-                                    uiOutput("symbolicFilters"))
-                                 # uiOutput("ObserverStringBasedFilteringDone")
-                                )
+                                    busyIndicator(WaitMsgCalc,wait = 0),
+                                    DT::dataTableOutput("FilterSummaryData")
+                                  )
                     )
          )
          ,tabPanel( "3 - Visualize and Validate",

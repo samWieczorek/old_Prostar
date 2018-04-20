@@ -455,10 +455,10 @@ findSequences <- function(v){
 typeProtein <- "protein"
 typePeptide <- "peptide"
 
-calibMethod_Choices <- c("st.boot", "st.spline", 
+calibMethod_Choices <- c("Benjamini-Hochberg", 
+                         "st.boot", "st.spline", 
                          "langaas","jiang", "histo", 
                          "pounds", "abh","slim", 
-                         "Benjamini-Hochberg", 
                          "numeric value")
 
 anaDiffMethod_Choices <- c("None"="None",

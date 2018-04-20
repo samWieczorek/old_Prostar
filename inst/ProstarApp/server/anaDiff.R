@@ -220,7 +220,7 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
         checkboxInput("swapVolcano", "Swap volcanoplot", value = selectionSwapVolcano),
         br(),
         br(),
-        h4("Push p-value to 1"),
+        h4("P-value push"),
         h6("for peptides/proteins with less than"),
         h6("X originally observed values (i.e. non "),
         h6("imputed values) in:"),
@@ -301,7 +301,7 @@ output$diffAnalysis_Calibration_SB <- renderUI({
     if (is.null(rv$current.obj)){ return()}
     
     calibMethod <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$calibMethod
-    if (is.null(calibMethod)){ calibMethod <- "pounds"}
+    if (is.null(calibMethod)){ calibMethod <- "Benjamini-Hochberg"}
     
     tagList(
         selectInput("calibrationMethod", 
@@ -385,7 +385,6 @@ output$FoldChangePlot <- renderHighchart({
 #-------------------------------------------------------------
 output$showFDR <- renderText({
     rv$current.obj
-    input$diffAnaMethod
     rv$seuilPVal
     rv$seuilLogFC
     input$numericValCalibration
@@ -393,8 +392,6 @@ output$showFDR <- renderText({
     rv$resAnaDiff
     input$selectComparison
     
-    if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
-    {return()}
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
     if (is.null(rv$current.obj)) {return()}
@@ -404,9 +401,7 @@ output$showFDR <- renderText({
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
 
-    isolate({
-        result = tryCatch(
-            {
+
                 m <- NULL
                 if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
                 else if (input$calibrationMethod == "numeric value") {
@@ -422,21 +417,8 @@ output$showFDR <- renderText({
                     HTML(paste("<h4>FDR = ", 
                                round(100*rv$fdr, digits=2)," % </h4>", sep=""))
                 }
-            }
-            , warning = function(w) {
-                shinyjs::info("Warning ! There is no data selected ! 
-                              Please modify the p-value threshold.")
-            }, error = function(e) {
-                shinyjs::info(
-                    paste("Show FDR",":",conditionMessage(e), sep=" ")
-                )
-            }, finally = {
-                #cleanup-code 
-            })
-        
-        
-        
-    })
+
+
 })
 
 
@@ -528,10 +510,11 @@ calibrationPlot <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
+    t <- t[-which(t == 1)]
+    
+    
     
     l <- NULL
-    
-    
     ll <- NULL
     result = tryCatch(
         {
@@ -585,7 +568,7 @@ output$errMsgCalibrationPlot <- renderUI({
     txt <- NULL
     
     for (i in 1:length(rv$errMsgCalibrationPlot)) {
-        txt <- paste(txt, "toto",rv$errMsgCalibrationPlot[i], "<br>", sep="")
+        txt <- paste(txt, "errMsgCalibrationPlot: ",rv$errMsgCalibrationPlot[i], "<br>", sep="")
     }
     
     div(HTML(txt), style="color:red")
@@ -602,7 +585,7 @@ output$errMsgCalibrationPlotAll <- renderUI({
     
     txt <- NULL
     for (i in 1:length(rv$errMsgCalibrationPlotAll)) {
-        txt <- paste(txt, rv$errMsgCalibrationPlotAll[i], "<br>", sep="")
+        txt <- paste(txt, "errMsgCalibrationPlotAll:", rv$errMsgCalibrationPlotAll[i], "<br>", sep="")
     }
     
     div(HTML(txt), style="color:red")
@@ -695,7 +678,9 @@ observeEvent(input$ValidDiffAna,{
                 l.params[["calibMethod"]] <- input$calibrationMethod
                 l.params[["fdr"]] <- diffAnaComputeFDR(rv$resAnaDiff[["FC"]], 
                                                        rv$resAnaDiff[["P_Value"]],
-                                                       rv$seuilPVal, rv$seuilLogFC, m)
+                                                       rv$seuilPVal, 
+                                                       rv$seuilLogFC,
+                                                       m)
                 l.params[["swapVolcano"]] <-  input$swapVolcano
                 l.params[["filterType"]] <-  input$AnaDiff_ChooseFilters
                 if( is.null(input$AnaDiff_seuilNA)) {

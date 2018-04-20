@@ -1,79 +1,61 @@
 
 
-#############################################################################
-#
-## Gestion des modules pour le filtrage symbolique
-
-symbolicFilterModules <- list()
-makeReactiveBinding("symbolicFilterModules") # Could also use reactiveValues
-
-observeEvent(input$addSymbolicFilterModule, {
-    duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", input$addSymbolicFilterModule)
-    symbolicFilterModules <<- c(symbolicFilterModules, list(moduleSymbolicFilterUI(duplicateSymbolicFilterid)))
-    callModule(moduleSymbolicFilter, duplicateSymbolicFilterid)
-})
-
-
-
-output$symbolicFilters <- renderUI({
-    symbolicFilterModules
-})
-
-##############################################################################
-
-
-
-output$nbDeletedUI <- renderUI({
-    req( rv$nbDeletedInfos)
-    
-    print(rv$nbDeletedInfos)
-    HTML(rv$nbDeletedInfos)
-})
-
-
-
-observeEvent(input$Filter,{
-  shinyjs::enable("addSymbolicFilterModule")
-  iLast <- length(symbolicFilterModules)
-  duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", iLast)
-  cname <- input[[paste0(duplicateSymbolicFilterid,"-cname")]]
-    tagName <- input[[paste0(duplicateSymbolicFilterid,"-tagName")]]
-  
+observeEvent(input$actionButtonFilter,{
+    rv$current.obj
   temp <- rv$current.obj
   
-  res <- StringBasedFiltering2(temp,cname, tagName)
+  if (input$symFilter_cname=="None"){return()}
   
+  cname <- input$symFilter_cname
+  tagName <- input$symFilter_tagName
+  res <- StringBasedFiltering2(temp,cname, input$symFilter_tagName)
+  nbDeleted <- 0
+  
+  if (!is.null(res[["deleted"]])){
   rv$deleted.stringBased.exprsData <- rbind(rv$deleted.stringBased.exprsData,Biobase::exprs(res[["deleted"]]))
    rv$deleted.stringBased.fData <- rbind(rv$deleted.stringBased.fData, Biobase::fData(res[["deleted"]])) 
-
-   rv$nbDeleted <-  c(rv$nbDeleted ,nrow(res[["deleted"]]))
-  
-   rv$nbDeletedInfos <- paste0(rv$nbDeletedInfos, "<br>", cname, " : ", nrow(res[["deleted"]]), " lines deleted")
-                               
+   nbDeleted <-  nrow(res[["deleted"]])
+ } else {
+   nbDeleted <-  0
+}                          
   rv$current.obj <- res[["obj"]]
   rv$stringBasedFiltering_Done = TRUE
   
-  for (i in 1:(iLast)){
-      duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", i)
-      updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-cname"),
-                        selected=input[[paste0(duplicateSymbolicFilterid,"-cname")]])
-      updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-tagName"),
-                        selected=input[[paste0(duplicateSymbolicFilterid,"-tagName")]])
-  }
+  df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
+  rv$DT_filterSummary <- rbind(rv$DT_filterSummary , df)
+  #colnames(rv$DT_filterSummary) <- c("Filter", "Prefix", "nbDeleted", "Total")
+    
+    })
+
+
+output$SymbolicFilterOptions <- renderUI({
+    req(rv$current.obj)
+    req(rv$DT_filterSummary)
+ 
+    if (nrow(rv$DT_filterSummary) <= 1) {
+        choice <- c("None", colnames(fData(rv$current.obj)))
+        } else {
+            index <- match(rv$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+            choice <- c("None", colnames(fData(rv$current.obj))[-index])
+    }
+    tagList(
+        selectInput("symFilter_cname", "Column name", choices = choice),
+        textInput("symFilter_tagName", "Prefix", value = ""),
+        actionButton("actionButtonFilter", "Perform")
+    )
 })
 
 
-
-observeEvent(input$addSymbolicFilterModule,{
- shinyjs::disable("addSymbolicFilterModule")
-    iLast <- length(symbolicFilterModules)
-    for (i in 1:(iLast-1)){
-        duplicateSymbolicFilterid <- paste0("duplicateSymbolicFilter", i)
-        updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-cname"),
-                      selected=input[[paste0(duplicateSymbolicFilterid,"-cname")]])
-        updateSelectInput(session, paste0(duplicateSymbolicFilterid,"-tagName"),
-                      selected=input[[paste0(duplicateSymbolicFilterid,"-tagName")]])
+output$FilterSummaryData <- DT::renderDataTable({
+    req(rv$current.obj)
+    req(rv$DT_filterSummary)
+    
+    if (nrow(rv$DT_filterSummary )==0){
+        df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+        rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
     }
+    
+    DT::datatable(rv$DT_filterSummary)
 })
 
 

@@ -33,7 +33,7 @@ tabPanel("Differential analysis",
                                             ,uiOutput("newComparisonUI")
                                           ,h4("Comparison options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                                      ,actionButton("AnaDiff_perform.filtering.MV", "Perform previous MV filtering")
+                                      ,actionButton("AnaDiff_perform.filtering.MV", "Perform")
                                   ),
                                   tagList(
                                        fluidRow(
