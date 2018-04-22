@@ -1,5 +1,6 @@
 
 
+
 observeEvent(input$actionButtonFilter,{
     rv$current.obj
   temp <- rv$current.obj
@@ -49,10 +50,13 @@ output$SymbolicFilterOptions <- renderUI({
 output$FilterSummaryData <- DT::renderDataTable({
     req(rv$current.obj)
     req(rv$DT_filterSummary)
-    
-    if (nrow(rv$DT_filterSummary )==0){
-        df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
-        rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
+    if (!is.null(rv$current.obj@experimentData@other$Params[["Filtering"]]$stringFilter.df)){
+      rv$DT_filterSummary <- rv$current.obj@experimentData@other$Params[["Filtering"]]$stringFilter.df
+    }else {
+        if (nrow(rv$DT_filterSummary )==0){
+          df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+          rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
+        }
     }
     
     DT::datatable(rv$DT_filterSummary)
@@ -62,27 +66,22 @@ output$FilterSummaryData <- DT::renderDataTable({
 output$DP_sidebar_FilterTab1 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return()}
-    filter <- NULL
+   # filter <- NULL
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
+    
+    filter <- rv$current.obj@experimentData@other$Params[["Filtering"]]$mvFilterType
     tagList(
         h4("Missing values filtering options")
-        ,bsButton("button1", label = "?", block = F, style="danger", size="extra-small")
         ,bsTooltip(id = "button1", title = "Button 1 Explanation", placement = "right", trigger = "click")
-        
-                     ,hr()
-                     ,radioButtons("ChooseFilters","", 
-                                   choices = gFiltersList,
-                                   selected = filter)
-        
-                     ,tagList(
-                         uiOutput("seuilNADelete"),
-                     actionButton("perform.filtering.MV", 
-                                   "Perform MV filtering")
-    )
-    )
+        ,hr()
+        ,radioButtons("ChooseFilters","",  choices = gFiltersList, selected = filter),
+        uiOutput("seuilNADelete"),
+        actionButton("perform.filtering.MV", "Perform MV filtering")
+  )
+    
+   
 })
-
 
 
 output$DP_sidebar_FilterTab3 <- renderUI({
@@ -174,11 +173,14 @@ output$seuilNADelete <- renderUI({
     
     choix <- GetMaxValueThresholdFilter()
     
-    ch <- NULL
-    tag <- rv$current.obj@experimentData@other$mvFilter.threshold
+    #ch <- NULL
+    #tag <- rv$current.obj@experimentData@other$mvFilter.threshold
     
-    if (!is.null(tag)) { ch <- tag}
-    else {ch <- choix[[1]]}
+    #if (!is.null(tag)) { ch <- tag}
+    #else {ch <- choix[[1]]}
+    
+    ch <- rv$current.obj@experimentData@other$Params[["Filtering"]]$mvThNA
+    
     selectInput("seuilNA", 
                 "Keep lines with at least x intensity values", 
                 choices = choix, 
@@ -605,7 +607,18 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     
     #if( (input$ValidateFilters == 0)) {return(NULL)}
     if(is.null(rv$current.obj)) {return(NULL)}
-            if((input$ChooseFilters != gFilterNone) || (sum(rv$nbDeleted )>0)){
+            if((input$ChooseFilters != gFilterNone) || (nrow(rv$DT_filterSummary )>1)){
+                    
+                    if (nrow(rv$DT_filterSummary) <=1) {
+                      df <- NULL
+                      } else {
+                        df <- rv$DT_filterSummary}
+                        
+                        l.params <- list(mvFilterType = input$ChooseFilters,
+                                     mvThNA = input$seuilNA,
+                                     stringFilter.df = df)
+                    
+                    rv$current.obj <- saveFiltering(rv$current.obj,l.params)
                     
                     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
@@ -624,14 +637,14 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
                                             rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset), 
                                       selected = name)
-                    txtFilterMV <- paste("Filtering :",
-                                         GetFilterText(input$ChooseFilters, 
-                                                       input$seuilNA), 
-                                         sep="")
-                    txt <- paste(txtFilterMV, "Contaminants deleted", 
-                                 "Reverse deleted", 
-                                 sep=" ")
-                    UpdateLog(txt,name)
+                    #txtFilterMV <- paste("Filtering :",
+                    #                     GetFilterText(input$ChooseFilters, 
+                    #                                  input$seuilNA), 
+                    #                     sep="")
+                    #txt <- paste(txtFilterMV, "Contaminants deleted", 
+                    #             "Reverse deleted", 
+                    #             sep=" ")
+                    #UpdateLog(txt,name)
                     
                     
                     ## Add the necessary text to the Rmd file
