@@ -1016,7 +1016,18 @@ getDataInfosVolcano <- reactive({
         function(x) t(data.frame(x))))
     rownames(test.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
     test.table <- round(test.table, digits=3)
-    test.table
+    
+    origin.table <- data.frame(lapply(
+      Biobase::fData(rv$current.obj)[(input$eventPointClicked+1),rv$current.obj@experimentData@other$OriginOfValues], 
+      function(x) t(data.frame(x))))
+    rownames(origin.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
+    
+    color.table <- rep('white', ncol(rv$current.obj))
+    color.table[which(origin.table=="MV")] <- 'lightblue'
+    color.table[which(origin.table=="MEC")] <- 'orange'
+    
+    res <- list(value=test.table, origin=origin.table, color=color.table)
+    res
 })
 
 
@@ -1049,27 +1060,24 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
-    data <- fData(rv$current.obj)[, rv$current.obj@experimentData@other$OriginOfValues]
-    if (!is.null(data)){
-        data <- as.matrix(data)[input$eventPointClicked+1,]
-    }
-    #id <-  which(data=="NA")
-    id <-  which(is.na(data))
-    if (length(id) == 0){
-        dat <- DT::datatable(getDataInfosVolcano(), 
+    data <-getDataInfosVolcano()
+     
+    #id <-  which(is.na(data))
+    if (length(data$value) == 0){
+        dat <- DT::datatable(data$value, 
                              options=list(dom='t',ordering=F))
     } else {
-        dat <- DT::datatable(getDataInfosVolcano(), 
+      
+      colorCode <- paste("function(row, data) {",
+                    paste(sapply(1:length(data$value),function(i)
+                      paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
+                    ),collapse = "\n"),"}" )
+      
+     
+        dat <- DT::datatable(data$value, 
                              options=list(dom='t',
                                           ordering=F
-                                          ,drawCallback=JS(
-                                              paste("function(row, data) {",
-                                                    paste(sapply(1:ncol(getDataInfosVolcano()),function(i)
-                                                        paste( "$(this.api().cell(",
-                                                               id %% nrow(getDataInfosVolcano()),",",
-                                                               id / nrow(getDataInfosVolcano()),
-                                                               ").node()).css({'background-color': 'lightblue'});")
-                                                    ),collapse = "\n"),"}" ))
+                                          ,drawCallback=JS(colorCode)
                                           ,server = TRUE))
     }
     dat
@@ -1248,25 +1256,23 @@ output$infosVolcanoTableStep3 <- renderDataTable({
     if (is.null(input$eventPointClicked)){data.frame()}
     if (is.null(rv$current.obj)){ data.frame()}
     
-    data <- 
-        as.matrix(fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])[input$eventPointClicked+1,]
-    id <-  which(is.na(data))
-    if (length(id) == 0){
-        dat <- DT::datatable(getDataInfosVolcano_Step3(), 
+    data <-getDataInfosVolcano()
+    
+    #id <-  which(is.na(data))
+    if (length(data$value) == 0){
+        dat <- DT::datatable(data$value, 
                              options=list(dom='t',ordering=F))
     } else {
-        dat <- DT::datatable(getDataInfosVolcano_Step3(), 
+      colorCode <- paste("function(row, data) {",
+                         paste(sapply(1:length(data$value),function(i)
+                           paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
+                         ),collapse = "\n"),"}" )
+      
+      
+        dat <- DT::datatable(data$value, 
                              options=list(dom='t',
                                           ordering=F
-                                          ,drawCallback=JS(
-                                              paste("function(row, data) {",
-                                                    paste(sapply(1:ncol(getDataInfosVolcano_Step3()),
-                                                                 function(i)
-                                                                     paste( "$(this.api().cell(",
-                                                                            id %% nrow(getDataInfosVolcano_Step3()),",",
-                                                                            id / nrow(getDataInfosVolcano_Step3()),
-                                                                            ").node()).css({'background-color': 'lightblue'});")
-                                                    ),collapse = "\n"),"}" ))
+                                          ,drawCallback=JS(colorCode)
                                           ,server = TRUE))
     }
     dat
