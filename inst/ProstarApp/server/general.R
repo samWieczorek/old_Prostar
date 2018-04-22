@@ -72,7 +72,7 @@ ClearUI <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
-    
+    req(rv$current.obj)
   rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
