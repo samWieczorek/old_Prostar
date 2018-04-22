@@ -11,7 +11,7 @@ observeEvent(input$ClassicalMV_missing.value.algorithm,{
     rv$impute_Step <- 0
     #if (is.null(input$ClassicalMV_missing.value.algorithm) || input$ClassicalMV_missing.value.algorithm == "None")
     #{
-    shinyjs::disable("perform.imputationClassical.button")
+    #shinyjs::disable("perform.imputationClassical.button")
     shinyjs::disable("perform.imputationLAPALA.button")
     shinyjs::disable("ValidImputation")
         updateSelectInput(session, "Lapala_missing.value.algorithm", selected = "None")
@@ -53,8 +53,7 @@ output$sidebar_imputation_step1 <- renderUI({
            protein = {algo <- imputationAlgorithmsProteins_ClassicalMV},
            peptide = {algo <- imputationAlgorithmsPeptides_ClassicalMV}
     )
-    .choice <- NULL
-    if(!is.null(input$ClassicalMV_missing.value.algorithm)){.choice <- input$ClassicalMV_missing.value.algorithm}
+    .choice <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_algorithm
     tagList(
                 selectInput("ClassicalMV_missing.value.algorithm",
                 "Choose algorithm for POV",
@@ -73,9 +72,7 @@ output$Lapala_chooseImputationMethod <- renderUI({
     
     #if (is.null(rv$current.obj)) {return(NULL)}
     
-     m <- NULL
-    tag <- rv$current.obj@experimentData@other$classicalMV_imputation.method
-    if (!is.null(tag)){ m <- tag}
+    tag <-  rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_algorithm
     
     algo <- NULL
     switch(rv$typeOfDataset,
@@ -86,7 +83,7 @@ output$Lapala_chooseImputationMethod <- renderUI({
     selectInput("Lapala_missing.value.algorithm",
                 "Choose algorithm for MEC",
                 choices = names(algo),
-                selected = names(which(algo == tag))
+                selected = tag
     )
     
 })
@@ -103,15 +100,22 @@ output$ClassicalMV_Params <- renderUI({
     
   switch(input$ClassicalMV_missing.value.algorithm,
     detQuantile = {
+            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_detQuant_quantile
+            qValue <- ifelse (is.null(tmp), 2.5, tmp)
+            
+            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_detQuant_factor
+            qFactor <- ifelse (is.null(tmp), 1, tmp)
+            
             tagList(
                 #h4("Det quantile parameters"),
-                numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
-                numericInput("ClassicalMV_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
+                numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = qValue, step=0.5, min=0, max=100),
+                numericInput("ClassicalMV_detQuant_factor", "Factor", value = qFactor, step=0.1, min=0, max=10)
                 )
     },
     KNN = {
-        #h4("KNN parameters")
-        numericInput("KNN_nbNeighbors", "# neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj))
+      tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_KNN_n
+      n <- ifelse (is.null(tmp), 10, tmp)
+      numericInput("KNN_nbNeighbors", "Nb neighbors", value = n, step=1, min=0, max=nrow(rv$current.obj))
         
     }
   )
@@ -125,18 +129,26 @@ output$Lapala_Params <- renderUI({
     
     switch (input$Lapala_missing.value.algorithm,
             detQuantile = {
+                            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_detQuant_quantile
+                            qValue <- ifelse (is.null(tmp), 2.5, tmp)
+              
+                          tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_detQuant_factor
+                          qFactor <- ifelse (is.null(tmp), 1, tmp)
+              
+              
                     tagList(
-                        #h4("Det quantile parameters"),
-                        numericInput("Lapala_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
-                        numericInput("Lapala_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
+                        numericInput("Lapala_detQuant_quantile", "Quantile", value = qValue, step=0.5, min=0, max=100),
+                        numericInput("Lapala_detQuant_factor", "Factor", value = qFactor, step=0.1, min=0, max=10)
                         )
                     },
             fixedValue = {
-                tagList(
-                    #h4("Fixed value"),
-                    numericInput("Lapala_fixedValue", "Fixed value", value = 0, step=0.1, min=0, max=100)
-                    )
-                 })
+              tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_fixedValue
+              fixVal <- ifelse (is.null(tmp), 0, tmp)
+              
+              tagList(
+                  numericInput("Lapala_fixedValue", "Fixed value", value = fixVal, step=0.1, min=0, max=100)
+                  )
+            })
 })
 
 
@@ -235,6 +247,7 @@ observeEvent(input$perform.imputationClassical.button,{
                 updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = input$ClassicalMV_missing.value.algorithm)
                 updateNumericInput(session,"ClassicalMV_detQuant_quantile", "Quantile", value = input$ClassicalMV_detQuant_quantile)
                 updateNumericInput(session,"ClassicalMV_detQuant_factor", "Factor", value = input$ClassicalMV_detQuant_factor)
+                updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
                 
                 shinyjs::enable("perform.imputationLAPALA.button")
                 shinyjs::enable("ValidImputation")
@@ -284,7 +297,7 @@ observeEvent(input$perform.imputationLAPALA.button,{
 
 
 
-##' -- Validate the imputation ---------------------------------------
+##' -- Validate and Save the imputation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidImputation,{ 
     if (is.null(input$ValidImputation) || (input$ValidImputation == 0)) 
@@ -292,6 +305,17 @@ observeEvent(input$ValidImputation,{
     
     isolate({
         
+                l.params <- list(POV_algorithm = input$ClassicalMV_missing.value.algorithm,
+                                 POV_detQuant_quantile = input$ClassicalMV_detQuant_quantile,
+                                 POV_detQuant_factor = input$ClassicalMV_detQuant_factor,
+                                 POV_KNN_n = input$KNN_nbNeighbors,
+                                 MEC_algorithm = input$Lapala_missing.value.algorithm,
+                                 MEC_detQuant_quantile = input$Lapala_detQuant_quantile,
+                                 MEC_detQuant_factor = input$Lapala_detQuant_factor,
+                                 MEC_fixedValue= input$Lapala_fixedValue)
+
+                rv$current.obj <- saveImputation(rv$current.obj, l.params)
+                
                 name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
                 
                 rv$dataset[[name]] <- rv$current.obj
@@ -312,6 +336,8 @@ observeEvent(input$ValidImputation,{
                 updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = input$ClassicalMV_missing.value.algorithm)
                 updateNumericInput(session,"ClassicalMV_detQuant_quantile", "Quantile", value = input$ClassicalMV_detQuant_quantile)
                 updateNumericInput(session,"ClassicalMV_detQuant_factor", "Factor", value = input$ClassicalMV_detQuant_factor)
+                updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
+                
                 updateSelectInput(session,"Lapala_missing.value.algorithm",  selected = input$Lapala_missing.value.algorithm)
                 updateNumericInput(session,"Lapala_detQuant_quantile", "Quantile", value = input$Lapala_detQuant_quantile)
                 updateNumericInput(session,"Lapala_detQuant_factor", "Factor", value = input$Lapala_detQuant_factor)
