@@ -1,5 +1,6 @@
 
 
+
 output$chooseDataset <- renderUI({
     
     if(require("DAPARdata")){
@@ -179,24 +180,7 @@ observeEvent(input$loadDemoDataset,{
             if (is.null(rv$current.obj@experimentData@other$RawPValues ))
                 rv$current.obj@experimentData@other$RawPValues <- FALSE
             
-            
-            if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-                
-                OriginOfValues <- data.frame(matrix(rep("unknown", nrow(exprs(rv$current.obj))*ncol(exprs(rv$current.obj))), 
-                                                    nrow=nrow(exprs(rv$current.obj)),
-                                                    ncol=ncol(exprs(rv$current.obj))))
-                OriginOfValues[is.na(rv$current.obj)] <-  NA
-                
-                rownames(OriginOfValues) <- rownames(exprs(rv$current.obj))
-                colnames(OriginOfValues) <- paste0("OriginOfValue",colnames(exprs(rv$current.obj)))
-                colnames(OriginOfValues) <- gsub(".", "_", colnames(OriginOfValues), fixed=TRUE)
-                
-                fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
-                #colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-                
-                rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
-            }
-            
+            rv$current.obj <- addOriginOfValue(rv$current.obj)
 
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
@@ -253,49 +237,8 @@ observeEvent(input$file,ignoreInit =TRUE,{
         #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
-        if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-            
-            OriginOfValues <- data.frame(matrix(rep("unknown", dim(exprs(rv$current.obj))[1]*dim(exprs(rv$current.obj))[2]), 
-                                                nrow=nrow(exprs(rv$current.obj)),
-                                                ncol=ncol(exprs(rv$current.obj))))
-            OriginOfValues[is.na(rv$current.obj)] <-  NA
-            
-            rownames(OriginOfValues) <- rownames(exprs(rv$current.obj))
-            colnames(OriginOfValues) <- paste0("OriginOfValue",colnames(exprs(rv$current.obj)))
-            
-            indMin <- length(colnames(fData(rv$current.obj)))
-            indMax <- length(colnames(fData(rv$current.obj))) + length(OriginOfValues)
-            fData(rv$current.obj) <- cbind(fData(rv$current.obj), OriginOfValues)
-            colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-            
-            #print(colnames(OriginOfValues))
-            rv$current.obj@experimentData@other$OriginOfValues <- colnames(OriginOfValues)
-        }
-        
-        ## check the information about normalizations and convert if needed
-        if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) {
-            method <- rv$current.obj@experimentData@other$normalizationMethod
-            type <- rv$current.obj@experimentData@other$normalizationFamily
-            
-            rv$current.obj@experimentData@other$normalizationFamily <- NULL
-            rv$current.obj@experimentData@other$normalizationMethod <- method
-            rv$current.obj@experimentData@other$normalizationType <- type
-            
-            if (method == "Mean Centering Scaling") {
-            scaling <- TRUE
-            method <- "Mean Centering"
-            rv$current.obj@experimentData@other$normalizationMethod <- method
-            rv$current.obj@experimentData@other$normalizationType <- type
-            rv$current.obj@experimentData@other$normalizationScaling <- scaling
-            }
-            else if (method == "Median Centering"){
-            method <- "Quantile Centering"
-            rv$current.obj@experimentData@other$normalizationMethod <- method
-            rv$current.obj@experimentData@other$normalizationType <- type
-            rv$current.obj@experimentData@other$normalizationQuantile <- 0.5
-            }
-            
-        }
+        rv$current.obj <- addOriginOfValue(rv$current.obj)
+
         
         #if (input$showCommandLog){
             writeToCommandLogFile(
