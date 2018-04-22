@@ -67,8 +67,8 @@ output$choose_normalizationQuantile <- renderUI({
     # check if the normalisation has already been performed
     quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
     quantileSelected <- 0.15
-    if(!is.null(rv$current.obj@experimentData@other$normalizationQuantile)) { 
-        quantileSelected <- as.numeric(rv$current.obj@experimentData@other$normalizationQuantile)
+    if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$quantile)) { 
+        quantileSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$quantile
     }
     radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=quantileSelected)
     
@@ -82,14 +82,14 @@ output$choose_normalizationQuantileOther <- renderUI({
     if (is.null(input$normalization.quantile)){return(NULL)}
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
     
-    quantileOther <- 0.15
-    if(!is.null(rv$current.obj@experimentData@other$normalizationQuantileOther)) { 
-        quantileOther <- rv$current.obj@experimentData@other$normalizationQuantileOther
+    qOther <- 0.15
+    if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$otherQuantile)) { 
+        qOther <-rv$current.obj@experimentData@other$Params[["Norm"]]$otherQuantile
     }
     
     if (input$normalization.quantile == "Other"){
         numericInput("normalization.quantileOther", "Choose normalization quantile other",
-                     min=0, max = 1 , value = quantileOther,
+                     min=0, max = 1 , value = qOther,
                      step = 0.1)
         
     }
@@ -106,11 +106,11 @@ output$choose_normalizationScaling <- renderUI({
     
     if (input$normalization.method %in% c("Mean Centering")){
         # check if the normalisation has already been performed
-        varreduction <- FALSE
-        if(!is.null(rv$current.obj@experimentData@other$normalizationScaling)) { 
-            varreduction <- rv$current.obj@experimentData@other$normalizationScaling
+        varRed <- FALSE
+        if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$varReduction)) { 
+          varRed <- rv$current.obj@experimentData@other$Params[["Norm"]]$varReduction
         }
-        checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = varreduction)
+        checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = varRed)
     }
     
 })
@@ -128,10 +128,8 @@ output$choose_normalizationType <- renderUI({
         
         # check if the normalisation has already been performed
         type <- c("overall", "within conditions")
-        typeSelected <- NULL
-        if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
-            typeSelected <- rv$current.obj@experimentData@other$normalizationType
-        }
+        typeSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$type
+        
         
         selectInput("normalization.type", "Choose normalization type",  choices = type, selected = typeSelected)
 
@@ -155,10 +153,8 @@ output$choose_Normalization_Test <- renderUI({
     
     # check if the normalisation has already been performed
     method <- normMethods
-    methodSelected <- NULL
-    if( !is.null(rv$current.obj@experimentData@other$normalizationMethod)) { 
-        methodSelected <- rv$current.obj@experimentData@other$normalizationMethod
-    }
+    methodSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$method
+    
     selectInput("normalization.method","Choose normalization method", method, selected = methodSelected)
 })
 
@@ -303,7 +299,7 @@ observeEvent(input$perform.normalization,{
 })
 
 
-##' -- Validate the normalization ---------------------------------------
+##' -- Validate and save the normalization ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.normalization,{ 
     
@@ -316,7 +312,16 @@ observeEvent(input$valid.normalization,{
             {
                 if (input$normalization.method != G_noneStr) {
                     
-                    rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                   
+                  l.params <- list(method = input$normalization.method,
+                                   type = input$normalization.type,
+                                   varReduction = input$normalization.variance.reduction,
+                                   quantile = input$normalization.quantile,
+                                   otherQuantile = input$normalization.quantileOther)
+                  
+                  rv$current.obj <- saveNormalization(rv$current.obj,l.params)
+                  
+                  rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
                     rv$dataset[[name]] <- rv$current.obj
                     
