@@ -314,7 +314,7 @@ observeEvent(input$ValidImputation,{
                                  MEC_detQuant_factor = input$Lapala_detQuant_factor,
                                  MEC_fixedValue= input$Lapala_fixedValue)
 
-                rv$current.obj <- saveImputation(rv$current.obj, l.params)
+                rv$current.obj <- saveParameters(rv$current.obj, "Imputation",l.params)
                 
                 name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
                 
