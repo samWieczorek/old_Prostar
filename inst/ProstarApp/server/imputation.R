@@ -53,13 +53,11 @@ output$sidebar_imputation_step1 <- renderUI({
            protein = {algo <- imputationAlgorithmsProteins_ClassicalMV},
            peptide = {algo <- imputationAlgorithmsPeptides_ClassicalMV}
     )
-    .choice <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_algorithm
     tagList(
                 selectInput("ClassicalMV_missing.value.algorithm",
                 "Choose algorithm for POV",
                 choices = names(algo),
-                selected = .choice
-                # selected = names(which(algo == tag))
+                selected = names(which(algo == tag))
     ),
     uiOutput("ClassicalMV_Params")
     )
@@ -72,7 +70,6 @@ output$Lapala_chooseImputationMethod <- renderUI({
     
     #if (is.null(rv$current.obj)) {return(NULL)}
     
-    tag <-  rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_algorithm
     
     algo <- NULL
     switch(rv$typeOfDataset,
@@ -82,9 +79,7 @@ output$Lapala_chooseImputationMethod <- renderUI({
     
     selectInput("Lapala_missing.value.algorithm",
                 "Choose algorithm for MEC",
-                choices = names(algo),
-                selected = tag
-    )
+                choices = names(algo))
     
 })
 
@@ -100,22 +95,15 @@ output$ClassicalMV_Params <- renderUI({
     
   switch(input$ClassicalMV_missing.value.algorithm,
     detQuantile = {
-            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_detQuant_quantile
-            qValue <- ifelse (is.null(tmp), 2.5, tmp)
-            
-            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_detQuant_factor
-            qFactor <- ifelse (is.null(tmp), 1, tmp)
             
             tagList(
                 #h4("Det quantile parameters"),
-                numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = qValue, step=0.5, min=0, max=100),
-                numericInput("ClassicalMV_detQuant_factor", "Factor", value = qFactor, step=0.1, min=0, max=10)
+                numericInput("ClassicalMV_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
+                numericInput("ClassicalMV_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
                 )
     },
     KNN = {
-      tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$POV_KNN_n
-      n <- ifelse (is.null(tmp), 10, tmp)
-      numericInput("KNN_nbNeighbors", "Nb neighbors", value = n, step=1, min=0, max=nrow(rv$current.obj))
+      numericInput("KNN_nbNeighbors", "Nb neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj))
         
     }
   )
@@ -129,24 +117,14 @@ output$Lapala_Params <- renderUI({
     
     switch (input$Lapala_missing.value.algorithm,
             detQuantile = {
-                            tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_detQuant_quantile
-                            qValue <- ifelse (is.null(tmp), 2.5, tmp)
-              
-                          tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_detQuant_factor
-                          qFactor <- ifelse (is.null(tmp), 1, tmp)
-              
-              
                     tagList(
-                        numericInput("Lapala_detQuant_quantile", "Quantile", value = qValue, step=0.5, min=0, max=100),
-                        numericInput("Lapala_detQuant_factor", "Factor", value = qFactor, step=0.1, min=0, max=10)
+                        numericInput("Lapala_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
+                        numericInput("Lapala_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
                         )
                     },
             fixedValue = {
-              tmp <- rv$current.obj@experimentData@other$Params[["Imputation"]]$MEC_fixedValue
-              fixVal <- ifelse (is.null(tmp), 0, tmp)
-              
               tagList(
-                  numericInput("Lapala_fixedValue", "Fixed value", value = fixVal, step=0.1, min=0, max=100)
+                  numericInput("Lapala_fixedValue", "Fixed value", value = 0, step=0.1, min=0, max=100)
                   )
             })
 })
@@ -215,7 +193,7 @@ output$TAB_Lapala_detQuant_impValues <- renderDataTable({
 
 observeEvent(input$perform.imputationClassical.button,{
      #input$ClassicalMV_missing.value.algorithm
-   # rv$current.obj
+    rv$current.obj
     
     isolate({
 

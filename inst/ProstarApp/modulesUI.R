@@ -9,10 +9,10 @@
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    # fluidRow(
-    # column(width=6, uiOutput(ns("nbSelectedItems"))),
-    # column(width=6, uiOutput(ns("selectTooltipInfo")))
-    # ),
+    fluidRow(
+    column(width=6, uiOutput(ns("nbSelectedItems"))),
+    column(width=6, uiOutput(ns("selectTooltipInfo")))
+    ),
   dataTableOutput(ns("Infos")),
   highchartOutput(ns("volcanoPlot"))
   )

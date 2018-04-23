@@ -1,9 +1,9 @@
-tabPanel("Log session",
+tabPanel("Session logs",
          #value = "ChangeDataset",
          
          tabsetPanel(
              id = "test",
-             tabPanel("Log session",
+             tabPanel("Session logs",
                       value = "ChangeDataset",
                       sidebarCustom(),
                       conditionalPanel(

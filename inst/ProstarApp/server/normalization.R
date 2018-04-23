@@ -66,11 +66,8 @@ output$choose_normalizationQuantile <- renderUI({
     #    if (input$normalization.method == "Quantile Centering"){
     # check if the normalisation has already been performed
     quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
-    quantileSelected <- 0.15
-    if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$quantile)) { 
-        quantileSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$quantile
-    }
-    radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=quantileSelected)
+    
+    radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=0.15)
     
     
 })
@@ -81,15 +78,10 @@ output$choose_normalizationQuantileOther <- renderUI({
     input$normalization.method
     if (is.null(input$normalization.quantile)){return(NULL)}
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
-    
-    qOther <- 0.15
-    if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$otherQuantile)) { 
-        qOther <-rv$current.obj@experimentData@other$Params[["Norm"]]$otherQuantile
-    }
-    
+   
     if (input$normalization.quantile == "Other"){
         numericInput("normalization.quantileOther", "Choose normalization quantile other",
-                     min=0, max = 1 , value = qOther,
+                     min=0, max = 1 , value = 0.15,
                      step = 0.1)
         
     }
@@ -106,11 +98,8 @@ output$choose_normalizationScaling <- renderUI({
     
     if (input$normalization.method %in% c("Mean Centering")){
         # check if the normalisation has already been performed
-        varRed <- FALSE
-        if(!is.null(rv$current.obj@experimentData@other$Params[["Norm"]]$varReduction)) { 
-          varRed <- rv$current.obj@experimentData@other$Params[["Norm"]]$varReduction
-        }
-        checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = varRed)
+        
+        checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = FALSE)
     }
     
 })
@@ -128,10 +117,7 @@ output$choose_normalizationType <- renderUI({
         
         # check if the normalisation has already been performed
         type <- c("overall", "within conditions")
-        typeSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$type
-        
-        
-        selectInput("normalization.type", "Choose normalization type",  choices = type, selected = typeSelected)
+        selectInput("normalization.type", "Choose normalization type",  choices = type)
 
     } 
     
@@ -153,9 +139,8 @@ output$choose_Normalization_Test <- renderUI({
     
     # check if the normalisation has already been performed
     method <- normMethods
-    methodSelected <- rv$current.obj@experimentData@other$Params[["Norm"]]$method
     
-    selectInput("normalization.method","Choose normalization method", method, selected = methodSelected)
+    selectInput("normalization.method","Choose normalization method", method)
 })
 
 

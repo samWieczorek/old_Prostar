@@ -5,11 +5,11 @@ observe({
     if(is.null(rv$current.obj)) {return (NULL)}
     
     if (rv$current.obj@experimentData@other$typeOfData == "peptide")
-        { 
+    { 
         hideTab(inputId ="navPage", target = "GO_Analysis")
     } else {
         showTab(inputId ="navPage", target = "GO_Analysis")
-        }
+    }
     
     
     if (nrow(rv$current.obj) > limitHeatmap)
@@ -35,29 +35,20 @@ output$GOAnalysisMenu <- renderUI({
             tabPanel("GO Setup",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                  
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
                                            ,h4("General setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
-                                                          choices = G_sourceOfProtID_Choices,
-                                                          selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$sourceOfProtID)
+                                                          choices = G_sourceOfProtID_Choices)
                                            
                                            ,uiOutput("chooseSourceForProtID")
-                                           ,selectInput("idFrom", "Id From", 
-                                                        choices = c("UNIPROT"), 
-                                                        selected=rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$idFrom)
-                                           ,selectInput("Organism", "Genome Wide Annotation", 
-                                                        choices = GetListInstalledOrgdDB(),
-                                                        selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$Organism)
-                                           
+                                           ,selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"))
+                                           ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",
-                                                        choices = G_ontology_Choices,
-                                                        selected =  rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$Ontology)
-                                           
+                                                        choices = G_ontology_Choices)
                                            ,busyIndicator(WaitMsgCalc,wait = 0),
                                            actionButton("mapProtein.GO.button",
-                                                         "Map proteins IDs")
+                                                        "Map proteins IDs")
                                  )
                                  ,tagList(
                                      uiOutput("warnDifferentSizeID"),
@@ -73,15 +64,13 @@ output$GOAnalysisMenu <- renderUI({
                      
             ),
             tabPanel("GO Classification",
-                      sidebarCustom(),
-                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                     sidebarCustom(),
+                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO",
                                            height = "100%",
-                                           checkboxGroupInput("GO_level", "Level",
-                                                              choices =c(2:4), 
-                                                              selected= rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$GO_level),
-                                            actionButton("group.GO.perform.button","Perform GO grouping")
-                                  ),
+                                           checkboxGroupInput("GO_level", "Level",choices =c(2:4), selected=2),
+                                           actionButton("group.GO.perform.button","Perform GO grouping")
+                                 ),
                                  tagList(
                                      busyIndicator(WaitMsgCalc,wait = 0),
                                      highchartOutput("GOplotGroup_level2",  width = "80%"),
@@ -100,15 +89,10 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
                                            height = "100%",
-                                           radioButtons("universe", "Universe", 
-                                                        choices = G_universe_Choices,
-                                                        selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$universe),
+                                           radioButtons("universe", "Universe", choices = G_universe_Choices),
                                            uiOutput("chooseUniverseFile"),
-                                          # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                          tmp <- rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$pvalueCutoff,
-                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", 
-                                                        min = 0, max = 1, step = 0.01, 
-                                                        value = ifelse (is.null(tmp),0.01, tmp)),
+                                           # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
+                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),
@@ -141,7 +125,7 @@ output$GOAnalysisMenu <- renderUI({
                                      
                                  )
                      )
-        )
+            )
         )
     } else {
         h4("The dataset is a peptide one: the GO analysis cannot be performed.")
@@ -152,9 +136,9 @@ output$GOAnalysisMenu <- renderUI({
 GetListInstalledOrgdDB <- function(){
     l <- installed.packages()[,"Package"]
     l <- l[grep("org", l)]
-   res <-  list_org_db[l,]$longName
-   names(l) <- res
-   
+    res <-  list_org_db[l,]$longName
+    names(l) <- res
+    
     return(l)
 }
 
@@ -184,12 +168,11 @@ output$chooseSourceForProtID <- renderUI({
     
     if (input$sourceOfProtID == "colInDataset"){
         selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
-                    choices = c("", colnames(Biobase::fData(rv$current.obj))),
-                    selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$UniprotIDCol)
+                    choices = c("", colnames(Biobase::fData(rv$current.obj))))
     }
     else  if (input$sourceOfProtID == "extFile"){
         fileInput("UNIPROTID_File", "Select file for UNIPROT protein ID")
-
+        
     }
 })
 
@@ -281,31 +264,41 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
     if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  
         rv$ProtIDList <- NULL
         return (NULL)}
-
+    
     require(clusterProfiler)
     isolate({
         #rv$ratio <- NULL
-    rv$gene <- NULL
-    rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
-    index <- GetDataIndexForAnalysis()
-
-    tryCatch({
-        rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
-        rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-        rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
-    }, warning = function(w) {
-        rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
-        rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-        rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
-    
-    }, error = function(e) {
-       # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
+        rv$gene <- NULL
+        rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
+        index <- GetDataIndexForAnalysis()
+        
+        tryCatch({
+            
+            # if (input$idFrom == "UNIPROT"){
+            #     rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+            #     if (is.null(gene)){return (NULL)}
+            #     
+            # }else {
+            #     rv$gene  = rv$ProtIDList[index]
+            # }
+            # 
+            
+            rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+            rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
+            rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
+        }, warning = function(w) {
+            rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+            rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
+            rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
+            
+        }, error = function(e) {
+            # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
             rv$ratio <- 100
         }, finally = {    
-            }
-    )
-
-
+        }
+        )
+        
+        
     })
 })
 
@@ -313,41 +306,40 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
 ##' Reactive behavior : GO analysis of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
-     input$universe
+    input$universe
     input$Organism
     input$Ontology
     #input$PAdjustMethod
     input$pvalueCutoff
     rv$ProtIDList
     input$idFrom
-     rv$uniprotID
+    rv$uniprotID
     if (is.null(input$perform.GO.button) ){return(NULL)}
     if (is.null(rv$ProtIDList)){return(NULL)}
     if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
     
     require(clusterProfiler)
-
-        # result = tryCatch(
-        #     {
-                
-                    if (input$universe == "Entire dataset") {
-                        rv$universeData  <- rv$ProtIDList
-                    } else if (input$universe == "Entire organism") {
-                        rv$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
-                    } else {
-                        rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
-                    }
-                    
-                    index <- GetDataIndexForAnalysis()
-                    rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
-                                    idFrom = input$idFrom, 
-                                    idTo = "ENTREZID", 
-                                    orgdb = input$Organism, 
-                                    ont = input$Ontology, 
-                                    #pAdj = input$PAdjustMethod, 
-                                    pval = input$pvalueCutoff, 
-                                    universe = rv$universeData )
-        })
+    
+    # result = tryCatch(
+    #     {
+    
+    if (input$universe == "Entire dataset") {
+        rv$universeData  <- rv$ProtIDList
+    } else if (input$universe == "Entire organism") {
+        rv$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
+    } else {
+        rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
+    }
+    
+    index <- GetDataIndexForAnalysis()
+    rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
+                                  idFrom = input$idFrom, 
+                                  orgdb = input$Organism, 
+                                  ont = input$Ontology, 
+                                  #pAdj = input$PAdjustMethod, 
+                                  pval = input$pvalueCutoff, 
+                                  universe = rv$universeData )
+})
 
 
 
@@ -369,11 +361,10 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     for (i in 1:length(levelIndex)){
         rv$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
                                      ggo_res = group_GO(rv$ProtIDList[index],
-                                input$idFrom,
-                                "ENTREZID",
-                                orgdb = input$Organism,
-                                ont=input$Ontology,
-                                level=as.numeric(levelIndex[i])))
+                                                        idFrom = input$idFrom,
+                                                        orgdb = input$Organism,
+                                                        ont=input$Ontology,
+                                                        level=as.numeric(levelIndex[i])))
     }
     
     
@@ -387,8 +378,8 @@ GOplotGroup_level2 <- reactive({
     
     isolate({
         if (length(rv$groupGO_data) >=1){
-        barplotGroupGO_HC(rv$groupGO_data[[1]]$ggo_res, 
-                          title = paste("Groups at level ", rv$groupGO_data[[1]]$level, sep=""))}
+            barplotGroupGO_HC(rv$groupGO_data[[1]]$ggo_res, 
+                              title = paste("Groups at level ", rv$groupGO_data[[1]]$level, sep=""))}
     })
 })
 
@@ -404,8 +395,8 @@ GOplotGroup_level3 <- reactive({
     
     if (is.null(rv$groupGO_data)|| (length(rv$groupGO_data) < 2)){return(NULL)}
     isolate({
-    if (length(rv$groupGO_data) >=2){
-        barplotGroupGO_HC(rv$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[2]]$level))}
+        if (length(rv$groupGO_data) >=2){
+            barplotGroupGO_HC(rv$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[2]]$level))}
     })
 })
 
@@ -420,7 +411,7 @@ GOplotGroup_level4 <- reactive({
     if (is.null(rv$groupGO_data) || (length(rv$groupGO_data) != 3)){return(NULL)}
     isolate({
         if (length(rv$groupGO_data) ==3){
-        barplotGroupGO_HC(rv$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[3]]$level))}
+            barplotGroupGO_HC(rv$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[3]]$level))}
     })
 })
 
@@ -432,14 +423,14 @@ output$GOplotGroup_level4 <- renderHighchart({
 GObarplotEnrich <- reactive({
     rv$enrichGO_data
     if (is.null(rv$enrichGO_data)) {return(NULL)}
-        barplotEnrichGO_HC(rv$enrichGO_data)
-
+    barplotEnrichGO_HC(rv$enrichGO_data)
+    
     #barplot(rv$enrichGO_data)
 })
 
 output$GObarplotEnrich <- renderHighchart({
     GObarplotEnrich()
-
+    
 })
 
 GOdotplotEnrich <- reactive({
@@ -448,11 +439,11 @@ GOdotplotEnrich <- reactive({
     
     #dotplot(rv$enrichGO_data)
     scatterplotEnrichGO_HC(rv$enrichGO_data)
-    })
+})
 
 output$GOdotplotEnrich <- renderHighchart({
     GOdotplotEnrich()
-
+    
 })
 
 # output$GOEnrichMap <- renderPlot({
@@ -494,14 +485,14 @@ output$GeneMappedRatio <- renderUI({
     rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
     nProtMapped <- length(rv$proteinsNotMapped)
     nProtTotal <-length(index)
-        
+    
     tagList(
         h5(paste(round(rv$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
         helpText("These proteins are listed in the table below."),
         if (rv$ratio == 100){
             h3(paste("Tip: You should check the organism which has been selected.", sep=""))
         }
-        )
+    )
 })
 
 
@@ -518,7 +509,7 @@ output$nonIdentifiedProteins <- renderDataTable({
     
     index <- GetDataIndexForAnalysis()
     rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-   data <- as.data.frame(fData(rv$current.obj)[index[rv$proteinsNotMapped],])
+    data <- as.data.frame(fData(rv$current.obj)[index[rv$proteinsNotMapped],])
     
     
     if( nrow(data) != 0){
@@ -537,7 +528,7 @@ output$chooseGOtoSave <- renderUI({
     if(!is.null(rv$groupGO_data)){.choices <- c(.choices, "Classification")}
     if(!is.null(rv$enrichGO_data)){.choices <- c(.choices, "Enrichment")}
     if(!is.null(rv$enrichGO_data) && !is.null(rv$groupGO_data)){.choices <- c(.choices, "Both")}
-
+    
     radioButtons("whichGO2Save", "Choose which GO analysis to save", choices = .choices)
 })
 
@@ -558,58 +549,50 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
     
     if ((input$ValidGOAnalysis == 0) ||  is.null(input$ValidGOAnalysis) ) {
         return()}
-   
+    
     isolate({
         
         result = tryCatch(
             {
-              
-              
-              textGOParams <- paste("Dataset of ",
-                                    rv$typeOfDataset,"GO analysis with ",
-                                    "organism = ", input$Organism,
-                                    "ontology = ", input$Ontology, sep= " ")
-              
-              
-              switch(input$whichGO2Save,
-              Both =
-                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                  ggo_res = rv$groupGO_data ,
-                                                  ego_res = rv$enrichGO_data ,
-                                                  organism = input$Organism,
-                                                  ontology = input$Ontology,
-                                                    level = input$GO_level,
-                                                    pvalueCutoff = input$pvalueCutoff,
-                                                    typeUniverse = input$universe)},
-                Classification = 
-                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                  ggo_res = rv$groupGO_data ,
-                                                  organism = input$Organism,
-                                                  ontology = input$Ontology,
-                                                  level = input$GO_level)},
-                    
-                Enrichment = 
-                    {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                                  ego_res = rv$enrichGO_data ,
-                                                  organism = input$Organism,
-                                                  ontology = input$Ontology,
-                                                  pvalueCutoff = input$pvalueCutoff,
-                                                  typeUniverse = input$universe)}
-                    
-              )
+                
+                
+                textGOParams <- paste("Dataset of ",
+                                      rv$typeOfDataset,"GO analysis with ",
+                                      "organism = ", input$Organism,
+                                      "ontology = ", input$Ontology, sep= " ")
+                
+                
+                switch(input$whichGO2Save,
+                       Both =
+                       {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                               ggo_res = rv$groupGO_data ,
+                                               ego_res = rv$enrichGO_data ,
+                                               organism = input$Organism,
+                                               ontology = input$Ontology,
+                                               level = input$GO_level,
+                                               pvalueCutoff = input$pvalueCutoff,
+                                               typeUniverse = input$universe)},
+                       Classification = 
+                       {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                               ggo_res = rv$groupGO_data ,
+                                               organism = input$Organism,
+                                               ontology = input$Ontology,
+                                               level = input$GO_level)},
+                       
+                       Enrichment = 
+                       {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
+                                               ego_res = rv$enrichGO_data ,
+                                               organism = input$Organism,
+                                               ontology = input$Ontology,
+                                               pvalueCutoff = input$pvalueCutoff,
+                                               typeUniverse = input$universe)}
+                       
+                )
                 
                 name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- temp
                 rv$current.obj <- temp
-                l.params <- list(sourceOfProtID = input$sourceOfProtID,
-                                 idFrom = input$idFrom,
-                                 Organism = input$Organism,
-                                 Ontology = input$Ontology,
-                                 GO_level = input$GO_level,
-                                 universe = input$universe,
-                                 pvalueCutoff = input$pvalueCutoff
-                                  )
-                rv$current.obj <- saveParameters(rv$current.obj, "GOAnalysis", l.params)
+                
                 
                 updateSelectInput(session, "datasets", 
                                   paste("Dataset versions of",
@@ -617,7 +600,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                   choices = names(rv$dataset),
                                   selected = name)
                 updateRadioButtons(session, "whichGO2Save", 
-                                  selected = input$whichGO2Save)
+                                   selected = input$whichGO2Save)
                 
                 # 
                 # ####write command Log file
@@ -667,69 +650,69 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 switch(input$whichGO2Save,
                        Both =
                        {
-                  text <- paste(textGOParams,", GO grouping for level(s):",
-                                        input$GO_level,
-                                ", GO enrichment with",
-                                ", adj p-value cutoff = ", input$pvalueCutoff,
-                                ", universe =", input$universe, sep= " ")
-                  
-                  
-                  text2Log <- paste(
-                      "ProtIDList <- Biobase::fData(current.obj)[,\"",input$UniprotIDCol,"]\"\n",
-                      "levelIndex <- sort(",input$GO_level,") \n",
-                      
-                      "index <- NULL\n",
-                      "if (\"Significant.Welch\" %in% names(Biobase::fData(current.obj) )){\n",
-                          "index <- which(Biobase::fData(current.obj)$Significant.Welch == TRUE)\n",
-                      "} else if (\"Significant.limma\" %in% names(Biobase::fData(current.obj) )){",
-                          "index <- which(Biobase::fData(current.obj)$Significant.limma == TRUE)\n",
-                      "} else{ index <- seq(1:nrow(current.obj))}\n",
-                      "groupGO_data <- list()\n",
-                      "for (i in 1:length(levelIndex)){\n",
-                          "groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),\n",
-                                                       "ggo_res = group_GO(ProtIDList[index],\n",
-                                                                          "\"",input$idFrom,"\", 
-                                                                          \"ENTREZID\", \n",
-                                                                          "orgdb = \"",input$Organism,"\",\n", 
-                                                                          "ont=",input$Ontology,",\n", 
-                                                                          "level=as.numeric(levelIndex[i]))) }\n",
-                      # index <- GetDataIndexForAnalysis()
-                      # rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
-                      #                               idFrom = input$idFrom, 
-                      #                               idTo = "ENTREZID", 
-                      #                               orgdb = input$Organism, 
-                      #                               ont = input$Ontology, 
-                      #                               #pAdj = input$PAdjustMethod, 
-                      #                               pval = input$pvalueCutoff, 
-                      #                               universe = rv$universeData )
-                      # 
-                      
-                      
-                      "temp <- GOAnalysisSave(dataset[[datasets]],ggo_res = groupGO_data ,
-                                             ego_res = enrichGO_data ,
-                                             organism = \"",input$Organism,"\",ontology = \"", input$Ontology,"\",\n",
-                                             "level = ", input$GO_level,", pvalueCutoff = ", input$pvalueCutoff,",\n",
-                                             "typeUniverse = \"", input$universe,"\")\n",
-                      " name <- \"GOAnalysis", " - ", rv$typeOfDataset,"\"",
-                      "dataset[[name]] <- temp\n",
-                      "current.obj <- temp\n", sep= " ")
-                 # writeToCommandLogFile(text2Log)
-                 },
-                Enrichment ={
-                  text <- paste(textGOParams, " GO enrichment with",
-                                      ", adj p-value cutoff = ", input$pvalueCutoff,
-                                      ", universe =", input$universe, sep= " ")
-                },
-                Classification= {
-                  text <- paste(textGOParams,", GO grouping for level(s):",
-                                        input$GO_level,sep=" ")
-                  }
+                           text <- paste(textGOParams,", GO grouping for level(s):",
+                                         input$GO_level,
+                                         ", GO enrichment with",
+                                         ", adj p-value cutoff = ", input$pvalueCutoff,
+                                         ", universe =", input$universe, sep= " ")
+                           
+                           
+                           text2Log <- paste(
+                               "ProtIDList <- Biobase::fData(current.obj)[,\"",input$UniprotIDCol,"]\"\n",
+                               "levelIndex <- sort(",input$GO_level,") \n",
+                               
+                               "index <- NULL\n",
+                               "if (\"Significant.Welch\" %in% names(Biobase::fData(current.obj) )){\n",
+                               "index <- which(Biobase::fData(current.obj)$Significant.Welch == TRUE)\n",
+                               "} else if (\"Significant.limma\" %in% names(Biobase::fData(current.obj) )){",
+                               "index <- which(Biobase::fData(current.obj)$Significant.limma == TRUE)\n",
+                               "} else{ index <- seq(1:nrow(current.obj))}\n",
+                               "groupGO_data <- list()\n",
+                               "for (i in 1:length(levelIndex)){\n",
+                               "groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),\n",
+                               "ggo_res = group_GO(ProtIDList[index],\n",
+                               "\"",input$idFrom,"\", 
+                               \"ENTREZID\", \n",
+                               "orgdb = \"",input$Organism,"\",\n", 
+                               "ont=",input$Ontology,",\n", 
+                               "level=as.numeric(levelIndex[i]))) }\n",
+                               # index <- GetDataIndexForAnalysis()
+                               # rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
+                               #                               idFrom = input$idFrom, 
+                               #                               idTo = "ENTREZID", 
+                               #                               orgdb = input$Organism, 
+                               #                               ont = input$Ontology, 
+                               #                               #pAdj = input$PAdjustMethod, 
+                               #                               pval = input$pvalueCutoff, 
+                               #                               universe = rv$universeData )
+                               # 
+                               
+                               
+                               "temp <- GOAnalysisSave(dataset[[datasets]],ggo_res = groupGO_data ,
+                               ego_res = enrichGO_data ,
+                               organism = \"",input$Organism,"\",ontology = \"", input$Ontology,"\",\n",
+                               "level = ", input$GO_level,", pvalueCutoff = ", input$pvalueCutoff,",\n",
+                               "typeUniverse = \"", input$universe,"\")\n",
+                               " name <- \"GOAnalysis", " - ", rv$typeOfDataset,"\"",
+                               "dataset[[name]] <- temp\n",
+                               "current.obj <- temp\n", sep= " ")
+                           # writeToCommandLogFile(text2Log)
+                       },
+                       Enrichment ={
+                           text <- paste(textGOParams, " GO enrichment with",
+                                         ", adj p-value cutoff = ", input$pvalueCutoff,
+                                         ", universe =", input$universe, sep= " ")
+                       },
+                       Classification= {
+                           text <- paste(textGOParams,", GO grouping for level(s):",
+                                         input$GO_level,sep=" ")
+                       }
                 )
                 UpdateLog(text,name)
-
-                 updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
- 
-               
+                
+                updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
+                
+                
                 
             }
             #, warning = function(w) {
@@ -744,6 +727,6 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
         
         
         
-            }) 
+    }) 
     
 })

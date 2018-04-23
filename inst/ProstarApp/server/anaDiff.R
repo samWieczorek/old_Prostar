@@ -1,5 +1,5 @@
 callModule(moduleVolcanoplot,"volcano_Step1")
-
+callModule(moduleVolcanoplot,"volcano_Step2")
 
 output$warningNA <- renderUI({
     rv$current.obj
@@ -63,10 +63,8 @@ observeEvent(input$newComparison, {
 output$OptionsForT_tests <- renderUI({
     input$diffAnaMethod
     if (input$diffAnaMethod != "ttests"){return()}
-  selection <-  rv$current.obj@experimentData@other$Params[["anaDiff"]]$ttest_options
     radioButtons("ttest_options", "t-tests options",
-                 choices=c("Student", "Welch"),
-                 selected = selection)
+                 choices=c("Student", "Welch"))
     
 })
 
@@ -80,11 +78,9 @@ output$AnaDiff_seuilNADelete <- renderUI({
     
     choix <- getListNbValuesInLines(rv$current.obj, type=input$AnaDiff_ChooseFilters)
    
-    selection <-  rv$current.obj@experimentData@other$Params[["anaDiff"]]$filter_th_NA
     selectInput("AnaDiff_seuilNA", 
                 "Keep lines with at least x intensity values", 
-                choices = choix, 
-                selected = selection)
+                choices = choix)
     
 })
 
@@ -207,27 +203,20 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
     #if (is.null(rv$current.obj)) { return()}
     if (is.null(rv$res_AllPairwiseComparisons)) { return()}
   
-    selection_comp <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$comp
     .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_FC"))
-    
-    
-    selectionSwapVolcano <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$swapVolcano
-    selection_filterType <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$filterType
     
     tagList(
         
-        selectInput("selectComparison","Select comparison",
-                    choices = c("None",.choices),
-                    selected = selection_comp),
+        selectInput("selectComparison","Select comparison",choices = c("None",.choices)),
         
-        checkboxInput("swapVolcano", "Swap volcanoplot", value = selectionSwapVolcano),
+        checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
         br(),
         h4("P-value push"),
         h6("for peptides/proteins with less than"),
         h6("X originally observed values (i.e. non "),
         h6("imputed values) in:"),
-        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersList, selected = selection_filterType),
+        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersList),
         
         uiOutput("AnaDiff_seuilNADelete")
     ) })
@@ -303,14 +292,12 @@ output$diffAnalysis_Calibration_SB <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){ return()}
     
-    calibMethod <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$calibMethod
-    if (is.null(calibMethod)){ calibMethod <- "Benjamini-Hochberg"}
+    #if (is.null(calibMethod)){ calibMethod <- "Benjamini-Hochberg"}
     
     tagList(
         selectInput("calibrationMethod", 
                     "Choose the calibration method",
-                    choices = calibMethod_Choices,
-                    selected = calibMethod),
+                    choices = calibMethod_Choices),
         uiOutput("numericalValForCalibrationPlot"))
 })
 
@@ -321,12 +308,10 @@ output$diffAnalysis_Calibration_SB <- renderUI({
 output$diffAnalysis_FDR_SB <- renderUI({
     req(rv$current.obj)
     
-     threshold.PVal <-  rv$current.obj@experimentData@other$Params[["anaDiff"]]$th_pval
-    if(is.null(threshold.PVal)){threshold.PVal <- 0}
     
         numericInput("seuilPVal", 
                      "Define the -log10(p_value) threshold",
-                     min = 0,value = threshold.PVal,step=0.1)
+                     min = 0,value = 0,step=0.1)
      })
 
 
@@ -462,10 +447,8 @@ output$numericalValForCalibrationPlot <- renderUI({
     #if (is.null(input$calibrationMethod)) {return()}
     
     if (input$calibrationMethod == "numeric value"){
-        val <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$numValCalibMethod
-        if (is.null(val)){val <- 0}
         numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
-                      value = val, min=0, max=1, step=0.05)
+                      value = 0, min=0, max=1, step=0.05)
     }
 })
 
@@ -874,7 +857,8 @@ observeEvent(rv$current.obj,{
 })
 
 observeEvent(input$seuilPVal,{
-    if (!is.null(input$seuilPVal)){rv$seuilPVal <- as.numeric(input$seuilPVal)}
+    if (!is.null(input$seuilPVal)){
+        rv$seuilPVal <- as.numeric(input$seuilPVal)}
     
 })
 
@@ -884,81 +868,6 @@ observeEvent(input$seuilLogFC,{
         }
     
 })
-
-
-
-
-output$nbSelectedItemsStep3 <- renderUI({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$current.obj
-    input$selectComparison
-    
-    
-    if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
-    {return()}
-    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == "None")
-        || is.null(rv$current.obj)){
-        return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
-    
-    
-    
-    result = tryCatch(
-        {
-
-         p <- rv$resAnaDiff
-
-            if (is.null(p)) {return ()}
-            upItemsPVal <- NULL
-            upItemsLogFC <- NULL
-            
-            
-            upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
-            upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
-            
-            
-            rv$nbSelectedTotal_Step3 <- nrow(Biobase::exprs(rv$current.obj))
-            rv$nbSelected_Step3 <- NULL
-            t <- NULL
-            
-            if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-                t <- intersect(upItemsPVal, upItemsLogFC)}
-            else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
-                t <- upItemsPVal}
-            else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-                t <- upItemsLogFC}
-            
-            rv$nbSelected_Step3 <- length(t)
-            
-            txt <- paste("Total number of ", rv$typeOfDataset, " = ", 
-                         rv$nbSelectedTotal_Step3,"<br>",
-                         "Number of selected ", rv$typeOfDataset, " = ", 
-                         rv$nbSelected_Step3,"<br>",
-                         "Number of non selected ", rv$typeOfDataset, " = ", 
-                         (rv$nbSelectedTotal_Step3-rv$nbSelected_Step3), sep="")
-            HTML(txt)
-        }
-        , warning = function(w) {
-            shinyjs::info(paste0("nbSelectedItemsStep3",conditionMessage(w)))
-        }, error = function(e) {
-            shinyjs::info(paste("nbSelectedItemsStep3",match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-})
-
-
-
-
-
-
 
 
 ######################
@@ -986,24 +895,6 @@ getDataInfosVolcano <- reactive({
     res
 })
 
-
-getDataInfosVolcano_Step3 <- reactive({
-    rv$current$obj
-    input$eventPointClicked
-    #if (is.null(input$eventPointClicked)){ return()}
-    if (is.null(rv$current.obj)){ return()}
-    
-    test.table <- data.frame(
-        lapply(
-            Biobase::exprs(rv$current.obj)[input$eventPointClicked+1,],
-            function(x) t(data.frame(x))))
-    #rownames(test.table) <- input$eventPointClicked
-    rownames(test.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
-    test.table <- round(test.table, digits=3)
-    test.table
-    
-    
-})
 
 
 #################
@@ -1054,9 +945,7 @@ volcanoplot_rCharts <- reactive({
     if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
     if (is.null(rv$current.obj) ){return()}
     
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
-    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     result = tryCatch(
         {
           
@@ -1078,14 +967,15 @@ volcanoplot_rCharts <- reactive({
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
                 diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$seuilLogFC,
-                                            conditions = cond,
+                                           threshold_pVal = rv$seuilPVal,
+                                           conditions = cond,
                                             clickFunction=hc_clickFunction)
 
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
         }, error = function(e) {
-            shinyjs::info(paste("titi",match.call()[[1]],":",
+            shinyjs::info(paste("volcanoPlot_rCharts:",match.call()[[1]],":",
                                 conditionMessage(e),
                                 sep=" "))
         }, finally = {
@@ -1098,197 +988,6 @@ output$volcanoplot_rCharts <- renderHighchart({
     volcanoplot_rCharts()
     
 })   
-
-
-# volcanoplot <- reactive({
-#     rv$seuilPVal
-#     rv$seuilLogFC
-#     input$diffAnaMethod
-#     rv$resAnaDiff
-#     rv$current.obj
-#     
-#     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-#         (length(rv$resAnaDiff$FC) == 0) || is.null(rv$current.obj)) { 
-#         return()}
-#     
-#     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-#         return()}
-#     
-#     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-#     result = tryCatch(
-#         {
-#             diffAnaVolcanoplot(FC = rv$resAnaDiff$FC, 
-#                                pVal = rv$resAnaDiff$P_Value, 
-#                                threshold_logFC = rv$seuilLogFC,
-#                                conditions = cond)
-#         }
-#         , warning = function(w) {
-#             shinyjs::info(conditionMessage(w))
-#         }, error = function(e) {
-#             shinyjs::info(paste(match.call()[[1]],":",
-#                                 conditionMessage(e), 
-#                                 sep=" "))
-#         }, finally = {
-#             #cleanup-code 
-#         })
-#     
-#     
-# })
-
-# output$volcanoplot <- renderPlot({
-#     volcanoplot()
-# })   
-
-
-volcanoplot_rCharts_Step3 <- reactive({
-    rv$current.obj
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
-    input$seuilPVal
-    
-    if ( is.null(input$seuilPVal) ||
-        is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
-        (length(rv$resAnaDiff$FC) == 0) ||  is.null(rv$current.obj)) { 
-        return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()} 
-    cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-    result = tryCatch(
-        {
-
-                cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-                
-                df <- data_frame(x=rv$resAnaDiff$FC, 
-                                 y = -log10(rv$resAnaDiff$P_Value),
-                                 index = as.character(rownames(rv$current.obj)))
-                if (!is.null(input$tooltipInfo)){
-                    df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
-                }
-                colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-                if (ncol(df) > 3){
-                    colnames(df)[4:ncol(df)] <- paste("tooltip_", 
-                                                      colnames(df)[4:ncol(df)], 
-                                                      sep="")
-                }
-                hc_clickFunction <- JS(
-                    "function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"
-                )
-                
-                diffAnaVolcanoplot_rCharts(df,
-                                            threshold_logFC = rv$seuilLogFC,
-                                            threshold_pVal = rv$seuilPVal,
-                                            conditions = cond,
-                                            clickFunction=hc_clickFunction)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-})
-
-
-output$volcanoplot_rCharts_Step3 <- renderHighchart({
-    volcanoplot_rCharts_Step3()
-})   
-
-
-
-
-
-
-output$infosVolcanoTableStep3 <- renderDataTable({
-    rv$current.obj
-    input$eventPointClicked
-    
-    if (is.null(input$eventPointClicked)){data.frame()}
-    if (is.null(rv$current.obj)){ data.frame()}
-    
-    data <-getDataInfosVolcano()
-    
-    #id <-  which(is.na(data))
-    if (length(data$value) == 0){
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',ordering=F))
-    } else {
-      colorCode <- paste("function(row, data) {",
-                         paste(sapply(1:length(data$value),function(i)
-                           paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
-                         ),collapse = "\n"),"}" )
-      
-      
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
-                                          ordering=F
-                                          ,drawCallback=JS(colorCode)
-                                          ,server = TRUE))
-    }
-    dat
-    
-} )
-
-
-
-volcanoplotStep3 <- reactive({
-    rv$current.obj
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
-    
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        is.null(rv$seuilPVal) || is.na(rv$seuilPVal) ||
-        (length(rv$resAnaDiff$FC) == 0) ||  is.null(rv$current.obj)) { 
-        return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()} 
-    cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-    result = tryCatch(
-        {
-            if ("FC" %in% names(fData(rv$current.obj) )){
-                diffAnaVolcanoplot(fData(rv$current.obj)$FC,
-                                   fData(rv$current.obj)$P_Value, 
-                                   rv$current.obj@experimentData@other$threshold_p_value,
-                                   rv$current.obj@experimentData@other$threshold_logFC,
-                                   c(rv$current.obj@experimentData@other$condition1,
-                                     rv$current.obj@experimentData@other$condition2)
-                )
-            }else{
-                cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-                
-                diffAnaVolcanoplot(rv$resAnaDiff$FC, 
-                                   rv$resAnaDiff$P_Value, 
-                                   rv$seuilPVal, 
-                                   rv$seuilLogFC,
-                                   cond)
-            }
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-})
-
-output$volcanoplotStep3 <- renderPlot({
-    volcanoplotStep3()
-})
-
-
-
 
 
 ########################################################
@@ -1340,40 +1039,6 @@ output$showSelectedItems <- DT::renderDataTable({
 
 
 
-
-# ---- Download of only significat data --------------
-# output$linkWelch <- renderUI({
-#     input$ExportWelchTest
-#     if (input$ExportWelchTest == 0) {return() }
-#     
-#     saveMSnset(input$filenameWelchData,
-#                gFileExtension$msnset,
-#                rv$current.obj[
-#                    which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)])
-#     filename <- paste(input$filenameWelchData, gFileExtension$msnset, sep="")
-#     
-#     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
-#     a(filename, href=completeFilename)
-#     
-# })
-
-# ---- Download of only significat data --------------
-# output$linkLimma <- renderUI({
-#     input$ExportdiffAnaLimma
-#     if (input$ExportdiffAnaLimma == 0) {return() }
-#     
-#     saveMSnset(input$filenameLimmaData, gFileExtension$msnset, 
-#                rv$current.obj[
-#                    which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)])
-#     filename <- paste(input$filenameLimmaData, gFileExtension$msnset, sep="")
-#     completeFilename <- paste(rv$dirnameforlink,filename, sep="/")
-#     a(filename, href=completeFilename)
-#     
-# })
-
-
-
-
 isContainedIn <- function(strA, strB){
     return (all(strA %in% strB))
 }
@@ -1393,3 +1058,94 @@ observeEvent(rv$current.obj,{
         shinyjs::enable("diffAnaMethod")
     }
 })
+
+
+
+selectedItems <- function(){
+    rv$seuilPVal
+        rv$seuilLogFC
+        input$diffAnaMethod
+        req(rv$current.obj)
+        rv$resAnaDiff
+        
+        if(is.null(rv$resAnaDiff)|| is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return()}
+        if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
+            return()}
+        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
+            return()}
+        
+        p <- NULL
+        p <- rv$resAnaDiff
+        upItemsPVal <- NULL
+        upItemsLogFC <- NULL
+        
+        
+        upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
+        upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
+        
+        rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
+        rv$nbSelectedAnaDiff <- NULL
+        t <- NULL
+        
+        if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+            t <- intersect(upItemsPVal, upItemsLogFC)}
+        else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
+            t <- upItemsPVal}
+        else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+            t <- upItemsLogFC}
+        rv$nbSelectedAnaDiff <- length(t)
+        
+        txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ",
+                     rv$nbTotalAnaDiff,"<br>",
+                     "Number of selected ",rv$typeOfDataset, "(s) = ",
+                     rv$nbSelectedAnaDiff,"<br>",
+                     "Number of non selected ",rv$typeOfDataset, "(s) = ",
+                     (rv$nbTotalAnaDiff -rv$nbSelectedAnaDiff), sep="")
+        HTML(txt)
+    }
+
+    
+tooltipInfo <- function(){
+    rv$current.obj
+    input$selectComparison
+    if (is.null(rv$current.obj)){return()}
+    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
+    
+    selectizeInput("tooltipInfo",
+                   label = "Select the info you want to display",
+                   choices = colnames(fData(rv$current.obj)),
+                   multiple = TRUE, width='500px')
+
+    }
+
+
+tableInfos <- function(){
+    rv$current.obj
+    input$eventPointClicked
+    
+    if (is.null(input$eventPointClicked)){return()}
+    if (is.null(rv$current.obj)){return()}
+    
+    data <-getDataInfosVolcano()
+    
+    #id <-  which(is.na(data))
+    if (length(data$value) == 0){
+        dat <- DT::datatable(data$value, 
+                             options=list(dom='t',ordering=F))
+    } else {
+        
+        colorCode <- paste("function(row, data) {",
+                           paste(sapply(1:length(data$value),function(i)
+                               paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
+                           ),collapse = "\n"),"}" )
+        
+        
+        dat <- DT::datatable(data$value, 
+                             options=list(dom='t',
+                                          ordering=F
+                                          ,drawCallback=JS(colorCode)
+                                          ,server = TRUE))
+    }
+    dat
+    
+}

@@ -50,15 +50,12 @@ output$SymbolicFilterOptions <- renderUI({
 output$FilterSummaryData <- DT::renderDataTable({
     req(rv$current.obj)
     req(rv$DT_filterSummary)
-    if (!is.null(rv$current.obj@experimentData@other$Params[["Filtering"]]$stringFilter.df)){
-      rv$DT_filterSummary <- rv$current.obj@experimentData@other$Params[["Filtering"]]$stringFilter.df
-    }else {
-        if (nrow(rv$DT_filterSummary )==0){
+    
+     if (nrow(rv$DT_filterSummary )==0){
           df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
           rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
         }
-    }
-    
+
     DT::datatable(rv$DT_filterSummary)
 })
 
@@ -70,12 +67,11 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     tag <- rv$current.obj@experimentData@other$mvFilter.method
     if (!is.null(tag)) { filter <- tag}
     
-    filter <- rv$current.obj@experimentData@other$Params[["Filtering"]]$mvFilterType
     tagList(
         h4("Missing values filtering options")
         ,bsTooltip(id = "button1", title = "Button 1 Explanation", placement = "right", trigger = "click")
         ,hr()
-        ,radioButtons("ChooseFilters","",  choices = gFiltersList, selected = filter),
+        ,radioButtons("ChooseFilters","",  choices = gFiltersList),
         uiOutput("seuilNADelete"),
         actionButton("perform.filtering.MV", "Perform MV filtering")
   )
@@ -179,12 +175,10 @@ output$seuilNADelete <- renderUI({
     #if (!is.null(tag)) { ch <- tag}
     #else {ch <- choix[[1]]}
     
-    ch <- rv$current.obj@experimentData@other$Params[["Filtering"]]$mvThNA
     
     selectInput("seuilNA", 
                 "Keep lines with at least x intensity values", 
-                choices = choix, 
-                selected = ch)
+                choices = choix)
     
 })
 

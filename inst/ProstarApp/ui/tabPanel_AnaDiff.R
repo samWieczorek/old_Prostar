@@ -36,17 +36,9 @@ tabPanel("Differential analysis",
                                       ,actionButton("AnaDiff_perform.filtering.MV", "Perform")
                                   ),
                                   tagList(
-                                       #fluidRow(
-                                       #         column(width=6, uiOutput("nbSelectedItems")),
-                                       #         column(width=6, uiOutput("selectTooltipInfo"))
-                                       #         ),
                                        busyIndicator("Building plot, please wait",wait = 0),
                                        moduleVolcanoplotUI("volcano_Step1")
-                                       # DT::dataTableOutput("infosVolcanoTable"),
-                                      
-                                       # highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
-
-                                  )
+                                       )
                       )
              ),
              tabPanel("3 - p-value calibration",
@@ -81,15 +73,13 @@ tabPanel("Differential analysis",
                                   ),
                                   
                                   tagList(
-                                        uiOutput("nbSelectedItemsStep3"),
-                                        hr(),
                                         fluidRow(
                                                 column(width= 4, htmlOutput("equivPVal")),
                                                 column(width= 4, htmlOutput("showFDR"))
                                                 ),
-                                        DT::dataTableOutput("infosVolcanoTableStep3"),
+                                        hr(),
                                         busyIndicator("Building plot, please wait",wait = 0),
-                                        highchartOutput("volcanoplot_rCharts_Step3", height="500px", width="600px"),
+                                        moduleVolcanoplotUI("volcano_Step2"),
                                         DT::dataTableOutput("showSelectedItems")
                                         )
                       )
