@@ -36,13 +36,15 @@ tabPanel("Differential analysis",
                                       ,actionButton("AnaDiff_perform.filtering.MV", "Perform")
                                   ),
                                   tagList(
-                                       fluidRow(
-                                                column(width=6, uiOutput("nbSelectedItems")),
-                                                column(width=6, uiOutput("selectTooltipInfo"))
-                                                ),
-                                        DT::dataTableOutput("infosVolcanoTable"),
-                                        busyIndicator("Building plot, please wait",wait = 0),
-                                        highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
+                                       #fluidRow(
+                                       #         column(width=6, uiOutput("nbSelectedItems")),
+                                       #         column(width=6, uiOutput("selectTooltipInfo"))
+                                       #         ),
+                                       busyIndicator("Building plot, please wait",wait = 0),
+                                       moduleVolcanoplotUI("volcano_Step1")
+                                       # DT::dataTableOutput("infosVolcanoTable"),
+                                      
+                                       # highchartOutput("volcanoplot_rCharts", height="500px", width="600px")
 
                                   )
                       )
