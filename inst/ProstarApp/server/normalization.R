@@ -319,7 +319,7 @@ observeEvent(input$valid.normalization,{
                                    quantile = input$normalization.quantile,
                                    otherQuantile = input$normalization.quantileOther)
                   
-                  rv$current.obj <- saveNormalization(rv$current.obj,l.params)
+                  rv$current.obj <- saveParameters(rv$current.obj,"Norm",l.params)
                   
                   rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
