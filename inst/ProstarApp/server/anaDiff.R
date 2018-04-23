@@ -1,3 +1,6 @@
+callModule(moduleVolcanoplot,"volcano_Step1")
+
+
 output$warningNA <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return ()}
@@ -883,42 +886,7 @@ observeEvent(input$seuilLogFC,{
 })
 
 
-output$nbSelectedItems <- renderUI({
-    rv$seuilLogFC
-    input$diffAnaMethod
-    req(rv$current.obj)
-    rv$resAnaDiff
-    
-    if(is.null(rv$resAnaDiff)|| is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return()}
-    if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
-        return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
-    
-    p <- NULL
-    p <- rv$resAnaDiff
-    upItemsPVal <- NULL
-    upItemsLogFC <- NULL
-    
-    
-    upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
-    rv$nbTotalAnaDiff_Step1 <- nrow(Biobase::exprs(rv$current.obj))
-    rv$nbSelectedAnaDiff_Step1 <- NULL
-    t <- NULL
-    
-    t <- upItemsLogFC
-    
-       rv$nbSelectedAnaDiff_Step1 <- length(t)
-    
-    txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ", 
-        rv$nbTotalAnaDiff_Step1,"<br>",
-        "Number of selected ",rv$typeOfDataset, "(s) = ", 
-        rv$nbSelectedAnaDiff_Step1,"<br>",
-        "Number of non selected ",rv$typeOfDataset, "(s) = ", 
-        (rv$nbTotalAnaDiff_Step1 -rv$nbSelectedAnaDiff_Step1), sep="")
-    HTML(txt)
 
-})
 
 output$nbSelectedItemsStep3 <- renderUI({
     rv$seuilPVal
@@ -991,18 +959,6 @@ output$nbSelectedItemsStep3 <- renderUI({
 
 
 
-output$selectTooltipInfo <- renderUI({
-    rv$current.obj
-  input$selectComparison
-    if (is.null(rv$current.obj)){return()}
-  if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    
-    #selectInput("tooltipInfo", "Select the info you want to see", choices = colnames(fData(rv$current.obj)))
-    selectizeInput("tooltipInfo",
-                   label = "Select the info you want to see",
-                   choices = colnames(fData(rv$current.obj)),
-                   multiple = TRUE, width='500px')
-})
 
 
 ######################
