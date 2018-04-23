@@ -35,17 +35,26 @@ output$GOAnalysisMenu <- renderUI({
             tabPanel("GO Setup",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                                  
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
                                            ,h4("General setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
-                                                          choices = G_sourceOfProtID_Choices)
+                                                          choices = G_sourceOfProtID_Choices,
+                                                          selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$sourceOfProtID)
                                            
                                            ,uiOutput("chooseSourceForProtID")
-                                           ,selectInput("idFrom", "Id From", choices = c("UNIPROT"))
-                                           ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
+                                           ,selectInput("idFrom", "Id From", 
+                                                        choices = c("UNIPROT"), 
+                                                        selected=rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$idFrom)
+                                           ,selectInput("Organism", "Genome Wide Annotation", 
+                                                        choices = GetListInstalledOrgdDB(),
+                                                        selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$Organism)
+                                           
                                            ,selectInput("Ontology", "Ontology",
-                                                        choices = G_ontology_Choices)
+                                                        choices = G_ontology_Choices,
+                                                        selected =  rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$Ontology)
+                                           
                                            ,busyIndicator(WaitMsgCalc,wait = 0),
                                            actionButton("mapProtein.GO.button",
                                                          "Map proteins IDs")
@@ -68,7 +77,9 @@ output$GOAnalysisMenu <- renderUI({
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO",
                                            height = "100%",
-                                           checkboxGroupInput("GO_level", "Level",choices =c(2:4), selected=2),
+                                           checkboxGroupInput("GO_level", "Level",
+                                                              choices =c(2:4), 
+                                                              selected= rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$GO_level),
                                             actionButton("group.GO.perform.button","Perform GO grouping")
                                   ),
                                  tagList(
@@ -89,10 +100,15 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
                                            height = "100%",
-                                           radioButtons("universe", "Universe", choices = G_universe_Choices),
+                                           radioButtons("universe", "Universe", 
+                                                        choices = G_universe_Choices,
+                                                        selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$universe),
                                            uiOutput("chooseUniverseFile"),
                                           # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
+                                          tmp <- rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$pvalueCutoff,
+                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", 
+                                                        min = 0, max = 1, step = 0.01, 
+                                                        value = ifelse (is.null(tmp),0.01, tmp)),
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),
@@ -168,7 +184,8 @@ output$chooseSourceForProtID <- renderUI({
     
     if (input$sourceOfProtID == "colInDataset"){
         selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
-                    choices = c("", colnames(Biobase::fData(rv$current.obj))))
+                    choices = c("", colnames(Biobase::fData(rv$current.obj))),
+                    selected = rv$current.obj@experimentData@other$Params[["GOAnalysis"]]$UniprotIDCol)
     }
     else  if (input$sourceOfProtID == "extFile"){
         fileInput("UNIPROTID_File", "Select file for UNIPROT protein ID")
@@ -584,7 +601,15 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- temp
                 rv$current.obj <- temp
-                
+                l.params <- list(sourceOfProtID = input$sourceOfProtID,
+                                 idFrom = input$idFrom,
+                                 Organism = input$Organism,
+                                 Ontology = input$Ontology,
+                                 GO_level = input$GO_level,
+                                 universe = input$universe,
+                                 pvalueCutoff = input$pvalueCutoff
+                                  )
+                rv$current.obj <- saveParameters(rv$current.obj, "GOAnalysis", l.params)
                 
                 updateSelectInput(session, "datasets", 
                                   paste("Dataset versions of",
