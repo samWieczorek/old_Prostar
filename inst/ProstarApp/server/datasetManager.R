@@ -181,6 +181,8 @@ observeEvent(input$loadDemoDataset,{
                 rv$current.obj@experimentData@other$RawPValues <- FALSE
             
             rv$current.obj <- addOriginOfValue(rv$current.obj)
+            l.params <- list(filename = input$demoDataset)
+            UpdateLog("Original",l.params)
 
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
@@ -195,9 +197,9 @@ observeEvent(input$loadDemoDataset,{
             loadObjectInMemoryFromConverter()
         }
         , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
+            shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
         }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
+            shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
                                 conditionMessage(e), 
                                 sep=" "))
         }, finally = {
@@ -208,6 +210,16 @@ observeEvent(input$loadDemoDataset,{
 })
 
 
+########################################################
+# Update the global variable log
+UpdateLog <- function(name, l.params){
+  
+  hist <- buildLogText(name, l.params)
+  rv$text.log <- rbind(rv$text.log,
+                       c(Date=date(), Dataset=name, History=ifelse(is.null(hist), "",hist)))
+  
+  
+}
 
 
 
@@ -238,7 +250,9 @@ observeEvent(input$file,ignoreInit =TRUE,{
         #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
         
         rv$current.obj <- addOriginOfValue(rv$current.obj)
-
+        l.params <- list(filename = rv$current.obj.name)
+        UpdateLog("Original",l.params)
+        
         
         #if (input$showCommandLog){
             writeToCommandLogFile(
@@ -489,6 +503,8 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
+                l.params <- list(filename = input$filenameToCreate)
+                UpdateLog("Original",l.params)
                 
                 
                 #if (input$showCommandLog){
@@ -612,13 +628,15 @@ output$chooseMetaDataExport <- renderUI({
 
 
 output$logSession <- DT::renderDataTable({
-    rv$text.log
-    if (is.null(rv$text.log)) {return (NULL)}
-    rv$text.log}, 
-    options=list(pageLength=DT_pagelength,
-                 orderClasses = TRUE,
-                 autoWidth=FALSE)
-)
+    req(rv$text.log)
+    
+    dt <- dat <- DT::datatable(rv$text.log, 
+                               options=list(pageLength=DT_pagelength,
+                                            orderClasses = TRUE,
+                                            autoWidth=FALSE,
+                                            escape = FALSE))
+    dt
+})
 
 
 
@@ -804,14 +822,6 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
     
 })
 
-
-########################################################
-# Update the global variable log
-UpdateLog <- function(text, name){
-    rv$text.log <- rbind(c(Date=date(), 
-                           Dataset=name, History=text), 
-                         rv$text.log)
-}
 
 
 

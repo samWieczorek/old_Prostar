@@ -6,10 +6,7 @@ tabPanel("Session logs",
              tabPanel("Session logs",
                       value = "ChangeDataset",
                       sidebarCustom(),
-                      conditionalPanel(
-                          id = "wellPanel_changeDataset",
-                          condition =  "true",
-                          width=widthWellPanel,
+                      tagList(
                           DT::dataTableOutput("logSession")
                       )
              ),

@@ -604,7 +604,20 @@ output$DS_sidebarPanel_Violinplot <- renderUI({
 
 
 
-
+getDataForExprs <- reactive({
+    input$nDigits
+    rv$current$obj
+    
+    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
+    
+    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+    #                     round(Biobase::exprs(rv$current.obj), 
+    #                     digits=nDigits))
+    test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=nDigits))
+    test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
+    
+    test.table
+})
 
 
 getData <- reactive({
@@ -638,19 +651,22 @@ data <- eventReactive(rv$current$obj, {
 
 
 #################
-output$table <- renderDataTable(
+output$table <- renderDataTable({
+   # req(rv$current.obj)
     
-    getData(),
-    options = list(
-        displayLength = 20
-        
-        # ,drawCallback=JS(
-        # paste("function(row, data) {",
-        #       paste(sapply(1:ncol(getData()),function(i)
-        #           paste( "$(this.api().cell(",indewq() %% nrow(data())-1,",",trunc(indewq() / nrow(getData()))+1,").node()).css({'background-color': 'lightblue'});")
-        #       ),collapse = "\n"),"}" ))
-        
-    ),server = TRUE)
+   dt <- datatable( getDataForExprs(),
+                    options = list(displayLength = 20,
+                            columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
+                    )) %>%
+       formatStyle(
+           colnames(getDataForExprs())[1:ncol(rv$current.obj)],
+           colnames(getDataForExprs())[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
+           backgroundColor = styleEqual(c("MV", "MEC"), c('lightblue', 'orange'))
+       )
+    
+    
+    dt
+    })
 
 
 

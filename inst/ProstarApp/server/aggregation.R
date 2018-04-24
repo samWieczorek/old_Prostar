@@ -110,6 +110,17 @@ observeEvent(input$valid.aggregation,{
                 }
                 #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
                 
+                updateSelectInput(session, "proteinId",selected = input$proteinId)
+                updateSelectInput(session, "aggregationMethod",selected = input$aggregationMethod)
+                updateSelectInput(session, "nTopn",selected = input$nTopn)
+                updateCheckboxInput(session,"checkSharedPeptides",input$checkSharedPeptides)
+                
+                
+                l.params <- list(withSharedPeptides = input$checkSharedPeptides,
+                                 agregMethod = input$aggregationMethod,
+                                 proteinId = input$proteinId,
+                                 topN = input$nTopn
+                    )
                 
                 #total <- 60
                 #delta <- round(total / length(input$columnsForProteinDataset.box))
@@ -131,11 +142,13 @@ observeEvent(input$valid.aggregation,{
                 #}
                 
                 rv$current.obj <- rv$temp.aggregate
-                rv$typeOfDataset <-
-                    rv$current.obj@experimentData@other$typeOfData
+                rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                rv$current.obj <- saveParameters(rv$current.obj, "Aggregation",l.params)
+                
+                
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- rv$current.obj
-                
+                UpdateLog("Aggregation", l.params)
                 #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
                 
                 
@@ -169,14 +182,7 @@ observeEvent(input$valid.aggregation,{
                                         rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
-                UpdateLog(
-                    paste("Aggregation : peptides were aggregated into 
-                          proteins with method =",
-                          input$aggregationMethod,
-                          ", include Shared Peptides = ", 
-                          input$checkSharedPeptides,
-                          ", protein id = ", input$proteinId, sep=" "),
-                    name)
+
                 rv$temp.aggregate <- NULL
                 #updatePB(session,inputId="pb_SaveAggregation",value=100,text_value="100 %", striped = TRUE, active=TRUE)
                 

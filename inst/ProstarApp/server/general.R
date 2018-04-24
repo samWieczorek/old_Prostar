@@ -10,11 +10,6 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
             
         if (!is.null( rv$current.obj))
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-            UpdateLog(
-                paste("Current dataset has changed. Now, it is ",
-                      input$datasets, 
-                      sep=" "),
-                input$datasets)
         }
         
     })
@@ -106,9 +101,7 @@ loadObjectInMemoryFromConverter <- reactive({
                                     rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
-    
-    #log update
-    UpdateLog(paste("Open : file ",input$file$name, " opened"),name)
+
 })
 
 #
@@ -185,6 +178,7 @@ ClearMemory <- function(){
     rv$nbDeleted = 0
     rv$nbDeletedInfos = NULL
     rv$fdr = NULL
+    rv$ValidFilteringClicked = FALSE
     rv$ValidImputationClicked = FALSE
     rv$nbTotalAnaDiff = NULL
     rv$nbSelectedAnaDiff = NULL
@@ -264,7 +258,10 @@ rv <- reactiveValues(
     # transformation of the data
     dataset = list(),
     # Variable that contains the log for the current R session
-    text.log = data.frame(Date="", Dataset="", History="", stringsAsFactors=F),
+    text.log = data.frame(Date="", 
+                          Dataset="", 
+                          History="", 
+                          stringsAsFactors=F),
     listLogFC = list(),
     seuilLogFC = 0,
     seuilPVal = 1e-60,
@@ -279,6 +276,7 @@ rv <- reactiveValues(
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
     widthSidebar = 3,
+    ValidFilteringClicked = FALSE,
     ValidImputationClicked = FALSE,
     commandLog = "", 
     normalizationFamily = NULL,

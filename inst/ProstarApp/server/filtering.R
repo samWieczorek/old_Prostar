@@ -60,6 +60,17 @@ output$FilterSummaryData <- DT::renderDataTable({
 })
 
 
+observe({
+  input$datasets
+  if (length(grep("Filtered", input$datasets))==0 && rv$ValidFilteringClicked){
+   rv$ValidFilteringClicked <- FALSE
+   df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+   rv$DT_filterSummary <- df
+  }
+  
+})
+
+
 output$DP_sidebar_FilterTab1 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return()}
@@ -166,8 +177,10 @@ output$seuilNADelete <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)   }
     if (input$ChooseFilters==gFilterNone) {return(NULL)   }
     
-    
-    choix <- GetMaxValueThresholdFilter()
+  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
+  
+  
+    #choix <- GetMaxValueThresholdFilter()
     
     #ch <- NULL
     #tag <- rv$current.obj@experimentData@other$mvFilter.threshold
@@ -294,55 +307,54 @@ UpdateFilterWidgets <- function(){
 ######################################
 ##' Function to compute the maximum value for the filter
 ##' @author Samuel Wieczorek
-GetMaxValueThresholdFilter <- function(){
-    input$ChooseFilters
-    vMax <- 0
-    choix <- list()
-    
-    result = tryCatch(
-        {
-            isolate({
-                if (input$ChooseFilters == gFilterWholeMat) { 
-                    vMax <- ncol(Biobase::exprs(rv$current.obj))
-                    choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
-                    }
-                else if (input$ChooseFilters == gFilterAllCond 
-                         || input$ChooseFilters == gFilterOneCond){ 
-                    ll <- NULL
-                    for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
-                        ll <- c(ll, length(which(
-                            Biobase::pData(rv$current.obj)$Label==
-                                unique(Biobase::pData(rv$current.obj)$Label)[i])))
-                    }
-                    
-                    vMax <- min(ll)
-                    choix[[1]] <- 0
-                    for (i in 2:(vMax+1)){
-                      choix[[i]] <- i-1
-                    }
-                }
-                return(choix)
-            })
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-    
-    
-}
+# GetMaxValueThresholdFilter <- function(){
+#     input$ChooseFilters
+#     vMax <- 0
+#     choix <- list()
+#     
+#     result = tryCatch(
+#         {
+#             isolate({
+#                 if (input$ChooseFilters == gFilterWholeMat) { 
+#                     vMax <- ncol(Biobase::exprs(rv$current.obj))
+#                     choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
+#                     }
+#                 else if (input$ChooseFilters == gFilterAllCond 
+#                          || input$ChooseFilters == gFilterOneCond){ 
+#                     ll <- NULL
+#                     for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
+#                         ll <- c(ll, length(which(
+#                             Biobase::pData(rv$current.obj)$Label==
+#                                 unique(Biobase::pData(rv$current.obj)$Label)[i])))
+#                     }
+#                     
+#                     vMax <- min(ll)
+#                     choix[[1]] <- 0
+#                     for (i in 2:(vMax+1)){
+#                       choix[[i]] <- i-1
+#                     }
+#                 }
+#                 return(choix)
+#             })
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste(match.call()[[1]],":",
+#                                 conditionMessage(e), 
+#                                 sep=" "))
+#         }, finally = {
+#             #cleanup-code 
+#         })
+#     
+#     
+#     
+#     
+# }
 
 
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,{
-    
     if (is.null(input$perform.filtering.MV) ){return()}
     if (input$perform.filtering.MV == 0){return()}
     
@@ -350,7 +362,7 @@ observeEvent(input$perform.filtering.MV,{
         
         result = tryCatch(
             {
-                if (input$ChooseFilters == gFilterNone){
+              if (input$ChooseFilters == gFilterNone){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
                     
@@ -602,22 +614,25 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     #if( (input$ValidateFilters == 0)) {return(NULL)}
     if(is.null(rv$current.obj)) {return(NULL)}
             if((input$ChooseFilters != gFilterNone) || (nrow(rv$DT_filterSummary )>1)){
-                    
-                    if (nrow(rv$DT_filterSummary) <=1) {
-                      df <- NULL
-                      } else {
-                        df <- rv$DT_filterSummary}
-                        
+
+              if (nrow(rv$DT_filterSummary) <=1) {
+                df <- NULL
+              } else {
+                df <- rv$DT_filterSummary}
+              
                         l.params <- list(mvFilterType = input$ChooseFilters,
-                                     mvThNA = input$seuilNA,
+                                     mvThNA = input$seuilNA, 
                                      stringFilter.df = df)
                     
-                    rv$current.obj <- saveFiltering(rv$current.obj,l.params)
+                    rv$current.obj <- saveParameters(rv$current.obj,"Filtering",l.params)
+                    UpdateLog("Filtering", l.params)
                     
+                    rv$ValidFilteringClicked <- TRUE
                     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
                     name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
                     rv$dataset[[name]] <- rv$current.obj
                     
+                     
                     ###### write to commandLog File
                     #if (input$showCommandLog){
                         writeToCommandLogFile(  
@@ -631,15 +646,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
                                             rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset), 
                                       selected = name)
-                    #txtFilterMV <- paste("Filtering :",
-                    #                     GetFilterText(input$ChooseFilters, 
-                    #                                  input$seuilNA), 
-                    #                     sep="")
-                    #txt <- paste(txtFilterMV, "Contaminants deleted", 
-                    #             "Reverse deleted", 
-                    #             sep=" ")
-                    #UpdateLog(txt,name)
-                    
+
                     
                     ## Add the necessary text to the Rmd file
                     #txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")

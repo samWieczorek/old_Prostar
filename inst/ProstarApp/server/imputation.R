@@ -44,6 +44,7 @@ output$sidebar_imputation_step1 <- renderUI({
         rv$imputePlotsSteps[["step1"]] <- NULL
         rv$imputePlotsSteps[["step2"]] <- NULL
         rv$ValidImputationClicked <- FALSE
+        
     }
     
     
@@ -297,6 +298,9 @@ observeEvent(input$ValidImputation,{
                 name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
                 
                 rv$dataset[[name]] <- rv$current.obj
+                
+                UpdateLog("Imputation", l.params)
+                
                 #write command log file
                 writeToCommandLogFile(
                     paste("dataset[['",name,"']] <- current.obj", sep="")
@@ -306,9 +310,6 @@ observeEvent(input$ValidImputation,{
                                   paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
-                UpdateLog(paste("Imputation with" ,
-                                input$missing.value.algorithm,sep=" "),
-                          name)
                 
                 
                 updateSelectInput(session, "ClassicalMV_missing.value.algorithm",  selected = input$ClassicalMV_missing.value.algorithm)

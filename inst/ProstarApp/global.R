@@ -519,3 +519,8 @@ bsButtonRight <- function(...) {
     btn$attribs$style <- "float: right;"
     btn
 }
+
+
+
+
+

@@ -14,11 +14,11 @@ output$helpForNormalizationMethods <- renderUI({
     
     
     helpNormalization <- matrix(rep("", 12),nrow = 3, 
-                                dimnames=list(c("Global Alignment", "Quantile Centering", "Mean Centering"),
+                                dimnames=list(c("Global quantile Alignment", "Quantile Centering", "Mean Centering"),
                                               c("sum by columns", "Alignment on all quantiles", "overall", "within conditions")))
     
     
-    helpNormalization["Global Alignment"] <- "These methods propose 
+    helpNormalization["Global quantile Alignment"] <- "These methods propose 
     normalizations of important magnitude that should be cautiously used:<br>
     <ul>
     <li>
@@ -234,9 +234,7 @@ observeEvent(input$perform.normalization,{
                                                               scaling=input$normalization.variance.reduction)
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
-                        scale <- FALSE
-                        if( !is.null(input$normalization.variance.reduction)){scale <- input$normalization.variance.reduction}
-                        
+                        updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
                         ## Write command log file
                         #if (input$showCommandLog){
                             writeToCommandLogFile(
@@ -297,7 +295,7 @@ observeEvent(input$valid.normalization,{
             {
                 if (input$normalization.method != G_noneStr) {
                     
-                   
+                  
                   l.params <- list(method = input$normalization.method,
                                    type = input$normalization.type,
                                    varReduction = input$normalization.variance.reduction,
@@ -310,6 +308,7 @@ observeEvent(input$valid.normalization,{
                     name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
                     rv$dataset[[name]] <- rv$current.obj
                     
+                    UpdateLog("Normalization", l.params)
                     
                     #write command log file
                     #if (input$showCommandLog){
@@ -322,8 +321,6 @@ observeEvent(input$valid.normalization,{
                                       paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset),
                                       selected = name)
-                    UpdateLog(paste("Normalization : data normalized with the method",
-                                    input$normalization.method, sep=" "), name)
                     
                     
                     ## Add the necessary text to the Rmd file

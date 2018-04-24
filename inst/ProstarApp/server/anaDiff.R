@@ -106,24 +106,25 @@ observeEvent(input$selectComparison,{
 if (input$selectComparison== "None"){
     rv$resAnaDiff <- NULL
 } else {
-    if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])) {  ### There is no previous analysis
+    #if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])) {  ### There is no previous analysis
         index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
         rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
                           condition1 = strsplit(input$selectComparison, "_")[[1]][1],
                           condition2 = strsplit(input$selectComparison, "_")[[1]][3]
                         )
-    } else {
-        paramsAnaDiff <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
-        rv$resAnaDiff <- list(FC = Biobase::fData(rv$current.obj)[,"FC"],
-                              P_Value = Biobase::fData(rv$current.obj)[,"P_Value"],
-                              condition1 = paramsAnaDiff$condition1,
-                              condition2 = paramsAnaDiff$condition2
-        )
-        rv$seuilPVal <- paramsAnaDiff$th_pval
-        rv$seuilLogFC <- paramsAnaDiff$th_logFC
-        rv$fdr <-paramsAnaDiff$fdr
-    }
+    #} 
+    # else {
+    #     paramsAnaDiff <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
+    #     rv$resAnaDiff <- list(FC = Biobase::fData(rv$current.obj)[,"FC"],
+    #                           P_Value = Biobase::fData(rv$current.obj)[,"P_Value"],
+    #                           condition1 = paramsAnaDiff$condition1,
+    #                           condition2 = paramsAnaDiff$condition2
+    #     )
+    #     rv$seuilPVal <- paramsAnaDiff$th_pval
+    #     rv$seuilLogFC <- paramsAnaDiff$th_logFC
+    #     rv$fdr <-paramsAnaDiff$fdr
+    # }
 }
 })
 
@@ -650,7 +651,10 @@ observeEvent(input$ValidDiffAna,{
     )
       
     ### Save one comparison if exists            
-    if (!is.null(rv$resAnaDiff)  ){  
+    if (! (is.null(rv$resAnaDiff$FC)
+           && is.null(rv$resAnaDiff$FC)
+           && is.null(rv$resAnaDiff$FC)
+           && is.null(rv$resAnaDiff$FC))  ){  
                 m <- NULL
                 if (input$calibrationMethod == "Benjamini-Hochberg") 
                 { m <- 1}
@@ -677,6 +681,11 @@ observeEvent(input$ValidDiffAna,{
                 l.params[["numValCalibMethod"]] <- input$numericValCalibration
                 
                 
+                
+                
+                
+                
+    }
                 temp <- DAPAR::diffAnaSave(temp,
                                            rv$res_AllPairwiseComparisons,
                                            rv$resAnaDiff,
@@ -687,7 +696,7 @@ observeEvent(input$ValidDiffAna,{
                 
                 rv$dataset[[name]] <- temp
                 rv$current.obj <- temp
-                
+                UpdateLog("anaDiff", l.params)
                 
                 updateSelectInput(session, "datasets", 
                                   paste("Dataset versions of",
@@ -707,57 +716,46 @@ observeEvent(input$ValidDiffAna,{
                 
                 ####write command Log file
                 #if (input$showCommandLog){
-                writeToCommandLogFile(paste("cond1 <- '", rv$resAnaDiff$condition1, "'", sep=""))
-                writeToCommandLogFile(paste("cond2 <- '", rv$resAnaDiff$condition2, "'", sep=""))
-                writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                # writeToCommandLogFile(paste("cond1 <- '", rv$resAnaDiff$condition1, "'", sep=""))
+                # writeToCommandLogFile(paste("cond2 <- '", rv$resAnaDiff$condition2, "'", sep=""))
+                # writeToCommandLogFile(paste("method <- '", input$diffAnaMethod, "'", sep=""))
+                # 
+                # switch(input$diffAnaMethod,
+                #        Limma = writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"),
+                #        Welch =  writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
+                # )
+                # 
+                # 
+                # writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
+                # writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
+                # 
+                # writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
+                # if (input$calibrationMethod == "Benjamini-Hochberg") { 
+                #     writeToCommandLogFile("m <- 1") }
+                # else if (input$calibrationMethod == "numeric value") 
+                # { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
+                # else {writeToCommandLogFile("m <- calibMethod")}
+                # 
+                # writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
+                # 
+                # 
+                # writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
+                #                             input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
+                # writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
+                #                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
+                # writeToCommandLogFile("dataset[[name]] <- temp")
+                # writeToCommandLogFile("current.obj <- temp")
+                # # }
+                # 
+                # 
+                # cMethod <- NULL
+                # if (input$calibrationMethod == "numeric value"){
+                #     cMethod <- paste("The proportion of true null
+                #                      hypotheses was set to", 
+                #                      input$numericValCalibration, sep= " ")}
+                # else {cMethod <-input$calibrationMethod }
                 
-                switch(input$diffAnaMethod,
-                       Limma = writeToCommandLogFile("data <- wrapper.diffAnaLimma(current.obj, cond1, cond2)"),
-                       Welch =  writeToCommandLogFile( "data <- wrapper.diffAnaWelch(current.obj, cond1, cond2)")
-                )
                 
-                
-                writeToCommandLogFile(paste("threshold_pValue <- ", input$seuilPVal, sep=""))
-                writeToCommandLogFile(paste("threshold_logFC <- ", input$seuilLogFC,sep=""))
-                
-                writeToCommandLogFile(paste("calibMethod <- \"", input$calibrationMethod, "\"", sep=""))
-                if (input$calibrationMethod == "Benjamini-Hochberg") { 
-                    writeToCommandLogFile("m <- 1") }
-                else if (input$calibrationMethod == "numeric value") 
-                { writeToCommandLogFile(paste(" m <- ",as.numeric(input$numericValCalibration), sep=""))}
-                else {writeToCommandLogFile("m <- calibMethod")}
-                
-                writeToCommandLogFile("fdr <- diffAnaComputeFDR(data, threshold_pValue, threshold_logFC, m)")
-                
-                
-                writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
-                                            input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
-                writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
-                                            input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
-                writeToCommandLogFile("dataset[[name]] <- temp")
-                writeToCommandLogFile("current.obj <- temp")
-                # }
-                
-                
-                cMethod <- NULL
-                if (input$calibrationMethod == "numeric value"){
-                    cMethod <- paste("The proportion of true null
-                                     hypotheses was set to", 
-                                     input$numericValCalibration, sep= " ")}
-                else {cMethod <-input$calibrationMethod }
-                
-                text <- paste("Dataset of ", 
-                              rv$typeOfDataset,
-                              ": differential analysis with", 
-                              input$diffAnaMethod, 
-                              "Selection with the following threshold values :FC =",
-                              rv$seuilLogFC,
-                              "The calibration was made with the method", cMethod,
-                              ", -log10(p-value) = ",
-                              rv$seuilPVal,
-                              "corresponding to a FDR = ", round(100*rv$fdr, digits=2),
-                              sep=" ")
-                UpdateLog(text,name)
                 
                 updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
                 #shinyjs::disable("seuilLogFC")
@@ -772,7 +770,7 @@ observeEvent(input$ValidDiffAna,{
                 # write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                 #createPNG_DifferentialAnalysis()
   
-            }
+            #}
 })
 
 

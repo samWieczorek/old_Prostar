@@ -274,16 +274,7 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
         
         tryCatch({
             
-            # if (input$idFrom == "UNIPROT"){
-            #     rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
-            #     if (is.null(gene)){return (NULL)}
-            #     
-            # }else {
-            #     rv$gene  = rv$ProtIDList[index]
-            # }
-            # 
-            
-            rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+             rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
             rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
             rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
         }, warning = function(w) {
@@ -645,17 +636,10 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 # 
                 
                 text2Log <- NULL
-                text <- NULL
                 
                 switch(input$whichGO2Save,
                        Both =
                        {
-                           text <- paste(textGOParams,", GO grouping for level(s):",
-                                         input$GO_level,
-                                         ", GO enrichment with",
-                                         ", adj p-value cutoff = ", input$pvalueCutoff,
-                                         ", universe =", input$universe, sep= " ")
-                           
                            
                            text2Log <- paste(
                                "ProtIDList <- Biobase::fData(current.obj)[,\"",input$UniprotIDCol,"]\"\n",
@@ -697,18 +681,9 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                "dataset[[name]] <- temp\n",
                                "current.obj <- temp\n", sep= " ")
                            # writeToCommandLogFile(text2Log)
-                       },
-                       Enrichment ={
-                           text <- paste(textGOParams, " GO enrichment with",
-                                         ", adj p-value cutoff = ", input$pvalueCutoff,
-                                         ", universe =", input$universe, sep= " ")
-                       },
-                       Classification= {
-                           text <- paste(textGOParams,", GO grouping for level(s):",
-                                         input$GO_level,sep=" ")
                        }
                 )
-                UpdateLog(text,name)
+                UpdateLog("GOAnalysis", l.params)
                 
                 updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
                 
