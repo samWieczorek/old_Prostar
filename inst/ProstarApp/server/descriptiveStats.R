@@ -2,6 +2,7 @@
 
 
 
+
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleDensityplot,"densityPlot_Norm")
 
@@ -92,7 +93,8 @@ output$DS_sidebarPanel_tab <- renderUI({
                      br(),
                      checkboxInput("nDigits", 
                                    "Show full length intensities", 
-                                   value = FALSE)
+                                   value = FALSE),
+                     uiOutput("legendForExprsData")
     )
     
 })
@@ -655,13 +657,16 @@ output$table <- renderDataTable({
    # req(rv$current.obj)
     
    dt <- datatable( getDataForExprs(),
-                    options = list(displayLength = 20,
+                    options = list(dom='t',
+                                   displayLength = 20,
+                                   ordering=FALSE,
+                                   server = TRUE,
                             columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
                     )) %>%
        formatStyle(
            colnames(getDataForExprs())[1:ncol(rv$current.obj)],
            colnames(getDataForExprs())[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
-           backgroundColor = styleEqual(c("MV", "MEC"), c('lightblue', 'orange'))
+           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
        )
     
     
@@ -842,6 +847,31 @@ output$corrMatrix <- renderHighchart({
 
 
 
+output$legendForExprsData <- renderUI({
+  
+  tagList(
+    hr(),
+    h4("Legend of colors"),
+      
+      fluidRow(
+        column(width=2, 
+               tags$div(class="input-color", checked=NA,
+                        tags$input(type="text", value=""),
+                        tags$div(class="color-box", style="background-color: lightblue;")
+                      )),
+        column(width=10, h5("Partially Observed Value"))
+  ),
+  
+  fluidRow(
+    column(width=2, 
+           tags$div(class="input-color", checked=NA,
+                    tags$input(type="text", value=""),
+                    tags$div(class="color-box", style="background-color: orange;")
+           )),
+    column(width=10, h5("Missing in Entire Condition"))
+  )
+  )
+})
 
 
 
