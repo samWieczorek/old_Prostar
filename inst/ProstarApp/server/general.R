@@ -1,4 +1,5 @@
 
+
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
@@ -191,7 +192,7 @@ ClearMemory <- function(){
     rv$ratio = NULL
     rv$impute_Step = 0
     rv$hot = port
-    rv$lapalaIndex = NULL
+    rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
                               Dataset="", 
@@ -310,7 +311,7 @@ rv <- reactiveValues(
     ratio=NULL,
     iDat = NULL,
     tempDatasetImputation = NULL,
-    lapalaIndex = NULL,
+    MECIndex = NULL,
     stringBasedFiltering_Done = FALSE,
     imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
