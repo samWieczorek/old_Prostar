@@ -62,26 +62,26 @@ sidebarPanelWidth()
    
 
    navbarMenu("Dataset manager",
-              source(file.path("ui", "tabPanel_openMSnSetFile.R"),  local = TRUE)$value,
-              source(file.path("ui", "tabPanel_convertData.R"),  local = TRUE)$value,
-              source(file.path("ui", "tabPanel_DemoMode.R"),  local = TRUE)$value,
-              source(file.path("ui", "tabPanel_Export.R"),  local = TRUE)$value,
-              #source(file.path("ui", "tabPanel_Settings.R"),  local = TRUE)$value,
-              source(file.path("ui", "tabPanel_logSession.R"),  local = TRUE)$value
+              source(file.path("ui", "ui_openMSnSetFile.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_convertData.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
+              #source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_logSession.R"),  local = TRUE)$value
               
    ),
-source(file.path("ui", "tabPanel_descriptiveStatistics.R"),  local = TRUE)$value,
+source(file.path("ui", "ui_descriptiveStatistics.R"),  local = TRUE)$value,
 
 navbarMenu("Data processing",
            
-    source(file.path("ui", "tabPanel_Filtering.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_Normalization.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_Imputation.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_Aggregation.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_AnaDiff.R"),  local = TRUE)$value,
-    source(file.path("ui", "tabPanel_GO_Enrich.R"),  local = TRUE)$value
+    source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
+    source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
+    source(file.path("ui", "ui_Imputation.R"),  local = TRUE)$value,
+    source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
+    source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value,
+    source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
     ),
 
-source(file.path("ui", "tabPanel_Help.R"),  local = TRUE)$value
+source(file.path("ui", "ui_Help.R"),  local = TRUE)$value
 )
 )

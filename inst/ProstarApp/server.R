@@ -49,18 +49,19 @@ shinyServer(function(input, output, session) {
     hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
-    source(file.path("server", "modulesSrv.R"),  local = TRUE)$value
-    source(file.path("server", "saveGraphics.R"), local = TRUE)$value
-    source(file.path("server", "general.R"), local = TRUE)$value
-    source(file.path("server", "filtering.R"),  local = TRUE)$value
-    source(file.path("server", "imputation.R"),  local = TRUE)$value
-    source(file.path("server", "normalization.R"),  local = TRUE)$value
-    source(file.path("server", "anaDiff.R"),  local = TRUE)$value
-    source(file.path("server", "descriptiveStats.R"),  local = TRUE)$value
-    source(file.path("server", "aggregation.R"),  local = TRUE)$value
-    source(file.path("server", "datasetManager.R"),  local = TRUE)$value
-    source(file.path("server", "help.R"),  local = TRUE)$value
-    source(file.path("server", "GO_enrichment.R"),  local = TRUE)$value
+    source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
+    source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
+    source(file.path("server", "srv_general.R"), local = TRUE)$value
+    source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
+    source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
+    source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
+    source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
+    source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
+    source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+    source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
+    source(file.path("server", "srv_datasetManager.R"),  local = TRUE)$value
+    source(file.path("server", "srv_help.R"),  local = TRUE)$value
+    source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
     
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     

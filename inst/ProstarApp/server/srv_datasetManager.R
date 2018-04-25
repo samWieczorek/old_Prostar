@@ -214,8 +214,11 @@ observeEvent(input$loadDemoDataset,{
 ########################################################
 # Update the global variable log
 UpdateLog <- function(name, l.params){
+  rv$typeOfDataset
+  print(rv$typeOfDataset)
+    
   
-  hist <- buildLogText(name, l.params)
+  hist <- buildLogText(name, l.params, level=rv$typeOfDataset)
   rv$text.log <- rbind(rv$text.log,
                        c(Date=date(), Dataset=name, History=ifelse(is.null(hist), "",hist)))
   
@@ -631,7 +634,7 @@ output$chooseMetaDataExport <- renderUI({
 output$logSession <- DT::renderDataTable({
     req(rv$text.log)
     
-    dt <- dat <- DT::datatable(rv$text.log, 
+    dt <- DT::datatable(rv$text.log, 
                                options=list(pageLength=DT_pagelength,
                                             orderClasses = TRUE,
                                             autoWidth=FALSE,

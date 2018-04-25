@@ -657,8 +657,7 @@ output$table <- renderDataTable({
    # req(rv$current.obj)
     
    dt <- datatable( getDataForExprs(),
-                    options = list(dom='t',
-                                   displayLength = 20,
+                    options = list(displayLength = 20,
                                    ordering=FALSE,
                                    server = TRUE,
                             columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
