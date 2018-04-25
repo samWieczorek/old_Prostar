@@ -143,22 +143,23 @@ normMethods <- list("None" = "None",
  )
 
 
-imputationAlgorithmsPeptides_ClassicalMV <- list("None" = "None",
+imputationAlgorithmsPeptides_POV <- list("None" = "None",
+                                                 "imp4p" = "imp4p",
                                                  "slsa" = "slsa",
                                                 "detQuantile" = "detQuantile",
                                                 "KNN" = "KNN")
 
-imputationAlgorithmsProteins_ClassicalMV <- list(
+imputationAlgorithmsProteins_POV <- list(
                                                 "None" = "None",
                                                 "slsa" = "slsa",
                                                  "detQuantile" = "detQuantile",
                                                  "KNN" = "KNN")
 
-imputationAlgorithmsPeptides_Lapala<- list("None" = "None",
+imputationAlgorithmsPeptides_MEC<- list("None" = "None",
                                            "detQuantile" = "detQuantile",
                                            "fixedValue" = "fixedValue")
 
-imputationAlgorithmsProteins_Lapala <- list("None" = "None",
+imputationAlgorithmsProteins_MEC <- list("None" = "None",
                                             "detQuantile" = "detQuantile",
                                             "fixedValue" = "fixedValue")
 
@@ -519,6 +520,8 @@ bsButtonRight <- function(...) {
     btn$attribs$style <- "float: right;"
     btn
 }
+
+
 
 
 
