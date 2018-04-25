@@ -905,27 +905,24 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
-    data <-getDataInfosVolcano()
+    data <-getDataForExprs()
+     data <- data[(input$eventPointClicked+1),]
      
-    #id <-  which(is.na(data))
-    if (length(data$value) == 0){
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',ordering=F))
-    } else {
-      
-      colorCode <- paste("function(row, data) {",
-                    paste(sapply(1:length(data$value),function(i)
-                      paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
-                    ),collapse = "\n"),"}" )
-      
-     
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
-                                          ordering=F
-                                          ,drawCallback=JS(colorCode)
-                                          ,server = TRUE))
-    }
-    dat
+        dt <- datatable( data,
+                         options = list(dom='t',
+                                        displayLength = 20,
+                                        ordering=FALSE,
+                                        server = FALSE,
+                                        columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
+                         )) %>%
+          formatStyle(
+            colnames(data)[1:ncol(rv$current.obj)],
+            colnames(data)[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
+            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+          )
+        
+        
+    dt
     
 })
 
