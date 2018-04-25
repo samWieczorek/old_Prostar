@@ -20,30 +20,30 @@ tabPanel("Miss. values imputation",
                                       busyIndicator(WaitMsgCalc,wait = 0),
                                       uiOutput("ImputationStep1Done"),
                                       htmlOutput("helpForImputation"),
-                                      uiOutput("ClassicalMV_detQuant_impValues"),
-                                      dataTableOutput("TAB_ClassicalMV_detQuant_impValues"),
+                                      uiOutput("POV_detQuant_impValues"),
+                                      dataTableOutput("TAB_POV_detQuant_impValues"),
                                       moduleMVPlotsUI("mvImputationPlots_MV")
                                       )
                                       
                                   )
              ),
              tabPanel("2 - Missing on the Entire Condition",
-                      value = "LAPALA_MV",
+                      value = "MEC_MV",
                       #sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(id = "sidebar_Imputation2",
                                             height = "100%",
-                                            uiOutput("Lapala_chooseImputationMethod"),
-                                            uiOutput("Lapala_Params"),
-                                            actionButton("perform.imputationLAPALA.button","Perform imputation")
+                                            uiOutput("MEC_chooseImputationMethod"),
+                                            uiOutput("MEC_Params"),
+                                            actionButton("perform.imputationMEC.button","Perform imputation")
                                   ),
                                   tagList(
-                                      htmlOutput("warningLapalaImputation"),
+                                      htmlOutput("warningMECImputation"),
                                       busyIndicator(WaitMsgCalc,wait = 0),
                                       uiOutput("ImputationStep2Done"),
-                                      uiOutput("Lapala_detQuant_impValues"),
-                                      dataTableOutput("TAB_Lapala_detQuant_impValues"),
-                                      moduleMVPlotsUI("mvImputationPlots_LAPALA")
+                                      uiOutput("MEC_detQuant_impValues"),
+                                      dataTableOutput("TAB_MEC_detQuant_impValues"),
+                                      moduleMVPlotsUI("mvImputationPlots_MEC")
                                       
                                   )
                       )
@@ -68,6 +68,8 @@ tabPanel("Miss. values imputation",
              ) # end tabPanel(title = "4 - Validate and Save", 
          ) # end tabsetPanel
 )
+
+
 
 
 
