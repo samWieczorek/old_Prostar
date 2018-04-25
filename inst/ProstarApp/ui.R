@@ -34,6 +34,7 @@ titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
+,includeCSS("www/css/legend.css")
 
 
 #,uiOutput("disableAggregationTool")
@@ -58,6 +59,7 @@ sidebarPanelWidth()
    #"",
 
             tabPanel(test, uiOutput("aboutText")),
+   
 
    navbarMenu("Dataset manager",
               source(file.path("ui", "tabPanel_openMSnSetFile.R"),  local = TRUE)$value,
