@@ -848,7 +848,10 @@ output$corrMatrix <- renderHighchart({
 
 
 output$legendForExprsData <- renderUI({
-  
+  req(input$DS_TabsChoice)
+    
+    if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
+    
   tagList(
     hr(),
     h4("Legend of colors"),

@@ -886,7 +886,7 @@ getDataInfosVolcano <- reactive({
     rownames(origin.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
     
     color.table <- rep('white', ncol(rv$current.obj))
-    color.table[which(origin.table=="MV")] <- 'lightblue'
+    color.table[which(origin.table=="POV")] <- 'lightblue'
     color.table[which(origin.table=="MEC")] <- 'orange'
     
     res <- list(value=test.table, origin=origin.table, color=color.table)
