@@ -634,11 +634,10 @@ output$chooseMetaDataExport <- renderUI({
 output$logSession <- DT::renderDataTable({
     req(rv$text.log)
     
-    dt <- DT::datatable(rv$text.log, 
+    dt <- DT::datatable(rv$text.log,escape = FALSE,
                                options=list(pageLength=DT_pagelength,
                                             orderClasses = TRUE,
-                                            autoWidth=FALSE,
-                                            escape = FALSE))
+                                            autoWidth=FALSE))
     dt
 })
 
