@@ -455,7 +455,7 @@ viewComparisonNorm2 <- reactive({
 
 viewComparisonNorm <- reactive({
     
-    
+    req(rv$current.obj)
     #rv$dataset[[input$datasets]]
     #rv$current.obj
     #input$legendXAxis

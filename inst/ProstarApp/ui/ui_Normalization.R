@@ -4,7 +4,7 @@ tabPanel("Normalization",
          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                      wellPanel(id = "sidebar_Normalization"
                                ,height = "100%"
-                               ,h4("Normalization options")
+                               #,h4("Normalization options")
                                ,uiOutput("choose_Normalization_Test")
                                ,uiOutput("choose_normalizationType")
                                ,uiOutput("choose_normalizationScaling")

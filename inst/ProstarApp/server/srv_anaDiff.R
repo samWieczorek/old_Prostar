@@ -150,27 +150,16 @@ observeEvent(input$datasets,{
 
 
 output$diffAnalysis_GlobalOptions_SB <- renderUI({
+    req(rv$current.obj)
     input$datasets
   
-    params <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
-    selection_design <- params$design
-    selection_method <-  params$method
-    val <-  params$th_logFC
-    if(is.null(val)) {val <- 0}
-    
-    
-    
   tagList(
     selectInput("anaDiff_Design", "Design", 
-                choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
-                selected = selection_design),
+                choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
     
-    selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices,
-                selected=selection_method),
-    
+    selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
     uiOutput("OptionsForT_tests"),
-    
-    numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=val)
+    numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
   )
   
   
@@ -199,7 +188,7 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
 })
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
-    #rv$current.obj
+    req(rv$current.obj)
     rv$res_AllPairwiseComparisons
     #if (is.null(rv$current.obj)) { return()}
     if (is.null(rv$res_AllPairwiseComparisons)) { return()}

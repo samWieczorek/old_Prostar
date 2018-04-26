@@ -827,9 +827,8 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
 
 
 output$InfoTextSourceCode <- renderUI({
-  txt <- "It may be noticed that this feature is quite difficult to maintain and it is still in Beta version. 
-  If you are interseting in this feature, please let us know by an email so that we could evaluate
-  the need to put efforts to maintain it up-to-date."
+  txt <- "Upgrading this  feature from Beta-version to full release requires a lot of work.
+  If you use it, please let us know by email so that we can better evaluate its priority."
   helpText(txt)
 })
 

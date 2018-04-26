@@ -31,7 +31,7 @@ tabPanel("Differential analysis",
                                       id = "sidebar_DiffAna2",
                                             height = "100%"
                                             ,uiOutput("newComparisonUI")
-                                          ,h4("Comparison options")
+                                          #,h4("Comparison options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")
                                       ,actionButton("AnaDiff_perform.filtering.MV", "Perform")
                                   ),
@@ -48,7 +48,7 @@ tabPanel("Differential analysis",
                                   wellPanel(
                                       id = "sidebar_DiffAna3",
                                             height = "100%"
-                                            ,h4("Calibration")
+                                            #,h4("Calibration")
                                             ,uiOutput("diffAnalysis_Calibration_SB")
                                   ),
                                   tagList(
@@ -68,7 +68,7 @@ tabPanel("Differential analysis",
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   wellPanel(id = "sidebar_DiffAna4",
                                             height = "100%"
-                                            ,h4("Compute FDR")
+                                            #,h4("Compute FDR")
                                             ,uiOutput("diffAnalysis_FDR_SB")
                                   ),
                                   

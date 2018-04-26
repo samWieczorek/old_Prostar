@@ -485,7 +485,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
     wellPanel(id = "sidebar_Aggregation",
               height = "100%",
               tagList(
-                  h4("Aggregation options"),
+                  #h4("Aggregation options"),
                   uiOutput("warningAgregationMethod"),
                   uiOutput("chooseProteinId"),
                   checkboxInput("checkSharedPeptides",
