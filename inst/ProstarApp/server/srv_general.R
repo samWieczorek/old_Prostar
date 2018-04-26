@@ -50,7 +50,7 @@ ClearUI <- reactive({
         updateTextInput(session,"filenameToCreate",value= "")
         updateTextInput(session,"nameExport",value= "")
         
-        #UpdateLog("Memory has been cleared","none")
+        #UpdateLog("Memory has been cleared","None")
         updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
         updateRadioButtons(session,
                            inputId = "ChooseFilters", 
@@ -138,7 +138,9 @@ ClearMemory <- function(){
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
     rv$deleted.stringBased.exprsData = NULL
+    rv$deleted.stringBased = NULL
     rv$deleted.stringBased.fData = NULL
+    rv$deleted.stringBased = NULL
     rv$DT_filterSummary = data.frame(Filtre=NULL, 
                                      Prefix=NULL,
                                      nbDeleted=NULL, 
@@ -250,6 +252,7 @@ rv <- reactiveValues(
     deleted.mvLines = NULL,
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
+    deleted.stringBased = NULL,
     DT_filterSummary = data.frame(Filtre=NULL, 
                                   Prefix=NULL,
                                   nbDeleted=NULL, 

@@ -46,9 +46,10 @@ tabsetPanel(
                     id = "sidebar_Filter3",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter3",
-                                          uiOutput("DP_sidebar_FilterTab3")
-                                          ,actionButton("ValidateFilters","Save filtered dataset",
-                                                        styleclass = "primary")
+                                          uiOutput("DP_sidebar_FilterTab3"),
+                                          actionButton("ValidateFilters","Save filtered dataset",
+                                                        styleclass = "primary"),
+                                          uiOutput("legendForExprsData2")
                                 ),
                                 tagList(
                                     DT::dataTableOutput("VizualizeFilteredData"),

@@ -224,7 +224,7 @@ output$ObserverAggregationDone <- renderUI({
     isolate({
         if (input$perform.aggregation == 0) 
         {return(NULL)  }
-        else if (input$aggregationMethod != "none"){
+        else if (input$aggregationMethod != "None"){
             h3(paste("Aggregation done with the ", 
                      input$aggregationMethod, 
                      " method.", 
@@ -435,7 +435,7 @@ observeEvent(input$perform.aggregation,{
         
         result = tryCatch(
             {
-                if (input$aggregationMethod != "none")
+                if (input$aggregationMethod != "None")
                 {
                     rv$temp.aggregate <- RunAggregation()
                    # if (input$showCommandLog){

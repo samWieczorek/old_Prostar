@@ -6,6 +6,34 @@
 # }
 
 
+
+moduleLegendColoredExprsUI <- function(id){
+    ns <- NS(id)
+    
+    tagList(
+        hr(),
+        h4("Legend of colors"),
+        
+        fluidRow(
+            column(width=2, 
+                   tags$div(class="input-color", checked=NA,
+                            tags$input(type="text", value=""),
+                            tags$div(class="color-box", style="background-color: lightblue;")
+                   )),
+            column(width=10, h5("Partially Observed Value"))
+        ),
+        
+        fluidRow(
+            column(width=2, 
+                   tags$div(class="input-color", checked=NA,
+                            tags$input(type="text", value=""),
+                            tags$div(class="color-box", style="background-color: orange;")
+                   )),
+            column(width=10, h5("Missing in Entire Condition"))
+        )
+    )
+}
+
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(

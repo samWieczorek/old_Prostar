@@ -1,6 +1,8 @@
 
 
 
+callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
+callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 
 callModule(moduleDensityplot, "densityPlot_DS")
@@ -617,8 +619,9 @@ getDataForExprs <- reactive({
     #                     digits=nDigits))
     test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=nDigits))
     test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
-    
+    #colnames(test.table) <- c(colnames(Biobase::exprs(rv$current.obj), rv$current.obj@experimentData@other$OriginOfValues))
     test.table
+    #print(colnames(test.table))
 })
 
 
@@ -655,16 +658,16 @@ data <- eventReactive(rv$current$obj, {
 #################
 output$table <- renderDataTable({
    # req(rv$current.obj)
-    
-   dt <- datatable( getDataForExprs(),
+    df <- getDataForExprs()
+    dt <- datatable( df,
                     options = list(displayLength = 20,
                                    ordering=FALSE,
                                    server = TRUE,
-                            columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
+                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE))
                     )) %>%
        formatStyle(
-           colnames(getDataForExprs())[1:ncol(rv$current.obj)],
-           colnames(getDataForExprs())[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
+           colnames(df)[1:(ncol(df)/2)],
+           colnames(df)[((ncol(df)/2)+1):ncol(df)],
            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
        )
     
@@ -845,35 +848,14 @@ output$corrMatrix <- renderHighchart({
 
 
 
+# 
+ output$legendForExprsData <- renderUI({
+   req(input$DS_TabsChoice)
+     
+     if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
+     moduleLegendColoredExprsUI("ExprsColorLegend_DS")
 
-output$legendForExprsData <- renderUI({
-  req(input$DS_TabsChoice)
-    
-    if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-    
-  tagList(
-    hr(),
-    h4("Legend of colors"),
-      
-      fluidRow(
-        column(width=2, 
-               tags$div(class="input-color", checked=NA,
-                        tags$input(type="text", value=""),
-                        tags$div(class="color-box", style="background-color: lightblue;")
-                      )),
-        column(width=10, h5("Partially Observed Value"))
-  ),
-  
-  fluidRow(
-    column(width=2, 
-           tags$div(class="input-color", checked=NA,
-                    tags$input(type="text", value=""),
-                    tags$div(class="color-box", style="background-color: orange;")
-           )),
-    column(width=10, h5("Missing in Entire Condition"))
-  )
-  )
-})
+ })
 
 
 

@@ -21,14 +21,18 @@
 
 
 
-moduleVolcanoplot <- function(input, output, session){
-  
-  output$nbSelectedItems <- renderUI({ selectedItems()  })
-  
-  output$selectTooltipInfo <- renderUI({ tooltipInfo()})
+moduleLegendColoredExprs <- function(input, output, session){
+    #output$legendForExprsData <- renderUI({
+    #    legendForExprsData()
+    #})
+}
 
+
+
+moduleVolcanoplot <- function(input, output, session){
+  output$nbSelectedItems <- renderUI({ selectedItems()  })
+  output$selectTooltipInfo <- renderUI({ tooltipInfo()})
   output$Infos <- renderDataTable({ tableInfos() })
-  
   output$volcanoPlot <-  renderHighchart({ volcanoplot_rCharts()})
 }
 

@@ -1,6 +1,38 @@
 \name{Prostar-NEWS}
 \title{Prostar News}
 
+
+
+
+\section{CHANGES IN VERSION 1.11.13}{
+\subsection{BUG FIXES}{
+  \itemize{
+        \item Normalization: "Sum by columns" has been modified to provide log-abundances compatibles with the other treatments. It can be done "for each condition independantly" or "globaly".
+        }
+        
+        }
+        
+        
+\subsection{NEW FEATURES}{
+    \itemize{
+        \item Descriptive statistics: The expression datasets are colored w.r.t the nature of missing value (POV or MEC) even when the value has been imputed
+        \item  Filtering: Manage designs with more than 2 conditions and with conditions containing different number of samples
+        \item  Filtering: UI more user friendly for the string-based filtering (Tab 2)
+      \item Normalization: A few modifications in the UI and 
+      \item Imputation (protein level): Distinction between missing values on an entire condition (Missing on the Entire Condition) and the other ones (Partially Observed Value)
+      \item Imputation (protein level): for the POV, it is possible to use SLSA which take into account the experimentaldesign experimental
+      \item Imputation (protein level): imputations are all processed condition by condition
+    \item Differential analysis: All tests can process datasets with conditions of different number of samples
+    \item Differential analysis: Limma takes into account all the hierarchical experimental designs
+
+    \item GO analysis: Add the GeneID nomenclature.
+}
+       }
+ }       
+ 
+ 
+ 
+ 
 \section{CHANGES IN VERSION 1.11.4}{
 \subsection{BUG FIXES}{
   \itemize{

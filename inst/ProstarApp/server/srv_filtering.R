@@ -15,6 +15,7 @@ observeEvent(input$actionButtonFilter,{
   if (!is.null(res[["deleted"]])){
   rv$deleted.stringBased.exprsData <- rbind(rv$deleted.stringBased.exprsData,Biobase::exprs(res[["deleted"]]))
    rv$deleted.stringBased.fData <- rbind(rv$deleted.stringBased.fData, Biobase::fData(res[["deleted"]])) 
+   rv$deleted.stringBased <- rbindMSnset(rv$deleted.stringBased, res[["deleted"]])
    nbDeleted <-  nrow(res[["deleted"]])
  } else {
    nbDeleted <-  0
@@ -117,6 +118,43 @@ output$DP_sidebar_FilterTab3 <- renderUI({
 
 
 
+getDataForMVFiltered <- reactive({
+  input$nDigits
+  rv$deleted.mvLines
+  
+  if (!is.null(input$nDigits) && isTRUE(input$nDigits)){nDigits = 1e100} else {nDigits = 3}
+  
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=nDigits))
+  table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
+  
+  table
+})
+
+
+
+
+getDataForMVStringFiltered <- reactive({
+  input$nDigits
+  rv$deleted.stringBased
+  
+  if (!is.null(input$nDigits) && isTRUE(input$nDigits)){nDigits = 1e100} else {nDigits = 3}
+  
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=nDigits))
+  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
+  
+  table
+})
+
+
+output$legendForExprsData2 <- renderUI({
+    req(input$ChooseTabAfterFiltering)
+    
+    if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
+    moduleLegendColoredExprsUI("FilterColorLegend_DS")
+    
+})
+
+
 #----------------------------------------------
 output$VizualizeFilteredData <- DT::renderDataTable({
      rv$current.obj
@@ -124,8 +162,9 @@ output$VizualizeFilteredData <- DT::renderDataTable({
      rv$deleted.mvLines
      input$ChooseViewAfterFiltering
      input$ChooseTabAfterFiltering
-     rv$deleted.stringBased.exprsData
-     rv$deleted.stringBased.fData
+     #rv$deleted.stringBased.exprsData
+     #rv$deleted.stringBased.fData
+     rv$deleted.stringBased
       
      if (is.null(input$ChooseTabAfterFiltering)
          ||is.null(input$ChooseViewAfterFiltering) 
@@ -137,34 +176,53 @@ output$VizualizeFilteredData <- DT::renderDataTable({
      else {nDigitsMV = 3}
     
     data <- NULL
-    
-    if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
+   if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
         {
-        obj <- rv$deleted.mvLines
         if(input$ChooseTabAfterFiltering == "quantiData" )
             {
-            data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
+          data <- getDataForMVFiltered()
+          #data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
         }else {
-            data <- cbind(ID = rownames(Biobase::fData(obj)), Biobase::fData(obj))
+            data <- cbind(ID = rownames(Biobase::fData(rv$deleted.mvLines)), Biobase::fData(rv$deleted.mvLines))
             }
     } 
     
-    else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased.exprsData)) {
+    else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
         
         if(input$ChooseTabAfterFiltering == "quantiData" )
         {
-            data <-  round(rv$deleted.stringBased.exprsData, digits=nDigitsMV)
+           data <- getDataForMVStringFiltered()
+         # data <-  round(rv$deleted.stringBased.exprsData, digits=nDigitsMV)
         }else {
-            data <- rv$deleted.stringBased.fData
+            data <- Biobase::fData(rv$deleted.stringBased)
             }
     } 
  
-   DT::datatable(as.data.frame(data),
-                         options=list(pageLength=DT_pagelength,
-                                      orderClasses = TRUE,
-                                      autoWidth=FALSE)
-    )
+    
+    
+    if (!is.null(data)){
+        
+        if(input$ChooseTabAfterFiltering =="quantiData"){
+                dt <- datatable( data,
+                     options = list(displayLength = 20,
+                                    ordering=FALSE,
+                                    server = TRUE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
+                     )) %>%
+                    formatStyle(
+                        colnames(data)[1:(ncol(data)/2)],
+                        colnames(data)[((ncol(data)/2)+1):ncol(data)],
+                        backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+                    )
+        } else {
+            dt <- datatable( data,
+                             options = list(displayLength = 20,
+                                            ordering=FALSE,
+                                            server = TRUE)) 
+        }
 
+        dt
+    }
 })
 
 
@@ -294,7 +352,7 @@ UpdateFilterWidgets <- function(){
                                inputId = "ChooseFilters", 
                                selected = gFilterNone)
         }
-        updateSelectInput(session,"typeImputation",selected= c("none")) 
+        updateSelectInput(session,"typeImputation",selected= c("None")) 
         updateSelectInput(session, "normalization.family",selected = c("None"))
     })
 }

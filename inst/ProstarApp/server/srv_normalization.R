@@ -322,7 +322,12 @@ observeEvent(input$valid.normalization,{
                                       choices = names(rv$dataset),
                                       selected = name)
                     
-                    
+                    updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                    updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                    updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
+                    updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)
+                    updateRadioButtons(session, "normalization.quantile", selected = input$normalization.quantile)
+            
                     ## Add the necessary text to the Rmd file
                     #txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
                     #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
