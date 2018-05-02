@@ -122,7 +122,7 @@ output$tabToShow <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)}
     
     switch(input$DS_TabsChoice,
-          tabExprs = DT::dataTableOutput("table"),
+          tabExprs = DT::dataTableOutput("viewExprs"),
           tabfData = DT::dataTableOutput("viewfData"),
           tabpData = DT::dataTableOutput("viewpData"),
           processingData = {
@@ -136,61 +136,24 @@ output$tabToShow <- renderUI({
 
 ##' show intensity values of the MSnset object in a table
 ##' @author Samuel Wieczorek
-output$viewExprs <- renderDataTable(
-    # rv$current.obj
-    # input$nDigits
-    # if (is.null(rv$current.obj)) {return(NULL)}
-    # if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
-    # 
-    # df <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #               round(Biobase::exprs(rv$current.obj), 
-    #               digits=nDigits))
-    # 
-    # 
-    # test.table <- data.frame(lapply(1:8, function(x) {1:1000}))
-    # test.table[c(2,3,7), c(2,7,6)] <- NA
-    # id <- which(is.na(test.table))
-    # colonnes <- trunc(id / nrow(test.table))+1
-    # lignes <- id %% nrow(test.table)
-    # formattable(test.table, list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
-    # 
-    # id <- which(is.na(exprs(Exp1_R25_prot)))
-    #colonnes <- trunc(id / nrow(exprs(Exp1_R25_prot)))+1
-    #lignes <- id %% nrow(exprs(Exp1_R25_prot))
-    #formattable(as.data.frame(exprs(Exp1_R25_prot)), list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+output$viewExprs <- renderDataTable({
+    # req(rv$current.obj)
+    df <- getDataForExprs()
+    dt <- datatable( df,
+                     options = list(displayLength = 20,
+                                    ordering=FALSE,
+                                    server = TRUE,
+                                    columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE))
+                     )) %>%
+        formatStyle(
+            colnames(df)[1:(ncol(df)/2)],
+            colnames(df)[((ncol(df)/2)+1):ncol(df)],
+            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+        )
     
     
-    
-    #id <- which(is.na(exprs(Exp1_R25_prot)))
-    
-    test.table,
-    options = list(
-        displayLength = 3,
-        drawCallback=JS(
-            paste("function(row, data) {",
-                  paste(sapply(1:ncol(test.table),function(i)
-                     paste( "$(this.api().cell(",
-                        id %% nrow(test.table)-1,",",
-                        trunc(id / nrow(test.table))+1,
-                        ").node()).css({'background-color': 'lightblue'});")
-                  ),collapse = "\n"),"}" )
-        ), 
-        server = TRUE)
-    
-    
-    # id <- which(is.na(df))
-    # datatable(df,
-    #               options=list(drawCallback=JS(
-    #               paste("function(row, data,index) {",
-    #               paste(sapply(1:ncol(df),function(i) 
-    #              {paste( "$(this.api().cell(",id %% nrow(df)-1,",",trunc(id / nrow(df))+1,").node()).css({'background-color': 'lightblue'});")}
-    #              #{paste( "$(this.api().cell(index,",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")}
-    #               
-    #              ),collapse = "\n"),"}" ) )
-    #     )
-    #     ) 
-    
-)
+    dt
+})
 
 
 
@@ -652,29 +615,6 @@ data <- eventReactive(rv$current$obj, {
     test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
     test.table
 }, ignoreNULL = FALSE)
-
-
-
-#################
-output$table <- renderDataTable({
-   # req(rv$current.obj)
-    df <- getDataForExprs()
-    dt <- datatable( df,
-                    options = list(displayLength = 20,
-                                   ordering=FALSE,
-                                   server = TRUE,
-                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE))
-                    )) %>%
-       formatStyle(
-           colnames(df)[1:(ncol(df)/2)],
-           colnames(df)[((ncol(df)/2)+1):ncol(df)],
-           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
-       )
-    
-    
-    dt
-    })
-
 
 
 
