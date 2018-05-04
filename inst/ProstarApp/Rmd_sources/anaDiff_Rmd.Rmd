@@ -10,15 +10,15 @@ Parameters used for the differential analysis :
 * Comparison = `r params$listAnaDiff$comp`
 * Threshold p-value : `r params$listAnaDiff$th_pval`
 * Calibration method = `r params$listAnaDiff$calibMethod`
-* FDR = `r round(params$listAnaDiff$fdr, 2)` %
+* FDR = `r round(params$listAnaDiff$fdr, digits=2)` %
 * Swap volcano plot = `r params$listAnaDiff$swapVolcano`
 * Filter type : `r params$listAnaDiff$filterType`
 * Filter th NA = `r params$listAnaDiff$filter_th_NA`
 * Numerical value calibration method = `r params$listAnaDiff$numValCalibMethod`                                                   
                                                        
                                                        
-```{r fig_logFC_dist,out.width = "50%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$logFC_Distribution, sep="/"))
+```{r fig_logFC_dist,out.width = "100%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$logFCDistribution, sep="/"))
 ```
 
 
@@ -32,6 +32,6 @@ knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrati
 
 
 ```{r fig_volcano,out.width = "100%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"))
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot, sep="/"))
 ```
 

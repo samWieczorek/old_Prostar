@@ -335,7 +335,7 @@ createPNG_DifferentialAnalysis <- reactive({
               obj@experimentData@other$Params[["anaDiff"]]$condition2)
 
     tempplot <- hc_FC_DensityPlot(data,th_logFC)
-    createPNGFromWidget(tempplot, "tempplot_logFC_Distribution.html", gGraphicsFilenames$logFC_Distribution)
+    createPNGFromWidget(tempplot, "tempplot_logFC_Distribution.html", gGraphicsFilenames$logFCDistribution)
     
     df <- data.frame(x=fData(obj)$FC,
                      y = -log10(fData(obj)$P_Value))
@@ -346,7 +346,7 @@ createPNG_DifferentialAnalysis <- reactive({
                                            threshold_logFC = th_logFC,
                                            threshold_pVal = th_pval,
                                            conditions = cond)
-    createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot_3)
+    createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot)
     
     # plotPNG(function(){calibrationPlot()},
     #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"),
@@ -387,9 +387,9 @@ createPNG_Enrichment <- reactive({
 createPNG_GroupGO <- reactive({
     
     l <- length(rv$groupGO_data)
-    pngNames <- c(gGraphicsFilenames$GOClassification_img1,
-                  gGraphicsFilenames$GOClassification_img2,
-                  gGraphicsFilenames$GOClassification_img3)
+    pngNames <- c(gGraphicsFilenames$GOClassificationImg1,
+                  gGraphicsFilenames$GOClassificationImg2,
+                  gGraphicsFilenames$GOClassificationImg3)
     
     require(doParallel)
     registerDoParallel(detectCores()-1 )

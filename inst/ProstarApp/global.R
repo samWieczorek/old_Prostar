@@ -269,16 +269,16 @@ gGraphicsFilenames <- list(
     imageNA = "imageNA.png",
     AgregMatUniquePeptides = "AgregMatUniquePeptides.png",
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
-    logFC_Distribution = "logFC_Distribution.png",
-    volcanoPlot_1 = "volcanoPlot_1.png",
-    volcanoPlot_3 = "volcanoPlot_3.png",
+    logFCDistribution = "logFC_Distribution.png",
+   # volcanoPlot_1 = "volcanoPlot_1.png",
+    volcanoPlot = "volcanoPlot_3.png",
     calibrationPlot = "calibrationPlot.png",
     calibrationPlotAll = "calibrationPlotAll.png",
     GOEnrichDotplot = "GOEnrichDotplot.png",
     GOEnrichBarplot = "GOEnrichBarplot.png",
-    GOClassification_img1 = "GOClassification_img1.png",
-    GOClassification_img2 = "GOClassification_img2.png",
-    GOClassification_img3 = "GOClassification_img3.png"
+    GOClassificationImg1 = "GOClassification_img1.png",
+    GOClassificationImg2 = "GOClassification_img2.png",
+    GOClassificationImg3 = "GOClassification_img3.png"
 )
 
 defaultGradientRate <- 0.9
