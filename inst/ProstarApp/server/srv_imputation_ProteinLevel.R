@@ -521,6 +521,8 @@ output$helpForImputation <- renderText({
 viewNAbyMean <- function(data){
       req(data)
     #if (is.null(data)) {return(NULL)}
+    
+
          wrapper.hc_mvTypePlot2(data)
     
 }

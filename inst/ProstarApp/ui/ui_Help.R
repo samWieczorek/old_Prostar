@@ -1,3 +1,9 @@
 tabPanel("Help",
-         htmlOutput("References")
+         tabsetPanel(
+             tabPanel( "Help Prostar",
+                        htmlOutput("References")
+             ),
+             tabPanel( "FAQ"
+             )
+         )
 )

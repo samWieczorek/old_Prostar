@@ -1,15 +1,28 @@
 # Imputation 
        
-Parameters used for the imputation step :
+Parameters used for the imputation step at protein level:
 
-* __Algorithm__ `r params$listImputation$algorithm`
-* __Basic algorithm__ `r params$listImputation$basicAlgo`
-* __imp4p_withLapala__ `r params$listImputation$imp4p_withLapala`
-* __OnlyLAPALA_qmin__ `r params$listImputation$OnlyLAPALA_qmin`
-* __OnlyLAPALA_distrib__ `r params$listImputation$OnlyLAPALA_distrib`
-* __imp4pLAPALA_distrib__ `r params$listImputation$imp4pLAPALA_distrib`
-* __DetQuantile_quantile__ `r params$listImputation$detQuant_quantile`
-* __DetQuantile_factor__ `r params$listImputation$detQuant_factor`
+* __POV algorithm__ `r params$listImputation$POV_algorithm`
+* __POV detQuant quantile__ `r params$listImputation$POV_detQuant_quantile`
+* __POV detQuant factor__ `r params$listImputation$POV_detQuant_factor`
+* __POV KNN n__ `r params$listImputation$POV_KNN_n`
+* __MEC algorithm__ `r params$listImputation$MEC_algorithm`
+* __MEC detQuant quantile__ `r params$listImputation$MEC_detQuant_quantile`
+* __MEC detQuant factor__ `r params$listImputation$MEC_detQuant_factor`
+* __MEC fixedValue__ `r params$listImputation$MEC_fixedValue`
+
+
+Parameters used for the imputation step at protein level:
+
+* __Algorithm__ `r params$listImputation$pepLevel_basicAlgorithm`
+* __Basic Algorithm__ `r params$listImputation$pepLevel_algorithm`
+* __Det quantile__ `r params$listImputation$pepLevel_detQuantile`
+* __Det quantile factor__ `r params$listImputation$pepLevel_detQuant_factor`
+* __imp4p nb of iterations__ `r params$listImputation$pepLevel_imp4p_nbiter`
+* __imp4p with Lapala__ `r params$listImputation$pepLevel_imp4p_withLapala`
+* __imp4p qmin__ `r params$listImputation$pepLevel_imp4p_qmin`
+* __imp4p LAPALA distrib__ `r params$listImputation$pepLevel_imp4pLAPALA_distrib`
+
 
 ```{r fig_imputation1,out.width = "100%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"))

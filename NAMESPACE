@@ -11,6 +11,7 @@ import(highcharter)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
 import(R.utils)
+import(shinythemes)
 
 
 importFrom(shiny,

@@ -177,46 +177,6 @@ output$chooseSourceForProtID <- renderUI({
 })
 
 
-# output$infoIDProt_NA <- renderUI({
-#     rv$ProtIDList
-#     rv$current.obj
-#     if (is.null(rv$current.obj) ){return(NULL)}
-#     if (is.null(rv$ProtIDList) ){return(NULL)}
-#     
-#     nbNA <- length(which(is.na(rv$ProtIDList)))
-#     pourcentage= round(100*nbNA/length(rv$ProtIDList), digits=0)
-#     h3(paste("Total of non-identified proteins :", nbNA, " (", pourcentage, "% of the dataset).",sep =""))
-# })
-
-
-# observeEvent(input$UniprotIDCol, {
-#     if (input$UniprotIDCol == "") {return (NULL)}
-#     
-#     rv$ProtIDList <- NULL
-#     index <- GetDataIndexForAnalysis()
-#     rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[index,input$UniprotIDCol])
-#     lIndex <- which(!is.na(rv$ProtIDList))
-#     if (length(lIndex) >0){
-#         rv$ProtIDList <- rv$ProtIDList[]
-#     }
-#     
-#     print(rv$ProtIDList)
-#     
-# })
-
-
-
-
-# output$getUniprotIDCol <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj) ){return(NULL)}
-#     
-# selectInput("UniprotIDCol", "Uniprot ID column",
-#             choices = colnames(Biobase::fData(rv$current.obj)))
-# 
-# })
-
-
 
 
 output$chooseUniverseFile <- renderUI({
@@ -226,10 +186,6 @@ output$chooseUniverseFile <- renderUI({
     }
 })
 
-
-#observeEvent(input$UniverseFile,{ 
-#    rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
-#})
 
 
 observeEvent(input$UniprotIDCol,ignoreInit =  TRUE,{ 

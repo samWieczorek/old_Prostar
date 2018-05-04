@@ -40,6 +40,8 @@ sidebarPanelWidth()
 #,uiOutput("disableAggregationTool")
 #,uiOutput("disableBioanalysisTool")
 ,navbarPage(
+    theme = shinytheme("cerulean"),
+    
     id = "navPage",
     absolutePanel(
         id  = "#AbsolutePanel",

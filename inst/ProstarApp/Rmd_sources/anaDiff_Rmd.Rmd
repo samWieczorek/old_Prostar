@@ -2,18 +2,26 @@
 
 Parameters used for the differential analysis :
 
-* condition1 : `r params$listAnaDiff$condition1` 
-* condition2 : `r params$listAnaDiff$condition2`
-* calibrationMethod : `r params$listAnaDiff$calibrationMethod`
-* numericValCalibration = `r params$listAnaDiff$numericValCalibration`
-* seuilPValue = `r params$listAnaDiff$seuilPValue`
-* seuilLogFC = `r params$listAnaDiff$seuilLogFC`
-* Method : `r params$listAnaDiff$method`
-* __FDR__ = `r params$listAnaDiff$fdr` %
-* Nb of selected entities = `r params$listAnaDiff$nbSelected`
+* Design : `r params$listAnaDiff$design` 
+* method : `r params$listAnaDiff$method`
+* t-test : `r params$listAnaDiff$ttest_options`
+* Threshold logFC = `r params$listAnaDiff$th_logFC`
+* All pairwise comparison names = `r params$listAnaDiff$AllPairwiseCompNames`
+* Comparison = `r params$listAnaDiff$comp`
+* Threshold p-value : `r params$listAnaDiff$th_pval`
+* Calibration method = `r params$listAnaDiff$calibMethod`
+* FDR = `r round(params$listAnaDiff$fdr, 2)` %
+* Swap volcano plot = `r params$listAnaDiff$swapVolcano`
+* Filter type : `r params$listAnaDiff$filterType`
+* Filter th NA = `r params$listAnaDiff$filter_th_NA`
+* Numerical value calibration method = `r params$listAnaDiff$numValCalibMethod`                                                   
                                                        
                                                        
-                                                       
+```{r fig_logFC_dist,out.width = "50%", echo=FALSE}
+knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$logFC_Distribution, sep="/"))
+```
+
+
 ```{r fig_calibrationALL,out.width = "100%", echo=FALSE}
 knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
 ```
@@ -21,7 +29,6 @@ knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrati
 ```{r fig_calibration,out.width = "50%", echo=FALSE}
 #knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
 ```
-
 
 
 ```{r fig_volcano,out.width = "100%", echo=FALSE}

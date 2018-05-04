@@ -660,15 +660,21 @@ output$table <- renderDataTable({
    # req(rv$current.obj)
     df <- getDataForExprs()
     dt <- datatable( df,
-                    options = list(displayLength = 20,
+                    options = list(initComplete = JS(
+                        "function(settings, json) {",
+                        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                        "}"),
+                        displayLength = 20,
                                    ordering=FALSE,
                                    server = TRUE,
-                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE))
-                    )) %>%
+                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
        formatStyle(
            colnames(df)[1:(ncol(df)/2)],
            colnames(df)[((ncol(df)/2)+1):ncol(df)],
-           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange')),
+           backgroundSize = '98% 48%',
+           backgroundRepeat = 'no-repeat',
+           backgroundPosition = 'center'
        )
     
     

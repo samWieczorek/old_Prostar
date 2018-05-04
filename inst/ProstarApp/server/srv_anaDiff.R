@@ -669,11 +669,6 @@ observeEvent(input$ValidDiffAna,{
                     }
                 l.params[["numValCalibMethod"]] <- input$numericValCalibration
                 
-                
-                
-                
-                
-                
     }
                 temp <- DAPAR::diffAnaSave(temp,
                                            rv$res_AllPairwiseComparisons,

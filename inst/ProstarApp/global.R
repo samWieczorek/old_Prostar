@@ -111,7 +111,8 @@ originOfValue[["ByAlignment"]] <- 3
 
 
 gFiltersList <- list()
-gFiltersList[["None"]] <- "none"
+gFiltersList[["None"]] <- "None"
+gFiltersList[["Empty lines"]] <- "EmptyLines"
 gFiltersList[["Whole matrix"]] <- "wholeMatrix"
 gFiltersList[["For every condition"]] <- "allCond"
 gFiltersList[["At least one condition"]] <- "atLeastOneCond"
@@ -120,6 +121,7 @@ gDatasets <- list()
 gDatasets[["NA"]] <- "none"
 
 gFilterNone <- gFiltersList[["None"]]
+gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 gFilterWholeMat <- gFiltersList[["Whole matrix"]]
 gFilterAllCond <- gFiltersList[["For every condition"]]
 gFilterOneCond <- gFiltersList[["At least one condition"]]
@@ -267,6 +269,7 @@ gGraphicsFilenames <- list(
     imageNA = "imageNA.png",
     AgregMatUniquePeptides = "AgregMatUniquePeptides.png",
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
+    logFC_Distribution = "logFC_Distribution.png",
     volcanoPlot_1 = "volcanoPlot_1.png",
     volcanoPlot_3 = "volcanoPlot_3.png",
     calibrationPlot = "calibrationPlot.png",

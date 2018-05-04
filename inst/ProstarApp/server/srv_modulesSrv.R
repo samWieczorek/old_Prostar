@@ -1,30 +1,9 @@
 
 #################### MODULES DEFINITION #################################
 
-# moduleSymbolicFilter <- function(input, output, session, choice) {
-#     
-# 
-#     output$SymbolicFilter <- renderUI({
-#        # req(rv$current.obj)
-#         #data <- c("",colnames(Biobase::fData(rv$current.obj)))
-#         fluidRow(
-#           column(width = 4, selectInput(session$ns("cname"), "Column name", choices = choice())),
-#           column(width = 4, textInput(session$ns("tagName"), "Tag", value = ""))
-#         )
-#     })
-#     
-#     output$SymFilterTag <- renderText({
-#         "toto"
-#     })
-# }
-
-
-
 
 moduleLegendColoredExprs <- function(input, output, session){
-    #output$legendForExprsData <- renderUI({
-    #    legendForExprsData()
-    #})
+
 }
 
 

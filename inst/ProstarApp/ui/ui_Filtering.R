@@ -1,7 +1,7 @@
 tabPanel("Filter data",
 tabsetPanel(
              id = "DP_Filtering_tabSetPanel",
-             tabPanel( "1 - Missing values",
+             tabPanel( "1 - Missing values filtering",
                        #id =  "DP_FilterMissingValues",
                        value = "DP_FilterMissingValues",
                        #sidebarCustom(),

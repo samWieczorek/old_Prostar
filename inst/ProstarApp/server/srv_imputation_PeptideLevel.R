@@ -425,22 +425,7 @@ output$peptideLevel_warningImputationMethod <- renderText({
         distribution (a tuning between 0% and 10% is advised). <br>
         <font color=\"red\"><strong>Warning:</strong> Imputed lapala values must be very cautiously interpreted.</font color=\"red\">"
         HTML(t)}
-    
-    
-    # if (input$missing.value.algorithm == "imp4p with LAPALA")
-    #     {
-    #     text <- "<font color=\"red\"> Warning ! <br> You are about to impute the <br> LAPALA with small 
-    #     arbitrary values. <br> This is not an optimal way <br> 
-    #     to impute such values. <br> 
-    #     You do it at your own risk."
-    #      HTML(text)
-    # } else if (input$missing.value.algorithm == "dummy censored") {
-    #     text <- "<font color=\"red\"> Warning ! <br> You are about to impute the LAPALA with small 
-    #     arbitrary values. This is not an optimal way to impute such values. 
-    #     You do it at your own risk."
-    #     HTML(text)
-    # }
-    
+
 })
 
 
@@ -483,26 +468,6 @@ output$peptideLevel_showImputationPanel <- renderUI({
 })
 
 ###################
-
-
-# 
-# output$warningLapala <- renderUI({
-#     input$imp4p_withLapala
-#     if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
-#     
-#     
-#     t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-#         to analytes (peptides or proteins) <br>that are entirely missing in some 
-#         conditions while they are (partially or totally) <br>visible in others. There 
-#         specific accounting in a conservative way is a real issue as the imputation <br>
-#         cannot rely on any observed value in a given condition.
-#         <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
-#         value as a centile of the observed
-#         distribution (a tuning between 0% and 10% is advised). <br>
-#         Warning: imputed lapala values must be very cautiously interpreted"
-#     HTML(t)
-# })
-
 
 
 

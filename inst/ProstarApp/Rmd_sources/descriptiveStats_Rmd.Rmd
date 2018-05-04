@@ -14,7 +14,7 @@ if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_histoMVperLines,out.width = "75%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_DS, sep="/")
@@ -22,11 +22,15 @@ if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_histoMVperCond,out.width = "75%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$histo_missvalues_per_lines_per_conditions_DS, sep="/")
+if (file.exists(filename)){
+    knitr::include_graphics(filename)
+}
 ```
+
 
 ```{r fig_corMatrix,out.width = "75%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$corrMatrix, sep="/")
@@ -34,7 +38,7 @@ if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_boxplot,out.width = "75%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$boxplot, sep="/")
@@ -42,15 +46,15 @@ if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_dentistyPlot,out.width = "75%", echo=FALSE}
-paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/")
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$densityPlot, sep="/")
 if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_varDist,out.width = "75%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$varDist, sep="/")
@@ -58,15 +62,15 @@ if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_vioplot,out.width = "75%", echo=FALSE}
-paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/")
+filename <- paste(tempdir(), sessionID, gGraphicsFilenames$violinplot, sep="/")
 if (file.exists(filename)){
     knitr::include_graphics(filename)
 }
 ```
-```
+
 
 ```{r fig_heatmap,out.width = "100%", echo=FALSE}
 filename <- paste(tempdir(), sessionID, gGraphicsFilenames$heatmap, sep="/")

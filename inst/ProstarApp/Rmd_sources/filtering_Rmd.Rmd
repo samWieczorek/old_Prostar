@@ -2,8 +2,8 @@
 
 #### Parameters used for the filtering step on missing values :
 
-* Type of filtering = `r params$listFiltering$filter`
-* Seuil NA = `r params$listFiltering$seuilNA`
+* Type of filtering = `r params$listFiltering$mvFilterType`
+* Seuil NA = `r params$listFiltering$mvThNA`
 
 
 
@@ -23,10 +23,13 @@
 
 #### Parameters used for the filtering step on text-based string :
 
-* Nb reverse deleted = `r params$listFiltering$nbReverseDeleted`
-* Nb contaminants deleted = `r params$listFiltering$nbContaminantsDeleted`
+```{r conditional_block, echo=FALSE, eval=params$listFiltering$nbReverseDeleted}
+library(knitr)
+kable(params$listFiltering$stringFilter.df)
+```
+
 
 ```{r, out.width = "50%", echo=FALSE, eval=params$listFiltering$stringBasedFiltered}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"))
+#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$propContRev, sep="/"))
 ```
 

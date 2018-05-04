@@ -2,11 +2,11 @@
            
 Parameters used for the normalization step :
 
-* Normalization method : `r params$listNormalization$method`
-* Normalization type : `r params$listNormalization$type`
-* Normalization quantile = `r params$listNormalization$quantile`
-* Normalization quantileOther = `r params$listNormalization$quantileOther`
-* Normalization scaling : `r params$listNormalization$scaling`
+* Method : `r params$listNormalization$method`
+* Type : `r params$listNormalization$type`
+* Variance reduction = `r params$listNormalization$varReduction`
+* Quantile = `r params$listNormalization$quantile`
+* Other quantile : `r params$listNormalization$otherQuantile`
                                                              
                                                              
                                                              

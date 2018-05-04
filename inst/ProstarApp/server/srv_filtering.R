@@ -13,8 +13,8 @@ observeEvent(input$actionButtonFilter,{
   nbDeleted <- 0
   
   if (!is.null(res[["deleted"]])){
-  rv$deleted.stringBased.exprsData <- rbind(rv$deleted.stringBased.exprsData,Biobase::exprs(res[["deleted"]]))
-   rv$deleted.stringBased.fData <- rbind(rv$deleted.stringBased.fData, Biobase::fData(res[["deleted"]])) 
+  #rv$deleted.stringBased.exprsData <- rbind(rv$deleted.stringBased.exprsData,Biobase::exprs(res[["deleted"]]))
+  # rv$deleted.stringBased.fData <- rbind(rv$deleted.stringBased.fData, Biobase::fData(res[["deleted"]])) 
    rv$deleted.stringBased <- rbindMSnset(rv$deleted.stringBased, res[["deleted"]])
    nbDeleted <-  nrow(res[["deleted"]])
  } else {
@@ -80,9 +80,9 @@ output$DP_sidebar_FilterTab1 <- renderUI({
     if (!is.null(tag)) { filter <- tag}
     
     tagList(
-        h4("Missing values filtering options")
-        ,bsTooltip(id = "button1", title = "Button 1 Explanation", placement = "right", trigger = "click")
-        ,hr()
+        h4("Options")
+        #,bsTooltip(id = "button1", title = "Button 1 Explanation", placement = "right", trigger = "click")
+        #,hr()
         ,radioButtons("ChooseFilters","",  choices = gFiltersList),
         uiOutput("seuilNADelete"),
         actionButton("perform.filtering.MV", "Perform MV filtering")
@@ -233,21 +233,10 @@ output$seuilNADelete <- renderUI({
     input$ChooseFilters
     
     if (is.null(rv$current.obj)) {return(NULL)   }
-    if (input$ChooseFilters==gFilterNone) {return(NULL)   }
+    if ((input$ChooseFilters==gFilterNone) || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
     
   choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
-  
-  
-    #choix <- GetMaxValueThresholdFilter()
-    
-    #ch <- NULL
-    #tag <- rv$current.obj@experimentData@other$mvFilter.threshold
-    
-    #if (!is.null(tag)) { ch <- tag}
-    #else {ch <- choix[[1]]}
-    
-    
-    selectInput("seuilNA", 
+   selectInput("seuilNA", 
                 "Keep lines with at least x intensity values", 
                 choices = choix)
     
