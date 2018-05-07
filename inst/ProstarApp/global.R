@@ -1,5 +1,5 @@
 
-DAPAR.loc <- Prostar.loc <- NULL
+DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 #DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_dev"
 #Prostar.loc = "/home/shiny/Rlibs_dev"
@@ -31,6 +31,7 @@ library(htmlwidgets)
 library(vioplot)
 library(ggplot2)
 library(gplots)
+library(shinythemes)
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 

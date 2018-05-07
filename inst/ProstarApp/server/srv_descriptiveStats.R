@@ -164,7 +164,11 @@ output$viewExprs <- renderDataTable(
     #id <- which(is.na(exprs(Exp1_R25_prot)))
     
     test.table,
-    options = list(
+    options = list(initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+        "}"),
+        
         displayLength = 3,
         drawCallback=JS(
             paste("function(row, data) {",
@@ -218,7 +222,11 @@ output$viewpData <- DT::renderDataTable({
     
     
 },
-option=list(pageLength=DT_pagelength,
+option=list(initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+    "}"),
+    pageLength=DT_pagelength,
             orderClasses = TRUE,
             autoWidth=FALSE,
             columnDefs = list(
@@ -246,7 +254,11 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             options=list(pageLength=DT_pagelength,
+                             options=list(initComplete = JS(
+                                 "function(settings, json) {",
+                                 "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                                 "}"),
+                                 pageLength=DT_pagelength,
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,

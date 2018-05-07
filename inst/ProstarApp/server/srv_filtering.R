@@ -57,7 +57,12 @@ output$FilterSummaryData <- DT::renderDataTable({
           rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
         }
 
-    DT::datatable(rv$DT_filterSummary)
+    DT::datatable(rv$DT_filterSummary,
+                  options=list(initComplete = JS(
+                      "function(settings, json) {",
+                      "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                      "}")
+                  ))
 })
 
 
@@ -204,7 +209,11 @@ output$VizualizeFilteredData <- DT::renderDataTable({
         
         if(input$ChooseTabAfterFiltering =="quantiData"){
                 dt <- datatable( data,
-                     options = list(displayLength = 20,
+                     options = list(initComplete = JS(
+                         "function(settings, json) {",
+                         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                         "}"),
+                         displayLength = 20,
                                     ordering=FALSE,
                                     server = TRUE,
                                     columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))

@@ -130,6 +130,90 @@ output$References <- renderText({
 
 
 
+getPackagesVersions <- reactive({
+    outOfDate <- "(Out of date)"
+    
+    biocRelease <- NULL
+    tryCatch({
+        biocRelease <-available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
+        require(XML)
+        html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
+        DAPARdata.version <- as.character(html[[3]][2][1,])
+        
+    }, warning = function(w) {
+        return()
+    }, error = function(e) {
+        return()
+    }, finally = {
+        #cleanup-code 
+    })
+    
+    pkgs <- c("Prostar", "DAPAR", "DAPARdata")
+    loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+    instPkgs <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+                     DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+                     DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+    
+    
+    names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
+               as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+               as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
+    
+    names[1] <- ifelse(instPkgs$Prostar != biocPkgs$Prostar, paste(names[1], outOfDate, sep=" "),names[1])
+    names[2] <- ifelse(instPkgs$DAPAR != biocPkgs$DAPAR, paste(names[2], outOfDate, sep=" "),names[2])
+    names[3] <- ifelse(instPkgs$DAPARdata != biocPkgs$DAPARdata, paste(names[3], outOfDate, sep=" "), names[3] )
+
+df <- data.frame("Name" = names,
+                     "Installed.packages"= rep(NA, 3), 
+                     "Bioc.release" =  rep(NA, 3))
+    
+    
+    df[, "Installed.packages"] <- unlist(instPkgs)
+    
+    if (!is.null(biocRelease)) {
+        biocPkgs <- list(Prostar = biocRelease["Prostar","Version"],
+                         DAPAR = biocRelease["DAPAR","Version"],
+                         DAPARdata = DAPARdata.version)
+        df[, "Bioc.release"] <- unlist(biocPkgs)
+    }
+
+    
+    colnames(df) <- c("Names", "Installed packages", "Bioc release")
+    #rownames <- c(as.character(tags$a(href="www.rstudio.com", "Click here!")), "DAPAR", "DAPARdata")
+    df
+})
+
+
+
+output$tab_versions <- renderDataTable({
+    dt <- DT::datatable(getPackagesVersions(), 
+                        escape = FALSE,
+                        option=list(initComplete = JS(
+                            "function(settings, json) {",
+                            "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                            "}"),
+                            dom = 't',
+                            autoWidth=TRUE,
+                            rownames= FALSE,
+                            columnDefs = list(list(width='200px',targets= "_all"))
+                            )
+                    )
+    dt
+})
+
+output$checkUpdates <- renderUI({
+   
+    df <- getPackagesVersions()
+    instPkgs <- df[,"Installed packages"]
+    biocPkgs <- df[,"Bioc release"]
+    if ((instPkgs$Prostar == biocPkgs$Prostar) && (instPkgs$DAPAR == biocPkgs$DAPAR) && (instPkgs$DAPARdata == biocPkgs$DAPARdata)){
+            h3("All the Prostar packages are in the newest version.")
+        } else{
+            h3("The Prostar packages are out of date. Please check the bioconductor.")
+            }
+
+})
+
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)

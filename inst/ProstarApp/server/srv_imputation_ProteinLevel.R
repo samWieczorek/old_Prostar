@@ -239,7 +239,12 @@ output$TAB_POV_detQuant_impValues <- renderDataTable({
     if (input$POV_missing.value.algorithm == 'detQuantile'){
 
         values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$POV_detQuant_quantile/100, input$POV_detQuant_factor)
-        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(
+            initComplete = JS(
+                "function(settings, json) {",
+                "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                "}"),
+            dom = 't'))
 }
 })
 
@@ -269,7 +274,11 @@ output$TAB_MEC_detQuant_impValues <- renderDataTable({
 
     if (input$MEC_missing.value.algorithm == 'detQuantile'){
         values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$MEC_detQuant_quantile/100, input$MEC_detQuant_factor)
-        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(initComplete = JS(
+            "function(settings, json) {",
+            "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+            "}"),
+            dom = 't'))
     }
 })
 

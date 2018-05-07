@@ -893,7 +893,11 @@ output$infosVolcanoTable <- DT::renderDataTable({
      data <- data[(input$eventPointClicked+1),]
      
         dt <- datatable( data,
-                         options = list(dom='t',
+                         options = list(initComplete = JS(
+                             "function(settings, json) {",
+                             "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                             "}"),
+                             dom='t',
                                         displayLength = 20,
                                         ordering=FALSE,
                                         server = FALSE,

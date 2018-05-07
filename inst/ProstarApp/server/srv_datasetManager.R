@@ -294,7 +294,11 @@ output$viewProcessingData <- DT::renderDataTable({
         })
 
 },
-option=list(pageLength=DT_pagelength,
+option=list(initComplete = JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+    "}"),
+    pageLength=DT_pagelength,
             orderClasses = TRUE,
             autoWidth=FALSE,
             dom = 'R<"clear">lfrtip',
@@ -635,7 +639,11 @@ output$logSession <- DT::renderDataTable({
     req(rv$text.log)
     
     dt <- DT::datatable(rv$text.log,escape = FALSE,
-                               options=list(pageLength=DT_pagelength,
+                               options=list(initComplete = JS(
+                                   "function(settings, json) {",
+                                   "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                                   "}"),
+                                   pageLength=DT_pagelength,
                                             orderClasses = TRUE,
                                             autoWidth=FALSE))
     dt

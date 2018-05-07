@@ -60,7 +60,9 @@ sidebarPanelWidth()
 
    #"",
 
-            tabPanel(test, uiOutput("aboutText")),
+            tabPanel(test, 
+                     uiOutput("aboutText")
+                     ),
    
 
    navbarMenu("Dataset manager",
