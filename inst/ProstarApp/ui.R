@@ -3,7 +3,7 @@ options(shiny.reactlog=TRUE)
 
 
 library(highcharter)
-
+library(shinythemes)
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 

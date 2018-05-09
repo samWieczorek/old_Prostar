@@ -159,10 +159,7 @@ getPackagesVersions <- reactive({
                as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
                as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
     
-    names[1] <- ifelse(instPkgs$Prostar != biocPkgs$Prostar, paste(names[1], outOfDate, sep=" "),names[1])
-    names[2] <- ifelse(instPkgs$DAPAR != biocPkgs$DAPAR, paste(names[2], outOfDate, sep=" "),names[2])
-    names[3] <- ifelse(instPkgs$DAPARdata != biocPkgs$DAPARdata, paste(names[3], outOfDate, sep=" "), names[3] )
-
+    
 df <- data.frame("Name" = names,
                      "Installed.packages"= rep(NA, 3), 
                      "Bioc.release" =  rep(NA, 3))
@@ -174,6 +171,10 @@ df <- data.frame("Name" = names,
         biocPkgs <- list(Prostar = biocRelease["Prostar","Version"],
                          DAPAR = biocRelease["DAPAR","Version"],
                          DAPARdata = DAPARdata.version)
+        df[1,"Name"] <- ifelse(instPkgs$Prostar != biocPkgs$Prostar, paste(names[1], outOfDate, sep=" "),names[1])
+        df[2,"Name"] <- ifelse(instPkgs$DAPAR != biocPkgs$DAPAR, paste(names[2], outOfDate, sep=" "),names[2])
+        df[3,"Name"] <- ifelse(instPkgs$DAPARdata != biocPkgs$DAPARdata, paste(names[3], outOfDate, sep=" "), names[3] )
+        
         df[, "Bioc.release"] <- unlist(biocPkgs)
     }
 
@@ -188,13 +189,13 @@ df <- data.frame("Name" = names,
 output$tab_versions <- renderDataTable({
     dt <- DT::datatable(getPackagesVersions(), 
                         escape = FALSE,
+                        rownames= FALSE,
                         option=list(initComplete = JS(
                             "function(settings, json) {",
                             "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                             "}"),
                             dom = 't',
                             autoWidth=TRUE,
-                            rownames= FALSE,
                             columnDefs = list(list(width='200px',targets= "_all"))
                             )
                     )
