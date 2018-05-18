@@ -33,7 +33,8 @@ tabPanel("Differential analysis",
                                             ,uiOutput("newComparisonUI")
                                           #,h4("Comparison options")
                                             ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                                      ,actionButton("AnaDiff_perform.filtering.MV", "Perform")
+                                      ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
+                                      uiOutput("tooltipInfo")
                                   ),
                                   tagList(
                                        busyIndicator("Building plot, please wait",wait = 0),
@@ -69,7 +70,8 @@ tabPanel("Differential analysis",
                                   wellPanel(id = "sidebar_DiffAna4",
                                             height = "100%"
                                             #,h4("Compute FDR")
-                                            ,uiOutput("diffAnalysis_FDR_SB")
+                                            ,uiOutput("diffAnalysis_FDR_SB"),
+                                            checkboxInput("showpvalTable","Show p-value table", value=FALSE)
                                   ),
                                   
                                   tagList(
@@ -80,7 +82,7 @@ tabPanel("Differential analysis",
                                         hr(),
                                         busyIndicator("Building plot, please wait",wait = 0),
                                         moduleVolcanoplotUI("volcano_Step2"),
-                                        DT::dataTableOutput("showSelectedItems")
+                                        DT::dataTableOutput("showSelectedItems", width='800px')
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"

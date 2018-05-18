@@ -37,7 +37,7 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
-                                           ,h4("General setup")
+                                           #,h4("General setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
                                                           choices = G_sourceOfProtID_Choices)
                                            
@@ -68,7 +68,8 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO",
                                            height = "100%",
-                                           checkboxGroupInput("GO_level", "Level",choices =c(2:4), selected=2),
+                                           modulePopoverUI("modulePopover_GOlevel"),
+                                           checkboxGroupInput("GO_level", "",choices =c(2:4), selected=2),
                                            actionButton("group.GO.perform.button","Perform GO grouping")
                                  ),
                                  tagList(
@@ -89,10 +90,12 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
                                            height = "100%",
-                                           radioButtons("universe", "Universe", choices = G_universe_Choices),
+                                           modulePopoverUI("modulePopover_GOuniverse"),
+                                           radioButtons("universe", "", choices = G_universe_Choices),
                                            uiOutput("chooseUniverseFile"),
                                            # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
+                                           modulePopoverUI("modulePopover_GOfdr"),
+                                           numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),

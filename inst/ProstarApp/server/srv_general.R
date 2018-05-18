@@ -28,6 +28,24 @@ callModule(modulePopover,"modulePopover_exportFileFormat",
            data = reactive(list(title = "File format", 
                                 content="File format")))
 
+callModule(modulePopover,"modulePopover_GOlevel", 
+           data = reactive(list(title = "Level", 
+                                content="Level")))
+
+
+callModule(modulePopover,"modulePopover_GOuniverse", 
+           data = reactive(list(title = "Universe", 
+                                content="universe")))
+callModule(modulePopover,"modulePopover_GOfdr", 
+           data = reactive(list(title = "FDR", 
+                                content="BH Adjusted P-value cutoff")))
+
+
+callModule(modulePopover,"modulePopover_volcanoTooltip", 
+           data = reactive(list(title = "Tooltip", 
+                                content="Infos to be displayed in the tooltip of volcanoplot")))
+
+
 
 
 callModule(modulePopover,"modulePopover_convertChooseDatafile", 

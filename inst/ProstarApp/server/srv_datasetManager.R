@@ -1,6 +1,13 @@
 
 
-
+output$optionsDemomode <- renderUI({
+    
+    req(input$demoDataset)
+    tagList(
+        checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
+        actionButton("loadDemoDataset", "Load demo dataset")
+    )
+})
 
 output$chooseDataset <- renderUI({
     
@@ -23,7 +30,7 @@ output$chooseDataset <- renderUI({
         }
     }
     
-    
+  
 })
 
 
@@ -135,11 +142,16 @@ output$eData <- renderUI({
     
     choices <- colnames(rv$tab1)
     names(choices) <- colnames(rv$tab1)
-    selectizeInput("eData.box",
+    
+    tagList(
+        modulePopoverUI("modulePopover_convertDataQuanti"),
+        selectInput("eData.box",
                    label = "",
                    choices = choices,
-                   multiple = TRUE, width='100%')
-    
+                   multiple = TRUE, width='200px',
+                size = 20,
+                selectize = FALSE)
+    )
 })
 
 
@@ -228,6 +240,7 @@ quantiDataTable <- reactive({
 
     } else {
         df <- data.frame(Sample = as.data.frame(input$eData.box))
+        colnames(df) <- c("Sample")
     }
 df
 })
@@ -241,6 +254,7 @@ output$x1 <- renderDataTable(
               extensions = 'Scroller',
               server=FALSE,
               selection='none', 
+    class = 'compact',
 options=list(
     preDrawCallback=JS(
     'function() {
@@ -248,6 +262,7 @@ options=list(
     drawCallback= JS(
         'function(settings) {
         Shiny.bindAll(this.api().table().node());}'),
+   # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
     dom = 't',
     autoWidth=TRUE,
     deferRender = TRUE,
@@ -845,11 +860,9 @@ output$logSession <- DT::renderDataTable({
 
 
 output$showDatasetDoc <- renderUI({
-    input$demoDataset
-  input$showDemoDatasetPDF
-    if (is.null(input$demoDataset)) { return(NULL)}
-  if (!input$showDemoDatasetPDF) { return(NULL)}
-  
+    req(input$demoDataset)
+    req(input$showDemoDatasetPDF)
+    
     file<- paste(system.file(package = "DAPARdata"),"/doc/",
                  input$demoDataset,".pdf", sep="")
     cmd <- paste("cp ",file," www/.", sep="")

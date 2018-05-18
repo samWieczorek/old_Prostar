@@ -41,7 +41,6 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 moduleVolcanoplot <- function(input, output, session){
   output$nbSelectedItems <- renderUI({ selectedItems()  })
-  output$selectTooltipInfo <- renderUI({ tooltipInfo()})
   output$Infos <- renderDataTable({ tableInfos() })
   output$volcanoPlot <-  renderHighchart({ volcanoplot_rCharts()})
 }
@@ -150,6 +149,7 @@ moduleDatasetOverview <- function(input, output, session) {
         if (is.null(rv$current.obj)) {return(NULL)}
         
         isolate({
+            h3("Quick overview of the dataset")
             
             verb <- NULL
             plurial <- NULL
@@ -201,13 +201,15 @@ moduleDatasetOverview <- function(input, output, session) {
                               ,sep="")
             }
             
-            tags$ul(
-                tags$li(txt1), 
-                tags$li(txt2), 
-                tags$li(txt3),
-                if (!is.null(txt4)){tags$li(txt4)}
+            tags$div(
+                tags$h3("Overview of the dataset"),
+                tags$ul(
+                    tags$li(txt1), 
+                    tags$li(txt2), 
+                    tags$li(txt3),
+                    if (!is.null(txt4)){tags$li(txt4)}
+                    )
             )
-            
         })
         
       

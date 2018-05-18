@@ -974,39 +974,32 @@ output$volcanoplot_rCharts <- renderHighchart({
 
 
 output$tooltipInfo <- renderUI({
-    tooltipInfo()
-    
-})
-
-tooltipInfo <- reactive({
     rv$current.obj
     input$selectComparison
     if (is.null(rv$current.obj)){return()}
     if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
     
-    selectizeInput("tooltipInfo",
-                   label = "Select the info you want to display",
+    tagList(
+        hr(),
+            modulePopoverUI("modulePopover_volcanoTooltip"),
+            selectInput("tooltipInfo",
+                   label = "",
                    choices = colnames(fData(rv$current.obj)),
-                   multiple = TRUE, width='500px')
+                   multiple = TRUE, selectize=FALSE,width='500px', size=5)
+    )
     
 })
-
-
-observeEvent(input$tooltipInfo,{
-    rv$volcanoTooltip <- input$tooltipInfo
-    print(rv$volcanoTooltip)
-})
-
 
 ########################################################
 output$showSelectedItems <- DT::renderDataTable({
-    rv$current.obj
+    req(rv$current.obj)
     input$diffAnaMethod
-    input$seuilLogFC
-    input$seuilPVal
+    req(input$seuilLogFC)
+        req(input$seuilPVal)
     input$selectComparison
+    req(input$showpvalTable)
     
-    
+    if (!isTRUE(input$showpvalTable)){return(NULL)}
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
     if ( is.null(rv$current.obj) ||
@@ -1017,8 +1010,7 @@ output$showSelectedItems <- DT::renderDataTable({
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return()}
     
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
 
             t <- NULL
             # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
@@ -1040,7 +1032,18 @@ output$showSelectedItems <- DT::renderDataTable({
                                 FC = data$FC[selectedItems],
                                 P_Value = data$P_Value[selectedItems])
             }
-            t
+            
+            DT::datatable(t,
+            extensions = 'Scroller',
+            rownames=FALSE,
+            options = list(initComplete = JS(
+                "function(settings, json) {",
+                "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+                "}"),
+                deferRender = TRUE,
+                           scrollY = 300,
+                           scroller = TRUE)
+            )
 
 })
 

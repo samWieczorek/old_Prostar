@@ -41,10 +41,10 @@ tabPanel("Convert data",
                        br(), br(),
                        
                        tagList(
-                           modulePopoverUI("modulePopover_convertDataQuanti"),
-                           uiOutput("eData",width = widthWellPanel),
                            checkboxInput("selectIdent", "Select columns for identification method", value = FALSE),
-                           dataTableOutput("x1", width='500px'),
+                           fluidRow(
+                               column(width=4,uiOutput("eData",width = widthWellPanel)),
+                               column(width=8,dataTableOutput("x1", width='500px'))),
                            tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })"))

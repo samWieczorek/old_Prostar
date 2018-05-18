@@ -8,7 +8,6 @@ tabPanel("Open MSnset file",
                                           multiple = FALSE)
                      ),
                      tagList(
-                         h3("Quick overview of the dataset"),
                          moduleDatasetOverviewUI("overview_openMSnset"),
                         uiOutput("infoAboutAggregationTool")
                      )
