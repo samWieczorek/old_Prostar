@@ -114,6 +114,7 @@ output$References <- renderText({
 
 getPackagesVersions <- reactive({
     outOfDate <- "(Out of date)"
+    dev <- "(Devel)"
     
     biocRelease <- NULL
     tryCatch({
@@ -153,9 +154,19 @@ df <- data.frame("Name" = names,
         biocPkgs <- list(Prostar = biocRelease["Prostar","Version"],
                          DAPAR = biocRelease["DAPAR","Version"],
                          DAPARdata = DAPARdata.version)
-        df[1,"Name"] <- ifelse(instPkgs$Prostar != biocPkgs$Prostar, paste(names[1], outOfDate, sep=" "),names[1])
-        df[2,"Name"] <- ifelse(instPkgs$DAPAR != biocPkgs$DAPAR, paste(names[2], outOfDate, sep=" "),names[2])
-        df[3,"Name"] <- ifelse(instPkgs$DAPARdata != biocPkgs$DAPARdata, paste(names[3], outOfDate, sep=" "), names[3] )
+        
+        if (instPkgs$Prostar == biocPkgs$Prostar){df[1,"Name"] <-  names[1]}
+        else if (instPkgs$Prostar > biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], dev, sep=" ")}
+        else if (instPkgs$Prostar < biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], outOfDate, sep=" ")}
+        
+        if (instPkgs$DAPAR == biocPkgs$DAPAR){df[2,"Name"] <-  names[2]}
+        else if (instPkgs$DAPAR > biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2], dev, sep=" ")}
+        else if (instPkgs$DAPAR < biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2], outOfDate, sep=" ")}
+        
+        if (instPkgs$DAPARdata == biocPkgs$DAPARdata){df[3,"Name"] <-  names[3]}
+        else if (instPkgs$DAPARdata > biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names["3"], dev, sep=" ")}
+        else if (instPkgs$DAPARdata < biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3], outOfDate, sep=" ")}
+        
         
         df[, "Bioc.release"] <- unlist(biocPkgs)
     }
@@ -203,12 +214,18 @@ output$warningDependanciesVersion <- renderUI({
     DTVersion <- installed.packages()["DT","Version"]
     highcharterVersion <-installed.packages()["highcharter","Version"]
     
-txt <- "Note : for a better experience with Prostar, you shoul install the develpment version of the following
-    packages : DT and highcharter. For that, type and execute the followings commands in a R console:<br>
-    devtools::install_github('rstudio/DT')<br>
-    devtools::install_github('jbkunst/highcharter')"
+    
+txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
+   <font color=\"red\">For a better experience with Prostar, we advice you to install the development version of the following
+    packages : DT and highcharter. <br>
+   To do so, type and execute the followings commands in a R console:<br>
+    <ul>
+    <li> devtools::install_github('rstudio/DT')</li>
+    <li> devtools::install_github('jbkunst/highcharter')</li>
+    </ul> </font>"
+
     if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0")
-    h4(txt)
+    HTML(txt)
     
 })
 #-------------------------------------------------------------------

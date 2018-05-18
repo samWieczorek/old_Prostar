@@ -62,9 +62,10 @@ sidebarPanelWidth()
 
             tabPanel(test, 
                      br(), 
-                     uiOutput("warningDependanciesVersion"),
                      br(),
-                     uiOutput("aboutText")
+                     uiOutput("aboutText"),
+                     hr(),
+                     uiOutput("warningDependanciesVersion")
                      ),
    
 
