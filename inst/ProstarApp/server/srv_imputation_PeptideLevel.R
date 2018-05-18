@@ -13,10 +13,10 @@ output$peptideLevelImputationPanel <- renderUI({
              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_imputation",
                                    height = "100%"
-                                   ,h4("Miss. values imputation options")
+                                   #,h4("Miss. values imputation options")
                                    ,br(),
                                    selectInput("peptideLevel_missing.value.algorithm",
-                                                "Choose algorithm",
+                                                "Algorithm",
                                                 choices = names(imputationAlgorithms)),
                                    uiOutput("peptideLevel_chooseBasicImputationMethod"),
                                    uiOutput("peptideLevel_detQuantileParams"),
@@ -387,7 +387,7 @@ output$peptideLevel_chooseImputationMethod <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)}
     m <- NULL
     selectInput("peptideLevel_missing.value.algorithm",
-                "Choose algorithm",
+                "Algorithm",
                 choices = names(imputationAlgorithms))
 
 })
@@ -399,7 +399,7 @@ output$peptideLevel_chooseBasicImputationMethod <- renderUI({
     if ((input$peptideLevel_missing.value.algorithm != "Basic methods") || is.null(input$peptideLevel_missing.value.algorithm)) {return(NULL)}
     
     selectInput("peptideLevel_missing.value.basic.algorithm",
-                "Choose algorithm",
+                "Algorithm",
                 choices = names(basicMethodsImputationAlgos))
     
 })

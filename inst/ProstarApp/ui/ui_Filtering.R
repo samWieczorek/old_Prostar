@@ -33,7 +33,6 @@ tabsetPanel(
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter2",
                                           uiOutput("SymbolicFilterOptions")
-                                         # moduleFilterStringbasedOptionsUI("filteringStringBasedOptions")
                                 ),
                                 tagList(
                                     busyIndicator(WaitMsgCalc,wait = 0),
@@ -41,7 +40,7 @@ tabsetPanel(
                                   )
                     )
          )
-         ,tabPanel( "3 - Visualize and Validate",
+         ,tabPanel( "3 - Visualize filtered data and Validate",
                     value = "DP_FilterValidate",
                     id = "sidebar_Filter3",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),

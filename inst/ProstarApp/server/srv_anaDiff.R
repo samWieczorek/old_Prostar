@@ -157,9 +157,9 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
     selectInput("anaDiff_Design", "Design", 
                 choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
     
-    selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+    selectInput("diffAnaMethod","Statistical test",choices = anaDiffMethod_Choices),
     uiOutput("OptionsForT_tests"),
-    numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
+    numericInput("seuilLogFC", "log(FC) threshold", min=0, step=0.1, value=0)
   )
   
   
@@ -202,11 +202,10 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
         br(),
-        h4("P-value push"),
-        h6("for peptides/proteins with less than"),
-        h6("X originally observed values (i.e. non "),
-        h6("imputed values) in:"),
-        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersList),
+        
+        modulePopoverUI("modulePopover_pushPVal"),
+        
+        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersListAnaDiff),
         
         uiOutput("AnaDiff_seuilNADelete")
     ) })
@@ -286,7 +285,7 @@ output$diffAnalysis_Calibration_SB <- renderUI({
     
     tagList(
         selectInput("calibrationMethod", 
-                    "Choose the calibration method",
+                    "Calibration method",
                     choices = calibMethod_Choices),
         uiOutput("numericalValForCalibrationPlot"))
 })
@@ -527,9 +526,7 @@ calibrationPlot <- reactive({
 })
 
 output$calibrationPlot <- renderPlot({
-    
     calibrationPlot()
-    
 })
 
 
@@ -590,6 +587,7 @@ calibrationPlotAll <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
+    t <- t[-which(t == 1)]
     
     l <- NULL
     result = tryCatch(
@@ -923,6 +921,8 @@ volcanoplot_rCharts <- reactive({
     rv$resAnaDiff
     rv$current.obj
     input$tooltipInfo
+    rv$volcanoTooltip 
+    
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
     if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
@@ -935,8 +935,8 @@ volcanoplot_rCharts <- reactive({
                 df <- data_frame(x=rv$resAnaDiff$FC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
                                  index = 1:nrow(fData(rv$current.obj)))
-                if (!is.null(input$tooltipInfo)){
-                    df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
+                if (!is.null( input$tooltipInfo)){
+                    df <- cbind(df,fData(rv$current.obj)[ input$tooltipInfo])
                 }
                 #rownames(df) <- rownames(rv$current.obj)
                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -971,6 +971,31 @@ output$volcanoplot_rCharts <- renderHighchart({
     volcanoplot_rCharts()
     
 })   
+
+
+output$tooltipInfo <- renderUI({
+    tooltipInfo()
+    
+})
+
+tooltipInfo <- reactive({
+    rv$current.obj
+    input$selectComparison
+    if (is.null(rv$current.obj)){return()}
+    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
+    
+    selectizeInput("tooltipInfo",
+                   label = "Select the info you want to display",
+                   choices = colnames(fData(rv$current.obj)),
+                   multiple = TRUE, width='500px')
+    
+})
+
+
+observeEvent(input$tooltipInfo,{
+    rv$volcanoTooltip <- input$tooltipInfo
+    print(rv$volcanoTooltip)
+})
 
 
 ########################################################
@@ -1087,19 +1112,6 @@ selectedItems <- function(){
         HTML(txt)
     }
 
-    
-tooltipInfo <- function(){
-    rv$current.obj
-    input$selectComparison
-    if (is.null(rv$current.obj)){return()}
-    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    
-    selectizeInput("tooltipInfo",
-                   label = "Select the info you want to display",
-                   choices = colnames(fData(rv$current.obj)),
-                   multiple = TRUE, width='500px')
-
-    }
 
 
 tableInfos <- function(){

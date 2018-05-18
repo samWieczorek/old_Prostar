@@ -7,7 +7,7 @@ output$chooseDataset <- renderUI({
     if(require("DAPARdata")){
         print("DAPARdata is loaded correctly")
         selectInput("demoDataset",
-                    "Choose a demo dataset",
+                    "Demo dataset",
                     choices = utils::data(package="DAPARdata")$results[,"Item"]
         )
     } else {
@@ -16,7 +16,7 @@ output$chooseDataset <- renderUI({
         if(require(DAPARdata)){
         print("DAPARdata installed and loaded")
         selectInput("demoDataset",
-                    "Choose a demo dataset",
+                    "Demo dataset",
                     choices = utils::data(package='DAPARdata')$results[,"Item"])
         } else {
             stop("Could not install the package DAPARdata")
@@ -25,6 +25,28 @@ output$chooseDataset <- renderUI({
     
     
 })
+
+
+
+
+# function for dynamic inputs in DT
+shinyInput <- function(FUN,id,num,...) {
+    inputs <- character(num)
+    for (i in seq_len(num)) {
+        inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+    }
+    inputs
+}
+
+
+# function to read DT inputs
+shinyValue <- function(id,num) {
+    unlist(lapply(seq_len(num),function(i) {
+        value <- input[[paste0(id,i)]]
+        if (is.null(value)) NA else value
+    }))
+}
+
 
 
 
@@ -45,6 +67,7 @@ output$hot <- renderRHandsontable({
     }
     
     if (!is.null(DT))
+        
         rhandsontable(DT, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
                                             maxRows=nrow(DT))) %>%
         hot_cols(colWidths = c(200, 100, 100, 100, 100) ) %>%
@@ -58,6 +81,7 @@ output$hot <- renderRHandsontable({
         hot_col(col = "Experiment", readOnly = TRUE)
         
 })
+
 
 
 
@@ -94,6 +118,16 @@ output$id <- renderUI({
 })
 
 
+
+###########################################
+
+#
+#
+##   Quanti data table
+
+##
+##
+##############################################
 output$eData <- renderUI({
     input$file1
     rv$tab1
@@ -104,32 +138,174 @@ output$eData <- renderUI({
     selectizeInput("eData.box",
                    label = "",
                    choices = choices,
-                   multiple = TRUE, width='500px')
+                   multiple = TRUE, width='100%')
     
 })
 
 
 
+updateInputs <- function(id, n){
+    for (i in seq_len(n)) {
+        updateSelectInput(paste0(id,i),label=NULL,selected = input[[paste0(id,i)]])
+    }
+}
 
-output$chooseOriginOfValues <- renderUI({
-    input$eData.box
-    input$file1
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
+
+shinyOutput <- function(FUN,id,num,...) {
+    inputs <- character(num)
+    for (i in seq_len(num)) {
+        inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+    }
+    inputs
+}
+
+# function for dynamic inputs in DT
+shinyInput <- function(FUN,id,num,...) {
+    inputs <- character(num)
+    for (i in seq_len(num)) {
+        inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+    }
+    inputs
+}
+
+
+# function to read DT inputs
+shinyValue <- function(id,num) {
+    unlist(lapply(seq_len(num),function(i) {
+        value <- input[[paste0(id,i)]]
+        if (is.null(value)) NA else value
+    }))
+}
+
+
+
+iconDataTable <- reactive({
+    temp <- shinyValue("colForOriginValue_",length(input$eData.box))
     
-    choices <- colnames(rv$tab1)
-    names(choices) <- colnames(rv$tab1)
+    if (length(which(temp == "None")) == length(temp))
+    {
+        status_list <- rep('<img src="images/Ok.png" height="24"></img>', 
+                           nrow(as.data.frame(input$eData.box)))
+    } else {
+        status_list <- rep('<img src="images/Problem.png" height="24"></img>', 
+                           nrow(as.data.frame(input$eData.box)))
+    }
     
-    tagList(
-        if (length(input$eData.box) >= 1) {
-            lapply(1:length(input$eData.box), function(entry) {
-            selectInput(paste0("colForOriginValue_", entry), input$eData.box[entry], choices = choices,
-                    multiple = FALSE, width='500px')
+     if (length(which(is.na(temp))) ==0)
+    {
+        for (i in seq_len(length(temp))) {
+            if (temp[i] != "None"){
+                status_list[i] <- '<img src="images/Ok.png" height="24"></img>'
             }
-        )
         }
-  )  
+    }
+    status_list
 })
+
+
+# reactive dataset
+quantiDataTable <- reactive({
+    req(input$eData.box)
+    req(rv$tab1)
+    
+    session$sendCustomMessage('unbind-DT', 'x1')
+    df <- NULL
+    if (isTRUE(input$selectIdent)) {
+        choices <- c("None",colnames(rv$tab1))
+        names(choices) <- c("None",colnames(rv$tab1))
+
+       status_list <- rep('<img src="images/Problem.png" height="24"></img>', 
+                          nrow(as.data.frame(input$eData.box)))
+       
+        df <- data.frame(as.data.frame(input$eData.box),
+                   shinyInput(selectInput,"colForOriginValue_",nrow(as.data.frame(input$eData.box)),choices=choices),
+                   iconDataTable())
+        colnames(df) <- c("Sample", "Identification method", "Status")
+        
+        for (i in seq_len(nrow(as.data.frame(input$eData.box)))) {
+            updateSelectInput(session,paste0("colForOriginValue_",i),selected = input[[paste0("colForOriginValue_",i)]])
+        }
+
+    } else {
+        df <- data.frame(Sample = as.data.frame(input$eData.box))
+    }
+df
+})
+
+
+
+output$x1 <- renderDataTable(
+    quantiDataTable(),
+              escape=FALSE,
+              rownames = FALSE,
+              extensions = 'Scroller',
+              server=FALSE,
+              selection='none', 
+options=list(
+    preDrawCallback=JS(
+    'function() {
+    Shiny.unbindAll(this.api().table().node());}'),
+    drawCallback= JS(
+        'function(settings) {
+        Shiny.bindAll(this.api().table().node());}'),
+    dom = 't',
+    autoWidth=TRUE,
+    deferRender = TRUE,
+    scrollY = 500,
+    scroller = TRUE
+    
+)
+
+)
+
+
+observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{
+
+}
+)
+
+
+
+output$warningCreateMSnset <- renderUI({
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if (length(which(colNamesForOriginofValues == "None")) >0){
+        text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
+        method are not fully filled.  <br>"
+        HTML(text)
+    }
+    
+})
+
+
+
+# output$out <- renderPrint({
+#     
+#     
+#     data.frame(v1=shinyValue("colForOriginValue_",nrow(quantiDataTable())))
+#     
+#     #print(shinyValue("colForOriginValue_",nrow(quantiDataTable())))
+# })
+
+
+# output$chooseOriginOfValues <- renderUI({
+#     input$eData.box
+#     input$file1
+#     rv$tab1
+#     if (is.null(rv$tab1)) {return(NULL)  }
+#     
+#     choices <- c("None",colnames(rv$tab1))
+#     names(choices) <- c("None",colnames(rv$tab1))
+#     
+#     tagList(
+#         if (length(input$eData.box) >= 1) {
+#             lapply(1:length(input$eData.box), function(entry) {
+#             selectInput(paste0("colForOriginValue_", entry), input$eData.box[entry], choices = choices,
+#                     multiple = FALSE, width='500px')
+#             }
+#         )
+#         }
+#   )  
+# })
 
 output$helpTextDataID <- renderUI({
     input$typeOfData
@@ -152,7 +328,7 @@ output$helpTextDataID <- renderUI({
 output$chooseExportFilename <- renderUI({
     
     textInput("nameExport", 
-              label = "Enter the name of the files to be created",
+              label = "",
               value = rv$current.obj.name)
 })
 
@@ -457,6 +633,18 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
     {return(NULL)}
     
+    
+    
+    #print(data.frame(v1=shinyValue("colForOriginValue_",nrow(quantiDataTable()))))
+    
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    
+    print(colNamesForOriginofValues)
+    
+    if (length(which(colNamesForOriginofValues == "None")) >0){
+        return (NULL)
+    }
+    
     isolate({
         result = tryCatch(
             {
@@ -488,12 +676,13 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 metadata <- hot_to_r(input$hot)
                 logData <- (input$checkDataLogged == "no")
                 
-                
+                 
                 indexForOriginOfValue <- NULL
-                for (i in 1:length(input$eData.box)){
+                if (length(grep("None", colNamesForOriginofValues))==0 ){
+                    for (i in 1:length(input$eData.box)){
                     indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
+                    }
                 }
-               
                 
                     tmp <- createMSnset(rv$tab1, 
                                                metadata, 
@@ -638,12 +827,15 @@ output$chooseMetaDataExport <- renderUI({
 output$logSession <- DT::renderDataTable({
     req(rv$text.log)
     
-    dt <- DT::datatable(rv$text.log,escape = FALSE,
+    dt <- DT::datatable(rv$text.log,escape = FALSE,extensions = 'Scroller',
                                options=list(initComplete = JS(
                                    "function(settings, json) {",
                                    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                                    "}"),
                                    pageLength=DT_pagelength,
+                                   deferRender = TRUE,
+                                   scrollY = 600,
+                                   scroller = TRUE,
                                             orderClasses = TRUE,
                                             autoWidth=FALSE))
     dt
@@ -861,7 +1053,7 @@ output$choosedataTobuildReport <- renderUI({
   if (is.null(rv$dataset)){return (NULL)}
   
   checkboxGroupInput("chooseDatasetToExport", 
-                     "Choose the datasets to export",
+                     "Datasets to export",
                      choices = names(rv$dataset),
                      selected = names(rv$dataset))
   

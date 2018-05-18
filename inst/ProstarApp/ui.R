@@ -34,7 +34,7 @@ titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
-,includeCSS("www/css/legend.css")
+,includeCSS("www/css/prostar.css")
 
 
 #,uiOutput("disableAggregationTool")
@@ -61,6 +61,9 @@ sidebarPanelWidth()
    #"",
 
             tabPanel(test, 
+                     br(), 
+                     uiOutput("warningDependanciesVersion"),
+                     br(),
                      uiOutput("aboutText")
                      ),
    

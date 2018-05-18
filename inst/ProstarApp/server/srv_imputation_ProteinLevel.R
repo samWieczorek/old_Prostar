@@ -37,11 +37,11 @@ output$proteinLevelImputationPanel <- renderUI({
              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_Imputation1",
                                    height = "100%",
-                                   h4("Miss. values imputation options"),
+                                   #h4("Miss. values imputation options"),
                                    br(),
                                    uiOutput("sidebar_imputation_step1"),
                                    actionButton("perform.imputationClassical.button",
-                                                "Perform classical MV imputation")
+                                                "Perform imputation")
                                    
                          ),
                          tagList(
@@ -148,7 +148,7 @@ output$sidebar_imputation_step1 <- renderUI({
     
     tagList(
                 selectInput("POV_missing.value.algorithm",
-                "Choose algorithm for POV",
+                "Algorithm for POV",
                 choices = names(algo)),
     uiOutput("POV_Params")
     )
@@ -163,7 +163,7 @@ output$MEC_chooseImputationMethod <- renderUI({
     algo <- imputationAlgorithmsProteins_MEC
 
     selectInput("MEC_missing.value.algorithm",
-                "Choose algorithm for MEC",
+                "Algorithm for MEC",
                 choices = names(algo))
     
 })
@@ -274,7 +274,11 @@ output$TAB_MEC_detQuant_impValues <- renderDataTable({
 
     if (input$MEC_missing.value.algorithm == 'detQuantile'){
         values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$MEC_detQuant_quantile/100, input$MEC_detQuant_factor)
-        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(initComplete = JS(
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)),extensions = 'Scroller', 
+                      options = list(deferRender = TRUE,
+                                     scrollY = 600,
+                                     scroller = TRUE,
+                                     initComplete = JS(
             "function(settings, json) {",
             "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
             "}"),

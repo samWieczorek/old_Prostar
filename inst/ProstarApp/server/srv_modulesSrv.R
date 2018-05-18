@@ -2,9 +2,40 @@
 #################### MODULES DEFINITION #################################
 
 
-moduleLegendColoredExprs <- function(input, output, session){
 
+
+modulePopover <- function(input, output, session, data){
+    
+    ns <- session$ns
+    
+    output$customPopover <- renderUI({
+
+        #ns <- session$ns
+        div(
+            div(
+                # edit1
+                style="display:inline-block; vertical-align: middle;",
+                h4(data()$title)
+            ),
+            div(
+            # edit2
+            style="display:inline-block; vertical-align: middle;",
+            tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip"),
+            bsPopover(id = ns("q1"), title = "",
+                      content = data()$content,
+                      placement = "right", 
+                      trigger = "click", 
+                      options = list(container = "body")
+            )
+        )
+        )
+    })
 }
+
+
+
+
+moduleLegendColoredExprs <- function(input, output, session){}
 
 
 

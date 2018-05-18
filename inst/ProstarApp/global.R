@@ -118,6 +118,13 @@ gFiltersList[["Whole matrix"]] <- "wholeMatrix"
 gFiltersList[["For every condition"]] <- "allCond"
 gFiltersList[["At least one condition"]] <- "atLeastOneCond"
 
+gFiltersListAnaDiff <- list()
+gFiltersListAnaDiff[["None"]] <- "None"
+gFiltersListAnaDiff[["Whole matrix"]] <- "wholeMatrix"
+gFiltersListAnaDiff[["For every condition"]] <- "allCond"
+gFiltersListAnaDiff[["At least one condition"]] <- "atLeastOneCond"
+
+
 gDatasets <- list()
 gDatasets[["NA"]] <- "none"
 

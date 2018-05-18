@@ -90,7 +90,7 @@ output$DS_sidebarPanel_tab <- renderUI({
     )
     
     tagList(
-                     radioButtons("DS_TabsChoice", "Choose the tab to display",
+                     radioButtons("DS_TabsChoice", "Table to display",
                                   choices = .choices),
                      br(),
                      checkboxInput("nDigits", 
@@ -164,12 +164,16 @@ output$viewExprs <- renderDataTable(
     #id <- which(is.na(exprs(Exp1_R25_prot)))
     
     test.table,
+    extensions = 'Scroller',
     options = list(initComplete = JS(
         "function(settings, json) {",
         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
         "}"),
         
         displayLength = 3,
+        deferRender = TRUE,
+        scrollY = 600,
+        scroller = TRUE,
         drawCallback=JS(
             paste("function(row, data) {",
                   paste(sapply(1:ncol(test.table),function(i)
@@ -243,9 +247,13 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
+                             extensions = 'Scroller',
                         options=list(pageLength=DT_pagelength,
                                     orderClasses = TRUE,
                                     autoWidth=FALSE,
+                                    deferRender = TRUE,
+                                    scrollY = 200,
+                                    scroller = TRUE,
                                     columns.searchable=F,
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
@@ -254,11 +262,15 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
+                             extensions = 'Scroller',
                              options=list(initComplete = JS(
                                  "function(settings, json) {",
                                  "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                                  "}"),
                                  pageLength=DT_pagelength,
+                                 deferRender = TRUE,
+                                 scrollY = 600,
+                                 scroller = TRUE,
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
@@ -672,11 +684,15 @@ output$table <- renderDataTable({
    # req(rv$current.obj)
     df <- getDataForExprs()
     dt <- datatable( df,
+                     extensions = 'Scroller',
                     options = list(initComplete = JS(
                         "function(settings, json) {",
                         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                         "}"),
                         displayLength = 20,
+                        deferRender = TRUE,
+                        scrollY = 600,
+                        scroller = TRUE,
                                    ordering=FALSE,
                                    server = TRUE,
                             columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
@@ -707,7 +723,7 @@ output$ChooseLegendForAxisViolin_DS <- renderUI({
                       href="css/overrides.css"))
   
   checkboxGroupInput("legendXAxisViolin_DS",
-                     label = "Choose data to show in legend",
+                     label = "Data to show in legend",
                      choices = .names,
                      selected = .names[1])
 })

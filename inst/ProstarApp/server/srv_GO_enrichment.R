@@ -182,7 +182,7 @@ output$chooseSourceForProtID <- renderUI({
 output$chooseUniverseFile <- renderUI({
     input$universe
     if (input$universe == "Custom"){
-        fileInput("UniverseFile", "Choose universe file")
+        fileInput("UniverseFile", "Universe file")
     }
 })
 
@@ -476,7 +476,7 @@ output$chooseGOtoSave <- renderUI({
     if(!is.null(rv$enrichGO_data)){.choices <- c(.choices, "Enrichment")}
     if(!is.null(rv$enrichGO_data) && !is.null(rv$groupGO_data)){.choices <- c(.choices, "Both")}
     
-    radioButtons("whichGO2Save", "Choose which GO analysis to save", choices = .choices)
+    radioButtons("whichGO2Save", "GO analysis to save", choices = .choices)
 })
 
 

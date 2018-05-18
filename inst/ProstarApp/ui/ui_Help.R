@@ -1,9 +1,12 @@
 tabPanel("Help",
+         id = "toto",
          tabsetPanel(
-             tabPanel( "Help Prostar",
+             tabPanel( "Useful links",
+                       id = "tabHelp",
                         htmlOutput("References")
              ),
-             tabPanel( "FAQ"
+             tabPanel( "FAQ",
+                       id = "FAQ"
              ),
              tabPanel("Check for updates",
                       

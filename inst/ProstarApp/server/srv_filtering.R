@@ -57,11 +57,14 @@ output$FilterSummaryData <- DT::renderDataTable({
           rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
         }
 
-    DT::datatable(rv$DT_filterSummary,
+    DT::datatable(rv$DT_filterSummary,extensions = 'Scroller',
                   options=list(initComplete = JS(
                       "function(settings, json) {",
                       "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                      "}")
+                      "}"),
+                      deferRender = TRUE,
+                      scrollY = 600,
+                      scroller = TRUE
                   ))
 })
 
@@ -102,15 +105,15 @@ output$DP_sidebar_FilterTab3 <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return()}
     tagList(
-        h4("Filtered data display")
-                     ,hr()
-                     ,radioButtons("ChooseTabAfterFiltering", 
+        #h4("Filtered data display")
+                     #,hr()
+                     radioButtons("ChooseTabAfterFiltering", 
                                    "Choose the data to display",
                                    choices=
                                        list("Quantitative data" = "quantiData",
                                             "Meta data" = "MetaData"))
                      ,radioButtons("ChooseViewAfterFiltering", 
-                                   "Choose the type of filtered data", 
+                                   "Type of filtered data", 
                             choices=
                             list("Deleted on missing values" = "MissingValues",
                             "Deleted string based" = "StringBased"))
@@ -208,13 +211,16 @@ output$VizualizeFilteredData <- DT::renderDataTable({
     if (!is.null(data)){
         
         if(input$ChooseTabAfterFiltering =="quantiData"){
-                dt <- datatable( data,
+                dt <- datatable( data,extensions = 'Scroller',
                      options = list(initComplete = JS(
                          "function(settings, json) {",
                          "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                          "}"),
                          displayLength = 20,
-                                    ordering=FALSE,
+                         deferRender = TRUE,
+                         scrollY = 600,
+                         scroller = TRUE,
+                         ordering=FALSE,
                                     server = TRUE,
                                     columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
                      )) %>%
@@ -224,8 +230,11 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                         backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
                     )
         } else {
-            dt <- datatable( data,
+            dt <- datatable( data,extensions = 'Scroller',
                              options = list(displayLength = 20,
+                                            deferRender = TRUE,
+                                            scrollY = 600,
+                                            scroller = TRUE,
                                             ordering=FALSE,
                                             server = TRUE)) 
         }

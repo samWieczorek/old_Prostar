@@ -67,7 +67,7 @@ output$choose_normalizationQuantile <- renderUI({
     # check if the normalisation has already been performed
     quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
     
-    radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=0.15)
+    radioButtons("normalization.quantile", "Normalization quantile",  choices = quantileChoices, selected=0.15)
     
     
 })
@@ -80,7 +80,7 @@ output$choose_normalizationQuantileOther <- renderUI({
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
    
     if (input$normalization.quantile == "Other"){
-        numericInput("normalization.quantileOther", "Choose normalization quantile other",
+        numericInput("normalization.quantileOther", "Normalization quantile other",
                      min=0, max = 1 , value = 0.15,
                      step = 0.1)
         
@@ -117,7 +117,7 @@ output$choose_normalizationType <- renderUI({
         
         # check if the normalisation has already been performed
         type <- c("overall", "within conditions")
-        selectInput("normalization.type", "Choose normalization type",  choices = type)
+        selectInput("normalization.type", "Normalization type",  choices = type)
 
     } 
     
@@ -140,7 +140,7 @@ output$choose_Normalization_Test <- renderUI({
     # check if the normalisation has already been performed
     method <- normMethods
     
-    selectInput("normalization.method","Choose normalization method", method)
+    selectInput("normalization.method","Normalization method", method)
 })
 
 
@@ -360,7 +360,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
     if (is.null(rv$current.obj)){return(NULL)}
     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     checkboxGroupInput("legendXAxisNormTabPanel",
-                       label = "Choose data to show in legend",
+                       label = "Data to show in legend",
                        choices = .names,
                        selected = .names[1])
 })
@@ -368,7 +368,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 output$choose_Normalization_1 <- renderUI({
     isolate({
         selectInput("normalization.family", 
-                    "Choose normalization family", 
+                    "Normalization family", 
                     names(normalization.methods))
     })
 })
@@ -562,7 +562,7 @@ output$ChooseLegendForAxis <- renderUI({
                         href="css/overrides.css"))
     
     checkboxGroupInput("legendXAxis",
-                       label = "Choose data to show in legend",
+                       label = "Data to show in legend",
                        choices = .names,
                        selected = .names[1])
 })

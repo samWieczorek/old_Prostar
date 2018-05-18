@@ -3,19 +3,23 @@ tabPanel("Export",
              id = "Export_tabSetPanel",
              tabPanel("Export to file",
          value = "export",
-         helpText("Choose the export format of the dataset and choose a name."),
-         selectInput("fileformatExport", "File format", 
-                     choices=  gFileFormatExport),
+         helpText("Export format of the dataset and filename."),
+         fluidRow(
+             column(width=2,modulePopoverUI("modulePopover_exportFileFormat")),
+             column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
+         ),
          
          br(),
-         helpText("Select the columns you want to keep as metadata. 
-                  By default, if any column is specified, all metadata in your dataset
-                  will be exported."),
-         
-         uiOutput("chooseMetaDataExport",width = widthWellPanel),
+         fluidRow(
+             column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
+             column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
+             ),
          br(),br(),
-         uiOutput("chooseExportFilename"),
-         
+         fluidRow(
+             column(width=2,modulePopoverUI("modulePopover_exportFilename")),
+             column(width=10,uiOutput("chooseExportFilename"))
+         ),
+
          br(),
          downloadButton('downloadMSnSet', 'Download')
              ),
@@ -26,15 +30,15 @@ tabPanel("Export",
                       fluidRow(
                           column(width=4, uiOutput("choosedataTobuildReport")),
                           column(width=4, tagList(
-                              selectInput("sizePNGplots", "Choose the size of images (PNG)", choices = c("1200 * 800")),
-                              selectInput("resoPNGplots", "Choose the resolution", choices = c(150)))
+                              selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800")),
+                              selectInput("resoPNGplots", "Resolution", choices = c(150)))
                               ),
                            column(width=4, tagList(
-                                  radioButtons('format', 'Choose the report document format', c('PDF', 'HTML', 'Word'),
+                                  radioButtons('format', 'Report document format', c('PDF', 'HTML', 'Word'),
                                                inline = TRUE),
                                   br(),
                                   textInput("reportFilename",
-                                            label = "Enter the name of the report",
+                                            label = "Name of the report",
                                             value = ""))
                       )
                       ),

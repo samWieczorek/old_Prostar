@@ -1,5 +1,44 @@
 
 
+# 
+# callModule(modulePopover,"modulePopover_toto", data = reactive(paste0(data(), 
+#                                                                       a("tidy data paper", 
+#                                                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
+#                                                                         target="_blank"))))
+
+callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title="P-value push",
+content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
+
+callModule(modulePopover,"modulePopover_convertDataQuanti", 
+           data = reactive(list(title = "Quantitative data", 
+                                content="Select the columns that are quantitation values by clicking in the field below.")))
+
+
+callModule(modulePopover,"modulePopover_exportMetaData", 
+           data = reactive(list(title = "Meta data", 
+                                content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
+
+
+callModule(modulePopover,"modulePopover_exportFilename", 
+           data = reactive(list(title = "Filename", 
+                                content="Enter the name of the files to be created")))
+
+
+callModule(modulePopover,"modulePopover_exportFileFormat", 
+           data = reactive(list(title = "File format", 
+                                content="File format")))
+
+
+
+callModule(modulePopover,"modulePopover_convertChooseDatafile", 
+           data = reactive(list(title = "Data file", 
+                                content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
+
+callModule(modulePopover,"modulePopover_convertIdType", 
+           data = reactive(list(title = "Type de ID", 
+                                content="If you choose the automatic ID, Prostar will build an index.")))
+
+
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
@@ -154,6 +193,7 @@ ClearMemory <- function(){
                              Dataset="", 
                              History="", 
                              stringsAsFactors=F)
+    rv$volcanoTooltip = NULL
     rv$listLogFC = list()
     rv$seuilLogFC = 0
     rv$seuilPVal = 1e-60
@@ -266,6 +306,7 @@ rv <- reactiveValues(
                           Dataset="", 
                           History="", 
                           stringsAsFactors=F),
+    volcanoTooltip = NULL,
     listLogFC = list(),
     seuilLogFC = 0,
     seuilPVal = 1e-60,

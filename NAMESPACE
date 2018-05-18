@@ -12,7 +12,7 @@ importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
 import(R.utils)
 import(shinythemes)
-
+import(XML)
 
 importFrom(shiny,
             absolutePanel ,

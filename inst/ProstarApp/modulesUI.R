@@ -7,6 +7,14 @@
 
 
 
+
+modulePopoverUI <- function(id){
+    ns <- NS(id)
+    uiOutput(ns("customPopover"))
+}
+
+
+
 moduleLegendColoredExprsUI <- function(id){
     ns <- NS(id)
     

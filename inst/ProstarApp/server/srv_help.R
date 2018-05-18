@@ -1,22 +1,7 @@
 output$References <- renderText({
     
-    
-    
-    # <strong><font size=\"4\">User manual:</font></strong>
-    #      <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/
-    # Prostar/inst/doc/Prostar_UserManual.pdf\"
-    # title=\"here\" target=\"_blank\">here</a>
-    # <br><br>
-    
-    # <strong><font size=\"4\">Tutorial:</font></strong>
-    #      <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
-    # Prostar/inst/doc/Prostar_Tutorial.pdf\"
-    # title=\"here\" target=\"_blank\">here</a>
-    # <br><br>
-    
-    
-    txt<- "<strong><font size=\"5\">HELP</font></strong>
-    <br><hr color:\"blue\"><br>
+  
+    txt<- "<br>
     
     <strong><font size=\"4\">User manuals and tutorials:</font></strong>
     <ul>
@@ -40,14 +25,11 @@ output$References <- renderText({
  <strong><font size=\"4\">Reference manuals:</font></strong>
     <ul>
     <li>  
-    <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/
-    Prostar/man/Prostar.pdf\">ProStaR reference manual</a>
+    <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf\">ProStaR reference manual</a>
     </li>
-    <li> <a href=\"https://www.bioconductor.org/
-    packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf?attredirects=0\">DAPAR reference manual</a>
+    <li> <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf?attredirects=0\">DAPAR reference manual</a>
     </li>
-    <li> <a href=\"https://www.bioconductor.org/packages/
-    release/bioc/html/MSnbase.html\">MSnbase package webpage</a>
+    <li> <a href=\"https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\">MSnbase package webpage</a>
     </li>
     <li> <a href=\"https://cran.r-project.org/web/packages/cp4p/cp4p.pdf?attredirects=0\">CP4P reference manual</a>
     </li>
@@ -215,6 +197,20 @@ output$checkUpdates <- renderUI({
 
 })
 
+
+output$warningDependanciesVersion <- renderUI({
+    
+    DTVersion <- installed.packages()["DT","Version"]
+    highcharterVersion <-installed.packages()["highcharter","Version"]
+    
+txt <- "Note : for a better experience with Prostar, you shoul install the develpment version of the following
+    packages : DT and highcharter. For that, type and execute the followings commands in a R console:<br>
+    devtools::install_github('rstudio/DT')<br>
+    devtools::install_github('jbkunst/highcharter')"
+    if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0")
+    h4(txt)
+    
+})
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)
