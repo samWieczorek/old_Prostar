@@ -156,16 +156,16 @@ df <- data.frame("Name" = names,
                          DAPARdata = DAPARdata.version)
         
         if (instPkgs$Prostar == biocPkgs$Prostar){df[1,"Name"] <-  names[1]}
-        else if (instPkgs$Prostar > biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], dev, sep=" ")}
-        else if (instPkgs$Prostar < biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], outOfDate, sep=" ")}
+        else if (instPkgs$Prostar > biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (instPkgs$Prostar < biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")}
         
         if (instPkgs$DAPAR == biocPkgs$DAPAR){df[2,"Name"] <-  names[2]}
-        else if (instPkgs$DAPAR > biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2], dev, sep=" ")}
-        else if (instPkgs$DAPAR < biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2], outOfDate, sep=" ")}
+        else if (instPkgs$DAPAR > biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (instPkgs$DAPAR < biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")}
         
         if (instPkgs$DAPARdata == biocPkgs$DAPARdata){df[3,"Name"] <-  names[3]}
-        else if (instPkgs$DAPARdata > biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names["3"], dev, sep=" ")}
-        else if (instPkgs$DAPARdata < biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3], outOfDate, sep=" ")}
+        else if (instPkgs$DAPARdata > biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (instPkgs$DAPARdata < biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")}
         
         
         df[, "Bioc.release"] <- unlist(biocPkgs)
