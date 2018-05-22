@@ -545,8 +545,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",
-                                        rv$current.obj.name, sep=" "),
+                                 # paste("Dataset versions of", rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
                 updateRadioButtons(session, "whichGO2Save", 

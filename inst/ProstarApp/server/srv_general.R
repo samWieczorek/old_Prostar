@@ -57,6 +57,18 @@ callModule(modulePopover,"modulePopover_convertIdType",
                                 content="If you choose the automatic ID, Prostar will build an index.")))
 
 
+
+callModule(modulePopover,"modulePopover_dataset", 
+           data = reactive(list(title = paste0("Subsets for ", rv$current.obj.name),
+                                content="Subsets from the processes applied on dataset.")))
+
+
+getDatasetName <- reactive({
+    req(rv$current.obj.name)
+    rv$current.obj.name
+})
+
+
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
@@ -75,6 +87,21 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
 
 
 
+
+
+output$datasetAbsPanel <- renderUI({
+    req(rv$current.obj.name)
+    div(
+        div(
+            style="display:inline-block; vertical-align: middle;",
+            #h4(rv$current.obj.name)
+            modulePopoverUI("modulePopover_dataset")),
+        div(
+            style="display:inline-block; vertical-align: middle;",
+            selectInput("datasets", "", choices = list("None"="None"),width = '200px')
+        )
+    )
+})
 
 ###-------------------------------------------------------------------
 
@@ -95,7 +122,6 @@ ClearUI <- reactive({
         #rv$commandLog <- ""
         updateSelectInput(session, 
                           "datasets",  
-                          "Dataset versions", 
                           choices = G_noneStr)
         updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
@@ -155,8 +181,7 @@ loadObjectInMemoryFromConverter <- reactive({
     #} 
    
     updateSelectInput(session, "datasets", 
-                      label = paste("Dataset versions of",
-                                    rv$current.obj.name, sep=" "),
+                      #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
 

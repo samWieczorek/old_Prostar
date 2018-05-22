@@ -12,6 +12,19 @@ button.Prostar_tooltip {
     padding:0;
 }
 
+button.Prostar_tooltip_white {
+    background:none;
+    color: white;
+    border:none;
+    padding-left:1ch;
+    font: inherit;
+    /*border is optional*/
+        /*border-bottom:1px solid #444;*/
+    cursor: pointer;
+    font-weight: bold;
+    display: inline-block;
+    padding:0;
+}
 
 .input-color {
     position: relative;

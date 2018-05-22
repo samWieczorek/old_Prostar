@@ -404,7 +404,7 @@ observeEvent(input$ValidImputation,{
                 )
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                  #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
                 

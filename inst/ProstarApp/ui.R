@@ -45,17 +45,14 @@ sidebarPanelWidth()
     id = "navPage",
     absolutePanel(
         id  = "#AbsolutePanel",
-                top = 10,
-                right = 300,
-                width = "200px",
+                top = 0,
+                right = 50,
+                width = "500px",
                 height = "50px",
                 draggable = FALSE,
                 fixed = FALSE,
                 cursor = "default",
-                selectInput("datasets",
-                            "Dataset versions",
-                            choices = list("None"=""),
-                            width = '250px')
+                uiOutput("datasetAbsPanel")
     ),
 
    #"",

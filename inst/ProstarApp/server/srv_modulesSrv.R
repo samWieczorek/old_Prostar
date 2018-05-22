@@ -15,12 +15,20 @@ modulePopover <- function(input, output, session, data){
             div(
                 # edit1
                 style="display:inline-block; vertical-align: middle;",
-                h4(data()$title)
+                if (regexpr("Subsets", data()$title)[1] ==1){
+                    HTML(paste0("<strong><font size=\"4\" color=\"white\">", data()$title, "</font></strong>"))}
+                else
+                {
+                    HTML(paste0("<strong><font size=\"4\">", data()$title, "</font></strong>"))}
             ),
             div(
             # edit2
             style="display:inline-block; vertical-align: middle;",
-            tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip"),
+            if (regexpr("Subsets", data()$title)[1] ==1){
+                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
+                } else {
+                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
+                    },
             bsPopover(id = ns("q1"), title = "",
                       content = data()$content,
                       placement = "right", 
