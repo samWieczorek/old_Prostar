@@ -693,7 +693,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                  
                 indexForOriginOfValue <- NULL
-                if (length(grep("None", colNamesForOriginofValues))==0 ){
+                if ((length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
                     for (i in 1:length(input$eData.box)){
                     indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                     }
@@ -842,8 +842,11 @@ output$chooseMetaDataExport <- renderUI({
 output$logSession <- DT::renderDataTable({
     req(rv$text.log)
     
-    dt <- DT::datatable(rv$text.log,escape = FALSE,extensions = 'Scroller',
-                               options=list(initComplete = JS(
+    dt <- DT::datatable(rv$text.log,
+                        escape = FALSE,
+                        extensions = 'Scroller',
+                        rownames = FALSE,
+                        options=list(initComplete = JS(
                                    "function(settings, json) {",
                                    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
                                    "}"),
@@ -851,8 +854,15 @@ output$logSession <- DT::renderDataTable({
                                    deferRender = TRUE,
                                    scrollY = 600,
                                    scroller = TRUE,
-                                            orderClasses = TRUE,
-                                            autoWidth=FALSE))
+                                   orderClasses = TRUE,
+                                   autoWidth=FALSE,
+                                   columnDefs = list(
+                                       list(columns.width=c("60px","60px"),
+                                            columnDefs.targets= c(list(0),list(1))))
+                                    #columnDefs = list(list(width='40px',targets= "1"),
+                                    #                 list(width='40px',targets= "2"),
+                                    #                 list(width='20px',targets= "3"))
+                               ))
     dt
 })
 

@@ -231,9 +231,9 @@ option=list(initComplete = JS(
     "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
     "}"),
     pageLength=DT_pagelength,
-            orderClasses = TRUE,
-            autoWidth=FALSE,
-            columnDefs = list(
+    orderClasses = TRUE,
+    autoWidth=FALSE,
+    columnDefs = list(
                 list(columns.width=c("60px"),
                      columnDefs.targets= c(list(0),list(1),list(2)))))
 )
