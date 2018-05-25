@@ -485,7 +485,10 @@ calibrationPlot <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
-    t <- t[-which(t == 1)]
+    toDelete <- which(t==1)
+    if (length(toDelete) > 0){
+	t <- t[-toDelete]
+     }
     
     
     
@@ -587,7 +590,10 @@ calibrationPlotAll <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
-    t <- t[-which(t == 1)]
+    toDelete <- which(t==1)
+    if (length(toDelete) > 0){
+        t <- t[-toDelete]
+     }
     
     l <- NULL
     result = tryCatch(

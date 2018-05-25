@@ -1,8 +1,7 @@
 
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
-#DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_dev"
-#Prostar.loc = "/home/shiny/Rlibs_dev"
+#DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 library(DAPARdata)
 library(DAPAR, lib.loc = DAPAR.loc)

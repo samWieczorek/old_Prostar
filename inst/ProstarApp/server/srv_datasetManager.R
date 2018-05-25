@@ -267,8 +267,9 @@ options=list(
     autoWidth=TRUE,
     deferRender = TRUE,
     scrollY = 500,
-    scroller = TRUE
-    
+    scroller = TRUE,
+   ajax = list(url = dataTableAjax(session, quantiDataTable()))
+   
 )
 
 )
@@ -648,13 +649,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
     {return(NULL)}
     
-    
-    
-    #print(data.frame(v1=shinyValue("colForOriginValue_",nrow(quantiDataTable()))))
-    
     colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    
-    print(colNamesForOriginofValues)
     
     if (length(which(colNamesForOriginofValues == "None")) >0){
         return (NULL)
