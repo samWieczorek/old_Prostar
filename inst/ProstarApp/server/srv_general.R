@@ -276,7 +276,7 @@ ClearMemory <- function(){
     rv$uniprotID = NULL
     rv$ratio = NULL
     rv$impute_Step = 0
-    rv$hot = port
+    rv$hot = NULL
     rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
@@ -358,7 +358,7 @@ rv <- reactiveValues(
     dirnameforlink = "",
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
-    hot = port, 
+    hot = NULL, 
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,

@@ -60,6 +60,7 @@ tabPanel("Convert data",
                        helpText("Warning : it is mandatory that the column 
                                 \"Label\" is filled."),
                        br(),
+                       uiOutput("UI_generateSampleID"),
                        rHandsontableOutput("hot"
                                            ,width = widthWellPanel
                                            ,height = "100%")

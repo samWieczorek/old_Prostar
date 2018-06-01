@@ -16,11 +16,11 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 df <- data.frame(matrix(c("0","0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")
 
-port <- data.table(Experiment=list(),
-                    Label=list(),
-                    Bio.Rep=list(),
-                    Tech.Rep=list(),
-                    Analyt.Rep=list())
+# port <- data.table(Experiment=list(),
+#                     Label=list(),
+#                     Bio.Rep=list(),
+#                     Tech.Rep=list(),
+#                     Analyt.Rep=list())
 
 
 shinyServer(function(input, output, session) {

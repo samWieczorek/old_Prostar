@@ -57,27 +57,82 @@ shinyValue <- function(id,num) {
 
 
 
+output$UI_generateSampleID  <- renderUI({
+    req(input$hot) 
+    tmp <- hot_to_r(input$hot)
+    
+    if (sum(tmp$Label == "")==0){
+        actionButton("FilterConds", "Generate unique samples ID")
+    }
+})
+
+
+
+color_renderer <- function(conds){
+    
+    if (sum(rv$hot$Label=="")>0) { return (NULL)}
+    print(conds)
+    nConds <- 
+    pal <- brewer.pal(length(unique(conds)),"Dark2")
+    print(pal)
+    txt <- "function (instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);"
+    for (i in 1:length(conds)){
+        txt <- paste0(txt, "if(row==",(i-1)," && col==1) {td.style.background = '",pal[which(conds[i] == unique(conds))],"';}")
+    }
+
+    txt <- paste0(txt,"}")
+
+    return (txt)
+}
+
+
+observeEvent(input$FilterConds,{
+    req(input$hot) 
+    rv$hot <- hot_to_r(input$hot)
+    rv$hot <- rv$hot[order(rv$hot["Label"]),]
+    rv$hot  <- cbind(rv$hot,
+                     Analyt.Rep = seq(1:nrow(rv$hot)),
+                          stringsAsFactors = FALSE)
+})
+
 #-------------------------------------------------------------
 output$hot <- renderRHandsontable({
-    input$eData.box
-    if (is.null(input$eData.box)) {
-        DT <- rv$hot
-    } else {
-        DT <- data.table(Experiment = as.character(input$eData.box),
-                         Label = rep(" ",length(input$eData.box)),
-                         Bio.Rep = rep(" ",length(input$eData.box)),
-                         Tech.Rep = rep(" ",length(input$eData.box)),
-                         Analyt.Rep = rep(" ",length(input$eData.box)))
+    req(input$eData.box)
+    rv$hot
+    
+    if (is.null(rv$hot)){
+        rv$hot  <- data.frame(Experiment = as.character(input$eData.box),
+                         Label = rep("",length(input$eData.box)),
+                         stringsAsFactors = FALSE)
         
-        #rownames(DT) <- input$eData.box
-        rv$hot <- DT
+        
+        # rv$hot  <- data.frame(Experiment = as.character(input$eData.box),
+        #                       Label = rep(" ",length(input$eData.box)),
+        #                       Bio.Rep = rep(" ",length(input$eData.box)),
+        #                       Tech.Rep = rep(" ",length(input$eData.box)),
+        #                       Analyt.Rep = rep(" ",length(input$eData.box)),
+        #                       stringsAsFactors = FALSE)
+
     }
     
-    if (!is.null(DT))
+    #print(rv$hot)
+    #if (!is.null(rv$hot))
         
-        rhandsontable(DT, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                            maxRows=nrow(DT))) %>%
-        hot_cols(colWidths = c(200, 100, 100, 100, 100) ) %>%
+    
+    # Custom renderer function
+    color_renderer <- "
+             function (instance, td, row, col, prop, value, cellProperties) {
+    Handsontable.renderers.TextRenderer.apply(this, arguments);
+    
+    if(row == 3 && col==2) {
+    td.style.background = 'pink';
+    }
+    
+}"
+    
+   rhandsontable(rv$hot, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
+                                            maxRows=nrow(rv$hot))) %>%
         hot_rows(rowHeights = 30) %>%
         hot_context_menu(allowRowEdit = TRUE, allowColEdit = FALSE,
                          allowInsertRow = FALSE,
@@ -85,8 +140,32 @@ output$hot <- renderRHandsontable({
                          allowRemoveRow = TRUE,
                          allowRemoveColumn = FALSE,
                          autoInsertRow=FALSE     ) %>%
-        hot_col(col = "Experiment", readOnly = TRUE)
-        
+        hot_col(col = "Experiment", readOnly = TRUE) %>%
+        hot_cols(colWidths = c(200, 100, 100, 100, 100),renderer = color_renderer(rv$hot$Label))
+
+
+    
+    # 
+    # DF = data.frame(val = 1:10, big = LETTERS[1:10])
+    # col_highlight = c(0, 1)
+    # row_highlight = c(3)
+    # 
+    # rhandsontable(DF, col_highlight = col_highlight, row_highlight = row_highlight) %>%
+    #     hot_cols(renderer = "
+    #              function(instance, td, row, col, prop, value, cellProperties) {
+    #              Handsontable.NumericRenderer.apply(this, arguments);
+    #              if (instance.params) {
+    #              hcols = instance.params.col_highlight
+    #              hcols = hcols instanceof Array ? hcols : [hcols]
+    #              hrows = instance.params.row_highlight
+    #              hrows = hrows instanceof Array ? hrows : [hrows]
+    #              }
+    #              if (instance.params && hcols.includes(col)) td.style.background = 'red';
+    #              if (instance.params && hrows.includes(row)) td.style.background = 'yellow';
+    #              }")
+    # })
+
+
 })
 
 
