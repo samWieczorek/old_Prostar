@@ -386,6 +386,8 @@ BoxPlot <- reactive({
     result = tryCatch(
         {
           wrapper.boxPlotD(rv$current.obj,  rv$legDS)
+            #rv$indProgressDemomode <- rv$indProgressDemomode +1
+            
         }
         , warning = function(w) {
             shinyjs::info(conditionMessage(w))
@@ -825,7 +827,7 @@ histo_MV <- reactive({
 
 output$viewViolinPlot_DS <- renderPlot({
     violinPlot2()
-}) 
+}, width=600, height=400) 
 
 
 

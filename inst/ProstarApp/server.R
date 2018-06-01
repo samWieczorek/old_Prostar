@@ -30,6 +30,11 @@ shinyServer(function(input, output, session) {
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
+    
+   # unsuspendAll(session)
+    
+    
+    
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()

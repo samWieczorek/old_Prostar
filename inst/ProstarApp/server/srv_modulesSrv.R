@@ -81,7 +81,8 @@ moduleBoxplot <- function(input, output, session) {
     
     output$BoxPlot <- renderPlot({
         BoxPlot()
-    })
+        
+    }, width=600, height=400)
 }
 
 
@@ -95,7 +96,7 @@ moduleMVPlots <- function(input, output, session, data) {
     
     output$plot_showImageNA <- renderPlot({
         showImageNA(data())
-    })
+    }, width=400, height=600)
 }
 
 # moduleViewNAbyMean <- function(input, output, session) {
@@ -218,6 +219,8 @@ moduleDatasetOverview <- function(input, output, session) {
                     if (!is.null(txt4)){tags$li(txt4)}
                     )
             )
+            
+         
         })
         
       

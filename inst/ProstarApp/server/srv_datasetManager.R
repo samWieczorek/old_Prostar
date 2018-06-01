@@ -102,26 +102,28 @@ output$warningNonUniqueID <- renderUI({
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
     
     if (!t){
-        text <- "<font color=\"red\">
+        text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
-        
-        HTML(text)
+
     }
-    
+    else {
+      text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
+    }
+    HTML(text)
 })
 
 
 
 #########################################################
 output$id <- renderUI({
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
+  rv$tab1
+  if (is.null(rv$tab1)) {return(NULL)  }
     
-    .choices <- c("",colnames(rv$tab1))
+     .choices <- c("",colnames(rv$tab1))
     names(.choices) <- c("",colnames(rv$tab1))
-    selectInput("idBox", label = "", choices = .choices , selected = NULL)
-    
+      selectInput("idBox", label = "", choices = .choices , selected = NULL)
+ 
 })
 
 
@@ -349,6 +351,30 @@ output$chooseExportFilename <- renderUI({
 })
 
 
+# This function computes a new data set. It can optionally take a function,
+# updateProgress, which will be called as each row of data is added.
+compute_data <- function(updateProgress = NULL) {
+    rv$indProgressDemomode
+        # If we were passed a progress update function, call it
+        if (is.function(updateProgress)) {
+            text <- paste0("x:", round(new_row$x, 2), " y:", round(new_row$y, 2))
+            updateProgress(detail = text)
+        }
+        
+
+}
+
+
+output$progressDemoMode <- renderUI({
+    #rv$indProgressDemomode
+    req(input$loadDemoDataset)
+    
+    if (!isTRUE(rv$indProgressDemomode)){
+    withProgress(message = 'Initialization. Please wait...', value = 1, {
+        Sys.sleep(2000)
+    })
+    }
+})
 
 
 observeEvent(input$loadDemoDataset,{
@@ -372,11 +398,14 @@ observeEvent(input$loadDemoDataset,{
             
             if (is.null(rv$current.obj@experimentData@other$RawPValues ))
                 rv$current.obj@experimentData@other$RawPValues <- FALSE
-            
             rv$current.obj <- addOriginOfValue(rv$current.obj)
             l.params <- list(filename = input$demoDataset)
             UpdateLog("Original",l.params)
-
+           # rv$indProgressDemomode <- rv$indProgressDemomode +1
+            
+            
+            
+            
             #if (input$showCommandLog){
                 writeToCommandLogFile("library(DAPARdata)")
             writeToCommandLogFile(paste("utils::data(",
@@ -388,6 +417,8 @@ observeEvent(input$loadDemoDataset,{
             #}
             
             loadObjectInMemoryFromConverter()
+            
+
         }
         , warning = function(w) {
             shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))

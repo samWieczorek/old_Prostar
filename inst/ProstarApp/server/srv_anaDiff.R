@@ -530,7 +530,7 @@ calibrationPlot <- reactive({
 
 output$calibrationPlot <- renderPlot({
     calibrationPlot()
-})
+}, width=600, height=200)
 
 
 
@@ -619,7 +619,7 @@ calibrationPlotAll <- reactive({
 #--------------------------------------------------
 output$calibrationPlotAll <- renderPlot({
     calibrationPlotAll()
-})
+}, width=600, height=200)
 
 
 #----------------------------------------------

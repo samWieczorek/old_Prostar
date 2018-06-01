@@ -11,7 +11,7 @@ tabPanel("Demo mode",
                                       condition = "true",
                                       moduleDatasetOverviewUI("overview_DemoMode"),
                                       uiOutput("showDatasetDoc")
-                                      
+                                      #uiOutput("progressDemoMode")
                                       # uiOutput("infoAboutDemoDataset")
                      )
          ))

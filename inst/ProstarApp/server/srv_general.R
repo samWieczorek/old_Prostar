@@ -304,7 +304,7 @@ ClearMemory <- function(){
                         HeatmapLinkage = NULL,
                       HeatmapDistance = NULL
                       )
-    
+    rv$indProgressDemomode = 0
     rv$AggregProtStats = data.frame(name = c("Number of peptides",
                                               "Number of specific peptides",
                                               "Number of shared peptides", 
@@ -415,7 +415,7 @@ rv <- reactiveValues(
                       HeatmapDistance = NULL
                       
                       ),
-    
+    indProgressDemomode = 0,
     AggregProtStats = data.frame(name = c("Number of peptides",
                                               "Number of specific peptides",
                                               "Number of shared peptides", 
