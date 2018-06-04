@@ -55,6 +55,7 @@ shinyServer(function(input, output, session) {
     
     env <- environment()
     source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
+    source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
     source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
     source(file.path("server", "srv_general.R"), local = TRUE)$value
     source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
