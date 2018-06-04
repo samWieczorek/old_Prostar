@@ -63,10 +63,23 @@ output$UI_generateSampleID  <- renderUI({
     
     if (sum(tmp$Label == "")==0){
         actionButton("FilterConds", "Generate unique samples ID")
+      
     }
 })
 
 
+
+observe({
+  rv$newOrder
+  
+  if (is.null(rv$newOrder))
+  {
+    shinyjs::disable("createMSnsetButton")
+  } else {
+    shinyjs::enable("createMSnsetButton")
+  }
+}) 
+  
 
 color_renderer <- function(conds){
     
@@ -90,10 +103,13 @@ color_renderer <- function(conds){
 observeEvent(input$FilterConds,{
     req(input$hot) 
     rv$hot <- hot_to_r(input$hot)
-    rv$hot <- rv$hot[order(rv$hot["Label"]),]
+    rv$newOrder <- order(rv$hot["Label"])
+    rv$hot <- rv$hot[rv$newOrder,]
     rv$hot  <- cbind(rv$hot,
                      Analyt.Rep = seq(1:nrow(rv$hot)),
                           stringsAsFactors = FALSE)
+   shinyjs::enable("createMSnsetButton")
+    
 })
 
 #-------------------------------------------------------------
@@ -456,6 +472,7 @@ output$progressDemoMode <- renderUI({
 })
 
 
+
 observeEvent(input$loadDemoDataset,{
     input$showCommandLog
     if (is.null(input$demoDataset)){return (NULL)}
@@ -784,7 +801,13 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 input$filenameToCreate
                 rv$tab1
                 
-                indexForEData <- match(input$eData.box, colnames(rv$tab1))
+                tmp.eData.box <- input$eData.box
+                indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
+                if (!is.null(rv$newOrder)){
+                  tmp.eData.box <- tmp.eData.box[rv$newOrder]
+                  indexForEData <- indexForEData[rv$newOrder]
+                }
+                
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
@@ -799,7 +822,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                  
                 indexForOriginOfValue <- NULL
                 if ((length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
-                    for (i in 1:length(input$eData.box)){
+                    for (i in 1:length(tmp.eData.box)){
                     indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                     }
                 }

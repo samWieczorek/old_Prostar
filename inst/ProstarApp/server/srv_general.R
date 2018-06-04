@@ -245,7 +245,8 @@ ClearMemory <- function(){
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-    rv$hot = port 
+    rv$hot = NULL
+    rv$newOrder = NULL
     rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
     rv$errMsgcalibrationPlotALL = NULL
@@ -359,6 +360,7 @@ rv <- reactiveValues(
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
     hot = NULL, 
+    newOrder = NULL,
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
