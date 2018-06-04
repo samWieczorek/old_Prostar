@@ -186,6 +186,46 @@ output$hot <- renderRHandsontable({
 
 
 
+output$checkAll_convert <- renderUI({
+  input$idBox
+  rv$tab1
+  
+  Okimg <- "images/Ok.png"
+  NOkimg <- "images/Problem.png"
+  
+  tagList(
+    #text <- "Datafile uploaded",
+    
+    div(
+      tags$div(
+        style="display:inline-block; vertical-align: middle;",
+        tags$img(src = Okimg, height=20)),
+        
+      tags$div(
+        style="display:inline-block; vertical-align: middle;",
+        tags$p("Datafile uploaded")
+      )
+    
+    ),
+    
+    
+    
+    tags$br(),
+    
+    div(
+      tags$div(
+        style="display:inline-block; vertical-align: middle;",
+        tags$img(src = Okimg, height=20)),
+      
+      tags$div(
+        style="display:inline-block; vertical-align: middle;",
+        tags$p("id configured")
+      )
+      
+    )
+  )
+  
+})
 
 output$warningNonUniqueID <- renderUI({
     input$idBox
