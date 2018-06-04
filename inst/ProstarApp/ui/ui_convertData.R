@@ -70,6 +70,8 @@ tabPanel("Convert data",
              tabPanel( "5 - Convert",
                        value = "Convert",
                        br(), br(),
+                       
+                       uiOutput("checkAll_convert"),
                        htmlOutput("msgAlertCreateMSnset"),
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
