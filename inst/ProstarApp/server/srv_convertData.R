@@ -1,29 +1,35 @@
 
 observe({
     rv$newOrder
+    rv$designIsValid
     
-    if (is.null(rv$newOrder))
+    if (isTRUE(rv$designIsValid))
     {
-        shinyjs::disable("createMSnsetButton")
-    } else {
         shinyjs::enable("createMSnsetButton")
+    } else {
+        shinyjs::disable("createMSnsetButton")
     }
+    
+    # if (is.null(rv$newOrder))
+    # {
+    #     shinyjs::disable("createMSnsetButton")
+    # } else {
+    #     shinyjs::enable("createMSnsetButton")
+    # }
 }) 
 
 
 color_renderer <- function(conds){
     
     if (sum(rv$hot$Label=="")>0) { return (NULL)}
-    print(conds)
-    nConds <- 
-        pal <- brewer.pal(length(unique(conds)),"Dark2")
-    print(pal)
+
+   pal <- brewer.pal(length(unique(conds)),"Dark2")
+
     txt <- "function (instance, td, row, col, prop, value, cellProperties) {
     Handsontable.renderers.TextRenderer.apply(this, arguments);"
-    for (c in 0:1){
+    c <- 1
         for (i in 1:length(conds)){
         txt <- paste0(txt, "if(row==",(i-1)," && col==",c, ") {td.style.background = '",pal[which(conds[i] == unique(conds))],"';}")
-    }
     }
     txt <- paste0(txt,"}")
     
@@ -34,14 +40,66 @@ color_renderer <- function(conds){
 observeEvent(input$FilterConds,{
     req(input$hot) 
     rv$hot <- hot_to_r(input$hot)
+    #req(rv$newOrder)
+    if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+    
     rv$newOrder <- order(rv$hot["Label"])
     rv$hot <- rv$hot[rv$newOrder,]
     rv$hot  <- cbind(rv$hot,
-                     Analyt.Rep = seq(1:nrow(rv$hot)),
+                     Bio.Rep = rep("",nrow(rv$hot)),
                      stringsAsFactors = FALSE)
-    shinyjs::enable("createMSnsetButton")
+    #shinyjs::enable("createMSnsetButton")
     
 })
+
+
+
+output$designStep1 <- renderUI({
+    req(rv$newOrder)
+    tagList(
+        helpText("Please fill in the Biological Replicate Id. If necessary, you can generate an example."),
+    fluidRow(
+        column(width = 6, actionButton("flatDesignExample", "Flat design example")),
+        column(width = 6, actionButton("hierarchicalDesignExample", "Hierarchical design example"))
+    )
+    )
+})
+
+
+observeEvent(input$flatDesignExample,{
+    
+    rv$newOrder 
+    rv$hot$Bio.Rep  <- seq(1:nrow(rv$hot))
+    #shinyjs::enable("createMSnsetButton")
+})
+
+
+
+createHierarchicalExample <- function(conds){
+    nbConds <- length(conds)
+    conditions <- unique(conds)
+    
+    rep <- NULL
+    i <- 1
+    for (c in conditions){
+        samples <- which(conds == c)
+        nSamples <- length(samples)
+        rep <- c(rep, rep(i, floor(nSamples/2)))
+         i <- i +1
+        rep <- c(rep, rep(i, nSamples-floor(nSamples/2)))
+        i <- i +1
+    }
+    
+    return(rep)
+}
+
+observeEvent(input$hierarchicalDesignExample,{
+    
+    rv$newOrder 
+    rv$hot$Bio.Rep  <- createHierarchicalExample(rv$hot$Label)
+
+})
+
 
 #-------------------------------------------------------------
 output$hot <- renderRHandsontable({
@@ -68,15 +126,6 @@ output$hot <- renderRHandsontable({
     
     
     # Custom renderer function
-    color_renderer <- "
-    function (instance, td, row, col, prop, value, cellProperties) {
-    Handsontable.renderers.TextRenderer.apply(this, arguments);
-    
-    if(row == 3 && col==2) {
-    td.style.background = 'pink';
-    }
-    
-    }"
     
     rhandsontable(rv$hot, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
                                             maxRows=nrow(rv$hot))) %>%
@@ -594,22 +643,77 @@ output$UI_generateSampleID  <- renderUI({
 })
 
 
-output$UI_hierarchicalExp  <- renderUI({
-    req(input$hot) 
-    input$FilterConds
-    tmp <- hot_to_r(input$hot)
+
+
+output$UI_hierarchicalExp <- renderUI({
+    req(rv$newOrder)
     
-   # if (input$FilterConds == 0) {return(NULL)}
+    radioButtons("chooseExpDesign", "Choose experimental design", 
+                 choices = c("FlatDesign" = "FlatDesign" ,
+                             "twoLevelsDesignBioTech" = "twoLevelsDesignBioTech" ,
+                             "threeLevelsDesign" = "threeLevelsDesign" ))
     
-    if (sum(tmp$Label == "")==0){
-        radioButtons("chooseExpDesign", "Choose experimental design",
-                     choices = c("Flat design" = "Flat design",
-                                 "2 levels design" = "2 levels design (Bio Rep then Tech Rep)",
-                                 "2 levels design" = "2 levels design (Tech Rep then Bio Rep)",
-                                 "3 levels design" = "3 levels desig"))
-        
-    }
+    
 })
 
 
+
+observeEvent(input$chooseExpDesign, {
+    req(input$hot) 
+    rv$hot <- hot_to_r(input$hot)
+
+    print(input$chooseExpDesign)
+    switch(input$chooseExpDesign,
+           FlatDesign = {},
+           twoLevelsDesign = {
+               if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+               rv$hot  <- cbind(rv$hot,
+                                Bio.Rep = seq(1:nrow(rv$hot)),
+                                stringsAsFactors = FALSE)
+                            },
+           threeLevelsDesign = {
+               if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+               rv$hot  <- cbind(rv$hot,
+                                Tech.Rep = seq(1:nrow(rv$hot)),
+                                stringsAsFactors = FALSE)
+           }
+           )
+})
+
+
+
+
+
+output$UI_checkDesign <- renderUI({
+    req(input$hot) 
+    tmp <- hot_to_r(input$hot)
+    req(input$FilterConds)
+    
+    #if (input$FilterConds == 0) {return(NULL)}
+    #if (sum(tmp$Label == "")==0){
+        
+    actionButton("checkDesign", "Check the design")
+})
+
+
+
+observeEvent(input$FilterConds,{
+    rv$newOrder
+   # rv$designIsValid
+    
+   # if (isTRUE(rv$designIsValid))
+   # {
+        shinyjs::enable("checkDesign")
+        shinyjs::enable("chooseExpDesign")
+   # } else {
+    #    shinyjs::disable("checkDesign")
+    #}
+
+}) 
+
+observeEvent(input$checkDesign,{
+    
+    rv$designIsValid <- DAPAR::checkDesign()
+    
+})
 

@@ -57,15 +57,14 @@ tabPanel("Convert data",
                        value = "Import2",
                        #width = widthWellPanel,
                        br(), br(),
-                       helpText("Warning : it is mandatory that the column 
-                                \"Label\" is filled."),
                        rHandsontableOutput("hot"
                                            ,width = widthWellPanel
                                            ,height = "100%"),
                        br(),
                        uiOutput("UI_generateSampleID"),
                        uiOutput("UI_hierarchicalExp"),
-                       actionButton("checkDesign", "Check the design")
+                       uiOutput("UI_checkDesign")
+                      
                        
              ),
              
