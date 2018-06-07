@@ -57,25 +57,20 @@ tabPanel("Convert data",
                        value = "Import2",
                        #width = widthWellPanel,
                        br(), br(),
-                       rHandsontableOutput("hot"
-                                           ,width = widthWellPanel
-                                           ,height = "100%"),
+                       helpText("Warning : it is mandatory that the column 
+                                \"Label\" is filled."),
                        br(),
                        uiOutput("UI_generateSampleID"),
-                       uiOutput("UI_hierarchicalExp"),
-                       uiOutput("UI_checkDesign")
-                      
-                       
+                       rHandsontableOutput("hot"
+                                           ,width = widthWellPanel
+                                           ,height = "100%")
              ),
              
              
              tabPanel( "5 - Convert",
                        value = "Convert",
                        br(), br(),
-                       
-                       uiOutput("checkAll_convert", width="50"),
                        htmlOutput("msgAlertCreateMSnset"),
-                       hr(),
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
                        busyIndicator(WaitMsgCalc,wait = 0),

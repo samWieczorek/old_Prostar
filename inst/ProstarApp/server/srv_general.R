@@ -59,8 +59,8 @@ callModule(modulePopover,"modulePopover_convertIdType",
 
 
 callModule(modulePopover,"modulePopover_dataset", 
-           data = reactive(list(title = rv$current.obj.name,
-                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
+           data = reactive(list(title = paste0("Subsets for ", rv$current.obj.name),
+                                content="Subsets from the processes applied on dataset.")))
 
 
 getDatasetName <- reactive({
@@ -245,7 +245,7 @@ ClearMemory <- function(){
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-    rv$hot = NULL
+    rv$hot = NULL 
     rv$newOrder = NULL
     rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
@@ -278,7 +278,6 @@ ClearMemory <- function(){
     rv$ratio = NULL
     rv$impute_Step = 0
     rv$hot = NULL
-    rv$designIsValid = FALSE
     rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
@@ -401,7 +400,6 @@ rv <- reactiveValues(
     ratio=NULL,
     iDat = NULL,
     tempDatasetImputation = NULL,
-    designIsValid = FALSE,
     MECIndex = NULL,
     stringBasedFiltering_Done = FALSE,
     imputePlotsSteps = list(step0 = NULL,
