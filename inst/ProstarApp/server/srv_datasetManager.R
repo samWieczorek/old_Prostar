@@ -618,6 +618,7 @@ option=list(initComplete = JS(
 
 
 output$downloadMSnSet <- downloadHandler(
+    input$chooseDatasetToExportToMSnset,
     filename = function() { 
         #input$nameExport
         if (input$fileformatExport == gFileFormatExport$excel) {
@@ -631,88 +632,50 @@ output$downloadMSnSet <- downloadHandler(
         
     },
     content = function(file) {
-        
-        
+        dname <- input$chooseDatasetToExportToMSnset
+        print(dname)
+        dataToExport <- rv$dataset[[dname]]
+        print(dataToExport)
         if (length(input$colsToExport) == 1){
-            Biobase::fData(rv$current.obj) <- 
-                data.frame(fData(rv$current.obj)[,input$colsToExport])
-            colnames( Biobase::fData(rv$current.obj)) <- input$colsToExport
-            #if (input$showCommandLog){
-              t <- buildWritableVector(input$colsToExport)
-              
-              writeToCommandLogFile(
-                paste("fData(current.obj) <- fData(current.obj)[,", t, "]", 
-                      sep="")
-            )
-            #}
+            Biobase::fData(dataToExport) <- 
+                data.frame(fData(dataToExport)[,input$colsToExport])
+            colnames( Biobase::fData(dataToExport)) <- input$colsToExport
+            t <- buildWritableVector(input$colsToExport)
         }
         else if (length(input$colsToExport) > 1){
-            Biobase::fData(rv$current.obj) <- 
-                data.frame(fData(rv$current.obj)[,input$colsToExport])
-            #if (input$showCommandLog){
-                t <- buildWritableVector(input$colsToExport)
-                writeToCommandLogFile(
-                        paste("fData(current.obj) <- fData(current.obj)[,", t, "]", sep="")
-            )
-           # }
+            Biobase::fData(dataToExport) <- 
+                data.frame(fData(dataToExport)[,input$colsToExport])
+               t <- buildWritableVector(input$colsToExport)
         }
         
-        rv$current.obj@experimentData@other$Prostar_Version <- 
+        dataToExport@experimentData@other$Prostar_Version <- 
             installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
-        rv$current.obj@experimentData@other$DAPAR_Version <- 
+        dataToExport@experimentData@other$DAPAR_Version <- 
             installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-        colnames(fData(rv$current.obj)) <- gsub(".", "_", 
-                                                colnames(fData(rv$current.obj)), 
+        colnames(fData(dataToExport)) <- gsub(".", "_", 
+                                                colnames(fData(dataToExport)), 
                                                 fixed=TRUE)
-        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
         
-        #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
-        #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
-        
-        # if (is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-        #     rv$current.obj@experimentData@other$OriginOfValues <- 
-        #         Matrix(as.numeric(!is.na(rv$current.obj)),
-        #                nrow = nrow(rv$current.obj), 
-        #                sparse=TRUE)
-        # }
-        
+
         
         if (input$fileformatExport == gFileFormatExport$excel) {
             fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
-            writeMSnsetToExcel(rv$current.obj, input$nameExport)
-            #if (input$showCommandLog){
-                writeToCommandLogFile(
-                paste("writeMSnsetToExcel(current.obj,\"", 
-                      input$nameExport, "\")", 
-                      sep="")
-            )
-            #}
-            
-            
+            writeMSnsetToExcel(dataToExport, input$nameExport)
             file.copy(fname, file)
             file.remove(fname)
         }
         
         else if  (input$fileformatExport == gFileFormatExport$msnset) {
             fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
-            saveRDS(rv$current.obj,file=fname)
-           # if (input$showCommandLog){
-                writeToCommandLogFile(
-                paste("saveRDS(current.obj, \"", fname, "\")", sep="")
-            )
-           # }
+            saveRDS(dataToExport,file=fname)
             file.copy(fname, file)
             file.remove(fname)
         }
         
         else if  (input$fileformatExport == gFileFormatExport$zip) {
             fname <- paste(input$nameExport,gFileExtension$zip,  sep="")
-            writeMSnsetToCSV(rv$current.obj,fname)
-            # if (input$showCommandLog){
-            writeToCommandLogFile(
-                paste("writeMSnsetToCSV(current.obj, \"", fname, "\")", sep="")
-            )
-            # }
+            writeMSnsetToCSV(dataToExport,fname)
             file.copy(fname, file)
             file.remove(fname)
         }
@@ -1192,4 +1155,50 @@ output$choosedataTobuildReport <- renderUI({
                      choices = names(rv$dataset),
                      selected = names(rv$dataset))
   
+})
+
+
+
+
+
+
+output$choosedataToExportMSnset <- renderUI({
+    req(rv$dataset)
+    
+    dnames <- unlist(lapply(names(rv$dataset), function(x){unlist(strsplit(x, " - "))[[1]]}))
+    .choices <- names(rv$dataset)
+    names(.choices) <- dnames
+    radioButtons("chooseDatasetToExportToMSnset", 
+                       "Datasets to export",
+                       choices = c("None"="None",.choices))
+    
+})
+
+
+output$exportOptions <- renderUI({
+    req(input$chooseDatasetToExportToMSnset)
+    if (input$chooseDatasetToExportToMSnset == "None"){return(NULL)}
+    
+    
+    
+tagList(
+    fluidRow(
+        column(width=2,modulePopoverUI("modulePopover_exportFileFormat")),
+        column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
+    ),
+    
+    br(),
+    fluidRow(
+        column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
+        column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
+    ),
+    br(),
+    fluidRow(
+        column(width=2,modulePopoverUI("modulePopover_exportFilename")),
+        column(width=10,uiOutput("chooseExportFilename"))
+    ),
+    
+    br(),
+    downloadButton('downloadMSnSet', 'Download')
+)
 })

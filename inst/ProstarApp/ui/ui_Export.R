@@ -4,27 +4,12 @@ tabPanel("Export",
              tabPanel("Export to file",
          value = "export",
          helpText("Export format of the dataset and filename."),
-         fluidRow(
-             column(width=2,modulePopoverUI("modulePopover_exportFileFormat")),
-             column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
-         ),
          
-         br(),
-         fluidRow(
-             column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
-             column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
+         uiOutput("choosedataToExportMSnset"),
+         hr(),
+         uiOutput("exportOptions")
              ),
-         br(),br(),
-         fluidRow(
-             column(width=2,modulePopoverUI("modulePopover_exportFilename")),
-             column(width=10,uiOutput("chooseExportFilename"))
-         ),
 
-         br(),
-         downloadButton('downloadMSnSet', 'Download')
-             ),
-         
-         
          tabPanel("Generate report (Beta)",
                   tagList(
                       fluidRow(
