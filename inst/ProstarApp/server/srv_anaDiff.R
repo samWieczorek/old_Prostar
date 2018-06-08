@@ -110,8 +110,8 @@ if (input$selectComparison== "None"){
         index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
         rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
-                          condition1 = strsplit(input$selectComparison, "_")[[1]][1],
-                          condition2 = strsplit(input$selectComparison, "_")[[1]][3]
+                          condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1],
+                          condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
                         )
     #} 
     # else {
@@ -219,20 +219,25 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
 ## Perform missing values filtering
 ########################################################
 observeEvent(input$AnaDiff_perform.filtering.MV,{
+  input$selectComparison
+    req(input$AnaDiff_perform.filtering.MV)
     
-    if (is.null(input$AnaDiff_perform.filtering.MV) ){return()}
-    #if (input$AnaDiff_perform.filtering.MV == 0){return()}
-    
-
 if (input$AnaDiff_ChooseFilters == gFilterNone){
     GetCurrentResAnaDiff()
 } else {
-        keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                                   input$AnaDiff_ChooseFilters,
-                                                   as.integer(input$AnaDiff_seuilNA))
+  condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+  condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+  ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+            which(pData(rv$current.obj)$Label==condition2))
+  datasetToAnalyze <- rv$dataset[[input$datasets]][,ind]
+  datasetToAnalyze@experimentData@other$OriginOfValues <-
+    rv$dataset[[input$datasets]]@experimentData@other$OriginOfValues[ind]
+  
+  keepThat <- mvFilterGetIndices(datasetToAnalyze,
+                                 input$AnaDiff_ChooseFilters,
+                                 as.integer(input$AnaDiff_seuilNA))
         if (!is.null(keepThat))
             {
-            #rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
             rv$resAnaDiff$P_Value[-keepThat] <- 1
             rv$resAnaDiff
             #write command log
