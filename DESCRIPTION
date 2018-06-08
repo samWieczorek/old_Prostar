@@ -22,7 +22,7 @@ biocViews: MassSpectrometry, Normalization, Preprocessing, R.utils
 License: Artistic-2.0
 Depends: R (>= 3.5)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.12.3), DAPARdata (>= 1.10.0), rhandsontable, data.table,
+Imports: DAPAR (>= 1.12.4), DAPARdata (>= 1.10.0), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,
         shinythemes, XML
 NeedsCompilation: no
