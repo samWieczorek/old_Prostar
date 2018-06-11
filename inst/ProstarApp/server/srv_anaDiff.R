@@ -902,7 +902,12 @@ getDataInfosVolcano <- reactive({
 
 
 #################
-
+initComplete <- function(){
+  return (JS(
+  "function(settings, json) {",
+  "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+  "}"))
+}
 
 output$infosVolcanoTable <- DT::renderDataTable({
     rv$current.obj
@@ -915,15 +920,13 @@ output$infosVolcanoTable <- DT::renderDataTable({
      data <- data[(input$eventPointClicked+1),]
      
         dt <- datatable( data,
-                         options = list(initComplete = JS(
-                             "function(settings, json) {",
-                             "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                             "}"),
+                         options = list(initComplete = initComplete(),
                              dom='t',
-                                        displayLength = 20,
-                                        ordering=FALSE,
-                                        server = FALSE,
-                                        columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
+                             blengthChange = FALSE,
+                             displayLength = 20,
+                             ordering=FALSE,
+                             server = FALSE,
+                             columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
                          )) %>%
           formatStyle(
             colnames(data)[1:ncol(rv$current.obj)],
@@ -1060,13 +1063,12 @@ output$showSelectedItems <- DT::renderDataTable({
             DT::datatable(t,
             extensions = 'Scroller',
             rownames=FALSE,
-            options = list(initComplete = JS(
-                "function(settings, json) {",
-                "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                "}"),
+            options = list(initComplete = initComplete(),
                 deferRender = TRUE,
-                           scrollY = 300,
-                           scroller = TRUE)
+                blengthChange = FALSE,
+                scrollX = 300,
+                scrollY = 300,
+                scroller = TRUE)
             )
 
 })
@@ -1153,7 +1155,9 @@ tableInfos <- function(){
     #id <-  which(is.na(data))
     if (length(data$value) == 0){
         dat <- DT::datatable(data$value, 
-                             options=list(dom='t',ordering=F))
+                             options=list(dom='t',
+                                          bLengthChange = FALSE,
+                                          ordering=F))
     } else {
         
         colorCode <- paste("function(row, data) {",
@@ -1163,7 +1167,8 @@ tableInfos <- function(){
         
         
         dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
+                             options=list(initComplete = initComplete(),
+                                          dom='t',
                                           ordering=F
                                           ,drawCallback=JS(colorCode)
                                           ,server = TRUE))

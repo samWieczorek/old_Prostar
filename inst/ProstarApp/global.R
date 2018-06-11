@@ -50,8 +50,8 @@ unsuspendAll <- function(session = getDefaultReactiveDomain()) {
     
     outputOptions(session$output, "boxPlot_DS-BoxPlot", suspendWhenHidden = FALSE)
     outputOptions(session$output, "boxPlot_Norm-BoxPlot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
+    #outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
+    #outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
     outputOptions(session$output, "densityPlot_DS-Densityplot", suspendWhenHidden = FALSE)
     outputOptions(session$output, "densityPlot_Norm-Densityplot", suspendWhenHidden = FALSE)
     outputOptions(session$output, "MVPlots_DS-histo_MV", suspendWhenHidden = FALSE)

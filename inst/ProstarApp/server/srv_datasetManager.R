@@ -340,6 +340,7 @@ output$x1 <- renderDataTable(
               selection='none', 
     class = 'compact',
 options=list(
+    initComplete = initComplete(),
     preDrawCallback=JS(
     'function() {
     Shiny.unbindAll(this.api().table().node());}'),
@@ -350,7 +351,9 @@ options=list(
     dom = 't',
     autoWidth=TRUE,
     deferRender = TRUE,
-    scrollY = 500,
+   blengthChange = FALSE,
+   scrollX = 300,
+   scrollY = 500,
     scroller = TRUE,
    ajax = list(url = dataTableAjax(session, quantiDataTable()))
    
@@ -599,10 +602,7 @@ output$viewProcessingData <- DT::renderDataTable({
         })
 
 },
-option=list(initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-    "}"),
+option=list(initComplete = initComplete(),
     pageLength=DT_pagelength,
             orderClasses = TRUE,
             autoWidth=FALSE,
@@ -921,12 +921,11 @@ output$logSession <- DT::renderDataTable({
                         escape = FALSE,
                         extensions = 'Scroller',
                         rownames = FALSE,
-                        options=list(initComplete = JS(
-                                   "function(settings, json) {",
-                                   "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                                   "}"),
+                        options=list(initComplete = initComplete(),
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
+                                   lengthChange = FALSE,
+                                   scrollX = 300,
                                    scrollY = 600,
                                    scroller = TRUE,
                                    orderClasses = TRUE,

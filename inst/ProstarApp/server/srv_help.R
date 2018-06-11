@@ -17,7 +17,7 @@ output$References <- renderText({
 
     <strong><font size=\"4\">Contact:</font></strong><br>
     If you need any help, but also if you wish to make comments 
-    or suggestions, please contact Samuel Wieczorek, Florence Combes or 
+    or suggestions, please contact Samuel Wieczorek or 
     Thomas Burger (firstname.lastname@cea.fr).<br><br>
     
     
@@ -183,10 +183,7 @@ output$tab_versions <- renderDataTable({
     dt <- DT::datatable(getPackagesVersions(), 
                         escape = FALSE,
                         rownames= FALSE,
-                        option=list(initComplete = JS(
-                            "function(settings, json) {",
-                            "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                            "}"),
+                        option=list(initComplete = initComplete(),
                             dom = 't',
                             autoWidth=TRUE,
                             columnDefs = list(list(width='200px',targets= "_all"))

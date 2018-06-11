@@ -55,10 +55,10 @@ tabPanel("Differential analysis",
                                   tagList(
                                       htmlOutput("errMsgCalibrationPlotAll"),
                                                    busyIndicator("Building plot, please wait",wait = 0),
-                                                   plotOutput("calibrationPlotAll"),
+                                                   plotOutput("calibrationPlotAll", height="300px"),
                                                    uiOutput("errMsgCalibrationPlot"),
                                                    busyIndicator("Building plot, please wait",wait = 0),
-                                                   plotOutput("calibrationPlot")
+                                                   plotOutput("calibrationPlot", height="300px")
                                   )
                       )
              ),
@@ -82,7 +82,7 @@ tabPanel("Differential analysis",
                                         hr(),
                                         busyIndicator("Building plot, please wait",wait = 0),
                                         moduleVolcanoplotUI("volcano_Step2"),
-                                        DT::dataTableOutput("showSelectedItems", width='800px')
+                                        DT::dataTableOutput("showSelectedItems")
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"

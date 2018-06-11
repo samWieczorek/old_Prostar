@@ -57,12 +57,12 @@ output$FilterSummaryData <- DT::renderDataTable({
           rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
         }
 
-    DT::datatable(rv$DT_filterSummary,extensions = 'Scroller',
-                  options=list(initComplete = JS(
-                      "function(settings, json) {",
-                      "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                      "}"),
+    DT::datatable(rv$DT_filterSummary,
+                  extensions = 'Scroller',
+                  options=list(initComplete = initComplete(),
                       deferRender = TRUE,
+                      blengthChange = FALSE,
+                      scrollX = 300,
                       scrollY = 600,
                       scroller = TRUE
                   ))
@@ -211,18 +211,17 @@ output$VizualizeFilteredData <- DT::renderDataTable({
     if (!is.null(data)){
         
         if(input$ChooseTabAfterFiltering =="quantiData"){
-                dt <- datatable( data,extensions = 'Scroller',
-                     options = list(initComplete = JS(
-                         "function(settings, json) {",
-                         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                         "}"),
-                         displayLength = 20,
+                dt <- datatable( data,
+                                 extensions = 'Scroller',
+                     options = list(initComplete = initComplete(),
                          deferRender = TRUE,
+                         blengthChange = FALSE,
+                         scrollX = 300,
                          scrollY = 600,
                          scroller = TRUE,
                          ordering=FALSE,
-                                    server = TRUE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
+                         server = TRUE,
+                         columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
                      )) %>%
                     formatStyle(
                         colnames(data)[1:(ncol(data)/2)],
@@ -230,8 +229,10 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                         backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
                     )
         } else {
-            dt <- datatable( data,extensions = 'Scroller',
-                             options = list(displayLength = 20,
+            dt <- datatable( data,
+                             extensions = 'Scroller',
+                             options = list(initComplete = initComplete(),
+                                            displayLength = 20,
                                             deferRender = TRUE,
                                             scrollY = 600,
                                             scroller = TRUE,

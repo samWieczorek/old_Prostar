@@ -136,72 +136,49 @@ output$tabToShow <- renderUI({
 
 ##' show intensity values of the MSnset object in a table
 ##' @author Samuel Wieczorek
-output$viewExprs <- renderDataTable(
-    # rv$current.obj
-    # input$nDigits
-    # if (is.null(rv$current.obj)) {return(NULL)}
-    # if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
-    # 
-    # df <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #               round(Biobase::exprs(rv$current.obj), 
-    #               digits=nDigits))
-    # 
-    # 
-    # test.table <- data.frame(lapply(1:8, function(x) {1:1000}))
-    # test.table[c(2,3,7), c(2,7,6)] <- NA
-    # id <- which(is.na(test.table))
-    # colonnes <- trunc(id / nrow(test.table))+1
-    # lignes <- id %% nrow(test.table)
-    # formattable(test.table, list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
-    # 
-    # id <- which(is.na(exprs(Exp1_R25_prot)))
-    #colonnes <- trunc(id / nrow(exprs(Exp1_R25_prot)))+1
-    #lignes <- id %% nrow(exprs(Exp1_R25_prot))
-    #formattable(as.data.frame(exprs(Exp1_R25_prot)), list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
-    
-    
-    
-    #id <- which(is.na(exprs(Exp1_R25_prot)))
-    
-    test.table,
-    extensions = 'Scroller',
-    options = list(initComplete = JS(
-        "function(settings, json) {",
-        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-        "}"),
-        
-        displayLength = 3,
-        deferRender = TRUE,
-        scrollY = 600,
-        scroller = TRUE,
-        drawCallback=JS(
-            paste("function(row, data) {",
-                  paste(sapply(1:ncol(test.table),function(i)
-                     paste( "$(this.api().cell(",
-                        id %% nrow(test.table)-1,",",
-                        trunc(id / nrow(test.table))+1,
-                        ").node()).css({'background-color': 'lightblue'});")
-                  ),collapse = "\n"),"}" )
-        ), 
-        server = TRUE)
-    
-    
-    # id <- which(is.na(df))
-    # datatable(df,
-    #               options=list(drawCallback=JS(
-    #               paste("function(row, data,index) {",
-    #               paste(sapply(1:ncol(df),function(i) 
-    #              {paste( "$(this.api().cell(",id %% nrow(df)-1,",",trunc(id / nrow(df))+1,").node()).css({'background-color': 'lightblue'});")}
-    #              #{paste( "$(this.api().cell(index,",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")}
-    #               
-    #              ),collapse = "\n"),"}" ) )
-    #     )
-    #     ) 
-    
-)
-
-
-
+# output$viewExprs <- renderDataTable(
+#     # rv$current.obj
+#     
+#     test.table,
+#     extensions = 'Scroller',
+#     options = list(initComplete = JS(
+#         "function(settings, json) {",
+#         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+#         "}"),
+#         
+#         displayLength = 3,
+#         deferRender = TRUE,
+#         scrollY = 600,
+#         bLengthChange = FALSE,
+#         scroller = TRUE,
+#         drawCallback=JS(
+#             paste("function(row, data) {",
+#                   paste(sapply(1:ncol(test.table),function(i)
+#                      paste( "$(this.api().cell(",
+#                         id %% nrow(test.table)-1,",",
+#                         trunc(id / nrow(test.table))+1,
+#                         ").node()).css({'background-color': 'lightblue'});")
+#                   ),collapse = "\n"),"}" )
+#         ), 
+#         server = TRUE)
+#     
+#     
+#     # id <- which(is.na(df))
+#     # datatable(df,
+#     #               options=list(drawCallback=JS(
+#     #               paste("function(row, data,index) {",
+#     #               paste(sapply(1:ncol(df),function(i) 
+#     #              {paste( "$(this.api().cell(",id %% nrow(df)-1,",",trunc(id / nrow(df))+1,").node()).css({'background-color': 'lightblue'});")}
+#     #              #{paste( "$(this.api().cell(index,",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")}
+#     #               
+#     #              ),collapse = "\n"),"}" ) )
+#     #     )
+#     #     ) 
+#     
+# )
+# 
+# 
+# 
 
 ##' show pData of the MSnset object
 ##' @author Samuel Wieczorek
@@ -226,11 +203,9 @@ output$viewpData <- DT::renderDataTable({
     
     
 },
-option=list(initComplete = JS(
-    "function(settings, json) {",
-    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-    "}"),
+option=list(initComplete = initComplete(),
     pageLength=DT_pagelength,
+    bLengthChange = FALSE,
     orderClasses = TRUE,
     autoWidth=FALSE,
     columnDefs = list(
@@ -248,13 +223,15 @@ output$viewfData <- DT::renderDataTable({
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                              extensions = 'Scroller',
-                        options=list(pageLength=DT_pagelength,
+                        options=list(initComplete = initComplete(),
+                                     pageLength=DT_pagelength,
                                     orderClasses = TRUE,
                                     autoWidth=FALSE,
                                     deferRender = TRUE,
+                                    blengthChange = FALSE,
+                                    scrollX = 200,
                                     scrollY = 200,
                                     scroller = TRUE,
-                                    columns.searchable=F,
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -263,12 +240,11 @@ output$viewfData <- DT::renderDataTable({
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                              extensions = 'Scroller',
-                             options=list(initComplete = JS(
-                                 "function(settings, json) {",
-                                 "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                                 "}"),
+                             options=list(initComplete = initComplete(),
                                  pageLength=DT_pagelength,
                                  deferRender = TRUE,
+                                 blengthChange = FALSE,
+                                 scrollX = 300,
                                  scrollY = 600,
                                  scroller = TRUE,
                             orderClasses = TRUE,
@@ -314,6 +290,7 @@ option=list(orderClasses = TRUE,
             autoWidth=FALSE,
             columns.searchable=F,
             pageLength = DT_pagelength,
+            bLengthChange = FALSE,
             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2)))))
 )
@@ -687,17 +664,15 @@ output$table <- renderDataTable({
     df <- getDataForExprs()
     dt <- datatable( df,
                      extensions = 'Scroller',
-                    options = list(initComplete = JS(
-                        "function(settings, json) {",
-                        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-                        "}"),
-                        displayLength = 20,
+                    options = list(initComplete = initComplete(),
                         deferRender = TRUE,
-                        scrollY = 600,
+                        scrollY = 300,
+                        scrollX = 200,
+                        bLengthChange = FALSE,
                         scroller = TRUE,
-                                   ordering=FALSE,
-                                   server = TRUE,
-                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
+                        ordering=FALSE,
+                        server = TRUE,
+                        columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
        formatStyle(
            colnames(df)[1:(ncol(df)/2)],
            colnames(df)[((ncol(df)/2)+1):ncol(df)],

@@ -95,11 +95,10 @@ output$TAB_detQuant_impValues <- renderDataTable({
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$detQuant_quantile/100, input$detQuant_factor)
     if (input$peptideLevel_missing.value.basic.algorithm == 'detQuantile'){
-        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(initComplete = JS(
-            "function(settings, json) {",
-            "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-            "}"),
-            dom = 't'))
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+                      options = list(initComplete = initComplete(),
+                                     blengthChange = FALSE,
+                                     dom = 't'))
     }
 })
 
