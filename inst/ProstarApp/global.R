@@ -12,7 +12,7 @@ library(data.table)
 library(shinyjs)
 library(shinyAce)
 library(shinyBS)
-
+library(RColorBrewer)
 
 library(tidyr)
 library(dplyr)
