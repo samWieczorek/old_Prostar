@@ -96,19 +96,6 @@ observeEvent(input$swapVolcano,{
 })
 
 
-
-GetBackToCurrentResAnaDiff <- reactive({
-    rv$res_AllPairwiseComparisons
-    req(input$selectComparison)
-    req(rv$res_AllPairwiseComparisons)
-    
-    index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
-    rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
-                          P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
-                          condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1],
-                          condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
-    )
-})
 #####
 ####  SELECT AND LOAD ONE PARIWISE COMPARISON
 ####
@@ -226,7 +213,18 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
 
 
 
-
+GetBackToCurrentResAnaDiff <- reactive({
+  rv$res_AllPairwiseComparisons
+  req(input$selectComparison)
+  req(rv$res_AllPairwiseComparisons)
+  
+  index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
+  rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
+                        P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
+                        condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1],
+                        condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+  )
+})
 
 
 ########################################################
@@ -237,7 +235,7 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
     req(input$AnaDiff_perform.filtering.MV)
     
 if (input$AnaDiff_ChooseFilters == gFilterNone){
-    GetBackToCurrentResAnaDiff()
+  GetBackToCurrentResAnaDiff()
 } else {
   condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
   condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
@@ -345,7 +343,9 @@ observe({
     if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])){
        switch(input$diffAnaMethod,
            Limma={
-             rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
+             rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
+                                                                Biobase::pData(rv$current.obj),
+                                                                input$anaDiff_Design)
              },
            ttests={
             if (is.null(input$ttest_options)) {return()}
@@ -874,72 +874,6 @@ observeEvent(input$seuilLogFC,{
 })
 
 
-######################
-getDataInfosVolcano <- reactive({
-    input$eventPointClicked
-    rv$current.obj
-    if (is.null(rv$current.obj)){ return()}
-    
-    test.table <- data.frame(lapply(
-        Biobase::exprs(rv$current.obj)[(input$eventPointClicked+1),], 
-        function(x) t(data.frame(x))))
-    rownames(test.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
-    test.table <- round(test.table, digits=3)
-    
-    origin.table <- data.frame(lapply(
-      Biobase::fData(rv$current.obj)[(input$eventPointClicked+1),rv$current.obj@experimentData@other$OriginOfValues], 
-      function(x) t(data.frame(x))))
-    rownames(origin.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
-    
-    color.table <- rep('white', ncol(rv$current.obj))
-    color.table[which(origin.table=="POV")] <- 'lightblue'
-    color.table[which(origin.table=="MEC")] <- 'orange'
-    
-    res <- list(value=test.table, origin=origin.table, color=color.table)
-    res
-})
-
-
-
-#################
-initComplete <- function(){
-  return (JS(
-  "function(settings, json) {",
-  "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-  "}"))
-}
-
-output$infosVolcanoTable <- DT::renderDataTable({
-    rv$current.obj
-    input$eventPointClicked
-    
-    if (is.null(input$eventPointClicked)){return()}
-    if (is.null(rv$current.obj)){return()}
-    
-    data <-getDataForExprs()
-     data <- data[(input$eventPointClicked+1),]
-     
-        dt <- datatable( data,
-                         options = list(initComplete = initComplete(),
-                             dom='t',
-                             blengthChange = FALSE,
-                             displayLength = 20,
-                             ordering=FALSE,
-                             server = FALSE,
-                             columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
-                         )) %>%
-          formatStyle(
-            colnames(data)[1:ncol(rv$current.obj)],
-            colnames(data)[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
-            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
-          )
-        
-        
-    dt
-    
-})
-
-
 
 volcanoplot_rCharts <- reactive({
     rv$seuilPVal
@@ -965,21 +899,21 @@ volcanoplot_rCharts <- reactive({
                 if (!is.null( input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[ input$tooltipInfo])
                 }
-                #rownames(df) <- rownames(rv$current.obj)
+                
                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
                 if (ncol(df) > 3){
                     colnames(df)[4:ncol(df)] <- 
                         paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
                 }
                 hc_clickFunction <- 
-                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
-                #             print("avant 5")
+                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]+'_'+ [this.series.name]);}")
+                
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
                 diffAnaVolcanoplot_rCharts(df,
-                                            threshold_logFC = rv$seuilLogFC,
+                                           threshold_logFC = rv$seuilLogFC,
                                            threshold_pVal = rv$seuilPVal,
                                            conditions = cond,
-                                            clickFunction=hc_clickFunction)
+                                           clickFunction=hc_clickFunction)
 
         }
         , warning = function(w) {
@@ -1065,8 +999,8 @@ output$showSelectedItems <- DT::renderDataTable({
             rownames=FALSE,
             options = list(initComplete = initComplete(),
                 deferRender = TRUE,
-                blengthChange = FALSE,
-                scrollX = 300,
+                bLengthChange = FALSE,
+                scroolX = 300,
                 scrollY = 300,
                 scroller = TRUE)
             )
@@ -1144,35 +1078,57 @@ selectedItems <- function(){
 
 
 tableInfos <- function(){
-    rv$current.obj
-    input$eventPointClicked
-    
-    if (is.null(input$eventPointClicked)){return()}
-    if (is.null(rv$current.obj)){return()}
-    
-    data <-getDataInfosVolcano()
-    
-    #id <-  which(is.na(data))
-    if (length(data$value) == 0){
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
-                                          bLengthChange = FALSE,
-                                          ordering=F))
-    } else {
-        
-        colorCode <- paste("function(row, data) {",
-                           paste(sapply(1:length(data$value),function(i)
-                               paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
-                           ),collapse = "\n"),"}" )
-        
-        
-        dat <- DT::datatable(data$value, 
-                             options=list(initComplete = initComplete(),
-                                          dom='t',
-                                          ordering=F
-                                          ,drawCallback=JS(colorCode)
-                                          ,server = TRUE))
-    }
-    dat
-    
+  req(rv$current.obj)
+  req(input$eventPointClicked)
+  req(input$selectComparison)
+  rv$seuilLogFC
+  rv$seuilPVal
+  rv$resAnaDiff
+  
+  #data <-getDataInfosVolcano()
+  
+  
+  condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+  condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+  ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+            which(pData(rv$current.obj)$Label==condition2))
+  
+  #data <-getDataForExprs()
+  
+  if (is.null(input$eventPointClicked)){return()}
+  this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
+  this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
+  
+  data <-getDataForExprs()
+  data <- data[,c(ind, (ind + ncol(data)/2))]
+  
+  index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$FC) >= rv$seuilLogFC))
+  
+  data.g1 <- data[index.g1,]
+  data.g2 <- data[-index.g1,]
+  
+  if(this.series.name=='g1') {
+    data <- data.g1[this.index+1,]
+  } else if(this.series.name=='g2') {
+    data <- data.g2[this.index+1,]
+  }
+ # data <- data[(input$eventPointClicked+1),]
+  dt <- datatable( data,
+                   options = list(initComplete = initComplete(),
+                                  dom='t',
+                                  blengthChange = FALSE,
+                                  displayLength = 20,
+                                  ordering=FALSE,
+                                  server = FALSE,
+                                  columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                   )) %>%
+    formatStyle(
+      colnames(data)[1:(ncol(data)/2)],
+      colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+      backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+    )
+  
+  
+  dt
+  
 }
