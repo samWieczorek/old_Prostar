@@ -210,17 +210,12 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
     .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_FC"))
     
     tagList(
-        
         selectInput("selectComparison","Select comparison",choices = c("None",.choices)),
-        
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
         br(),
-        
         modulePopoverUI("modulePopover_pushPVal"),
-        
         radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersListAnaDiff),
-        
         uiOutput("AnaDiff_seuilNADelete")
     ) })
 
@@ -916,8 +911,14 @@ output$infosVolcanoTable <- DT::renderDataTable({
     if (is.null(input$eventPointClicked)){return()}
     if (is.null(rv$current.obj)){return()}
     
+    condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+    condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+    ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+              which(pData(rv$current.obj)$Label==condition2))
+     
+    
     data <-getDataForExprs()
-     data <- data[(input$eventPointClicked+1),]
+    data <- data[(input$eventPointClicked+1),ind]
      
         dt <- datatable( data,
                          options = list(initComplete = initComplete(),
@@ -940,46 +941,50 @@ output$infosVolcanoTable <- DT::renderDataTable({
 })
 
 
+hc_clickFunction <- function(){
+    return(JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}"))
+}
+
 
 volcanoplot_rCharts <- reactive({
     rv$seuilPVal
     rv$seuilLogFC
     input$diffAnaMethod
     rv$resAnaDiff
-    rv$current.obj
+    req(rv$current.obj)
     input$tooltipInfo
     rv$volcanoTooltip 
     
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
     if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
-    if (is.null(rv$current.obj) ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+    
     result = tryCatch(
         {
           
                 df <- data_frame(x=rv$resAnaDiff$FC, 
                                  y = -log10(rv$resAnaDiff$P_Value),
                                  index = 1:nrow(fData(rv$current.obj)))
+                
                 if (!is.null( input$tooltipInfo)){
                     df <- cbind(df,fData(rv$current.obj)[ input$tooltipInfo])
                 }
-                #rownames(df) <- rownames(rv$current.obj)
+                
                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
                 if (ncol(df) > 3){
                     colnames(df)[4:ncol(df)] <- 
                         paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
                 }
-                hc_clickFunction <- 
-                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
-                #             print("avant 5")
+                
+                
                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
                 diffAnaVolcanoplot_rCharts(df,
                                             threshold_logFC = rv$seuilLogFC,
                                            threshold_pVal = rv$seuilPVal,
                                            conditions = cond,
-                                            clickFunction=hc_clickFunction)
+                                            clickFunction=hc_clickFunction())
 
         }
         , warning = function(w) {
@@ -1143,36 +1148,43 @@ selectedItems <- function(){
 
 
 
+
+
+
 tableInfos <- function(){
-    rv$current.obj
-    input$eventPointClicked
+    req(rv$current.obj)
+    req(input$eventPointClicked)
+    req(input$selectComparison)
     
-    if (is.null(input$eventPointClicked)){return()}
-    if (is.null(rv$current.obj)){return()}
+    #data <-getDataInfosVolcano()
     
-    data <-getDataInfosVolcano()
     
-    #id <-  which(is.na(data))
-    if (length(data$value) == 0){
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
-                                          bLengthChange = FALSE,
-                                          ordering=F))
-    } else {
-        
-        colorCode <- paste("function(row, data) {",
-                           paste(sapply(1:length(data$value),function(i)
-                               paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
-                           ),collapse = "\n"),"}" )
-        
-        
-        dat <- DT::datatable(data$value, 
-                             options=list(initComplete = initComplete(),
-                                          dom='t',
-                                          ordering=F
-                                          ,drawCallback=JS(colorCode)
-                                          ,server = TRUE))
-    }
-    dat
+    condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+    condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+    ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+              which(pData(rv$current.obj)$Label==condition2))
+    
+    data <-getDataForExprs()
+    print(head(data))
+    print(input$eventPointClicked)
+    data <- data[(input$eventPointClicked+1),c(ind, (ind + ncol(data)/2))]
+   
+    dt <- datatable( data,
+                     options = list(initComplete = initComplete(),
+                                    dom='t',
+                                    blengthChange = FALSE,
+                                    displayLength = 20,
+                                    ordering=FALSE,
+                                    server = FALSE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                     )) %>%
+        formatStyle(
+            colnames(data)[1:(ncol(data)/2)],
+            colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+        )
+    
+    
+    dt
     
 }

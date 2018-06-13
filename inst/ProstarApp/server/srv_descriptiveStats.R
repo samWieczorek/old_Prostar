@@ -613,18 +613,14 @@ output$DS_sidebarPanel_Violinplot <- renderUI({
 
 getDataForExprs <- reactive({
     input$nDigits
-    rv$current$obj
+    rv$current.obj
     
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
+    if (is.null(input$nDigits )){nDigits = 3}
+    else if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
     
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
     test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=nDigits))
     test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
-    #colnames(test.table) <- c(colnames(Biobase::exprs(rv$current.obj), rv$current.obj@experimentData@other$OriginOfValues))
     test.table
-    #print(colnames(test.table))
 })
 
 
