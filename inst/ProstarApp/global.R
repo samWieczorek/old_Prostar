@@ -586,7 +586,13 @@ bsButtonRight <- function(...) {
 }
 
 
-
+initComplete <- function(){
+    
+    return (JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+        "}"))
+}
 
 
 

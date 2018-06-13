@@ -1095,6 +1095,35 @@ nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
 })
 
 
+output$infoAboutDemoDataset <- renderUI({
+    rv$current.obj
+    rv$typeOfDataset
+    if (is.null(rv$current.obj)) {return(NULL)    }
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    
+    nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+    
+    tagList(
+        tags$h3("Info"),
+        if (rv$typeOfDataset == "protein"){
+            tags$h5("Note: the aggregation tool
+                    has been disabled because the dataset contains 
+                    protein quantitative data.")
+        },
+        
+        if (NA.count > 0){
+            tags$h5("As your dataset contains missing values, you should 
+                    impute them prior to proceed",br()," 
+                    to the differential analysis.")
+        },
+        if (nb.empty.lines > 0){
+            tags$h5("As your dataset contains lines with no values, you 
+                    should remove them with the filter",br()," tool
+                    prior to proceed to the analysis of the data.")
+        }
+        
+            )
+        })
 
 
 

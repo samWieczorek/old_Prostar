@@ -1,7 +1,7 @@
 tabPanel("Differential analysis",
+         value="diffAnalysis",
          tabsetPanel(
              #"diffAnalysis_tabSetPanel",
-             id = "diffAnalysis_tabSetPanel",
              tabPanel("1 - Global tuning",
                       value = "DiffAnalysis_GlobalTuning",
                       sidebarCustom(),
@@ -22,7 +22,6 @@ tabPanel("Differential analysis",
                       )
              ),
              
-
              tabPanel("2 - Pairwise comparison",
                       value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
@@ -63,7 +62,6 @@ tabPanel("Differential analysis",
                       )
              ),
              tabPanel("4 - FDR",
-                      id = "DiffAnalysis_viewFDR",
                       value = "DiffAnalysis_viewFDR",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),

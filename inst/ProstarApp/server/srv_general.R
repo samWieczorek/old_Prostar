@@ -190,7 +190,17 @@ loadObjectInMemoryFromConverter <- reactive({
 #
 
 
-
+observe({
+    req(rv$current.obj)
+    NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                    2, 
+                    function(x) length(which(is.na(data.frame(x))==TRUE)) )
+    if (NA.count == 0){
+         showTab(inputId ="navPage", target = "diffAnalysis")
+        } else {
+            hideTab(inputId ="navPage", target = "diffAnalysis")
+        }
+})
 
 ###-------------------------------------------------------------------
 writeToCommandLogFile <- function(txt, verbose = FALSE){
