@@ -186,32 +186,26 @@ output$viewpData <- DT::renderDataTable({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    result = tryCatch(
-        {
-            as.data.frame(Biobase::pData(rv$current.obj))
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-    
-},
-option=list(initComplete = initComplete(),
-    pageLength=DT_pagelength,
-    bLengthChange = FALSE,
-    orderClasses = TRUE,
-    autoWidth=FALSE,
-    columnDefs = list(
-                list(columns.width=c("60px"),
-                     columnDefs.targets= c(list(0),list(1),list(2)))))
-)
+  data <- as.data.frame(Biobase::pData(rv$current.obj))
+  
+  pal <- brewer.pal(length(unique(data$Label)),"Dark2")
+  pal <- pal[1:length(unique(data$Label))]
+  dt <- DT::datatable(  data,
+                    options=list(initComplete = initComplete(),
+                                 pageLength=DT_pagelength,
+                                 orderClasses = TRUE,
+                                 autoWidth=FALSE,
+                                columnDefs = list(
+                                list(columns.width=c("60px"),
+                                      columnDefs.targets= c(list(0),list(1),list(2)))))) %>%
+    formatStyle(
+      columns = colnames(data)[1:2],
+      valueColumns = colnames(data)[2],
+      backgroundColor = styleEqual(unique(data$Label), pal)
+    )
+  
+})
+
 
 ##' show fData of the MSnset object in a table
 ##' @author Samuel Wieczorek
