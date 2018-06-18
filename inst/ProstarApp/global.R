@@ -3,9 +3,12 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
-library(DAPARdata)
-library(DAPAR, lib.loc = DAPAR.loc)
 
+library(DAPAR, lib.loc = DAPAR.loc)
+library(R.utils)
+
+library(highcharter)
+library(shinythemes)
 library(shiny)
 library(rhandsontable)
 library(data.table)
@@ -30,7 +33,7 @@ library(htmlwidgets)
 library(vioplot)
 library(ggplot2)
 library(gplots)
-library(shinythemes)
+
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 

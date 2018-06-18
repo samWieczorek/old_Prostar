@@ -90,12 +90,12 @@ output$progressDemoMode <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
-    input$showCommandLog
+    #input$showCommandLog
     if (is.null(input$demoDataset)){return (NULL)}
   
     
-    result = tryCatch(
-        {
+   # result = tryCatch(
+    #    {
             ClearMemory()
             ClearUI()
             utils::data(list = input$demoDataset)
@@ -119,28 +119,28 @@ observeEvent(input$loadDemoDataset,{
             
             
             #if (input$showCommandLog){
-                writeToCommandLogFile("library(DAPARdata)")
-            writeToCommandLogFile(paste("utils::data(",
-                                        input$demoDataset,")", 
-                                        sep=""))
-            writeToCommandLogFile(paste("current.obj <- ",
-                                        input$demoDataset, 
-                                        sep=""))
+            #    writeToCommandLogFile("library(DAPARdata)")
+            #writeToCommandLogFile(paste("utils::data(",
+            #                            input$demoDataset,")", 
+            #                            sep=""))
+            #writeToCommandLogFile(paste("current.obj <- ",
+            #                            input$demoDataset, 
+            #                            sep=""))
             #}
             
             loadObjectInMemoryFromConverter()
             
 
-        }
-        , warning = function(w) {
-            shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
-        }, error = function(e) {
-            shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
+        # }, error = function(e) {
+        #     shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
 
     
 })
@@ -189,10 +189,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
         UpdateLog("Original",l.params)
         
         ### check if the design has to be updated
-        DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
-        if (is.null(DAPAR.version) 
-            || DAPAR.version < "1.12.9"
-            || !DAPAR::check.design(Biobase::pData(rv$current.obj))$valid) {
+        if (NeedsUpdate()) {
           hideTab(inputId ="navPage", target = "FilterDataTab")
           hideTab(inputId ="navPage", target = "Normalization")
           hideTab(inputId ="navPage", target = "Aggregation")
@@ -288,10 +285,8 @@ output$downloadMSnSet <- downloadHandler(
                                           fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     
-    dataToExport@experimentData@other$Prostar_Version = 
-      installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
-    dataToExport@experimentData@other$DAPAR_Version = 
-      installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+    dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
+    dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
     
     if (input$fileformatExport == gFileFormatExport$excel) {
       fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
@@ -513,24 +508,34 @@ output$conversionDone <- renderUI({
 })
 
 
-
+NeedsUpdate <- reactive({
+    req(rv$current.obj)
+    
+    DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
+    
+    if (!is.null(DAPAR.version) && DAPAR.version >= "1.12.9"
+        && (DAPAR::check.design(Biobase::pData(rv$current.obj))$valid))
+    {return (FALSE)}
+    
+    
+    return(TRUE)
+    
+})
 
 
 
 
 output$infoAboutAggregationTool <- renderUI({
-    req(rv$current.obj)
     rv$typeOfDataset
     req(rv$current.obj)
+    
     DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
-    if (is.null(DAPAR.version) 
-        || DAPAR.version < "1.12.9"
-        || !DAPAR::check.design(Biobase::pData(rv$current.obj))$valid)
+    if (NeedsUpdate())
     {  showTab(inputId ="navPage", target = "updateDesign")  
         tagList(
           h4(paste0("The dataset was created with Prostar ",
                     rv$current.obj@experimentData@other$Prostar_Version,
-                    " which is obsolete. Thus, you must modify the design of your experimental design."))
+                    " which is obsolete or invalid. Thus, you must modify the design of your experimental design."))
           
       )
     } else{

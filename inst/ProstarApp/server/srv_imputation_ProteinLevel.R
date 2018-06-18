@@ -150,9 +150,6 @@ output$sidebar_imputation_step1 <- renderUI({
 
 
 output$MEC_chooseImputationMethod <- renderUI({
-  rv$current.obj
-  
-  #if (is.null(rv$current.obj)) {return(NULL)}
   algo <- imputationAlgorithmsProteins_MEC
   
   selectInput("MEC_missing.value.algorithm",
@@ -190,8 +187,7 @@ output$POV_Params <- renderUI({
 
 
 output$MEC_Params <- renderUI({
-  input$MEC_missing.value.algorithm
-  if (is.null(input$MEC_missing.value.algorithm)) {return(NULL)}
+  req(input$MEC_missing.value.algorithm)
   
   switch (input$MEC_missing.value.algorithm,
           detQuantile = {
@@ -210,10 +206,7 @@ output$MEC_Params <- renderUI({
 
 
 output$POV_detQuant_impValues <- renderUI({
-  #rv$current.obj
-  input$POV_missing.value.algorithm
-  #if (is.null(rv$current.obj) ) {return (NULL)}
-  if (is.null(input$POV_missing.value.algorithm)){return (NULL)}
+  req(input$POV_missing.value.algorithm)
   
   if (input$POV_missing.value.algorithm == 'detQuantile')
     h5("The POV will be imputed by the following values :")
@@ -221,7 +214,6 @@ output$POV_detQuant_impValues <- renderUI({
 })
 
 output$TAB_POV_detQuant_impValues <- renderDataTable({
-  #rv$current.obj
   req(input$settings_nDigits)
   input$POV_detQuant_quantile
   input$POV_detQuant_factor
@@ -243,10 +235,8 @@ output$TAB_POV_detQuant_impValues <- renderDataTable({
 
 
 output$MEC_detQuant_impValues <- renderUI({
-  #rv$current.obj
   input$MEC_missing.value.algorithm
   
-  #if (is.null(rv$current.obj) ) {return (NULL)}
   if (is.null(input$MEC_missing.value.algorithm)){return (NULL)}
   
   if (input$MEC_missing.value.algorithm == 'detQuantile')
@@ -258,10 +248,7 @@ output$TAB_MEC_detQuant_impValues <- renderDataTable({
   #rv$current.obj
   input$MEC_detQuant_quantile
   input$MEC_detQuant_factor
-  input$MEC_missing.value.algorithm
-  
-  #if (is.null(rv$current.obj) ) {return (NULL)}
-  if (is.null(input$MEC_missing.value.algorithm)){return (NULL)}
+  req(input$MEC_missing.value.algorithm)
   
   if (input$MEC_missing.value.algorithm == 'detQuantile'){
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$MEC_detQuant_quantile/100, input$MEC_detQuant_factor)
@@ -281,8 +268,6 @@ output$TAB_MEC_detQuant_impValues <- renderDataTable({
 
 
 observeEvent(input$perform.imputationClassical.button,{
-  #input$POV_missing.value.algorithm
-  rv$current.obj
   
   isolate({
     
@@ -329,11 +314,8 @@ observeEvent(input$perform.imputationClassical.button,{
 
 
 observeEvent(input$perform.imputationMEC.button,{
-  # input$MEC_missing.value.algorithm
-  # rv$current.obj
   
-  isolate({
-    
+     
     busyIndicator(WaitMsgCalc,wait = 0)
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
     switch(input$MEC_missing.value.algorithm,
@@ -354,8 +336,7 @@ observeEvent(input$perform.imputationMEC.button,{
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
     
-  })
-  
+ 
 })
 
 
@@ -431,8 +412,7 @@ observeEvent(input$ValidImputation,{
 output$ImputationSaved <- renderUI({
   input$datasets
   # rv$current.obj
-  if (is.null(input$datasets)
-      || (length(grep("Imputed",input$datasets)) !=1) ) {
+  if (is.null(input$datasets)|| (length(grep("Imputed",input$datasets)) !=1) ) {
     return()  }
   else if (grep("Imputed",input$datasets) == 1 ) {
     h4("The imputed dataset has been saved.")

@@ -1,7 +1,7 @@
 
 
 tabPanel("Descriptive statistics",
-         valueid="DescriptiveStatisticsTab",
+         id="DescriptiveStatisticsTab",
          tabsetPanel(id="DS_tabSetPanel",
                      #------------------------------------------------------------
                      tabPanel("Overview",

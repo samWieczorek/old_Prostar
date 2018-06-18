@@ -321,16 +321,14 @@ observeEvent(input$hot,{
 
 #------------------------------------------------------------------------------
 observeEvent(input$btn_checkDesign,{
-  rv$hot
   rv$designChecked <- DAPAR::check.design(rv$hot)
 })
 
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
   req(input$chooseExpDesign)
-  rv$hot
   rv$designChecked
-  switch(input$chooseExpDesign,
+  switch(isolate({input$chooseExpDesign}),
          FlatDesign = {},
          twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
          threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}

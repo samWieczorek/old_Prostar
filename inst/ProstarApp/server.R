@@ -2,8 +2,7 @@ rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2) 
 
-library(R.utils)
-library(highcharter)
+
 require(compiler)
 enableJIT(3)
 ###library(DAPARdata)
@@ -70,7 +69,6 @@ shinyServer(function(input, output, session) {
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
     activatePopover()
-    
-    
+  
     
 })

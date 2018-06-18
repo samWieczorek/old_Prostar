@@ -409,8 +409,8 @@ observeEvent(input$perform.filtering.MV,{
     
     isolate({
         
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
               if (input$ChooseFilters == gFilterNone){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
@@ -463,17 +463,17 @@ observeEvent(input$perform.filtering.MV,{
                                       selected = input$seuilNA)
                     
                 }
-            }
-            #, warning = function(w) {
-            #    shinyjs::info(conditionMessage(w))
-            }
-            , error = function(e) {
-                shinyjs::info(paste("Perform missing values filtering",":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+             }
+            # #, warning = function(w) {
+            # #    shinyjs::info(conditionMessage(w))
+            # }
+            # , error = function(e) {
+            #     shinyjs::info(paste("Perform missing values filtering",":",
+            #                         conditionMessage(e), 
+            #                         sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
     })
 })
 

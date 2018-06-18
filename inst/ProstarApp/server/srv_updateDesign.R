@@ -96,6 +96,7 @@ observeEvent(input$btn_SaveDesign,{
       
   }
   Biobase::pData(rv$current.obj) <- tmp
+  loadObjectInMemoryFromConverter_2(rv$current.obj)
 
   rv$updateDesign_designSaved <- TRUE
   shinyjs::disable("updateDesign_btn_checkConds")
@@ -120,7 +121,10 @@ observe({
   req(rv$updateDesign_designSaved)
 
   if(isTRUE(rv$updateDesign_designSaved)){
-    h4("The design has been updated")
+    tagList(
+        h4("The design has been updated"),
+        p("You can export the dataset as a MSnset file then close/reopen Prostar")
+    )
   }
 })
 
@@ -222,6 +226,7 @@ output$updateDesign_hot <- renderRHandsontable({
                      allowRemoveRow = TRUE,
                      allowRemoveColumn = FALSE,
                      autoInsertRow=FALSE     ) %>%
+
     hot_cols(renderer = updateDesign_color_renderer_NewDesign()) %>%
     hot_col(col = "Experiment", readOnly = TRUE)
   

@@ -62,10 +62,9 @@ activatePopover <- function(){
 #######################################
 
 
-
 output$DS_sidebarPanel_tab <- renderUI({
-    input$DS_tabSetPanel
-    rv$typeOfDataset
+    #input$DS_tabSetPanel
+    req(rv$typeOfDataset)
     
     .choices<- NULL
     switch(rv$typeOfDataset,
@@ -104,7 +103,7 @@ output$DS_sidebarPanel_tab <- renderUI({
 
 
 output$DS_sidebarPanel_heatmap <- renderUI({
-    
+    req(rv$current.obj)
     tagList(
                      h3("Clustering Options"),
                      selectInput("distance","Distance",
@@ -118,7 +117,6 @@ output$DS_sidebarPanel_heatmap <- renderUI({
 output$tabToShow <- renderUI({
     req(input$DS_TabsChoice)
     req(rv$current.obj)
-    rv$indexNA
     
     switch(input$DS_TabsChoice,
           None = {return(NULL)},
@@ -205,8 +203,7 @@ output$tabToShow <- renderUI({
 ##' show pData of the MSnset object
 ##' @author Samuel Wieczorek
 output$viewpData <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(rv$current.obj)
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
   
@@ -237,8 +234,7 @@ output$viewpData <- DT::renderDataTable({
 ##' show fData of the MSnset object in a table
 ##' @author Samuel Wieczorek
 output$viewfData <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(rv$current.obj)
     
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
@@ -309,30 +305,28 @@ options=list(orderClasses = TRUE,
 
 
 histo_MV_per_lines <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    result = tryCatch(
-        {
-            #wrapper.mvPerLinesHisto(rv$current.obj, 
-            #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-            
-            
+    req(rv$current.obj)
+    # result = tryCatch(
+    #     {
+    #         #wrapper.mvPerLinesHisto(rv$current.obj, 
+    #         #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+    #         
+    #         
             rv$tempplot$mvPerLinesHisto_HC <- 
               wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
             rv$tempplot$mvPerLinesHisto_HC
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e),
-                                sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e),
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code
+        # })
+        # 
     
     
 })
@@ -343,49 +337,48 @@ histo_MV_per_lines_per_conditions <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    result = tryCatch(
-        {
-            rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+    # result = tryCatch(
+    #     {
+             rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
             rv$tempplot$histo_missvalues_per_lines_per_conditions 
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
 })
 
 
 
 
 BoxPlot <- reactive({
-    rv$current.obj
-    input$legendXAxis_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(rv$current.obj)
+    req(input$legendXAxis_DS)
     
     if (!is.null(input$legendXAxis_DS)){
         rv$legDS <- input$legendXAxis_DS}
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
           wrapper.boxPlotD(rv$current.obj,  rv$legDS)
             #rv$indProgressDemomode <- rv$indProgressDemomode +1
             
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
     
     
 })
@@ -396,46 +389,41 @@ BoxPlot <- reactive({
 
 
 violinPlot2 <- reactive({
-    rv$current.obj
-    input$legendXAxisViolin_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
-    if (is.null(input$legendXAxisViolin_DS)) {return(NULL)}
+    req(rv$current.obj)
+    req(input$legendXAxisViolin_DS)
     
     
     if (!is.null(input$legendXAxisViolin_DS)){
       rv$PlotParams$legDS_Violinplot <- input$legendXAxisViolin_DS}
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             if (is.null(rv$PlotParams$legDS_Violinplot)) {
                 wrapper.violinPlotD(rv$current.obj)
                 }  else {
                     wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
                 }
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
 })
 
 
 
 
 DensityPlot <- reactive({
-    rv$current.obj
+    req(rv$current.obj)
     input$lab2Show_DS
     input$whichGroup2Color_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
-    #if (is.null(input$lab2Show_DS)) {return(NULL)}
-    #if (is.null(input$whichGroup2Color_DS)) {return(NULL)}
-    
+   
     labels_DS <- NULL
     labelsToShow_DS <- NULL
     gToColor_DS <- NULL
@@ -485,24 +473,23 @@ DensityPlot <- reactive({
 
 viewDistCV <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)
             rv$tempplot$varDist
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
     
 })
 
@@ -510,47 +497,45 @@ viewDistCV <- reactive({
 
 corrMatrix <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     input$expGradientRate
-    if (is.null(rv$current.obj)) {return(NULL)}
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
     else{
         gradient <- input$expGradientRate}
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
             rv$tempplot$corrMatrix
             
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
 })
 
 
 
 heatmap <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     input$linkage
     input$distance
-    if (is.null(rv$current.obj)) {return(NULL)}
     if (!is.null(input$linkage) && !is.null(input$distance)
         #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
     ) {
         
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 rv$PlotParams$HeatmapLinkage <- input$linkage
       rv$PlotParams$HeatmapDistance <- input$distance
       
@@ -559,16 +544,16 @@ heatmap <- reactive({
                                  rv$PlotParams$HeatmapLinkage,
                                  TRUE)
 
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+            # }
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste(match.call()[[1]],":",
+            #                         conditionMessage(e), 
+            #                         sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
         
         
     }
@@ -769,19 +754,19 @@ histo_MV <- reactive({
     rv$current.obj
     if (is.null(rv$current.obj)) {return(NULL)}
     
-    result = tryCatch(
-        {
-            rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
+    # result = tryCatch(
+    #     {
+             rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
             rv$tempplot$mvHisto_HC
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
     
 })
 

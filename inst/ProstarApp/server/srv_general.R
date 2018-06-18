@@ -74,6 +74,12 @@ callModule(modulePopover,"modulePopover_dataset",
                                 content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
 
 
+observe({
+    req(input$navbar)
+    if (input$navbar=="stop")
+        stopApp()
+})
+
 getDatasetName <- reactive({
     req(rv$current.obj.name)
     rv$current.obj.name

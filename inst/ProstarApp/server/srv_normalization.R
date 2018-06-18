@@ -5,6 +5,11 @@
 ###########################################################################
 ###########################################################################
 
+
+observe({
+    print(input$DataProcessingMenu)
+})
+
 output$helpForNormalizationMethods <- renderUI({
     input$normalization.method
     input$normalization.type
@@ -171,8 +176,8 @@ observeEvent(input$perform.normalization,{
     
     
     isolate({
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 
                 if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -268,15 +273,15 @@ observeEvent(input$perform.normalization,{
                     #createPNG_Normalization()
                     
                 }
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
+            #}
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
+            # 
         
     })
 })
@@ -291,8 +296,8 @@ observeEvent(input$valid.normalization,{
     {return(NULL)}
     
     isolate({
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 if (input$normalization.method != G_noneStr) {
                     
                   
@@ -335,14 +340,14 @@ observeEvent(input$valid.normalization,{
                     #createPNG_Normalization()
                     
                 }
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+            # }
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
         
     } )
 })
@@ -422,8 +427,8 @@ viewComparisonNorm2 <- reactive({
                             sep= "_")
     }
     
-    result = tryCatch(
-       {
+    # result = tryCatch(
+    #    {
            if (input$datasets == paste("Normalized", rv$typeOfDataset, sep=" - ")){
                obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
                obj2 <- rv$dataset[[input$datasets]]
@@ -438,15 +443,15 @@ viewComparisonNorm2 <- reactive({
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
            
-        }
+        #}
         #, warning = function(w) {
         #   shinyjs::info(conditionMessage(w))
         #}
-        , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
+        # , error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code
+        # })
     
     
 })
@@ -497,8 +502,8 @@ viewComparisonNorm <- reactive({
                             sep= "_")
     }
     
-    result = tryCatch(
-        {
+    #result = tryCatch(
+        #{
             dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
                 if (input$datasets == dname){
                 obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
@@ -516,15 +521,15 @@ viewComparisonNorm <- reactive({
                                           gToColorNorm)
             #boxplot(Biobase::exprs(rv$current.obj))
             
-        }
+        #}
         #, warning = function(w) {
         #   shinyjs::info(conditionMessage(w))
         #}
-        , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
+        # , error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code
+        # })
     
     
 })

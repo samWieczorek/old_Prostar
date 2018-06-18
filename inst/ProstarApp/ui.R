@@ -2,8 +2,6 @@ options(shiny.trace=FALSE)
 options(shiny.reactlog=TRUE)
 
 
-library(highcharter)
-library(shinythemes)
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 
@@ -54,7 +52,9 @@ sidebarPanelWidth()
     navbarMenu("Prostar",
                #value = "ProstarMenu",
                source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
-               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value),
+               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
+               tabPanel(title = "Quit", value="stop")
+               ),
    
 
    navbarMenu("Dataset manager",
