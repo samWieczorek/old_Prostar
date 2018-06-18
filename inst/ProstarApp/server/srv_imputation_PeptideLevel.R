@@ -97,8 +97,8 @@ output$TAB_detQuant_impValues <- renderDataTable({
     if (input$peptideLevel_missing.value.basic.algorithm == 'detQuantile'){
         DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
                       options = list(initComplete = initComplete(),
-                                     blengthChange = FALSE,
-                                     dom = 't'))
+            dom = 't',
+            bLengthChange = FALSE))
     }
 })
 
@@ -215,10 +215,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       distribution = as.character(input$peptideLevel_imp4pLAPALA_distrib))
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.dapar.impute.mi(",
-                                      "dataset[['",input$datasets,"']], nb.iter=",input$peptideLevel_imp4p_nbiter,
-                                      ", lapala = ", input$peptideLevel_imp4p_withLapala, ", q.min = ", input$peptideLevel_imp4p_qmin / 100, ", distribution = ", input$peptideLevel_imp4pLAPALA_distrib, ")",sep=""))
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.dapar.impute.mi(",
+                            #          "dataset[['",input$datasets,"']], nb.iter=",input$peptideLevel_imp4p_nbiter,
+                            #          ", lapala = ", input$peptideLevel_imp4p_withLapala, ", q.min = ", input$peptideLevel_imp4p_qmin / 100, ", distribution = ", input$peptideLevel_imp4pLAPALA_distrib, ")",sep=""))
                             #}
                             
                             
@@ -229,10 +229,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       lapala = input$peptideLevel_imp4p_withLapala)
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.dapar.impute.mi(",
-                                      "dataset[['",input$datasets,"']] nb.iter=",input$peptideLevel_imp4p_nbiter,
-                                      ", lapala = ", input$peptideLevel_imp4p_withLapala, ")",sep=""))
+                            # writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.dapar.impute.mi(",
+                            #          "dataset[['",input$datasets,"']] nb.iter=",input$peptideLevel_imp4p_nbiter,
+                            #          ", lapala = ", input$peptideLevel_imp4p_withLapala, ")",sep=""))
                             # }
                         }
                         
@@ -249,10 +249,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                             
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.mvImputation(",
-                                      "dataset[['",input$datasets, "']],'",input$peptideLevel_missing.value.basic.algorithm,"')", sep="")
-                            )
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.mvImputation(",
+                            #          "dataset[['",input$datasets, "']],'",input$peptideLevel_missing.value.basic.algorithm,"')", sep="")
+                            #)
                             #}
                             
                         } 
@@ -264,10 +264,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       factor = input$peptideLevel_detQuant_factor)
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.impute.detQuant(",
-                                      "dataset[['", input$datasets,"']])",sep="")
-                            )
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.impute.detQuant(",
+                            #          "dataset[['", input$datasets,"']])",sep="")
+                            #)
                             #}
                             
                             
@@ -350,9 +350,9 @@ observeEvent(input$peptideLevel_ValidImputation,{
                 
                 
                 #write command log file
-                writeToCommandLogFile(
-                    paste("dataset[['",name,"']] <- current.obj", sep="")
-                )
+                #writeToCommandLogFile(
+                #    paste("dataset[['",name,"']] <- current.obj", sep="")
+                #)
                 
                 updateSelectInput(session, "datasets", 
                                   #paste("Dataset versions of",rv$current.obj.name, sep=" "),

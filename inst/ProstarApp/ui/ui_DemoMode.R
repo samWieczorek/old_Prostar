@@ -1,5 +1,5 @@
 tabPanel("Demo mode",
-         id = "demo",
+         value = "demo",
          sidebarCustom(),
          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                      wellPanel(id = "chooseDatasetFromDAPARdata_wellPanel",
@@ -12,6 +12,6 @@ tabPanel("Demo mode",
                                       moduleDatasetOverviewUI("overview_DemoMode"),
                                       uiOutput("showDatasetDoc"),
                                       #uiOutput("progressDemoMode")
-                                       uiOutput("infoAboutDemoDataset")
+                                      uiOutput("infoAboutDemoDataset")
                      )
          ))

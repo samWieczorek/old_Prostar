@@ -1,7 +1,7 @@
 
 
 tabPanel("Descriptive statistics",
-         valueid="Descriptive statistics",
+         valueid="DescriptiveStatisticsTab",
          tabsetPanel(id="DS_tabSetPanel",
                      #------------------------------------------------------------
                      tabPanel("Overview",
@@ -20,7 +20,7 @@ tabPanel("Descriptive statistics",
                      
                      #-------------------------------------------------------------
                      tabPanel(title="Data explorer",
-                              #id = "DS_DataExplorer",
+                              value = "DS_DataExplorer",
                               sidebarCustom(),
                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                           wellPanel(id = "sidebar_dataExplorer",

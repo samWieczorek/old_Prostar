@@ -57,12 +57,11 @@ output$FilterSummaryData <- DT::renderDataTable({
           rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
         }
 
-    DT::datatable(rv$DT_filterSummary,
-                  extensions = 'Scroller',
+    DT::datatable(rv$DT_filterSummary,extensions = 'Scroller',
                   options=list(initComplete = initComplete(),
                       deferRender = TRUE,
-                      blengthChange = FALSE,
-                      scrollX = 300,
+                      bLengthChange = FALSE,
+                      scrollX = 200,
                       scrollY = 600,
                       scroller = TRUE
                   ))
@@ -110,29 +109,25 @@ output$DP_sidebar_FilterTab3 <- renderUI({
                      radioButtons("ChooseTabAfterFiltering", 
                                    "Choose the data to display",
                                    choices=
-                                       list("Quantitative data" = "quantiData",
+                                       list("None" = "None",
+                                            "Quantitative data" = "quantiData",
                                             "Meta data" = "MetaData"))
                      ,radioButtons("ChooseViewAfterFiltering", 
                                    "Type of filtered data", 
                             choices=
                             list("Deleted on missing values" = "MissingValues",
-                            "Deleted string based" = "StringBased"))
-                     ,br(),br()
-                     ,checkboxInput("nDigitsMV", 
-                                    "Show full length intensities"
-                                    , value = FALSE)
+                                "Deleted string based" = "StringBased"))
+                     
     )
 })
 
 
 
 getDataForMVFiltered <- reactive({
-  input$nDigits
+  req(input$settings_nDigits)
   rv$deleted.mvLines
   
-  if (!is.null(input$nDigits) && isTRUE(input$nDigits)){nDigits = 1e100} else {nDigits = 3}
-  
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=nDigits))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=input$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
   
   table
@@ -142,12 +137,11 @@ getDataForMVFiltered <- reactive({
 
 
 getDataForMVStringFiltered <- reactive({
-  input$nDigits
+  req(input$settings_nDigits)
   rv$deleted.stringBased
   
-  if (!is.null(input$nDigits) && isTRUE(input$nDigits)){nDigits = 1e100} else {nDigits = 3}
   
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=nDigits))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=input$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
   
   table
@@ -166,44 +160,32 @@ output$legendForExprsData2 <- renderUI({
 #----------------------------------------------
 output$VizualizeFilteredData <- DT::renderDataTable({
      rv$current.obj
-     input$nDigitsMV
+     req(input$settings_nDigits)
      rv$deleted.mvLines
-     input$ChooseViewAfterFiltering
-     input$ChooseTabAfterFiltering
-     #rv$deleted.stringBased.exprsData
-     #rv$deleted.stringBased.fData
+     req(input$ChooseViewAfterFiltering)
+     req(input$ChooseTabAfterFiltering)
      rv$deleted.stringBased
-      
-     if (is.null(input$ChooseTabAfterFiltering)
-         ||is.null(input$ChooseViewAfterFiltering) 
-         ||is.null(input$nDigitsMV) ){
-         return(NULL)
-         }
      
-    if (is.null(input$nDigitsMV)){nDigits = 1e100}
-     else {nDigitsMV = 3}
     
     data <- NULL
    if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
         {
-        if(input$ChooseTabAfterFiltering == "quantiData" )
-            {
-          data <- getDataForMVFiltered()
-          #data <- cbind(ID = rownames(Biobase::fData(obj)),round(Biobase::exprs(obj), digits=nDigitsMV))
-        }else {
-            data <- cbind(ID = rownames(Biobase::fData(rv$deleted.mvLines)), Biobase::fData(rv$deleted.mvLines))
-            }
+     switch(input$ChooseTabAfterFiltering,
+            quantiData =  data <- getDataForMVFiltered(),
+            metaData = data <- cbind(ID = rownames(Biobase::fData(rv$deleted.mvLines)), Biobase::fData(rv$deleted.mvLines))
+            ,
+            None ={}
+     )
+
     } 
     
     else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
         
-        if(input$ChooseTabAfterFiltering == "quantiData" )
-        {
-           data <- getDataForMVStringFiltered()
-         # data <-  round(rv$deleted.stringBased.exprsData, digits=nDigitsMV)
-        }else {
-            data <- Biobase::fData(rv$deleted.stringBased)
-            }
+       switch(input$ChooseTabAfterFiltering,
+            quantiData =  data <- getDataForMVStringFiltered(),
+            metaData = data <- Biobase::fData(rv$deleted.stringBased),
+            None ={}
+       )
     } 
  
     
@@ -211,17 +193,17 @@ output$VizualizeFilteredData <- DT::renderDataTable({
     if (!is.null(data)){
         
         if(input$ChooseTabAfterFiltering =="quantiData"){
-                dt <- datatable( data,
-                                 extensions = 'Scroller',
+                dt <- datatable( data,extensions = 'Scroller',
                      options = list(initComplete = initComplete(),
+                         displayLength = 20,
                          deferRender = TRUE,
-                         blengthChange = FALSE,
-                         scrollX = 300,
+                         bLengthChange = FALSE,
+                         scrollX = 200,
                          scrollY = 600,
                          scroller = TRUE,
                          ordering=FALSE,
-                         server = TRUE,
-                         columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
+                                    server = TRUE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
                      )) %>%
                     formatStyle(
                         colnames(data)[1:(ncol(data)/2)],
@@ -229,11 +211,12 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                         backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
                     )
         } else {
-            dt <- datatable( data,
-                             extensions = 'Scroller',
+            dt <- datatable( data,extensions = 'Scroller',
                              options = list(initComplete = initComplete(),
                                             displayLength = 20,
                                             deferRender = TRUE,
+                                            bLengthChange = FALSE,
+                                            scrollX = 200,
                                             scrollY = 600,
                                             scroller = TRUE,
                                             ordering=FALSE,
@@ -455,23 +438,23 @@ observeEvent(input$perform.filtering.MV,{
                         
                         
                         #if (input$showCommandLog){
-                        txt <- paste("keepThat <- mvFilterGetIndices(dataset[['",
-                                     input$datasets, 
-                                     "']], '",
-                                     input$ChooseFilters, "', '",
-                                     input$seuilNA, "')","\n",
-                                     "deleted.mv <- current.obj[-keepThat]","\n",
-                                    "txt <- '",GetFilterText(input$ChooseFilters,input$seuilNA),
-                                                    "'","\n",
-                                    "current.obj <- mvFilterFromIndices(",
-                                    "current.obj, keepThat, '",
-                                    GetFilterText(input$ChooseFilters,
-                                                  input$seuilNA),
-                                    "')",              
-                                     sep="")
+                        # txt <- paste("keepThat <- mvFilterGetIndices(dataset[['",
+                        #              input$datasets, 
+                        #              "']], '",
+                        #              input$ChooseFilters, "', '",
+                        #              input$seuilNA, "')","\n",
+                        #              "deleted.mv <- current.obj[-keepThat]","\n",
+                        #             "txt <- '",GetFilterText(input$ChooseFilters,input$seuilNA),
+                        #                             "'","\n",
+                        #             "current.obj <- mvFilterFromIndices(",
+                        #             "current.obj, keepThat, '",
+                        #             GetFilterText(input$ChooseFilters,
+                        #                           input$seuilNA),
+                        #             "')",              
+                        #              sep="")
 
                        
-                        writeToCommandLogFile(txt)
+                        #writeToCommandLogFile(txt)
                    # }
                     
                     updateSelectInput(session, "ChooseFilters", 
@@ -701,8 +684,8 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
                      
                     ###### write to commandLog File
                     #if (input$showCommandLog){
-                        writeToCommandLogFile(  
-                        paste("dataset[['",name, "']] <- current.obj", sep=""))
+                    #    writeToCommandLogFile(  
+                    #    paste("dataset[['",name, "']] <- current.obj", sep=""))
                     #}
                     ###### end write to command log file
                     

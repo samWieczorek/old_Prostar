@@ -17,7 +17,7 @@ output$References <- renderText({
 
     <strong><font size=\"4\">Contact:</font></strong><br>
     If you need any help, but also if you wish to make comments 
-    or suggestions, please contact Samuel Wieczorek or 
+    or suggestions, please contact Samuel Wieczorek, Florence Combes or 
     Thomas Burger (firstname.lastname@cea.fr).<br><br>
     
     
@@ -234,7 +234,8 @@ output$aboutText <- renderUI({
     ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
     
     
-    text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
+    text <- paste("<strong>Maintaining ProStaR as free software is a heavy and time-consuming
+                  duty. If you use it, please cite the following reference</strong><br> 
                   S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
                   L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
                   C. Bruley and T. Burger. <br>
@@ -245,7 +246,7 @@ output$aboutText <- renderUI({
                   <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
                   title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
                   
-                  <br><br><br>
+                  <br><hr>
                   <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
                   software suite for quantitative analysis of mass spectrometry 
                   based proteomics.<br>

@@ -222,21 +222,20 @@ output$POV_detQuant_impValues <- renderUI({
 
 output$TAB_POV_detQuant_impValues <- renderDataTable({
   #rv$current.obj
+  req(input$settings_nDigits)
   input$POV_detQuant_quantile
   input$POV_detQuant_factor
   input$POV_missing.value.basic.algorithm
-  # if (is.null(rv$current.obj) ) {return (NULL)}
-  if (is.null(input$POV_missing.value.algorithm)){return (NULL)}
-  
-  
+  if (is.null(input$POV_missing.value.algorithm )){return(NULL)}
+    
   if (input$POV_missing.value.algorithm == 'detQuantile'){
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$POV_detQuant_quantile/100, input$POV_detQuant_factor)
-    DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits = input$settings_nDigits), 
                   options = list(
-                      initComplete = initComplete(),
-                      blengthChange = FALSE,
-                      dom = 't'))
+                                initComplete = initComplete(),
+                                bLengthChange = FALSE,
+                                dom = 't'))
   }
 })
 
@@ -266,10 +265,11 @@ output$TAB_MEC_detQuant_impValues <- renderDataTable({
   
   if (input$MEC_missing.value.algorithm == 'detQuantile'){
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$MEC_detQuant_quantile/100, input$MEC_detQuant_factor)
-    DT::datatable(as.data.frame(t(values$shiftedImpVal)),extensions = 'Scroller',
+    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits = input$settings_nDigits),
+                  extensions = 'Scroller',
                   options = list(deferRender = TRUE,
-                                 blengthChange = FALSE,
-                                 scrollX = 300,
+                                 bLengthChange = FALSE,
+                                 scrollX = 200,
                                  scrollY = 600,
                                  scroller = TRUE,
                                  initComplete = initComplete(),
@@ -390,9 +390,9 @@ observeEvent(input$ValidImputation,{
     UpdateLog("Imputation", l.params)
     
     #write command log file
-    writeToCommandLogFile(
-      paste("dataset[['",name,"']] <- current.obj", sep="")
-    )
+    #writeToCommandLogFile(
+    #  paste("dataset[['",name,"']] <- current.obj", sep="")
+    #)
     
     updateSelectInput(session, "datasets",
                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),

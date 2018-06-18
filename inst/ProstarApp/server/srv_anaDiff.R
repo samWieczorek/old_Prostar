@@ -1,4 +1,3 @@
-
 callModule(moduleVolcanoplot,"volcano_Step1")
 callModule(moduleVolcanoplot,"volcano_Step2")
 
@@ -100,9 +99,8 @@ observeEvent(input$swapVolcano,{
 ####  SELECT AND LOAD ONE PARIWISE COMPARISON
 ####
 observeEvent(input$selectComparison,{
-  rv$res_AllPairwiseComparisons
+  req(rv$res_AllPairwiseComparisons)
   if (is.null(input$selectComparison)){return()}
-  if (is.null(rv$res_AllPairwiseComparisons) ){return()}
   
 if (input$selectComparison== "None"){
     rv$resAnaDiff <- NULL
@@ -190,10 +188,8 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
     req(rv$current.obj)
-    rv$res_AllPairwiseComparisons
-    #if (is.null(rv$current.obj)) { return()}
-    if (is.null(rv$res_AllPairwiseComparisons)) { return()}
-  
+    req(rv$res_AllPairwiseComparisons)
+    
     .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_FC"))
     
     tagList(
@@ -295,8 +291,7 @@ if (input$AnaDiff_ChooseFilters == gFilterNone){
 
 
 output$diffAnalysis_Calibration_SB <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){ return()}
+    req(rv$current.obj)
     
     #if (is.null(calibMethod)){ calibMethod <- "Benjamini-Hochberg"}
     
@@ -366,11 +361,9 @@ observe({
 
 
 output$FoldChangePlot <- renderHighchart({
-  rv$res_AllPairwiseComparisons
-    input$seuilLogFC
-   if (is.null(input$seuilLogFC)){ return(NULL)}
-    if (is.null(rv$res_AllPairwiseComparisons)){ return(NULL)}
-    
+  req(rv$res_AllPairwiseComparisons)
+   req(input$seuilLogFC)
+     
     #indice_col_FC <- grep("FC" %in% colnames(rv$res_AllPairwiseComparison))
     data <- rv$res_AllPairwiseComparisons
     hc_FC_DensityPlot(data$FC,input$seuilLogFC)
@@ -380,18 +373,16 @@ output$FoldChangePlot <- renderHighchart({
 
 #-------------------------------------------------------------
 output$showFDR <- renderText({
-    rv$current.obj
+    req(rv$current.obj)
     rv$seuilPVal
     rv$seuilLogFC
     input$numericValCalibration
     input$calibrationMethod
-    rv$resAnaDiff
+    req(rv$resAnaDiff)
     input$selectComparison
     
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
-    if (is.null(rv$current.obj)) {return()}
-    if (is.null(rv$resAnaDiff)) {return()}
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
     {return()}
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
@@ -462,12 +453,11 @@ output$numericalValForCalibrationPlot <- renderUI({
 
 
 output$calibrationResults <- renderUI({
-    rv$calibrationRes
+    req(rv$calibrationRes)
     rv$seuilLogFC
     input$diffAnaMethod
     rv$current.obj
     
-    if (is.null( rv$calibrationRes)){return()}
     
     txt <- paste("Non-DA protein proportion = ", 
                  round(100*rv$calibrationRes$pi0, digits = 2),"%<br>",
@@ -488,8 +478,7 @@ calibrationPlot <- reactive({
     rv$seuilLogFC
     input$diffAnaMethod
     rv$resAnaDiff
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
+    req(rv$current.obj)
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         (length(rv$resAnaDiff$FC) == 0)) { return()}
@@ -554,11 +543,9 @@ output$calibrationPlot <- renderPlot({
 
 
 output$errMsgCalibrationPlot <- renderUI({
-    rv$errMsgCalibrationPlot
+    req(rv$errMsgCalibrationPlot)
     rv$seuilLogFC
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
-    if (is.null(rv$errMsgCalibrationPlot) ) {return()}
+    req(rv$current.obj)
     
     txt <- NULL
     
@@ -643,12 +630,10 @@ output$calibrationPlotAll <- renderPlot({
 
 #----------------------------------------------
 observeEvent(input$ValidDiffAna,{ 
-    rv$current.obj
+    req(rv$current.obj)
     rv$resAnaDiff
-    rv$res_AllPairwiseComparisons
+    req(rv$res_AllPairwiseComparisons)
     
-    if (is.null(rv$current.obj)){ return()}
-    if (is.null(rv$res_AllPairwiseComparisons) ){return()}
     if ((input$ValidDiffAna == 0) ||  is.null(input$ValidDiffAna) ) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
 
@@ -796,15 +781,13 @@ output$DiffAnalysisSaved <- renderUI({
 
 
 output$equivPVal <- renderText ({
-    input$seuilPVal
+    req(input$seuilPVal)
     input$diffAnaMethod
-    rv$current.obj
+    req(rv$current.obj)
     input$selectComparison
     
-    if (is.null(rv$current.obj)){return()}
     
     if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    if (is.null(input$seuilPVal)){return()}
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr))
     {return(NULL)}
      if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -816,12 +799,9 @@ output$equivPVal <- renderText ({
 
 
 output$equivLog10 <- renderText ({
-    input$test.threshold
-    rv$current.obj
-    input$diffAnaMethod
-    if (is.null(input$diffAnaMethod)){return()}
-    if (is.null(rv$current.obj)){return()}
-    if (is.null(input$test.threshold)){return()}
+    req(input$test.threshold)
+    req(rv$current.obj)
+    req(input$diffAnaMethod)
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
     
@@ -882,7 +862,6 @@ volcanoplot_rCharts <- reactive({
     rv$resAnaDiff
     rv$current.obj
     input$tooltipInfo
-    rv$volcanoTooltip 
     
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
@@ -994,7 +973,7 @@ output$showSelectedItems <- DT::renderDataTable({
                                 P_Value = data$P_Value[selectedItems])
             }
             
-            DT::datatable(t,
+            DT::datatable(round(t, digits = input$settings_nDigits),
             extensions = 'Scroller',
             rownames=FALSE,
             options = list(initComplete = initComplete(),
@@ -1113,7 +1092,7 @@ tableInfos <- function(){
     data <- data.g2[this.index+1,]
   }
  # data <- data[(input$eventPointClicked+1),]
-  dt <- datatable( data,
+  dt <- datatable( round(data, digits = input$settings_nDigits),
                    options = list(initComplete = initComplete(),
                                   dom='t',
                                   blengthChange = FALSE,

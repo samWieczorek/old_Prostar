@@ -9,17 +9,19 @@ modulePopover <- function(input, output, session, data){
     ns <- session$ns
     
     output$customPopover <- renderUI({
-
+          req(data())
         #ns <- session$ns
         div(
             div(
                 # edit1
                 style="display:inline-block; vertical-align: middle;",
                 if (regexpr("Subsets", data()$title)[1] ==1){
-                    HTML(paste0("<strong><font size=\"4\" color=\"white\">", data()$title, "</font></strong>"))}
+                    data()$title}
                 else
                 {
-                    HTML(paste0("<strong><font size=\"4\">", data()$title, "</font></strong>"))}
+                  data()$title
+                  #HTML(paste0("<strong><font size=\"4\">", data()$title, "</font></strong>"))
+                  }
             ),
             div(
             # edit2
@@ -47,7 +49,6 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 
 
-################################################################
 moduleVolcanoplot <- function(input, output, session){
   output$nbSelectedItems <- renderUI({ selectedItems()  })
   output$Infos <- renderDataTable({ tableInfos() })
@@ -55,7 +56,7 @@ moduleVolcanoplot <- function(input, output, session){
 }
 
 
-################################################################
+
 missingValuesPlots <- function(input, output, session) {
     
     output$histo_MV <- renderHighchart({
@@ -71,7 +72,6 @@ missingValuesPlots <- function(input, output, session) {
     })
 }
 
-################################################################
 moduleDensityplot <- function(input, output, session) {
     
     output$Densityplot <- renderHighchart({
@@ -79,7 +79,6 @@ moduleDensityplot <- function(input, output, session) {
     })
 }
 
-################################################################
 moduleBoxplot <- function(input, output, session) {
     
     output$BoxPlot <- renderPlot({
@@ -90,7 +89,6 @@ moduleBoxplot <- function(input, output, session) {
 
 
 
-################################################################
 
 moduleMVPlots <- function(input, output, session, data) {
     

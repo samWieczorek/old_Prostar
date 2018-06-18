@@ -35,47 +35,47 @@ library(shinythemes)
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 
-
-unsuspendAll <- function(session = getDefaultReactiveDomain()) {
-  observe({
-    # pattern <- "^output_(.*?)_hidden$"
-    # 
-    # ids <- names(session$clientData) %>%
-    #   grep(pattern, ., value = TRUE) %>%
-    #   sub(pattern, "\\1", .)
-    # for (id in ids) {
-    #   print(id)
-    #   outputOptions(session$output, id, suspendWhenHidden = FALSE)
-    # }
-    
-    outputOptions(session$output, "boxPlot_DS-BoxPlot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "boxPlot_Norm-BoxPlot", suspendWhenHidden = FALSE)
-    #outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
-    #outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "densityPlot_DS-Densityplot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "densityPlot_Norm-Densityplot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "MVPlots_DS-histo_MV", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines_per_conditions", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "volcano_Step1-volcanoPlot", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "volcano_Step2-volcanoPlot", suspendWhenHidden = FALSE)
-
-    outputOptions(session$output, "mvImputationPlots_MV-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "mvImputationPlots_MEC-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "mvImputationPlots_Valid-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "mvImputationPlots_MV-plot_showImageNA", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "mvImputationPlots_MEC-plot_showImageNA", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "mvImputationPlots_Valid-plot_showImageNA", suspendWhenHidden = FALSE)
-    
-    
-    outputOptions(session$output, "corrMatrix", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "viewDistCV", suspendWhenHidden = FALSE)
-    outputOptions(session$output, "viewViolinPlot_DS", suspendWhenHidden = FALSE)
-    
-    
-    
-  })
-}
+# 
+# unsuspendAll <- function(session = getDefaultReactiveDomain()) {
+#   observe({
+#     # pattern <- "^output_(.*?)_hidden$"
+#     # 
+#     # ids <- names(session$clientData) %>%
+#     #   grep(pattern, ., value = TRUE) %>%
+#     #   sub(pattern, "\\1", .)
+#     # for (id in ids) {
+#     #   print(id)
+#     #   outputOptions(session$output, id, suspendWhenHidden = FALSE)
+#     # }
+#     
+#     outputOptions(session$output, "boxPlot_DS-BoxPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "boxPlot_Norm-BoxPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "densityPlot_DS-Densityplot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "densityPlot_Norm-Densityplot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines_per_conditions", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "volcano_Step1-volcanoPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "volcano_Step2-volcanoPlot", suspendWhenHidden = FALSE)
+# 
+#     outputOptions(session$output, "mvImputationPlots_MV-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MEC-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_Valid-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MV-plot_showImageNA", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MEC-plot_showImageNA", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_Valid-plot_showImageNA", suspendWhenHidden = FALSE)
+#     
+#     
+#     outputOptions(session$output, "corrMatrix", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "viewDistCV", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "viewViolinPlot_DS", suspendWhenHidden = FALSE)
+#     
+#     
+#     
+#   })
+# }
 
 
 
@@ -396,6 +396,15 @@ tagList(
 )	
 }
 
+
+initComplete <- function(){
+  
+  return (JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+    "}"))
+}
+
 ########################################################
 # FROM :http://stackoverflow.com/questions/35271661/update-shiny-r-custom-progressbar/39265225#39265225
 progressBar2 <- function(inputId=NULL, value=0, label=FALSE, color="info", 
@@ -586,12 +595,24 @@ bsButtonRight <- function(...) {
 }
 
 
-initComplete <- function(){
-    
-    return (JS(
-        "function(settings, json) {",
-        "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-        "}"))
+# Call this function with all the regular navbarPage() parameters, plus a text parameter,
+# if you want to add text to the navbar
+navbarPageWithText <- function(..., text) {
+  navbar <- navbarPage(...)
+  textEl <- tags$p(class = "navbar-text", text)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], textEl)
+  navbar
+}
+
+# Call this function with an input (such as `textInput("text", NULL, "Search")`) if you
+# want to add an input to the navbar
+navbarPageWithInputs <- function(..., inputs) {
+  navbar <- navbarPage(...)
+  form <- tags$form(class = "navbar-form", inputs)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], form)
+  navbar
 }
 
 

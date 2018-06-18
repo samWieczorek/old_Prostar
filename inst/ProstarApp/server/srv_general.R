@@ -6,61 +6,72 @@
 #                                                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
 #                                                                         target="_blank"))))
 
-callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title="P-value push",
+
+
+callModule(modulePopover,"modulePopover_GenomeWide", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
+                                content=paste0(tags$p("If the annotation dB is not present in the list, please go "),
+tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
+tags$p(" to identify the package you need. You can then install it or ask your server administrator to do it and restart Prostar.")))))
+
+
+
+callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">P-Value push</font></strong>")),
 content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
-           data = reactive(list(title = "Quantitative data", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
 
 callModule(modulePopover,"modulePopover_exportMetaData", 
-           data = reactive(list(title = "Meta data", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Metadata</font></strong>")), 
                                 content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
 
 
 callModule(modulePopover,"modulePopover_exportFilename", 
-           data = reactive(list(title = "Filename", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Filename</font></strong>")), 
                                 content="Enter the name of the files to be created")))
 
 
 callModule(modulePopover,"modulePopover_exportFileFormat", 
-           data = reactive(list(title = "File format", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">File format</font></strong>")), 
                                 content="File format")))
 
 callModule(modulePopover,"modulePopover_GOlevel", 
-           data = reactive(list(title = "Level", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Level</font></strong>")), 
                                 content="Level")))
 
 
 callModule(modulePopover,"modulePopover_GOuniverse", 
-           data = reactive(list(title = "Universe", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Universe</font></strong>")), 
                                 content="universe")))
 callModule(modulePopover,"modulePopover_GOfdr", 
-           data = reactive(list(title = "FDR", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">FDR</font></strong>")), 
                                 content="BH Adjusted P-value cutoff")))
 
 
 callModule(modulePopover,"modulePopover_volcanoTooltip", 
-           data = reactive(list(title = "Tooltip", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Tooltip</font></strong>")), 
                                 content="Infos to be displayed in the tooltip of volcanoplot")))
 
 
 
 
 callModule(modulePopover,"modulePopover_convertChooseDatafile", 
-           data = reactive(list(title = "Data file", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
                                 content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
 callModule(modulePopover,"modulePopover_convertIdType", 
-           data = reactive(list(title = "Type de ID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Type de ID</font></strong>")), 
                                 content="If you choose the automatic ID, Prostar will build an index.")))
 
 
 
 callModule(modulePopover,"modulePopover_dataset", 
-           data = reactive(list(title = paste0("Subsets for ", rv$current.obj.name),
-                                content="Subsets from the processes applied on dataset.")))
+           data = reactive(list(title = p(if(is.null(rv$current.obj.name)) "No dataset" else paste0(rv$current.obj.name)),
+
+                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
 
 
 getDatasetName <- reactive({
@@ -94,7 +105,6 @@ output$datasetAbsPanel <- renderUI({
     div(
         div(
             style="display:inline-block; vertical-align: middle;",
-            #h4(rv$current.obj.name)
             modulePopoverUI("modulePopover_dataset")),
         div(
             style="display:inline-block; vertical-align: middle;",
@@ -104,6 +114,8 @@ output$datasetAbsPanel <- renderUI({
 })
 
 ###-------------------------------------------------------------------
+onStop(function() cat("Session stopped\n"))
+
 
 session$onSessionEnded(function() {
     #setwd(tempdir())
@@ -113,6 +125,9 @@ session$onSessionEnded(function() {
     unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink("www/*pdf")
+    
+    #rm(list= list(myListOfThings))
+    stopApp()
 })
 
 
@@ -147,7 +162,38 @@ ClearUI <- reactive({
 
 
 
+loadObjectInMemoryFromConverter_2 <- function(obj){
+  rv$typeOfDataset <- obj@experimentData@other$typeOfData
+  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
+  
+  #If there are already pVal values, then do no compute them 
+  if (G_logFC_Column %in% names(Biobase::fData(obj) )){
+    rv$resAnaDiff <- list(logFC = Biobase::fData(obj)$FC,
+                          P_Value = Biobase::fData(obj)$P_Value)
+    rv$seuilLogFC <- obj@experimentData@other$threshold_logFC
+    rv$seuilPVal  <- obj@experimentData@other$threshold_p_value
+    
+  }
+  
+  
+  name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
+  rv$dataset[[name]] <- obj
+  
+  
+  # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
+  #              rv$typeOfDataset, "\"", "\n",
+  #              "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
+  #              sep="")
+  # writeToCommandLogFile(txt)
+  # 
+  updateSelectInput(session, "datasets", 
+                    #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
+                    choices = names(rv$dataset),
+                    selected = name)
+  
+}
 
+#
 
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
@@ -169,12 +215,12 @@ loadObjectInMemoryFromConverter <- reactive({
     rv$dataset[[name]] <- rv$current.obj
     
 
-        txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
-                 rv$typeOfDataset, "\"", "\n",
-                 "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
-                 sep="")
-        writeToCommandLogFile(txt)
-    
+        # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
+        #          rv$typeOfDataset, "\"", "\n",
+        #          "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
+        #          sep="")
+        # writeToCommandLogFile(txt)
+        # 
     
     #if (!is.null(rv$current.obj@experimentData@other$OriginOfValues)){
     #    writeToCommandLogFile("current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
@@ -190,17 +236,7 @@ loadObjectInMemoryFromConverter <- reactive({
 #
 
 
-observe({
-    req(rv$current.obj)
-    NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                    2, 
-                    function(x) length(which(is.na(data.frame(x))==TRUE)) )
-    if (NA.count == 0){
-         showTab(inputId ="navPage", target = "diffAnalysis")
-        } else {
-            hideTab(inputId ="navPage", target = "diffAnalysis")
-        }
-})
+
 
 ###-------------------------------------------------------------------
 writeToCommandLogFile <- function(txt, verbose = FALSE){
@@ -225,7 +261,8 @@ if (!dir.exists(dirSessionPath)){
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
-    
+  rv$current.comp = NULL
+  
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
@@ -246,7 +283,6 @@ ClearMemory <- function(){
                              Dataset="", 
                              History="", 
                              stringsAsFactors=F)
-    rv$volcanoTooltip = NULL
     rv$listLogFC = list()
     rv$seuilLogFC = 0
     rv$seuilPVal = 1e-60
@@ -255,21 +291,17 @@ ClearMemory <- function(){
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-    rv$hot = NULL 
-    rv$newOrder = NULL
-    rv$calibrationRes = NULL
+   rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
     rv$errMsgcalibrationPlotALL = NULL
     rv$typeOfDataset = ""
-    rv$widthSidebar = 3
     rv$commandLog =  "" 
     rv$normalizationFamily = NULL
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
-    test = NULL
     rv$resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
     rv$res_AllPairwiseComparisons = data.frame()
-    indexNA = NULL
+    rv$indexNA = NULL
     rv$pourcentageNA = 0
     rv$nb.empty.lines = 0
     rv$nbDeleted = 0
@@ -281,23 +313,54 @@ ClearMemory <- function(){
     rv$nbSelectedAnaDiff = NULL
     rv$nbSelectedTotal_Step3 = NULL
     rv$nbSelected_Step3 = NULL
-    rv$groupGO_data = NULL
-    rv$enrichGO_data = NULL
-    rv$universeData = NULL
-    rv$uniprotID = NULL
-    rv$ratio = NULL
+    rv$GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL)
+
     rv$impute_Step = 0
+    
+    
+    
+    # rv$design = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                        designSaved=FALSE)
+    
     rv$hot = NULL
+    rv$newOrder = NULL
+    rv$designChecked = NULL
+    rv$designSaved = FALSE
+    rv$conditionsChecked = NULL
+    
+    
+    # rv$updateDesign = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                        designSaved=FALSE)
+    
+    
+    
+    rv$updateDesign_designSaved=FALSE
+    rv$updateDesign_designChecked=NULL
+    rv$updateDesign_hot=NULL
+    rv$updateDesign_newOrder=NULL
+    rv$updateDesign_conditionsChecked=NULL
+    
+    rv$designIsValid = FALSE
     rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
                               Dataset="", 
                               History="", 
                               stringsAsFactors=F)
-    rv$ProtIDList = NULL
     rv$GOWarningMessage = NULL
-    rv$proteinsNotMapped = NULL
-    rv$gene = NULL
     rv$stringBasedFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
@@ -341,6 +404,7 @@ ClearMemory <- function(){
 #-------------------------------------------------------------
 rv <- reactiveValues(
     # variable to handle the current object that will be showed
+    current.comp = NULL,
     current.obj = NULL,
     current.obj.name = NULL,
     deleted.mvLines = NULL,
@@ -360,7 +424,6 @@ rv <- reactiveValues(
                           Dataset="", 
                           History="", 
                           stringsAsFactors=F),
-    volcanoTooltip = NULL,
     listLogFC = list(),
     seuilLogFC = 0,
     seuilPVal = 1e-60,
@@ -369,23 +432,48 @@ rv <- reactiveValues(
     dirnameforlink = "",
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
-    hot = NULL, 
+    
+    
+    
+    # design = list(designChecked=NULL,
+    #                  hot=NULL,
+    #                  newOrder=NULL,
+    #                  conditionsChecked=NULL,
+    #                  designSaved=FALSE),
+    
+    hot = NULL,
     newOrder = NULL,
+    designChecked = NULL,
+    designSaved = FALSE,
+    conditionsChecked = NULL,
+    
+    
+    
+    # updateDesign = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                     designSaved=FALSE),
+    
+    updateDesign_designChecked=NULL,
+    updateDesign_hot=NULL,
+    updateDesign_newOrder=NULL,
+    updateDesign_conditionsChecked=NULL,
+    updateDesign_designSaved=FALSE,
+    
+    
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
-    widthSidebar = 3,
     ValidFilteringClicked = FALSE,
     ValidImputationClicked = FALSE,
     commandLog = "", 
     normalizationFamily = NULL,
     normalizationMethod = NULL, 
     matAdj = NULL,
-    test = NULL, 
     resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
     res_AllPairwiseComparisons = data.frame(),
-    wb = NULL,
     progressImputation = 0,
     indexNA = NULL,
     IP_Client= "",
@@ -398,16 +486,19 @@ rv <- reactiveValues(
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
     nbSelected_Step3 = NULL,
-    enrichGO_data = NULL,
-    groupGO_data = NULL,
-    universeData = NULL,
-    uniprotID = NULL,
-    ProtIDList = NULL,
+    GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL),
+
     GOWarningMessage = NULL,
-    proteinsNotMapped = NULL,
-    gene = NULL,
+
     impute_Step = 0,
-    ratio=NULL,
+
     iDat = NULL,
     tempDatasetImputation = NULL,
     MECIndex = NULL,
@@ -507,3 +598,15 @@ GetNbNA <- reactive({
 output$currentObjLoaded <- reactive({
     rv$current.obj
     return(!is.null(rv$current.obj))})
+
+
+
+observe({
+  req(rv$current.obj)
+  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  if (NA.count == 0){
+    showTab(inputId ="navPage", target = "diffAnalysis")
+  } else {
+    hideTab(inputId ="navPage", target = "diffAnalysis")
+  }
+})

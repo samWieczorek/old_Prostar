@@ -1,6 +1,5 @@
 tabPanel("Convert data",
-
-         value = "import",
+        value = "import",
          helpText("These steps allow to create a MSnSet file 
                   from a tabulated-text file."),
          tabsetPanel(
@@ -41,36 +40,60 @@ tabPanel("Convert data",
                        br(), br(),
                        
                        tagList(
-                           checkboxInput("selectIdent", "Select columns for identification method", value = FALSE),
+                         fluidRow(
+                           column(width=4,checkboxInput("selectIdent", 
+                                                      "Select columns for identification method", 
+                                                      value = FALSE)),
+                         column(width=4,uiOutput("checkIdentificationTab"))
+                         ),
                            fluidRow(
-                               column(width=4,uiOutput("eData",width = widthWellPanel)),
-                               column(width=8,dataTableOutput("x1"))),
+                               column(width=4,uiOutput("eData",width = "400px")),
+                               column(width=8,dataTableOutput("x1", width='500px'))),
                            tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })"))
-                           #verbatimTextOutput("out")
-                          #  uiOutput("chooseOriginOfValues")
-                       )
+                           )
                        ),
              
              tabPanel( "4 - Samples metadata",
-                       value = "Import2",
-                       #width = widthWellPanel,
+                       value = "buildDesign_Tab",
                        br(), br(),
-                       helpText("Warning : it is mandatory that the column 
-                                \"Label\" is filled."),
-                       br(),
-                       uiOutput("UI_generateSampleID"),
-                       rHandsontableOutput("hot"
-                                           ,width = widthWellPanel
-                                           ,height = "100%")
+                       fluidRow(
+                         column(width=6,tagList(
+                                            uiOutput("UI_checkConditions"),
+                                            uiOutput("checkDesign"))),
+                         column(width=4, uiOutput("UI_hierarchicalExp"))
+                         ),
+                       hr(),
+                       #fluidRow(
+                       #  column(width=5,rHandsontableOutput("hot",width = "600",height = "100%")),
+                       #  column(width=7, shinyjs::hidden(
+                       #    div(id = "exLevels",uiOutput("designExamples"))
+                       #  ))
+                       #)
+                       
+                       tags$div(
+                         
+                         tags$div(style="display:inline-block;",
+                                  uiOutput("viewDesign",width="100%")
+                         ),
+                         tags$div(style="display:inline-block;",
+                                  shinyjs::hidden(
+                                    div(id = "exLevels",uiOutput("designExamples")))
+                         )
+                         
+                         
+                       )
              ),
              
              
              tabPanel( "5 - Convert",
                        value = "Convert",
                        br(), br(),
+                       
+                       uiOutput("checkAll_convert", width="50"),
                        htmlOutput("msgAlertCreateMSnset"),
+                       hr(),
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
                        busyIndicator(WaitMsgCalc,wait = 0),

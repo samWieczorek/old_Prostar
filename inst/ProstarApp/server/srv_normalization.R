@@ -185,13 +185,13 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "')",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "')",
+                        #           sep="")
+                        # )
                        # }
                     }
                     else if (input$normalization.method =="Quantile Centering"){
@@ -216,14 +216,14 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  "', quant =", quant,")",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           "', quant =", quant,")",
+                        #           sep="")
+                        # )
                        # }
                         
                     }   
@@ -237,14 +237,14 @@ observeEvent(input$perform.normalization,{
                         updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  "', scaling =", input$normalization.variance.reduction,")",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           "', scaling =", input$normalization.variance.reduction,")",
+                        #           sep="")
+                        # )
                         #}
                     } 
                     else if (input$normalization.method =="Sum by columns"){
@@ -256,13 +256,13 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                        writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  ")",sep="")
-                        )
+                        # writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           ")",sep="")
+                        # )
                         #}
                     }
                     #createPNG_Normalization()
@@ -312,9 +312,9 @@ observeEvent(input$valid.normalization,{
                     
                     #write command log file
                     #if (input$showCommandLog){
-                        writeToCommandLogFile(
-                        paste("dataset[['",name,"']] <- current.obj", sep="")
-                    )
+                    #     writeToCommandLogFile(
+                    #     paste("dataset[['",name,"']] <- current.obj", sep="")
+                    # )
                     #}
                     
                     updateSelectInput(session, "datasets", 

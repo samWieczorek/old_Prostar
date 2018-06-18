@@ -1,5 +1,5 @@
-tabPanel(title = "GO Analysis (Beta)",
-value = "GO_Analysis",
-         uiOutput("GOAnalysisMenu")
+tabPanel("GO Analysis (Beta)",
+        value = "GO_AnalysisTab",
+        uiOutput("GOAnalysisMenu")
  
 )

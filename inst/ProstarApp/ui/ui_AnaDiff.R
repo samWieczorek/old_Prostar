@@ -1,7 +1,6 @@
 tabPanel("Differential analysis",
-         value="diffAnalysis",
+         value = "diffAnalysisTab",
          tabsetPanel(
-             #"diffAnalysis_tabSetPanel",
              tabPanel("1 - Global tuning",
                       value = "DiffAnalysis_GlobalTuning",
                       sidebarCustom(),
@@ -22,6 +21,7 @@ tabPanel("Differential analysis",
                       )
              ),
              
+
              tabPanel("2 - Pairwise comparison",
                       value = "DiffAnalysis_PairewiseComparison",
                       sidebarCustom(),
@@ -53,11 +53,11 @@ tabPanel("Differential analysis",
                                   ),
                                   tagList(
                                       htmlOutput("errMsgCalibrationPlotAll"),
-                                                   busyIndicator("Building plot, please wait",wait = 0),
-                                                   plotOutput("calibrationPlotAll", height="300px"),
-                                                   uiOutput("errMsgCalibrationPlot"),
-                                                   busyIndicator("Building plot, please wait",wait = 0),
-                                                   plotOutput("calibrationPlot", height="300px")
+                                                  busyIndicator("Building plot, please wait",wait = 0),
+                                                  plotOutput("calibrationPlotAll"),
+                                                  uiOutput("errMsgCalibrationPlot"),
+                                                  busyIndicator("Building plot, please wait",wait = 0),
+                                                  plotOutput("calibrationPlot")
                                   )
                       )
              ),
@@ -80,12 +80,11 @@ tabPanel("Differential analysis",
                                         hr(),
                                         busyIndicator("Building plot, please wait",wait = 0),
                                         moduleVolcanoplotUI("volcano_Step2"),
-                                        DT::dataTableOutput("showSelectedItems")
+                                        DT::dataTableOutput("showSelectedItems", width='800px')
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"
              tabPanel("5 - Validate & save",
-                      id = "panelDiffAnaSave",
                       value = "DiffAnalysis_ValidateAndSave",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),

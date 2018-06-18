@@ -1,4 +1,6 @@
 
+
+
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
@@ -68,21 +70,24 @@ output$DS_sidebarPanel_tab <- renderUI({
     .choices<- NULL
     switch(rv$typeOfDataset,
            protein = {
-                      .choices <- list("Quantitative data" = "tabExprs",
+                      .choices <- list("None" = "None",
+                                        "Quantitative data" = "tabExprs",
                                         "Proteins metadata" = "tabfData",
-                                        "Replicate metadata" = "tabpData",
+                                        "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
         peptide = {
-                      .choices <- list("Quantitative data" = "tabExprs",
+                      .choices <- list("None" = "None",
+                                       "Quantitative data" = "tabExprs",
                                        "Peptides metadata" = "tabfData",
-                                        "Replicate metadata" = "tabpData",
+                                        "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
                 {
-                .choices <- list("Quantitative data" = "tabExprs",
+                .choices <- list("None" = "None",
+                                  "Quantitative data" = "tabExprs",
                                 "Analyte metadata" = "tabfData",
-                                "Replicate metadata" = "tabpData",
+                                "Experimental design" = "tabpData",
                                 "Dataset history" = "processingData")
                 }
     )
@@ -91,9 +96,7 @@ output$DS_sidebarPanel_tab <- renderUI({
                      radioButtons("DS_TabsChoice", "Table to display",
                                   choices = .choices),
                      br(),
-                     checkboxInput("nDigits", 
-                                   "Show full length intensities", 
-                                   value = FALSE),
+                    
                      uiOutput("legendForExprsData")
     )
     
@@ -113,13 +116,12 @@ output$DS_sidebarPanel_heatmap <- renderUI({
 
 #----------------------------------------------
 output$tabToShow <- renderUI({
-    input$DS_TabsChoice
-    rv$current.obj
+    req(input$DS_TabsChoice)
+    req(rv$current.obj)
     rv$indexNA
-    if (is.null(input$DS_TabsChoice)) {return(NULL)}
-    if (is.null(rv$current.obj)) {return(NULL)}
     
     switch(input$DS_TabsChoice,
+          None = {return(NULL)},
           tabExprs = DT::dataTableOutput("table"),
           tabfData = DT::dataTableOutput("viewfData"),
           tabpData = DT::dataTableOutput("viewpData"),
@@ -136,18 +138,40 @@ output$tabToShow <- renderUI({
 ##' @author Samuel Wieczorek
 # output$viewExprs <- renderDataTable(
 #     # rv$current.obj
+#     # input$nDigits
+#     # if (is.null(rv$current.obj)) {return(NULL)}
+#     # if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
+#     # 
+#     # df <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+#     #               round(Biobase::exprs(rv$current.obj), 
+#     #               digits=nDigits))
+#     # 
+#     # 
+#     # test.table <- data.frame(lapply(1:8, function(x) {1:1000}))
+#     # test.table[c(2,3,7), c(2,7,6)] <- NA
+#     # id <- which(is.na(test.table))
+#     # colonnes <- trunc(id / nrow(test.table))+1
+#     # lignes <- id %% nrow(test.table)
+#     # formattable(test.table, list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+#     # 
+#     # id <- which(is.na(exprs(Exp1_R25_prot)))
+#     #colonnes <- trunc(id / nrow(exprs(Exp1_R25_prot)))+1
+#     #lignes <- id %% nrow(exprs(Exp1_R25_prot))
+#     #formattable(as.data.frame(exprs(Exp1_R25_prot)), list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+#     
+#     
+#     
+#     #id <- which(is.na(exprs(Exp1_R25_prot)))
 #     
 #     test.table,
 #     extensions = 'Scroller',
-#     options = list(initComplete = JS(
-#         "function(settings, json) {",
-#         "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
-#         "}"),
+#     options = list(initComplete = initComplete(),
 #         
 #         displayLength = 3,
 #         deferRender = TRUE,
-#         scrollY = 600,
 #         bLengthChange = FALSE,
+#         scrollX = 200,
+#         scrollY = 600,
 #         scroller = TRUE,
 #         drawCallback=JS(
 #             paste("function(row, data) {",
@@ -174,9 +198,9 @@ output$tabToShow <- renderUI({
 #     #     ) 
 #     
 # )
-# 
-# 
-# 
+
+
+
 
 ##' show pData of the MSnset object
 ##' @author Samuel Wieczorek
@@ -189,10 +213,16 @@ output$viewpData <- DT::renderDataTable({
   pal <- brewer.pal(length(unique(data$Label)),"Dark2")
   pal <- pal[1:length(unique(data$Label))]
   dt <- DT::datatable(  data,
+                        extensions = 'Scroller',
                     options=list(initComplete = initComplete(),
                                  pageLength=DT_pagelength,
                                  orderClasses = TRUE,
                                  autoWidth=FALSE,
+                                 deferRender = TRUE,
+                                 bLengthChange = FALSE,
+                                 scrollX = 200,
+                                 scrollY = 500,
+                                 scroller = TRUE,
                                 columnDefs = list(
                                 list(columns.width=c("60px"),
                                       columnDefs.targets= c(list(0),list(1),list(2)))))) %>%
@@ -203,7 +233,6 @@ output$viewpData <- DT::renderDataTable({
     )
   
 })
-
 
 ##' show fData of the MSnset object in a table
 ##' @author Samuel Wieczorek
@@ -220,10 +249,11 @@ output$viewfData <- DT::renderDataTable({
                                     orderClasses = TRUE,
                                     autoWidth=FALSE,
                                     deferRender = TRUE,
-                                    blengthChange = FALSE,
+                                    bLengthChange = FALSE,
                                     scrollX = 200,
                                     scrollY = 200,
                                     scroller = TRUE,
+                                    columns.searchable=F,
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -235,8 +265,8 @@ output$viewfData <- DT::renderDataTable({
                              options=list(initComplete = initComplete(),
                                  pageLength=DT_pagelength,
                                  deferRender = TRUE,
-                                 blengthChange = FALSE,
-                                 scrollX = 300,
+                                 bLengthChange = FALSE,
+                                 scrollX = 200,
                                  scrollY = 600,
                                  scroller = TRUE,
                             orderClasses = TRUE,
@@ -258,35 +288,24 @@ output$viewfData <- DT::renderDataTable({
 ##' Visualisation of missing values table
 ##' @author Samuel Wieczorek
 output$viewExprsMissValues <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-                                Biobase::exprs(rv$current.obj)))
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-},
-
-option=list(orderClasses = TRUE,
+    req(rv$current.obj)
+  dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+                                Biobase::exprs(rv$current.obj))),
+                      extensions = 'Scroller',
+                      rownames = FALSE,
+                      
+options=list(orderClasses = TRUE,
             autoWidth=FALSE,
+            bLengthChange = FALSE,
+            scrollX = 200,
+            scrollY =600,
+            scroller = TRUE,
             columns.searchable=F,
             pageLength = DT_pagelength,
-            bLengthChange = FALSE,
             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2)))))
 )
-
+})
 
 
 histo_MV_per_lines <- reactive({
@@ -604,47 +623,32 @@ output$DS_sidebarPanel_Violinplot <- renderUI({
 
 
 getDataForExprs <- reactive({
-    input$nDigits
+    req(input$settings_nDigits)
     rv$current$obj
     
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
     
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=nDigits))
+    test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits))
     test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
-    #colnames(test.table) <- c(colnames(Biobase::exprs(rv$current.obj), rv$current.obj@experimentData@other$OriginOfValues))
     test.table
-    #print(colnames(test.table))
+    
 })
 
 
 getData <- reactive({
-    input$nDigits
+    req(input$settings_nDigits)
     rv$current$obj
     
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
-    
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
+    test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
     test.table
 })
 
 
 
 data <- eventReactive(rv$current$obj, {
-    input$nDigits
+    input$settings_nDigits
     rv$current$obj
     
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
-    
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
+    test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
     test.table
 }, ignoreNULL = FALSE)
 
@@ -657,14 +661,15 @@ output$table <- renderDataTable({
     dt <- datatable( df,
                      extensions = 'Scroller',
                     options = list(initComplete = initComplete(),
+                        displayLength = 20,
                         deferRender = TRUE,
-                        scrollY = 300,
-                        scrollX = 200,
                         bLengthChange = FALSE,
+                        scrollX = 200,
+                        scrollY = 600,
                         scroller = TRUE,
-                        ordering=FALSE,
-                        server = TRUE,
-                        columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
+                                   ordering=FALSE,
+                                   server = TRUE,
+                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
        formatStyle(
            colnames(df)[1:(ncol(df)/2)],
            colnames(df)[((ncol(df)/2)+1):ncol(df)],
@@ -859,6 +864,10 @@ output$corrMatrix <- renderHighchart({
      moduleLegendColoredExprsUI("ExprsColorLegend_DS")
 
  })
+
+
+
+
 
 
 

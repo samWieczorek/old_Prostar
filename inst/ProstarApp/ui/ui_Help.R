@@ -1,5 +1,5 @@
 tabPanel("Help",
-         id = "toto",
+         value = "HelpTab",
          tabsetPanel(
              tabPanel( "Useful links",
                        id = "tabHelp",
@@ -12,6 +12,6 @@ tabPanel("Help",
                       
                       br(),
                       br(),
-                      dataTableOutput("tab_versions"))
+                      dataTableOutput("tab_versions", width = '600px'))
          )
 )
