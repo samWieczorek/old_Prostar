@@ -1,5 +1,3 @@
-options(shiny.trace=FALSE)
-options(shiny.reactlog=TRUE)
 
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
@@ -52,8 +50,7 @@ sidebarPanelWidth()
     navbarMenu("Prostar",
                #value = "ProstarMenu",
                source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
-               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
-               tabPanel(title = "Quit", value="stop")
+               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value
                ),
    
 
@@ -78,8 +75,24 @@ navbarMenu("Data processing",
             source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value,
             source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
     ),
+navbarMenu("Help",
+           #value="DataProcessingMenu",
+           tabPanel("Useful links",
+                    htmlOutput("References")
+                    ),
+           tabPanel("Release notes",
+                    uiOutput("versionLog"),
+                    uiOutput("warningDependanciesVersion")),
+           tabPanel("FAQ",
+                    htmlOutput("FAQ_output")
+                    ),
+           tabPanel("Check for updates",
+                    br(),
+                    br(),
+                    dataTableOutput("tab_versions", width = '600px')
+            )
+)
 
-source(file.path("ui", "ui_Help.R"),  local = TRUE)$value
 
 #inputs = modulePopoverUI("modulePopover_dataset")
 #inputs = list(uiOutput("datasetAbsPanel" )

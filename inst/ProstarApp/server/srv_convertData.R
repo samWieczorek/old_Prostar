@@ -219,13 +219,14 @@ observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{
 
 
 output$warningCreateMSnset <- renderUI({
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    if (length(which(colNamesForOriginofValues == "None")) >0){
-        text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
-        method are not fully filled.  <br>"
-        HTML(text)
+    if (isTRUE(input$selectIdent)){
+        colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+        if (length(which(colNamesForOriginofValues == "None")) >0){
+            text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
+            method are not fully filled.  <br>"
+            HTML(text)
+        }
     }
-    
 })
 
 
@@ -235,8 +236,8 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
-    if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
-    {return(NULL)}
+    # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
+    #{return(NULL)}
     
     colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     

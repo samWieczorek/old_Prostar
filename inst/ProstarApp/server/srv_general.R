@@ -1,4 +1,38 @@
 
+activatePopover <- function(){
+    txt_histo_M <- paste0("<p>Test",
+                          "test</p><p>Explanation .</p>")
+    
+    txt_histo_MV_per_lines <- paste0("<p>Test",
+                                     "test</p><p>Explanation .</p>")
+    
+    
+    txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
+                                                    "test</p><p>Explanation .</p>")
+    
+    
+    addPopover(session, "MVPlots_DS-histo_MV", "Info", 
+               content = txt_histo_M, trigger = 'click')
+    
+    addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
+               content = txt_histo_MV_per_lines, trigger = 'click')
+    
+    addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
+               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+    
+    
+    addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
+               content = txt_histo_M, trigger = 'click')
+    
+    addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
+               content = txt_histo_MV_per_lines, trigger = 'click')
+    
+    addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
+               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+    
+    
+}
+
 
 # 
 # callModule(modulePopover,"modulePopover_toto", data = reactive(paste0(data(), 
@@ -10,9 +44,9 @@
 
 callModule(modulePopover,"modulePopover_GenomeWide", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
-                                content=paste0(tags$p("If the annotation dB is not present in the list, please go "),
+                                content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
 tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
-tags$p(" to identify the package you need. You can then install it or ask your server administrator to do it and restart Prostar.")))))
+tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))
 
 
 
@@ -606,13 +640,60 @@ output$currentObjLoaded <- reactive({
     return(!is.null(rv$current.obj))})
 
 
+# 
+# observe({
+#   req(rv$current.obj)
+#   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+#   if (NA.count == 0){
+#     showTab(inputId ="navPage", target = "diffAnalysis")
+#   } else {
+#     hideTab(inputId ="navPage", target = "diffAnalysis")
+#   }
+# })
+
 
 observe({
-  req(rv$current.obj)
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-  if (NA.count == 0){
-    showTab(inputId ="navPage", target = "diffAnalysis")
-  } else {
-    hideTab(inputId ="navPage", target = "diffAnalysis")
-  }
+    req(rv$current.obj)
+    
+    if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+    { 
+        hideTab(inputId ="navPage", target = "Aggregation")
+        showTab(inputId ="navPage", target = "GO_Analysis")
+    } else {
+        showTab(inputId ="navPage", target = "Aggregation")
+        hideTab(inputId ="navPage", target = "GO_Analysis")
+    }
+    
+    
+    # hide/show diff Analysis tabPanel
+    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    if (NA.count == 0){
+        showTab(inputId ="navPage", target = "diffAnalysis")
+    } else {
+        hideTab(inputId ="navPage", target = "diffAnalysis")
+    }
+    
+    
+    
+    if (nrow(rv$current.obj) > limitHeatmap)
+    { 
+        hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+    } else {
+        showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+    }
+    
+    
+    
+    
+    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+    if (nbEmptyLines > 0) {
+        shinyjs::disable("peptideLevel_perform.imputation.button")
+        shinyjs::disable("peptideLevel_ValidImputation")
+    } else {
+        shinyjs::enable("peptideLevel_perform.imputation.button")
+        shinyjs::enable("peptideLevel_ValidImputation")
+    }
+    
+    
 })
+

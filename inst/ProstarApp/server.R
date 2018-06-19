@@ -25,10 +25,9 @@ shinyServer(function(input, output, session) {
     
    # unsuspendAll(session)
     
-    observe({
+
       hideTab(inputId ="navPage", target = "updateDesign")  
-     })
-    
+ 
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()
@@ -49,19 +48,19 @@ shinyServer(function(input, output, session) {
     
     env <- environment()
     source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
-    source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
-    source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
+     source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
+     source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
     source(file.path("server", "srv_openMSnset.R"),  local = TRUE)$value
-    source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
-    source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
+     source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
+     source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
     source(file.path("server", "srv_general.R"), local = TRUE)$value
-    source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
-    source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
-    source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
-    source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
-    source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
-    source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
-    source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
+     source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
+     source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
+     source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
+     source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
+     source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
+     source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+     source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
     source(file.path("server", "srv_datasetManager.R"),  local = TRUE)$value
     source(file.path("server", "srv_help.R"),  local = TRUE)$value
     source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
@@ -70,5 +69,45 @@ shinyServer(function(input, output, session) {
     
     activatePopover()
   
+    
+    # observe({
+    #     input$navPage
+    #     print(input$navPage)
+    #     if (input$navPage == "Descriptive statistics"){
+    #         source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+    #     }
+    #     if (input$navPage == "demo"){
+    #         source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+    #     }
+    #     if (input$navPage == "import"){
+    #         source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
+    #     }
+    #     if (input$navPage == "Export"){
+    #         #source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+    #     }
+    #     if (input$navPage == "FilterDataTab"){
+    #         source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
+    #     }
+    #     if (input$navPage == "Normalization"){
+    #         source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
+    #     }
+    #     
+    #     if (input$navPage == "imputationTabs"){
+    #         source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
+    #         source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
+    #     }
+    #     
+    #     if (input$navPage == "Aggregation"){
+    #         source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
+    #     }
+    #     
+    #     if (input$navPage == "diffAnalysisTab"){
+    #         source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
+    #     }
+    #     
+    #     if (input$navPage == "GO_AnalysisTab"){
+    #         source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
+    #     }
+    # })
     
 })

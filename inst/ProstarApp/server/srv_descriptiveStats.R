@@ -24,40 +24,6 @@ callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 
 
 
-activatePopover <- function(){
-    txt_histo_M <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    txt_histo_MV_per_lines <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    
-    txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    
-    addPopover(session, "MVPlots_DS-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-    addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-}
-
 
 #######################################
 
@@ -69,22 +35,19 @@ output$DS_sidebarPanel_tab <- renderUI({
     .choices<- NULL
     switch(rv$typeOfDataset,
            protein = {
-                      .choices <- list("None" = "None",
-                                        "Quantitative data" = "tabExprs",
+                      .choices <- list( "Quantitative data" = "tabExprs",
                                         "Proteins metadata" = "tabfData",
                                         "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
         peptide = {
-                      .choices <- list("None" = "None",
-                                       "Quantitative data" = "tabExprs",
+                      .choices <- list("Quantitative data" = "tabExprs",
                                        "Peptides metadata" = "tabfData",
                                         "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
                 {
-                .choices <- list("None" = "None",
-                                  "Quantitative data" = "tabExprs",
+                .choices <- list("Quantitative data" = "tabExprs",
                                 "Analyte metadata" = "tabfData",
                                 "Experimental design" = "tabpData",
                                 "Dataset history" = "processingData")
@@ -93,7 +56,8 @@ output$DS_sidebarPanel_tab <- renderUI({
     
     tagList(
                      radioButtons("DS_TabsChoice", "Table to display",
-                                  choices = .choices),
+                                  choices = .choices,
+                                  selected=character(0)),
                      br(),
                     
                      uiOutput("legendForExprsData")

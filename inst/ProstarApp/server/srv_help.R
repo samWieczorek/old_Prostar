@@ -72,11 +72,12 @@ output$References <- renderText({
     <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/fdrtuto.pdf?attredirects=0\">
     T. Burger. Gentle introduction to the statistical 
     foundations of false discovery rate in quantitative proteomics. 
-    <i>Journal of Proteome Research</i>, accepted for publication, 2017. 
+    <i>Journal of Proteome Research</i>, 17(1):12-22, 2017. 
     </a></li>
-    <li> L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
-    from relative quantitative proteomics data using shared peptides. (under review).
-    </li>
+    <li> <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/revised-biostat-proteom-preprint.pdf?attredirects=0\">
+    L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
+    from relative quantitative proteomics data using shared peptides. (accepted for publication, 2018). 
+    </a></li>
     <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
     T. Burger. Multiple imputation strategy for mass spectrometry-based 
     proteomic data. (in preparation).
@@ -212,7 +213,7 @@ output$warningDependanciesVersion <- renderUI({
     highcharterVersion <-installed.packages()["highcharter","Version"]
     
     
-txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
+    txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
    <font color=\"red\">For a better experience with Prostar, we advice you to install the development version of the following
     packages : DT and highcharter. <br>
    To do so, type and execute the followings commands in a R console:<br>
@@ -220,11 +221,72 @@ txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
     <li> devtools::install_github('rstudio/DT')</li>
     <li> devtools::install_github('jbkunst/highcharter')</li>
     </ul> </font>"
-
-    if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0")
-    HTML(txt)
     
+    tagList(
+        tags$h4("Notes"),
+       if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0")
+     tags$p(txt)
+    )
 })
+
+
+
+
+output$versionLog <- renderUI({
+    
+    txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
+    <font color=\"red\">For a better experience with Prostar, we advice you to install the development version of the following
+    packages : DT and highcharter. <br>
+    To do so, type and execute the followings commands in a R console:<br>
+    <ul>
+    <li> devtools::install_github('rstudio/DT')</li>
+    <li> devtools::install_github('jbkunst/highcharter')</li>
+    </ul> </font>"
+    
+    tagList(
+        tags$h4("News in Prostar 1.12.9"),
+        tags$h5("Bug fixed:"),
+        tags$ol(
+            tags$li("Normalization: \"Sum by columns\" has been modified to provide log-abundances compatible with the other treatments. It can be
+                done \"for each condition independantly\" or \"globally\".")
+            ),
+        
+        tags$h5("New features:"),
+        
+        tags$ol(
+            tags$li("Descriptive statistics: The expression datasets are colored w.r.t
+        the nature of missing value (POV or MEC) even when the value has been imputed"),
+        
+            tags$li("Filtering: Manage designs with more than 2 conditions and with
+        conditions containing different number of samples"),
+        
+       tags$li("Filtering: UI more user friendly for the string-based filtering (Tab 2)"),
+        
+        
+        tags$li("Imputation (protein level): Distinction between missing values on an
+        entire condition (Missing on the Entire Condition) and the other
+        ones (Partially Observed Value)"),
+        
+        tags$li("Imputation (protein level): for the POV, it is possible to use SLSA
+        which take into account the experimentaldesign experimental"),
+        
+        tags$li("Imputation (protein level): imputations are all processed condition
+        by condition"),
+        
+        tags$li("Differential analysis: All tests can process datasets with
+        conditions of different number of samples"),
+        
+        tags$li("Differential analysis: Limma takes into account all the hierarchical experimental designs"),
+        
+        tags$li("GO analysis: Add the GeneID nomenclature.")
+        )
+        
+        
+    )
+})
+
+
+
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)

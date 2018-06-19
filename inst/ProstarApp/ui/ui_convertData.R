@@ -58,26 +58,24 @@ tabPanel("Convert data",
              tabPanel( "4 - Samples metadata",
                        value = "buildDesign_Tab",
                        br(), br(),
+                       tagList(
+                           fluidRow(
+                               column(width=6,tags$b("1 - Fill the \"Label\" column to identify the conditions to compare.")),
+                               column(width=6,uiOutput("UI_checkConditions")  )
+                       ),
                        fluidRow(
-                         column(width=6,tagList(
-                                            uiOutput("UI_checkConditions"),
-                                            uiOutput("checkDesign"))),
-                         column(width=4, uiOutput("UI_hierarchicalExp"))
-                         ),
+                           column(width=6,uiOutput("UI_hierarchicalExp")),
+                           column(width=6,uiOutput("checkDesign") )
+                       )
+                       ),
                        hr(),
-                       #fluidRow(
-                       #  column(width=5,rHandsontableOutput("hot",width = "600",height = "100%")),
-                       #  column(width=7, shinyjs::hidden(
-                       #    div(id = "exLevels",uiOutput("designExamples"))
-                       #  ))
-                       #)
                        
                        tags$div(
                          
-                         tags$div(style="display:inline-block;",
+                         tags$div(style="display:inline-block; vertical-align: top;",
                                   uiOutput("viewDesign",width="100%")
                          ),
-                         tags$div(style="display:inline-block;",
+                         tags$div(style="display:inline-block; vertical-align: top;",
                                   shinyjs::hidden(
                                     div(id = "exLevels",uiOutput("designExamples")))
                          )

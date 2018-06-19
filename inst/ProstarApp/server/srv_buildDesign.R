@@ -41,8 +41,7 @@ observeEvent(input$eData.box,{
 
 #-------------------------------------------------------------
 output$hot <- renderRHandsontable({
-  #req(input$eData.box)
-  req(rv$hot)
+  rv$hot
   input$chooseExpDesign
   
   if (is.null(rv$hot)){
@@ -91,7 +90,7 @@ output$UI_checkConditions  <- renderUI({
   if (sum(rv$hot$Label == "")==0){
     tags$div(
       tags$div(style="display:inline-block;",
-               actionButton("btn_checkConds", "1 - Check conditions (Label)")
+               actionButton("btn_checkConds", "Check conditions (Label)")
       ),
       
       tags$div(style="display:inline-block;",
@@ -138,7 +137,7 @@ output$UI_hierarchicalExp <- renderUI({
         div(
           # edit1
           style="display:inline-block; vertical-align: middle;",
-          HTML("<strong><font size=\"5\">Experimental design</font></strong>")
+          tags$b("2 - Choose the type of experimental design and complete it accordingly")
         ),
         div(
           # edit2
@@ -148,9 +147,9 @@ output$UI_hierarchicalExp <- renderUI({
       ),
       
       radioButtons("chooseExpDesign", "",
-                   choices = c("Flat design" = "FlatDesign" ,
-                               "2 levels design" = "twoLevelsDesign" ,
-                               "3 levels design" = "threeLevelsDesign" ))
+                   choices = c("Flat design (automatic)" = "FlatDesign" ,
+                               "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
+                               "3 levels design (complete Bio.Rep a,d Tech.Rep columns)" = "threeLevelsDesign" ))
     )
   }
   
@@ -338,7 +337,7 @@ output$checkDesign <- renderUI({
   tags$div(
     tags$div(
       style="display:inline-block;",
-      actionButton("btn_checkDesign", "2 - Check design")
+      actionButton("btn_checkDesign", "Check design")
     ),
     
     tags$div(

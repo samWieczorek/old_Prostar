@@ -532,21 +532,15 @@ output$infoAboutAggregationTool <- renderUI({
     DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
     if (NeedsUpdate())
     {  showTab(inputId ="navPage", target = "updateDesign")  
-        tagList(
             tags$div(
-                tags$div(style="display:inline-block;",tags$img(src = "images/Problem.png", height=25)),
-                tags$div(style="display:inline-block;",tags$p(paste0("The dataset was created with Prostar ",
-                                                                 rv$current.obj@experimentData@other$Prostar_Version,
-                                                                 " which is obsolete or invalid. Thus, you must modify the design of your experimental design.")))
+                tags$div(style="display:inline-block; vertical-align: top;",
+                         tags$img(src = "images/Problem.png", height=25)),
+                tags$div(style="display:inline-block; vertical-align: top;",
+                         tags$p("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
+                                       software functionalities. Please go to \"Update design\" in the \"Dataset manager\" menu tu update it."))
             )
-            
-            
-          
-      )
     } else{
       
-    
-    
     NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
     
     nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
@@ -554,18 +548,18 @@ output$infoAboutAggregationTool <- renderUI({
     tagList(
         tags$h3("Info"),
         if (rv$typeOfDataset == "protein"){
-            tags$h5("Note: the aggregation tool
+            tags$p("Note: the aggregation tool
                     has been disabled because the dataset contains 
                     protein quantitative data.")
         },
         
         if (NA.count > 0){
-            tags$h5("As your dataset contains missing values, you should 
+            tags$p("As your dataset contains missing values, you should 
             impute them prior to proceed",br()," 
                     to the differential analysis.")
         },
         if (nb.empty.lines > 0){
-            tags$h5("As your dataset contains lines with no values, you 
+            tags$p("As your dataset contains lines with no values, you 
             should remove them with the filter",br()," tool
             prior to proceed to the analysis of the data.")
         }
@@ -695,18 +689,18 @@ output$infoAboutDemoDataset <- renderUI({
   tagList(
     tags$h3("Info"),
     if (rv$typeOfDataset == "protein"){
-      tags$h5("Note: the aggregation tool
+      tags$p("Note: the aggregation tool
               has been disabled because the dataset contains 
               protein quantitative data.")
     },
     
     if (NA.count > 0){
-      tags$h5("As your dataset contains missing values, you should 
+      tags$p("As your dataset contains missing values, you should 
               impute them prior to proceed",br()," 
               to the differential analysis.")
     },
     if (nb.empty.lines > 0){
-      tags$h5("As your dataset contains lines with no values, you 
+      tags$p("As your dataset contains lines with no values, you 
               should remove them with the filter",br()," tool
               prior to proceed to the analysis of the data.")
     }

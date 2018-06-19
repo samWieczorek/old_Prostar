@@ -432,19 +432,19 @@ output$peptideLevel_warningImputationMethod <- renderText({
 })
 
 
-observe({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-    if (nbEmptyLines > 0) {
-        shinyjs::disable("peptideLevel_perform.imputation.button")
-        shinyjs::disable("peptideLevel_ValidImputation")
-    } else {
-        shinyjs::enable("peptideLevel_perform.imputation.button")
-        shinyjs::enable("peptideLevel_ValidImputation")
-    }
-})
+# observe({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)}
+#     
+#     nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+#     if (nbEmptyLines > 0) {
+#         shinyjs::disable("peptideLevel_perform.imputation.button")
+#         shinyjs::disable("peptideLevel_ValidImputation")
+#     } else {
+#         shinyjs::enable("peptideLevel_perform.imputation.button")
+#         shinyjs::enable("peptideLevel_ValidImputation")
+#     }
+# })
 
 
 
