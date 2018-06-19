@@ -533,9 +533,14 @@ output$infoAboutAggregationTool <- renderUI({
     if (NeedsUpdate())
     {  showTab(inputId ="navPage", target = "updateDesign")  
         tagList(
-          h4(paste0("The dataset was created with Prostar ",
-                    rv$current.obj@experimentData@other$Prostar_Version,
-                    " which is obsolete or invalid. Thus, you must modify the design of your experimental design."))
+            tags$div(
+                tags$div(style="display:inline-block;",tags$img(src = "images/Problem.png", height=25)),
+                tags$div(style="display:inline-block;",tags$p(paste0("The dataset was created with Prostar ",
+                                                                 rv$current.obj@experimentData@other$Prostar_Version,
+                                                                 " which is obsolete or invalid. Thus, you must modify the design of your experimental design.")))
+            )
+            
+            
           
       )
     } else{

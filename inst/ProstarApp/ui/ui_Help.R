@@ -6,7 +6,8 @@ tabPanel("Help",
                         htmlOutput("References")
              ),
              tabPanel( "FAQ",
-                       id = "FAQ"
+                       id = "FAQ",
+                       htmlOutput("FAQ_output")
              ),
              tabPanel("Check for updates",
                       
