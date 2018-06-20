@@ -1,5 +1,5 @@
 tabPanel("Aggregation",
-         value="Aggregation",
+         value="AggregationTab",
          tabsetPanel(
              tabPanel("1 - Aggregate peptides",
                       value = "aggregation",

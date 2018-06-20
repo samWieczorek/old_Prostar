@@ -1,3 +1,5 @@
+callModule(moduleDatasetOverview,"overview_openMSnset")
+
 output$openMSnsetScreen <- renderUI({
   
   tagList(

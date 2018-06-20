@@ -1,37 +1,37 @@
 
-activatePopover <- function(){
-    txt_histo_M <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    txt_histo_MV_per_lines <- paste0("<p>Test",
-                                     "test</p><p>Explanation .</p>")
-    
-    
-    txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
-                                                    "test</p><p>Explanation .</p>")
-    
-    
-    addPopover(session, "MVPlots_DS-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-    addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-}
+# activatePopover <- function(){
+#     txt_histo_M <- paste0("<p>Test",
+#                           "test</p><p>Explanation .</p>")
+#     
+#     txt_histo_MV_per_lines <- paste0("<p>Test",
+#                                      "test</p><p>Explanation .</p>")
+#     
+#     
+#     txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
+#                                                     "test</p><p>Explanation .</p>")
+#     
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV", "Info", 
+#                content = txt_histo_M, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
+#                content = txt_histo_MV_per_lines, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
+#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+#     
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
+#                content = txt_histo_M, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
+#                content = txt_histo_MV_per_lines, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
+#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+#     
+#     
+# }
 
 
 # 
@@ -42,63 +42,19 @@ activatePopover <- function(){
 
 
 
-callModule(modulePopover,"modulePopover_GenomeWide", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
-                                content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
-tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
-tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))
-
-
-
-callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">P-Value push</font></strong>")),
-content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
-
-callModule(modulePopover,"modulePopover_convertDataQuanti", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
-                                content="Select the columns that are quantitation values by clicking in the field below.")))
-
-
-callModule(modulePopover,"modulePopover_exportMetaData", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Metadata</font></strong>")), 
-                                content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
-
-
-callModule(modulePopover,"modulePopover_exportFilename", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Filename</font></strong>")), 
-                                content="Enter the name of the files to be created")))
-
-
-callModule(modulePopover,"modulePopover_exportFileFormat", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">File format</font></strong>")), 
-                                content="File format")))
-
-callModule(modulePopover,"modulePopover_GOlevel", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Level</font></strong>")), 
-                                content="Level")))
-
-
-callModule(modulePopover,"modulePopover_GOuniverse", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Universe</font></strong>")), 
-                                content="universe")))
-callModule(modulePopover,"modulePopover_GOfdr", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">FDR</font></strong>")), 
-                                content="BH Adjusted P-value cutoff")))
-
-
-callModule(modulePopover,"modulePopover_volcanoTooltip", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Tooltip</font></strong>")), 
-                                content="Infos to be displayed in the tooltip of volcanoplot")))
 
 
 
 
-callModule(modulePopover,"modulePopover_convertChooseDatafile", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
-                                content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
-callModule(modulePopover,"modulePopover_convertIdType", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Type de ID</font></strong>")), 
-                                content="If you choose the automatic ID, Prostar will build an index.")))
+
+
+
+
+
+
+
+
 
 
 
@@ -604,13 +560,13 @@ output$disableAggregationTool <- renderUI({
     {
         if (rv$current.obj@experimentData@other$typeOfData == "protein")
         {
-    disable(selector = "#navPage li a[data-value=Aggregation]")
+    disable(selector = "#navPage li a[data-value=AggregationTab]")
     tags$style(
-type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
+type="text/css","#navPage li a[data-value=AggregationTab] { color:lightgrey;}")
 
 
         } else {
-            enable(selector = "#navPage li a[data-value=Aggregation]")
+            enable(selector = "#navPage li a[data-value=AggregationTab]")
 
         }
     }
@@ -657,20 +613,20 @@ observe({
     
     if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
     { 
-        hideTab(inputId ="navPage", target = "Aggregation")
-        showTab(inputId ="navPage", target = "GO_Analysis")
+        hideTab(inputId ="navPage", target = "AggregationTab")
+        showTab(inputId ="navPage", target = "GOAnalysisTab")
     } else {
-        showTab(inputId ="navPage", target = "Aggregation")
-        hideTab(inputId ="navPage", target = "GO_Analysis")
+        showTab(inputId ="navPage", target = "AggregationTab")
+        hideTab(inputId ="navPage", target = "GOAnalysisTab")
     }
     
     
     # hide/show diff Analysis tabPanel
     NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
     if (NA.count == 0){
-        showTab(inputId ="navPage", target = "diffAnalysis")
+        showTab(inputId ="navPage", target = "diffAnalysisTab")
     } else {
-        hideTab(inputId ="navPage", target = "diffAnalysis")
+        hideTab(inputId ="navPage", target = "diffAnalysisTab")
     }
     
     

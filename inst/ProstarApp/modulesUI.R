@@ -1,13 +1,4 @@
 
-
-# moduleSymbolicFilterUI <- function(id) {
-#     ns <- NS(id)
-#     uiOutput(ns("SymbolicFilter"))
-# }
-
-
-
-
 modulePopoverUI <- function(id){
     ns <- NS(id)
     uiOutput(ns("customPopover"))

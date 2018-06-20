@@ -1,5 +1,16 @@
+callModule(modulePopover,"modulePopover_convertChooseDatafile", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
+                                content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
+callModule(modulePopover,"modulePopover_convertIdType", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Type de ID</font></strong>")), 
+                                content="If you choose the automatic ID, Prostar will build an index.")))
 
+callModule(modulePopover,"modulePopover_convertDataQuanti", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
+                                content="Select the columns that are quantitation values by clicking in the field below.")))
+
+callModule(moduleDatasetOverview,"overview_convertData")
 
 output$warningNonUniqueID <- renderUI({
     input$idBox
@@ -164,18 +175,10 @@ quantiDataTable <- reactive({
                                     nrow(as.data.frame(input$eData.box)),
                                     choices=choices))
         colnames(df) <- c("Sample", "Identification method")
-        # 
-        # for (i in seq_len(nrow(as.data.frame(input$eData.box)))) {
-        #     updateSelectInput(session,
-        #                       paste0("colForOriginValue_",i),
-        #                       selected = input[[paste0("colForOriginValue_",i)]])
-        # }
-        
     } else {
         df <- data.frame(Sample = as.data.frame(input$eData.box))
         colnames(df) <- c("Sample")
     }
-    print(df)
     df
 })
 
@@ -239,9 +242,11 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
     #{return(NULL)}
     
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    
-    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+    colNamesForOriginofValues <- NULL
+    if (isTRUE(input$selectIdent)) {
+        colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+        if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+    } 
     
     isolate({
         result = tryCatch(
@@ -282,7 +287,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                 
                 indexForOriginOfValue <- NULL
-                if ((length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
+                if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
                     for (i in 1:length(tmp.eData.box)){
                         indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                     }

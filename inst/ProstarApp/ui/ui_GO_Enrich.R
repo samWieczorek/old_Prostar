@@ -1,5 +1,5 @@
 tabPanel("GO Analysis",
-        value = "GO_AnalysisTab",
+        value = "GOAnalysisTab",
         uiOutput("GOAnalysisMenu")
  
 )

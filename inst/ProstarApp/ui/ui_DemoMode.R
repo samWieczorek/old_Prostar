@@ -1,5 +1,5 @@
 tabPanel("Demo mode",
-         value = "demo",
+         value = "demoTab",
          sidebarCustom(),
          splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                      wellPanel(id = "chooseDatasetFromDAPARdata_wellPanel",

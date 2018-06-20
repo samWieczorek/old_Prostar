@@ -1,4 +1,6 @@
 
+callModule(missingValuesPlots,"MVPlots_filtering")
+callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 
 
 observeEvent(input$actionButtonFilter,{

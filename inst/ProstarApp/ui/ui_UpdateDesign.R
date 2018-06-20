@@ -1,5 +1,5 @@
 tabPanel("Update design",
-         value = "updateDesign",
+         value = "updateDesignTab",
          br(), br(),
          tagList(
              fluidRow(

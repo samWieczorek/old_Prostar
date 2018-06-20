@@ -7,20 +7,15 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleDensityplot,"densityPlot_Norm")
+callModule(moduleBoxplot,"boxPlot_Norm")
 
 
 callModule(missingValuesPlots, "MVPlots_DS")
-callModule(missingValuesPlots,"MVPlots_filtering")
-
-
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleBoxplot,"boxPlot_Norm")
-
 callModule(moduleDatasetOverview,"overview_DS")
-callModule(moduleDatasetOverview,"overview_DemoMode")
-callModule(moduleDatasetOverview,"overview_openMSnset")
-callModule(moduleDatasetOverview,"overview_convertData")
-callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
+
+
+
 
 
 

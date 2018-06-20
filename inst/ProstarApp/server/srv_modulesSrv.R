@@ -57,6 +57,8 @@ moduleVolcanoplot <- function(input, output, session){
 
 
 
+
+
 missingValuesPlots <- function(input, output, session) {
     
     output$histo_MV <- renderHighchart({
@@ -71,6 +73,8 @@ missingValuesPlots <- function(input, output, session) {
         histo_MV_per_lines_per_conditions()
     })
 }
+
+
 
 moduleDensityplot <- function(input, output, session) {
     

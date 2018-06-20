@@ -1,38 +1,5 @@
 
 
-output$optionsDemomode <- renderUI({
-    
-    req(input$demoDataset)
-    tagList(
-        checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
-        actionButton("loadDemoDataset", "Load demo dataset")
-    )
-})
-
-output$chooseDataset <- renderUI({
-    
-    if(require("DAPARdata")){
-        print("DAPARdata is loaded correctly")
-        selectInput("demoDataset",
-                    "Demo dataset",
-                    choices = utils::data(package="DAPARdata")$results[,"Item"]
-        )
-    } else {
-        print("trying to install DAPARdata")
-        install.packages("DAPARdata")
-        if(require(DAPARdata)){
-        print("DAPARdata installed and loaded")
-        selectInput("demoDataset",
-                    "Demo dataset",
-                    choices = utils::data(package='DAPARdata')$results[,"Item"])
-        } else {
-            stop("Could not install the package DAPARdata")
-        }
-    }
-    
-  
-})
-
 
 
 
@@ -53,13 +20,6 @@ output$helpTextDataID <- renderUI({
 
 
 
-
-output$chooseExportFilename <- renderUI({
-    
-    textInput("nameExport", 
-              label = "",
-              value = rv$current.obj.name)
-})
 
 
 # This function computes a new data set. It can optionally take a function,
@@ -192,13 +152,26 @@ observeEvent(input$file,ignoreInit =TRUE,{
         if (NeedsUpdate()) {
           hideTab(inputId ="navPage", target = "FilterDataTab")
           hideTab(inputId ="navPage", target = "Normalization")
-          hideTab(inputId ="navPage", target = "Aggregation")
+          hideTab(inputId ="navPage", target = "AggregationTab")
           hideTab(inputId ="navPage", target = "imputationTabs")
           hideTab(inputId ="navPage", target = "diffAnalysisTab")
-          hideTab(inputId ="navPage", target = "GO_AnalysisTab")
-          hideTab(inputId ="navPage", target = "import")
-          hideTab(inputId ="navPage", target = "demo")
+          hideTab(inputId ="navPage", target = "GOAnalysisTab")
+          hideTab(inputId ="navPage", target = "convertTab")
+          hideTab(inputId ="navPage", target = "demoTab")
           hideTab(inputId ="navPage", target = "SessionLogsTab")
+          
+          showTab(inputId ="navPage", target = "updateDesignTab")
+        } else {
+            hideTab(inputId ="navPage", target = "updateDesignTab")
+            showTab(inputId ="navPage", target = "FilterDataTab")
+            showTab(inputId ="navPage", target = "Normalization")
+            showTab(inputId ="navPage", target = "AggregationTab")
+            showTab(inputId ="navPage", target = "imputationTabs")
+            showTab(inputId ="navPage", target = "diffAnalysisTab")
+            showTab(inputId ="navPage", target = "GOAnalysisTab")
+            showTab(inputId ="navPage", target = "convertTab")
+            showTab(inputId ="navPage", target = "demoTab")
+            showTab(inputId ="navPage", target = "SessionLogsTab")
         }
         #if (input$showCommandLog){
             writeToCommandLogFile(
@@ -251,68 +224,6 @@ option=list(initComplete = initComplete(),
 
 
 
-output$downloadMSnSet <- downloadHandler(
-  #input$chooseDatasetToExportToMSnset,
-  filename = function() { 
-    #input$nameExport
-    if (input$fileformatExport == gFileFormatExport$excel) {
-      paste(input$nameExport,gFileExtension$excel,  sep="")}
-    else if (input$fileformatExport == gFileFormatExport$msnset)
-    {
-      paste(input$nameExport,gFileExtension$msnset,  sep="")}
-    else if (input$fileformatExport == gFileFormatExport$zip)
-    {
-      paste(input$nameExport,gFileExtension$zip,  sep="")}
-    
-  },
-  content = function(file) {
-    dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    if (length(input$colsToExport) == 1){
-      Biobase::fData(dataToExport) <- 
-        data.frame(fData(dataToExport)[,input$colsToExport])
-      colnames( Biobase::fData(dataToExport)) <- input$colsToExport
-      t <- buildWritableVector(input$colsToExport)
-    }
-    else if (length(input$colsToExport) > 1){
-      Biobase::fData(dataToExport) <- 
-        data.frame(fData(dataToExport)[,input$colsToExport])
-      t <- buildWritableVector(input$colsToExport)
-    }
-    
-    
-    colnames(fData(dataToExport)) <- gsub(".", "_", 
-                                          colnames(fData(dataToExport)), 
-                                          fixed=TRUE)
-    names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
-    
-    dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
-    dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-    
-    if (input$fileformatExport == gFileFormatExport$excel) {
-      fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
-      writeMSnsetToExcel(dataToExport, input$nameExport)
-      file.copy(fname, file)
-      file.remove(fname)
-    }
-    
-    else if  (input$fileformatExport == gFileFormatExport$msnset) {
-      fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
-      saveRDS(dataToExport,file=fname)
-      file.copy(fname, file)
-      file.remove(fname)
-    }
-    
-    else if  (input$fileformatExport == gFileFormatExport$zip) {
-      fname <- paste(input$nameExport,gFileExtension$zip,  sep="")
-      writeMSnsetToCSV(dataToExport,fname)
-      file.copy(fname, file)
-      file.remove(fname)
-    }
-  }
-)
-
-
-
 
 
 
@@ -349,21 +260,6 @@ output$MSnsetView <- renderPrint({
 
 
 
-output$chooseMetaDataExport <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)  }
-    
-    choices <- colnames(fData(rv$current.obj))
-    names(choices) <- colnames(fData(rv$current.obj))
-    selectizeInput("colsToExport",
-                   label = "",
-                   choices = choices,
-                   multiple = TRUE, width='500px')
-    
-})
-
-
-
 
 
 output$logSession <- DT::renderDataTable({
@@ -389,21 +285,6 @@ output$logSession <- DT::renderDataTable({
     dt
 })
 
-
-
-
-output$showDatasetDoc <- renderUI({
-    req(input$demoDataset)
-    req(input$showDemoDatasetPDF)
-    
-    file<- paste(system.file(package = "DAPARdata"),"/doc/",
-                 input$demoDataset,".pdf", sep="")
-    cmd <- paste("cp ",file," www/.", sep="")
-    system(cmd)
-    tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), 
-                width="900", height="700")
-    
-})
 
 
 
@@ -511,15 +392,15 @@ output$conversionDone <- renderUI({
 NeedsUpdate <- reactive({
     req(rv$current.obj)
     
-    DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
+    PROSTAR.version <- rv$current.obj@experimentData@other$Prostar_Version
     
-    if (!is.null(DAPAR.version) && DAPAR.version >= "1.12.9"
+    if (!is.null(PROSTAR.version) && PROSTAR.version >= "1.12.9"
         && (DAPAR::check.design(Biobase::pData(rv$current.obj))$valid))
     {return (FALSE)}
     
-    
+    else {
     return(TRUE)
-    
+    }
 })
 
 
@@ -529,9 +410,8 @@ output$infoAboutAggregationTool <- renderUI({
     rv$typeOfDataset
     req(rv$current.obj)
     
-    DAPAR.version <- rv$current.obj@experimentData@other$DAPAR_Version
     if (NeedsUpdate())
-    {  showTab(inputId ="navPage", target = "updateDesign")  
+    {    
             tags$div(
                 tags$div(style="display:inline-block; vertical-align: top;",
                          tags$img(src = "images/Problem.png", height=25)),
@@ -540,7 +420,8 @@ output$infoAboutAggregationTool <- renderUI({
                                        software functionalities. Please go to \"Update design\" in the \"Dataset manager\" menu tu update it."))
             )
     } else{
-      
+       
+        
     NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
     
     nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
@@ -635,75 +516,3 @@ output$choosedataTobuildReport <- renderUI({
 
 
 
-output$choosedataToExportMSnset <- renderUI({
-  req(rv$dataset)
-  
-  dnames <- unlist(lapply(names(rv$dataset), function(x){unlist(strsplit(x, " - "))[[1]]}))
-  .choices <- names(rv$dataset)
-  names(.choices) <- dnames
-  radioButtons("chooseDatasetToExportToMSnset", 
-               "Datasets to export",
-               choices = c("None"="None",.choices))
-  
-})
-
-
-output$exportOptions <- renderUI({
-  req(input$chooseDatasetToExportToMSnset)
-  if (input$chooseDatasetToExportToMSnset == "None"){return(NULL)}
-  
-  
-  
-  tagList(
-    fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportFileFormat")),
-      column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
-    ),
-    
-    br(),
-    fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
-      column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
-    ),
-    br(),
-    fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportFilename")),
-      column(width=10,uiOutput("chooseExportFilename"))
-    ),
-    
-    br(),
-    downloadButton('downloadMSnSet', 'Download')
-  )
-})
-
-
-
-output$infoAboutDemoDataset <- renderUI({
-  rv$current.obj
-  rv$typeOfDataset
-  if (is.null(rv$current.obj)) {return(NULL)    }
-  NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
-  
-  nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-  
-  tagList(
-    tags$h3("Info"),
-    if (rv$typeOfDataset == "protein"){
-      tags$p("Note: the aggregation tool
-              has been disabled because the dataset contains 
-              protein quantitative data.")
-    },
-    
-    if (NA.count > 0){
-      tags$p("As your dataset contains missing values, you should 
-              impute them prior to proceed",br()," 
-              to the differential analysis.")
-    },
-    if (nb.empty.lines > 0){
-      tags$p("As your dataset contains lines with no values, you 
-              should remove them with the filter",br()," tool
-              prior to proceed to the analysis of the data.")
-    }
-    
-      )
-    })

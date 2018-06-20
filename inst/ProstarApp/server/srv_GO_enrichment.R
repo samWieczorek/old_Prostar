@@ -137,6 +137,30 @@ output$GOAnalysisMenu <- renderUI({
 })
 
 
+
+
+callModule(modulePopover,"modulePopover_GOlevel", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Level</font></strong>")), 
+                                content="Level")))
+
+
+callModule(modulePopover,"modulePopover_GOuniverse", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Universe</font></strong>")), 
+                                content="universe")))
+callModule(modulePopover,"modulePopover_GOfdr", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">FDR</font></strong>")), 
+                                content="BH Adjusted P-value cutoff")))
+
+
+
+callModule(modulePopover,"modulePopover_GenomeWide", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
+                                content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
+                                               tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
+                                               tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))
+
+
+
 GetListInstalledOrgdDB <- function(){
     l <- installed.packages()[,"Package"]
     l <- l[grep("org", l)]

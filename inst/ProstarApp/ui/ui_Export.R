@@ -1,5 +1,5 @@
-tabPanel("Export",
-         #value = "ExportTab",
+tabPanel("Export dataset",
+         value = "ExportTab",
          tabsetPanel(
            id = "Export_tabSetPanel",
            tabPanel("Export to file",
