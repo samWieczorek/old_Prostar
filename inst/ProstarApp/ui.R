@@ -56,15 +56,15 @@ sidebarPanelWidth()
 
    navbarMenu("Dataset manager",
               #value = "DatasetManagerMenu",
-              source(file.path("ui", "ui_openMSnSetFile.R"),  local = TRUE)$value,
-              source(file.path("ui", "ui_convertData.R"),  local = TRUE)$value,
-              source(file.path("ui", "ui_updateDesign.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_UpdateDesign.R"),  local = TRUE)$value,
               source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
               source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
-              source(file.path("ui", "ui_logSession.R"),  local = TRUE)$value
+              source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
               
    ),
-source(file.path("ui", "ui_descriptiveStatistics.R"),  local = TRUE)$value,
+source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value,
 
 navbarMenu("Data processing",
            #value="DataProcessingMenu",

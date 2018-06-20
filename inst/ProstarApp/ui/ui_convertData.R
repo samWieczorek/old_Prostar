@@ -70,6 +70,7 @@ tabPanel("Convert data",
                        ),
                        hr(),
                        
+                       busyIndicator(WaitMsgCalc,wait = 0),
                        tags$div(
                          
                          tags$div(style="display:inline-block; vertical-align: top;",

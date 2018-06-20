@@ -80,22 +80,23 @@ observeEvent(input$valid.aggregation,{
     {return(NULL)}
     
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             
             isolate({
                 
                 ##concatenation des informations
-              #m <- NULL
-                #if (input$checkSharedPeptides){ 
-                  #   m <- rv$matAdj$matWithSharedPeptides
+              m <- NULL
+                if (input$checkSharedPeptides){ 
+                     m <- rv$matAdj$matWithSharedPeptides
                     #if (input$showCommandLog){
                     #writeToCommandLogFile("m <- mat$matWithSharedPeptides")
                         #}
-                    #}else{ m <-rv$matAdj$matWithUniquePeptides
+                    }else{
+                        m <-rv$matAdj$matWithUniquePeptides
                 #if (input$showCommandLog){
                 #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
-                 # }
+                  }
               # }
                 #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
                 
@@ -115,7 +116,7 @@ observeEvent(input$valid.aggregation,{
                 #delta <- round(total / length(input$columnsForProteinDataset.box))
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
-                    newCol <- BuildColumnToProteinDataset_par(
+                    newCol <- BuildColumnToProteinDataset(
                         Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 
@@ -176,16 +177,16 @@ observeEvent(input$valid.aggregation,{
                 
             } )
             
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste("Validate the agregation",":",
-                                conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste("Validate the agregation",":",
+        #                         conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
     })
 
 
@@ -540,12 +541,6 @@ output$Aggregation_Step2 <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
         tagList(
             fluidRow(
-                #column(width=3,
-                #       checkboxInput("filterProtAfterAgregation",
-                #                     "Filtering : remove the proteins that are 
-                #                     defined by less than n peptides.",
-                #                     value = FALSE)
-                #),
                 column(width=4,uiOutput("displayNbPeptides")
                 )
                 

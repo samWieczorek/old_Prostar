@@ -67,9 +67,18 @@ output$hot <- renderRHandsontable({
   
   if (!is.null(input$chooseExpDesign)) {
     switch(input$chooseExpDesign,
-           FlatDesign = hot <- hot %>% hot_col(col = "Bio.Rep", readOnly = TRUE),
-           twoLevelsDesign = hot <- hot %>% hot_col(col =  "Tech.Rep", readOnly = TRUE),
-           threeLevelsDesign = hot <- hot %>% hot_col(col = "Analyt.Rep", readOnly = TRUE)
+           FlatDesign = {
+               if ("Bio.Rep" %in% colnames(rv$hot))
+                   hot <- hot %>% hot_col(col = "Bio.Rep", readOnly = TRUE)
+               },
+           twoLevelsDesign = {
+               if ("Tech.Rep" %in% colnames(rv$hot))
+                   hot <- hot %>% hot_col(col =  "Tech.Rep", readOnly = TRUE)
+           } ,
+           threeLevelsDesign = {
+               if ("Analyt.Rep" %in% colnames(rv$hot))
+                   hot <- hot %>% hot_col(col = "Analyt.Rep", readOnly = TRUE)
+           }
     )
   }
   hot

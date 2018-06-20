@@ -553,25 +553,25 @@ catchToList <- function(expr) {
 
 
 ###-------------------------------------------------------------------
-output$disableAggregationTool <- renderUI({
-    rv$current.obj
-
-    if (!is.null(rv$current.obj))
-    {
-        if (rv$current.obj@experimentData@other$typeOfData == "protein")
-        {
-    disable(selector = "#navPage li a[data-value=AggregationTab]")
-    tags$style(
-type="text/css","#navPage li a[data-value=AggregationTab] { color:lightgrey;}")
-
-
-        } else {
-            enable(selector = "#navPage li a[data-value=AggregationTab]")
-
-        }
-    }
-
-})
+# output$disableAggregationTool <- renderUI({
+#     rv$current.obj
+# 
+#     if (!is.null(rv$current.obj))
+#     {
+#         if (rv$current.obj@experimentData@other$typeOfData == "protein")
+#         {
+#     disable(selector = "#navPage li a[data-value=AggregationTab]")
+#     tags$style(
+# type="text/css","#navPage li a[data-value=AggregationTab] { color:lightgrey;}")
+# 
+# 
+#         } else {
+#             enable(selector = "#navPage li a[data-value=AggregationTab]")
+# 
+#         }
+#     }
+# 
+# })
 
 
 ###-------------------------------------------------------------------
@@ -609,47 +609,76 @@ output$currentObjLoaded <- reactive({
 
 
 observe({
-    req(rv$current.obj)
+    rv$current.obj
     
-    if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
-    { 
+    print(NeedsUpdate())
+    if (NeedsUpdate()) {
+        showTab(inputId ="navPage", target = "updateDesignTab")
+        
+        hideTab(inputId ="navPage", target = "FilterDataTab")
+        hideTab(inputId ="navPage", target = "Normalization")
         hideTab(inputId ="navPage", target = "AggregationTab")
-        showTab(inputId ="navPage", target = "GOAnalysisTab")
-    } else {
-        showTab(inputId ="navPage", target = "AggregationTab")
-        hideTab(inputId ="navPage", target = "GOAnalysisTab")
-    }
-    
-    
-    # hide/show diff Analysis tabPanel
-    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-    if (NA.count == 0){
-        showTab(inputId ="navPage", target = "diffAnalysisTab")
-    } else {
+        hideTab(inputId ="navPage", target = "imputationTabs")
         hideTab(inputId ="navPage", target = "diffAnalysisTab")
-    }
-    
-    
-    
-    if (nrow(rv$current.obj) > limitHeatmap)
-    { 
-        hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+        hideTab(inputId ="navPage", target = "GOAnalysisTab")
+        hideTab(inputId ="navPage", target = "convertTab")
+        hideTab(inputId ="navPage", target = "demoTab")
+        hideTab(inputId ="navPage", target = "SessionLogsTab")
+        
+        
     } else {
-        showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+        hideTab(inputId ="navPage", target = "updateDesignTab")
+        
+        showTab(inputId ="navPage", target = "FilterDataTab")
+        showTab(inputId ="navPage", target = "Normalization")
+        showTab(inputId ="navPage", target = "AggregationTab")
+        showTab(inputId ="navPage", target = "imputationTabs")
+        showTab(inputId ="navPage", target = "diffAnalysisTab")
+        showTab(inputId ="navPage", target = "GOAnalysisTab")
+        showTab(inputId ="navPage", target = "convertTab")
+        showTab(inputId ="navPage", target = "demoTab")
+        showTab(inputId ="navPage", target = "SessionLogsTab")
+   
+    
+        if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+            { 
+             hideTab(inputId ="navPage", target = "AggregationTab")
+            showTab(inputId ="navPage", target = "GOAnalysisTab")
+        } else {
+            showTab(inputId ="navPage", target = "AggregationTab")
+            hideTab(inputId ="navPage", target = "GOAnalysisTab")
+        }
+    
+    
+        # hide/show diff Analysis tabPanel
+        NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+        if (NA.count == 0){
+            showTab(inputId ="navPage", target = "diffAnalysisTab")
+        } else {
+            hideTab(inputId ="navPage", target = "diffAnalysisTab")
+        }
+    
+    
+    
+        if (nrow(rv$current.obj) > limitHeatmap)
+        { 
+            hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+        } else {
+            showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+         }
+    
+    
+    
+    
+        nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+        if (nbEmptyLines > 0) {
+            shinyjs::disable("peptideLevel_perform.imputation.button")
+            shinyjs::disable("peptideLevel_ValidImputation")
+        } else {
+            shinyjs::enable("peptideLevel_perform.imputation.button")
+            shinyjs::enable("peptideLevel_ValidImputation")
+        }
+    
     }
-    
-    
-    
-    
-    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-    if (nbEmptyLines > 0) {
-        shinyjs::disable("peptideLevel_perform.imputation.button")
-        shinyjs::disable("peptideLevel_ValidImputation")
-    } else {
-        shinyjs::enable("peptideLevel_perform.imputation.button")
-        shinyjs::enable("peptideLevel_ValidImputation")
-    }
-    
-    
 })
 

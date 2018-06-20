@@ -2,7 +2,7 @@ tabPanel("Aggregation",
          value="AggregationTab",
          tabsetPanel(
              tabPanel("1 - Aggregate peptides",
-                      value = "aggregation",
+                      id = "aggregation",
                       sidebarCustom(),
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                   uiOutput("AggregationSideBar_Step1"),
@@ -11,7 +11,7 @@ tabPanel("Aggregation",
                       )
              ),
              tabPanel("2 - Configure protein dataset",
-                      value = "configureProteinDataset",
+                      id = "configureProteinDataset",
                       uiOutput(outputId = "progressSaveAggregation"),
                       busyIndicator(WaitMsgCalc,wait = 0),
                       uiOutput("Aggregation_Step2")

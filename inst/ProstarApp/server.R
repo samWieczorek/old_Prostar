@@ -27,7 +27,8 @@ shinyServer(function(input, output, session) {
     
 
       hideTab(inputId ="navPage", target = "updateDesign")  
- 
+      
+      
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
         hname <- System$getHostname()
@@ -56,8 +57,8 @@ shinyServer(function(input, output, session) {
     
     hideTab(inputId ="navPage", target = "updateDesignTab")
     # source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
-    #  source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
-    #  source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
+      source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
+      source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
     #  source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
     # source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
       source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
@@ -84,8 +85,9 @@ shinyServer(function(input, output, session) {
                demoTab = 
                  source(file.path("server", "srv_demoMode.R"),  local = TRUE)$value,
                convertTab = {
-                 source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
-                 source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value},
+                 #source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
+                 #source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
+                   },
                ExportTab = {
                  source(file.path("server", "srv_export.R"),  local = TRUE)$value
                  source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value

@@ -152,21 +152,21 @@ df <- data.frame("Name" = names,
     df[, "Installed.packages"] <- unlist(instPkgs)
     
     if (!is.null(biocRelease)) {
-        biocPkgs <- list(Prostar = biocRelease["Prostar","Version"],
-                         DAPAR = biocRelease["DAPAR","Version"],
-                         DAPARdata = DAPARdata.version)
+        biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
+                         DAPAR = as.character(biocRelease["DAPAR","Version"]),
+                         DAPARdata = as.character(DAPARdata.version))
         
-        if (instPkgs$Prostar == biocPkgs$Prostar){df[1,"Name"] <-  names[1]}
-        else if (instPkgs$Prostar > biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
-        else if (instPkgs$Prostar < biocPkgs$Prostar){df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")}
+        if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 0){df[1,"Name"] <-  names[1]}
+        else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 1){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar)==-1){df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")}
         
-        if (instPkgs$DAPAR == biocPkgs$DAPAR){df[2,"Name"] <-  names[2]}
-        else if (instPkgs$DAPAR > biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
-        else if (instPkgs$DAPAR < biocPkgs$DAPAR){df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")}
+        if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
+        else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR) == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR)==-1){df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")}
         
-        if (instPkgs$DAPARdata == biocPkgs$DAPARdata){df[3,"Name"] <-  names[3]}
-        else if (instPkgs$DAPARdata > biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
-        else if (instPkgs$DAPARdata < biocPkgs$DAPARdata){df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")}
+        if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
+        else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata) == 1){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata)==-1){df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")}
         
         
         df[, "Bioc.release"] <- unlist(biocPkgs)
@@ -174,7 +174,6 @@ df <- data.frame("Name" = names,
 
     
     colnames(df) <- c("Names", "Installed packages", "Bioc release")
-    #rownames <- c(as.character(tags$a(href="www.rstudio.com", "Click here!")), "DAPAR", "DAPARdata")
     df
 })
 

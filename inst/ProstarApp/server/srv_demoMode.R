@@ -87,3 +87,77 @@ output$infoAboutDemoDataset <- renderUI({
     
       )
     })
+
+
+
+
+
+output$progressDemoMode <- renderUI({
+    #rv$indProgressDemomode
+    req(input$loadDemoDataset)
+    
+    if (!isTRUE(rv$indProgressDemomode)){
+        withProgress(message = 'Initialization. Please wait...', value = 1, {
+            Sys.sleep(2000)
+        })
+    }
+})
+
+
+
+observeEvent(input$loadDemoDataset,{
+    #input$showCommandLog
+    if (is.null(input$demoDataset)){return (NULL)}
+    
+    
+    # result = tryCatch(
+    #    {
+    ClearMemory()
+    ClearUI()
+    utils::data(list = input$demoDataset)
+    rv$current.obj <- get(input$demoDataset)
+    rv$current.obj.name <- input$demoDataset
+    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+    rv$indexNA <- which(is.na(rv$current.obj))
+    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+    #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
+    #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
+    
+    if (is.null(rv$current.obj@experimentData@other$RawPValues ))
+        rv$current.obj@experimentData@other$RawPValues <- FALSE
+    rv$current.obj <- addOriginOfValue(rv$current.obj)
+    l.params <- list(filename = input$demoDataset)
+    UpdateLog("Original",l.params)
+    # rv$indProgressDemomode <- rv$indProgressDemomode +1
+    
+    
+    
+    
+    #if (input$showCommandLog){
+    #    writeToCommandLogFile("library(DAPARdata)")
+    #writeToCommandLogFile(paste("utils::data(",
+    #                            input$demoDataset,")", 
+    #                            sep=""))
+    #writeToCommandLogFile(paste("current.obj <- ",
+    #                            input$demoDataset, 
+    #                            sep=""))
+    #}
+    
+    loadObjectInMemoryFromConverter()
+    
+    
+    # }
+    # , warning = function(w) {
+    #     shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
+    # }, error = function(e) {
+    #     shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
+    #                         conditionMessage(e), 
+    #                         sep=" "))
+    # }, finally = {
+    #     #cleanup-code 
+    # })
+    
+    
+})
+

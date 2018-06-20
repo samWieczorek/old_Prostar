@@ -1,6 +1,7 @@
 tabPanel("Differential analysis",
          value = "diffAnalysisTab",
          tabsetPanel(
+             id = "xxx",
              tabPanel("1 - Global tuning",
                       value = "DiffAnalysis_GlobalTuning",
                       sidebarCustom(),
