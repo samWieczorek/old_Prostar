@@ -1,8 +1,4 @@
-options(shiny.trace=FALSE)
-options(shiny.reactlog=TRUE)
 
-
-library(highcharter)
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -15,7 +11,6 @@ shinyUI <- tagList(
     
     shinyjs::useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
-    #,tags$head(includeScript("piwik.js"))
     tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
     
     inlineCSS(appCSS),
@@ -34,54 +29,74 @@ titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
-,includeCSS("www/css/legend.css")
+,includeCSS("www/css/prostar.css")
 
-
-#,uiOutput("disableAggregationTool")
-#,uiOutput("disableBioanalysisTool")
+#,navbarPageWithInputs(
 ,navbarPage(
+    theme = shinytheme("cerulean"),
+    
     id = "navPage",
     absolutePanel(
         id  = "#AbsolutePanel",
-                top = 10,
-                right = 300,
-                width = "200px",
+                top = 0,
+                right = 50,
+                width = "500px",
                 height = "50px",
                 draggable = FALSE,
                 fixed = FALSE,
                 cursor = "default",
-                selectInput("datasets",
-                            "Dataset versions",
-                            choices = list("None"=""),
-                            width = '250px')
+                uiOutput("datasetAbsPanel" )
     ),
-
-   #"",
-
-            tabPanel(test, uiOutput("aboutText")),
+    navbarMenu("Prostar",
+               #value = "ProstarMenu",
+               source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
+               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value
+               ),
    
 
    navbarMenu("Dataset manager",
-              source(file.path("ui", "ui_openMSnSetFile.R"),  local = TRUE)$value,
-              source(file.path("ui", "ui_convertData.R"),  local = TRUE)$value,
+              #value = "DatasetManagerMenu",
+              source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
+              source(file.path("ui", "ui_UpdateDesign.R"),  local = TRUE)$value,
               source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
               source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
-              #source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
-              source(file.path("ui", "ui_logSession.R"),  local = TRUE)$value
+              source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
               
    ),
-source(file.path("ui", "ui_descriptiveStatistics.R"),  local = TRUE)$value,
+source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value,
 
 navbarMenu("Data processing",
-           
-    source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
-    source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
-    source(file.path("ui", "ui_Imputation.R"),  local = TRUE)$value,
-    source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-    source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value,
-    source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+           #value="DataProcessingMenu",
+            source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
+            source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
+            source(file.path("ui", "ui_Imputation.R"),  local = TRUE)$value,
+            source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
+            source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value,
+            source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
     ),
-
-source(file.path("ui", "ui_Help.R"),  local = TRUE)$value
+navbarMenu("Help",
+           #value="DataProcessingMenu",
+           tabPanel("Useful links",
+                    htmlOutput("References")
+                    ),
+           tabPanel("Release notes",
+                    uiOutput("versionLog"),
+                    uiOutput("warningDependanciesVersion")),
+           tabPanel("FAQ",
+                    htmlOutput("FAQ_output")
+                    ),
+           tabPanel("Check for updates",
+                    br(),
+                    br(),
+                    dataTableOutput("tab_versions", width = '600px')
+            )
 )
+
+
+#inputs = modulePopoverUI("modulePopover_dataset")
+#inputs = list(uiOutput("datasetAbsPanel" )
+
+)
+
 )

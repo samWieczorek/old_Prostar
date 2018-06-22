@@ -20,7 +20,6 @@ observeEvent(input$generateReport,{
                  detail = '', value = 0, {
                      
                      
-                     
                      ## Init the Rmd file for the report
                      src <- normalizePath('Rmd_sources/report.Rmd')
                      filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
@@ -41,7 +40,7 @@ observeEvent(input$generateReport,{
                                     write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                                 },
                                 Filtered={
-                                    createPNG_Filtering()
+                                    #createPNG_Filtering()
                                     txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
                                     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                                     write(txt2Rmd, file = filename,append = TRUE, sep = "\n") 
@@ -64,7 +63,7 @@ observeEvent(input$generateReport,{
                                     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
                                     write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
                                 },
-                                DiffAnalysis.Limma={
+                                DiffAnalysis={
                                     createPNG_DifferentialAnalysis()
                                     txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
                                     filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
@@ -257,14 +256,14 @@ createPNG_DescriptiveStatistics <- reactive({
 
 
 ###--------------------------------------------------------------------------
-createPNG_Filtering <- reactive({
-    obj <- rv$dataset[[rv$iDat]]
-    
-    if (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted)) {
-        tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
-        createPNGFromWidget(tempplot, "tempplot_proportionConRev_HC.html", gGraphicsFilenames$propContRev)
-    }
-})
+# createPNG_Filtering <- reactive({
+#     obj <- rv$dataset[[rv$iDat]]
+#     
+#     if (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted)) {
+#         tempplot <-proportionConRev_HC(rv$nbContaminantsDeleted, rv$nbReverseDeleted, nrow(obj))
+#         createPNGFromWidget(tempplot, "tempplot_proportionConRev_HC.html", gGraphicsFilenames$propContRev)
+#     }
+# })
 
 
 
@@ -308,12 +307,11 @@ createPNG_Normalization <- reactive({
 ###--------------------------------------------------------------------------
 createPNG_Imputation <- reactive({
     obj <- rv$dataset[[(which(names(rv$dataset)==rv$iDat) - 1)]]
+    obj <- rv$dataset[[rv$iDat]]
     
-    plotPNG(function(){wrapper.mvTypePlot(obj)},
-            filename=paste(tempdir(), sessionID, gGraphicsFilenames$MVtypePlot, sep="/"),
-            width = 1200,
-            height=800,
-            res=150)
+    tempplot <- wrapper.hc_mvTypePlot2(obj)
+    createPNGFromWidget(tempplot, "tempplot_MVtypePlot.html", gGraphicsFilenames$MVtypePlot)
+    
     
 })
 
@@ -327,21 +325,28 @@ createPNG_Aggregation <- reactive({
 ###--------------------------------------------------------------------------
 createPNG_DifferentialAnalysis <- reactive({
     obj <- rv$dataset[[rv$iDat]]
+ 
+    allCompNames <- obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames
+    data <- as.data.frame(fData(obj)[,allCompNames$FC])
+    colnames(data) <- allCompNames$FC
+    th_logFC <-  obj@experimentData@other$Params[["anaDiff"]]$th_logFC
+    th_pval <-  obj@experimentData@other$Params[["anaDiff"]]$th_pval
+    cond <- c(obj@experimentData@other$Params[["anaDiff"]]$condition1,
+              obj@experimentData@other$Params[["anaDiff"]]$condition2)
+
+    tempplot <- hc_FC_DensityPlot(data,th_logFC)
+    createPNGFromWidget(tempplot, "tempplot_logFC_Distribution.html", gGraphicsFilenames$logFCDistribution)
     
     df <- data.frame(x=fData(obj)$FC,
                      y = -log10(fData(obj)$P_Value))
-    FC <- obj@experimentData@other$threshold_logFC
-    pval <-obj@experimentData@other$threshold_p_value
-    cond <-c(obj@experimentData@other$condition1,
-             obj@experimentData@other$condition2)
     
+    
+    ## Plot for distribution of FC
     tempplot <- diffAnaVolcanoplot_rCharts(df,
-                                           threshold_logFC = FC,
-                                           threshold_pVal = pval,
-                                           conditions = cond    )
-    createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot_3)
-
-    
+                                           threshold_logFC = th_logFC,
+                                           threshold_pVal = th_pval,
+                                           conditions = cond)
+    createPNGFromWidget(tempplot, "tempplot_Volcano.html", gGraphicsFilenames$volcanoPlot)
     
     # plotPNG(function(){calibrationPlot()},
     #         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"),
@@ -351,8 +356,8 @@ createPNG_DifferentialAnalysis <- reactive({
     
     
     plotPNG(function(){
-        t <- rv$resAnaDiff$P_Value
-        t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
+        t <- fData(obj)$P_Value
+        t <- t[which(abs(fData(obj)$FC) >= th_logFC)]
         wrapperCalibrationPlot(t, "ALL")},
         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"),
         width = 1200,
@@ -382,9 +387,9 @@ createPNG_Enrichment <- reactive({
 createPNG_GroupGO <- reactive({
     
     l <- length(rv$groupGO_data)
-    pngNames <- c(gGraphicsFilenames$GOClassification_img1,
-                  gGraphicsFilenames$GOClassification_img2,
-                  gGraphicsFilenames$GOClassification_img3)
+    pngNames <- c(gGraphicsFilenames$GOClassificationImg1,
+                  gGraphicsFilenames$GOClassificationImg2,
+                  gGraphicsFilenames$GOClassificationImg3)
     
     require(doParallel)
     registerDoParallel(detectCores()-1 )
@@ -411,7 +416,7 @@ output$downloadReport <- downloadHandler(
     
     content = function(file) {
         filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-        
+        print(tempdir())
         library(rmarkdown)
         #paramRmd <- list(current.obj=rv$current.obj)
         out <- render(filename, 
@@ -422,39 +427,14 @@ output$downloadReport <- downloadHandler(
                                                         nNAlines = rv$nb.empty.lines,
                                                         nSamples = dim(Biobase::exprs(rv$current.obj))[2]),
                                     
-                                    listFiltering= list(filter = input$ChooseFilters,
-                                                        seuilNA = as.integer(input$seuilNA),
-                                                        nbReverseDeleted = rv$nbReverseDeleted,
-                                                        nbContaminantsDeleted = rv$nbContaminantsDeleted,
-                                                        stringBasedFiltered = (!is.null(rv$nbContaminantsDeleted) && !is.null(rv$nbReverseDeleted))
-                                                        ),
-                                    
-                                    listNormalization = list(method=input$normalization.method,
-                                                             type = input$normalization.type,
-                                                             quantile=input$normalization.quantile,
-                                                             quantileOther = input$normalization.quantileOther,
-                                                             scaling = input$normalization.variance.reduction),
-                                    
-                                    listImputation = list(algorithm = input$missing.value.algorithm,
-                                                          basicAlgo = input$missing.value.basic.algorithm,
-                                                          detQuantile_quantile = input$detQuant_quantile,
-                                                          detQuantile_factor = input$detQuant_factor,
-                                                          imp4p_withLapala = input$imp4p_withLapala,
-                                                          OnlyLAPALA_qmin = input$OnlyLAPALA_qmin,
-                                                          OnlyLAPALA_distrib = input$OnlyLAPALA_distrib,
-                                                          imp4pLAPALA_distrib = input$imp4pLAPALA_distrib),
-                                    
+                                    listFiltering= rv$current.obj@experimentData@other$Params[["Filtering"]],
+                                    listNormalization = rv$current.obj@experimentData@other$Params[["Norm"]],
+                                    listImputation = rv$current.obj@experimentData@other$Params[["Imputation"]],
                                     listAggregation = list(method = input$aggregationMethod,
                                                            df=rv$AggregProtStats),
-                                    listAnaDiff = list(condition1 = input$condition1, 
-                                                       condition2 = input$condition2,
-                                                       calibrationMethod = input$calibrationMethod,
-                                                       numericValCalibration = input$numericValCalibration,
-                                                       seuilPValue = rv$seuilPVal,
-                                                       seuilLogFC = rv$seuilLogFC,
-                                                       method = input$diffAnaMethod,
-                                                       fdr = round(100*rv$fdr, digits=2),
-                                                       nbSelected = rv$nbSelected_Step3),
+                                    
+                                    listAnaDiff = rv$current.obj@experimentData@other$Params[["anaDiff"]],
+                                    
                                     listGOClassifAnalysis = list(ontology = input$Ontology, 
                                                                  organism = input$Organism,
                                                                  universe = input$universe,

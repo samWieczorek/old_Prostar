@@ -1,14 +1,3 @@
-observe({
-    rv$current.obj
-    if(is.null(rv$current.obj)) {return (NULL)}
-    
-    if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
-    { 
-        hideTab(inputId ="navPage", target = "Aggregation")
-    } else {
-        showTab(inputId ="navPage", target = "Aggregation")
-    }
-})
 
 
 
@@ -33,14 +22,14 @@ RunAggregation <- reactive({
                                     rv$matAdj$matWithSharedPeptides, 
                                     n)
                 #if (input$showCommandLog){
-                    txt <- paste(
-                    "data <- pepAgregate(current.obj, '",
-                    input$proteinId, "', '",
-                    input$aggregationMethod, 
-                    "', mat$matWithSharedPeptides,",n,")",
-                    sep=""
-                )
-                writeToCommandLogFile(txt)
+                #     txt <- paste(
+                #     "data <- pepAgregate(current.obj, '",
+                #     input$proteinId, "', '",
+                #     input$aggregationMethod, 
+                #     "', mat$matWithSharedPeptides,",n,")",
+                #     sep=""
+                # )
+                # writeToCommandLogFile(txt)
                # }
                 
             }else{
@@ -50,15 +39,15 @@ RunAggregation <- reactive({
                                     rv$matAdj$matWithUniquePeptides
                                     , n)
                 #if (input$showCommandLog){
-                    writeToCommandLogFile(
-                    paste(
-                        "data <- pepAgregate(current.obj, '",
-                        input$proteinId, "', '",
-                        input$aggregationMethod, 
-                        "', mat$matWithUniquePeptides,",n,")",
-                        sep=""
-                    )
-                )
+                #     writeToCommandLogFile(
+                #     paste(
+                #         "data <- pepAgregate(current.obj, '",
+                #         input$proteinId, "', '",
+                #         input$aggregationMethod, 
+                #         "', mat$matWithUniquePeptides,",n,")",
+                #         sep=""
+                #     )
+                # )
                # }
             }
             
@@ -91,23 +80,24 @@ observeEvent(input$valid.aggregation,{
     {return(NULL)}
     
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             
             isolate({
                 
                 ##concatenation des informations
-                m <- NULL
+              m <- NULL
                 if (input$checkSharedPeptides){ 
-                    m <- rv$matAdj$matWithSharedPeptides
+                     m <- rv$matAdj$matWithSharedPeptides
                     #if (input$showCommandLog){
-                        writeToCommandLogFile("m <- mat$matWithSharedPeptides")
+                    #writeToCommandLogFile("m <- mat$matWithSharedPeptides")
                         #}
-                }else{ m <-rv$matAdj$matWithUniquePeptides
+                    }else{
+                        m <-rv$matAdj$matWithUniquePeptides
                 #if (input$showCommandLog){
-                  writeToCommandLogFile("m <- mat$matWithUniquePeptides")
-                 # }
-                }
+                #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
+                  }
+              # }
                 #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
                 
                 updateSelectInput(session, "proteinId",selected = input$proteinId)
@@ -126,7 +116,7 @@ observeEvent(input$valid.aggregation,{
                 #delta <- round(total / length(input$columnsForProteinDataset.box))
                 #cpt <- 10
                 for(c in input$columnsForProteinDataset.box){
-                    newCol <- BuildColumnToProteinDataset_par(
+                    newCol <- BuildColumnToProteinDataset(
                         Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
                     cnames <- colnames(Biobase::fData(rv$temp.aggregate))
                     Biobase::fData(rv$temp.aggregate) <- 
@@ -155,22 +145,22 @@ observeEvent(input$valid.aggregation,{
                 
                 ######
                 #if (input$showCommandLog){
-                    l <- buildWritableVector(input$columnsForProteinDataset.box)
-                writeToCommandLogFile(
-                    paste("columnsForProteinDataset <- ",l, sep="") )
-                
-                writeToCommandLogFile("for (c in columnsForProteinDataset) {")
-                writeToCommandLogFile(
-                "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c, rownames(Biobase::fData(temp.aggregate)))")
-                writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
-                writeToCommandLogFile("fData(temp.aggregate) <-
-                                      data.frame(fData(temp.aggregate), newCol)")
-                writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
-                writeToCommandLogFile("}")
-                writeToCommandLogFile("current.obj <- temp.aggregate")
-                writeToCommandLogFile(
-                    paste("dataset[['",name, "']] <- current.obj", sep="")
-                )
+                #     l <- buildWritableVector(input$columnsForProteinDataset.box)
+                # writeToCommandLogFile(
+                #     paste("columnsForProteinDataset <- ",l, sep="") )
+                # 
+                # writeToCommandLogFile("for (c in columnsForProteinDataset) {")
+                # writeToCommandLogFile(
+                # "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c, rownames(Biobase::fData(temp.aggregate)))")
+                # writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
+                # writeToCommandLogFile("fData(temp.aggregate) <-
+                #                       data.frame(fData(temp.aggregate), newCol)")
+                # writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
+                # writeToCommandLogFile("}")
+                # writeToCommandLogFile("current.obj <- temp.aggregate")
+                # writeToCommandLogFile(
+                #     paste("dataset[['",name, "']] <- current.obj", sep="")
+                # )
                 #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
                 #}
                 
@@ -178,8 +168,7 @@ observeEvent(input$valid.aggregation,{
                 #updateTabsetPanel(session, "Aggregation", selected = "configureProteinDataset")
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",
-                                        rv$current.obj.name, sep=" "),
+                                 # paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
 
@@ -188,16 +177,16 @@ observeEvent(input$valid.aggregation,{
                 
             } )
             
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste("Validate the agregation",":",
-                                conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste("Validate the agregation",":",
+        #                         conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
     })
 
 
@@ -261,19 +250,19 @@ observeEvent(input$proteinId,{
                               matWithUniquePeptides=matUniquePeptides)
             
            # if (input$showCommandLog){
-                writeToCommandLogFile(
-            paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
-                      input$proteinId,"\",FALSE)", sep="")
-            )
-            writeToCommandLogFile(
-            paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
-                      input$proteinId,"\",TRUE)", sep="")
-            )
-            
-            writeToCommandLogFile(
-            "mat <- list(matWithSharedPeptides=matSharedPeptides,
-            matWithUniquePeptides=matUniquePeptides)"
-    )
+    #             writeToCommandLogFile(
+    #         paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
+    #                   input$proteinId,"\",FALSE)", sep="")
+    #         )
+    #         writeToCommandLogFile(
+    #         paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
+    #                   input$proteinId,"\",TRUE)", sep="")
+    #         )
+    #         
+    #         writeToCommandLogFile(
+    #         "mat <- list(matWithSharedPeptides=matSharedPeptides,
+    #         matWithUniquePeptides=matUniquePeptides)"
+    # )
             #}
             
         }
@@ -439,7 +428,7 @@ observeEvent(input$perform.aggregation,{
                 {
                     rv$temp.aggregate <- RunAggregation()
                    # if (input$showCommandLog){
-                      writeToCommandLogFile("temp.aggregate <- data")
+                    #writeToCommandLogFile("temp.aggregate <- data")
                     #  }
                 }
                 
@@ -552,12 +541,6 @@ output$Aggregation_Step2 <- renderUI({
     if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
         tagList(
             fluidRow(
-                #column(width=3,
-                #       checkboxInput("filterProtAfterAgregation",
-                #                     "Filtering : remove the proteins that are 
-                #                     defined by less than n peptides.",
-                #                     value = FALSE)
-                #),
                 column(width=4,uiOutput("displayNbPeptides")
                 )
                 

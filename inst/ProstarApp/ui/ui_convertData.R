@@ -1,6 +1,5 @@
 tabPanel("Convert data",
-
-         value = "import",
+        value = "convertTab",
          helpText("These steps allow to create a MSnSet file 
                   from a tabulated-text file."),
          tabsetPanel(
@@ -8,9 +7,12 @@ tabPanel("Convert data",
              tabPanel(
                  "1 - Select file",
                  value = "SelectFile2Import",
-                 fileInput("file1", "Data file (.txt, .csv, .tsv, .xls, .xlsx files)", 
+                 br(), br(),
+                 fluidRow(
+                     column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
+                     column(width = 10, fileInput("file1", "", 
                            multiple=FALSE, 
-                           accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")),
+                           accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
                  uiOutput("ManageXlsFiles"),
                  # helpText("Hint : before importing quantification 
                  #             file data, check the syntax of your text 
@@ -21,9 +23,11 @@ tabPanel("Convert data",
              ),
              tabPanel( "2 - Data Id",
                        value = "ID",
-                       uiOutput("helpTextDataID"),
+                       br(), br(),
+                       #uiOutput("helpTextDataID"),
+                       modulePopoverUI("modulePopover_convertIdType"),
                        radioButtons("autoID", width="500px",
-                                    "If you choose the automatic ID, Prostar will build an index.", 
+                                    "", 
                                     choices=G_ConvertDataID_Choices),
                        conditionalPanel(
                            condition = 'input.autoID == "user ID"',
@@ -33,35 +37,67 @@ tabPanel("Convert data",
              
              tabPanel( "3 - Exp. and feat. data",
                        value = "Import1",
+                       br(), br(),
                        
-                       helpText("Select the columns that are quantitation values 
-                                by clicking in the field below."),
-                       div(class="row"),
-                       div(class="span5", "Quantitative  Data",
-                           uiOutput("eData",width = widthWellPanel)),
-                       uiOutput("chooseOriginOfValues")
-                       
+                       tagList(
+                         fluidRow(
+                           column(width=4,checkboxInput("selectIdent", 
+                                                      "Select columns for identification method", 
+                                                      value = FALSE)),
+                         column(width=4,uiOutput("checkIdentificationTab"))
+                         ),
+                           fluidRow(
+                               column(width=4,uiOutput("eData",width = "400px")),
+                               column(width=8,dataTableOutput("x1", width='500px'))),
+                           tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+                                   })"))
+                           )
                        ),
              
              tabPanel( "4 - Samples metadata",
-                       value = "Import2",
-                       #width = widthWellPanel,
-                       helpText("Warning : it is mandatory that the column 
-                                \"Label\" is filled."),
-                       br(),
-                       rHandsontableOutput("hot"
-                                           ,width = widthWellPanel
-                                           ,height = "100%")
+                       value = "buildDesign_Tab",
+                       br(), br(),
+                       tagList(
+                           fluidRow(
+                               column(width=6,tags$b("1 - Fill the \"Label\" column to identify the conditions to compare.")),
+                               column(width=6,uiOutput("UI_checkConditions")  )
+                       ),
+                       fluidRow(
+                           column(width=6,uiOutput("UI_hierarchicalExp")),
+                           column(width=6,uiOutput("checkDesign") )
+                       )
+                       ),
+                       hr(),
+                       
+                       busyIndicator(WaitMsgCalc,wait = 0),
+                       tags$div(
+                         
+                         tags$div(style="display:inline-block; vertical-align: top;",
+                                  uiOutput("viewDesign",width="100%")
+                         ),
+                         tags$div(style="display:inline-block; vertical-align: top;",
+                                  shinyjs::hidden(
+                                    div(id = "exLevels",uiOutput("designExamples")))
+                         )
+                         
+                         
+                       )
              ),
              
              
              tabPanel( "5 - Convert",
                        value = "Convert",
+                       br(), br(),
+                       
+                       uiOutput("checkAll_convert", width="50"),
                        htmlOutput("msgAlertCreateMSnset"),
+                       hr(),
                        textInput("filenameToCreate",
                                  "Enter the name of the study"),
                        busyIndicator(WaitMsgCalc,wait = 0),
                        actionButton("createMSnsetButton","Convert data"),
+                       uiOutput("warningCreateMSnset"),
                        moduleDatasetOverviewUI("overview_convertData"),
                        uiOutput("conversionDone")
                        

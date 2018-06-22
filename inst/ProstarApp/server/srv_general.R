@@ -1,4 +1,110 @@
 
+# activatePopover <- function(){
+#     txt_histo_M <- paste0("<p>Test",
+#                           "test</p><p>Explanation .</p>")
+#     
+#     txt_histo_MV_per_lines <- paste0("<p>Test",
+#                                      "test</p><p>Explanation .</p>")
+#     
+#     
+#     txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
+#                                                     "test</p><p>Explanation .</p>")
+#     
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV", "Info", 
+#                content = txt_histo_M, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
+#                content = txt_histo_MV_per_lines, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
+#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+#     
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
+#                content = txt_histo_M, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
+#                content = txt_histo_MV_per_lines, trigger = 'click')
+#     
+#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
+#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
+#     
+#     
+# }
+
+
+# 
+# callModule(modulePopover,"modulePopover_toto", data = reactive(paste0(data(), 
+#                                                                       a("tidy data paper", 
+#                                                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
+#                                                                         target="_blank"))))
+
+
+
+
+
+
+
+
+
+
+getDataForExprs <- reactive({
+  req(input$settings_nDigits)
+  rv$current$obj
+  
+  
+  test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits))
+  test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
+  test.table
+  
+})
+
+
+getData <- reactive({
+  req(input$settings_nDigits)
+  rv$current$obj
+  
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table
+})
+
+
+
+data <- eventReactive(rv$current$obj, {
+  input$settings_nDigits
+  rv$current$obj
+  
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table
+}, ignoreNULL = FALSE)
+
+
+
+
+
+
+
+
+
+
+callModule(modulePopover,"modulePopover_dataset", 
+           data = reactive(list(title = p(if(is.null(rv$current.obj.name)) "No dataset" else paste0(rv$current.obj.name)),
+
+                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
+
+
+observe({
+    req(input$navbar)
+    if (input$navbar=="stop")
+        stopApp()
+})
+
+getDatasetName <- reactive({
+    req(rv$current.obj.name)
+    rv$current.obj.name
+})
+
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
@@ -19,7 +125,23 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
 
 
 
+
+output$datasetAbsPanel <- renderUI({
+    req(rv$current.obj.name)
+    div(
+        div(
+            style="display:inline-block; vertical-align: middle;",
+            modulePopoverUI("modulePopover_dataset")),
+        div(
+            style="display:inline-block; vertical-align: middle;",
+            selectInput("datasets", "", choices = list("None"="None"),width = '200px')
+        )
+    )
+})
+
 ###-------------------------------------------------------------------
+onStop(function() cat("Session stopped\n"))
+
 
 session$onSessionEnded(function() {
     #setwd(tempdir())
@@ -29,6 +151,9 @@ session$onSessionEnded(function() {
     unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink("www/*pdf")
+    
+    #rm(list= list(myListOfThings))
+    stopApp()
 })
 
 
@@ -38,7 +163,6 @@ ClearUI <- reactive({
         #rv$commandLog <- ""
         updateSelectInput(session, 
                           "datasets",  
-                          "Dataset versions", 
                           choices = G_noneStr)
         updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
@@ -64,7 +188,38 @@ ClearUI <- reactive({
 
 
 
+loadObjectInMemoryFromConverter_2 <- function(obj){
+  rv$typeOfDataset <- obj@experimentData@other$typeOfData
+  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
+  
+  #If there are already pVal values, then do no compute them 
+  if (G_logFC_Column %in% names(Biobase::fData(obj) )){
+    rv$resAnaDiff <- list(logFC = Biobase::fData(obj)$FC,
+                          P_Value = Biobase::fData(obj)$P_Value)
+    rv$seuilLogFC <- obj@experimentData@other$threshold_logFC
+    rv$seuilPVal  <- obj@experimentData@other$threshold_p_value
+    
+  }
+  
+  
+  name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
+  rv$dataset[[name]] <- obj
+  
+  
+  # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
+  #              rv$typeOfDataset, "\"", "\n",
+  #              "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
+  #              sep="")
+  # writeToCommandLogFile(txt)
+  # 
+  updateSelectInput(session, "datasets", 
+                    #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
+                    choices = names(rv$dataset),
+                    selected = name)
+  
+}
 
+#
 
 ######################################
 loadObjectInMemoryFromConverter <- reactive({
@@ -86,20 +241,19 @@ loadObjectInMemoryFromConverter <- reactive({
     rv$dataset[[name]] <- rv$current.obj
     
 
-        txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
-                 rv$typeOfDataset, "\"", "\n",
-                 "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
-                 sep="")
-        writeToCommandLogFile(txt)
-    
+        # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
+        #          rv$typeOfDataset, "\"", "\n",
+        #          "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
+        #          sep="")
+        # writeToCommandLogFile(txt)
+        # 
     
     #if (!is.null(rv$current.obj@experimentData@other$OriginOfValues)){
     #    writeToCommandLogFile("current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
     #} 
    
     updateSelectInput(session, "datasets", 
-                      label = paste("Dataset versions of",
-                                    rv$current.obj.name, sep=" "),
+                      #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
 
@@ -133,7 +287,8 @@ if (!dir.exists(dirSessionPath)){
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
-    
+  rv$current.comp = NULL
+  
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
@@ -162,20 +317,17 @@ ClearMemory <- function(){
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-    rv$hot = port 
-    rv$calibrationRes = NULL
+   rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
     rv$errMsgcalibrationPlotALL = NULL
     rv$typeOfDataset = ""
-    rv$widthSidebar = 3
     rv$commandLog =  "" 
     rv$normalizationFamily = NULL
     rv$normalizationMethod = NULL 
     rv$matAdj = NULL
-    test = NULL
     rv$resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
     rv$res_AllPairwiseComparisons = data.frame()
-    indexNA = NULL
+    rv$indexNA = NULL
     rv$pourcentageNA = 0
     rv$nb.empty.lines = 0
     rv$nbDeleted = 0
@@ -187,23 +339,54 @@ ClearMemory <- function(){
     rv$nbSelectedAnaDiff = NULL
     rv$nbSelectedTotal_Step3 = NULL
     rv$nbSelected_Step3 = NULL
-    rv$groupGO_data = NULL
-    rv$enrichGO_data = NULL
-    rv$universeData = NULL
-    rv$uniprotID = NULL
-    rv$ratio = NULL
+    rv$GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL)
+
     rv$impute_Step = 0
-    rv$hot = port
+    
+    
+    
+    # rv$design = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                        designSaved=FALSE)
+    
+    rv$hot = NULL
+    rv$newOrder = NULL
+    rv$designChecked = NULL
+    rv$designSaved = FALSE
+    rv$conditionsChecked = NULL
+    
+    
+    # rv$updateDesign = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                        designSaved=FALSE)
+    
+    
+    
+    rv$updateDesign_designSaved=FALSE
+    rv$updateDesign_designChecked=NULL
+    rv$updateDesign_hot=NULL
+    rv$updateDesign_newOrder=NULL
+    rv$updateDesign_conditionsChecked=NULL
+    
+    rv$designIsValid = FALSE
     rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
     rv$text.log <- data.frame(Date="", 
                               Dataset="", 
                               History="", 
                               stringsAsFactors=F)
-    rv$ProtIDList = NULL
     rv$GOWarningMessage = NULL
-    rv$proteinsNotMapped = NULL
-    rv$gene = NULL
     rv$stringBasedFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
@@ -221,7 +404,7 @@ ClearMemory <- function(){
                         HeatmapLinkage = NULL,
                       HeatmapDistance = NULL
                       )
-    
+    rv$indProgressDemomode = 0
     rv$AggregProtStats = data.frame(name = c("Number of peptides",
                                               "Number of specific peptides",
                                               "Number of shared peptides", 
@@ -247,6 +430,7 @@ ClearMemory <- function(){
 #-------------------------------------------------------------
 rv <- reactiveValues(
     # variable to handle the current object that will be showed
+    current.comp = NULL,
     current.obj = NULL,
     current.obj.name = NULL,
     deleted.mvLines = NULL,
@@ -274,22 +458,48 @@ rv <- reactiveValues(
     dirnameforlink = "",
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
-    hot = port, 
+    
+    
+    
+    # design = list(designChecked=NULL,
+    #                  hot=NULL,
+    #                  newOrder=NULL,
+    #                  conditionsChecked=NULL,
+    #                  designSaved=FALSE),
+    
+    hot = NULL,
+    newOrder = NULL,
+    designChecked = NULL,
+    designSaved = FALSE,
+    conditionsChecked = NULL,
+    
+    
+    
+    # updateDesign = list(designChecked=NULL,
+    #                        hot=NULL,
+    #                        newOrder=NULL,
+    #                        conditionsChecked=NULL,
+    #                     designSaved=FALSE),
+    
+    updateDesign_designChecked=NULL,
+    updateDesign_hot=NULL,
+    updateDesign_newOrder=NULL,
+    updateDesign_conditionsChecked=NULL,
+    updateDesign_designSaved=FALSE,
+    
+    
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
-    widthSidebar = 3,
     ValidFilteringClicked = FALSE,
     ValidImputationClicked = FALSE,
     commandLog = "", 
     normalizationFamily = NULL,
     normalizationMethod = NULL, 
     matAdj = NULL,
-    test = NULL, 
     resAnaDiff = list(FC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
     res_AllPairwiseComparisons = data.frame(),
-    wb = NULL,
     progressImputation = 0,
     indexNA = NULL,
     IP_Client= "",
@@ -302,16 +512,19 @@ rv <- reactiveValues(
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
     nbSelected_Step3 = NULL,
-    enrichGO_data = NULL,
-    groupGO_data = NULL,
-    universeData = NULL,
-    uniprotID = NULL,
-    ProtIDList = NULL,
+    GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL),
+
     GOWarningMessage = NULL,
-    proteinsNotMapped = NULL,
-    gene = NULL,
+
     impute_Step = 0,
-    ratio=NULL,
+
     iDat = NULL,
     tempDatasetImputation = NULL,
     MECIndex = NULL,
@@ -331,7 +544,7 @@ rv <- reactiveValues(
                       HeatmapDistance = NULL
                       
                       ),
-    
+    indProgressDemomode = 0,
     AggregProtStats = data.frame(name = c("Number of peptides",
                                               "Number of specific peptides",
                                               "Number of shared peptides", 
@@ -370,25 +583,25 @@ catchToList <- function(expr) {
 
 
 ###-------------------------------------------------------------------
-output$disableAggregationTool <- renderUI({
-    rv$current.obj
-
-    if (!is.null(rv$current.obj))
-    {
-        if (rv$current.obj@experimentData@other$typeOfData == "protein")
-        {
-    disable(selector = "#navPage li a[data-value=Aggregation]")
-    tags$style(
-type="text/css","#navPage li a[data-value=Aggregation] { color:lightgrey;}")
-
-
-        } else {
-            enable(selector = "#navPage li a[data-value=Aggregation]")
-
-        }
-    }
-
-})
+# output$disableAggregationTool <- renderUI({
+#     rv$current.obj
+# 
+#     if (!is.null(rv$current.obj))
+#     {
+#         if (rv$current.obj@experimentData@other$typeOfData == "protein")
+#         {
+#     disable(selector = "#navPage li a[data-value=AggregationTab]")
+#     tags$style(
+# type="text/css","#navPage li a[data-value=AggregationTab] { color:lightgrey;}")
+# 
+# 
+#         } else {
+#             enable(selector = "#navPage li a[data-value=AggregationTab]")
+# 
+#         }
+#     }
+# 
+# })
 
 
 ###-------------------------------------------------------------------
@@ -411,3 +624,91 @@ GetNbNA <- reactive({
 output$currentObjLoaded <- reactive({
     rv$current.obj
     return(!is.null(rv$current.obj))})
+
+
+# 
+# observe({
+#   req(rv$current.obj)
+#   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+#   if (NA.count == 0){
+#     showTab(inputId ="navPage", target = "diffAnalysis")
+#   } else {
+#     hideTab(inputId ="navPage", target = "diffAnalysis")
+#   }
+# })
+
+
+observe({
+    rv$current.obj
+    
+    print(NeedsUpdate())
+    if (NeedsUpdate()) {
+        showTab(inputId ="navPage", target = "updateDesignTab")
+        
+        hideTab(inputId ="navPage", target = "FilterDataTab")
+        hideTab(inputId ="navPage", target = "Normalization")
+        hideTab(inputId ="navPage", target = "AggregationTab")
+        hideTab(inputId ="navPage", target = "imputationTabs")
+        hideTab(inputId ="navPage", target = "diffAnalysisTab")
+        hideTab(inputId ="navPage", target = "GOAnalysisTab")
+        hideTab(inputId ="navPage", target = "convertTab")
+        hideTab(inputId ="navPage", target = "demoTab")
+        hideTab(inputId ="navPage", target = "SessionLogsTab")
+        
+        
+    } else {
+        hideTab(inputId ="navPage", target = "updateDesignTab")
+        
+        showTab(inputId ="navPage", target = "FilterDataTab")
+        showTab(inputId ="navPage", target = "Normalization")
+        showTab(inputId ="navPage", target = "AggregationTab")
+        showTab(inputId ="navPage", target = "imputationTabs")
+        showTab(inputId ="navPage", target = "diffAnalysisTab")
+        showTab(inputId ="navPage", target = "GOAnalysisTab")
+        showTab(inputId ="navPage", target = "convertTab")
+        showTab(inputId ="navPage", target = "demoTab")
+        showTab(inputId ="navPage", target = "SessionLogsTab")
+   
+    
+        if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+            { 
+             hideTab(inputId ="navPage", target = "AggregationTab")
+            showTab(inputId ="navPage", target = "GOAnalysisTab")
+        } else {
+            showTab(inputId ="navPage", target = "AggregationTab")
+            hideTab(inputId ="navPage", target = "GOAnalysisTab")
+        }
+    
+    
+        # hide/show diff Analysis tabPanel
+        NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+        if (NA.count == 0){
+            showTab(inputId ="navPage", target = "diffAnalysisTab")
+        } else {
+            hideTab(inputId ="navPage", target = "diffAnalysisTab")
+        }
+    
+    
+    
+        if (nrow(rv$current.obj) > limitHeatmap)
+        { 
+            hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+        } else {
+            showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+         }
+    
+    
+    
+    
+        nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+        if (nbEmptyLines > 0) {
+            shinyjs::disable("peptideLevel_perform.imputation.button")
+            shinyjs::disable("peptideLevel_ValidImputation")
+        } else {
+            shinyjs::enable("peptideLevel_perform.imputation.button")
+            shinyjs::enable("peptideLevel_ValidImputation")
+        }
+    
+    }
+})
+

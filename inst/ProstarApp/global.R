@@ -1,19 +1,21 @@
 
-DAPAR.loc <- Prostar.loc <- NULL
+DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
-#DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_dev"
-#Prostar.loc = "/home/shiny/Rlibs_dev"
+#DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
-library(DAPARdata)
+
 library(DAPAR, lib.loc = DAPAR.loc)
+library(R.utils)
 
+library(highcharter)
+library(shinythemes)
 library(shiny)
 library(rhandsontable)
 library(data.table)
 library(shinyjs)
 library(shinyAce)
 library(shinyBS)
-
+library(RColorBrewer)
 
 library(tidyr)
 library(dplyr)
@@ -24,7 +26,6 @@ library(MSnbase)
 #library(openxlsx)
 library(sm)
 library(imp4p)
-library(highcharter)
 library(tidyverse)
 library(webshot)
 library(htmlwidgets)
@@ -32,7 +33,53 @@ library(vioplot)
 library(ggplot2)
 library(gplots)
 
+
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
+
+
+# 
+# unsuspendAll <- function(session = getDefaultReactiveDomain()) {
+#   observe({
+#     # pattern <- "^output_(.*?)_hidden$"
+#     # 
+#     # ids <- names(session$clientData) %>%
+#     #   grep(pattern, ., value = TRUE) %>%
+#     #   sub(pattern, "\\1", .)
+#     # for (id in ids) {
+#     #   print(id)
+#     #   outputOptions(session$output, id, suspendWhenHidden = FALSE)
+#     # }
+#     
+#     outputOptions(session$output, "boxPlot_DS-BoxPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "boxPlot_Norm-BoxPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "densityPlot_DS-Densityplot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "densityPlot_Norm-Densityplot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines_per_conditions", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "volcano_Step1-volcanoPlot", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "volcano_Step2-volcanoPlot", suspendWhenHidden = FALSE)
+# 
+#     outputOptions(session$output, "mvImputationPlots_MV-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MEC-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_Valid-plot_viewNAbyMean", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MV-plot_showImageNA", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_MEC-plot_showImageNA", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "mvImputationPlots_Valid-plot_showImageNA", suspendWhenHidden = FALSE)
+#     
+#     
+#     outputOptions(session$output, "corrMatrix", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "viewDistCV", suspendWhenHidden = FALSE)
+#     outputOptions(session$output, "viewViolinPlot_DS", suspendWhenHidden = FALSE)
+#     
+#     
+#     
+#   })
+# }
+
+
 
 # Declaration of global variables
 
@@ -111,15 +158,24 @@ originOfValue[["ByAlignment"]] <- 3
 
 
 gFiltersList <- list()
-gFiltersList[["None"]] <- "none"
+gFiltersList[["None"]] <- "None"
+gFiltersList[["Empty lines"]] <- "EmptyLines"
 gFiltersList[["Whole matrix"]] <- "wholeMatrix"
 gFiltersList[["For every condition"]] <- "allCond"
 gFiltersList[["At least one condition"]] <- "atLeastOneCond"
+
+gFiltersListAnaDiff <- list()
+gFiltersListAnaDiff[["None"]] <- "None"
+gFiltersListAnaDiff[["Whole matrix"]] <- "wholeMatrix"
+gFiltersListAnaDiff[["For every condition"]] <- "allCond"
+gFiltersListAnaDiff[["At least one condition"]] <- "atLeastOneCond"
+
 
 gDatasets <- list()
 gDatasets[["NA"]] <- "none"
 
 gFilterNone <- gFiltersList[["None"]]
+gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 gFilterWholeMat <- gFiltersList[["Whole matrix"]]
 gFilterAllCond <- gFiltersList[["For every condition"]]
 gFilterOneCond <- gFiltersList[["At least one condition"]]
@@ -267,15 +323,16 @@ gGraphicsFilenames <- list(
     imageNA = "imageNA.png",
     AgregMatUniquePeptides = "AgregMatUniquePeptides.png",
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
-    volcanoPlot_1 = "volcanoPlot_1.png",
-    volcanoPlot_3 = "volcanoPlot_3.png",
+    logFCDistribution = "logFC_Distribution.png",
+   # volcanoPlot_1 = "volcanoPlot_1.png",
+    volcanoPlot = "volcanoPlot_3.png",
     calibrationPlot = "calibrationPlot.png",
     calibrationPlotAll = "calibrationPlotAll.png",
     GOEnrichDotplot = "GOEnrichDotplot.png",
     GOEnrichBarplot = "GOEnrichBarplot.png",
-    GOClassification_img1 = "GOClassification_img1.png",
-    GOClassification_img2 = "GOClassification_img2.png",
-    GOClassification_img3 = "GOClassification_img3.png"
+    GOClassificationImg1 = "GOClassification_img1.png",
+    GOClassificationImg2 = "GOClassification_img2.png",
+    GOClassificationImg3 = "GOClassification_img3.png"
 )
 
 defaultGradientRate <- 0.9
@@ -339,6 +396,15 @@ tagList(
     ",wait)
     )
 )	
+}
+
+
+initComplete <- function(){
+  
+  return (JS(
+    "function(settings, json) {",
+    "$(this.api().table().header()).css({'background-color': 'darkgrey', 'color': 'black'});",
+    "}"))
 }
 
 ########################################################
@@ -531,7 +597,25 @@ bsButtonRight <- function(...) {
 }
 
 
+# Call this function with all the regular navbarPage() parameters, plus a text parameter,
+# if you want to add text to the navbar
+navbarPageWithText <- function(..., text) {
+  navbar <- navbarPage(...)
+  textEl <- tags$p(class = "navbar-text", text)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], textEl)
+  navbar
+}
 
+# Call this function with an input (such as `textInput("text", NULL, "Search")`) if you
+# want to add an input to the navbar
+navbarPageWithInputs <- function(..., inputs) {
+  navbar <- navbarPage(...)
+  form <- tags$form(class = "navbar-form", inputs)
+  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
+    navbar[[3]][[1]]$children[[1]], form)
+  navbar
+}
 
 
 

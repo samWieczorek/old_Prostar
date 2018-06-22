@@ -1,70 +1,283 @@
 
 #################### MODULES DEFINITION #################################
 
-# moduleSymbolicFilter <- function(input, output, session, choice) {
-#     
-# 
-#     output$SymbolicFilter <- renderUI({
-#        # req(rv$current.obj)
-#         #data <- c("",colnames(Biobase::fData(rv$current.obj)))
-#         fluidRow(
-#           column(width = 4, selectInput(session$ns("cname"), "Column name", choices = choice())),
-#           column(width = 4, textInput(session$ns("tagName"), "Tag", value = ""))
-#         )
-#     })
-#     
-#     output$SymFilterTag <- renderText({
-#         "toto"
-#     })
-# }
 
 
 
-
-moduleLegendColoredExprs <- function(input, output, session){
-    #output$legendForExprsData <- renderUI({
-    #    legendForExprsData()
-    #})
+modulePopover <- function(input, output, session, data){
+    
+    ns <- session$ns
+    
+    output$customPopover <- renderUI({
+          req(data())
+        #ns <- session$ns
+        div(
+            div(
+                # edit1
+                style="display:inline-block; vertical-align: middle;",
+                if (regexpr("Subsets", data()$title)[1] ==1){
+                    data()$title}
+                else
+                {
+                  data()$title
+                  #HTML(paste0("<strong><font size=\"4\">", data()$title, "</font></strong>"))
+                  }
+            ),
+            div(
+            # edit2
+            style="display:inline-block; vertical-align: middle;",
+            if (regexpr("Subsets", data()$title)[1] ==1){
+                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
+                } else {
+                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
+                    },
+            bsPopover(id = ns("q1"), title = "",
+                      content = data()$content,
+                      placement = "right", 
+                      trigger = "click", 
+                      options = list(container = "body")
+            )
+        )
+        )
+    })
 }
 
 
 
-moduleVolcanoplot <- function(input, output, session){
-  output$nbSelectedItems <- renderUI({ selectedItems()  })
-  output$selectTooltipInfo <- renderUI({ tooltipInfo()})
-  output$Infos <- renderDataTable({ tableInfos() })
-  output$volcanoPlot <-  renderHighchart({ volcanoplot_rCharts()})
+#------------------------------------------------------------
+moduleLegendColoredExprs <- function(input, output, session){}
+
+
+#------------------------------------------------------------
+
+moduleVolcanoplot <- function(input, output, session,comp, tooltip){
+  
+  ns <- session$ns
+  
+  output$nbSelectedItems <- renderUI({ 
+    
+    rv$seuilPVal
+    rv$seuilLogFC
+    rv$current.obj
+    rv$resAnaDiff
+    
+    
+    if(is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return(NULL)}
+   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
+    p <- NULL
+    p <- rv$resAnaDiff
+    upItemsPVal <- NULL
+    upItemsLogFC <- NULL
+    
+    
+    upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
+    upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
+    
+    rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
+    rv$nbSelectedAnaDiff <- NULL
+    t <- NULL
+    
+    if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+      t <- intersect(upItemsPVal, upItemsLogFC)}
+    else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
+      t <- upItemsPVal}
+    else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+      t <- upItemsLogFC}
+    rv$nbSelectedAnaDiff <- length(t)
+    
+    txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ",
+                 rv$nbTotalAnaDiff,"<br>",
+                 "Number of selected ",rv$typeOfDataset, "(s) = ",
+                 rv$nbSelectedAnaDiff,"<br>",
+                 "Number of non selected ",rv$typeOfDataset, "(s) = ",
+                 (rv$nbTotalAnaDiff -rv$nbSelectedAnaDiff), sep="")
+    HTML(txt)
+    })
+  
+  
+  output$Infos <- renderDataTable({ 
+    req(rv$current.obj)
+    req(comp())
+    req(input$eventPointClicked)
+    rv$seuilLogFC
+    rv$seuilPVal
+    rv$resAnaDiff
+    
+    condition1 = strsplit(comp(), "_vs_")[[1]][1]
+    condition2 = strsplit(comp(), "_vs_")[[1]][2]
+    ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+              which(pData(rv$current.obj)$Label==condition2))
+    
+    #data <-getDataForExprs()
+    
+    this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
+    this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
+    
+    data <-getDataForExprs()
+    data <- data[,c(ind, (ind + ncol(data)/2))]
+    
+    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$FC) >= rv$seuilLogFC))
+    
+    data.g1 <- data[index.g1,]
+    data.g2 <- data[-index.g1,]
+    
+    if(this.series.name=='g1') {
+      data <- data.g1[this.index+1,]
+    } else if(this.series.name=='g2') {
+      data <- data.g2[this.index+1,]
+    }
+    # data <- data[(input$eventPointClicked+1),]
+    dt <- datatable( data,
+                     options = list(initComplete = initComplete(),
+                                    dom='t',
+                                    blengthChange = FALSE,
+                                    displayLength = 20,
+                                    ordering=FALSE,
+                                    server = FALSE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                     )) %>%
+      formatStyle(
+        colnames(data)[1:(ncol(data)/2)],
+        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+      )
+    
+    
+    dt
+  })
+  
+  
+  output$volcanoPlot <-  renderHighchart({ 
+    rv$seuilPVal
+    rv$seuilLogFC
+    req(rv$resAnaDiff)
+    req(rv$current.obj)
+    
+    
+    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
+    if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
+    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+
+        
+        df <- data_frame(x=rv$resAnaDiff$FC, 
+                         y = -log10(rv$resAnaDiff$P_Value),
+                         index = 1:nrow(fData(rv$current.obj)))
+        if (!is.null( tooltip())){
+          df <- cbind(df,fData(rv$current.obj)[ tooltip()])
+        }
+        
+        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+        if (ncol(df) > 3){
+          colnames(df)[4:ncol(df)] <- 
+            paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+        }
+        
+        clickFun <-   
+          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+        
+        cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+        diffAnaVolcanoplot_rCharts(df,
+                                   threshold_logFC = rv$seuilLogFC,
+                                   threshold_pVal = rv$seuilPVal,
+                                   conditions = cond,
+                                   clickFunction=clickFun)
+      
+    })
+  
+  
 }
 
 
 
+
+#------------------------------------------------------------
 missingValuesPlots <- function(input, output, session) {
     
     output$histo_MV <- renderHighchart({
-        histo_MV()
+        #histo_MV()
+      req(rv$current.obj)
+      rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
+      rv$tempplot$mvHisto_HC
     })
     
     output$histo_MV_per_lines <- renderHighchart({
-        histo_MV_per_lines()
+        #histo_MV_per_lines()
+      req(rv$current.obj)
+      rv$tempplot$mvPerLinesHisto_HC <- 
+        wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+      rv$tempplot$mvPerLinesHisto_HC
     })
     
     output$histo_MV_per_lines_per_conditions <- renderHighchart({
-        histo_MV_per_lines_per_conditions()
+        #histo_MV_per_lines_per_conditions()
+      req(rv$current.obj)
+      rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+                                                                                                        c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+      rv$tempplot$histo_missvalues_per_lines_per_conditions
     })
 }
 
+
+#------------------------------------------------------------
 moduleDensityplot <- function(input, output, session) {
     
     output$Densityplot <- renderHighchart({
-        DensityPlot()
+        #DensityPlot()
+      req(rv$current.obj)
+      input$lab2Show_DS
+      input$whichGroup2Color_DS
+      
+      labels_DS <- NULL
+      labelsToShow_DS <- NULL
+      gToColor_DS <- NULL
+      if (is.null(input$lab2Show_DS)) { 
+        labelsToShow_DS <- c(1:nrow(Biobase::pData(rv$current.obj)))
+      }
+      else { labelsToShow_DS <- input$lab2Show_DS}
+      
+      if (is.null(input$whichGroup2Color_DS)){
+        gToColor_DS <- "Condition"
+      }else{gToColor_DS <- input$whichGroup2Color_DS}
+      
+      if (is.null(input$whichGroup2Color_DS) 
+          || (input$whichGroup2Color_DS == "Condition")){
+        labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
+      }else {
+        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+                           Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+                           Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+                           Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+                           sep= "_")
+      }
+     
+      rv$tempplot$Density <- wrapper.densityPlotD_HC(rv$current.obj, 
+                                                     labels_DS, 
+                                                     as.numeric(labelsToShow_DS), 
+                                                     gToColor_DS)
+      rv$tempplot$Density
+     
+      
+      
     })
 }
 
+
+#------------------------------------------------------------
 moduleBoxplot <- function(input, output, session) {
     
     output$BoxPlot <- renderPlot({
-        BoxPlot()
-    })
+        #BoxPlot()
+      req(rv$current.obj)
+      input$legendXAxis_DS
+      
+      if (!is.null(input$legendXAxis_DS)){
+        rv$legDS <- input$legendXAxis_DS}
+      
+       wrapper.boxPlotD(rv$current.obj,  rv$legDS)
+        
+    }, width=600, height=400)
 }
 
 
@@ -73,12 +286,16 @@ moduleBoxplot <- function(input, output, session) {
 moduleMVPlots <- function(input, output, session, data) {
     
     output$plot_viewNAbyMean <- renderHighchart({
-        viewNAbyMean(data())
+      # viewNAbyMean(data())
+      req(data())
+      wrapper.hc_mvTypePlot2(data())
     })
     
     output$plot_showImageNA <- renderPlot({
-        showImageNA(data())
-    })
+        #showImageNA(data())
+      req(data())
+      wrapper.mvImage(data())
+    }, width=400, height=600)
 }
 
 # moduleViewNAbyMean <- function(input, output, session) {
@@ -140,6 +357,7 @@ moduleDatasetOverview <- function(input, output, session) {
         if (is.null(rv$current.obj)) {return(NULL)}
         
         isolate({
+            h3("Quick overview of the dataset")
             
             verb <- NULL
             plurial <- NULL
@@ -191,13 +409,17 @@ moduleDatasetOverview <- function(input, output, session) {
                               ,sep="")
             }
             
-            tags$ul(
-                tags$li(txt1), 
-                tags$li(txt2), 
-                tags$li(txt3),
-                if (!is.null(txt4)){tags$li(txt4)}
+            tags$div(
+                tags$h3("Overview of the dataset"),
+                tags$ul(
+                    tags$li(txt1), 
+                    tags$li(txt2), 
+                    tags$li(txt3),
+                    if (!is.null(txt4)){tags$li(txt4)}
+                    )
             )
             
+         
         })
         
       

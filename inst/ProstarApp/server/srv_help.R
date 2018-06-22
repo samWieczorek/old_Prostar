@@ -1,22 +1,7 @@
 output$References <- renderText({
     
-    
-    
-    # <strong><font size=\"4\">User manual:</font></strong>
-    #      <a href=\"https://www.bioconductor.org/packages/release/bioc/vignettes/
-    # Prostar/inst/doc/Prostar_UserManual.pdf\"
-    # title=\"here\" target=\"_blank\">here</a>
-    # <br><br>
-    
-    # <strong><font size=\"4\">Tutorial:</font></strong>
-    #      <a href=\"http://bioconductor.org/packages/release/bioc/vignettes/
-    # Prostar/inst/doc/Prostar_Tutorial.pdf\"
-    # title=\"here\" target=\"_blank\">here</a>
-    # <br><br>
-    
-    
-    txt<- "<strong><font size=\"5\">HELP</font></strong>
-    <br><hr color:\"blue\"><br>
+  
+    txt<- "<br>
     
     <strong><font size=\"4\">User manuals and tutorials:</font></strong>
     <ul>
@@ -40,14 +25,11 @@ output$References <- renderText({
  <strong><font size=\"4\">Reference manuals:</font></strong>
     <ul>
     <li>  
-    <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/
-    Prostar/man/Prostar.pdf\">ProStaR reference manual</a>
+    <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf\">ProStaR reference manual</a>
     </li>
-    <li> <a href=\"https://www.bioconductor.org/
-    packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf?attredirects=0\">DAPAR reference manual</a>
+    <li> <a href=\"https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf?attredirects=0\">DAPAR reference manual</a>
     </li>
-    <li> <a href=\"https://www.bioconductor.org/packages/
-    release/bioc/html/MSnbase.html\">MSnbase package webpage</a>
+    <li> <a href=\"https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html\">MSnbase package webpage</a>
     </li>
     <li> <a href=\"https://cran.r-project.org/web/packages/cp4p/cp4p.pdf?attredirects=0\">CP4P reference manual</a>
     </li>
@@ -90,11 +72,12 @@ output$References <- renderText({
     <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/fdrtuto.pdf?attredirects=0\">
     T. Burger. Gentle introduction to the statistical 
     foundations of false discovery rate in quantitative proteomics. 
-    <i>Journal of Proteome Research</i>, accepted for publication, 2017. 
+    <i>Journal of Proteome Research</i>, 17(1):12-22, 2017. 
     </a></li>
-    <li> L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
-    from relative quantitative proteomics data using shared peptides. (under review).
-    </li>
+    <li> <a href=\"https://sites.google.com/site/thomasburgerswebpage/download/revised-biostat-proteom-preprint.pdf?attredirects=0\">
+    L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
+    from relative quantitative proteomics data using shared peptides. (accepted for publication, 2018). 
+    </a></li>
     <li> Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
     T. Burger. Multiple imputation strategy for mass spectrometry-based 
     proteomic data. (in preparation).
@@ -130,6 +113,176 @@ output$References <- renderText({
 
 
 
+getPackagesVersions <- reactive({
+    outOfDate <- "(Out of date)"
+    dev <- "(Devel)"
+    
+    biocRelease <- NULL
+    tryCatch({
+        biocRelease <-available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
+        require(XML)
+        html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
+        DAPARdata.version <- as.character(html[[3]][2][1,])
+        
+    }, warning = function(w) {
+        return()
+    }, error = function(e) {
+        return()
+    }, finally = {
+        #cleanup-code 
+    })
+    
+    pkgs <- c("Prostar", "DAPAR", "DAPARdata")
+    loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+    instPkgs <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+                     DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+                     DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+    
+    
+    names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
+               as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+               as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
+    
+    
+df <- data.frame("Name" = names,
+                     "Installed.packages"= rep(NA, 3), 
+                     "Bioc.release" =  rep(NA, 3))
+    
+    
+    df[, "Installed.packages"] <- unlist(instPkgs)
+    
+    if (!is.null(biocRelease)) {
+        biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
+                         DAPAR = as.character(biocRelease["DAPAR","Version"]),
+                         DAPARdata = as.character(DAPARdata.version))
+        
+        if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 0){df[1,"Name"] <-  names[1]}
+        else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 1){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar)==-1){df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")}
+        
+        if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
+        else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR) == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR)==-1){df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")}
+        
+        if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
+        else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata) == 1){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
+        else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata)==-1){df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")}
+        
+        
+        df[, "Bioc.release"] <- unlist(biocPkgs)
+    }
+
+    
+    colnames(df) <- c("Names", "Installed packages", "Bioc release")
+    df
+})
+
+
+
+output$tab_versions <- renderDataTable({
+    dt <- DT::datatable(getPackagesVersions(), 
+                        escape = FALSE,
+                        rownames= FALSE,
+                        option=list(initComplete = initComplete(),
+                            dom = 't',
+                            autoWidth=TRUE,
+                            columnDefs = list(list(width='200px',targets= "_all"))
+                            )
+                    )
+    dt
+})
+
+output$checkUpdates <- renderUI({
+   
+    df <- getPackagesVersions()
+    instPkgs <- df[,"Installed packages"]
+    biocPkgs <- df[,"Bioc release"]
+    if ((instPkgs$Prostar == biocPkgs$Prostar) && (instPkgs$DAPAR == biocPkgs$DAPAR) && (instPkgs$DAPARdata == biocPkgs$DAPARdata)){
+            h3("All the Prostar packages are in the newest version.")
+        } else{
+            h3("The Prostar packages are out of date. Please check the bioconductor.")
+            }
+
+})
+
+
+output$warningDependanciesVersion <- renderUI({
+    
+    DTVersion <- installed.packages()["DT","Version"]
+    highcharterVersion <-installed.packages()["highcharter","Version"]
+    
+    if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0"){
+    tagList(
+        tags$h4("Notes"),
+       
+     tags$p("For a better experience with Prostar, we advice you to install the development version of the following
+    packages : DT and highcharter. To do so, type and execute the followings commands in a R console:"),
+    tags$ul(
+      tags$li("devtools::install_github('rstudio/DT')"),
+      tags$li("devtools::install_github('jbkunst/highcharter')")
+    )
+    )
+    }
+})
+
+
+
+
+output$versionLog <- renderUI({
+    
+    txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
+    <font color=\"red\">For a better experience with Prostar, we advice you to install the development version of the following
+    packages : DT and highcharter. <br>
+    To do so, type and execute the followings commands in a R console:<br>
+    <ul>
+    <li> devtools::install_github('rstudio/DT')</li>
+    <li> devtools::install_github('jbkunst/highcharter')</li>
+    </ul> </font>"
+    
+    tagList(
+        tags$h4("News in Prostar 1.12.9"),
+        tags$h5("Bug fixed:"),
+        tags$ol(
+            tags$li("Normalization: \"Sum by columns\" has been modified to provide log-abundances compatible with the other treatments. It can be
+                done \"for each condition independantly\" or \"globally\".")
+            ),
+        
+        tags$h5("New features:"),
+        
+        tags$ol(
+            tags$li("Descriptive statistics: The expression datasets are colored w.r.t
+        the nature of missing value (POV or MEC) even when the value has been imputed"),
+        
+            tags$li("Filtering: Manage designs with more than 2 conditions and with
+        conditions containing different number of samples"),
+        
+       tags$li("Filtering: UI more user friendly for the string-based filtering (Tab 2)"),
+        
+        
+        tags$li("Imputation (protein level): Distinction between missing values on an
+        entire condition (Missing on the Entire Condition) and the other
+        ones (Partially Observed Value)"),
+        
+        tags$li("Imputation (protein level): for the POV, it is possible to use SLSA
+        which take into account the experimentaldesign experimental"),
+        
+        tags$li("Imputation (protein level): imputations are all processed condition
+        by condition"),
+        
+        tags$li("Differential analysis: All tests can process datasets with
+        conditions of different number of samples"),
+        
+        tags$li("Differential analysis: Limma takes into account all the hierarchical experimental designs"),
+        
+        tags$li("GO analysis: Add the GeneID nomenclature.")
+        )
+        
+        
+    )
+})
+
+
+
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
     busyIndicator(WaitMsgCalc,wait = 0)
@@ -139,7 +292,8 @@ output$aboutText <- renderUI({
     ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
     
     
-    text <- paste("<strong>To cite DAPAR and ProStaR software:</strong><br> 
+    text <- paste("<strong>Maintaining ProStaR as free software is a heavy and time-consuming
+                  duty. If you use it, please cite the following reference</strong><br> 
                   S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
                   L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
                   C. Bruley and T. Burger. <br>
@@ -150,7 +304,7 @@ output$aboutText <- renderUI({
                   <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
                   title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
                   
-                  <br><br><br>
+                  <br><hr>
                   <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
                   software suite for quantitative analysis of mass spectrometry 
                   based proteomics.<br>
@@ -213,4 +367,22 @@ output$aboutText <- renderUI({
     
     HTML(text)
     
+})
+
+
+output$FAQ_output <- renderUI({
+    
+    tagList(
+    tags$br(),tags$br(),tags$br(),
+    tags$h4("1 - Why the table in experimental design blinks when I am editing it?"),
+    tags$p("When you edit the experimental design (during converting a text file to MSnset or during the update of the design),
+           it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. 
+           This happens if you edit the cells too fast w.r.t. the speed of update of the table. We apologize for this caveat : this is a known bug of the package used to
+           provide the table. No fix is available yet. The only workaround is to close then reopen Prostar."),
+    tags$br(),
+    tags$h4("2 - How to build a valid experimental design?"),
+    tags$p("The differential analysis of Prostar now integrates hierarchical designs when using limma. TODO")
+    
+    
+    )
 })

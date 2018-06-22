@@ -5,6 +5,11 @@
 ###########################################################################
 ###########################################################################
 
+
+observe({
+    print(input$DataProcessingMenu)
+})
+
 output$helpForNormalizationMethods <- renderUI({
     input$normalization.method
     input$normalization.type
@@ -67,7 +72,7 @@ output$choose_normalizationQuantile <- renderUI({
     # check if the normalisation has already been performed
     quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
     
-    radioButtons("normalization.quantile", "Choose normalization quantile",  choices = quantileChoices, selected=0.15)
+    radioButtons("normalization.quantile", "Normalization quantile",  choices = quantileChoices, selected=0.15)
     
     
 })
@@ -80,7 +85,7 @@ output$choose_normalizationQuantileOther <- renderUI({
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
    
     if (input$normalization.quantile == "Other"){
-        numericInput("normalization.quantileOther", "Choose normalization quantile other",
+        numericInput("normalization.quantileOther", "Normalization quantile other",
                      min=0, max = 1 , value = 0.15,
                      step = 0.1)
         
@@ -117,7 +122,7 @@ output$choose_normalizationType <- renderUI({
         
         # check if the normalisation has already been performed
         type <- c("overall", "within conditions")
-        selectInput("normalization.type", "Choose normalization type",  choices = type)
+        selectInput("normalization.type", "Normalization type",  choices = type)
 
     } 
     
@@ -140,7 +145,7 @@ output$choose_Normalization_Test <- renderUI({
     # check if the normalisation has already been performed
     method <- normMethods
     
-    selectInput("normalization.method","Choose normalization method", method)
+    selectInput("normalization.method","Normalization method", method)
 })
 
 
@@ -171,8 +176,8 @@ observeEvent(input$perform.normalization,{
     
     
     isolate({
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 
                 if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -185,13 +190,13 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "')",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "')",
+                        #           sep="")
+                        # )
                        # }
                     }
                     else if (input$normalization.method =="Quantile Centering"){
@@ -216,14 +221,14 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  "', quant =", quant,")",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           "', quant =", quant,")",
+                        #           sep="")
+                        # )
                        # }
                         
                     }   
@@ -237,14 +242,14 @@ observeEvent(input$perform.normalization,{
                         updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
                         ## Write command log file
                         #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  "', scaling =", input$normalization.variance.reduction,")",
-                                  sep="")
-                        )
+                        #     writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           "', scaling =", input$normalization.variance.reduction,")",
+                        #           sep="")
+                        # )
                         #}
                     } 
                     else if (input$normalization.method =="Sum by columns"){
@@ -256,27 +261,27 @@ observeEvent(input$perform.normalization,{
                         
                         ## Write command log file
                         #if (input$showCommandLog){
-                        writeToCommandLogFile(
-                            paste("current.obj <- wrapper.normalizeD(",
-                                  "dataset[['",
-                                  input$datasets, 
-                                  "']],'",input$normalization.method, "','", input$normalization.type,
-                                  ")",sep="")
-                        )
+                        # writeToCommandLogFile(
+                        #     paste("current.obj <- wrapper.normalizeD(",
+                        #           "dataset[['",
+                        #           input$datasets, 
+                        #           "']],'",input$normalization.method, "','", input$normalization.type,
+                        #           ")",sep="")
+                        # )
                         #}
                     }
                     #createPNG_Normalization()
                     
                 }
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
+            #}
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
+            # 
         
     })
 })
@@ -291,8 +296,8 @@ observeEvent(input$valid.normalization,{
     {return(NULL)}
     
     isolate({
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 if (input$normalization.method != G_noneStr) {
                     
                   
@@ -312,13 +317,13 @@ observeEvent(input$valid.normalization,{
                     
                     #write command log file
                     #if (input$showCommandLog){
-                        writeToCommandLogFile(
-                        paste("dataset[['",name,"']] <- current.obj", sep="")
-                    )
+                    #     writeToCommandLogFile(
+                    #     paste("dataset[['",name,"']] <- current.obj", sep="")
+                    # )
                     #}
                     
                     updateSelectInput(session, "datasets", 
-                                      paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                      #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset),
                                       selected = name)
                     
@@ -335,14 +340,14 @@ observeEvent(input$valid.normalization,{
                     #createPNG_Normalization()
                     
                 }
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+            # }
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
         
     } )
 })
@@ -360,7 +365,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
     if (is.null(rv$current.obj)){return(NULL)}
     .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     checkboxGroupInput("legendXAxisNormTabPanel",
-                       label = "Choose data to show in legend",
+                       label = "Data to show in legend",
                        choices = .names,
                        selected = .names[1])
 })
@@ -368,7 +373,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 output$choose_Normalization_1 <- renderUI({
     isolate({
         selectInput("normalization.family", 
-                    "Choose normalization family", 
+                    "Normalization family", 
                     names(normalization.methods))
     })
 })
@@ -422,8 +427,8 @@ viewComparisonNorm2 <- reactive({
                             sep= "_")
     }
     
-    result = tryCatch(
-       {
+    # result = tryCatch(
+    #    {
            if (input$datasets == paste("Normalized", rv$typeOfDataset, sep=" - ")){
                obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
                obj2 <- rv$dataset[[input$datasets]]
@@ -438,15 +443,15 @@ viewComparisonNorm2 <- reactive({
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
            
-        }
+        #}
         #, warning = function(w) {
         #   shinyjs::info(conditionMessage(w))
         #}
-        , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
+        # , error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code
+        # })
     
     
 })
@@ -497,8 +502,8 @@ viewComparisonNorm <- reactive({
                             sep= "_")
     }
     
-    result = tryCatch(
-        {
+    #result = tryCatch(
+        #{
             dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
                 if (input$datasets == dname){
                 obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
@@ -516,15 +521,15 @@ viewComparisonNorm <- reactive({
                                           gToColorNorm)
             #boxplot(Biobase::exprs(rv$current.obj))
             
-        }
+        #}
         #, warning = function(w) {
         #   shinyjs::info(conditionMessage(w))
         #}
-        , error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
+        # , error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
+        # }, finally = {
+        #     #cleanup-code
+        # })
     
     
 })
@@ -562,7 +567,7 @@ output$ChooseLegendForAxis <- renderUI({
                         href="css/overrides.css"))
     
     checkboxGroupInput("legendXAxis",
-                       label = "Choose data to show in legend",
+                       label = "Data to show in legend",
                        choices = .names,
                        selected = .names[1])
 })

@@ -1,9 +1,8 @@
 
-
-# moduleSymbolicFilterUI <- function(id) {
-#     ns <- NS(id)
-#     uiOutput(ns("SymbolicFilter"))
-# }
+modulePopoverUI <- function(id){
+    ns <- NS(id)
+    uiOutput(ns("customPopover"))
+}
 
 
 
@@ -37,11 +36,9 @@ moduleLegendColoredExprsUI <- function(id){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    fluidRow(
-    column(width=6, uiOutput(ns("nbSelectedItems"))),
-    column(width=6, uiOutput(ns("selectTooltipInfo")))
-    ),
+    uiOutput(ns("nbSelectedItems")),
   dataTableOutput(ns("Infos")),
+  #uiOutput(ns("found")),
   highchartOutput(ns("volcanoPlot"))
   )
 }
@@ -69,7 +66,7 @@ moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
      fluidRow(
         column(width = 7, highchartOutput(ns("plot_viewNAbyMean"), height="600px"), height="600px"),
-        column(width = 5, plotOutput(ns("plot_showImageNA"), height="600px"), height="600px")
+        column(width = 5, plotOutput(ns("plot_showImageNA"), height=600, width=200), height="600px")
     )
 }
 

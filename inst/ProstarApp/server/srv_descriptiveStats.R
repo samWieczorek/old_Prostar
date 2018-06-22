@@ -7,95 +7,54 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleDensityplot,"densityPlot_Norm")
+callModule(moduleBoxplot,"boxPlot_Norm")
 
 
 callModule(missingValuesPlots, "MVPlots_DS")
-callModule(missingValuesPlots,"MVPlots_filtering")
-
-
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleBoxplot,"boxPlot_Norm")
-
 callModule(moduleDatasetOverview,"overview_DS")
-callModule(moduleDatasetOverview,"overview_DemoMode")
-callModule(moduleDatasetOverview,"overview_openMSnset")
-callModule(moduleDatasetOverview,"overview_convertData")
-callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 
 
 
-activatePopover <- function(){
-    txt_histo_M <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    txt_histo_MV_per_lines <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    
-    txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
-                          "test</p><p>Explanation .</p>")
-    
-    
-    addPopover(session, "MVPlots_DS-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-    addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
-               content = txt_histo_M, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
-               content = txt_histo_MV_per_lines, trigger = 'click')
-    
-    addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
-               content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-    
-    
-}
+
+
 
 
 #######################################
 
 
-
 output$DS_sidebarPanel_tab <- renderUI({
-    input$DS_tabSetPanel
-    rv$typeOfDataset
+    #input$DS_tabSetPanel
+    req(rv$typeOfDataset)
     
     .choices<- NULL
     switch(rv$typeOfDataset,
            protein = {
-                      .choices <- list("Quantitative data" = "tabExprs",
+                      .choices <- list( "Quantitative data" = "tabExprs",
                                         "Proteins metadata" = "tabfData",
-                                        "Replicate metadata" = "tabpData",
+                                        "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
         peptide = {
                       .choices <- list("Quantitative data" = "tabExprs",
                                        "Peptides metadata" = "tabfData",
-                                        "Replicate metadata" = "tabpData",
+                                        "Experimental design" = "tabpData",
                                         "Dataset history" = "processingData")
                       },
                 {
                 .choices <- list("Quantitative data" = "tabExprs",
                                 "Analyte metadata" = "tabfData",
-                                "Replicate metadata" = "tabpData",
+                                "Experimental design" = "tabpData",
                                 "Dataset history" = "processingData")
                 }
     )
     
     tagList(
-                     radioButtons("DS_TabsChoice", "Choose the tab to display",
-                                  choices = .choices),
+                     radioButtons("DS_TabsChoice", "Table to display",
+                                  choices = .choices,
+                                  selected=character(0)),
                      br(),
-                     checkboxInput("nDigits", 
-                                   "Show full length intensities", 
-                                   value = FALSE),
+                    
                      uiOutput("legendForExprsData")
     )
     
@@ -103,7 +62,7 @@ output$DS_sidebarPanel_tab <- renderUI({
 
 
 output$DS_sidebarPanel_heatmap <- renderUI({
-    
+    req(rv$current.obj)
     tagList(
                      h3("Clustering Options"),
                      selectInput("distance","Distance",
@@ -115,14 +74,12 @@ output$DS_sidebarPanel_heatmap <- renderUI({
 
 #----------------------------------------------
 output$tabToShow <- renderUI({
-    input$DS_TabsChoice
-    rv$current.obj
-    rv$indexNA
-    if (is.null(input$DS_TabsChoice)) {return(NULL)}
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(input$DS_TabsChoice)
+    req(rv$current.obj)
     
     switch(input$DS_TabsChoice,
-          tabExprs = DT::dataTableOutput("viewExprs"),
+          None = {return(NULL)},
+          tabExprs = DT::dataTableOutput("table"),
           tabfData = DT::dataTableOutput("viewfData"),
           tabpData = DT::dataTableOutput("viewpData"),
           processingData = {
@@ -136,24 +93,68 @@ output$tabToShow <- renderUI({
 
 ##' show intensity values of the MSnset object in a table
 ##' @author Samuel Wieczorek
-output$viewExprs <- renderDataTable({
-    # req(rv$current.obj)
-    df <- getDataForExprs()
-    dt <- datatable( df,
-                     options = list(displayLength = 20,
-                                    ordering=FALSE,
-                                    server = TRUE,
-                                    columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE))
-                     )) %>%
-        formatStyle(
-            colnames(df)[1:(ncol(df)/2)],
-            colnames(df)[((ncol(df)/2)+1):ncol(df)],
-            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
-        )
-    
-    
-    dt
-})
+# output$viewExprs <- renderDataTable(
+#     # rv$current.obj
+#     # input$nDigits
+#     # if (is.null(rv$current.obj)) {return(NULL)}
+#     # if (input$nDigits == T){nDigits = 1e100}else {nDigits = 3}
+#     # 
+#     # df <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+#     #               round(Biobase::exprs(rv$current.obj), 
+#     #               digits=nDigits))
+#     # 
+#     # 
+#     # test.table <- data.frame(lapply(1:8, function(x) {1:1000}))
+#     # test.table[c(2,3,7), c(2,7,6)] <- NA
+#     # id <- which(is.na(test.table))
+#     # colonnes <- trunc(id / nrow(test.table))+1
+#     # lignes <- id %% nrow(test.table)
+#     # formattable(test.table, list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+#     # 
+#     # id <- which(is.na(exprs(Exp1_R25_prot)))
+#     #colonnes <- trunc(id / nrow(exprs(Exp1_R25_prot)))+1
+#     #lignes <- id %% nrow(exprs(Exp1_R25_prot))
+#     #formattable(as.data.frame(exprs(Exp1_R25_prot)), list(area(col = colonnes, row = lignes) ~ color_tile("red", "lightblue")))
+#     
+#     
+#     
+#     #id <- which(is.na(exprs(Exp1_R25_prot)))
+#     
+#     test.table,
+#     extensions = 'Scroller',
+#     options = list(initComplete = initComplete(),
+#         
+#         displayLength = 3,
+#         deferRender = TRUE,
+#         bLengthChange = FALSE,
+#         scrollX = 200,
+#         scrollY = 600,
+#         scroller = TRUE,
+#         drawCallback=JS(
+#             paste("function(row, data) {",
+#                   paste(sapply(1:ncol(test.table),function(i)
+#                      paste( "$(this.api().cell(",
+#                         id %% nrow(test.table)-1,",",
+#                         trunc(id / nrow(test.table))+1,
+#                         ").node()).css({'background-color': 'lightblue'});")
+#                   ),collapse = "\n"),"}" )
+#         ), 
+#         server = TRUE)
+#     
+#     
+#     # id <- which(is.na(df))
+#     # datatable(df,
+#     #               options=list(drawCallback=JS(
+#     #               paste("function(row, data,index) {",
+#     #               paste(sapply(1:ncol(df),function(i) 
+#     #              {paste( "$(this.api().cell(",id %% nrow(df)-1,",",trunc(id / nrow(df))+1,").node()).css({'background-color': 'lightblue'});")}
+#     #              #{paste( "$(this.api().cell(index,",trunc(i / nrow(data))+1,").node()).css({'background-color': 'lightblue'});")}
+#     #               
+#     #              ),collapse = "\n"),"}" ) )
+#     #     )
+#     #     ) 
+#     
+# )
 
 
 
@@ -161,46 +162,52 @@ output$viewExprs <- renderDataTable({
 ##' show pData of the MSnset object
 ##' @author Samuel Wieczorek
 output$viewpData <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(rv$current.obj)
     
-    result = tryCatch(
-        {
-            as.data.frame(Biobase::pData(rv$current.obj))
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-    
-},
-option=list(pageLength=DT_pagelength,
-            orderClasses = TRUE,
-            autoWidth=FALSE,
-            columnDefs = list(
-                list(columns.width=c("60px"),
-                     columnDefs.targets= c(list(0),list(1),list(2)))))
-)
+  data <- as.data.frame(Biobase::pData(rv$current.obj))
+  
+  pal <- brewer.pal(length(unique(data$Label)),"Dark2")
+  pal <- pal[1:length(unique(data$Label))]
+  dt <- DT::datatable(  data,
+                        extensions = 'Scroller',
+                    options=list(initComplete = initComplete(),
+                                 pageLength=DT_pagelength,
+                                 orderClasses = TRUE,
+                                 autoWidth=FALSE,
+                                 deferRender = TRUE,
+                                 bLengthChange = FALSE,
+                                 scrollX = 200,
+                                 scrollY = 500,
+                                 scroller = TRUE,
+                                columnDefs = list(
+                                list(columns.width=c("60px"),
+                                      columnDefs.targets= c(list(0),list(1),list(2)))))) %>%
+    formatStyle(
+      columns = colnames(data)[1:2],
+      valueColumns = colnames(data)[2],
+      backgroundColor = styleEqual(unique(data$Label), pal)
+    )
+  
+})
 
 ##' show fData of the MSnset object in a table
 ##' @author Samuel Wieczorek
 output$viewfData <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
+    req(rv$current.obj)
     
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                        options=list(pageLength=DT_pagelength,
+                             extensions = 'Scroller',
+                        options=list(initComplete = initComplete(),
+                                     pageLength=DT_pagelength,
                                     orderClasses = TRUE,
                                     autoWidth=FALSE,
+                                    deferRender = TRUE,
+                                    bLengthChange = FALSE,
+                                    scrollX = 200,
+                                    scrollY = 200,
+                                    scroller = TRUE,
                                     columns.searchable=F,
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
@@ -209,7 +216,14 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             options=list(pageLength=DT_pagelength,
+                             extensions = 'Scroller',
+                             options=list(initComplete = initComplete(),
+                                 pageLength=DT_pagelength,
+                                 deferRender = TRUE,
+                                 bLengthChange = FALSE,
+                                 scrollX = 200,
+                                 scrollY = 600,
+                                 scroller = TRUE,
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
@@ -229,192 +243,44 @@ output$viewfData <- DT::renderDataTable({
 ##' Visualisation of missing values table
 ##' @author Samuel Wieczorek
 output$viewExprsMissValues <- DT::renderDataTable({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
-            as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-                                Biobase::exprs(rv$current.obj)))
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-},
-
-option=list(orderClasses = TRUE,
+    req(rv$current.obj)
+  dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+                                Biobase::exprs(rv$current.obj))),
+                      extensions = 'Scroller',
+                      rownames = FALSE,
+                      
+options=list(orderClasses = TRUE,
             autoWidth=FALSE,
+            bLengthChange = FALSE,
+            scrollX = 200,
+            scrollY =600,
+            scroller = TRUE,
             columns.searchable=F,
             pageLength = DT_pagelength,
             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2)))))
 )
-
-
-
-histo_MV_per_lines <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    result = tryCatch(
-        {
-            #wrapper.mvPerLinesHisto(rv$current.obj, 
-            #            c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-            
-            
-            rv$tempplot$mvPerLinesHisto_HC <- 
-              wrapper.mvPerLinesHisto_HC(rv$current.obj, 
-                                       c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-            rv$tempplot$mvPerLinesHisto_HC
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e),
-                                sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
-    
-    
-    
 })
-
-
-
-histo_MV_per_lines_per_conditions <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    result = tryCatch(
-        {
-            rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
-                                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-            rv$tempplot$histo_missvalues_per_lines_per_conditions 
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-})
-
-
-
-
-BoxPlot <- reactive({
-    rv$current.obj
-    input$legendXAxis_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    if (!is.null(input$legendXAxis_DS)){
-        rv$legDS <- input$legendXAxis_DS}
-    
-    result = tryCatch(
-        {
-          wrapper.boxPlotD(rv$current.obj,  rv$legDS)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-})
-
 
 
 
 
 
 violinPlot2 <- reactive({
-    rv$current.obj
-    input$legendXAxisViolin_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
-    if (is.null(input$legendXAxisViolin_DS)) {return(NULL)}
+    req(rv$current.obj)
+    req(input$legendXAxisViolin_DS)
     
     
     if (!is.null(input$legendXAxisViolin_DS)){
       rv$PlotParams$legDS_Violinplot <- input$legendXAxisViolin_DS}
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             if (is.null(rv$PlotParams$legDS_Violinplot)) {
                 wrapper.violinPlotD(rv$current.obj)
                 }  else {
                     wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
                 }
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-})
-
-
-
-
-DensityPlot <- reactive({
-    rv$current.obj
-    input$lab2Show_DS
-    input$whichGroup2Color_DS
-    if (is.null(rv$current.obj)) {return(NULL)}
-    #if (is.null(input$lab2Show_DS)) {return(NULL)}
-    #if (is.null(input$whichGroup2Color_DS)) {return(NULL)}
-    
-    labels_DS <- NULL
-    labelsToShow_DS <- NULL
-    gToColor_DS <- NULL
-    if (is.null(input$lab2Show_DS)) { 
-        labelsToShow_DS <- c(1:nrow(Biobase::pData(rv$current.obj)))
-    }
-    else { labelsToShow_DS <- input$lab2Show_DS}
-    
-    if (is.null(input$whichGroup2Color_DS)){
-        gToColor_DS <- "Condition"
-    }else{gToColor_DS <- input$whichGroup2Color_DS}
-    
-    if (is.null(input$whichGroup2Color_DS) 
-        || (input$whichGroup2Color_DS == "Condition")){
-        labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
-    }else {
-        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
-                           Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                           sep= "_")
-    }
-    
-    #result = tryCatch(
-    #    {
-    rv$tempplot$Density <- wrapper.densityPlotD_HC(rv$current.obj, 
-                                    labels_DS, 
-                                    as.numeric(labelsToShow_DS), 
-                                    gToColor_DS)
-            rv$tempplot$Density
         # }
         # , warning = function(w) {
         #     shinyjs::info(conditionMessage(w))
@@ -425,33 +291,32 @@ DensityPlot <- reactive({
         # }, finally = {
         #     #cleanup-code 
         # })
-    
-    
-    
+        # 
 })
+
+
 
 
 
 viewDistCV <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     
-    if (is.null(rv$current.obj)) {return(NULL)}
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)
             rv$tempplot$varDist
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
     
 })
 
@@ -459,47 +324,45 @@ viewDistCV <- reactive({
 
 corrMatrix <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     input$expGradientRate
-    if (is.null(rv$current.obj)) {return(NULL)}
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
     else{
         gradient <- input$expGradientRate}
     
-    result = tryCatch(
-        {
+    # result = tryCatch(
+    #     {
             rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
             rv$tempplot$corrMatrix
             
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",
-                                conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+        # }
+        # , warning = function(w) {
+        #     shinyjs::info(conditionMessage(w))
+        # }, error = function(e) {
+        #     shinyjs::info(paste(match.call()[[1]],":",
+        #                         conditionMessage(e), 
+        #                         sep=" "))
+        # }, finally = {
+        #     #cleanup-code 
+        # })
+        # 
 })
 
 
 
 heatmap <- reactive({
     
-    rv$current.obj
+    req(rv$current.obj)
     input$linkage
     input$distance
-    if (is.null(rv$current.obj)) {return(NULL)}
     if (!is.null(input$linkage) && !is.null(input$distance)
         #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
     ) {
         
-        result = tryCatch(
-            {
+        # result = tryCatch(
+        #     {
                 rv$PlotParams$HeatmapLinkage <- input$linkage
       rv$PlotParams$HeatmapDistance <- input$distance
       
@@ -508,16 +371,16 @@ heatmap <- reactive({
                                  rv$PlotParams$HeatmapLinkage,
                                  TRUE)
 
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+            # }
+            # , warning = function(w) {
+            #     shinyjs::info(conditionMessage(w))
+            # }, error = function(e) {
+            #     shinyjs::info(paste(match.call()[[1]],":",
+            #                         conditionMessage(e), 
+            #                         sep=" "))
+            # }, finally = {
+            #     #cleanup-code 
+            # })
         
         
     }
@@ -571,50 +434,42 @@ output$DS_sidebarPanel_Violinplot <- renderUI({
 
 
 
-getDataForExprs <- reactive({
-    input$nDigits
-    rv$current$obj
-    
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
-    
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=nDigits))
-    test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
-    #colnames(test.table) <- c(colnames(Biobase::exprs(rv$current.obj), rv$current.obj@experimentData@other$OriginOfValues))
-    test.table
-    #print(colnames(test.table))
-})
-
-
-getData <- reactive({
-    input$nDigits
-    rv$current$obj
-    
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
-    
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
-    test.table
-})
 
 
 
-data <- eventReactive(rv$current$obj, {
-    input$nDigits
-    rv$current$obj
+
+#################
+output$table <- renderDataTable({
+   # req(rv$current.obj)
+    df <- getDataForExprs()
+    dt <- datatable( df,
+                     extensions = c('Scroller', 'Buttons'),
+                    options = list(
+                      dom = 'Bfrtip',
+                      initComplete = initComplete(),
+                        displayLength = 20,
+                        deferRender = TRUE,
+                        bLengthChange = FALSE,
+                        scrollX = 200,
+                        scrollY = 600,
+                        scroller = TRUE,
+                        ordering=FALSE,
+                        buttons=c('copy', 'csv', 'excel'),
+                        server = TRUE,
+                            columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
+       formatStyle(
+           colnames(df)[1:(ncol(df)/2)],
+           colnames(df)[((ncol(df)/2)+1):ncol(df)],
+           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange')),
+           backgroundSize = '98% 48%',
+           backgroundRepeat = 'no-repeat',
+           backgroundPosition = 'center'
+       )
     
-    if (input$nDigits == TRUE){nDigits = 1e100} else {nDigits = 3}
     
-    # test.table <- cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-    #                     round(Biobase::exprs(rv$current.obj), 
-    #                     digits=nDigits))
-    test.table <- round(Biobase::exprs(rv$current.obj),digits=nDigits)
-    test.table
-}, ignoreNULL = FALSE)
+    dt
+    })
+
 
 
 
@@ -629,7 +484,7 @@ output$ChooseLegendForAxisViolin_DS <- renderUI({
                       href="css/overrides.css"))
   
   checkboxGroupInput("legendXAxisViolin_DS",
-                     label = "Choose data to show in legend",
+                     label = "Data to show in legend",
                      choices = .names,
                      selected = .names[1])
 })
@@ -697,30 +552,6 @@ output$nShow_DS <- renderUI({
 
 
 
-histo_MV <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    result = tryCatch(
-        {
-            rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
-            rv$tempplot$mvHisto_HC
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
-})
-
-
-
-
-
 ##' boxplot of intensities in current.obj
 ##' @author Samuel Wieczorek
 # output$viewBoxPlot <- renderPlot({
@@ -731,26 +562,15 @@ histo_MV <- reactive({
 
 output$viewViolinPlot_DS <- renderPlot({
     violinPlot2()
-}) 
-
-
-
-
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo_MV_per_lines <- renderHighchart({
-    histo_MV_per_lines()
-})
+}, width=600, height=400) 
 
 
 
 
 
-##' distribution of missing values in current.obj
-##' @author Samuel Wieczorek
-output$histo_MV_per_lines_per_conditions <- renderHighchart({
-    histo_missvalues_per_lines_per_conditions()
-})
+
+
+
 addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info", 
            content = paste0("<p>Test",
                             "test</p><p>Explanation .</p>"), trigger = 'click')

@@ -1,26 +1,26 @@
 
 
-observe({
-    rv$current.obj
-    if(is.null(rv$current.obj)) {return (NULL)}
-    
-    if (rv$current.obj@experimentData@other$typeOfData == "peptide")
-    { 
-        hideTab(inputId ="navPage", target = "GO_Analysis")
-    } else {
-        showTab(inputId ="navPage", target = "GO_Analysis")
-    }
-    
-    
-    if (nrow(rv$current.obj) > limitHeatmap)
-    { 
-        hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-    } else {
-        showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-    }
-    
-    
-})
+# observe({
+#     rv$current.obj
+#     if(is.null(rv$current.obj)) {return (NULL)}
+#     
+#     if (rv$current.obj@experimentData@other$typeOfData == "peptide")
+#     { 
+#         hideTab(inputId ="navPage", target = "GO_Analysis")
+#     } else {
+#         showTab(inputId ="navPage", target = "GO_Analysis")
+#     }
+#     
+#     
+#     if (nrow(rv$current.obj) > limitHeatmap)
+#     { 
+#         hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+#     } else {
+#         showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+#     }
+#     
+#     
+# })
 
 
 output$GOAnalysisMenu <- renderUI({
@@ -37,13 +37,14 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_Normalization"
                                            ,height = "100%"
-                                           ,h4("General setup")
+                                           #,h4("General setup")
                                            , radioButtons("sourceOfProtID", "Source of protein ID",
                                                           choices = G_sourceOfProtID_Choices)
                                            
                                            ,uiOutput("chooseSourceForProtID")
                                            ,selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"))
-                                           ,selectInput("Organism", "Genome Wide Annotation", choices = GetListInstalledOrgdDB())
+                                           ,modulePopoverUI("modulePopover_GenomeWide")
+                                           ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",
                                                         choices = G_ontology_Choices)
                                            ,busyIndicator(WaitMsgCalc,wait = 0),
@@ -68,7 +69,8 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO",
                                            height = "100%",
-                                           checkboxGroupInput("GO_level", "Level",choices =c(2:4), selected=2),
+                                           modulePopoverUI("modulePopover_GOlevel"),
+                                           checkboxGroupInput("GO_level", "",choices =c(2:4), selected=2),
                                            actionButton("group.GO.perform.button","Perform GO grouping")
                                  ),
                                  tagList(
@@ -89,10 +91,12 @@ output$GOAnalysisMenu <- renderUI({
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                  wellPanel(id = "sidebar_GO1",
                                            height = "100%",
-                                           radioButtons("universe", "Universe", choices = G_universe_Choices),
+                                           modulePopoverUI("modulePopover_GOuniverse"),
+                                           radioButtons("universe", "", choices = G_universe_Choices),
                                            uiOutput("chooseUniverseFile"),
                                            # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                           numericInput("pvalueCutoff", "FDR (BH Adjusted P-value cutoff)", min = 0, max = 1, step = 0.01, value = 0.01),
+                                           modulePopoverUI("modulePopover_GOfdr"),
+                                           numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
                                            actionButton("perform.GO.button",
                                                         "Perform enrichment analysis"),
@@ -133,6 +137,30 @@ output$GOAnalysisMenu <- renderUI({
 })
 
 
+
+
+callModule(modulePopover,"modulePopover_GOlevel", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Level</font></strong>")), 
+                                content="Level")))
+
+
+callModule(modulePopover,"modulePopover_GOuniverse", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Universe</font></strong>")), 
+                                content="universe")))
+callModule(modulePopover,"modulePopover_GOfdr", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">FDR</font></strong>")), 
+                                content="BH Adjusted P-value cutoff")))
+
+
+
+callModule(modulePopover,"modulePopover_GenomeWide", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
+                                content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
+                                               tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
+                                               tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))
+
+
+
 GetListInstalledOrgdDB <- function(){
     l <- installed.packages()[,"Package"]
     l <- l[grep("org", l)]
@@ -144,15 +172,12 @@ GetListInstalledOrgdDB <- function(){
 
 
 GetDataIndexForAnalysis <- reactive({
-    rv$current.obj
-    if (is.null(rv$current.obj) ){return(NULL)}
+    req(rv$current.obj)
     
     index <- NULL
-    if ("Significant.Welch" %in% names(Biobase::fData(rv$current.obj) )){
-        index <- which(Biobase::fData(rv$current.obj)$Significant.Welch == TRUE)
-    } else if ("Significant.limma" %in% names(Biobase::fData(rv$current.obj) )){
-        index <- which(Biobase::fData(rv$current.obj)$Significant.limma == TRUE)
-    } else{
+    if ("Significant" %in% names(Biobase::fData(rv$current.obj) )){
+        index <- which(Biobase::fData(rv$current.obj)$Significant == TRUE)
+    }else{
         index <- seq(1:nrow(rv$current.obj))
     }
     
@@ -162,9 +187,8 @@ GetDataIndexForAnalysis <- reactive({
 
 
 output$chooseSourceForProtID <- renderUI({
-    rv$current.obj
+    req(rv$current.obj)
     input$sourceOfProtID
-    if (is.null(rv$current.obj) ){return(NULL)}
     
     if (input$sourceOfProtID == "colInDataset"){
         selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
@@ -177,78 +201,32 @@ output$chooseSourceForProtID <- renderUI({
 })
 
 
-# output$infoIDProt_NA <- renderUI({
-#     rv$ProtIDList
-#     rv$current.obj
-#     if (is.null(rv$current.obj) ){return(NULL)}
-#     if (is.null(rv$ProtIDList) ){return(NULL)}
-#     
-#     nbNA <- length(which(is.na(rv$ProtIDList)))
-#     pourcentage= round(100*nbNA/length(rv$ProtIDList), digits=0)
-#     h3(paste("Total of non-identified proteins :", nbNA, " (", pourcentage, "% of the dataset).",sep =""))
-# })
-
-
-# observeEvent(input$UniprotIDCol, {
-#     if (input$UniprotIDCol == "") {return (NULL)}
-#     
-#     rv$ProtIDList <- NULL
-#     index <- GetDataIndexForAnalysis()
-#     rv$ProtIDList <- DAPAR::getUniprotID_FromVector(Biobase::fData(rv$current.obj)[index,input$UniprotIDCol])
-#     lIndex <- which(!is.na(rv$ProtIDList))
-#     if (length(lIndex) >0){
-#         rv$ProtIDList <- rv$ProtIDList[]
-#     }
-#     
-#     print(rv$ProtIDList)
-#     
-# })
-
-
-
-
-# output$getUniprotIDCol <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj) ){return(NULL)}
-#     
-# selectInput("UniprotIDCol", "Uniprot ID column",
-#             choices = colnames(Biobase::fData(rv$current.obj)))
-# 
-# })
-
-
 
 
 output$chooseUniverseFile <- renderUI({
     input$universe
     if (input$universe == "Custom"){
-        fileInput("UniverseFile", "Choose universe file")
+        fileInput("UniverseFile", "Universe file")
     }
 })
 
 
-#observeEvent(input$UniverseFile,{ 
-#    rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
-#})
-
 
 observeEvent(input$UniprotIDCol,ignoreInit =  TRUE,{ 
-    if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  rv$ProtIDList <- return (NULL)}
+    if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  rv$GO$ProtIDList <- return (NULL)}
     else {
-        rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
+        rv$GO$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
     }
 })
 
 observeEvent(input$UNIPROTID_File,ignoreInit =  TRUE,{ 
-    rv$ProtIDList <- read.table(input$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
+    rv$GO$ProtIDList <- read.table(input$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
 })
 
 
 output$warnDifferentSizeID <- renderUI({
-    rv$ProtIDList
-    if (is.null(rv$ProtIDList)) { return (NULL)}
-    if (length(rv$ProtIDList) != nrow(rv$current.obj)){
-        #rv$ProtIDList <- NULL
+    req(rv$GO$ProtIDList)
+     if (length(rv$GO$ProtIDList) != nrow(rv$current.obj)){
         h4("Warning : the protein ID list has not the same number of entites as the dataset.")
         br()
         h4("Please select another list of ID")
@@ -262,29 +240,28 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
     input$idFrom
     
     if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  
-        rv$ProtIDList <- NULL
+        rv$GO$ProtIDList <- NULL
         return (NULL)}
     
     require(clusterProfiler)
     isolate({
-        #rv$ratio <- NULL
-        rv$gene <- NULL
-        rv$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
+        rv$GO$gene <- NULL
+        rv$GO$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
         index <- GetDataIndexForAnalysis()
         
         tryCatch({
             
-             rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
-            rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-            rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
+             rv$GO$gene <- bitr(rv$GO$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+            rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+            rv$GO$ratio <- 100*length(rv$GO$proteinsNotMapped) / length(index)
         }, warning = function(w) {
-            rv$gene <- bitr(rv$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
-            rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-            rv$ratio <- 100*length(rv$proteinsNotMapped) / length(index)
+            rv$GO$gene <- bitr(rv$GO$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
+            rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+            rv$GO$ratio <- 100*length(rv$GO$proteinsNotMapped) / length(index)
             
         }, error = function(e) {
             # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
-            rv$ratio <- 100
+            rv$GO$ratio <- 100
         }, finally = {    
         }
         )
@@ -300,14 +277,14 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
     input$universe
     input$Organism
     input$Ontology
-    #input$PAdjustMethod
     input$pvalueCutoff
-    rv$ProtIDList
+    req(rv$GO$ProtIDList)
     input$idFrom
-    rv$uniprotID
-    if (is.null(input$perform.GO.button) ){return(NULL)}
-    if (is.null(rv$ProtIDList)){return(NULL)}
-    if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
+    rv$GO$uniprotID
+    req(input$perform.GO.button)
+  req(rv$GO$ratio)
+  
+    if (rv$GO$ratio == 100){return(NULL)}
     
     require(clusterProfiler)
     
@@ -315,21 +292,20 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
     #     {
     
     if (input$universe == "Entire dataset") {
-        rv$universeData  <- rv$ProtIDList
+        rv$GO$universeData  <- rv$GO$ProtIDList
     } else if (input$universe == "Entire organism") {
-        rv$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
+        rv$GO$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
     } else {
-        rv$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
+        rv$GO$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
     }
     
     index <- GetDataIndexForAnalysis()
-    rv$enrichGO_data <- enrich_GO(rv$ProtIDList[index],
+    rv$GO$enrichGO_data <- enrich_GO(rv$GO$ProtIDList[index],
                                   idFrom = input$idFrom, 
                                   orgdb = input$Organism, 
                                   ont = input$Ontology, 
-                                  #pAdj = input$PAdjustMethod, 
                                   pval = input$pvalueCutoff, 
-                                  universe = rv$universeData )
+                                  universe = rv$GO$universeData )
 })
 
 
@@ -339,19 +315,19 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
 observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     input$Organism
     input$Ontology
-    rv$ProtIDList
-    rv$uniprotID
+    req(rv$GO$ProtIDList)
+    rv$GO$uniprotID
     input$idFrom
     input$GO_level
-    if (is.null(rv$ProtIDList)){return(NULL)}
-    if (is.null(rv$ratio) || rv$ratio == 100){return(NULL)}
+    req(rv$GO$ratio)
+    if (rv$GO$ratio == 100){return(NULL)}
     
     levelIndex <- sort(input$GO_level)
     index <- GetDataIndexForAnalysis()
-    rv$groupGO_data <- list()
+    rv$GO$groupGO_data <- list()
     for (i in 1:length(levelIndex)){
-        rv$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
-                                     ggo_res = group_GO(rv$ProtIDList[index],
+        rv$GO$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
+                                     ggo_res = group_GO(rv$GO$ProtIDList[index],
                                                         idFrom = input$idFrom,
                                                         orgdb = input$Organism,
                                                         ont=input$Ontology,
@@ -364,13 +340,12 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
 
 ##########################################
 GOplotGroup_level2 <- reactive({
-    rv$groupGO_data
-    if (is.null(rv$groupGO_data)){return(NULL)}
+    req(rv$GO$groupGO_data)
     
     isolate({
-        if (length(rv$groupGO_data) >=1){
-            barplotGroupGO_HC(rv$groupGO_data[[1]]$ggo_res, 
-                              title = paste("Groups at level ", rv$groupGO_data[[1]]$level, sep=""))}
+        if (length(rv$GO$groupGO_data) >=1){
+            barplotGroupGO_HC(rv$GO$groupGO_data[[1]]$ggo_res, 
+                              title = paste("Groups at level ", rv$GO$groupGO_data[[1]]$level, sep=""))}
     })
 })
 
@@ -382,12 +357,11 @@ output$GOplotGroup_level2 <- renderHighchart({
 
 ##########################################
 GOplotGroup_level3 <- reactive({
-    rv$groupGO_data
+    req(rv$GO$groupGO_data)
     
-    if (is.null(rv$groupGO_data)|| (length(rv$groupGO_data) < 2)){return(NULL)}
+    if ((length(rv$GO$groupGO_data) < 2)){return(NULL)}
     isolate({
-        if (length(rv$groupGO_data) >=2){
-            barplotGroupGO_HC(rv$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[2]]$level))}
+        barplotGroupGO_HC(rv$GO$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$GO$groupGO_data[[2]]$level))
     })
 })
 
@@ -397,12 +371,11 @@ output$GOplotGroup_level3 <- renderHighchart({
 })
 
 GOplotGroup_level4 <- reactive({
-    rv$groupGO_data
+    req(rv$GO$groupGO_data)
     
-    if (is.null(rv$groupGO_data) || (length(rv$groupGO_data) != 3)){return(NULL)}
+    if ((length(rv$GO$groupGO_data) != 3)){return(NULL)}
     isolate({
-        if (length(rv$groupGO_data) ==3){
-            barplotGroupGO_HC(rv$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$groupGO_data[[3]]$level))}
+            barplotGroupGO_HC(rv$GO$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$GO$groupGO_data[[3]]$level))
     })
 })
 
@@ -412,10 +385,8 @@ output$GOplotGroup_level4 <- renderHighchart({
 })
 
 GObarplotEnrich <- reactive({
-    rv$enrichGO_data
-    if (is.null(rv$enrichGO_data)) {return(NULL)}
-    barplotEnrichGO_HC(rv$enrichGO_data)
-    
+    req(rv$GO$enrichGO_data)
+     barplotEnrichGO_HC(rv$GO$enrichGO_data)
     #barplot(rv$enrichGO_data)
 })
 
@@ -425,11 +396,10 @@ output$GObarplotEnrich <- renderHighchart({
 })
 
 GOdotplotEnrich <- reactive({
-    rv$enrichGO_data
-    if (is.null(rv$enrichGO_data)) {return(NULL)}
+    req(rv$GO$enrichGO_data)
     
     #dotplot(rv$enrichGO_data)
-    scatterplotEnrichGO_HC(rv$enrichGO_data)
+    scatterplotEnrichGO_HC(rv$GO$enrichGO_data)
 })
 
 output$GOdotplotEnrich <- renderHighchart({
@@ -447,12 +417,24 @@ output$GOdotplotEnrich <- renderHighchart({
 
 
 output$GODatatable <- renderDataTable({
-    rv$enrichGO_data
-    rv$groupGO_data
-    if (is.null(rv$enrichGO_data) && is.null(rv$groupGO_data)) {return(NULL)}
+    req(rv$GO$enrichGO_data)
+    req(rv$GO$groupGO_data)
     
-    as.data.frame(rv$groupGO_data@result)
     
+    dt <- datatable( as.data.frame(rv$GO$groupGO_data@result),
+                     extensions = 'Scroller',
+                     options = list(initComplete = initComplete(),
+                                    displayLength = 20,
+                                    deferRender = TRUE,
+                                    bLengthChange = FALSE,
+                                    scrollX = 400,
+                                    scrollY = 600,
+                                    scroller = TRUE,
+                                    ordering=FALSE,
+                                    server = TRUE)
+    )
+    
+    dt
 })
 
 
@@ -462,25 +444,22 @@ output$GODatatable <- renderDataTable({
 
 
 output$GeneMappedRatio <- renderUI({
-    rv$ProtIDList
-    rv$current.obj
-    rv$gene
+    req(rv$GO$ProtIDList)
+    req(rv$current.obj)
+    req(rv$GO$gene)
     input$idFrom
-    if (is.null(rv$current.obj) ){return(NULL)}
-    if (is.null(rv$ProtIDList) ){return(NULL)}
-    if (is.null(rv$gene)) {return(NULL)}
     
-    rv$ratio
-    if (is.null(rv$ratio)) {return (NULL)}
+    req(rv$GO$ratio)
+    
     index <- GetDataIndexForAnalysis()
-    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-    nProtMapped <- length(rv$proteinsNotMapped)
+    rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+    nProtMapped <- length(rv$GO$proteinsNotMapped)
     nProtTotal <-length(index)
     
     tagList(
-        h5(paste(round(rv$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
+        h5(paste(round(rv$GO$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
         helpText("These proteins are listed in the table below."),
-        if (rv$ratio == 100){
+        if (rv$GO$ratio == 100){
             h3(paste("Tip: You should check the organism which has been selected.", sep=""))
         }
     )
@@ -489,38 +468,48 @@ output$GeneMappedRatio <- renderUI({
 
 
 output$nonIdentifiedProteins <- renderDataTable({
-    rv$ProtIDList
-    rv$current.obj
-    rv$gene
+    req(rv$GO$ProtIDList)
+    req(rv$current.obj)
+    req(rv$GO$gene)
     input$idFrom
-    if (is.null(rv$current.obj) ){return(NULL)}
-    if (is.null(rv$ProtIDList) ){return(NULL)}
-    if (is.null(rv$gene)) {return(NULL)}
-    
     
     index <- GetDataIndexForAnalysis()
-    rv$proteinsNotMapped <- which((rv$ProtIDList[index] %in% rv$gene[,input$idFrom]) == FALSE)
-    data <- as.data.frame(fData(rv$current.obj)[index[rv$proteinsNotMapped],])
+    rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+    data <- as.data.frame(fData(rv$current.obj)[index[rv$GO$proteinsNotMapped],])
     
     
     if( nrow(data) != 0){
-        data
+      
+      dt <- datatable( data,
+                       extensions = 'Scroller',
+                       options = list(initComplete = initComplete(),
+                                      displayLength = 20,
+                                      deferRender = TRUE,
+                                      bLengthChange = FALSE,
+                                      scrollX = 400,
+                                      scrollY = 600,
+                                      scroller = TRUE,
+                                      ordering=FALSE,
+                                      server = TRUE)
+      )
+      
+      dt
     }
 })
 
 
 
 output$chooseGOtoSave <- renderUI({
-    rv$groupGO_data
-    rv$enrichGO_data
-    if(is.null(rv$enrichGO_data) && is.null(rv$groupGO_data)){return(NULL)}
+    rv$GO$groupGO_data
+    rv$GO$enrichGO_data
+    if(is.null(rv$GO$enrichGO_data) && is.null(rv$GO$groupGO_data)){return(NULL)}
     
     .choices <- c()
-    if(!is.null(rv$groupGO_data)){.choices <- c(.choices, "Classification")}
-    if(!is.null(rv$enrichGO_data)){.choices <- c(.choices, "Enrichment")}
-    if(!is.null(rv$enrichGO_data) && !is.null(rv$groupGO_data)){.choices <- c(.choices, "Both")}
+    if(!is.null(rv$GO$groupGO_data)){.choices <- c(.choices, "Classification")}
+    if(!is.null(rv$GO$enrichGO_data)){.choices <- c(.choices, "Enrichment")}
+    if(!is.null(rv$GO$enrichGO_data) && !is.null(rv$GO$groupGO_data)){.choices <- c(.choices, "Both")}
     
-    radioButtons("whichGO2Save", "Choose which GO analysis to save", choices = .choices)
+    radioButtons("whichGO2Save", "GO analysis to save", choices = .choices)
 })
 
 
@@ -529,13 +518,11 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
     input$Organism
     input$Ontology
     input$pvalueCutoff
-    rv$current.obj
-    rv$enrichGO_data
-    rv$groupGO_data 
+    req(rv$current.obj)
+    rv$GO$enrichGO_data
+    rv$GO$groupGO_data 
     input$universe
     input$whichGO2Save
-    
-    if (is.null(rv$current.obj)){ return()}
     
     
     if ((input$ValidGOAnalysis == 0) ||  is.null(input$ValidGOAnalysis) ) {
@@ -556,8 +543,8 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 switch(input$whichGO2Save,
                        Both =
                        {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                               ggo_res = rv$groupGO_data ,
-                                               ego_res = rv$enrichGO_data ,
+                                               ggo_res = rv$GO$groupGO_data ,
+                                               ego_res = rv$GO$enrichGO_data ,
                                                organism = input$Organism,
                                                ontology = input$Ontology,
                                                level = input$GO_level,
@@ -565,14 +552,14 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                                typeUniverse = input$universe)},
                        Classification = 
                        {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                               ggo_res = rv$groupGO_data ,
+                                               ggo_res = rv$GO$groupGO_data ,
                                                organism = input$Organism,
                                                ontology = input$Ontology,
                                                level = input$GO_level)},
                        
                        Enrichment = 
                        {temp <- GOAnalysisSave(rv$dataset[[input$datasets]],
-                                               ego_res = rv$enrichGO_data ,
+                                               ego_res = rv$GO$enrichGO_data ,
                                                organism = input$Organism,
                                                ontology = input$Ontology,
                                                pvalueCutoff = input$pvalueCutoff,
@@ -586,8 +573,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",
-                                        rv$current.obj.name, sep=" "),
+                                 # paste("Dataset versions of", rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
                 updateRadioButtons(session, "whichGO2Save", 

@@ -13,10 +13,10 @@ output$peptideLevelImputationPanel <- renderUI({
              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_imputation",
                                    height = "100%"
-                                   ,h4("Miss. values imputation options")
+                                   #,h4("Miss. values imputation options")
                                    ,br(),
                                    selectInput("peptideLevel_missing.value.algorithm",
-                                                "Choose algorithm",
+                                                "Algorithm",
                                                 choices = names(imputationAlgorithms)),
                                    uiOutput("peptideLevel_chooseBasicImputationMethod"),
                                    uiOutput("peptideLevel_detQuantileParams"),
@@ -95,7 +95,10 @@ output$TAB_detQuant_impValues <- renderDataTable({
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$detQuant_quantile/100, input$detQuant_factor)
     if (input$peptideLevel_missing.value.basic.algorithm == 'detQuantile'){
-        DT::datatable(as.data.frame(t(values$shiftedImpVal)), options = list(dom = 't'))
+        DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+                      options = list(initComplete = initComplete(),
+            dom = 't',
+            bLengthChange = FALSE))
     }
 })
 
@@ -212,10 +215,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       distribution = as.character(input$peptideLevel_imp4pLAPALA_distrib))
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.dapar.impute.mi(",
-                                      "dataset[['",input$datasets,"']], nb.iter=",input$peptideLevel_imp4p_nbiter,
-                                      ", lapala = ", input$peptideLevel_imp4p_withLapala, ", q.min = ", input$peptideLevel_imp4p_qmin / 100, ", distribution = ", input$peptideLevel_imp4pLAPALA_distrib, ")",sep=""))
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.dapar.impute.mi(",
+                            #          "dataset[['",input$datasets,"']], nb.iter=",input$peptideLevel_imp4p_nbiter,
+                            #          ", lapala = ", input$peptideLevel_imp4p_withLapala, ", q.min = ", input$peptideLevel_imp4p_qmin / 100, ", distribution = ", input$peptideLevel_imp4pLAPALA_distrib, ")",sep=""))
                             #}
                             
                             
@@ -226,10 +229,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       lapala = input$peptideLevel_imp4p_withLapala)
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.dapar.impute.mi(",
-                                      "dataset[['",input$datasets,"']] nb.iter=",input$peptideLevel_imp4p_nbiter,
-                                      ", lapala = ", input$peptideLevel_imp4p_withLapala, ")",sep=""))
+                            # writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.dapar.impute.mi(",
+                            #          "dataset[['",input$datasets,"']] nb.iter=",input$peptideLevel_imp4p_nbiter,
+                            #          ", lapala = ", input$peptideLevel_imp4p_withLapala, ")",sep=""))
                             # }
                         }
                         
@@ -246,10 +249,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                             
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.mvImputation(",
-                                      "dataset[['",input$datasets, "']],'",input$peptideLevel_missing.value.basic.algorithm,"')", sep="")
-                            )
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.mvImputation(",
+                            #          "dataset[['",input$datasets, "']],'",input$peptideLevel_missing.value.basic.algorithm,"')", sep="")
+                            #)
                             #}
                             
                         } 
@@ -261,10 +264,10 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                                                                       factor = input$peptideLevel_detQuant_factor)
                             #write log command file
                             #if (input$showCommandLog){
-                            writeToCommandLogFile(
-                                paste("current.obj <- wrapper.impute.detQuant(",
-                                      "dataset[['", input$datasets,"']])",sep="")
-                            )
+                            #writeToCommandLogFile(
+                            #    paste("current.obj <- wrapper.impute.detQuant(",
+                            #          "dataset[['", input$datasets,"']])",sep="")
+                            #)
                             #}
                             
                             
@@ -347,12 +350,12 @@ observeEvent(input$peptideLevel_ValidImputation,{
                 
                 
                 #write command log file
-                writeToCommandLogFile(
-                    paste("dataset[['",name,"']] <- current.obj", sep="")
-                )
+                #writeToCommandLogFile(
+                #    paste("dataset[['",name,"']] <- current.obj", sep="")
+                #)
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",rv$current.obj.name, sep=" "),
+                                  #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
 
@@ -383,7 +386,7 @@ output$peptideLevel_chooseImputationMethod <- renderUI({
     if (is.null(rv$current.obj)) {return(NULL)}
     m <- NULL
     selectInput("peptideLevel_missing.value.algorithm",
-                "Choose algorithm",
+                "Algorithm",
                 choices = names(imputationAlgorithms))
 
 })
@@ -395,7 +398,7 @@ output$peptideLevel_chooseBasicImputationMethod <- renderUI({
     if ((input$peptideLevel_missing.value.algorithm != "Basic methods") || is.null(input$peptideLevel_missing.value.algorithm)) {return(NULL)}
     
     selectInput("peptideLevel_missing.value.basic.algorithm",
-                "Choose algorithm",
+                "Algorithm",
                 choices = names(basicMethodsImputationAlgos))
     
 })
@@ -425,38 +428,23 @@ output$peptideLevel_warningImputationMethod <- renderText({
         distribution (a tuning between 0% and 10% is advised). <br>
         <font color=\"red\"><strong>Warning:</strong> Imputed lapala values must be very cautiously interpreted.</font color=\"red\">"
         HTML(t)}
-    
-    
-    # if (input$missing.value.algorithm == "imp4p with LAPALA")
-    #     {
-    #     text <- "<font color=\"red\"> Warning ! <br> You are about to impute the <br> LAPALA with small 
-    #     arbitrary values. <br> This is not an optimal way <br> 
-    #     to impute such values. <br> 
-    #     You do it at your own risk."
-    #      HTML(text)
-    # } else if (input$missing.value.algorithm == "dummy censored") {
-    #     text <- "<font color=\"red\"> Warning ! <br> You are about to impute the LAPALA with small 
-    #     arbitrary values. This is not an optimal way to impute such values. 
-    #     You do it at your own risk."
-    #     HTML(text)
-    # }
-    
+
 })
 
 
-observe({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)}
-    
-    nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-    if (nbEmptyLines > 0) {
-        shinyjs::disable("peptideLevel_perform.imputation.button")
-        shinyjs::disable("peptideLevel_ValidImputation")
-    } else {
-        shinyjs::enable("peptideLevel_perform.imputation.button")
-        shinyjs::enable("peptideLevel_ValidImputation")
-    }
-})
+# observe({
+#     rv$current.obj
+#     if (is.null(rv$current.obj)) {return(NULL)}
+#     
+#     nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+#     if (nbEmptyLines > 0) {
+#         shinyjs::disable("peptideLevel_perform.imputation.button")
+#         shinyjs::disable("peptideLevel_ValidImputation")
+#     } else {
+#         shinyjs::enable("peptideLevel_perform.imputation.button")
+#         shinyjs::enable("peptideLevel_ValidImputation")
+#     }
+# })
 
 
 
@@ -483,26 +471,6 @@ output$peptideLevel_showImputationPanel <- renderUI({
 })
 
 ###################
-
-
-# 
-# output$warningLapala <- renderUI({
-#     input$imp4p_withLapala
-#     if (is.null(input$imp4p_withLapala) || (input$imp4p_withLapala == FALSE)){return(NULL)}
-#     
-#     
-#     t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-#         to analytes (peptides or proteins) <br>that are entirely missing in some 
-#         conditions while they are (partially or totally) <br>visible in others. There 
-#         specific accounting in a conservative way is a real issue as the imputation <br>
-#         cannot rely on any observed value in a given condition.
-#         <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
-#         value as a centile of the observed
-#         distribution (a tuning between 0% and 10% is advised). <br>
-#         Warning: imputed lapala values must be very cautiously interpreted"
-#     HTML(t)
-# })
-
 
 
 

@@ -1,5 +1,5 @@
-callModule(moduleVolcanoplot,"volcano_Step1")
-callModule(moduleVolcanoplot,"volcano_Step2")
+callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
+callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 
 output$warningNA <- renderUI({
     rv$current.obj
@@ -16,6 +16,15 @@ output$warningNA <- renderUI({
         HTML(text)
     }
 })
+
+
+
+callModule(modulePopover,"modulePopover_volcanoTooltip", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Tooltip</font></strong>")), 
+                                content="Infos to be displayed in the tooltip of volcanoplot")))
+
+callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">P-Value push</font></strong>")),
+                                                                        content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
 
 
@@ -99,9 +108,8 @@ observeEvent(input$swapVolcano,{
 ####  SELECT AND LOAD ONE PARIWISE COMPARISON
 ####
 observeEvent(input$selectComparison,{
-  rv$res_AllPairwiseComparisons
+  req(rv$res_AllPairwiseComparisons)
   if (is.null(input$selectComparison)){return()}
-  if (is.null(rv$res_AllPairwiseComparisons) ){return()}
   
 if (input$selectComparison== "None"){
     rv$resAnaDiff <- NULL
@@ -110,8 +118,8 @@ if (input$selectComparison== "None"){
         index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
         rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
-                          condition1 = strsplit(input$selectComparison, "_")[[1]][1],
-                          condition2 = strsplit(input$selectComparison, "_")[[1]][3]
+                          condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1],
+                          condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
                         )
     #} 
     # else {
@@ -157,9 +165,9 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
     selectInput("anaDiff_Design", "Design", 
                 choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll")),
     
-    selectInput("diffAnaMethod","Choose the statistical test",choices = anaDiffMethod_Choices),
+    selectInput("diffAnaMethod","Statistical test",choices = anaDiffMethod_Choices),
     uiOutput("OptionsForT_tests"),
-    numericInput("seuilLogFC", "Define log(FC) threshold", min=0, step=0.1, value=0)
+    numericInput("seuilLogFC", "log(FC) threshold", min=0, step=0.1, value=0)
   )
   
   
@@ -189,10 +197,8 @@ output$diffAnalysis_GlobalOptions_SB <- renderUI({
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
     req(rv$current.obj)
-    rv$res_AllPairwiseComparisons
-    #if (is.null(rv$current.obj)) { return()}
-    if (is.null(rv$res_AllPairwiseComparisons)) { return()}
-  
+    req(rv$res_AllPairwiseComparisons)
+    
     .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$FC), "_FC"))
     
     tagList(
@@ -202,38 +208,53 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
         br(),
-        h4("P-value push"),
-        h6("for peptides/proteins with less than"),
-        h6("X originally observed values (i.e. non "),
-        h6("imputed values) in:"),
-        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersList),
+        
+        modulePopoverUI("modulePopover_pushPVal"),
+        
+        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersListAnaDiff),
         
         uiOutput("AnaDiff_seuilNADelete")
     ) })
 
 
 
-
+GetBackToCurrentResAnaDiff <- reactive({
+  rv$res_AllPairwiseComparisons
+  req(input$selectComparison)
+  req(rv$res_AllPairwiseComparisons)
+  
+  index <- which(paste(input$selectComparison, "_FC", sep="") == colnames(rv$res_AllPairwiseComparisons$FC))
+  rv$resAnaDiff <- list(FC = (rv$res_AllPairwiseComparisons$FC)[,index],
+                        P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
+                        condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1],
+                        condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+  )
+})
 
 
 ########################################################
 ## Perform missing values filtering
 ########################################################
 observeEvent(input$AnaDiff_perform.filtering.MV,{
+  input$selectComparison
+    req(input$AnaDiff_perform.filtering.MV)
     
-    if (is.null(input$AnaDiff_perform.filtering.MV) ){return()}
-    #if (input$AnaDiff_perform.filtering.MV == 0){return()}
-    
-
 if (input$AnaDiff_ChooseFilters == gFilterNone){
-    GetCurrentResAnaDiff()
+  GetBackToCurrentResAnaDiff()
 } else {
-        keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                                   input$AnaDiff_ChooseFilters,
-                                                   as.integer(input$AnaDiff_seuilNA))
+  condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+  condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+  ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+            which(pData(rv$current.obj)$Label==condition2))
+  datasetToAnalyze <- rv$dataset[[input$datasets]][,ind]
+  datasetToAnalyze@experimentData@other$OriginOfValues <-
+    rv$dataset[[input$datasets]]@experimentData@other$OriginOfValues[ind]
+  
+  keepThat <- mvFilterGetIndices(datasetToAnalyze,
+                                 input$AnaDiff_ChooseFilters,
+                                 as.integer(input$AnaDiff_seuilNA))
         if (!is.null(keepThat))
             {
-            #rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
             rv$resAnaDiff$P_Value[-keepThat] <- 1
             rv$resAnaDiff
             #write command log
@@ -276,17 +297,33 @@ if (input$AnaDiff_ChooseFilters == gFilterNone){
 
 
 
+output$tooltipInfo <- renderUI({
+  rv$current.obj
+  input$selectComparison
+  if (is.null(rv$current.obj)){return()}
+  if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
+  
+  tagList(
+    hr(),
+    modulePopoverUI("modulePopover_volcanoTooltip"),
+    selectInput("tooltipInfo",
+                label = "",
+                choices = colnames(fData(rv$current.obj)),
+                multiple = TRUE, selectize=FALSE,width='500px', size=5)
+  )
+  
+})
+
 
 
 output$diffAnalysis_Calibration_SB <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){ return()}
+    req(rv$current.obj)
     
     #if (is.null(calibMethod)){ calibMethod <- "Benjamini-Hochberg"}
     
     tagList(
         selectInput("calibrationMethod", 
-                    "Choose the calibration method",
+                    "Calibration method",
                     choices = calibMethod_Choices),
         uiOutput("numericalValForCalibrationPlot"))
 })
@@ -327,7 +364,9 @@ observe({
     if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])){
        switch(input$diffAnaMethod,
            Limma={
-             rv$res_AllPairwiseComparisons <-wrapper.limmaCompleteTest(rv$current.obj, input$anaDiff_Design)
+             rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
+                                                                Biobase::pData(rv$current.obj),
+                                                                input$anaDiff_Design)
              },
            ttests={
             if (is.null(input$ttest_options)) {return()}
@@ -348,11 +387,9 @@ observe({
 
 
 output$FoldChangePlot <- renderHighchart({
-  rv$res_AllPairwiseComparisons
-    input$seuilLogFC
-   if (is.null(input$seuilLogFC)){ return(NULL)}
-    if (is.null(rv$res_AllPairwiseComparisons)){ return(NULL)}
-    
+  req(rv$res_AllPairwiseComparisons)
+   req(input$seuilLogFC)
+     
     #indice_col_FC <- grep("FC" %in% colnames(rv$res_AllPairwiseComparison))
     data <- rv$res_AllPairwiseComparisons
     hc_FC_DensityPlot(data$FC,input$seuilLogFC)
@@ -362,18 +399,16 @@ output$FoldChangePlot <- renderHighchart({
 
 #-------------------------------------------------------------
 output$showFDR <- renderText({
-    rv$current.obj
+    req(rv$current.obj)
     rv$seuilPVal
     rv$seuilLogFC
     input$numericValCalibration
     input$calibrationMethod
-    rv$resAnaDiff
+    req(rv$resAnaDiff)
     input$selectComparison
     
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
-    if (is.null(rv$current.obj)) {return()}
-    if (is.null(rv$resAnaDiff)) {return()}
     if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
     {return()}
     if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
@@ -444,12 +479,11 @@ output$numericalValForCalibrationPlot <- renderUI({
 
 
 output$calibrationResults <- renderUI({
-    rv$calibrationRes
+    req(rv$calibrationRes)
     rv$seuilLogFC
     input$diffAnaMethod
     rv$current.obj
     
-    if (is.null( rv$calibrationRes)){return()}
     
     txt <- paste("Non-DA protein proportion = ", 
                  round(100*rv$calibrationRes$pi0, digits = 2),"%<br>",
@@ -470,8 +504,7 @@ calibrationPlot <- reactive({
     rv$seuilLogFC
     input$diffAnaMethod
     rv$resAnaDiff
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
+    req(rv$current.obj)
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
         (length(rv$resAnaDiff$FC) == 0)) { return()}
@@ -486,7 +519,10 @@ calibrationPlot <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
-    t <- t[-which(t == 1)]
+    toDelete <- which(t==1)
+    if (length(toDelete) > 0){
+	t <- t[-toDelete]
+     }
     
     
     
@@ -527,19 +563,15 @@ calibrationPlot <- reactive({
 })
 
 output$calibrationPlot <- renderPlot({
-    
     calibrationPlot()
-    
 })
 
 
 
 output$errMsgCalibrationPlot <- renderUI({
-    rv$errMsgCalibrationPlot
+    req(rv$errMsgCalibrationPlot)
     rv$seuilLogFC
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
-    if (is.null(rv$errMsgCalibrationPlot) ) {return()}
+    req(rv$current.obj)
     
     txt <- NULL
     
@@ -590,6 +622,10 @@ calibrationPlotAll <- reactive({
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$FC) >= rv$seuilLogFC)]
+    toDelete <- which(t==1)
+    if (length(toDelete) > 0){
+        t <- t[-toDelete]
+     }
     
     l <- NULL
     result = tryCatch(
@@ -620,12 +656,10 @@ output$calibrationPlotAll <- renderPlot({
 
 #----------------------------------------------
 observeEvent(input$ValidDiffAna,{ 
-    rv$current.obj
+    req(rv$current.obj)
     rv$resAnaDiff
-    rv$res_AllPairwiseComparisons
+    req(rv$res_AllPairwiseComparisons)
     
-    if (is.null(rv$current.obj)){ return()}
-    if (is.null(rv$res_AllPairwiseComparisons) ){return()}
     if ((input$ValidDiffAna == 0) ||  is.null(input$ValidDiffAna) ) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
 
@@ -669,11 +703,6 @@ observeEvent(input$ValidDiffAna,{
                     }
                 l.params[["numValCalibMethod"]] <- input$numericValCalibration
                 
-                
-                
-                
-                
-                
     }
                 temp <- DAPAR::diffAnaSave(temp,
                                            rv$res_AllPairwiseComparisons,
@@ -688,8 +717,7 @@ observeEvent(input$ValidDiffAna,{
                 UpdateLog("anaDiff", l.params)
                 
                 updateSelectInput(session, "datasets", 
-                                  paste("Dataset versions of",
-                                        rv$current.obj.name, sep=" "),
+                                  #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
                 updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
@@ -779,15 +807,13 @@ output$DiffAnalysisSaved <- renderUI({
 
 
 output$equivPVal <- renderText ({
-    input$seuilPVal
+    req(input$seuilPVal)
     input$diffAnaMethod
-    rv$current.obj
+    req(rv$current.obj)
     input$selectComparison
     
-    if (is.null(rv$current.obj)){return()}
     
     if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    if (is.null(input$seuilPVal)){return()}
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr))
     {return(NULL)}
      if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
@@ -799,12 +825,9 @@ output$equivPVal <- renderText ({
 
 
 output$equivLog10 <- renderText ({
-    input$test.threshold
-    rv$current.obj
-    input$diffAnaMethod
-    if (is.null(input$diffAnaMethod)){return()}
-    if (is.null(rv$current.obj)){return()}
-    if (is.null(input$test.threshold)){return()}
+    req(input$test.threshold)
+    req(rv$current.obj)
+    req(input$diffAnaMethod)
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
     
@@ -857,132 +880,92 @@ observeEvent(input$seuilLogFC,{
 })
 
 
-######################
-getDataInfosVolcano <- reactive({
-    input$eventPointClicked
-    rv$current.obj
-    if (is.null(rv$current.obj)){ return()}
-    
-    test.table <- data.frame(lapply(
-        Biobase::exprs(rv$current.obj)[(input$eventPointClicked+1),], 
-        function(x) t(data.frame(x))))
-    rownames(test.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
-    test.table <- round(test.table, digits=3)
-    
-    origin.table <- data.frame(lapply(
-      Biobase::fData(rv$current.obj)[(input$eventPointClicked+1),rv$current.obj@experimentData@other$OriginOfValues], 
-      function(x) t(data.frame(x))))
-    rownames(origin.table) <- rownames(rv$current.obj)[input$eventPointClicked +1]
-    
-    color.table <- rep('white', ncol(rv$current.obj))
-    color.table[which(origin.table=="POV")] <- 'lightblue'
-    color.table[which(origin.table=="MEC")] <- 'orange'
-    
-    res <- list(value=test.table, origin=origin.table, color=color.table)
-    res
-})
+# 
+# volcanoplot_rCharts <- reactive({
+#     rv$seuilPVal
+#     rv$seuilLogFC
+#     input$diffAnaMethod
+#     rv$resAnaDiff
+#     rv$current.obj
+#     input$tooltipInfo
+#     
+#     
+#     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
+#     if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
+#     if (is.null(rv$current.obj) ){return()}
+#     
+#     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+#     result = tryCatch(
+#         {
+#           
+#                 df <- data_frame(x=rv$resAnaDiff$FC, 
+#                                  y = -log10(rv$resAnaDiff$P_Value),
+#                                  index = 1:nrow(fData(rv$current.obj)))
+#                 if (!is.null( input$tooltipInfo)){
+#                     df <- cbind(df,fData(rv$current.obj)[ input$tooltipInfo])
+#                 }
+#                 
+#                 colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+#                 if (ncol(df) > 3){
+#                     colnames(df)[4:ncol(df)] <- 
+#                         paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+#                 }
+#                 hc_clickFunction <- 
+#                     JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]+'_'+ [this.series.name]);}")
+#                 
+#                 cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+#                 diffAnaVolcanoplot_rCharts(df,
+#                                            threshold_logFC = rv$seuilLogFC,
+#                                            threshold_pVal = rv$seuilPVal,
+#                                            conditions = cond,
+#                                            clickFunction=hc_clickFunction)
+# 
+#         }
+#         , warning = function(w) {
+#             shinyjs::info(conditionMessage(w))
+#         }, error = function(e) {
+#             shinyjs::info(paste("volcanoPlot_rCharts:",match.call()[[1]],":",
+#                                 conditionMessage(e),
+#                                 sep=" "))
+#         }, finally = {
+#             #cleanup-code
+#         })
+#     
+# })
 
+# output$volcanoplot_rCharts <- renderHighchart({
+#     volcanoplot_rCharts()
+#     
+# })   
 
-
-#################
-
-
-output$infosVolcanoTable <- DT::renderDataTable({
-    rv$current.obj
-    input$eventPointClicked
-    
-    if (is.null(input$eventPointClicked)){return()}
-    if (is.null(rv$current.obj)){return()}
-    
-    data <-getDataForExprs()
-     data <- data[(input$eventPointClicked+1),]
-     
-        dt <- datatable( data,
-                         options = list(dom='t',
-                                        displayLength = 20,
-                                        ordering=FALSE,
-                                        server = FALSE,
-                                        columnDefs = list(list(targets = c((ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))), visible = FALSE))
-                         )) %>%
-          formatStyle(
-            colnames(data)[1:ncol(rv$current.obj)],
-            colnames(data)[(ncol(rv$current.obj)+1):(2*ncol(rv$current.obj))],
-            backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
-          )
-        
-        
-    dt
-    
-})
-
-
-
-volcanoplot_rCharts <- reactive({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
-    rv$current.obj
-    input$tooltipInfo
-    
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
-    if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
-    if (is.null(rv$current.obj) ){return()}
-    
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
-    result = tryCatch(
-        {
-          
-                df <- data_frame(x=rv$resAnaDiff$FC, 
-                                 y = -log10(rv$resAnaDiff$P_Value),
-                                 index = 1:nrow(fData(rv$current.obj)))
-                if (!is.null(input$tooltipInfo)){
-                    df <- cbind(df,fData(rv$current.obj)[input$tooltipInfo])
-                }
-                #rownames(df) <- rownames(rv$current.obj)
-                colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-                if (ncol(df) > 3){
-                    colnames(df)[4:ncol(df)] <- 
-                        paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-                }
-                hc_clickFunction <- 
-                    JS("function(event) {Shiny.onInputChange('eventPointClicked', [this.index]);}")
-                #             print("avant 5")
-                cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-                diffAnaVolcanoplot_rCharts(df,
-                                            threshold_logFC = rv$seuilLogFC,
-                                           threshold_pVal = rv$seuilPVal,
-                                           conditions = cond,
-                                            clickFunction=hc_clickFunction)
-
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste("volcanoPlot_rCharts:",match.call()[[1]],":",
-                                conditionMessage(e),
-                                sep=" "))
-        }, finally = {
-            #cleanup-code
-        })
-    
-})
-
-output$volcanoplot_rCharts <- renderHighchart({
-    volcanoplot_rCharts()
-    
-})   
-
+# 
+# output$tooltipInfo <- renderUI({
+#     rv$current.obj
+#     input$selectComparison
+#     if (is.null(rv$current.obj)){return()}
+#     if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
+#     
+#     tagList(
+#         hr(),
+#             modulePopoverUI("modulePopover_volcanoTooltip"),
+#             selectInput("tooltipInfo",
+#                    label = "",
+#                    choices = colnames(fData(rv$current.obj)),
+#                    multiple = TRUE, selectize=FALSE,width='500px', size=5)
+#     )
+#     
+# })
 
 ########################################################
 output$showSelectedItems <- DT::renderDataTable({
-    rv$current.obj
+    req(rv$current.obj)
     input$diffAnaMethod
-    input$seuilLogFC
-    input$seuilPVal
+    req(input$seuilLogFC)
+        req(input$seuilPVal)
     input$selectComparison
+    req(input$showpvalTable)
     
-    
+    if (!isTRUE(input$showpvalTable)){return(NULL)}
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
     if ( is.null(rv$current.obj) ||
@@ -993,19 +976,15 @@ output$showSelectedItems <- DT::renderDataTable({
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == "None")) 
     {return()}
     
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
 
             t <- NULL
             # Si on a deja des pVal, alors, ne pas recalculer avec ComputeWithLimma
-            if (isContainedIn(c("FC","P_Value"),
-                              names(Biobase::fData(rv$current.obj)) ) ){
-                selectedItems <- 
-                    (which(Biobase::fData(rv$current.obj)$Significant == TRUE)) 
-                t <- data.frame(id =  
-                                    rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-                                Biobase::fData(rv$current.obj)[selectedItems,
-                                                               c("FC", "P_Value", "Significant")])
+            if (isContainedIn(c("FC","P_Value"),names(Biobase::fData(rv$current.obj)) ) ){
+                selectedItems <- (which(Biobase::fData(rv$current.obj)$Significant == TRUE)) 
+                t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+                                round(Biobase::fData(rv$current.obj)[selectedItems,
+                                                               c("FC", "P_Value", "Significant")], digits=input$settings_nDigits))
             } else{
                 data <- rv$resAnaDiff
                 upItems1 <- which(-log10(data$P_Value) >= rv$seuilPVal)
@@ -1013,10 +992,20 @@ output$showSelectedItems <- DT::renderDataTable({
                 selectedItems <- intersect(upItems1, upItems2)
                 
                  t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-                                FC = data$FC[selectedItems],
-                                P_Value = data$P_Value[selectedItems])
+                                FC = round(data$FC[selectedItems], digits=input$settings_nDigits),
+                                P_Value = round(data$P_Value[selectedItems], digits=input$settings_nDigits))
             }
-            t
+            
+            DT::datatable(t,
+            extensions = 'Scroller',
+            rownames=FALSE,
+            options = list(initComplete = initComplete(),
+                deferRender = TRUE,
+                bLengthChange = FALSE,
+                scroolX = 300,
+                scrollY = 300,
+                scroller = TRUE)
+            )
 
 })
 
@@ -1029,107 +1018,119 @@ isContainedIn <- function(strA, strB){
 
 
 
-observeEvent(rv$current.obj,{
-    
-    if (is.null(rv$current.obj)) {return()}
-    
-    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
-    
-    if (NA.count       >       0) {
-        shinyjs::disable(input$diffAnaMethod)
-        shinyjs::disable(input$seuilLogFC)
-    } else {
-        shinyjs::enable("diffAnaMethod")
-    }
-})
+# observeEvent(rv$current.obj,{
+#     
+#     if (is.null(rv$current.obj)) {return()}
+#     
+#     NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+#     
+#     if (NA.count       >       0) {
+#         shinyjs::disable(input$diffAnaMethod)
+#         shinyjs::disable(input$seuilLogFC)
+#     } else {
+#         shinyjs::enable("diffAnaMethod")
+#     }
+# })
 
 
-
-selectedItems <- function(){
-    rv$seuilPVal
-        rv$seuilLogFC
-        input$diffAnaMethod
-        req(rv$current.obj)
-        rv$resAnaDiff
-        
-        if(is.null(rv$resAnaDiff)|| is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return()}
-        if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
-            return()}
-        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-            return()}
-        
-        p <- NULL
-        p <- rv$resAnaDiff
-        upItemsPVal <- NULL
-        upItemsLogFC <- NULL
-        
-        
-        upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
-        upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
-        
-        rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
-        rv$nbSelectedAnaDiff <- NULL
-        t <- NULL
-        
-        if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-            t <- intersect(upItemsPVal, upItemsLogFC)}
-        else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
-            t <- upItemsPVal}
-        else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
-            t <- upItemsLogFC}
-        rv$nbSelectedAnaDiff <- length(t)
-        
-        txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ",
-                     rv$nbTotalAnaDiff,"<br>",
-                     "Number of selected ",rv$typeOfDataset, "(s) = ",
-                     rv$nbSelectedAnaDiff,"<br>",
-                     "Number of non selected ",rv$typeOfDataset, "(s) = ",
-                     (rv$nbTotalAnaDiff -rv$nbSelectedAnaDiff), sep="")
-        HTML(txt)
-    }
-
-    
-tooltipInfo <- function(){
-    rv$current.obj
-    input$selectComparison
-    if (is.null(rv$current.obj)){return()}
-    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    
-    selectizeInput("tooltipInfo",
-                   label = "Select the info you want to display",
-                   choices = colnames(fData(rv$current.obj)),
-                   multiple = TRUE, width='500px')
-
-    }
+# 
+# selectedItems <- reactive({
+#     rv$seuilPVal
+#         rv$seuilLogFC
+#         input$diffAnaMethod
+#         req(rv$current.obj)
+#         rv$resAnaDiff
+#         
+#         if(is.null(rv$resAnaDiff)|| is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return()}
+#         if (is.null( input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr)){
+#             return()}
+#         if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
+#             return()}
+#         
+#         p <- NULL
+#         p <- rv$resAnaDiff
+#         upItemsPVal <- NULL
+#         upItemsLogFC <- NULL
+#         
+#         
+#         upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
+#         upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
+#         
+#         rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
+#         rv$nbSelectedAnaDiff <- NULL
+#         t <- NULL
+#         
+#         if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+#             t <- intersect(upItemsPVal, upItemsLogFC)}
+#         else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
+#             t <- upItemsPVal}
+#         else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+#             t <- upItemsLogFC}
+#         rv$nbSelectedAnaDiff <- length(t)
+#         
+#         txt <- paste("Total number of ",rv$typeOfDataset, "(s) = ",
+#                      rv$nbTotalAnaDiff,"<br>",
+#                      "Number of selected ",rv$typeOfDataset, "(s) = ",
+#                      rv$nbSelectedAnaDiff,"<br>",
+#                      "Number of non selected ",rv$typeOfDataset, "(s) = ",
+#                      (rv$nbTotalAnaDiff -rv$nbSelectedAnaDiff), sep="")
+#         HTML(txt)
+#     })
 
 
-tableInfos <- function(){
-    rv$current.obj
-    input$eventPointClicked
-    
-    if (is.null(input$eventPointClicked)){return()}
-    if (is.null(rv$current.obj)){return()}
-    
-    data <-getDataInfosVolcano()
-    
-    #id <-  which(is.na(data))
-    if (length(data$value) == 0){
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',ordering=F))
-    } else {
-        
-        colorCode <- paste("function(row, data) {",
-                           paste(sapply(1:length(data$value),function(i)
-                               paste( "$(this.api().cell(0,",i,").node()).css({'background-color':'",data$color[i],"'});")
-                           ),collapse = "\n"),"}" )
-        
-        
-        dat <- DT::datatable(data$value, 
-                             options=list(dom='t',
-                                          ordering=F
-                                          ,drawCallback=JS(colorCode)
-                                          ,server = TRUE))
-    }
-    dat
-    
-}
+# 
+# tableInfos <- function(){
+#   req(rv$current.obj)
+#   req(input$eventPointClicked)
+#   req(input$selectComparison)
+#   rv$seuilLogFC
+#   rv$seuilPVal
+#   rv$resAnaDiff
+#   
+#   #data <-getDataInfosVolcano()
+#   
+#   
+#   condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
+#   condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
+#   ind <- c( which(pData(rv$current.obj)$Label==condition1), 
+#             which(pData(rv$current.obj)$Label==condition2))
+#   
+#   #data <-getDataForExprs()
+#   
+#   if (is.null(input$eventPointClicked)){return()}
+#   this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
+#   this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
+#   
+#   data <-getDataForExprs()
+#   data <- data[,c(ind, (ind + ncol(data)/2))]
+#   
+#   index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$FC) >= rv$seuilLogFC))
+#   
+#   data.g1 <- data[index.g1,]
+#   data.g2 <- data[-index.g1,]
+#   
+#   if(this.series.name=='g1') {
+#     data <- data.g1[this.index+1,]
+#   } else if(this.series.name=='g2') {
+#     data <- data.g2[this.index+1,]
+#   }
+#  # data <- data[(input$eventPointClicked+1),]
+#   dt <- datatable( data,
+#                    options = list(initComplete = initComplete(),
+#                                   dom='t',
+#                                   blengthChange = FALSE,
+#                                   displayLength = 20,
+#                                   ordering=FALSE,
+#                                   server = FALSE,
+#                                   columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+#                    )) %>%
+#     formatStyle(
+#       colnames(data)[1:(ncol(data)/2)],
+#       colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+#       backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+#     )
+#   
+#   
+#   dt
+#   
+# }
