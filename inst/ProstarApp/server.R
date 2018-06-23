@@ -56,62 +56,62 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
     
     hideTab(inputId ="navPage", target = "updateDesignTab")
-    # source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
+     source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
       source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
       source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
-    #  source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
-    # source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
+      source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
+     source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
       source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
       source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
-    #  source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
+      source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
       source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
-    #  source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
-    # source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
+      source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
+     source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
     # 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
     #activatePopover()
   
-    
-     observe({
-        input$navPage
-        print(input$navPage)
-        
-        switch(input$navPage,
-               DescriptiveStatisticsTab = {
-                 #cat("source de srv_descriptiveStats.R")
-                 #source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
-                 },
-               demoTab = 
-                 source(file.path("server", "srv_demoMode.R"),  local = TRUE)$value,
-               convertTab = {
-                 #source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
-                 #source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
-                   },
-               ExportTab = {
-                 source(file.path("server", "srv_export.R"),  local = TRUE)$value
-                 source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
-               },
-                 
-               FilterDataTab =
-                 source(file.path("server", "srv_filtering.R"),  local = TRUE)$value,
-               Normalization = 
-                 source(file.path("server", "srv_normalization.R"),  local = TRUE)$value,
-               imputationTabs = {
-                 #source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
-                 #source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
-               },
-               AggregationTab =
-                 source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value,
-               #diffAnalysisTab = 
-               #  source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value,
-               GOAnalysisTab = 
-                 source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
-               
-               updateDesignTab = 
-                 source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
-               )
-
-     })
+     # 
+     # observe({
+     #    input$navPage
+     #    print(input$navPage)
+     #    
+     #    switch(input$navPage,
+     #           DescriptiveStatisticsTab = {
+     #             #cat("source de srv_descriptiveStats.R")
+     #             #source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+     #             },
+     #           demoTab = 
+     #             source(file.path("server", "srv_demoMode.R"),  local = TRUE)$value,
+     #           convertTab = {
+     #             #source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
+     #             #source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
+     #               },
+     #           ExportTab = {
+     #             source(file.path("server", "srv_export.R"),  local = TRUE)$value
+     #             source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
+     #           },
+     #             
+     #           FilterDataTab =
+     #             source(file.path("server", "srv_filtering.R"),  local = TRUE)$value,
+     #           Normalization = 
+     #             source(file.path("server", "srv_normalization.R"),  local = TRUE)$value,
+     #           imputationTabs = {
+     #             #source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
+     #             #source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
+     #           },
+     #           AggregationTab =
+     #             source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value,
+     #           #diffAnalysisTab = 
+     #           #  source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value,
+     #           GOAnalysisTab = 
+     #             source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
+     #           
+     #           updateDesignTab = 
+     #             source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
+     #           )
+     # 
+     # })
     
 })
