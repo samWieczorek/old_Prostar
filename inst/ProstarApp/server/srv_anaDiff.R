@@ -158,8 +158,8 @@ observeEvent(input$datasets,{
 
 
 output$diffAnalysis_GlobalOptions_SB <- renderUI({
-    req(rv$current.obj)
-    input$datasets
+    #req(rv$current.obj)
+    #input$datasets
   
   tagList(
     selectInput("anaDiff_Design", "Design", 
