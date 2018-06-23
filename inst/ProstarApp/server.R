@@ -93,7 +93,6 @@ shinyServer(function(input, output, session) {
                
                diffAnalysisTab = 
                  {
-                   require(limma)
                    source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
                    },
                

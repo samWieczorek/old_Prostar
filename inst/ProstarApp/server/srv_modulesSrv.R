@@ -62,7 +62,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     rv$resAnaDiff
     
     
-    if(is.null(rv$resAnaDiff$FC) || is.null(rv$resAnaDiff$P_Value)){return(NULL)}
+    if(is.null(rv$resAnaDiff$logFC) || is.null(rv$resAnaDiff$P_Value)){return(NULL)}
    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     p <- NULL
     p <- rv$resAnaDiff
@@ -70,7 +70,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     upItemsLogFC <- NULL
     
     
-    upItemsLogFC <- which(abs(p$FC) >= rv$seuilLogFC)
+    upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
     upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
     
     rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
@@ -116,7 +116,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data <-getDataForExprs()
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$FC) >= rv$seuilLogFC))
+    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC))
     
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
@@ -155,12 +155,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
-    if ((length(rv$resAnaDiff$FC) == 0)  ){return()}
+    if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
 
         
-        df <- data_frame(x=rv$resAnaDiff$FC, 
+        df <- data_frame(x=rv$resAnaDiff$logFC, 
                          y = -log10(rv$resAnaDiff$P_Value),
                          index = 1:nrow(fData(rv$current.obj)))
         if (!is.null( tooltip())){

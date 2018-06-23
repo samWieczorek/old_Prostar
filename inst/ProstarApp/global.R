@@ -561,7 +561,7 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Median" = "median")
 
 
-G_logFC_Column <- "FC"
+G_logFC_Column <- "logFC"
 
 
 G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",

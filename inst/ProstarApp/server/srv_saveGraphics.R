@@ -327,21 +327,21 @@ createPNG_DifferentialAnalysis <- reactive({
     obj <- rv$dataset[[rv$iDat]]
  
     allCompNames <- obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames
-    data <- as.data.frame(fData(obj)[,allCompNames$FC])
-    colnames(data) <- allCompNames$FC
+    data <- as.data.frame(fData(obj)[,allCompNames$logFC])
+    colnames(data) <- allCompNames$logFC
     th_logFC <-  obj@experimentData@other$Params[["anaDiff"]]$th_logFC
     th_pval <-  obj@experimentData@other$Params[["anaDiff"]]$th_pval
     cond <- c(obj@experimentData@other$Params[["anaDiff"]]$condition1,
               obj@experimentData@other$Params[["anaDiff"]]$condition2)
 
-    tempplot <- hc_FC_DensityPlot(data,th_logFC)
+    tempplot <- hc_logFC_DensityPlot(data,th_logFC)
     createPNGFromWidget(tempplot, "tempplot_logFC_Distribution.html", gGraphicsFilenames$logFCDistribution)
     
-    df <- data.frame(x=fData(obj)$FC,
+    df <- data.frame(x=fData(obj)$logFC,
                      y = -log10(fData(obj)$P_Value))
     
     
-    ## Plot for distribution of FC
+    ## Plot for distribution of logFC
     tempplot <- diffAnaVolcanoplot_rCharts(df,
                                            threshold_logFC = th_logFC,
                                            threshold_pVal = th_pval,
@@ -357,7 +357,7 @@ createPNG_DifferentialAnalysis <- reactive({
     
     plotPNG(function(){
         t <- fData(obj)$P_Value
-        t <- t[which(abs(fData(obj)$FC) >= th_logFC)]
+        t <- t[which(abs(fData(obj)$logFC) >= th_logFC)]
         wrapperCalibrationPlot(t, "ALL")},
         filename=paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"),
         width = 1200,

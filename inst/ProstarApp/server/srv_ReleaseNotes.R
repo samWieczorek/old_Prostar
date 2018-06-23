@@ -34,41 +34,16 @@ output$versionLog <- renderUI({
   </ul> </font>"
   
   tagList(
-    tags$h4("News in Prostar 1.12.9"),
+    tags$h4("News in Prostar 1.13.x"),
     tags$h5("Bug fixed:"),
     tags$ol(
-      tags$li("Normalization: \"Sum by columns\" has been modified to provide log-abundances compatible with the other treatments. It can be
-              done \"for each condition independantly\" or \"globally\".")
+      tags$li("Auto reset of dropdown menu in differential analysis.")
     ),
     
     tags$h5("New features:"),
     
     tags$ol(
-      tags$li("Descriptive statistics: The expression datasets are colored w.r.t
-              the nature of missing value (POV or MEC) even when the value has been imputed"),
-      
-      tags$li("Filtering: Manage designs with more than 2 conditions and with
-              conditions containing different number of samples"),
-      
-      tags$li("Filtering: UI more user friendly for the string-based filtering (Tab 2)"),
-      
-      
-      tags$li("Imputation (protein level): Distinction between missing values on an
-              entire condition (Missing on the Entire Condition) and the other
-              ones (Partially Observed Value)"),
-      
-      tags$li("Imputation (protein level): for the POV, it is possible to use SLSA
-              which take into account the experimentaldesign experimental"),
-      
-      tags$li("Imputation (protein level): imputations are all processed condition
-              by condition"),
-      
-      tags$li("Differential analysis: All tests can process datasets with
-              conditions of different number of samples"),
-      
-      tags$li("Differential analysis: Limma takes into account all the hierarchical experimental designs"),
-      
-      tags$li("GO analysis: Add the GeneID nomenclature.")
+      tags$li("The FC tag has been replaced by 'logFC'")
       )
     
     
