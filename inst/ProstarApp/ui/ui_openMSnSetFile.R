@@ -1,5 +1,5 @@
 tabPanel("Open MSnset file",
-         value = "open",
+         value = "openMSnsetTab",
          tagList(
            uiOutput("openMSnsetScreen")
         )

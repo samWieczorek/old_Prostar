@@ -137,29 +137,30 @@ if (input$selectComparison== "None"){
 })
 
 
-
-observeEvent(input$datasets,{
-    if (length(grep("DiffAnalysis", input$datasets))!=0){
-        shinyjs::disable("anaDiff_Design")
-        shinyjs::disable("diffAnaMethod")
-        shinyjs::disable("seuilLogFC")
-        
-    }
-    else {
-        
-        shinyjs::enable("anaDiff_Design")
-        shinyjs::enable("diffAnaMethod")
-        shinyjs::enable("seuilLogFC")
-    }
-})
-
+# 
+# observeEvent(input$datasets,{
+#     if (length(grep("DiffAnalysis", input$datasets))!=0){
+#         shinyjs::disable("anaDiff_Design")
+#         shinyjs::disable("diffAnaMethod")
+#         shinyjs::disable("seuilLogFC")
+#         
+#     }
+#     else {
+#         
+#         shinyjs::enable("anaDiff_Design")
+#         shinyjs::enable("diffAnaMethod")
+#         shinyjs::enable("seuilLogFC")
+#     }
+# })
+# 
 
 
 
 
 output$diffAnalysis_GlobalOptions_SB <- renderUI({
-    req(rv$current.obj)
-    input$datasets
+    #req(rv$current.obj)
+    #input$datasets
+if (is.null(rv$current.obj)){return(NULL)}
   
   tagList(
     selectInput("anaDiff_Design", "Design", 
@@ -348,11 +349,11 @@ output$diffAnalysis_FDR_SB <- renderUI({
 ### calcul des comparaisons              ####
 #######################################################
 observe({
-    input$diffAnaMethod
-    req(rv$current.obj)
-    input$anaDiff_Design
-    req(input$seuilLogFC)
-    input$ttest_options
+    #input$diffAnaMethod
+    #req(rv$current.obj)
+    #input$anaDiff_Design
+    #req(input$seuilLogFC)
+    #input$ttest_options
     
     
     if (is.null(input$diffAnaMethod) || (input$diffAnaMethod=="None")) {return ()}
@@ -377,9 +378,12 @@ observe({
         rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$FC)
     } else {
         params <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
-        rv$res_AllPairwiseComparisons <- list(FC = Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$FC],
-                                                  P_Value = Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$P_Value]
-                                                  )
+        rv$res_AllPairwiseComparisons <- list(FC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$FC]),
+                                                            rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$FC),
+                                              P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$P_Value]),
+                                                                 rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$P_Value
+                                              ))
+        
         rv$listNomsComparaison <-rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$FC
     }
 })
@@ -388,10 +392,12 @@ observe({
 
 output$FoldChangePlot <- renderHighchart({
   req(rv$res_AllPairwiseComparisons)
-   req(input$seuilLogFC)
-     
-    #indice_col_FC <- grep("FC" %in% colnames(rv$res_AllPairwiseComparison))
-    data <- rv$res_AllPairwiseComparisons
+  req(input$seuilLogFC)
+  req(input$diffAnaMethod)
+  req(input$anaDiff_Design)
+  
+  if ((input$diffAnaMethod=="None") || (input$anaDiff_Design=="None")){return(NULL)}
+  data <- rv$res_AllPairwiseComparisons
     hc_FC_DensityPlot(data$FC,input$seuilLogFC)
     
 })
@@ -654,6 +660,23 @@ output$calibrationPlotAll <- renderPlot({
 })
 
 
+# 
+# observe({
+#   rv$res_AllPairwiseComparisons
+#   rv$seuilPVal 
+#   rv$seuilLogFC
+#   input$selectComparison
+#   input$anaDiff_Design
+#   input$diffAnaMethod
+#   input$ttest_options
+#   
+#   #shinyjs::disable("ValidDiffAna")
+#   
+#   shinyjs::enable("ValidDiffAna")
+# })
+
+
+
 #----------------------------------------------
 observeEvent(input$ValidDiffAna,{ 
     req(rv$current.obj)
@@ -720,16 +743,14 @@ observeEvent(input$ValidDiffAna,{
                                   #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                   choices = names(rv$dataset),
                                   selected = name)
-                updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
-                updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod)
-                updateNumericInput(session, "seuilLogFC", value=input$seuilLogFC)
-                updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
+
                 
                 updateSelectInput(session,"selectComparison", selected=input$selectComparison)
                 updateCheckboxInput(session,"swapVolcano", value=input$swapVolcano )
                 updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=input$AnaDiff_ChooseFilters)
                 updateSelectInput(session, "AnaDiff_seuilNA", selected=input$AnaDiff_seuilNA)
                 
+               # shinyjs::disable("ValidDiffAna")
                 
                 ####write command Log file
                 #if (input$showCommandLog){
@@ -774,7 +795,7 @@ observeEvent(input$ValidDiffAna,{
                 
                 
                 
-                updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
+                #updateTabsetPanel(session, "abc", selected = "ValidateAndSaveAnaDiff")
                 #shinyjs::disable("seuilLogFC")
                 #shinyjs::disable("anaDiff_Design")
                 #shinyjs::disable("diffAnaMethod")

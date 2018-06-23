@@ -1,15 +1,6 @@
-
-
-
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-
-
 callModule(moduleDensityplot, "densityPlot_DS")
-callModule(moduleDensityplot,"densityPlot_Norm")
-callModule(moduleBoxplot,"boxPlot_Norm")
-
-
 callModule(missingValuesPlots, "MVPlots_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleDatasetOverview,"overview_DS")
@@ -18,13 +9,42 @@ callModule(moduleDatasetOverview,"overview_DS")
 
 
 
+output$viewProcessingData <- DT::renderDataTable({
+  rv$current.obj
+  if (is.null(rv$current.obj)) {return(NULL)}
+  
+  result = tryCatch(
+    {
+      data.frame(History=(rv$current.obj)@processingData@processing
+                 [-grep("Subset", (rv$current.obj)@processingData@processing)])
+    }
+    , warning = function(w) {
+      shinyjs::info(conditionMessage(w))
+    }, error = function(e) {
+      shinyjs::info(paste("view processing data",":",
+                          conditionMessage(e), 
+                          sep=" "))
+    }, finally = {
+      #cleanup-code 
+    })
+  
+},
+option=list(initComplete = initComplete(),
+            pageLength=DT_pagelength,
+            orderClasses = TRUE,
+            autoWidth=FALSE,
+            dom = 'R<"clear">lfrtip',
+            columnDefs = list(list(columns.width=c("60px"),
+                                   columnDefs.targets= c(list(0),list(1),list(2)))))
+)
+
+
 
 
 #######################################
 
 
 output$DS_sidebarPanel_tab <- renderUI({
-    #input$DS_tabSetPanel
     req(rv$typeOfDataset)
     
     .choices<- NULL

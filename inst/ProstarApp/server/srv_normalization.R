@@ -6,9 +6,10 @@
 ###########################################################################
 
 
-observe({
-    print(input$DataProcessingMenu)
-})
+callModule(moduleDensityplot,"densityPlot_Norm")
+callModule(moduleBoxplot,"boxPlot_Norm")
+
+
 
 output$helpForNormalizationMethods <- renderUI({
     input$normalization.method

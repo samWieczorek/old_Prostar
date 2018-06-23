@@ -94,8 +94,7 @@ callModule(modulePopover,"modulePopover_dataset",
                                 content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
 
 
-observe({
-    req(input$navbar)
+observeEvent(input$navbar,{
     if (input$navbar=="stop")
         stopApp()
 })
@@ -160,7 +159,6 @@ session$onSessionEnded(function() {
 ###-------------------------------------------------------------------
 ClearUI <- reactive({
         
-        #rv$commandLog <- ""
         updateSelectInput(session, 
                           "datasets",  
                           choices = G_noneStr)
@@ -179,9 +177,6 @@ ClearUI <- reactive({
         updateRadioButtons(session,
                            inputId = "ChooseFilters", 
                            selected = gFilterNone)
-        #updateSelectInput(session, "normalization.method",selected = "None")
-        # updateSelectInput(session,"type.of.missvalues", selected= "Majoritary" )
-        #updateSelectInput(session,"typeImputationMNAR",selected= "QRILC" )
         
     })
 
@@ -352,25 +347,11 @@ ClearMemory <- function(){
     
     
     
-    # rv$design = list(designChecked=NULL,
-    #                        hot=NULL,
-    #                        newOrder=NULL,
-    #                        conditionsChecked=NULL,
-    #                        designSaved=FALSE)
-    
     rv$hot = NULL
     rv$newOrder = NULL
     rv$designChecked = NULL
     rv$designSaved = FALSE
     rv$conditionsChecked = NULL
-    
-    
-    # rv$updateDesign = list(designChecked=NULL,
-    #                        hot=NULL,
-    #                        newOrder=NULL,
-    #                        conditionsChecked=NULL,
-    #                        designSaved=FALSE)
-    
     
     
     rv$updateDesign_designSaved=FALSE
@@ -582,41 +563,6 @@ catchToList <- function(expr) {
 } 
 
 
-###-------------------------------------------------------------------
-# output$disableAggregationTool <- renderUI({
-#     rv$current.obj
-# 
-#     if (!is.null(rv$current.obj))
-#     {
-#         if (rv$current.obj@experimentData@other$typeOfData == "protein")
-#         {
-#     disable(selector = "#navPage li a[data-value=AggregationTab]")
-#     tags$style(
-# type="text/css","#navPage li a[data-value=AggregationTab] { color:lightgrey;}")
-# 
-# 
-#         } else {
-#             enable(selector = "#navPage li a[data-value=AggregationTab]")
-# 
-#         }
-#     }
-# 
-# })
-
-
-###-------------------------------------------------------------------
-output$CurrentDataset <- renderUI({
-    txt <- paste("Current dataset :",input$datasets, sep=" ")
-    txt
-})
-
-
-
-###-------------------------------------------------------------------
-GetNbNA <- reactive({
-    nb <- sum(is.na(Biobase::exprs(rv$current.obj))==TRUE)
-    return(nb)
-})
 
 
 
@@ -625,17 +571,6 @@ output$currentObjLoaded <- reactive({
     rv$current.obj
     return(!is.null(rv$current.obj))})
 
-
-# 
-# observe({
-#   req(rv$current.obj)
-#   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-#   if (NA.count == 0){
-#     showTab(inputId ="navPage", target = "diffAnalysis")
-#   } else {
-#     hideTab(inputId ="navPage", target = "diffAnalysis")
-#   }
-# })
 
 
 observe({
@@ -711,4 +646,143 @@ observe({
     
     }
 })
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+# Update the global variable log
+UpdateLog <- function(name, l.params){
+  
+  hist <- buildLogText(name, l.params, level=rv$typeOfDataset)
+  rv$text.log <- rbind(rv$text.log,
+                       c(Date=date(), Dataset=name, History=ifelse(is.null(hist), "",hist)))
+  
+}
+
+
+
+NeedsUpdate <- reactive({
+  req(rv$current.obj)
+  
+  PROSTAR.version <- rv$current.obj@experimentData@other$Prostar_Version
+  
+  if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
+      && (DAPAR::check.design(Biobase::pData(rv$current.obj))$valid))
+  {return (FALSE)}
+  
+  else {
+    return(TRUE)
+  }
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#-------------------------------------------------------------------
+output$aboutText <- renderUI({
+  busyIndicator(WaitMsgCalc,wait = 0)
+  
+  t <- sessionInfo()
+  daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
+  ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
+  
+  
+  text <- paste("<strong>Maintaining ProStaR as free software is a heavy and time-consuming
+                duty. If you use it, please cite the following reference</strong><br> 
+                S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
+                L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
+                C. Bruley and T. Burger. <br>
+                <u>\"DAPAR & ProStaR: software to perform statistical 
+                analyses in quantitative discovery 
+                proteomics\"</u><br>
+                <i>Bioinformatics 33(1), 135-136</i>, <strong>2017</strong><br>
+                <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
+                title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
+                
+                <br><hr>
+                <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
+                software suite for quantitative analysis of mass spectrometry 
+                based proteomics.<br>
+                More specifically it is designed to process 
+                relative quantitative data from discovery experiments.<br>
+                It is composed of two distinct R packages : <br>", 
+                "<ul style=\"list-style-type:disc;\">
+                <li>
+                <a href=\"http://www.bioconductor.org/packages/release/bioc/html/Prostar.html\"
+                title=\"here\" target=\"_blank\">Prostar</a> (version ",
+                ProstarVersion, "): the web based graphical user interface to DAPAR 
+                </li>
+                <li>
+                <a href=\"http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html\"
+                title=\"here\" target=\"_blank\">DAPAR</a> (version ",daparVersion,"): a 
+                collection of tools and graphs dedicated to proteomic analysis
+                </li>
+                </ul> 
+                DAPAR includes wrappers to numerous other R packages, either available on 
+                <a href=\"the https://cran.r-project.org/\" title=\"here\" target=\"_blank\">
+                CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
+                title=\"here\" target=\"_blank\">Bioconductor</a>.
+                <br>
+                Here is a brief overview of the available functionalities:
+                <ul style=\"list-style-type:disc;\">
+                <li>  
+                <strong>Descriptive statistics</strong> are available, for exploration and visualization of the 
+                quantitative dataset;
+                </li>
+                <li>  
+                <strong>Filtering</strong> options allows pruning the protein or peptide list according to 
+                various criteria (missing values, contaminants, reverse sequences);
+                </li>
+                
+                <li>
+                <strong>Cross replicate normalization</strong>, so as to make the quantitative 
+                values comparable between the different analyzed samples;
+                </li>
+                
+                <li>  
+                <strong>Missing values imputation</strong> with different methods, depending 
+                on the nature of  the missing values;
+                </li>
+                <li>  
+                <strong>Aggregation</strong> from peptide to protein intensity values;
+                </li>
+                
+                <li>
+                <strong>Differential analysis</strong>, which includes null hypothesis 
+                significance testing as well as multiple testing correction 
+                (for false discovery rate estimation).
+                </li>
+                <li>
+                <strong>Gene Ontology (GO) analysis</strong> allows is to map protein list onto GO terms and to test category enrichment.
+                </li>
+                </ul>
+                
+                <br>
+                For more details, please refer to the \"Help\" tab.", sep="")
+  
+  HTML(text)
+  
+})
+
 

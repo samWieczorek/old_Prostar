@@ -35,6 +35,146 @@ output$warningNonUniqueID <- renderUI({
 
 
 
+
+
+
+output$ConvertOptions <- renderUI({
+  input$file1
+  if (is.null(input$file1)){return(NULL)}
+  
+  tagList(
+    radioButtons("typeOfData", 
+                 "Is it a peptide or protein dataset ?", 
+                 choices=c("peptide dataset" = "peptide", 
+                           "protein dataset" = "protein")
+    )
+    
+    ,radioButtons("checkDataLogged", 
+                  "Are your data already log-transformed ?", 
+                  #width = widthWellPanel, 
+                  choices=c("yes (they stay unchanged)" = "yes", 
+                            "no (they wil be automatically transformed)"="no"), 
+                  selected="no")
+    ,br()
+    ,checkboxInput("replaceAllZeros", 
+                   "Replace all 0 and NaN by NA", 
+                   value= TRUE)
+  )
+})
+
+
+observeEvent(input$fData.box,ignoreInit = TRUE,{
+  
+  choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
+  names(choices) = 
+    colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
+  updateSelectInput(session, "eData.box", 
+                    label = "",
+                    choices = choices,
+                    selected = choices)
+  
+})
+
+
+
+
+output$helpTextDataID <- renderUI({
+  input$typeOfData
+  if (is.null(input$typeOfData)){return(NULL)}
+  t <- ""
+  switch(input$typeOfData,
+         protein = {t <- "proteins"},
+         peptide = {t <- "peptides"}
+  )
+  txt <- paste ("Please select among the columns of your data the one that 
+                corresponds to a unique ID of the ", t, ".", sep=" ")
+  helpText(txt)
+  
+})
+
+
+
+
+
+
+
+
+
+############ Read text file to be imported ######################
+observe({
+  input$file1
+  input$XLSsheets
+  if (is.null(input$file1) ) {return(NULL)  }
+  if (((GetExtension(input$file1$name)== "xls") 
+       || (GetExtension(input$file1$name) == "xlsx") ) 
+      && is.null(input$XLSsheets)) {return(NULL)  }
+  
+  
+  result = tryCatch(
+    {
+      ClearUI()
+      ClearMemory()
+      ext <- GetExtension(input$file1$name)
+      
+      switch(ext,
+             txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+             csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+             tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+             xls = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)},
+             xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)}
+      )
+    }
+    , warning = function(w) {
+      shinyjs::info(conditionMessage(w))
+    }, error = function(e) {
+      shinyjs::info(paste("Read text file to convert",":",
+                          conditionMessage(e), 
+                          sep=" "))
+    }, finally = {
+      #cleanup-code 
+    })
+  
+  
+})
+
+
+
+
+
+
+output$conversionDone <- renderUI({
+  rv$current.obj
+  if (is.null(rv$current.obj)) { return(NULL)}
+  
+  h4("The conversion is done. Your dataset has been automatically loaded 
+       in memory. Now, you can switch to the Descriptive statistics panel to 
+       vizualize your data.")
+  
+})
+
+
+
+
+
+
+
+
+#####-------------------------------------------------------
+output$ManageXlsFiles <- renderUI({
+  input$file1
+  if (is.null(input$file1)){return(NULL)}
+  
+  .ext <- GetExtension(input$file1$name)
+  if ((.ext == "xls") || (.ext == "xlsx")){ 
+    sheets <- listSheets(input$file1$datapath)
+    selectInput("XLSsheets", "sheets", choices = as.list(sheets))
+  }
+  
+})
+
+
+
+
 #########################################################
 output$id <- renderUI({
     rv$tab1

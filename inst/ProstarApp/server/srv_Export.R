@@ -155,3 +155,19 @@ output$downloadMSnSet <- downloadHandler(
 )
 
 
+
+
+
+output$choosedataTobuildReport <- renderUI({
+  rv$dataset
+  if (is.null(rv$dataset)){return (NULL)}
+  
+  checkboxGroupInput("chooseDatasetToExport", 
+                     "Datasets to export",
+                     choices = names(rv$dataset),
+                     selected = names(rv$dataset))
+  
+})
+
+
+
