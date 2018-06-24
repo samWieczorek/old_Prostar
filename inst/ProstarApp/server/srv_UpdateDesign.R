@@ -7,10 +7,10 @@ output$updateDesign_UI_checkConditions  <- renderUI({
     rv$updateDesign_conditionsChecked
     
     
-    if (sum(rv$updateDesign_hot$Label == "")==0){
+    if (sum(rv$updateDesign_hot$Condition == "")==0){
         tags$div(
             tags$div(style="display:inline-block;",
-                     actionButton("updateDesign_btn_checkConds", "Check conditions (Label)")
+                     actionButton("updateDesign_btn_checkConds", "Check conditions")
             ),
             
             tags$div(style="display:inline-block;",
@@ -86,7 +86,7 @@ observeEvent(input$btn_SaveDesign,{
 
   rv$current.obj <- rv$current.obj[, rv$updateDesign_newOrder]
   tmp <-  rv$updateDesign_hot
-  rownames(tmp) <- tmp$Experiment
+  rownames(tmp) <- tmp$Sample.name
   if (is.character(rownames(tmp))){
       rownames(tmp) <- gsub(".", "_", rownames(tmp), fixed=TRUE)
       
@@ -155,7 +155,7 @@ output$updateDesign_SaveDesign <- renderUI({
 
 
 updateDesign_color_renderer_NewDesign <- reactive({
-  conds <- rv$updateDesign_hot$Label
+  conds <- rv$updateDesign_hot$Condition
   pal <- brewer.pal(length(unique(conds)),"Dark2")
   
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
@@ -176,9 +176,9 @@ observeEvent(input$updateDesign_btn_checkConds,{
   
     if (length(grep("Bio.Rep", colnames(rv$updateDesign_hot))) > 0) { return(NULL)}
   
-  rv$updateDesign_newOrder <- order(rv$updateDesign_hot["Label"])
+  rv$updateDesign_newOrder <- order(rv$updateDesign_hot["Condition"])
   rv$updateDesign_hot <- rv$updateDesign_hot[rv$updateDesign_newOrder,]
-  rv$updateDesign_conditionsChecked <- DAPAR::check.conditions(rv$updateDesign_hot$Label)
+  rv$updateDesign_conditionsChecked <- DAPAR::check.conditions(rv$updateDesign_hot$Condition)
   hideTab(inputId ="navPage", target = "open")
 
   
@@ -192,8 +192,8 @@ output$updateDesign_hot <- renderRHandsontable({
   
   n <- nrow(Biobase::pData(rv$current.obj))
     if (is.null(rv$updateDesign_hot)){
-        rv$updateDesign_hot  <- data.frame(Experiment = as.character(Biobase::pData(rv$current.obj)$Experiment),
-                                           Label = rep("", n),
+        rv$updateDesign_hot  <- data.frame(Sample.name = as.character(Biobase::pData(rv$current.obj)$Sample.name),
+                                           Condition = rep("", n),
                                            stringsAsFactors = FALSE)
     }
   
@@ -209,7 +209,7 @@ output$updateDesign_hot <- renderRHandsontable({
                      autoInsertRow=FALSE     ) %>%
 
     hot_cols(renderer = updateDesign_color_renderer_NewDesign()) %>%
-    hot_col(col = "Experiment", readOnly = TRUE)
+    hot_col(col = "Sample.name", readOnly = TRUE)
   
   if (!is.null(input$updateDesign_chooseExpDesign)) {
     switch(input$updateDesign_chooseExpDesign,
@@ -322,8 +322,8 @@ observeEvent(input$updateDesign_chooseExpDesign,{
 # 
 output$updateDesign_twolevelsExample <- renderRHandsontable({
 
-  df <- data.frame(Experiment= paste0("Sample ",as.character(1:14)),
-                   Label = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
+  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
+                   Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
                    Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
                    Tech.Rep = c(1:14),
                    stringsAsFactors = FALSE)
@@ -361,8 +361,8 @@ output$updateDesign_twolevelsExample <- renderRHandsontable({
 
 output$updateDesign_threelevelsExample <- renderRHandsontable({
 
-  df <- data.frame(Experiment= paste0("Sample ",as.character(1:16)),
-                   Label = c(rep( "A", 8), rep("B", 8)),
+  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
+                   Condition = c(rep( "A", 8), rep("B", 8)),
                    Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
                    Tech.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8)),
                    Analyt.Rep = c(1:16),

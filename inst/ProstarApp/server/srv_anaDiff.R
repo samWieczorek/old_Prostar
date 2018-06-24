@@ -194,8 +194,8 @@ if (input$AnaDiff_ChooseFilters == gFilterNone){
 } else {
   condition1 = strsplit(input$selectComparison, "_vs_")[[1]][1]
   condition2 = strsplit(input$selectComparison, "_vs_")[[1]][2]
-  ind <- c( which(pData(rv$current.obj)$Label==condition1), 
-            which(pData(rv$current.obj)$Label==condition2))
+  ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
+            which(pData(rv$current.obj)$Condition==condition2))
   datasetToAnalyze <- rv$dataset[[input$datasets]][,ind]
   datasetToAnalyze@experimentData@other$OriginOfValues <-
     rv$dataset[[input$datasets]]@experimentData@other$OriginOfValues[ind]

@@ -185,7 +185,7 @@ gReplaceAllZeros <- "replaceAllZeros"
 gLogTransform <- "Log2 tranformed data"
 gFilterTextPrefix <- "Filtered with"
 
-pData.complete.list <- list("Label" = "Label", 
+pData.complete.list <- list("Condition" = "Condition", 
                             "Bio.Rep" = "Bio. rep.",
                             "Tech.Rep" = "Tech. rep.", 
                             "Analyt.Rep" = "An. Rep.")

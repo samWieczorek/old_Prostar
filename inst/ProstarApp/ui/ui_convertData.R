@@ -60,7 +60,7 @@ tabPanel("Convert data",
                        br(), br(),
                        tagList(
                            fluidRow(
-                               column(width=6,tags$b("1 - Fill the \"Label\" column to identify the conditions to compare.")),
+                               column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
                                column(width=6,uiOutput("UI_checkConditions")  )
                        ),
                        fluidRow(

@@ -572,10 +572,27 @@ output$currentObjLoaded <- reactive({
     return(!is.null(rv$current.obj))})
 
 
+retroCompatibility <- reactive({
+  req(rv$current.obj)
+  if ("FC" %in% colnames(Biobase::fData(rv$current.obj))){
+    idx <- which(colnames(Biobase::fData(rv$current.obj)) == "FC")
+    names(Biobase::fData(rv$current.obj))[idx] <-"logFC"
+  }
+  
+  if ("Experiment" %in% colnames(Biobase::pData(rv$current.obj))){
+    idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Experiment")
+    names(Biobase::pData(rv$current.obj))[idx] <-"Sample.name"
+  }
+  
+  if ("Label" %in% colnames(Biobase::pData(rv$current.obj))){
+    idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Label")
+    names(Biobase::pData(rv$current.obj))[idx] <-"Condition"
+  }
+})
 
 observe({
     rv$current.obj
-    
+  retroCompatibility()
     print(NeedsUpdate())
     if (NeedsUpdate()) {
         showTab(inputId ="navPage", target = "updateDesignTab")

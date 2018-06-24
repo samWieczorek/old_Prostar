@@ -419,9 +419,9 @@ viewComparisonNorm2 <- reactive({
     
     if (is.null(input$whichGroup2Color) 
         || (input$whichGroup2Color == "Condition")){
-        labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
+        labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
     }else {
-        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
                             Biobase::pData(rv$current.obj)[,"Bio.Rep"],
                             Biobase::pData(rv$current.obj)[,"Tech.Rep"],
                             Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
@@ -494,9 +494,9 @@ viewComparisonNorm <- reactive({
     
     if (is.null(input$whichGroup2Color) 
         || (input$whichGroup2Color == "Condition")){
-        labelsNorm <- Biobase::pData(rv$current.obj)[,"Label"]
+        labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
     }else {
-        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
                             Biobase::pData(rv$current.obj)[,"Bio.Rep"],
                             Biobase::pData(rv$current.obj)[,"Tech.Rep"],
                             Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
@@ -582,7 +582,7 @@ output$nShow <- renderUI({
     
     isolate({
         rv$current.obj
-        labs <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
                       Biobase::pData(rv$current.obj)[,"Bio.Rep"],
                       Biobase::pData(rv$current.obj)[,"Tech.Rep"],
                       Biobase::pData(rv$current.obj)[,"Analyt.Rep"],

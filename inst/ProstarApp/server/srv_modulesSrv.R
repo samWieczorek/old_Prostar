@@ -105,8 +105,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     condition1 = strsplit(comp(), "_vs_")[[1]][1]
     condition2 = strsplit(comp(), "_vs_")[[1]][2]
-    ind <- c( which(pData(rv$current.obj)$Label==condition1), 
-              which(pData(rv$current.obj)$Label==condition2))
+    ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
+              which(pData(rv$current.obj)$Condition==condition2))
     
     #data <-getDataForExprs()
     
@@ -243,9 +243,9 @@ moduleDensityplot <- function(input, output, session) {
       
       if (is.null(input$whichGroup2Color_DS) 
           || (input$whichGroup2Color_DS == "Condition")){
-        labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
+        labels_DS <- Biobase::pData(rv$current.obj)[,"Condition"]
       }else {
-        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
                            Biobase::pData(rv$current.obj)[,"Bio.Rep"],
                            Biobase::pData(rv$current.obj)[,"Tech.Rep"],
                            Biobase::pData(rv$current.obj)[,"Analyt.Rep"],

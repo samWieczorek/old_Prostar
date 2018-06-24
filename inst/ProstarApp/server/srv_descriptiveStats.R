@@ -186,8 +186,8 @@ output$viewpData <- DT::renderDataTable({
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
   
-  pal <- brewer.pal(length(unique(data$Label)),"Dark2")
-  pal <- pal[1:length(unique(data$Label))]
+  pal <- brewer.pal(length(unique(data$Condition)),"Dark2")
+  pal <- pal[1:length(unique(data$Condition))]
   dt <- DT::datatable(  data,
                         extensions = 'Scroller',
                     options=list(initComplete = initComplete(),
@@ -205,7 +205,7 @@ output$viewpData <- DT::renderDataTable({
     formatStyle(
       columns = colnames(data)[1:2],
       valueColumns = colnames(data)[2],
-      backgroundColor = styleEqual(unique(data$Label), pal)
+      backgroundColor = styleEqual(unique(data$Condition), pal)
     )
   
 })
@@ -552,7 +552,7 @@ output$nShow_DS <- renderUI({
     
     isolate({
         rv$current.obj
-        labs <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
                       Biobase::pData(rv$current.obj)[,"Bio.Rep"],
                       Biobase::pData(rv$current.obj)[,"Tech.Rep"],
                       Biobase::pData(rv$current.obj)[,"Analyt.Rep"],

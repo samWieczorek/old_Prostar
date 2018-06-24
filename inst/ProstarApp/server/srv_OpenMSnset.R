@@ -17,7 +17,7 @@ output$openMSnsetScreen <- renderUI({
 output$infoAboutAggregationTool <- renderUI({
   rv$typeOfDataset
   req(rv$current.obj)
-  
+  retroCompatibility()
   if (NeedsUpdate())
   {    
     tags$div(
@@ -89,11 +89,9 @@ observeEvent(input$file,ignoreInit =TRUE,{
         l.params <- list(filename = rv$current.obj.name)
         UpdateLog("Original",l.params)
         
-        if ("FC" %in% colnames(Biobase::fData(rv$current.obj))){
-          idx <- which(colnames(Biobase::fData(rv$current.obj)) == "FC")
-          names(Biobase::fData(rv$current.obj))[idx] <-"logFC"
-        }
         
+        
+        retroCompatibility()
         
         writeToCommandLogFile(
             paste("current.obj <- readRDS('",input$file$name,"')", sep="")
@@ -106,5 +104,4 @@ observeEvent(input$file,ignoreInit =TRUE,{
     }
     
     })
-
 

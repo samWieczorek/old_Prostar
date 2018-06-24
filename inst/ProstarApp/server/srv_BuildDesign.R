@@ -1,5 +1,5 @@
 color_renderer <- reactive({
-  conds <- rv$hot$Label
+  conds <- rv$hot$Condition
   pal <- brewer.pal(length(unique(conds)),"Dark2")
   
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
@@ -22,9 +22,9 @@ observeEvent(input$btn_checkConds,{
   rv$hot
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
   
-  rv$newOrder <- order(rv$hot["Label"])
+  rv$newOrder <- order(rv$hot["Condition"])
   rv$hot <- rv$hot[rv$newOrder,]
-  rv$conditionsChecked <- DAPAR::check.conditions(rv$hot$Label)
+  rv$conditionsChecked <- DAPAR::check.conditions(rv$hot$Condition)
   
 })
 
@@ -32,8 +32,8 @@ observeEvent(input$btn_checkConds,{
 
 #----------------------------------------------------------
 observeEvent(input$eData.box,{
-  rv$hot  <- data.frame(Experiment = as.character(input$eData.box),
-                        Label = rep("",length(input$eData.box)),
+  rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
+                        Condition = rep("",length(input$eData.box)),
                         stringsAsFactors = FALSE)
   
  
@@ -45,8 +45,8 @@ output$hot <- renderRHandsontable({
   input$chooseExpDesign
   
   if (is.null(rv$hot)){
-    rv$hot  <- data.frame(Experiment = as.character(input$eData.box),
-                          Label = rep("",length(input$eData.box)),
+    rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
+                          Condition = rep("",length(input$eData.box)),
                           stringsAsFactors = FALSE)
   }
   
@@ -63,7 +63,7 @@ output$hot <- renderRHandsontable({
                      allowRemoveColumn = FALSE,
                      autoInsertRow=FALSE     ) %>%
     hot_cols(renderer = color_renderer()) %>%
-    hot_col(col = "Experiment", readOnly = TRUE)
+    hot_col(col = "Sample.name", readOnly = TRUE)
   
   if (!is.null(input$chooseExpDesign)) {
     switch(input$chooseExpDesign,
@@ -96,10 +96,10 @@ output$UI_checkConditions  <- renderUI({
   rv$conditionsChecked
   
   
-  if (sum(rv$hot$Label == "")==0){
+  if (sum(rv$hot$Condition == "")==0){
     tags$div(
       tags$div(style="display:inline-block;",
-               actionButton("btn_checkConds", "Check conditions (Label)")
+               actionButton("btn_checkConds", "Check conditions")
       ),
       
       tags$div(style="display:inline-block;",
@@ -238,8 +238,8 @@ observeEvent(input$chooseExpDesign, {
 #------------------------------------------------------------------------------
 output$twolevelsExample <- renderRHandsontable({
   
-  df <- data.frame(Experiment= paste0("Sample ",as.character(1:14)),
-                   Label = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
+  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
+                   Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
                    Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
                    Tech.Rep = c(1:14),
                    stringsAsFactors = FALSE)
@@ -278,8 +278,8 @@ output$twolevelsExample <- renderRHandsontable({
 #------------------------------------------------------------------------------
 output$threelevelsExample <- renderRHandsontable({
   
-  df <- data.frame(Experiment= paste0("Sample ",as.character(1:16)),
-                   Label = c(rep( "A", 8), rep("B", 8)),
+  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
+                   Condition = c(rep( "A", 8), rep("B", 8)),
                    Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
                    Tech.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8)),
                    Analyt.Rep = c(1:16),

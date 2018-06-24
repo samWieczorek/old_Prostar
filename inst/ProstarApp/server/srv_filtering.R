@@ -354,56 +354,6 @@ UpdateFilterWidgets <- function(){
 
 
 
-
-######################################
-##' Function to compute the maximum value for the filter
-##' @author Samuel Wieczorek
-# GetMaxValueThresholdFilter <- function(){
-#     input$ChooseFilters
-#     vMax <- 0
-#     choix <- list()
-#     
-#     result = tryCatch(
-#         {
-#             isolate({
-#                 if (input$ChooseFilters == gFilterWholeMat) { 
-#                     vMax <- ncol(Biobase::exprs(rv$current.obj))
-#                     choix <- getListNbValuesInLines(rv$current.obj, type="wholeMatrix")
-#                     }
-#                 else if (input$ChooseFilters == gFilterAllCond 
-#                          || input$ChooseFilters == gFilterOneCond){ 
-#                     ll <- NULL
-#                     for (i in 1:length(unique(Biobase::pData(rv$current.obj)$Label))){
-#                         ll <- c(ll, length(which(
-#                             Biobase::pData(rv$current.obj)$Label==
-#                                 unique(Biobase::pData(rv$current.obj)$Label)[i])))
-#                     }
-#                     
-#                     vMax <- min(ll)
-#                     choix[[1]] <- 0
-#                     for (i in 2:(vMax+1)){
-#                       choix[[i]] <- i-1
-#                     }
-#                 }
-#                 return(choix)
-#             })
-#         }
-#         , warning = function(w) {
-#             shinyjs::info(conditionMessage(w))
-#         }, error = function(e) {
-#             shinyjs::info(paste(match.call()[[1]],":",
-#                                 conditionMessage(e), 
-#                                 sep=" "))
-#         }, finally = {
-#             #cleanup-code 
-#         })
-#     
-#     
-#     
-#     
-# }
-
-
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,{
     if (is.null(input$perform.filtering.MV) ){return()}
