@@ -399,11 +399,13 @@ DensityPlot <- reactive({
         || (input$whichGroup2Color_DS == "Condition")){
         labels_DS <- Biobase::pData(rv$current.obj)[,"Label"]
     }else {
-        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
-                           Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                           sep= "_")
+        #labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Label"],
+        #                   Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+        #                   Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+        #                   Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+        #                   sep= "_")
+        labels <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
+        
     }
     
     #result = tryCatch(
