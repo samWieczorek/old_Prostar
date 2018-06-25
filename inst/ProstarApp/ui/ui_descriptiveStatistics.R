@@ -110,15 +110,19 @@ tabPanel("Descriptive statistics",
                               sidebarCustom(),
                               splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                           wellPanel(id = "sidebar_densityplot",
-                                                    uiOutput("DS_sidebarPanel_Densityplot")
+                                                    tagList(
+                                                      radioButtons("whichGroup2Color_DS",
+                                                                   "Color lines",
+                                                                   choices=list("By condition" = "Condition",
+                                                                                "By replicate" = "Replicate")),
+                                                      br()
+                                                      #uiOutput("nShow_DS")
+                                                      )
                                           ),
                                           tagList(
-                                              busyIndicator("Building plot. Please wait...",wait = 0),
+                                              #busyIndicator("Building plot. Please wait...",wait = 0),
                                               moduleDensityplotUI("densityPlot_DS")
-                                          # highchartOutput("viewDensityplot_DS",
-                                          #                             width = plotWidth,
-                                          #                             height = plotHeight)
-                                          )
+                                           )
                               )
                      ),
                      

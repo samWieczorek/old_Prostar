@@ -57,6 +57,7 @@ missingValuesPlotsUI <- function(id) {
 
 moduleDensityplotUI <- function(id) {
     ns <- NS(id)
+    
     highchartOutput(ns("Densityplot"))
 }
 

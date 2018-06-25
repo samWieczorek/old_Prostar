@@ -1,8 +1,8 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-callModule(moduleDensityplot, "densityPlot_DS")
+callModule(moduleDensityplot, "densityPlot_DS",reactive({input$lab2Show_DS}),reactive({ input$whichGroup2Color_DS}))
 callModule(missingValuesPlots, "MVPlots_DS")
-callModule(moduleBoxplot, "boxPlot_DS")
+callModule(moduleBoxplot, "boxPlot_DS", reactive({input$legendXAxis_DS}))
 callModule(moduleDatasetOverview,"overview_DS")
 
 
@@ -296,11 +296,14 @@ violinPlot2 <- reactive({
     
     # result = tryCatch(
     #     {
-            if (is.null(rv$PlotParams$legDS_Violinplot)) {
+            isolate({
+              if (is.null(rv$PlotParams$legDS_Violinplot)) {
                 wrapper.violinPlotD(rv$current.obj)
                 }  else {
                     wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
                 }
+              
+            })
         # }
         # , warning = function(w) {
         #     shinyjs::info(conditionMessage(w))
@@ -324,7 +327,7 @@ viewDistCV <- reactive({
     
     # result = tryCatch(
     #     {
-            rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)
+            isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)})
             rv$tempplot$varDist
         # }
         # , warning = function(w) {
@@ -354,7 +357,7 @@ corrMatrix <- reactive({
     
     # result = tryCatch(
     #     {
-            rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+            isolate({rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)})
             rv$tempplot$corrMatrix
             
         # }
@@ -386,11 +389,11 @@ heatmap <- reactive({
                 rv$PlotParams$HeatmapLinkage <- input$linkage
       rv$PlotParams$HeatmapDistance <- input$distance
       
-                wrapper.heatmapD(rv$current.obj,
+              isolate({  wrapper.heatmapD(rv$current.obj,
                                  rv$PlotParams$HeatmapDistance, 
                                  rv$PlotParams$HeatmapLinkage,
                                  TRUE)
-
+              })
             # }
             # , warning = function(w) {
             #     shinyjs::info(conditionMessage(w))
@@ -429,16 +432,16 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 
-
-
-output$DS_sidebarPanel_Densityplot <- renderUI({
-    conditionalPanel(condition= "true",
-                     uiOutput("nGroup_DS"),
-                     br(),
-                     uiOutput("nShow_DS"))
-    
-})
-
+# 
+# 
+# output$DS_sidebarPanel_Densityplot <- renderUI({
+#     conditionalPanel(condition= "true",
+#                      uiOutput("nGroup_DS"),
+#                      br(),
+#                      uiOutput("nShow_DS"))
+#     
+# })
+# 
 
 
 
@@ -515,8 +518,8 @@ output$ChooseLegendForAxisViolin_DS <- renderUI({
 output$ChooseLegendForAxis_DS <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)){return(NULL)}
-    isolate(rv$current.obj)
-    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+    
+  .names <- colnames(Biobase::pData(rv$current.obj))[-1]
     tags$head(tags$link(rel="stylesheet", type="text/css", 
                         href="css/overrides.css"))
     
@@ -530,16 +533,16 @@ output$ChooseLegendForAxis_DS <- renderUI({
 
 ##' Select the labels to be highlighted in densityplots
 ##' @author Samuel Wieczorek
-output$nGroup_DS <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return(NULL) }
-    
-    radioButtons("whichGroup2Color_DS",
-                 "Color lines",
-                 choices=list("By condition" = "Condition",
-                              "By replicate" = "Replicate"))
-    
-})
+# output$nGroup_DS <- renderUI({
+#    # req(rv$current.obj)
+#     #if (is.null(rv$current.obj) ) {return(NULL) }
+#     
+#     radioButtons("whichGroup2Color_DS",
+#                  "Color lines",
+#                  choices=list("By condition" = "Condition",
+#                               "By replicate" = "Replicate"))
+#     
+# })
 
 
 
@@ -547,17 +550,16 @@ output$nGroup_DS <- renderUI({
 ##' Select the labels to show in densityplots
 ##' @author Samuel Wieczorek
 output$nShow_DS <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return(NULL) }
+   # rv$current.obj
+   # if (is.null(rv$current.obj) ) {return(NULL) }
     
-    isolate({
-        rv$current.obj
-        labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                      Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                      sep= "_")
-        
+         # labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
+         #              Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+         #              Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+         #              Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+         #              sep= "_")
+         labs <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
+         names(labels)<- NULL
         label.names <- setNames(as.list(c(1:length(labs))),labs)
         
         
@@ -565,7 +567,7 @@ output$nShow_DS <- renderUI({
                            , label = "Hide/show replicates"
                            , choices = label.names
                            , selected = unlist(label.names))
-    })
+   
 })
 
 

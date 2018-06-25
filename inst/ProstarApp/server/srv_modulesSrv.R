@@ -148,10 +148,10 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   
   output$volcanoPlot <-  renderHighchart({ 
-    rv$seuilPVal
-    rv$seuilLogFC
-    req(rv$resAnaDiff)
-    req(rv$current.obj)
+    #rv$seuilPVal
+    #rv$seuilLogFC
+    #req(rv$resAnaDiff)
+    #req(rv$current.obj)
     
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
@@ -159,7 +159,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
 
-        
+    isolate({
+      print("############### VOLCANOPLOT ####")
+    
         df <- data_frame(x=rv$resAnaDiff$logFC, 
                          y = -log10(rv$resAnaDiff$P_Value),
                          index = 1:nrow(fData(rv$current.obj)))
@@ -177,12 +179,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
         cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-        diffAnaVolcanoplot_rCharts(df,
+        
+          diffAnaVolcanoplot_rCharts(df,
                                    threshold_logFC = rv$seuilLogFC,
                                    threshold_pVal = rv$seuilPVal,
                                    conditions = cond,
                                    clickFunction=clickFun)
-      
+        })
     })
   
   
@@ -197,66 +200,74 @@ missingValuesPlots <- function(input, output, session) {
     output$histo_MV <- renderHighchart({
         #histo_MV()
       req(rv$current.obj)
-      rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)
+      isolate({
+        print("############### histo_MV ####")
+        rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)})
       rv$tempplot$mvHisto_HC
     })
     
     output$histo_MV_per_lines <- renderHighchart({
         #histo_MV_per_lines()
       req(rv$current.obj)
-      rv$tempplot$mvPerLinesHisto_HC <- 
-        wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+      isolate({rv$tempplot$mvPerLinesHisto_HC <- 
+        print("############### histo_MV_per_lines ####")
+      wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+      })
       rv$tempplot$mvPerLinesHisto_HC
     })
     
     output$histo_MV_per_lines_per_conditions <- renderHighchart({
         #histo_MV_per_lines_per_conditions()
       req(rv$current.obj)
-      rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+      isolate({
+        print("############### histo_MV_per_lines_per_conditions ####")
+        rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                                                                                                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
+      })
       rv$tempplot$histo_missvalues_per_lines_per_conditions
     })
 }
 
 
 #------------------------------------------------------------
-moduleDensityplot <- function(input, output, session) {
+moduleDensityplot <- function(input, output, session, lab2Show, whichGroup2Color) {
     
     output$Densityplot <- renderHighchart({
         #DensityPlot()
-      req(rv$current.obj)
-      input$lab2Show_DS
-      input$whichGroup2Color_DS
+      #req(lab2Show())
+      #req(whichGroup2Color())
       
-      labels_DS <- NULL
-      labelsToShow_DS <- NULL
-      gToColor_DS <- NULL
-      if (is.null(input$lab2Show_DS)) { 
-        labelsToShow_DS <- c(1:nrow(Biobase::pData(rv$current.obj)))
+      isolate({
+        print("############### Densityplot ####")
+      labels <- NULL
+      labelsToShow <- NULL
+      gToColor <- NULL
+      if (is.null(lab2Show())) { 
+        labelsToShow <- c(1:nrow(Biobase::pData(rv$current.obj)))
       }
-      else { labelsToShow_DS <- input$lab2Show_DS}
+      else { labelsToShow <- lab2Show()}
       
-      if (is.null(input$whichGroup2Color_DS)){
-        gToColor_DS <- "Condition"
-      }else{gToColor_DS <- input$whichGroup2Color_DS}
-      
-      if (is.null(input$whichGroup2Color_DS) 
-          || (input$whichGroup2Color_DS == "Condition")){
-        labels_DS <- Biobase::pData(rv$current.obj)[,"Condition"]
+      if (is.null(whichGroup2Color())){
+        gToColor <- "Condition"
+      }else{gToColor <- whichGroup2Color()}
+      if (is.null(whichGroup2Color()) 
+          || (whichGroup2Color() == "Condition")){
+        labels <- Biobase::pData(rv$current.obj)[,"Condition"]
       }else {
-        labels_DS <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                           Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                           Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                           sep= "_")
+        labels <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
+        names(labels)<- NULL
       }
-     
-      rv$tempplot$Density <- wrapper.densityPlotD_HC(rv$current.obj, 
-                                                     labels_DS, 
-                                                     as.numeric(labelsToShow_DS), 
-                                                     gToColor_DS)
-      rv$tempplot$Density
+      withProgress(message = 'Making plot', value = 100, {
+   
+          rv$tempplot$Density <- wrapper.densityPlotD_HC(rv$current.obj, 
+                                                     labels, 
+                                                     as.numeric(labelsToShow), 
+                                                     gToColor)
+        })
+      })
+      
+      #rv$tempplot$Density
      
       
       
@@ -265,19 +276,24 @@ moduleDensityplot <- function(input, output, session) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session) {
+moduleBoxplot <- function(input, output, session,legendXAxis) {
     
     output$BoxPlot <- renderPlot({
         #BoxPlot()
       req(rv$current.obj)
-      input$legendXAxis_DS
+      legendXAxis()
       
-      if (!is.null(input$legendXAxis_DS)){
-        rv$legDS <- input$legendXAxis_DS}
+      isolate({
+        print(legendXAxis())
+        print("################## BoxPlot ###############")
+        #if (!is.null(legendXAxis())){
+        rv$legDS <- legendXAxis()
       
-       wrapper.boxPlotD(rv$current.obj,  rv$legDS)
-        
+      wrapper.boxPlotD(rv$current.obj,  rv$legDS)
+      })
     }, width=600, height=400)
+      
+  
 }
 
 
@@ -288,13 +304,13 @@ moduleMVPlots <- function(input, output, session, data) {
     output$plot_viewNAbyMean <- renderHighchart({
       # viewNAbyMean(data())
       req(data())
-      wrapper.hc_mvTypePlot2(data())
+      isolate({wrapper.hc_mvTypePlot2(data())})
     })
     
     output$plot_showImageNA <- renderPlot({
         #showImageNA(data())
       req(data())
-      wrapper.mvImage(data())
+      isolate({wrapper.mvImage(data())})
     }, width=400, height=600)
 }
 

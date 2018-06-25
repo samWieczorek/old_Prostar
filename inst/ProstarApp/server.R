@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
    # unsuspendAll(session)
     
 
-      hideTab(inputId ="navPage", target = "updateDesign")  
+   hideTab(inputId ="navPage", target = "updateDesign")  
       
       
     serverAdmin <- FALSE
