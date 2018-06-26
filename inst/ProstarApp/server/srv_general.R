@@ -108,17 +108,18 @@ getDatasetName <- reactive({
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
-    
-  
+
+  print("observeEvent( input$datasets,ignoreInit = TRUE,")
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
-            
+
         if (!is.null( rv$current.obj))
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         }
-        
+
     })
+    print(rv$current.obj)
 })
 
 
@@ -127,15 +128,16 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
 
 output$datasetAbsPanel <- renderUI({
     req(rv$current.obj.name)
-    div(
-        div(
-            style="display:inline-block; vertical-align: middle;",
-            modulePopoverUI("modulePopover_dataset")),
-        div(
-            style="display:inline-block; vertical-align: middle;",
-            selectInput("datasets", "", choices = list("None"="None"),width = '200px')
-        )
-    )
+     div(
+         div(
+             style="display:inline-block; vertical-align: middle;"
+             ,modulePopoverUI("modulePopover_dataset")
+             ),
+         div(
+             style="display:inline-block; vertical-align: middle;",
+             selectInput("datasets", "", choices = list("None"="None"),width = '200px')
+         )
+     )
 })
 
 ###-------------------------------------------------------------------
@@ -282,6 +284,10 @@ if (!dir.exists(dirSessionPath)){
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
+  #rv$UI_TabsList = NULL
+  #rv$UI_fileSourced = NULL
+  #rv$SRV_fileSourced = NULL
+  
   rv$current.comp = NULL
   
     rv$current.obj = NULL
@@ -410,7 +416,10 @@ ClearMemory <- function(){
 
 #-------------------------------------------------------------
 rv <- reactiveValues(
-    # variable to handle the current object that will be showed
+  UI_TabsList = NULL,
+  UI_fileSourced = NULL,
+  SRV_fileSourced = NULL,
+  # variable to handle the current object that will be showed
     current.comp = NULL,
     current.obj = NULL,
     current.obj.name = NULL,
@@ -567,9 +576,9 @@ catchToList <- function(expr) {
 
 
 ###-------------------------------------------------------------------
-output$currentObjLoaded <- reactive({
-    rv$current.obj
-    return(!is.null(rv$current.obj))})
+# output$currentObjLoaded <- reactive({
+#     #rv$current.obj
+#     return(!is.null(isolate({rv$current.obj})))})
 
 
 retroCompatibility <- reactive({
@@ -590,79 +599,79 @@ retroCompatibility <- reactive({
   }
 })
 
-observe({
-    rv$current.obj
-  retroCompatibility()
-    print(NeedsUpdate())
-    if (NeedsUpdate()) {
-        showTab(inputId ="navPage", target = "updateDesignTab")
-        
-        hideTab(inputId ="navPage", target = "FilterDataTab")
-        hideTab(inputId ="navPage", target = "Normalization")
-        hideTab(inputId ="navPage", target = "AggregationTab")
-        hideTab(inputId ="navPage", target = "imputationTabs")
-        hideTab(inputId ="navPage", target = "diffAnalysisTab")
-        hideTab(inputId ="navPage", target = "GOAnalysisTab")
-        hideTab(inputId ="navPage", target = "convertTab")
-        hideTab(inputId ="navPage", target = "demoTab")
-        hideTab(inputId ="navPage", target = "SessionLogsTab")
-        
-        
-    } else {
-        hideTab(inputId ="navPage", target = "updateDesignTab")
-        
-        showTab(inputId ="navPage", target = "FilterDataTab")
-        showTab(inputId ="navPage", target = "Normalization")
-        showTab(inputId ="navPage", target = "AggregationTab")
-        showTab(inputId ="navPage", target = "imputationTabs")
-        showTab(inputId ="navPage", target = "diffAnalysisTab")
-        showTab(inputId ="navPage", target = "GOAnalysisTab")
-        showTab(inputId ="navPage", target = "convertTab")
-        showTab(inputId ="navPage", target = "demoTab")
-        showTab(inputId ="navPage", target = "SessionLogsTab")
-   
-    
-        if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
-            { 
-             hideTab(inputId ="navPage", target = "AggregationTab")
-            showTab(inputId ="navPage", target = "GOAnalysisTab")
-        } else {
-            showTab(inputId ="navPage", target = "AggregationTab")
-            hideTab(inputId ="navPage", target = "GOAnalysisTab")
-        }
-    
-    
-        # hide/show diff Analysis tabPanel
-        NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-        if (NA.count == 0){
-            showTab(inputId ="navPage", target = "diffAnalysisTab")
-        } else {
-            hideTab(inputId ="navPage", target = "diffAnalysisTab")
-        }
-    
-    
-    
-        if (nrow(rv$current.obj) > limitHeatmap)
-        { 
-            hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-        } else {
-            showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-         }
-    
-    
-    
-    
-        nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-        if (nbEmptyLines > 0) {
-            shinyjs::disable("peptideLevel_perform.imputation.button")
-            shinyjs::disable("peptideLevel_ValidImputation")
-        } else {
-            shinyjs::enable("peptideLevel_perform.imputation.button")
-            shinyjs::enable("peptideLevel_ValidImputation")
-        }
-    
-    }
-})
+# observe({
+#     rv$current.obj
+#   retroCompatibility()
+#     print(NeedsUpdate())
+#     if (NeedsUpdate()) {
+#         showTab(inputId ="navPage", target = "updateDesignTab")
+#         
+#         hideTab(inputId ="navPage", target = "FilterDataTab")
+#         hideTab(inputId ="navPage", target = "Normalization")
+#         hideTab(inputId ="navPage", target = "AggregationTab")
+#         hideTab(inputId ="navPage", target = "imputationTabs")
+#         hideTab(inputId ="navPage", target = "diffAnalysisTab")
+#         hideTab(inputId ="navPage", target = "GOAnalysisTab")
+#         hideTab(inputId ="navPage", target = "convertTab")
+#         hideTab(inputId ="navPage", target = "demoTab")
+#         hideTab(inputId ="navPage", target = "SessionLogsTab")
+#         
+#         
+#     } else {
+#         hideTab(inputId ="navPage", target = "updateDesignTab")
+#         
+#         showTab(inputId ="navPage", target = "FilterDataTab")
+#         showTab(inputId ="navPage", target = "Normalization")
+#         showTab(inputId ="navPage", target = "AggregationTab")
+#         showTab(inputId ="navPage", target = "imputationTabs")
+#         showTab(inputId ="navPage", target = "diffAnalysisTab")
+#         showTab(inputId ="navPage", target = "GOAnalysisTab")
+#         showTab(inputId ="navPage", target = "convertTab")
+#         showTab(inputId ="navPage", target = "demoTab")
+#         showTab(inputId ="navPage", target = "SessionLogsTab")
+#    
+#     
+#         if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+#             { 
+#              hideTab(inputId ="navPage", target = "AggregationTab")
+#             showTab(inputId ="navPage", target = "GOAnalysisTab")
+#         } else {
+#             showTab(inputId ="navPage", target = "AggregationTab")
+#             hideTab(inputId ="navPage", target = "GOAnalysisTab")
+#         }
+#     
+#     
+#         # hide/show diff Analysis tabPanel
+#         NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+#         if (NA.count == 0){
+#             showTab(inputId ="navPage", target = "diffAnalysisTab")
+#         } else {
+#             hideTab(inputId ="navPage", target = "diffAnalysisTab")
+#         }
+#     
+#     
+#     
+#         if (nrow(rv$current.obj) > limitHeatmap)
+#         { 
+#             hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+#         } else {
+#             showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+#          }
+#     
+#     
+#     
+#     
+#         nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+#         if (nbEmptyLines > 0) {
+#             shinyjs::disable("peptideLevel_perform.imputation.button")
+#             shinyjs::disable("peptideLevel_ValidImputation")
+#         } else {
+#             shinyjs::enable("peptideLevel_perform.imputation.button")
+#             shinyjs::enable("peptideLevel_ValidImputation")
+#         }
+#     
+#     }
+# })
 
 
 
@@ -801,5 +810,28 @@ output$aboutText <- renderUI({
   HTML(text)
   
 })
+
+
+
+
+source.file <- function(filename){
+  print(filename)
+  type <- unlist(strsplit(filename, "_"))[1]
+  switch(type,
+         ui = {
+           if (!(filename %in% rv$UI_fileSourced)){
+             source(file.path("ui", filename), local = TRUE)$value
+             rv$UI_fileSourced <- c(rv$UI_fileSourced, filename)
+           }
+         }, 
+         srv = {
+           if (!(filename %in% rv$SRV_fileSourced)){
+             source(file.path("server", filename), local = TRUE)$value
+             rv$SRV_fileSourced <- c(rv$SRV_fileSourced, filename)
+           }
+         }
+  )
+  
+}
 
 

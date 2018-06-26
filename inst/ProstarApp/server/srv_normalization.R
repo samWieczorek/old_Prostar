@@ -6,8 +6,8 @@
 ###########################################################################
 
 
-callModule(moduleDensityplot,"densityPlot_Norm")
-callModule(moduleBoxplot,"boxPlot_Norm")
+callModule(moduleDensityplot,"densityPlot_Norm",reactive({input$lab2Show_DS}),reactive({ input$whichGroup2Color_DS}))
+callModule(moduleBoxplot,"boxPlot_Norm", reactive({input$legendXAxis_DS}))
 
 
 
@@ -16,30 +16,29 @@ output$helpForNormalizationMethods <- renderUI({
     input$normalization.type
     rv$typeOfDataset
     if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
-    toto <- input$normalization.method
     
-    
+    print(input$normalization.method)
+    print(input$normalization.type)
     helpNormalization <- matrix(rep("", 12),nrow = 3, 
                                 dimnames=list(c("Global quantile Alignment", "Quantile Centering", "Mean Centering"),
                                               c("sum by columns", "Alignment on all quantiles", "overall", "within conditions")))
     
     
-    helpNormalization["Global quantile Alignment"] <- "These methods propose 
-    normalizations of important magnitude that should be cautiously used:<br>
-    <ul>
-    <li>
-    <strong>sum by columns</strong> operates on the original scale (not the log2 one) and propose to 
-    normalize each abundance <br> by the total abundance of the sample (so as to focus 
-    on the analyte proportions among each sample).
-    </li>
-    <li>
-    <strong>Alignment on all quantiles</strong> proposes to align the quantiles of all the 
+    helpNormalization["Global quantile alignment"] <- "These methods propose 
+    normalizations of important magnitude that should be cautiously used.<br>
+    it proposes to align the quantiles of all the 
     replicates as described in [6]; <br> practically it amounts to replace 
-    abundances by order statistics.
-    </li>
-    </ul>"
-    
-    
+    abundances by order statistics."
+
+
+
+
+    helpNormalization["Sum by columns"] <- "These methods propose 
+    normalizations of important magnitude that should be cautiously used.<br>
+    It operates on the original scale (not the log2 one) and propose to 
+    normalize each abundance <br> by the total abundance of the sample (so as to focus 
+    on the analyte proportions among each sample)."
+
     
     helpNormalization["Quantile Centering"] <- "These methods propose 
     to shift the sample distributions (either all of them at once, or within 
@@ -462,19 +461,6 @@ viewComparisonNorm2 <- reactive({
 viewComparisonNorm <- reactive({
     
     req(rv$current.obj)
-    #rv$dataset[[input$datasets]]
-    #rv$current.obj
-    #input$legendXAxis
-    #input$whichGroup2Color
-    #input$lab2Show
-    #input$normalization.method
-    #input$perform.normalization
-    
-    
-    
-    # if (is.null(rv$current.obj) || 
-    #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
-    #     return(NULL)}
     
      leg <- NULL
     grp <- NULL
@@ -496,15 +482,12 @@ viewComparisonNorm <- reactive({
         || (input$whichGroup2Color == "Condition")){
         labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
     }else {
-        labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                            Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                            Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                            Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                            sep= "_")
+        labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
+        names(labelsNorm)<- NULL
+        labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
     }
     
-    #result = tryCatch(
-        #{
+
             dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
                 if (input$datasets == dname){
                 obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
@@ -520,19 +503,7 @@ viewComparisonNorm <- reactive({
                                           labelsNorm,
                                           as.numeric(labelsToShowNorm),
                                           gToColorNorm)
-            #boxplot(Biobase::exprs(rv$current.obj))
-            
-        #}
-        #, warning = function(w) {
-        #   shinyjs::info(conditionMessage(w))
-        #}
-        # , error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        # }, finally = {
-        #     #cleanup-code
-        # })
-    
-    
+  
 })
 
 #######################
@@ -540,77 +511,4 @@ output$viewComparisonNorm_DS<- renderPlot({
     
     viewComparisonNorm()
 })
-
-
-
-
-
-output$AbsShowOptions <- renderUI({
-    input$plotOptions
-    if (!input$plotOptions) {return(NULL)}
-    
-    tagList(
-                     uiOutput("ChooseLegendForAxis"),
-                     uiOutput("nShow"),
-                     uiOutput("nGroup")
-    )
-})
-
-
-
-#------------------------------------------------------
-output$ChooseLegendForAxis <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    isolate(rv$current.obj)
-    .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-    tags$head(tags$link(rel="stylesheet", type="text/css", 
-                        href="css/overrides.css"))
-    
-    checkboxGroupInput("legendXAxis",
-                       label = "Data to show in legend",
-                       choices = .names,
-                       selected = .names[1])
-})
-
-
-##' Select the labels to show in densityplots
-##' @author Samuel Wieczorek
-output$nShow <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return(NULL) }
-    
-    isolate({
-        rv$current.obj
-        labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                      Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                      sep= "_")
-        
-        label.names <- setNames(as.list(c(1:length(labs))),labs)
-        
-        
-        checkboxGroupInput("lab2Show"
-                           , label = "Select data to show"
-                           , choices = label.names
-                           , selected = unlist(label.names))
-        
-    })
-})
-
-
-##' Select the labels to be highlighted in densityplots
-##' @author Samuel Wieczorek
-output$nGroup <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return(NULL) }
-    
-    radioButtons("whichGroup2Color",
-                 "Plot to show",
-                 choices=list("By condition" = "Condition",
-                              "By replicate" = "Replicate"))
-    
-})
-
 

@@ -1,3 +1,4 @@
+require(imp4p)
 
 callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$current.obj))
 

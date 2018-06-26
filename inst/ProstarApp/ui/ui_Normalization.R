@@ -10,8 +10,7 @@ tabPanel("Normalization",
                                ,uiOutput("choose_normalizationScaling")
                                ,uiOutput("choose_normalizationQuantile")
                                ,uiOutput("choose_normalizationQuantileOther")
-                               ,checkboxInput("plotOptions", "Show plot options", 
-                                              value = FALSE)
+                               #,checkboxInput("plotOptions", "Show plot options", value = FALSE)
                                ,actionButton("perform.normalization", 
                                              "Perform normalization", 
                                              width="170px")
@@ -21,7 +20,7 @@ tabPanel("Normalization",
                                              width="170px")
                      )
                      ,tagList(uiOutput("helpForNormalizationMethods"),
-                                       #plotOutput("viewBoxPlotNorm")
+                                      
                               busyIndicator("Building plot, please wait",wait = 0),
                               fluidRow(
                                            column(width=6, moduleDensityplotUI("densityPlot_Norm")),
@@ -29,21 +28,6 @@ tabPanel("Normalization",
                                        moduleBoxplotUI("boxPlot_Norm")
 
                      )
-         ),
-         tags$head(
-             tags$style(type="text/css", 
-                        "#AbsolutePanelPlotOptions {
-                        background-color:transparent;"
-             )
-             ),
-         absolutePanel(id  = "AbsolutePanelPlotOptions",
-                       top = 200,
-                       right = 50,
-                       width = "200px",
-                       height = "50px",
-                       draggable = TRUE,
-                       fixed = FALSE,
-                       cursor = "move",
-                       uiOutput("AbsShowOptions")
          )
+
          )

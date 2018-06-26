@@ -7,11 +7,10 @@ tabPanel("Demo mode",
                                uiOutput("optionsDemomode")
                                
                      ),
-                     conditionalPanel(id = "wellPanelOpenFile",
-                                      condition = "true",
-                                      moduleDatasetOverviewUI("overview_DemoMode"),
-                                      uiOutput("showDatasetDoc"),
-                                      #uiOutput("progressDemoMode")
-                                      uiOutput("infoAboutDemoDataset")
+                     tagList(
+                       moduleDatasetOverviewUI("overview_DemoMode")
+                       ,uiOutput("showDatasetDoc")
+                       #,uiOutput("progressDemoMode")
+                       ,uiOutput("infoAboutDemoDataset")
                      )
          ))

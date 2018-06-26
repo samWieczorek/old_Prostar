@@ -558,8 +558,8 @@ output$nShow_DS <- renderUI({
          #              Biobase::pData(rv$current.obj)[,"Tech.Rep"],
          #              Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
          #              sep= "_")
-         labs <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
-         names(labels)<- NULL
+         labs <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
+         names(labs)<- NULL
         label.names <- setNames(as.list(c(1:length(labs))),labs)
         
         

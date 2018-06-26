@@ -759,8 +759,8 @@ observeEvent(input$ValidDiffAna,{
 
 
 output$DiffAnalysisSaved <- renderUI({
-    input$datasets
-    rv$current.obj
+    #input$datasets
+    #rv$current.obj
     if (is.null(input$datasets) || (length(grep("DiffAnalysis.",input$datasets)) !=1) ) {
         return()  }
     else if (grep("DiffAnalysis.",input$datasets) == 1 ) {

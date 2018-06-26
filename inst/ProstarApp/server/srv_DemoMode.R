@@ -59,10 +59,10 @@ output$showDatasetDoc <- renderUI({
 
 
 output$infoAboutDemoDataset <- renderUI({
-  rv$current.obj
-  rv$typeOfDataset
-  if (is.null(rv$current.obj)) {return(NULL)    }
-  NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  req(rv$current.obj)
+  #rv$typeOfDataset
+  
+  isolate({ NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
   
@@ -89,7 +89,7 @@ output$infoAboutDemoDataset <- renderUI({
     })
 
 
-
+})
 
 
 output$progressDemoMode <- renderUI({

@@ -1,22 +1,9 @@
+require(imp4p)
 
 
 callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSteps[["step0"]]))
 callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSteps[["step1"]]))
 callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
-
-
-##########
-#####  UI for the Imputation
-##########
-output$imputationPanels <- renderUI({
-  req(rv$typeOfDataset)
-  
-  switch(rv$typeOfDataset,
-         protein = uiOutput("proteinLevelImputationPanel"),
-         peptide = uiOutput("peptideLevelImputationPanel")
-  )
-  
-})
 
 
 
@@ -32,11 +19,9 @@ output$proteinLevelImputationPanel <- renderUI({
     
     tabPanel("1 - Partially Observed Values",
              value = "Classical_MV",
-             #sidebarCustom(),
-             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_Imputation1",
                                    height = "100%",
-                                   #h4("Miss. values imputation options"),
                                    br(),
                                    uiOutput("sidebar_imputation_step1"),
                                    actionButton("perform.imputationClassical.button",

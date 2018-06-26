@@ -10,8 +10,9 @@ modulePopover <- function(input, output, session, data){
     
     output$customPopover <- renderUI({
           req(data())
-        #ns <- session$ns
-        div(
+        
+          print("output$customPopover <- renderUI")
+          div(
             div(
                 # edit1
                 style="display:inline-block; vertical-align: middle;",
@@ -20,7 +21,6 @@ modulePopover <- function(input, output, session, data){
                 else
                 {
                   data()$title
-                  #HTML(paste0("<strong><font size=\"4\">", data()$title, "</font></strong>"))
                   }
             ),
             div(
@@ -39,6 +39,8 @@ modulePopover <- function(input, output, session, data){
             )
         )
         )
+ 
+        
     })
 }
 
@@ -209,9 +211,10 @@ missingValuesPlots <- function(input, output, session) {
     output$histo_MV_per_lines <- renderHighchart({
         #histo_MV_per_lines()
       req(rv$current.obj)
-      isolate({rv$tempplot$mvPerLinesHisto_HC <- 
+      isolate({
         print("############### histo_MV_per_lines ####")
-      wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+        rv$tempplot$mvPerLinesHisto_HC <- 
+         wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
       })
       rv$tempplot$mvPerLinesHisto_HC
@@ -235,7 +238,7 @@ moduleDensityplot <- function(input, output, session, lab2Show, whichGroup2Color
     
     output$Densityplot <- renderHighchart({
         #DensityPlot()
-      #req(lab2Show())
+      req(rv$current.obj)
       #req(whichGroup2Color())
       
       isolate({
@@ -369,8 +372,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 moduleDatasetOverview <- function(input, output, session) {
     
     output$DatasetOverview <- renderUI({
-        rv$current.obj
-        if (is.null(rv$current.obj)) {return(NULL)}
+        req(rv$current.obj)
         
         isolate({
             h3("Quick overview of the dataset")
