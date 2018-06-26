@@ -54,8 +54,8 @@ output$proteinLevelImputationPanel <- renderUI({
                            busyIndicator(WaitMsgCalc,wait = 0),
                            uiOutput("ImputationStep2Done"),
                            uiOutput("MEC_detQuant_impValues"),
-                           dataTableOutput("TAB_MEC_detQuant_impValues"),
-                           moduleMVPlotsUI("mvImputationPlots_MEC")
+                           dataTableOutput("TAB_MEC_detQuant_impValues")
+                           #,moduleMVPlotsUI("mvImputationPlots_MEC")
                            
                          )
              )
@@ -73,7 +73,7 @@ output$proteinLevelImputationPanel <- renderUI({
                          ),
                          tagList(
                            #DT::dataTableOutput("showSelectedItems"),
-                           moduleMVPlotsUI("mvImputationPlots_Valid"),
+                           #moduleMVPlotsUI("mvImputationPlots_Valid"),
                            uiOutput("ImputationSaved")
                          )
              )
@@ -97,15 +97,14 @@ observeEvent(input$POV_missing.value.algorithm,{
 
 output$sidebar_imputation_step1 <- renderUI({
   
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)}
+  req(rv$current.obj)
   
   #m <- NULL
   #tag <- rv$current.obj@experimentData@other$POV_imputation.method
   #if (!is.null(tag)){ m <- tag}
   
   if (length(grep("Imputed", input$datasets))==0){
-    rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
+    isolate({rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]})
     shinyjs::enable("perform.imputationClassical.button")
     
   } else {
@@ -114,9 +113,11 @@ output$sidebar_imputation_step1 <- renderUI({
   
   if (length(grep("Imputed", input$datasets))==0 && rv$ValidImputationClicked){
     updateSelectInput(session, "POV_missing.value.algorithm", selected= "None")
-    rv$imputePlotsSteps[["step1"]] <- NULL
+    isolate({
+      rv$imputePlotsSteps[["step1"]] <- NULL
     rv$imputePlotsSteps[["step2"]] <- NULL
     rv$ValidImputationClicked <- FALSE
+    })
     
   }
   
@@ -319,8 +320,9 @@ observeEvent(input$perform.imputationMEC.button,{
     updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
     updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
     rv$impute_Step <- 2
-    rv$imputePlotsSteps[["step2"]] <- rv$current.obj
-    
+    isolate({
+      rv$imputePlotsSteps[["step2"]] <- rv$current.obj
+    })
  
 })
 

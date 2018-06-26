@@ -49,20 +49,20 @@ sidebarPanelWidth()
               ,uiOutput("datasetAbsPanel" )
             )
             ,navbarMenu("Prostar",
-                        source.file("ui_Home.R"),
-                        source.file("ui_Settings.R")
-                        )
+                        source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value
+            )
             ,navbarMenu("Dataset manager",
-                        source.file("ui_OpenMSnSetFile.R"),
-                        source.file("ui_ConvertData.R"),
-                        source.file("ui_DemoMode.R"),
-                        source.file("ui_Export.R"),
-                        source.file("ui_LogSession.R")
-                        )
+                        source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
+            )
             ,navbarMenu("Help",
-                        source.file("ui_UsefulLinks.R"),
-                        source.file("ui_ReleaseNotes.R"),
-                        source.file("ui_FAQ.R"),
-                        source.file("ui_CheckForUpdates.R")
-                        )
+                        source(file.path("ui", "ui_UsefulLinks.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value
+            )
 ))

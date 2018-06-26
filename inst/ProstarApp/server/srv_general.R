@@ -599,79 +599,61 @@ retroCompatibility <- reactive({
   }
 })
 
-# observe({
-#     rv$current.obj
-#   retroCompatibility()
-#     print(NeedsUpdate())
-#     if (NeedsUpdate()) {
-#         showTab(inputId ="navPage", target = "updateDesignTab")
-#         
-#         hideTab(inputId ="navPage", target = "FilterDataTab")
-#         hideTab(inputId ="navPage", target = "Normalization")
-#         hideTab(inputId ="navPage", target = "AggregationTab")
-#         hideTab(inputId ="navPage", target = "imputationTabs")
-#         hideTab(inputId ="navPage", target = "diffAnalysisTab")
-#         hideTab(inputId ="navPage", target = "GOAnalysisTab")
-#         hideTab(inputId ="navPage", target = "convertTab")
-#         hideTab(inputId ="navPage", target = "demoTab")
-#         hideTab(inputId ="navPage", target = "SessionLogsTab")
-#         
-#         
-#     } else {
-#         hideTab(inputId ="navPage", target = "updateDesignTab")
-#         
-#         showTab(inputId ="navPage", target = "FilterDataTab")
-#         showTab(inputId ="navPage", target = "Normalization")
-#         showTab(inputId ="navPage", target = "AggregationTab")
-#         showTab(inputId ="navPage", target = "imputationTabs")
-#         showTab(inputId ="navPage", target = "diffAnalysisTab")
-#         showTab(inputId ="navPage", target = "GOAnalysisTab")
-#         showTab(inputId ="navPage", target = "convertTab")
-#         showTab(inputId ="navPage", target = "demoTab")
-#         showTab(inputId ="navPage", target = "SessionLogsTab")
-#    
-#     
-#         if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
-#             { 
-#              hideTab(inputId ="navPage", target = "AggregationTab")
-#             showTab(inputId ="navPage", target = "GOAnalysisTab")
-#         } else {
-#             showTab(inputId ="navPage", target = "AggregationTab")
-#             hideTab(inputId ="navPage", target = "GOAnalysisTab")
-#         }
-#     
-#     
-#         # hide/show diff Analysis tabPanel
-#         NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-#         if (NA.count == 0){
-#             showTab(inputId ="navPage", target = "diffAnalysisTab")
-#         } else {
-#             hideTab(inputId ="navPage", target = "diffAnalysisTab")
-#         }
-#     
-#     
-#     
-#         if (nrow(rv$current.obj) > limitHeatmap)
-#         { 
-#             hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-#         } else {
-#             showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
-#          }
-#     
-#     
-#     
-#     
-#         nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-#         if (nbEmptyLines > 0) {
-#             shinyjs::disable("peptideLevel_perform.imputation.button")
-#             shinyjs::disable("peptideLevel_ValidImputation")
-#         } else {
-#             shinyjs::enable("peptideLevel_perform.imputation.button")
-#             shinyjs::enable("peptideLevel_ValidImputation")
-#         }
-#     
-#     }
-# })
+observe({
+    rv$current.obj
+  retroCompatibility()
+    
+    # showTab(inputId ="navPage", target = "updateDesignTab")
+    # 
+    #     hideTab(inputId ="navPage", target = "FilterDataTab")
+    #     hideTab(inputId ="navPage", target = "Normalization")
+    #     hideTab(inputId ="navPage", target = "AggregationTab")
+    #     hideTab(inputId ="navPage", target = "imputationTabs")
+    #     hideTab(inputId ="navPage", target = "diffAnalysisTab")
+    #     hideTab(inputId ="navPage", target = "GOAnalysisTab")
+    #     hideTab(inputId ="navPage", target = "convertTab")
+    #     hideTab(inputId ="navPage", target = "demoTab")
+    #     hideTab(inputId ="navPage", target = "SessionLogsTab")
+
+
+        if (rv$current.obj@experimentData@other$typeOfData == typeProtein)
+            {
+             hideTab(inputId ="navPage", target = "AggregationTab")
+            showTab(inputId ="navPage", target = "GOAnalysisTab")
+        } else {
+            showTab(inputId ="navPage", target = "AggregationTab")
+            hideTab(inputId ="navPage", target = "GOAnalysisTab")
+            
+            nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+            if (nbEmptyLines > 0) {
+              shinyjs::disable("peptideLevel_perform.imputation.button")
+              shinyjs::disable("peptideLevel_ValidImputation")
+            } else {
+              shinyjs::enable("peptideLevel_perform.imputation.button")
+              shinyjs::enable("peptideLevel_ValidImputation")
+            }
+        }
+
+
+        # hide/show diff Analysis tabPanel
+        NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+        if (NA.count == 0){
+            showTab(inputId ="navPage", target = "diffAnalysisTab")
+        } else {
+            hideTab(inputId ="navPage", target = "diffAnalysisTab")
+        }
+
+
+
+        if (nrow(rv$current.obj) > limitHeatmap)
+        {
+            hideTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+        } else {
+            showTab(inputId ="DS_tabSetPanel", target = "DS_tabHeatmap")
+         }
+      
+
+})
 
 
 
@@ -813,25 +795,25 @@ output$aboutText <- renderUI({
 
 
 
-
-source.file <- function(filename){
-  print(filename)
-  type <- unlist(strsplit(filename, "_"))[1]
-  switch(type,
-         ui = {
-           if (!(filename %in% rv$UI_fileSourced)){
-             source(file.path("ui", filename), local = TRUE)$value
-             rv$UI_fileSourced <- c(rv$UI_fileSourced, filename)
-           }
-         }, 
-         srv = {
-           if (!(filename %in% rv$SRV_fileSourced)){
-             source(file.path("server", filename), local = TRUE)$value
-             rv$SRV_fileSourced <- c(rv$SRV_fileSourced, filename)
-           }
-         }
-  )
-  
-}
-
+# 
+# observeEvent(rv$file2Source,{
+#   filename <- rv$file2Source
+#   type <- unlist(strsplit(filename, "_"))[1]
+#   switch(type,
+#          ui = {
+#            if (!(filename %in% rv$UI_fileSourced)){
+#              source(file.path("ui", filename), local = TRUE)$value
+#              rv$UI_fileSourced <- c(rv$UI_fileSourced, filename)
+#            }
+#          }, 
+#          srv = {
+#            if (!(filename %in% rv$SRV_fileSourced)){
+#              source(file.path("server", filename), local = TRUE)$value
+#              rv$SRV_fileSourced <- c(rv$SRV_fileSourced, filename)
+#            }
+#          }
+#   )
+#   
+# })
+# 
 

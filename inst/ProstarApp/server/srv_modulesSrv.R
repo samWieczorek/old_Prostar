@@ -237,9 +237,9 @@ missingValuesPlots <- function(input, output, session) {
 moduleDensityplot <- function(input, output, session, lab2Show, whichGroup2Color) {
     
     output$Densityplot <- renderHighchart({
-        #DensityPlot()
-      req(rv$current.obj)
-      #req(whichGroup2Color())
+       req(rv$current.obj)
+      lab2Show()
+      whichGroup2Color()
       
       isolate({
         print("############### Densityplot ####")
@@ -258,7 +258,7 @@ moduleDensityplot <- function(input, output, session, lab2Show, whichGroup2Color
           || (whichGroup2Color() == "Condition")){
         labels <- Biobase::pData(rv$current.obj)[,"Condition"]
       }else {
-        labels <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
+        labels <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
         names(labels)<- NULL
       }
       withProgress(message = 'Making plot', value = 100, {
@@ -282,15 +282,13 @@ moduleDensityplot <- function(input, output, session, lab2Show, whichGroup2Color
 moduleBoxplot <- function(input, output, session,legendXAxis) {
     
     output$BoxPlot <- renderPlot({
-        #BoxPlot()
       req(rv$current.obj)
       legendXAxis()
       
       isolate({
         print(legendXAxis())
         print("################## BoxPlot ###############")
-        #if (!is.null(legendXAxis())){
-        rv$legDS <- legendXAxis()
+       rv$legDS <- legendXAxis()
       
       wrapper.boxPlotD(rv$current.obj,  rv$legDS)
       })
@@ -307,13 +305,19 @@ moduleMVPlots <- function(input, output, session, data) {
     output$plot_viewNAbyMean <- renderHighchart({
       # viewNAbyMean(data())
       req(data())
-      isolate({wrapper.hc_mvTypePlot2(data())})
+     # isolate({
+        print("######## output$plot_viewNAbyMean <- renderHighchart ####")
+        wrapper.hc_mvTypePlot2(data())
+       # })
     })
     
     output$plot_showImageNA <- renderPlot({
         #showImageNA(data())
       req(data())
-      isolate({wrapper.mvImage(data())})
+      isolate({
+        print("######## output$plot_showImageNA <- renderPlot ####")
+        wrapper.mvImage(data())
+        })
     }, width=400, height=600)
 }
 

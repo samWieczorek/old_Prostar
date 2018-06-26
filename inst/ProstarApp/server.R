@@ -48,8 +48,8 @@ shinyServer(function(input, output, session) {
     hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
-    source(file.path("server", "srv_NavbarPage.R"), local = TRUE)$value
-    source(file.path("server", "srv_ModulesSrv.R"), local = TRUE)$value
+    source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
+    source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
     source(file.path("server", "srv_General.R"), local = TRUE)$value
     
     #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
@@ -62,46 +62,56 @@ shinyServer(function(input, output, session) {
         print(input$navPage)
         
         switch(input$navPage,
-               DescriptiveStatisticsTab = source.file("srv_DescriptiveStats.R"),
+               DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
+               openMSnsetTab = source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value,
+               SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
                
-               openMSnsetTab = source.file("srv_OpenMSnset.R"),
-               
-               SessionLogsTab = source.file("srv_LogSession.R"),
-               
-               demoTab =  source.file("srv_DemoMode.R"),
-                                 
+                 demoTab = 
+                 source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,
                convertTab = {
-                 source.file("srv_ConvertData.R")
-                 source.file("srv_BuildDesign.R")
+                 source(file.path("server", "srv_ConvertData.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_BuildDesign.R"),  local = TRUE)$value
                    },
                ExportTab = {
-                 source.file("srv_Export.R")
-                 source.file("srv_SaveGraphics.R")
+                 source(file.path("server", "srv_Export.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
                },
                  
-               FilterDataTab = source.file("srv_Filtering.R"),
+               FilterDataTab =
+                 source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value,
                
-               Normalization = source.file("srv_Normalization.R"),
+               Normalization = 
+                 source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value,
                
-               imputationProteinLevelTabs =source.file("srv_Imputation_ProteinLevel.R"),
+               imputationProteinLevelTabs = {
+                 source(file.path("server", "srv_Imputation_ProteinLevel.R"),  local = TRUE)$value
+                 },
+               imputationPeptideLevelTabs = {
+                  source(file.path("server", "srv_Imputation_PeptideLevel.R"),  local = TRUE)$value
+               },
+               AggregationTab =
+                 source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
                
-               imputationPeptideLevelTabs = source.file("srv_Imputation_PeptideLevel.R"),
+               diffAnalysisTab = 
+                 {
+                   source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
+                   },
                
-               AggregationTab = source.file("srv_Aggregation.R"),
+               GOAnalysisTab = 
+                 source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
                
-               diffAnalysisTab =  source.file("srv_AnaDiff.R"),
+               updateDesignTab = 
+                 source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value,
                
-               GOAnalysisTab = source.file("srv_GO_enrichment.R"),
+               faqTab = 
+                 source(file.path("server", "srv_FAQ.R"),  local = TRUE)$value,
+               checkForUpdatesTab = 
+                 source(file.path("server", "srv_CheckForUpdates.R"),  local = TRUE)$value,
+               usefulLinksTab = 
+                 source(file.path("server", "srv_UsefulLinks.R"),  local = TRUE)$value,
                
-               updateDesignTab = source.file("srv_UpdateDesign.R"),
-               
-               faqTab = source.file("srv_FAQ.R"),
-               
-                checkForUpdatesTab = source.file("srv_CheckForUpdates.R"),
-               
-                usefulLinksTab = source.file("srv_UsefulLinks.R"),
-               
-               ReleaseNotesTab = source.file("srv_ReleaseNotes.R")
+               ReleaseNotesTab = 
+                 source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value
                
                
                )

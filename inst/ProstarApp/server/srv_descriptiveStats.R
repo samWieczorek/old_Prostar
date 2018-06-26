@@ -354,23 +354,11 @@ corrMatrix <- reactive({
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
     else{
         gradient <- input$expGradientRate}
-    
-    # result = tryCatch(
-    #     {
-            isolate({rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)})
+        isolate({
+          rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
             rv$tempplot$corrMatrix
-            
-        # }
-        # , warning = function(w) {
-        #     shinyjs::info(conditionMessage(w))
-        # }, error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",
-        #                         conditionMessage(e), 
-        #                         sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-        # 
+            })
+
 })
 
 

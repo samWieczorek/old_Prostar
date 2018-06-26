@@ -134,7 +134,10 @@ observeEvent(input$valid.aggregation,{
                 rv$current.obj <- rv$temp.aggregate
                 rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                 rv$current.obj <- saveParameters(rv$current.obj, "Aggregation",l.params)
-                
+                rv$current.obj@experimentData@other$Prostar_Version <- 
+                  installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
+                rv$current.obj@experimentData@other$DAPAR_Version <- 
+                  installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
                 rv$dataset[[name]] <- rv$current.obj
