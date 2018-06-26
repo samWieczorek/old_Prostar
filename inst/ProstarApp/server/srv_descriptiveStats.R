@@ -405,7 +405,7 @@ DensityPlot <- reactive({
         #                   Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
         #                   sep= "_")
         labels <- apply(pData(obj), 1, function(x){paste0(x, collapse='_')})
-        
+        names(labels) <-NULL
     }
     
     #result = tryCatch(
@@ -691,12 +691,8 @@ output$nShow_DS <- renderUI({
     
     isolate({
         rv$current.obj
-        labs <- paste(Biobase::pData(rv$current.obj)[,"Label"],
-                      Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                      Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                      sep= "_")
-        
+        labs <-apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
+        names(labs) <- NULL
         label.names <- setNames(as.list(c(1:length(labs))),labs)
         
         
