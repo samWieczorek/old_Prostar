@@ -611,7 +611,7 @@ output$currentObjLoaded <- reactive({
 observe({
     rv$current.obj
     
-    print(NeedsUpdate())
+    print(paste0("NeedsUpdate() = ", NeedsUpdate()))
     if (NeedsUpdate()) {
         showTab(inputId ="navPage", target = "updateDesignTab")
         
