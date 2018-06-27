@@ -79,27 +79,17 @@ observeEvent(input$valid.aggregation,{
         || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
     {return(NULL)}
     
-    
-    # result = tryCatch(
-    #     {
-            
+
             isolate({
                 
                 ##concatenation des informations
               m <- NULL
                 if (input$checkSharedPeptides){ 
                      m <- rv$matAdj$matWithSharedPeptides
-                    #if (input$showCommandLog){
-                    #writeToCommandLogFile("m <- mat$matWithSharedPeptides")
-                        #}
-                    }else{
-                        m <-rv$matAdj$matWithUniquePeptides
-                #if (input$showCommandLog){
-                #writeToCommandLogFile("m <- mat$matWithUniquePeptides")
-                  }
-              # }
-                #updatePB(session,inputId="pb_SaveAggregation",value=10,text_value="10 %", striped = TRUE, active=TRUE)
-                
+               }else{
+                    m <-rv$matAdj$matWithUniquePeptides
+               }
+
                 updateSelectInput(session, "proteinId",selected = input$proteinId)
                 updateSelectInput(session, "aggregationMethod",selected = input$aggregationMethod)
                 updateSelectInput(session, "nTopn",selected = input$nTopn)
@@ -132,7 +122,7 @@ observeEvent(input$valid.aggregation,{
                 #}
                 
                 rv$current.obj <- rv$temp.aggregate
-                rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                #rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                 rv$current.obj <- saveParameters(rv$current.obj, "Aggregation",l.params)
                 rv$current.obj@experimentData@other$Prostar_Version <- 
                   installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
@@ -140,35 +130,18 @@ observeEvent(input$valid.aggregation,{
                   installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
-                rv$dataset[[name]] <- rv$current.obj
+                #rv$dataset[[name]] <- rv$current.obj
                 UpdateLog("Aggregation", l.params)
                 #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
                 
                 
+                loadObjectInMemoryFromConverter()
                 
-                ######
-                #if (input$showCommandLog){
-                #     l <- buildWritableVector(input$columnsForProteinDataset.box)
-                # writeToCommandLogFile(
-                #     paste("columnsForProteinDataset <- ",l, sep="") )
-                # 
-                # writeToCommandLogFile("for (c in columnsForProteinDataset) {")
-                # writeToCommandLogFile(
-                # "newCol <- BuildColumnToProteinDataset(fData(current.obj), m, c, rownames(Biobase::fData(temp.aggregate)))")
-                # writeToCommandLogFile("cnames <- colnames(fData(temp.aggregate))")
-                # writeToCommandLogFile("fData(temp.aggregate) <-
-                #                       data.frame(fData(temp.aggregate), newCol)")
-                # writeToCommandLogFile("colnames(fData(temp.aggregate)) <- c(cnames, c)")
-                # writeToCommandLogFile("}")
-                # writeToCommandLogFile("current.obj <- temp.aggregate")
-                # writeToCommandLogFile(
-                #     paste("dataset[['",name, "']] <- current.obj", sep="")
-                # )
+                
                 #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
                 #}
                 
                 updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
-                #updateTabsetPanel(session, "Aggregation", selected = "configureProteinDataset")
                 
                 updateSelectInput(session, "datasets", 
                                  # paste("Dataset versions of",rv$current.obj.name, sep=" "),
@@ -177,19 +150,7 @@ observeEvent(input$valid.aggregation,{
 
                 rv$temp.aggregate <- NULL
                 #updatePB(session,inputId="pb_SaveAggregation",value=100,text_value="100 %", striped = TRUE, active=TRUE)
-                
-            } )
-            
-        # }
-        # , warning = function(w) {
-        #     shinyjs::info(conditionMessage(w))
-        # }, error = function(e) {
-        #     shinyjs::info(paste("Validate the agregation",":",
-        #                         conditionMessage(e), sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-        # 
+
     })
 
 

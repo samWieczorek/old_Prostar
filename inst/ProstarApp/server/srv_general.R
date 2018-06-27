@@ -201,6 +201,8 @@ loadObjectInMemoryFromConverter_2 <- function(obj){
   
   name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
   rv$dataset[[name]] <- obj
+  ClearNavbarPage()
+  BuildNavbarPage()
   
   
   # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
@@ -237,18 +239,9 @@ loadObjectInMemoryFromConverter <- reactive({
     name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
     
-
-        # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
-        #          rv$typeOfDataset, "\"", "\n",
-        #          "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
-        #          sep="")
-        # writeToCommandLogFile(txt)
-        # 
+    ClearNavbarPage()
+    BuildNavbarPage()
     
-    #if (!is.null(rv$current.obj@experimentData@other$OriginOfValues)){
-    #    writeToCommandLogFile("current.obj@experimentData@other$OriginOfValues <- Matrix(as.numeric(!is.na(current.obj)),nrow = nrow(current.obj), sparse=TRUE)")
-    #} 
-   
     updateSelectInput(session, "datasets", 
                       #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
@@ -277,6 +270,9 @@ dirSessionPath <- paste(tempdir(), sessionID, sep="/")
 if (!dir.exists(dirSessionPath)){
     dir.create(dirSessionPath)
 }
+
+
+
 
 
 

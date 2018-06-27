@@ -508,30 +508,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 p <- paste(p, last(indexForFData), ")", sep="")
                 writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
                 
-                car <- 'NULL'
-                if (!is.null(indexForIDBox)) {
-                    car <- indexForIDBox}
-                writeToCommandLogFile(
-                    paste("indexForIDBox <- ", car, sep="")
-                )
                 
-                writeToCommandLogFile(
-                    paste("logData <- ", logData, sep="")
-                )
-                
-                writeToCommandLogFile(
-                    paste("replaceZeros <- ",input$replaceAllZeros, sep = "")
-                )
-                
-                writeToCommandLogFile(
-                    paste("pep_prot_data <- \"",input$typeOfData, "\"", sep="")
-                )
-                
-                writeToCommandLogFile(
-                    paste("current.obj <- createMSnset(tab1, metadata, indexForEData, indexForFData, indexForIDBox,logData, replaceZeros, pep_prot_data)")
-                )
                 
                 loadObjectInMemoryFromConverter()
+                
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
             }
             , warning = function(w) {

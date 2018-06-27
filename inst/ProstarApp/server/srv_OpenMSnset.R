@@ -93,10 +93,6 @@ observeEvent(input$file,ignoreInit =TRUE,{
         
         retroCompatibility()
         
-        writeToCommandLogFile(
-            paste("current.obj <- readRDS('",input$file$name,"')", sep="")
-        )
-        #}
         
         #loadObjectInMemoryFromConverter()
         loadObjectInMemoryFromConverter_2(rv$current.obj)

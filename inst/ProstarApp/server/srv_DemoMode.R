@@ -60,7 +60,6 @@ output$showDatasetDoc <- renderUI({
 
 output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
-  #rv$typeOfDataset
   
   isolate({ NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
@@ -106,12 +105,9 @@ output$progressDemoMode <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
-    #input$showCommandLog
     if (is.null(input$demoDataset)){return (NULL)}
     
     
-    # result = tryCatch(
-    #    {
     ClearMemory()
     ClearUI()
     utils::data(list = input$demoDataset)
@@ -121,28 +117,12 @@ observeEvent(input$loadDemoDataset,{
     rv$indexNA <- which(is.na(rv$current.obj))
     colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
     names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-    #colnames(exprs(rv$current.obj)) <- gsub(".", "_", colnames(exprs(rv$current.obj)), fixed=TRUE)
-    #colnames(pData(rv$current.obj)) <- gsub(".", "_", colnames(pData(rv$current.obj)), fixed=TRUE)
     
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
         rv$current.obj@experimentData@other$RawPValues <- FALSE
     rv$current.obj <- addOriginOfValue(rv$current.obj)
     l.params <- list(filename = input$demoDataset)
     UpdateLog("Original",l.params)
-    # rv$indProgressDemomode <- rv$indProgressDemomode +1
-    
-    
-    
-    
-    #if (input$showCommandLog){
-    #    writeToCommandLogFile("library(DAPARdata)")
-    #writeToCommandLogFile(paste("utils::data(",
-    #                            input$demoDataset,")", 
-    #                            sep=""))
-    #writeToCommandLogFile(paste("current.obj <- ",
-    #                            input$demoDataset, 
-    #                            sep=""))
-    #}
     
     loadObjectInMemoryFromConverter()
     
