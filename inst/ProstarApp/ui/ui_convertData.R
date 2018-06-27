@@ -90,16 +90,8 @@ tabPanel("Convert data",
                        value = "Convert",
                        br(), br(),
                        
-                       uiOutput("checkAll_convert", width="50"),
-                       htmlOutput("msgAlertCreateMSnset"),
-                       hr(),
-                       textInput("filenameToCreate",
-                                 "Enter the name of the study"),
-                       busyIndicator(WaitMsgCalc,wait = 0),
-                       actionButton("createMSnsetButton","Convert data"),
-                       uiOutput("warningCreateMSnset"),
-                       moduleDatasetOverviewUI("overview_convertData"),
-                       uiOutput("conversionDone")
+                       uiOutput("convertFinalStep")
+                       
                        
                        
              )

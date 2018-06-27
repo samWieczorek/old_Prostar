@@ -86,11 +86,11 @@ observeEvent(input$btn_SaveDesign,{
 
   rv$current.obj <- rv$current.obj[, rv$updateDesign_newOrder]
   tmp <-  rv$updateDesign_hot
-  rownames(tmp) <- tmp$Sample.name
-  if (is.character(rownames(tmp))){
-      rownames(tmp) <- gsub(".", "_", rownames(tmp), fixed=TRUE)
-      
-  }
+  rownames(tmp) <- colnames(Biobase::exprs(rv$current.obj))
+  # if (is.character(rownames(tmp))){
+  #     rownames(tmp) <- gsub(".", "_", rownames(tmp), fixed=TRUE)
+  #     
+  # }
   Biobase::pData(rv$current.obj) <- tmp
   loadObjectInMemoryFromConverter_2(rv$current.obj)
 
@@ -174,13 +174,11 @@ updateDesign_color_renderer_NewDesign <- reactive({
 #############################################################
 observeEvent(input$updateDesign_btn_checkConds,{
   
-    if (length(grep("Bio.Rep", colnames(rv$updateDesign_hot))) > 0) { return(NULL)}
+  if (length(grep("Bio.Rep", colnames(rv$updateDesign_hot))) > 0) { return(NULL)}
   
   rv$updateDesign_newOrder <- order(rv$updateDesign_hot["Condition"])
   rv$updateDesign_hot <- rv$updateDesign_hot[rv$updateDesign_newOrder,]
   rv$updateDesign_conditionsChecked <- DAPAR::check.conditions(rv$updateDesign_hot$Condition)
-  hideTab(inputId ="navPage", target = "open")
-
   
 })
 

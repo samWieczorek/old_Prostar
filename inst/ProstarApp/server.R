@@ -111,9 +111,9 @@ shinyServer(function(input, output, session) {
                  source(file.path("server", "srv_UsefulLinks.R"),  local = TRUE)$value,
                
                ReleaseNotesTab = 
-                 source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value,
                
-               
+               bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value
                )
 
      })

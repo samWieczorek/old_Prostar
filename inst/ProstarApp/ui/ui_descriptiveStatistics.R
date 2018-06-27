@@ -26,9 +26,8 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_dataExplorer",
                                                     uiOutput("DS_sidebarPanel_tab")
                                           ),
-                                          conditionalPanel(height = heightWellPanel,
-                                                           condition = "true",
-                                                           uiOutput("tabToShow")
+                                          tagList(
+                                            uiOutput("tabToShow")
                                           )
                               )
                      ),
@@ -57,15 +56,9 @@ tabPanel("Descriptive statistics",
                                           wellPanel(id = "sidebar_heatmap",
                                                     uiOutput("DS_sidebarPanel_heatmap")
                                           ),
-                                          conditionalPanel(id = "wellPanelHeatmap",
-                                                           condition = "true",
-                                                           width = 800,
-                                                           # HTML("For this view, it is necessary that your dataset 
-                                                           #     does not contains any NA lines. <br> Please check 
-                                                           #     your data and use Filtering options or missing 
-                                                           #     values imputation."),
-                                                           busyIndicator("Building plot. Please wait...",wait = 0),
-                                                           uiOutput("DS_PlotHeatmap")
+                                          tagList(
+                                            busyIndicator("Building plot. Please wait...",wait = 0),
+                                            uiOutput("DS_PlotHeatmap")
                                           )
                               )
                      ),

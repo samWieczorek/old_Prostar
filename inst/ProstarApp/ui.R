@@ -63,6 +63,7 @@ sidebarPanelWidth()
                         source(file.path("ui", "ui_UsefulLinks.R"),  local = TRUE)$value,
                         source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,
                         source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
-                        source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value
+                        source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value,
+                        source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
             )
 ))

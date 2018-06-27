@@ -6,7 +6,15 @@ callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$curr
 #####  UI for the PEPTIDE LEVEL Imputation process
 ##########
 output$peptideLevelImputationPanel <- renderUI({
+  req(rv$current.obj)
+  nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+  
+  if (nbEmptyLines > 0) {
+    tags$p("Your dataset contains empty lines (fully filled with missing values). In order to use
+       the imputation tool, you must delete them by using the filter tool.")
     
+  }
+   else { 
     tabPanel("Miss. values imputation",
              id = "tabPanelImputation",
              value = "imputation",
@@ -46,7 +54,7 @@ output$peptideLevelImputationPanel <- renderUI({
                          
              )
     )
-    
+   }
 })
 
 

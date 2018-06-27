@@ -43,7 +43,9 @@ output$versionLog <- renderUI({
     tags$h5("New features:"),
     
     tags$ol(
-      tags$li("The FC tag has been replaced by 'logFC'")
+      tags$li("The FC tag has been replaced by 'logFC'"),
+      tags$li("Better managment of dropdown menus"),
+      tags$li("Add a Bug report tab in the 'Help' menu")
       )
     
     

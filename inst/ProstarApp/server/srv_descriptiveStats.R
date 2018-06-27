@@ -406,15 +406,16 @@ heatmap <- reactive({
 
 
 output$DS_PlotHeatmap <- renderUI({
-    rv$current.obj
-    
-    if (is.null(rv$current.obj)) {return(plot.new())}
-    # if (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) != 0) {return (NULL)}
+    req(rv$current.obj)
+  if (nrow(rv$current.obj) > limitHeatmap){
+    tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
+  }else {
     
     tagList(
         busyIndicator(WaitMsgPlot,wait = 0),
         plotOutput("heatmap", width = "900px", height = "600px")
     )
+  }
 })
 
 

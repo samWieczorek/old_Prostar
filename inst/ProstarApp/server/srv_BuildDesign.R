@@ -16,6 +16,22 @@ color_renderer <- reactive({
 
 
 
+output$convertFinalStep <- renderUI({
+req(rv$designChecked)
+  if (!(rv$designChecked$valid)){return(NULL)}
+  tagList(
+    uiOutput("checkAll_convert", width="50"),
+    htmlOutput("msgAlertCreateMSnset"),
+    hr(),
+    textInput("filenameToCreate","Enter the name of the study"),
+    busyIndicator(WaitMsgCalc,wait = 0),
+    actionButton("createMSnsetButton","Convert data"),
+    uiOutput("warningCreateMSnset"),
+    moduleDatasetOverviewUI("overview_convertData"),
+    uiOutput("conversionDone")
+  )
+})
+
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
   
@@ -336,6 +352,9 @@ observeEvent(input$btn_checkDesign,{
 output$checkDesign <- renderUI({
   req(input$chooseExpDesign)
   rv$designChecked
+  req(rv$conditionsChecked)
+  
+  if(!isTRUE(rv$conditionsChecked$valid)){return(NULL)}
   switch(isolate({input$chooseExpDesign}),
          FlatDesign = {},
          twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},

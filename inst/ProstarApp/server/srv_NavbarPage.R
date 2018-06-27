@@ -84,8 +84,7 @@ BuildNavbarPage <- reactive({
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value),
+                     source(file.path("ui", "ui_AnaDiff.R"),  local = TRUE)$value),
           target = "Help",
           position="before"
           )
@@ -100,4 +99,7 @@ BuildNavbarPage <- reactive({
 
   
  })
+
+
+
 

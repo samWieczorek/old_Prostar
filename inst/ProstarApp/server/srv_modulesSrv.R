@@ -154,7 +154,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     #rv$seuilLogFC
     #req(rv$resAnaDiff)
     #req(rv$current.obj)
-    
+    tooltip()
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}

@@ -101,15 +101,19 @@ output$helpTextDataID <- renderUI({
 
 
 ############ Read text file to be imported ######################
-observe({
-  input$file1
+observeEvent(input$file1,{
+  
   input$XLSsheets
-  if (is.null(input$file1) ) {return(NULL)  }
   if (((GetExtension(input$file1$name)== "xls") 
        || (GetExtension(input$file1$name) == "xlsx") ) 
       && is.null(input$XLSsheets)) {return(NULL)  }
   
-  
+  authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
+  if( is.na(match(GetExtension(input$file1$name), authorizedExts))) {
+    shinyjs::info("Warning : this file is not a text of Excel file ! 
+                  Please choose another one.")
+  }
+  else {
   result = tryCatch(
     {
       ClearUI()
@@ -133,7 +137,7 @@ observe({
     }, finally = {
       #cleanup-code 
     })
-  
+  }
   
 })
 

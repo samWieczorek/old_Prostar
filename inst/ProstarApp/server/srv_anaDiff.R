@@ -1,6 +1,121 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 
+
+
+output$anaDiffPanel <- renderUI({
+  req(rv$current.obj)
+  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  if (NA.count > 0){
+    tags$p("Your dataset contains missign values. Before using the differential analysis, you must filter/impute them")
+  } else {
+  tabsetPanel(
+    id = "xxx",
+    tabPanel("1 - Global tuning",
+             value = "DiffAnalysis_GlobalTuning",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(
+                           id = "sidebar_DiffAna1",
+                           height = "100%"
+                           #,h4("Differential analysis global options")
+                           ,
+                           uiOutput("diffAnalysis_GlobalOptions_SB")
+                           
+                         ),
+                         tagList(
+                           busyIndicator("Building plot, please wait",wait = 0),
+                           highchartOutput("FoldChangePlot", height="500px", width="600px")
+                           
+                         )
+             )
+    ),
+    
+    
+    tabPanel("2 - Pairwise comparison",
+             value = "DiffAnalysis_PairewiseComparison",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(
+                           id = "sidebar_DiffAna2",
+                           height = "100%"
+                           ,uiOutput("newComparisonUI")
+                           #,h4("Comparison options")
+                           ,uiOutput("diffAnalysis_PairwiseComp_SB")
+                           ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
+                           uiOutput("tooltipInfo")
+                         ),
+                         tagList(
+                           busyIndicator("Building plot, please wait",wait = 0),
+                           moduleVolcanoplotUI("volcano_Step1")
+                         )
+             )
+    ),
+    tabPanel("3 - p-value calibration",
+             value = "DiffAnalysis_Calibrate",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(
+                           id = "sidebar_DiffAna3",
+                           height = "100%"
+                           #,h4("Calibration")
+                           ,uiOutput("diffAnalysis_Calibration_SB")
+                         ),
+                         tagList(
+                           htmlOutput("errMsgCalibrationPlotAll"),
+                           busyIndicator("Building plot, please wait",wait = 0),
+                           plotOutput("calibrationPlotAll"),
+                           uiOutput("errMsgCalibrationPlot"),
+                           busyIndicator("Building plot, please wait",wait = 0),
+                           plotOutput("calibrationPlot")
+                         )
+             )
+    ),
+    tabPanel("4 - FDR",
+             value = "DiffAnalysis_viewFDR",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(id = "sidebar_DiffAna4",
+                                   height = "100%"
+                                   #,h4("Compute FDR")
+                                   ,uiOutput("diffAnalysis_FDR_SB"),
+                                   checkboxInput("showpvalTable","Show p-value table", value=FALSE)
+                         ),
+                         
+                         tagList(
+                           fluidRow(
+                             column(width= 4, htmlOutput("equivPVal")),
+                             column(width= 4, htmlOutput("showFDR"))
+                           ),
+                           hr(),
+                           busyIndicator("Building plot, please wait",wait = 0),
+                           moduleVolcanoplotUI("volcano_Step2"),
+                           DT::dataTableOutput("showSelectedItems", width='800px')
+                         )
+             )
+    ), # end tabPanel(title = "3 - Visualize FDR"
+    tabPanel("5 - Validate & save",
+             value = "DiffAnalysis_ValidateAndSave",
+             sidebarCustom(),
+             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                         wellPanel(id = "sidebar_DiffAna5",
+                                   height = "100%",
+                                   busyIndicator(WaitMsgCalc,wait = 0),
+                                   actionButton("ValidDiffAna","Save diff analysis")
+                         ),
+                         tagList(
+                           uiOutput("DiffAnalysisSaved")
+                           
+                         )
+             )
+    ) # end tabPanel(title = "4 - Validate and Save", 
+  ) # end tabsetPanel
+}
+})
+
+
+
+
 output$warningNA <- renderUI({
     rv$current.obj
     if (is.null(rv$current.obj)) {return ()}
