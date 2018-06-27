@@ -355,8 +355,11 @@ observeEvent(input$btn_checkDesign,{
 output$checkDesign <- renderUI({
   req(input$chooseExpDesign)
   rv$designChecked
+  req(rv$conditionsChecked)
+  
+  if (!isTRUE(rv$conditionsChecked$valid)){return(NULL)}
   switch(isolate({input$chooseExpDesign}),
-         FlatDesign = {},
+         FlatDesign = {if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
          twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
          threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}
   )

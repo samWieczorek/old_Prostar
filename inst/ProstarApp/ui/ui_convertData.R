@@ -14,9 +14,6 @@ tabPanel("Convert data",
                            multiple=FALSE, 
                            accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
                  uiOutput("ManageXlsFiles"),
-                 # helpText("Hint : before importing quantification 
-                 #             file data, check the syntax of your text 
-                 #             file."),
                  br(),
                  uiOutput("ConvertOptions")
                  
