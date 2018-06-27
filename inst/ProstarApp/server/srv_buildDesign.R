@@ -16,6 +16,25 @@ color_renderer <- reactive({
 
 
 
+
+output$convertFinalStep <- renderUI({
+    req(rv$designChecked)
+    
+    if (!(rv$designChecked$valid)){return(NULL)}
+        
+        tagList(
+            htmlOutput("msgAlertCreateMSnset"),
+        hr(),
+        textInput("filenameToCreate",
+                  "Enter the name of the study"),
+        busyIndicator(WaitMsgCalc,wait = 0),
+        actionButton("createMSnsetButton","Convert data"),
+        uiOutput("warningCreateMSnset"),
+        moduleDatasetOverviewUI("overview_convertData"),
+        uiOutput("conversionDone")
+)
+})
+
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
   
