@@ -13,8 +13,9 @@ importFrom(DT, dataTableOutput,renderDataTable )
 import(R.utils)
 import(shinythemes)
 import(XML)
-
+import(rclipboard)
 import(shiny)
+import(later)
 
 
 
