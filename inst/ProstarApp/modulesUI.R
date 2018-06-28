@@ -90,7 +90,7 @@ moduleBoxplotUI <- function(id) {
 
 moduleDatasetOverviewUI <- function(id) {
     ns <- NS(id)
-    uiOutput(ns("DatasetOverview"))
+    dataTableOutput(ns("DatasetOverviewDT"))
 }
 
 

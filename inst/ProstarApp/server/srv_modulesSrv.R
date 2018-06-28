@@ -446,4 +446,43 @@ moduleDatasetOverview <- function(input, output, session) {
         
       
     })
+        
+        
+        output$DatasetOverviewDT <- renderDataTable({
+          req(rv$current.obj)
+          
+          isolate({
+            h3("Quick overview of the dataset")
+            df <- data.frame(Definition=c("Number of samples","Number of lines", "% of missing values", "Number of empty lines"),
+                             Value=rep(0,4))
+            
+            NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
+                            2, 
+                            function(x) length(which(is.na(data.frame(x))==TRUE)) )
+            pourcentage <- 100 * round(sum(NA.count)/
+                                         (dim(Biobase::exprs(rv$current.obj))[1]*
+                                            dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
+            nb.empty.lines <- sum(apply(
+              is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+            
+            
+            val <- c(ncol((Biobase::exprs(rv$current.obj))),
+                     nrow((Biobase::exprs(rv$current.obj))),
+                     pourcentage,
+                     nb.empty.lines)
+            df$Value <- val
+            
+            DT::datatable(df, 
+                          escape = FALSE,
+                          rownames= FALSE,
+                          option=list(initComplete = initComplete(),
+                                dom = 't',
+                                autoWidth=TRUE,
+                          columnDefs = list(list(width='200px',targets= "_all"))
+              )
+            )
+            
+            
+          })
+    })
 }

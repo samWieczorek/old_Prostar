@@ -26,7 +26,7 @@ shinyServer(function(input, output, session) {
     logfilename <-paste(tempdir(),"shiny.log", sep="/")
     print(logfilename)
       con <- file(logfilename)
-    if(interactive()){
+    if(!interactive()){
       sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
     }

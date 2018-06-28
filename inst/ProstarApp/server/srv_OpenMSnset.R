@@ -14,6 +14,12 @@ output$openMSnsetScreen <- renderUI({
 
 
 
+
+observeEvent(input$LinkToupdateDesignTab, {
+  updateTabItems(session, 'navPage', "updateDesignTab")
+})
+
+
 output$infoAboutAggregationTool <- renderUI({
   rv$typeOfDataset
   req(rv$current.obj)
@@ -24,8 +30,10 @@ output$infoAboutAggregationTool <- renderUI({
       tags$div(style="display:inline-block; vertical-align: top;",
                tags$img(src = "images/Problem.png", height=25)),
       tags$div(style="display:inline-block; vertical-align: top;",
-               tags$p("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
-                      software functionalities. Please go to \"Update design\" in the \"Dataset manager\" menu tu update it."))
+               HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
+                      software functionalities. Please go to"),
+               actionLink('LinkToupdateDesignTab', "Update design"),
+               HTML("in the \"Dataset manager\" menu tu update it."))
     )
   } else{
     

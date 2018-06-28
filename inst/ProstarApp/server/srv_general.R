@@ -723,34 +723,17 @@ output$aboutText <- renderUI({
                 </li>
                 </ul>
                 
-                <br>
-                For more details, please refer to the \"Help\" tab.", sep="")
-  
-  HTML(text)
+                <br>", sep="")
+  tagList(
+    HTML(text),
+    HTML("For more details, please refer to the "),
+    actionLink('LinkToUsefulLinksTab', "Useful links"),
+    HTML("in the Help menu")
+  )
   
 })
 
 
-
-# 
-# observeEvent(rv$file2Source,{
-#   filename <- rv$file2Source
-#   type <- unlist(strsplit(filename, "_"))[1]
-#   switch(type,
-#          ui = {
-#            if (!(filename %in% rv$UI_fileSourced)){
-#              source(file.path("ui", filename), local = TRUE)$value
-#              rv$UI_fileSourced <- c(rv$UI_fileSourced, filename)
-#            }
-#          }, 
-#          srv = {
-#            if (!(filename %in% rv$SRV_fileSourced)){
-#              source(file.path("server", filename), local = TRUE)$value
-#              rv$SRV_fileSourced <- c(rv$SRV_fileSourced, filename)
-#            }
-#          }
-#   )
-#   
-# })
-# 
-
+observeEvent(input$LinkToUsefulLinksTab, {
+  updateTabItems(session, 'navPage', "usefulLinksTab")
+})
