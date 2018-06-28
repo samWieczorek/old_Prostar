@@ -151,7 +151,9 @@ session$onSessionEnded(function() {
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
+    unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
+ 
     
     #rm(list= list(myListOfThings))
     stopApp()
@@ -266,10 +268,6 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 }
 
 ###-------------------------------------------------------------------
-dirSessionPath <- paste(tempdir(), sessionID, sep="/")
-if (!dir.exists(dirSessionPath)){
-    dir.create(dirSessionPath)
-}
 
 
 

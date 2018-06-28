@@ -16,13 +16,20 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
-    cat(file=stderr())
+    #cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
     
-    
+    #Set up writing
+    logfilename <-paste(tempdir(),"shiny.log", sep="/")
+    print(logfilename)
+      con <- file(logfilename)
+    if(interactive()){
+      sink(con, append=TRUE)
+      sink(con, append=TRUE, type="message")
+    }
     
     
     

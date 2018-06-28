@@ -16,7 +16,7 @@ library(shinyjs)
 library(shinyAce)
 library(shinyBS)
 library(RColorBrewer)
-
+library(rclipboard)
 library(tidyr)
 library(dplyr)
 library(data.table)

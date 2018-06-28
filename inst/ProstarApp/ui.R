@@ -8,7 +8,8 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 shinyUI <- tagList(
     
-    
+  rclipboardSetup(),
+  
     shinyjs::useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
     tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
