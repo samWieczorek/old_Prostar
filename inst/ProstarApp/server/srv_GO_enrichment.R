@@ -26,7 +26,6 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",
                                                         choices = G_ontology_Choices)
-                                           ,busyIndicator(WaitMsgCalc,wait = 0),
                                            actionButton("mapProtein.GO.button",
                                                         "Map proteins IDs")
                                  )
@@ -53,12 +52,10 @@ output$GOAnalysisMenu <- renderUI({
                                            actionButton("group.GO.perform.button","Perform GO grouping")
                                  ),
                                  tagList(
-                                     busyIndicator(WaitMsgCalc,wait = 0),
-                                     highchartOutput("GOplotGroup_level2",  width = "80%"),
-                                     highchartOutput("GOplotGroup_level3",  width = "80%"),
-                                     highchartOutput("GOplotGroup_level4",  width = "80%")
-                                     #dataTableOutput("GODatatable")
-                                     
+                                     highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
+                                     highchartOutput("GOplotGroup_level3",  width = "80%") %>% withSpinner(type=spinnerType),
+                                     highchartOutput("GOplotGroup_level4",  width = "80%") %>% withSpinner(type=spinnerType)
+
                                  )
                                  
                                  
@@ -77,19 +74,12 @@ output$GOAnalysisMenu <- renderUI({
                                            modulePopoverUI("modulePopover_GOfdr"),
                                            numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
-                                           actionButton("perform.GO.button",
-                                                        "Perform enrichment analysis"),
-                                           busyIndicator(WaitMsgCalc,wait = 0)
+                                           actionButton("perform.GO.button","Perform enrichment analysis")
                                  ),
                                  tagList(
-                                     busyIndicator(WaitMsgCalc,wait = 0),
-                                     highchartOutput("GObarplotEnrich", width = "80%"),
-                                     highchartOutput("GOdotplotEnrich", width = "80%")
-                                     #plotOutput("GOEnrichMap")
-                                     
-                                     #dataTableOutput("GODatatableEn")
-                                     
-                                 )
+                                     highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),
+                                     highchartOutput("GOdotplotEnrich", width = "80%") %>% withSpinner(type=spinnerType)
+                                     )
                      )
             ),
             tabPanel("Save GO analysis",

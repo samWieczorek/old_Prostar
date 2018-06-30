@@ -30,6 +30,7 @@ output$logSession <- DT::renderDataTable({
                       extensions = 'Scroller',
                       rownames = FALSE,
                       options=list(initComplete = initComplete(),
+                                   dom = 't',
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
                                    bLengthChange = FALSE,

@@ -3,9 +3,7 @@ tabPanel("Filter data",
         tabsetPanel(
              id = "DP_Filtering_tabSetPanel",
              tabPanel( "1 - Missing values filtering",
-                       #id =  "DP_FilterMissingValues",
-                       value = "DP_FilterMissingValues",
-                       #sidebarCustom(),
+                      value = "DP_FilterMissingValues",
                        splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                    wellPanel(id = "sidebar_Filter1"
                                              #,height = "100%"
@@ -13,7 +11,6 @@ tabPanel("Filter data",
                                              
                                    ),
                                    tagList(
-                                     busyIndicator(WaitMsgCalc,wait = 0),
                                      HTML("The user-defined threshold allows it to tune the minimum amount of non-NA
                                                          values for each line to <br> be kept in the dataset 
                                                          (the line is filtered out otherwise). 
@@ -47,8 +44,7 @@ tabPanel("Filter data",
                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                                 wellPanel(id = "sidebar_Filter3",
                                           uiOutput("DP_sidebar_FilterTab3"),
-                                          actionButton("ValidateFilters","Save filtered dataset",
-                                                        styleclass = "primary"),
+                                          actionButton("ValidateFilters","Save filtered dataset",styleclass = "primary"),
                                           uiOutput("legendForExprsData2")
                                 ),
                                 tagList(

@@ -16,6 +16,7 @@ import(XML)
 import(rclipboard)
 import(shiny)
 import(later)
+import(shinycssloaders)
 
 
 

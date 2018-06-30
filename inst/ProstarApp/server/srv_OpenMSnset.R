@@ -16,7 +16,7 @@ output$openMSnsetScreen <- renderUI({
 
 
 observeEvent(input$LinkToupdateDesignTab, {
-  updateTabItems(session, 'navPage', "updateDesignTab")
+  updateTabsetPanel(session, 'navPage', "updateDesignTab")
 })
 
 
@@ -32,7 +32,7 @@ output$infoAboutAggregationTool <- renderUI({
       tags$div(style="display:inline-block; vertical-align: top;",
                HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
                       software functionalities. Please go to"),
-               actionLink('LinkToupdateDesignTab', "Update design"),
+               actionLink('LinkToupdateDesignTab', "Update design",style="background-color: white"),
                HTML("in the \"Dataset manager\" menu tu update it."))
     )
   } else{

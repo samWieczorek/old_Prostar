@@ -4,18 +4,14 @@
 
 ########################################################
 RunAggregation <- reactive({
-    rv$matAdj
-    if (is.null(rv$matAdj)) { return (NULL)}
+    req(rv$matAdj)
     
     n <- NULL
     if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { 
         n <- as.numeric(input$nTopn)
         }
-    
-    
-    tryCatch (
-        {
-            if (input$checkSharedPeptides){
+
+    if (input$checkSharedPeptides){
                 data <- pepAgregate(rv$current.obj, 
                                     input$proteinId,
                                     input$aggregationMethod, 
@@ -52,14 +48,7 @@ RunAggregation <- reactive({
             }
             
             return(data)
-        },
-        err=function(errorCondition) {
-            cat("in err handler")
-            message(errorCondition)
-        })
-    
-    
-    
+
 })
 
 
@@ -72,31 +61,23 @@ observeEvent(input$valid.aggregation,{
     input$filterProtAfterAgregation
     input$aggregationMethod
     input$columnsForProteinDataset.box
-    rv$matAdj
+    req(rv$matAdj)
+    req(rv$temp.aggregate)
     
-    if (is.null(input$valid.aggregation) 
-        || (input$valid.aggregation == 0)
-        || is.null(rv$matAdj) || is.null(rv$temp.aggregate)) 
-    {return(NULL)}
-    
+    isolate({
+        m <- NULL
+        if (input$checkSharedPeptides){ 
+            m <- rv$matAdj$matWithSharedPeptides
+        }else{
+            m <-rv$matAdj$matWithUniquePeptides
+        }
 
-            isolate({
+        updateSelectInput(session, "proteinId",selected = input$proteinId)
+        updateSelectInput(session, "aggregationMethod",selected = input$aggregationMethod)
+        updateSelectInput(session, "nTopn",selected = input$nTopn)
+        updateCheckboxInput(session,"checkSharedPeptides",input$checkSharedPeptides)
                 
-                ##concatenation des informations
-              m <- NULL
-                if (input$checkSharedPeptides){ 
-                     m <- rv$matAdj$matWithSharedPeptides
-               }else{
-                    m <-rv$matAdj$matWithUniquePeptides
-               }
-
-                updateSelectInput(session, "proteinId",selected = input$proteinId)
-                updateSelectInput(session, "aggregationMethod",selected = input$aggregationMethod)
-                updateSelectInput(session, "nTopn",selected = input$nTopn)
-                updateCheckboxInput(session,"checkSharedPeptides",input$checkSharedPeptides)
-                
-                
-                l.params <- list(withSharedPeptides = input$checkSharedPeptides,
+        l.params <- list(withSharedPeptides = input$checkSharedPeptides,
                                  agregMethod = input$aggregationMethod,
                                  proteinId = input$proteinId,
                                  topN = input$nTopn
@@ -114,15 +95,9 @@ observeEvent(input$valid.aggregation,{
                     colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
                     #cpt <- cpt + delta
                     #updatePB(session,inputId="pb_SaveAggregation",value=cpt,text_value=paste(cpt," %", sep=""), striped = TRUE, active=TRUE)
-                    
                 }
                 
-                #if (input$filterProtAfterAgregation){
-                #    rv$temp.aggregate <- FilterProteinWithFewPeptides(rv$temp.aggregate, input$nbPeptides)
-                #}
-                
                 rv$current.obj <- rv$temp.aggregate
-                #rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
                 rv$current.obj <- saveParameters(rv$current.obj, "Aggregation",l.params)
                 rv$current.obj@experimentData@other$Prostar_Version <- 
                   installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
@@ -130,7 +105,6 @@ observeEvent(input$valid.aggregation,{
                   installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
-                #rv$dataset[[name]] <- rv$current.obj
                 UpdateLog("Aggregation", l.params)
                 #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
                 
@@ -154,7 +128,7 @@ observeEvent(input$valid.aggregation,{
     })
 
 
-
+})
 
 
 output$topNOption <- renderUI({
@@ -194,12 +168,6 @@ output$ObserverAggregationDone <- renderUI({
 observeEvent(input$proteinId,{
     
     rv$current.obj
-    if (is.null( input$proteinId) || (input$proteinId == "None"))
-    {return(NULL)}
-    
-    
-    if (rv$current.obj@experimentData@other$typeOfData == typeProtein) {
-        return(NULL)}
     
     result = tryCatch(
         {
@@ -213,26 +181,7 @@ observeEvent(input$proteinId,{
             rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
                               matWithUniquePeptides=matUniquePeptides)
             
-           # if (input$showCommandLog){
-    #             writeToCommandLogFile(
-    #         paste("matSharedPeptides <- BuildAdjacencyMatrix(current.obj,\"",
-    #                   input$proteinId,"\",FALSE)", sep="")
-    #         )
-    #         writeToCommandLogFile(
-    #         paste("matUniquePeptides <- BuildAdjacencyMatrix(current.obj,\"",
-    #                   input$proteinId,"\",TRUE)", sep="")
-    #         )
-    #         
-    #         writeToCommandLogFile(
-    #         "mat <- list(matWithSharedPeptides=matSharedPeptides,
-    #         matWithUniquePeptides=matUniquePeptides)"
-    # )
-            #}
-            
         }
-    #, warning = function(w) {
-    #    shinyjs::info(conditionMessage(w))
-    #}
     , error = function(e) {
         shinyjs::info(paste("Build adjacency matrix:",
                             conditionMessage(e), 
@@ -242,30 +191,6 @@ observeEvent(input$proteinId,{
     })
     
 })
-
-
-
-#-----------------------------------------------
-output$aggregationPlot <- renderPlot({
-    input$proteinId
-    rv$matAdj
-    rv$current.obj
-    if (is.null( input$proteinId) || (input$proteinId == "None")
-        || is.null(rv$matAdj))
-    {return(NULL)}
-    if (is.null( rv$current.obj)){return(NULL)}
-    
-    
-    if (input$checkSharedPeptides) {
-        GraphPepProt(rv$matAdj$matWithSharedPeptides)
-        }
-    else {
-        GraphPepProt(rv$matAdj$matWithUniquePeptides)
-        }
-    
-})
-
-
 
 
 
@@ -333,44 +258,14 @@ output$aggregationStats <- renderUI ({
 })
 
 output$aggregationPlotShared <- renderPlot({
-    
-    rv$matAdj
-    
-    if (is.null(rv$matAdj)) {return(NULL)}
-    result = tryCatch(
-        {
-            GraphPepProt(rv$matAdj$matWithSharedPeptides)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
-    
+  req(rv$matAdj)
+  GraphPepProt(rv$matAdj$matWithSharedPeptides)
 })
 
 
 output$aggregationPlotUnique <- renderPlot({
-    rv$matAdj
-    
-    if (is.null(rv$matAdj)) {return(NULL)}
-    result = tryCatch(
-        {
-            GraphPepProt(rv$matAdj$matWithUniquePeptides)
-        }
-        , warning = function(w) {
-            shinyjs::info(conditionMessage(w))
-        }, error = function(e) {
-            shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
-                                sep=" "))
-        }, finally = {
-            #cleanup-code 
-        })
-    
+    req(rv$matAdj)
+  GraphPepProt(rv$matAdj$matWithUniquePeptides)
     
 })
 
@@ -378,37 +273,12 @@ output$aggregationPlotUnique <- renderPlot({
 
 ###------------ Perform aggregation--------------------
 observeEvent(input$perform.aggregation,{
-    #input$perform.aggregation
-    #input$aggregationMethod
-    if (is.null(input$perform.aggregation) 
-        || (input$perform.aggregation == 0))
-    {return(NULL)}
     
     isolate({
-        
-        result = tryCatch(
-            {
-                if (input$aggregationMethod != "None")
-                {
-                    rv$temp.aggregate <- RunAggregation()
-                   # if (input$showCommandLog){
-                    #writeToCommandLogFile("temp.aggregate <- data")
-                    #  }
-                }
-                
-            }
-            , warning = function(w) {
-                shinyjs::info(conditionMessage(w))
-            }, error = function(e) {
-                shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
-        
-        
-        
-        
+  if (input$aggregationMethod != "None")
+                {rv$temp.aggregate <- RunAggregation()
+     }
+     
     })
 })
 
@@ -419,32 +289,16 @@ observeEvent(input$perform.aggregation,{
 
 
 
-output$ChooseAggregationMethod <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return (NULL)}
-    
-    selectInput("aggregationMethod",
-                "Aggregation methods",
-                choices =  gAgregateMethod)
-})
-
 
 output$AggregationSideBar_Step1 <-  renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj) || 
-        (rv$current.obj@experimentData@other$typeOfData == typeProtein))
-    {return (NULL)}
     
     wellPanel(id = "sidebar_Aggregation",
               height = "100%",
               tagList(
-                  #h4("Aggregation options"),
                   uiOutput("warningAgregationMethod"),
                   uiOutput("chooseProteinId"),
-                  checkboxInput("checkSharedPeptides",
-                                "Include shared peptides",
-                                value = FALSE),
-                  uiOutput("ChooseAggregationMethod"),
+                  checkboxInput("checkSharedPeptides", "Include shared peptides", value = FALSE),
+                  selectInput("aggregationMethod","Aggregation methods",choices =  gAgregateMethod),
                   uiOutput("topNOption"),
                   actionButton("perform.aggregation","Perform aggregation")
               )
@@ -456,37 +310,47 @@ output$AggregationSideBar_Step1 <-  renderUI({
 
 
 output$AggregationWellPanel_Step1 <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj))
-    {return (NULL)}
+    req(rv$current.obj)
     
-    if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
-        tagList(
+    tagList(
             HTML("Please select first the id of protein in your dataset. 
                 <br>Then, the stats will be showed and it will be possible to 
                 perform the aggregation"),
+            # fluidRow(
+            #     column(width=6, h4("Only specific peptides")),
+            #     column(width=6, h4("All (specific & shared) peptides"))
+            #     ),
             fluidRow(
-                column(width=6, h4("Only specific peptides")),
-                column(width=6, h4("All (specific & shared) peptides"))
-                ),
-            busyIndicator(WaitMsgPlot,wait = 0),
-            fluidRow(
-                column(width=6, plotOutput("aggregationPlotUnique")),
-                column(width=6, plotOutput("aggregationPlotShared"))
+                column(width=6, uiOutput("specificPeptideBarplot")),
+                column(width=6, uiOutput("allPeptideBarplot"))
                 ),
             uiOutput("aggregationStats"),
             uiOutput("ObserverAggregationDone")
             )
-    } else {
-        h4("The dataset is a protein one: the aggregation cannot be performed.")
-    }
+   
 })
 
 
 
+output$specificPeptideBarplot <- renderUI({
+  req(rv$matAdj)
+  tagList(
+    h4("Only specific peptides"),
+    plotOutput("aggregationPlotUnique") %>% withSpinner(type=spinnerType)
+    )
+})
+
+output$allPeptideBarplot <- renderUI({
+  req(rv$matAdj)
+  tagList(
+    h4("All (specific & shared) peptides"),
+    plotOutput("aggregationPlotShared") %>% withSpinner(type=spinnerType)
+    )
+})
+
+
 output$displayNbPeptides <- renderUI({
-    input$filterProtAfterAgregation
-    if (is.null(input$filterProtAfterAgregation)){return (NULL) }
+    req(input$filterProtAfterAgregation)
     
     if (input$filterProtAfterAgregation) {
         numericInput("nbPeptides", "Nb of peptides defining a protein", 
@@ -499,8 +363,7 @@ output$displayNbPeptides <- renderUI({
 
 output$Aggregation_Step2 <- renderUI({
     
-    rv$current.obj
-    if (is.null(rv$current.obj)){return (NULL)}
+    req(rv$current.obj)
     
     if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
         tagList(

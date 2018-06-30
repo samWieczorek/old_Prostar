@@ -18,15 +18,11 @@ output$anaDiffPanel <- renderUI({
                          wellPanel(
                            id = "sidebar_DiffAna1",
                            height = "100%"
-                           #,h4("Differential analysis global options")
-                           ,
-                           uiOutput("diffAnalysis_GlobalOptions_SB")
+                           ,uiOutput("diffAnalysis_GlobalOptions_SB")
                            
                          ),
                          tagList(
-                           busyIndicator("Building plot, please wait",wait = 0),
-                           highchartOutput("FoldChangePlot", height="500px", width="600px")
-                           
+                           highchartOutput("FoldChangePlot", height="500px", width="600px") %>% withSpinner(type=spinnerType)
                          )
              )
     ),
@@ -40,14 +36,12 @@ output$anaDiffPanel <- renderUI({
                            id = "sidebar_DiffAna2",
                            height = "100%"
                            ,uiOutput("newComparisonUI")
-                           #,h4("Comparison options")
                            ,uiOutput("diffAnalysis_PairwiseComp_SB")
                            ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
                            uiOutput("tooltipInfo")
                          ),
                          tagList(
-                           busyIndicator("Building plot, please wait",wait = 0),
-                           moduleVolcanoplotUI("volcano_Step1")
+                            moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
                          )
              )
     ),
@@ -63,11 +57,9 @@ output$anaDiffPanel <- renderUI({
                          ),
                          tagList(
                            htmlOutput("errMsgCalibrationPlotAll"),
-                           busyIndicator("Building plot, please wait",wait = 0),
-                           plotOutput("calibrationPlotAll"),
+                           plotOutput("calibrationPlotAll") %>% withSpinner(type=spinnerType),
                            uiOutput("errMsgCalibrationPlot"),
-                           busyIndicator("Building plot, please wait",wait = 0),
-                           plotOutput("calibrationPlot")
+                           plotOutput("calibrationPlot") %>% withSpinner(type=spinnerType)
                          )
              )
     ),
@@ -88,8 +80,7 @@ output$anaDiffPanel <- renderUI({
                              column(width= 4, htmlOutput("showFDR"))
                            ),
                            hr(),
-                           busyIndicator("Building plot, please wait",wait = 0),
-                           moduleVolcanoplotUI("volcano_Step2"),
+                           moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
                            DT::dataTableOutput("showSelectedItems", width='800px')
                          )
              )
@@ -100,7 +91,6 @@ output$anaDiffPanel <- renderUI({
              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_DiffAna5",
                                    height = "100%",
-                                   busyIndicator(WaitMsgCalc,wait = 0),
                                    actionButton("ValidDiffAna","Save diff analysis")
                          ),
                          tagList(

@@ -1,7 +1,19 @@
 
 #################### MODULES DEFINITION #################################
 
-
+moduleDetQuantImpValues <- function(input, output, session, quant,factor)
+{
+  
+  output$detQuantValues_DT <- renderDataTable({
+    req(rv$current.obj, quant(), factor())
+    
+    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
+      DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+                    options = list(initComplete = initComplete(),
+                                   dom = 't',
+                                   bLengthChange = FALSE))
+ })
+}
 
 
 modulePopover <- function(input, output, session, data){
@@ -203,7 +215,6 @@ missingValuesPlots <- function(input, output, session) {
         #histo_MV()
       req(rv$current.obj)
       isolate({
-        print("############### histo_MV ####")
         rv$tempplot$mvHisto_HC <- wrapper.mvHisto_HC(rv$current.obj)})
       rv$tempplot$mvHisto_HC
     })
@@ -212,7 +223,6 @@ missingValuesPlots <- function(input, output, session) {
         #histo_MV_per_lines()
       req(rv$current.obj)
       isolate({
-        print("############### histo_MV_per_lines ####")
         rv$tempplot$mvPerLinesHisto_HC <- 
          wrapper.mvPerLinesHisto_HC(rv$current.obj, 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
@@ -224,7 +234,6 @@ missingValuesPlots <- function(input, output, session) {
         #histo_MV_per_lines_per_conditions()
       req(rv$current.obj)
       isolate({
-        print("############### histo_MV_per_lines_per_conditions ####")
         rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                                                                                                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
       })
@@ -299,45 +308,26 @@ moduleBoxplot <- function(input, output, session,legendXAxis) {
 
 
 
-
 moduleMVPlots <- function(input, output, session, data) {
-    
-    output$plot_viewNAbyMean <- renderHighchart({
-      # viewNAbyMean(data())
-      req(data())
-     # isolate({
-        print("######## output$plot_viewNAbyMean <- renderHighchart ####")
-        wrapper.hc_mvTypePlot2(data())
-       # })
+  
+  output$plot_viewNAbyMean <- renderHighchart({
+    # viewNAbyMean(data())
+    req(data())
+    # isolate({
+    print("######## output$plot_viewNAbyMean <- renderHighchart ####")
+    wrapper.hc_mvTypePlot2(data())
+    # })
+  })
+  
+  output$plot_showImageNA <- renderPlot({
+    #showImageNA(data())
+    req(data())
+    isolate({
+      print("######## output$plot_showImageNA <- renderPlot ####")
+      wrapper.mvImage(data())
     })
-    
-    output$plot_showImageNA <- renderPlot({
-        #showImageNA(data())
-      req(data())
-      isolate({
-        print("######## output$plot_showImageNA <- renderPlot ####")
-        wrapper.mvImage(data())
-        })
-    }, width=400, height=600)
+  }, width=400, height=600)
 }
-
-# moduleViewNAbyMean <- function(input, output, session) {
-#     
-#     output$viewNAbyMean <- renderPlot({
-#         viewNAbyMean()
-#     })
-# }
-# 
-
-
-
-# moduleShowImageNA <- function(input, output, session) {
-#     
-#     output$showImageNA <- renderPlot({
-#         showImageNA()
-#     })
-# }
-
 
 
 moduleFilterStringbasedOptions <- function(input, output, session) {

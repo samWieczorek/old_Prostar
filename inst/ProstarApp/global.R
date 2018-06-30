@@ -6,7 +6,7 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 library(DAPAR, lib.loc = DAPAR.loc)
 library(R.utils)
-
+library(shinycssloaders)
 library(highcharter)
 library(shinythemes)
 library(shiny)
@@ -184,6 +184,8 @@ gFilterOneCond <- gFiltersList[["At least one condition"]]
 gReplaceAllZeros <- "replaceAllZeros"
 gLogTransform <- "Log2 tranformed data"
 gFilterTextPrefix <- "Filtered with"
+
+spinnerType <- 4
 
 pData.complete.list <- list("Condition" = "Condition", 
                             "Bio.Rep" = "Bio. rep.",
@@ -377,7 +379,7 @@ busyIndicator <- function(text = "Calculation in progress..",
                         img = "images/ajax-loader.gif", wait=1000) {
 tagList(
     singleton(tags$head(
-    tags$link(rel="stylesheet", 
+    tags$link(rel="stylesheet",
             type="text/css",href="busyIndicator/busyIndicator.css")
     ))
     ,div(class="busy-indicator",p(text),img(src=img))
@@ -395,7 +397,7 @@ tagList(
 },100)
     ",wait)
     )
-)	
+)
 }
 
 

@@ -17,9 +17,7 @@ output$helpForNormalizationMethods <- renderUI({
     rv$typeOfDataset
     if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
     
-    print(input$normalization.method)
-    print(input$normalization.type)
-    helpNormalization <- matrix(rep("", 12),nrow = 3, 
+     helpNormalization <- matrix(rep("", 12),nrow = 3, 
                                 dimnames=list(c("Global quantile Alignment", "Quantile Centering", "Mean Centering"),
                                               c("sum by columns", "Alignment on all quantiles", "overall", "within conditions")))
     
@@ -62,10 +60,8 @@ output$helpForNormalizationMethods <- renderUI({
 
 
 output$choose_normalizationQuantile <- renderUI({
-    rv$current.obj
-    input$normalization.method
-    if (is.null(rv$current.obj)) { return (NULL)}
-    if (is.null(input$normalization.method)) { return (NULL)}
+   req(rv$current.obj)
+   req(input$normalization.method)
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
     
     #    if (input$normalization.method == "Quantile Centering"){
@@ -79,9 +75,8 @@ output$choose_normalizationQuantile <- renderUI({
 
 
 output$choose_normalizationQuantileOther <- renderUI({
-    input$normalization.quantile
+    req(input$normalization.quantile)
     input$normalization.method
-    if (is.null(input$normalization.quantile)){return(NULL)}
     if (input$normalization.method != "Quantile Centering") { return (NULL)}
    
     if (input$normalization.quantile == "Other"){
@@ -95,12 +90,9 @@ output$choose_normalizationQuantileOther <- renderUI({
 
 
 output$choose_normalizationScaling <- renderUI({
-    rv$current.obj
-    input$normalization.method
-    if (is.null(rv$current.obj)) { return (NULL)}
-    if (is.null(input$normalization.method)) { return (NULL)}
-    
-    
+    req(rv$current.obj)
+    req(input$normalization.method)
+
     if (input$normalization.method %in% c("Mean Centering")){
         # check if the normalisation has already been performed
         
@@ -110,13 +102,10 @@ output$choose_normalizationScaling <- renderUI({
 })
 
 output$choose_normalizationType <- renderUI({
-    rv$current.obj
-    input$normalization.method
-    if (is.null(rv$current.obj)) { return (NULL)}
-    if (is.null(input$normalization.method)) { return (NULL)}
+    req(rv$current.obj)
+    req(input$normalization.method)
+    
     if (input$normalization.method == "None") { return (NULL)}
-    
-    
     
     if (input$normalization.method %in% c("Quantile Centering", "Mean Centering", "Sum by columns")){
         
@@ -125,14 +114,7 @@ output$choose_normalizationType <- renderUI({
         selectInput("normalization.type", "Normalization type",  choices = type)
 
     } 
-    
-    # else if (input$normalization.method %in% c("Global quantile alignment")){
-    #     type <- c("sum by columns", "Alignment on all quantiles")
-    #     typeSelected <- NULL
-    #     if(!is.null(rv$current.obj@experimentData@other$normalizationType)) { 
-    #         typeSelected <- rv$current.obj@experimentData@other$normalizationType
-    #     }
-    # }
+
     
 })
 
@@ -149,21 +131,6 @@ output$choose_Normalization_Test <- renderUI({
 })
 
 
-# Check boxes
-# output$choose_Normalization_2 <- renderUI({
-#     input$normalization.family
-#     if(is.null(input$normalization.family) || 
-#         ( input$normalization.family == "None"))
-#     return()
-#     
-#     outVar <- normalization.methods[[which(names(normalization.methods) == 
-#                                             input$normalization.family)]]
-#     selectInput("normalization.method", "Choose normalization method",
-#                 choices  = outVar)
-# })
-
-
-
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
@@ -171,14 +138,10 @@ observeEvent(input$perform.normalization,{
     input$normalization.method
     input$normalization.type
     input$normalization.quantile
-    if (is.null(input$perform.normalization) ){return(NULL)}
-    #if (input$perform.normalization == 0){return(NULL)}
     
     
     isolate({
-        # result = tryCatch(
-        #     {
-                
+
                 if (input$normalization.method == G_noneStr){
                     rv$current.obj <- rv$dataset[[input$datasets]]
                 } else {
@@ -187,17 +150,7 @@ observeEvent(input$perform.normalization,{
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method)
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
-                        
-                        ## Write command log file
-                        #if (input$showCommandLog){
-                        #     writeToCommandLogFile(
-                        #     paste("current.obj <- wrapper.normalizeD(",
-                        #           "dataset[['",
-                        #           input$datasets, 
-                        #           "']],'",input$normalization.method, "')",
-                        #           sep="")
-                        # )
-                       # }
+
                     }
                     else if (input$normalization.method =="Quantile Centering"){
                         
@@ -218,18 +171,7 @@ observeEvent(input$perform.normalization,{
                         
                         if (!is.null(input$normalization.quantileOther)){
                             updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)}
-                        
-                        ## Write command log file
-                        #if (input$showCommandLog){
-                        #     writeToCommandLogFile(
-                        #     paste("current.obj <- wrapper.normalizeD(",
-                        #           "dataset[['",
-                        #           input$datasets, 
-                        #           "']],'",input$normalization.method, "','", input$normalization.type,
-                        #           "', quant =", quant,")",
-                        #           sep="")
-                        # )
-                       # }
+
                         
                     }   
                     else if (input$normalization.method =="Mean Centering"){
@@ -240,17 +182,6 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
-                        ## Write command log file
-                        #if (input$showCommandLog){
-                        #     writeToCommandLogFile(
-                        #     paste("current.obj <- wrapper.normalizeD(",
-                        #           "dataset[['",
-                        #           input$datasets, 
-                        #           "']],'",input$normalization.method, "','", input$normalization.type,
-                        #           "', scaling =", input$normalization.variance.reduction,")",
-                        #           sep="")
-                        # )
-                        #}
                     } 
                     else if (input$normalization.method =="Sum by columns"){
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
@@ -259,29 +190,10 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
-                        ## Write command log file
-                        #if (input$showCommandLog){
-                        # writeToCommandLogFile(
-                        #     paste("current.obj <- wrapper.normalizeD(",
-                        #           "dataset[['",
-                        #           input$datasets, 
-                        #           "']],'",input$normalization.method, "','", input$normalization.type,
-                        #           ")",sep="")
-                        # )
-                        #}
                     }
-                    #createPNG_Normalization()
-                    
+
                 }
-            #}
-            # , warning = function(w) {
-            #     shinyjs::info(conditionMessage(w))
-            # }, error = function(e) {
-            #     shinyjs::info(paste("Perform normalization",":",conditionMessage(e), sep=" "))
-            # }, finally = {
-            #     #cleanup-code 
-            # })
-            # 
+
         
     })
 })
@@ -291,9 +203,9 @@ observeEvent(input$perform.normalization,{
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.normalization,{ 
     
-    input$normalization.method
-    if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
-    {return(NULL)}
+    req(input$normalization.method)
+    #if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
+    #{return(NULL)}
     
     isolate({
         # result = tryCatch(

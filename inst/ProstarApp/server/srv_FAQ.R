@@ -12,18 +12,19 @@ output$FAQ_output <- renderUI({
     
     
     tags$h4("2 - How to build a valid experimental design?"),
-    tags$p("The differential analysis of Prostar now integrates ",tags$b("hierarchical paired designs")," with limma. The way of numbering the samples
- is important because it differs whether your samples are paired or not."),
+    tags$p("The differential analysis with ProStaR is devoted to the processing of", tags$b("hierarchical unpaired experimental designs"), 
+            ". However, in former versions, this was not explicit enough, so that users with paired samples could used ProStaR 
+            with wrong assumptions. To clear this out, we have changed the experimental design construction step so that 
+            its explicitly appears unpaired."),
 
-    tags$p("In a ",tags$b("paired experimental design"), ", the biological sample from Condition 1  and Condition 2
-is the same. For instance, you have 4 patients, and you monitor them Before (Condition 1) and After (Condition 2) 
-some event. In this case, the correct practice is to restart numbering at each condition:"),
-      tags$ul(tags$li("Condition 1: 1,2,3,4,"),tags$li("Condition 2: 1,2,3,4")),
-      
-      tags$p("In an ",tags$b("unpaired experimental design"), ",the biological sample from Condition 1 and Condition 2
-is different. For instance, if you have 8 patients in 2 conditions, there is no link between 
-              the first patient of each condition. Here, the numbering is just a convention, you could give them any name, as there is no link
-              between the samples."),
-    tags$ul(tags$li("Condition 1: 1,2,3,4,"),tags$li("Condition 2: 5,6,7,8"))
+    tags$p("As a result, the samples must now be numbered as in the following example:"),
+    tags$ul(tags$li("Condition 1: 1 - 2 - 3 - 4,"),tags$li("Condition 2: 5 - 6 - 7 - 8")),
+    tags$p("As opposed to:"),
+    tags$ul(tags$li("Condition 1: 1 - 2 - 3 - 4,"),tags$li("Condition 2: 1 - 2 - 3 - 4")),
+    tags$p("Which, depending on the context, could suggest that the 8 samples comes only from 
+            4 different biological subjects, and thus leading to paired tests - For instance,
+           patients that are compared between Before (Condition 1) and After (Condition 2) some treatment."),
+    tags$p("However, one should note that even if the experimental design now looks different, this is just 
+           due to a numbering convention, and the statistical test is not impacted.")
     )
 })

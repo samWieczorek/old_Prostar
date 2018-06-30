@@ -646,8 +646,6 @@ NeedsUpdate <- reactive({
 
 #-------------------------------------------------------------------
 output$aboutText <- renderUI({
-  busyIndicator(WaitMsgCalc,wait = 0)
-  
   t <- sessionInfo()
   daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
   ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
@@ -727,7 +725,7 @@ output$aboutText <- renderUI({
   tagList(
     HTML(text),
     HTML("For more details, please refer to the "),
-    actionLink('LinkToUsefulLinksTab', "Useful links"),
+    actionLink('LinkToUsefulLinksTab', "Useful links",style="background-color: white"),
     HTML("in the Help menu")
   )
   
@@ -735,5 +733,7 @@ output$aboutText <- renderUI({
 
 
 observeEvent(input$LinkToUsefulLinksTab, {
-  updateTabItems(session, 'navPage', "usefulLinksTab")
+  updateTabsetPanel(session, 'navPage', "usefulLinksTab")
 })
+
+

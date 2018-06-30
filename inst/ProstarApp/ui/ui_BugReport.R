@@ -1,7 +1,7 @@
 tabPanel("Bug report",
          value="bugReportTab",
          tags$p("If you encounter an issue with Prostar, you can send an email to the maintainer so he will have sufficient informations
-           to start identify the problem. In addition, you can choose to add the MSnset as an attachment to the mail."),
+           to start identify the problem. In addition, you can add the MSnset as an attachment to the mail."),
          tags$br(),
          fluidRow(
            column(width=3,uiOutput("BugReport_output")),

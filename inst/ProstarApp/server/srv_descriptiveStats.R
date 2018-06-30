@@ -190,6 +190,8 @@ output$viewpData <- DT::renderDataTable({
   pal <- pal[1:length(unique(data$Condition))]
   dt <- DT::datatable(  data,
                         extensions = 'Scroller',
+                        rownames=  FALSE,
+                        
                     options=list(initComplete = initComplete(),
                                  pageLength=DT_pagelength,
                                  orderClasses = TRUE,
@@ -269,7 +271,7 @@ output$viewExprsMissValues <- DT::renderDataTable({
                       extensions = 'Scroller',
                       rownames = FALSE,
                       
-options=list(orderClasses = TRUE,
+        options=list(orderClasses = TRUE,
             autoWidth=FALSE,
             bLengthChange = FALSE,
             scrollX = 200,
@@ -372,8 +374,7 @@ heatmap <- reactive({
         #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
     ) {
         
-        # result = tryCatch(
-        #     {
+
                 rv$PlotParams$HeatmapLinkage <- input$linkage
       rv$PlotParams$HeatmapDistance <- input$distance
       
@@ -382,18 +383,7 @@ heatmap <- reactive({
                                  rv$PlotParams$HeatmapLinkage,
                                  TRUE)
               })
-            # }
-            # , warning = function(w) {
-            #     shinyjs::info(conditionMessage(w))
-            # }, error = function(e) {
-            #     shinyjs::info(paste(match.call()[[1]],":",
-            #                         conditionMessage(e), 
-            #                         sep=" "))
-            # }, finally = {
-            #     #cleanup-code 
-            # })
-        
-        
+  
     }
     
 })
@@ -411,26 +401,11 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-        busyIndicator(WaitMsgPlot,wait = 0),
-        plotOutput("heatmap", width = "900px", height = "600px")
+        plotOutput("heatmap", width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+ 
     )
   }
 })
-
-
-
-
-# 
-# 
-# output$DS_sidebarPanel_Densityplot <- renderUI({
-#     conditionalPanel(condition= "true",
-#                      uiOutput("nGroup_DS"),
-#                      br(),
-#                      uiOutput("nShow_DS"))
-#     
-# })
-# 
-
 
 
 

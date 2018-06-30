@@ -14,8 +14,7 @@ tabPanel("Descriptive statistics",
                          value = "DS_tabOverviewMV",
                          
                          helpText("These barplots display the distribution of missing values in the dataset."),
-                         busyIndicator("Building plot. Please wait...",wait = 0),
-                         missingValuesPlotsUI("MVPlots_DS")
+                         missingValuesPlotsUI("MVPlots_DS") 
                          ),
                      
                      #-------------------------------------------------------------
@@ -43,8 +42,7 @@ tabPanel("Descriptive statistics",
                                                                 min = 0,max = 1,value = defaultGradientRate,step=0.01)
                                           ),
                                           tagList(
-                                              busyIndicator("Building plot. Please wait...",wait = 0),
-                                          highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
+                                          highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
                                           )
                               )
                      ),
@@ -57,7 +55,6 @@ tabPanel("Descriptive statistics",
                                                     uiOutput("DS_sidebarPanel_heatmap")
                                           ),
                                           tagList(
-                                            busyIndicator("Building plot. Please wait...",wait = 0),
                                             uiOutput("DS_PlotHeatmap")
                                           )
                               )
@@ -73,7 +70,6 @@ tabPanel("Descriptive statistics",
                                                     uiOutput("ChooseLegendForAxis_DS")
                                           ),
                                          tagList(
-                                             busyIndicator("Building plot. Please wait...",wait = 0),
                                              moduleBoxplotUI("boxPlot_DS")
                                           )
                               )
@@ -90,9 +86,8 @@ tabPanel("Descriptive statistics",
                                                     uiOutput("ChooseLegendForAxisViolin_DS")
                                           ),
                                           tagList(
-                                              busyIndicator("Building plot. Please wait...",wait = 0),
                                               plotOutput("viewViolinPlot_DS",width = plotWidth,
-                                                                      height = plotHeight)
+                                                                      height = plotHeight) %>% withSpinner(type=spinnerType)
                                           )
                               )
                      ),
@@ -113,7 +108,6 @@ tabPanel("Descriptive statistics",
                                                       )
                                           ),
                                           tagList(
-                                              #busyIndicator("Building plot. Please wait...",wait = 0),
                                               moduleDensityplotUI("densityPlot_DS")
                                            )
                               )
@@ -125,10 +119,7 @@ tabPanel("Descriptive statistics",
                               helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
                                 of the protein/peptides."),
                                 helpText("For better visualization, it is possible to zoom in by click-and-drag."),
-                              busyIndicator("Building plot. Please wait...",wait = 0),
-                              highchartOutput("viewDistCV",
-                                         width = plotWidth,
-                                         height = plotHeight)
+                              highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
                               )
                      )
          )

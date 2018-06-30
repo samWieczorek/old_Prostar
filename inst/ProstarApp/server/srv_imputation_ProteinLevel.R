@@ -5,6 +5,13 @@ callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSte
 callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSteps[["step1"]]))
 callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
+callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
+           reactive({input$POV_detQuant_quantile}), 
+           reactive({input$POV_detQuant_factor}))
+
+callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT", 
+           reactive({input$MEC_detQuant_quantile}), 
+           reactive({input$MEC_detQuant_factor}))
 
 
 
@@ -14,7 +21,6 @@ callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlots
 output$proteinLevelImputationPanel <- renderUI({
   
   tabsetPanel(
-    #"diffAnalysis_tabSetPanel",
     id = "Imputation_tabSetPanel",
     
     tabPanel("1 - Partially Observed Values",
@@ -29,11 +35,9 @@ output$proteinLevelImputationPanel <- renderUI({
                                    
                          ),
                          tagList(
-                           busyIndicator(WaitMsgCalc,wait = 0),
                            uiOutput("ImputationStep1Done"),
                            htmlOutput("helpForImputation"),
-                           uiOutput("POV_detQuant_impValues"),
-                           dataTableOutput("TAB_POV_detQuant_impValues"),
+                           uiOutput("POV_showDetQuantValues"),
                            moduleMVPlotsUI("mvImputationPlots_MV")
                          )
                          
@@ -53,8 +57,7 @@ output$proteinLevelImputationPanel <- renderUI({
                            htmlOutput("warningMECImputation"),
                            busyIndicator(WaitMsgCalc,wait = 0),
                            uiOutput("ImputationStep2Done"),
-                           uiOutput("MEC_detQuant_impValues"),
-                           dataTableOutput("TAB_MEC_detQuant_impValues")
+                           uiOutput("MEC_showDetQuantValues")
                            #,moduleMVPlotsUI("mvImputationPlots_MEC")
                            
                          )
@@ -62,19 +65,14 @@ output$proteinLevelImputationPanel <- renderUI({
     ),
     tabPanel("3 - Validate & save",
              value = "Imputation_ValidateAndSave",
-             #sidebarCustom(),
              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_Imputation3",
                                    height = "100%",
                                    busyIndicator(WaitMsgCalc,wait = 0),
-                                   actionButton("ValidImputation",
-                                                "Save imputation",
-                                                styleclass = "primary")
+                                   actionButton("ValidImputation","Save imputation",styleclass = "primary")
                          ),
                          tagList(
-                           #DT::dataTableOutput("showSelectedItems"),
-                           #moduleMVPlotsUI("mvImputationPlots_Valid"),
-                           uiOutput("ImputationSaved")
+                            uiOutput("ImputationSaved")
                          )
              )
     ) # end tabPanel(title = "4 - Validate and Save",
@@ -85,11 +83,38 @@ output$proteinLevelImputationPanel <- renderUI({
 
 
 
-observeEvent(input$POV_missing.value.algorithm,{
+
+output$POV_showDetQuantValues <- renderUI({
   
-  #rv$impute_Step <- 0
-  #shinyjs::disable("perform.imputationMEC.button")
- # shinyjs::disable("ValidImputation")
+  req(input$POV_missing.value.algorithm)
+  
+  if (input$POV_missing.value.algorithm == 'detQuantile')
+  {
+   tagList(
+     h5("The POV will be imputed by the following values :"),
+     moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
+   )
+  }
+})
+
+output$MEC_showDetQuantValues <- renderUI({
+  
+  req(input$MEC_missing.value.algorithm)
+  
+  if (input$POV_missing.value.algorithm == 'detQuantile')
+  {
+    tagList(
+      h5("The MEC will be imputed by the following values :"),
+      moduleDetQuantImpValuesUI("MEC_DetQuantValues_DT")
+    )
+  }
+})
+
+
+
+
+
+observeEvent(input$POV_missing.value.algorithm,{
   updateSelectInput(session, "MEC_missing.value.algorithm", selected = "None")
   
   
@@ -98,10 +123,6 @@ observeEvent(input$POV_missing.value.algorithm,{
 output$sidebar_imputation_step1 <- renderUI({
   
   req(rv$current.obj)
-  
-  #m <- NULL
-  #tag <- rv$current.obj@experimentData@other$POV_imputation.method
-  #if (!is.null(tag)){ m <- tag}
   
   if (length(grep("Imputed", input$datasets))==0){
     isolate({rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]})
@@ -191,64 +212,6 @@ output$MEC_Params <- renderUI({
 
 
 
-output$POV_detQuant_impValues <- renderUI({
-  req(input$POV_missing.value.algorithm)
-  
-  if (input$POV_missing.value.algorithm == 'detQuantile')
-    h5("The POV will be imputed by the following values :")
-  
-})
-
-output$TAB_POV_detQuant_impValues <- renderDataTable({
-  req(input$settings_nDigits)
-  input$POV_detQuant_quantile
-  input$POV_detQuant_factor
-  input$POV_missing.value.basic.algorithm
-  if (is.null(input$POV_missing.value.algorithm )){return(NULL)}
-    
-  if (input$POV_missing.value.algorithm == 'detQuantile'){
-    
-    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$POV_detQuant_quantile/100, input$POV_detQuant_factor)
-    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits = input$settings_nDigits), 
-                  options = list(
-                                initComplete = initComplete(),
-                                bLengthChange = FALSE,
-                                dom = 't'))
-  }
-})
-
-
-
-
-output$MEC_detQuant_impValues <- renderUI({
-  input$MEC_missing.value.algorithm
-  
-  if (is.null(input$MEC_missing.value.algorithm)){return (NULL)}
-  
-  if (input$MEC_missing.value.algorithm == 'detQuantile')
-    h5("MEC will be imputed as follows:")
-  
-})
-
-output$TAB_MEC_detQuant_impValues <- renderDataTable({
-  #rv$current.obj
-  input$MEC_detQuant_quantile
-  input$MEC_detQuant_factor
-  req(input$MEC_missing.value.algorithm)
-  
-  if (input$MEC_missing.value.algorithm == 'detQuantile'){
-    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), input$MEC_detQuant_quantile/100, input$MEC_detQuant_factor)
-    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits = input$settings_nDigits),
-                  extensions = 'Scroller',
-                  options = list(deferRender = TRUE,
-                                 bLengthChange = FALSE,
-                                 scrollX = 200,
-                                 scrollY = 600,
-                                 scroller = TRUE,
-                                 initComplete = initComplete(),
-                                 dom = 't'))
-  }
-})
 
 
 

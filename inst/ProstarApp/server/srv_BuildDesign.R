@@ -1,3 +1,11 @@
+
+
+observeEvent(input$linkToFaq1, {
+  updateTabsetPanel(session, 'navPage', "faqTab")
+  })
+
+
+
 color_renderer <- reactive({
   conds <- rv$hot$Condition
   pal <- brewer.pal(length(unique(conds)),"Dark2")
@@ -24,7 +32,6 @@ req(rv$designChecked)
     htmlOutput("msgAlertCreateMSnset"),
     hr(),
     textInput("filenameToCreate","Enter the name of the study"),
-    busyIndicator(WaitMsgCalc,wait = 0),
     actionButton("createMSnsetButton","Convert data"),
     uiOutput("warningCreateMSnset"),
     moduleDatasetOverviewUI("overview_convertData"),
@@ -205,7 +212,9 @@ output$designExamples <- renderUI({
   input$chooseExpDesign
   
   switch(input$chooseExpDesign,
-         FlatDesign = {},
+         FlatDesign = tagList(
+           tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")
+         ),
          twoLevelsDesign = tagList(
            h4("Example for a 2-levels design"),
            rHandsontableOutput("twolevelsExample")

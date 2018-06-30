@@ -9,7 +9,6 @@ output$test <- renderUI({
 
 ######---------------------------------------------------------------------
 observeEvent(input$generateReport,{
-    if (is.null(input$generateReport)) {return (NULL)}
     input$chooseDatasetToExport
     rv$dataset
     input$whichGO2Save
@@ -185,7 +184,6 @@ func_mvHisto_3 <- function(obj, plot){
 
 ###-------------------------------------------------
 func_heatmap <- function(obj, distance, link){
-    print("In heatmpa function")
     plotPNG(function(){
         if (is.null (distance) && is.null(link)) {
             wrapper.heatmapD(obj)

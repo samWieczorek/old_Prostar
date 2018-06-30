@@ -59,6 +59,11 @@ tabPanel("Convert data",
                        value = "buildDesign_Tab",
                        br(), br(),
                        tagList(
+                           tags$p("If you do not know how to fill the experimental design, you can click
+                                  on the '?' next to each design in the list that appear once the conditions 
+                                  are checked or got to the ", 
+                                  actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+                                  " page."),
                            fluidRow(
                                column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
                                column(width=6,uiOutput("UI_checkConditions")  )
@@ -70,7 +75,6 @@ tabPanel("Convert data",
                        ),
                        hr(),
                        
-                       busyIndicator(WaitMsgCalc,wait = 0),
                        tags$div(
                          
                          tags$div(style="display:inline-block; vertical-align: top;",
