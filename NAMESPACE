@@ -13,6 +13,7 @@ importFrom(DT, dataTableOutput,renderDataTable )
 import(R.utils)
 import(shinythemes)
 import(XML)
+import(later)
 
 importFrom(shiny,
             absolutePanel ,

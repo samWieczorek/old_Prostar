@@ -201,9 +201,9 @@ output$ConvertOptions <- renderUI({
 })
 
 ############ Read text file to be imported ######################
-observeEvent(input$file1,{
+observeEvent(c(input$file1,input$XLSsheets),{
     #input$file1
-    input$XLSsheets
+    
     #if (is.null(input$file1) ) {return(NULL)  }
     if (((GetExtension(input$file1$name)== "xls") 
          || (GetExtension(input$file1$name) == "xlsx") ) 
