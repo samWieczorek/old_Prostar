@@ -3,11 +3,12 @@ output$FAQ_output <- renderUI({
   
   tagList(
     tags$br(),tags$br(),tags$br(),
-    tags$h4("1 - Why the table in experimental design blinks when I am editing it?"),
-    tags$p("When you edit the experimental design (during converting a text file to MSnset or during the update of the design),
+    tags$h4("1 - Why does the experimental design table blink when I am editing it?"),
+    tags$p("When you edit the experimental design (during CSV file conversion into an MSnset, or during design update of an older MSnset),
            it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. 
-           This happens if you edit the cells too fast w.r.t. the speed of update of the table. We apologize for this caveat : this is a known bug of the package used to
-           provide the table. No fix is available yet. The only workaround is to close then reopen Prostar."),
+           This happens if you edit the cells too fast with respect to the reaction capability of your machine. 
+           We apologize for this caveat : this is a known bug of the package used to
+           provide the table, but no patch is available to date. The only workaround is to close ProStaR and to restart."),
     tags$br(),
     
     
@@ -15,7 +16,7 @@ output$FAQ_output <- renderUI({
     tags$p("The differential analysis with ProStaR is devoted to the processing of", tags$b("hierarchical unpaired experimental designs"), 
             ". However, in former versions, this was not explicit enough, so that users with paired samples could used ProStaR 
             with wrong assumptions. To clear this out, we have changed the experimental design construction step so that 
-            its explicitly appears unpaired."),
+            it explicitly appears unpaired."),
 
     tags$p("As a result, the samples must now be numbered as in the following example:"),
     tags$ul(tags$li("Condition 1: 1 - 2 - 3 - 4,"),tags$li("Condition 2: 5 - 6 - 7 - 8")),
