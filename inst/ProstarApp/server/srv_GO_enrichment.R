@@ -163,9 +163,11 @@ callModule(modulePopover,"modulePopover_GenomeWide",
 
 GetListInstalledOrgdDB <- function(){
     l <- installed.packages()[,"Package"]
-    l <- l[grep("org", l)]
+    l <- l[grep("^org.", l)]
     res <-  list_org_db[l,]$longName
     names(l) <- res
+    
+    names(l)[which(is.na(names(l)))] <- l[which(is.na(names(l)))]
     
     return(l)
 }
