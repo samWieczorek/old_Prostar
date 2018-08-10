@@ -116,48 +116,31 @@ observeEvent(input$valid.aggregation,{
                 #}
                 
                 updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
-                
-                updateSelectInput(session, "datasets", 
-                                 # paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                                  choices = names(rv$dataset),
-                                  selected = name)
-
+                updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
                 rv$temp.aggregate <- NULL
-                #updatePB(session,inputId="pb_SaveAggregation",value=100,text_value="100 %", striped = TRUE, active=TRUE)
-
+                
     })
 
 
 })
 
 
-output$topNOption <- renderUI({
-    input$aggregationMethod
-    if(is.null(input$aggregationMethod )) {return(NULL)}
-    
-    if(input$aggregationMethod == gAgregateMethod[["sum on top n"]])
-        numericInput("nTopn", "nTopn",value = NULL, min = 0)
-    
+observeEvent(input$aggregationMethod,{
+  
+  toggle(id = "nTopn", 
+         condition = input$aggregationMethod == gAgregateMethod[["sum on top n"]])
 })
-
 
 
 
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
-    rv$temp.aggregate
-    input$perform.aggregation
-    if (is.null(rv$temp.aggregate)) {return(NULL)}
+    req(rv$temp.aggregate)
+    req(input$perform.aggregation)
     isolate({
-        if (input$perform.aggregation == 0) 
-        {return(NULL)  }
-        else if (input$aggregationMethod != "None"){
-            h3(paste("Aggregation done with the ", 
-                     input$aggregationMethod, 
-                     " method.", 
-                     sep=""))
+       if (input$aggregationMethod != "None"){
+            h3(paste("Aggregation done with the ",input$aggregationMethod, " method.",  sep=""))
         }
-        
     })
 })
 
@@ -171,15 +154,10 @@ observeEvent(input$proteinId,{
     
     result = tryCatch(
         {
-            matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                                      input$proteinId,
-                                                      FALSE)
-            matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                                      input$proteinId,
-                                                      TRUE)
+            matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj,  input$proteinId,FALSE)
+            matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, input$proteinId,TRUE)
             
-            rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
-                              matWithUniquePeptides=matUniquePeptides)
+            rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
             
         }
     , error = function(e) {
@@ -195,12 +173,10 @@ observeEvent(input$proteinId,{
 
 
 output$aggregationStats <- renderUI ({
-    input$proteinId
-    rv$current.obj
-    rv$matAdj
-    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
-      {return(NULL)}
-    if (is.null( rv$current.obj)){return(NULL)}
+    req(input$proteinId)
+    req(rv$current.obj)
+    req(rv$matAdj)
+    if ((input$proteinId == "None")) {return(NULL)}
     
     res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
                             rv$matAdj$matWithSharedPeptides)
@@ -299,7 +275,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
                   uiOutput("chooseProteinId"),
                   checkboxInput("checkSharedPeptides", "Include shared peptides", value = FALSE),
                   selectInput("aggregationMethod","Aggregation methods",choices =  gAgregateMethod),
-                  uiOutput("topNOption"),
+                  hidden(numericInput("nTopn", "nTopn",value = NULL, min = 0)),
                   actionButton("perform.aggregation","Perform aggregation")
               )
     )
@@ -448,8 +424,7 @@ output$columnsForProteinDataset <- renderUI({
 ######################################################### 
 
 output$chooseProteinId <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return (NULL)}
+    req(rv$current.obj)
     
     selectInput("proteinId", 
                 "Choose the protein ID",

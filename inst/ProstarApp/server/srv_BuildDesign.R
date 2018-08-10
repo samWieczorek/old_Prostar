@@ -42,7 +42,7 @@ req(rv$designChecked)
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
   
-  rv$hot
+  #rv$hot
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
   
   rv$newOrder <- order(rv$hot["Condition"])
@@ -181,7 +181,7 @@ output$UI_hierarchicalExp <- renderUI({
       radioButtons("chooseExpDesign", "",
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
-                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" ))
+                               "3 levels design (complete Bio.Rep a,d Tech.Rep columns)" = "threeLevelsDesign" ))
     )
   }
   
@@ -238,23 +238,23 @@ observeEvent(input$chooseExpDesign, {
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
-           rv$hot  <- data.frame(rv$hot[,1:2],
+                      rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         },
+                      },
          twoLevelsDesign = {
-           rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
+                      rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         },
+                          },
          threeLevelsDesign = {
-           #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
-           rv$hot  <- data.frame(rv$hot[,1:2],
+                        #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+                        rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = rep("",nrow(rv$hot)),
                                  Analyt.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         }
+                              }
   )
 })
 

@@ -7,13 +7,13 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- tagList(
-    
+ 
+  
   rclipboardSetup(),
   
     shinyjs::useShinyjs(),
     #,tags$head(includeScript("google-analytics.js"))
     tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
-    
     inlineCSS(appCSS),
     
     # Loading message
@@ -27,11 +27,12 @@ shinyUI <- tagList(
     
     
 titlePanel("", windowTitle = "Prostar"),
+
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
 ,includeCSS("www/css/prostar.css")
-
+, inlineCSS(".body { font-size:14px;}")
 
 #,source(file.path("ui", "ui_navbarPage.R"),  local = TRUE)$value
 ,navbarPage(theme = shinytheme("cerulean")
@@ -60,6 +61,7 @@ sidebarPanelWidth()
                         source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
                         source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
             )
+            
             ,navbarMenu("Help",
                         source(file.path("ui", "ui_UsefulLinks.R"),  local = TRUE)$value,
                         source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,

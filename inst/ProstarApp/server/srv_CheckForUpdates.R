@@ -78,3 +78,11 @@ output$tab_versions <- renderDataTable({
   )
   dt
 })
+
+
+
+observeEvent(input$updateProstar,{
+  
+  source("http://bioconductor.org/biocLite.R")
+  biocLite("Prostar")
+})

@@ -34,6 +34,11 @@ library(ggplot2)
 library(gplots)
 
 
+library(future)
+library(promises)
+plan(multiprocess) 
+
+
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 
@@ -124,7 +129,8 @@ list_org_db <- data.frame(
                                 "org.Ce.eg.db",
                                 "org.Xl.eg.db",
                                 "org.Sc.sgd.db", 
-                                "org.Dr.eg.db"),
+                                "org.Dr.eg.db",
+                              "org.hcg110.db"),
                 longName = c("Anopheles (org.Ag.eg.db)",
                              "Arabidopsis (org.At.tair.db)",
                              "Bovine (org.Bt.eg.db)",
@@ -143,7 +149,8 @@ list_org_db <- data.frame(
                              "Worm (org.Ce.eg.db)",
                              "Xenopus (org.Xl.eg.db)",
                              "Yeast (org.Sc.sgd.db)",
-                             "Zebrafish (org.Dr.eg.db)"),
+                             "Zebrafish (org.Dr.eg.db)",
+                            "Oncorhynchyus mykiss (org.hcg110.db)"),
                 stringsAsFactors = FALSE
                  )
 rownames(list_org_db) <- list_org_db$shortName

@@ -14,8 +14,7 @@ callModule(moduleDatasetOverview,"overview_convertData")
 
 output$warningNonUniqueID <- renderUI({
     input$idBox
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
+    req(rv$tab1)
     if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
     
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
@@ -96,26 +95,28 @@ output$helpTextDataID <- renderUI({
 
 
 
+readTextFile <- reactive({
+  rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)
+})
 
-
-
+readXLSFile <- reactive({})
 
 ############ Read text file to be imported ######################
-observeEvent(input$file1,{
+observeEvent(c(input$file1,input$XLSsheets),{
   
   input$XLSsheets
-  if (((GetExtension(input$file1$name)== "xls") 
-       || (GetExtension(input$file1$name) == "xlsx") ) 
+  if (((GetExtension(input$file1$name)== "xls")
+       || (GetExtension(input$file1$name) == "xlsx") )
       && is.null(input$XLSsheets)) {return(NULL)  }
-  
+
   authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
   if( is.na(match(GetExtension(input$file1$name), authorizedExts))) {
-    shinyjs::info("Warning : this file is not a text of Excel file ! 
+    shinyjs::info("Warning : this file is not a text nor an Excel file ! 
                   Please choose another one.")
   }
   else {
-  result = tryCatch(
-    {
+  # result = tryCatch(
+  #   {
       ClearUI()
       ClearMemory()
       ext <- GetExtension(input$file1$name)
@@ -124,20 +125,20 @@ observeEvent(input$file1,{
              txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
              csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
              tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-             xls = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)},
-             xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext,sheet=input$XLSsheets)}
+             xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
+             xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
       )
-    }
-    , warning = function(w) {
-      shinyjs::info(conditionMessage(w))
-    }, error = function(e) {
-      shinyjs::info(paste("Read text file to convert",":",
-                          conditionMessage(e), 
-                          sep=" "))
-    }, finally = {
-      #cleanup-code 
-    })
-  }
+  #   }
+  #   , warning = function(w) {
+  #     shinyjs::info(conditionMessage(w))
+  #   }, error = function(e) {
+  #     shinyjs::info(paste("Read text file to convert",":",
+  #                         conditionMessage(e), 
+  #                         sep=" "))
+  #   }, finally = {
+  #     #cleanup-code 
+  #   })
+   }
   
 })
 
@@ -165,8 +166,7 @@ output$conversionDone <- renderUI({
 
 #####-------------------------------------------------------
 output$ManageXlsFiles <- renderUI({
-  input$file1
-  if (is.null(input$file1)){return(NULL)}
+  req(input$file1)
   
   .ext <- GetExtension(input$file1$name)
   if ((.ext == "xls") || (.ext == "xlsx")){ 
@@ -278,7 +278,7 @@ output$checkIdentificationTab <- renderUI({
         if (length(which(temp == "None")) > 0)
           {
             img <- "images/Problem.png"
-            txt <- "Identification column not fullfilled."
+            txt <- "The identification method is not appropriately defined for each sample."
           } else {
             if(length(temp) != length(unique(temp))){
                 img <- "images/Problem.png"
@@ -463,55 +463,55 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 l.params <- list(filename = input$filenameToCreate)
                 UpdateLog("Original",l.params)
                 
-                
-                #if (input$showCommandLog){
-                
-                metadata <- as.data.frame(metadata)
-                t <- "metadata <- data.frame("
-                for (c in colnames(metadata)){
-                    t <- paste(t,c, " = c(",sep="")
-                    
-                    for (i in 1:(nrow(metadata)-1)){
-                        
-                        car <- metadata[i,as.character(c)]
-                        #if (car == " ") { car <- NA}
-                        t <- paste(t,"\"",car, "\",",
-                                   sep="")
-                    }
-                    
-                    car <- last(metadata[,as.character(c)])
-                    #if (car == " ") { car <- NA}
-                    
-                    t <- paste(t,"\"",car, "\")",
-                               sep="")
-                    if (c!= last(colnames(metadata))){t <- paste(t,", ") }
-                    else {t <- paste(t,")") }
-                }
-                
-                
-                writeToCommandLogFile(t)
-                
-                t <- "rownames(metadata) <- c("
-                for (i in rownames(metadata)){
-                    t <- paste(t,"\"",as.character(i), "\"",sep="")
-                    if (i != last(rownames(metadata))){t <- paste(t,", ") }
-                    else {t <- paste(t,")") }
-                }
-                writeToCommandLogFile(t)
-                
-                
-                p <- "c("
-                for (i in 1:(length(indexForEData)-1)){
-                    p <- paste(p,indexForEData[i], ",",sep="")}
-                p <- paste(p, last(indexForEData), ")", sep="")
-                writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
-                
-                p <- "c("
-                for (i in 1:(length(indexForFData)-1)){
-                    p <- paste(p,indexForFData[i], ",",sep="")}
-                p <- paste(p, last(indexForFData), ")", sep="")
-                writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
-                
+                # 
+                # #if (input$showCommandLog){
+                # 
+                # metadata <- as.data.frame(metadata)
+                # t <- "metadata <- data.frame("
+                # for (c in colnames(metadata)){
+                #     t <- paste(t,c, " = c(",sep="")
+                #     
+                #     for (i in 1:(nrow(metadata)-1)){
+                #         
+                #         car <- metadata[i,as.character(c)]
+                #         #if (car == " ") { car <- NA}
+                #         t <- paste(t,"\"",car, "\",",
+                #                    sep="")
+                #     }
+                #     
+                #     car <- last(metadata[,as.character(c)])
+                #     #if (car == " ") { car <- NA}
+                #     
+                #     t <- paste(t,"\"",car, "\")",
+                #                sep="")
+                #     if (c!= last(colnames(metadata))){t <- paste(t,", ") }
+                #     else {t <- paste(t,")") }
+                # }
+                # 
+                # 
+                # writeToCommandLogFile(t)
+                # 
+                # t <- "rownames(metadata) <- c("
+                # for (i in rownames(metadata)){
+                #     t <- paste(t,"\"",as.character(i), "\"",sep="")
+                #     if (i != last(rownames(metadata))){t <- paste(t,", ") }
+                #     else {t <- paste(t,")") }
+                # }
+                # writeToCommandLogFile(t)
+                # 
+                # 
+                # p <- "c("
+                # for (i in 1:(length(indexForEData)-1)){
+                #     p <- paste(p,indexForEData[i], ",",sep="")}
+                # p <- paste(p, last(indexForEData), ")", sep="")
+                # writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
+                # 
+                # p <- "c("
+                # for (i in 1:(length(indexForFData)-1)){
+                #     p <- paste(p,indexForFData[i], ",",sep="")}
+                # p <- paste(p, last(indexForFData), ")", sep="")
+                # writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
+                # 
                 
                 
                 loadObjectInMemoryFromConverter()

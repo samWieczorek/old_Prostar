@@ -5,7 +5,6 @@ options(shiny.maxRequestSize=300*1024^2)
 
 require(compiler)
 enableJIT(3)
-###library(DAPARdata)
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -16,7 +15,6 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
-    #cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
@@ -25,7 +23,7 @@ shinyServer(function(input, output, session) {
     #Set up writing
     logfilename <-paste(tempdir(),"shiny.log", sep="/")
     print(logfilename)
-      con <- file(logfilename)
+    con <- file(logfilename)
     if(!interactive()){
       sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
@@ -58,6 +56,8 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
     source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
     source(file.path("server", "srv_General.R"), local = TRUE)$value
+    source(file.path("server", "srv_Home.R"), local = TRUE)$value
+    source(file.path("server", "srv_Settings.R"), local = TRUE)$value
     
     #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
@@ -70,7 +70,9 @@ shinyServer(function(input, output, session) {
         
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
-               openMSnsetTab = source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value,
+               openMSnsetTab = {
+                 source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
+                 },
                SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
                
                  demoTab = 
@@ -107,9 +109,9 @@ shinyServer(function(input, output, session) {
                GOAnalysisTab = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
                
-               updateDesignTab = 
-                 source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value,
-               
+               # updateDesignTab = 
+               #   source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value,
+               # 
                faqTab = 
                  source(file.path("server", "srv_FAQ.R"),  local = TRUE)$value,
                checkForUpdatesTab = 
@@ -120,7 +122,9 @@ shinyServer(function(input, output, session) {
                ReleaseNotesTab = 
                  source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value,
                
-               bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value
+               bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value,
+               
+               testTab = source(file.path("server", "srv_SignificanceTest.R"),  local = TRUE)$value
                )
 
      })

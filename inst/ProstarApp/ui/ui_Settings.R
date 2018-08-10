@@ -4,7 +4,8 @@ tabPanel(title="Global settings",
          #             "Type of plots",
          #             choices = c("Interactive (nice but slower)" = "Interactive",
          #                     "Static (faster)" = "Static")),
-         numericInput("settings_nDigits", "Numerical precision (digits)", value=3, min=0)
+         modulePopoverUI("modulePopover_numPrecision"),
+         numericInput("settings_nDigits", "", value=3, min=0)
          
          
 )

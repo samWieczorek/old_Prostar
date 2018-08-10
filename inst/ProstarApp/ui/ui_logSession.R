@@ -10,7 +10,7 @@ tabPanel("Session logs",
                           DT::dataTableOutput("logSession", width = "800px")
                       )
              ),
-            tabPanel("R source code (Beta)", 
+            tabPanel("R source code (Deprecated)", 
                      tagList(
                        uiOutput("InfoTextSourceCode"),
                       uiOutput("code")

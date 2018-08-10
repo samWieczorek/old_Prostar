@@ -99,8 +99,12 @@ observeEvent(input$btn_SaveDesign,{
   shinyjs::disable("updateDesign_btn_checkDesign")
   shinyjs::disable("btn_SaveDesign")
   shinyjs::disable("updateDesign_chooseExpDesign")
-
-
+  
+  rv$current.obj@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
+  rv$current.obj@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+  
+  NeedsUpdate()
+  BuildNavbarPage()
 })
 
 

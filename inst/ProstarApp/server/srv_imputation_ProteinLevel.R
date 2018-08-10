@@ -171,9 +171,7 @@ output$MEC_chooseImputationMethod <- renderUI({
 
 
 output$POV_Params <- renderUI({
-  
-  #input$POV_missing.value.algorithm
-  if (is.null(input$POV_missing.value.algorithm)) {return(NULL)}
+  req(input$POV_missing.value.algorithm)
   
   switch(input$POV_missing.value.algorithm,
          detQuantile = {
@@ -230,10 +228,10 @@ observeEvent(input$perform.imputationClassical.button,{
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
            },
            detQuantile = {
-             rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+           rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
                                                        qval = input$POV_detQuant_quantile/100,
                                                        factor = input$POV_detQuant_factor)
-             
+           
            },
            KNN = {
              rv$current.obj <- wrapper.impute.KNN(rv$current.obj , input$KNN_nbNeighbors)
@@ -298,8 +296,6 @@ observeEvent(input$perform.imputationMEC.button,{
 ##' -- Validate and Save the imputation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidImputation,{
-  if (is.null(input$ValidImputation) || (input$ValidImputation == 0))
-  {return(NULL)}
   
   isolate({
     
@@ -319,12 +315,7 @@ observeEvent(input$ValidImputation,{
     rv$dataset[[name]] <- rv$current.obj
     
     UpdateLog("Imputation", l.params)
-    
-    #write command log file
-    #writeToCommandLogFile(
-    #  paste("dataset[['",name,"']] <- current.obj", sep="")
-    #)
-    
+   
     updateSelectInput(session, "datasets",
                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
@@ -361,7 +352,6 @@ observeEvent(input$ValidImputation,{
 
 output$ImputationSaved <- renderUI({
   input$datasets
-  # rv$current.obj
   if (is.null(input$datasets)|| (length(grep("Imputed",input$datasets)) !=1) ) {
     return()  }
   else if (grep("Imputed",input$datasets) == 1 ) {
@@ -451,22 +441,3 @@ output$helpForImputation <- renderText({
 #     )
 # })
 
-
-# viewNAbyMean <- function(data){
-#   req(data)
-#   #if (is.null(data)) {return(NULL)}
-#   
-#   
-#   wrapper.hc_mvTypePlot2(data)
-#   
-# }
-
-
-
-# showImageNA <- function(data){
-#   req(data)
-#   #if (is.null(data)) {return(NULL)}
-#   
-#   wrapper.mvImage(data)
-#   
-# }

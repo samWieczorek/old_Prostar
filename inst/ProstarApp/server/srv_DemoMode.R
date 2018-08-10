@@ -105,9 +105,7 @@ output$progressDemoMode <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
-    if (is.null(input$demoDataset)){return (NULL)}
-    
-    
+   
     ClearMemory()
     ClearUI()
     utils::data(list = input$demoDataset)
@@ -125,19 +123,6 @@ observeEvent(input$loadDemoDataset,{
     UpdateLog("Original",l.params)
     
     loadObjectInMemoryFromConverter()
-    
-    
-    # }
-    # , warning = function(w) {
-    #     shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
-    # }, error = function(e) {
-    #     shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
-    #                         conditionMessage(e), 
-    #                         sep=" "))
-    # }, finally = {
-    #     #cleanup-code 
-    # })
-    
-    
+
 })
 

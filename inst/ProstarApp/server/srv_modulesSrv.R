@@ -162,8 +162,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   
   output$volcanoPlot <-  renderHighchart({ 
-    #rv$seuilPVal
-    #rv$seuilLogFC
+    rv$seuilPVal
+    rv$seuilLogFC
     #req(rv$resAnaDiff)
     #req(rv$current.obj)
     tooltip()
@@ -234,7 +234,7 @@ missingValuesPlots <- function(input, output, session) {
         #histo_MV_per_lines_per_conditions()
       req(rv$current.obj)
       isolate({
-        rv$tempplot$histo_missvalues_per_lines_per_conditions   <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+        rv$tempplot$histo_missvalues_per_lines_per_conditions <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
                                                                                                         c(2:length(colnames(Biobase::pData(rv$current.obj)))))
       })
       rv$tempplot$histo_missvalues_per_lines_per_conditions
@@ -365,80 +365,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 moduleDatasetOverview <- function(input, output, session) {
     
-    output$DatasetOverview <- renderUI({
-        req(rv$current.obj)
-        
-        isolate({
-            h3("Quick overview of the dataset")
-            
-            verb <- NULL
-            plurial <- NULL
-            
-            
-            if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
-                verb <- "are"
-                plurial <- "s"} else {
-                    verb <- "is"
-                    plurial <- ""}
-            
-            
-            
-            txt1 <- paste("There ", verb, " " ,
-                          dim(Biobase::exprs(rv$current.obj))[2],
-                          " sample", plurial, " in your data.", sep="")
-            
-            if( dim(Biobase::exprs(rv$current.obj))[2] > 1){
-                verb <- "are"
-                plurial <- "s"} else {
-                    verb <- "is"
-                    plurial <- ""}
-            txt2 <- paste("There ", verb, " ",
-                          dim(Biobase::exprs(rv$current.obj))[1], 
-                          " line", plurial, " in your data.", sep="")
-            
-            NA.count<-apply(data.frame(Biobase::exprs(rv$current.obj)), 
-                            2, 
-                            function(x) length(which(is.na(data.frame(x))==TRUE)) )
-            pourcentage <- 100 * round(sum(NA.count)/
-                                           (dim(Biobase::exprs(rv$current.obj))[1]*
-                                                dim(Biobase::exprs(rv$current.obj))[2]), digits=4)
-            txt3 <- paste("Percentage of missing values:",pourcentage , "%.")
-            
-            nb.empty.lines <- sum(apply(
-                is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
-            txt4 <- NULL
-            if (nb.empty.lines > 0){
-                if( nb.empty.lines > 1){
-                    verb <- "are"
-                    plurial <- "s"} else {
-                        verb <- "is"
-                        plurial <- ""}
-                
-                
-                txt4 <- paste("There ", verb, " ",
-                              nb.empty.lines ," line",
-                              plurial," with only NA values."
-                              ,sep="")
-            }
-            
-            tags$div(
-                tags$h3("Overview of the dataset"),
-                tags$ul(
-                    tags$li(txt1), 
-                    tags$li(txt2), 
-                    tags$li(txt3),
-                    if (!is.null(txt4)){tags$li(txt4)}
-                    )
-            )
-            
-         
-        })
-        
-      
-    })
-        
-        
-        output$DatasetOverviewDT <- renderDataTable({
+    output$DatasetOverviewDT <- renderDataTable({
           req(rv$current.obj)
           
           isolate({

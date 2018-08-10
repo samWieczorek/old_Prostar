@@ -98,20 +98,12 @@ output$DP_sidebar_FilterTab3 <- renderUI({
   
   req(rv$current.obj)
   tagList(
-     radioButtons("ChooseTabAfterFiltering", 
-                 "Choose the data to display",
-                 choices=
-                   list("Quantitative data" = "quantiData",
-                        "Meta data" = "metaData"),
-                 selected=character(0))
-    ,radioButtons("ChooseViewAfterFiltering", 
-                  "Type of filtered data", 
-                  choices=
-                    list("Deleted on missing values" = "MissingValues",
-                         "Deleted string based" = "StringBased"),
+     radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
+                 choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))
+    ,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
+                  choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
                   selected=character(0))
-    
-  )
+ )
 })
 
 
@@ -231,59 +223,6 @@ output$seuilNADelete <- renderUI({
   
 })
 
-# 
-# GlobalPieChart <- reactive({
-#     rv$current.obj
-#     rv$nbContaminantsDeleted
-#     rv$nbReverseDeleted
-#     rv$nbBothDeleted
-#     #input$idBoxContaminants
-#     #input$prefixContaminants
-#     #input$idBoxReverse
-#    # input$prefixReverse
-#    # if (is.null(rv$current.obj)) {return()}
-#    # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-#    
-#     # result = tryCatch(
-#     #     {
-#     #         
-#     isolate({
-#         proportionConRev_HC(rv$nbBothDeleted,
-#                             rv$nbContaminantsDeleted, 
-#                             rv$nbReverseDeleted, 
-#                             nrow(rv$current.obj))
-#       
-#     })
-#     
-# })
-# 
-# output$GlobalPieChart <- renderHighchart({
-#   rv$current.obj
-#     rv$nbBothDeleted
-#     rv$nbContaminantsDeleted
-#   rv$nbReverseDeleted
-#   input$idBoxContaminants
-#   input$prefixContaminants
-#   input$idBoxReverse
-#   input$prefixReverse
-#   
-#   if (is.null(rv$current.obj)) {return()}
-#   #if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-#   if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-#       is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-#       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-#       is.null(input$prefixReverse) || (input$prefixReverse == "")
-#   ) {return(NULL)}
-#   
-# 
-#   
-#     GlobalPieChart()
-# })
-
-
-
-
-
 
 
 
@@ -341,14 +280,11 @@ UpdateFilterWidgets <- function(){
 
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,{
-  if (is.null(input$perform.filtering.MV) ){return()}
   if (input$perform.filtering.MV == 0){return()}
   
   isolate({
     
-    # result = tryCatch(
-    #     {
-    if (input$ChooseFilters == gFilterNone){
+     if (input$ChooseFilters == gFilterNone){
       rv$current.obj <- rv$dataset[[input$datasets]]
     } else {
       
@@ -361,210 +297,16 @@ observeEvent(input$perform.filtering.MV,{
         rv$current.obj <- 
           mvFilterFromIndices(rv$dataset[[input$datasets]],
                               keepThat,
-                              GetFilterText(input$ChooseFilters, 
-                                            as.integer(input$seuilNA)))
+                              GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
-        
-        #write command log
-        # l <- paste(keepThat,",", collapse="")
-        # writeToCommandLogFile(
-        #     paste("keepThat <- ",
-        #         findSequences(keepThat),
-        #     sep="")
-        # )
-        
-        
-        #if (input$showCommandLog){
-        # txt <- paste("keepThat <- mvFilterGetIndices(dataset[['",
-        #              input$datasets, 
-        #              "']], '",
-        #              input$ChooseFilters, "', '",
-        #              input$seuilNA, "')","\n",
-        #              "deleted.mv <- current.obj[-keepThat]","\n",
-        #             "txt <- '",GetFilterText(input$ChooseFilters,input$seuilNA),
-        #                             "'","\n",
-        #             "current.obj <- mvFilterFromIndices(",
-        #             "current.obj, keepThat, '",
-        #             GetFilterText(input$ChooseFilters,
-        #                           input$seuilNA),
-        #             "')",              
-        #              sep="")
-        
-        
-        #writeToCommandLogFile(txt)
-        # }
-        
-        updateSelectInput(session, "ChooseFilters", 
-                          selected = input$ChooseFilters)
-        updateSelectInput(session, "seuilNA", 
-                          selected = input$seuilNA)
+         updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+        updateSelectInput(session, "seuilNA", selected = input$seuilNA)
         
       }
     }
-    # #, warning = function(w) {
-    # #    shinyjs::info(conditionMessage(w))
-    # }
-    # , error = function(e) {
-    #     shinyjs::info(paste("Perform missing values filtering",":",
-    #                         conditionMessage(e), 
-    #                         sep=" "))
-    # }, finally = {
-    #     #cleanup-code 
-    # })
+
   })
 })
-
-
-# observe({
-#     input$idBoxContaminants
-#     input$prefixContaminants
-#     input$idBoxReverse
-#     input$prefixReverse
-#     
-#     if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
-#         is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
-#         (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
-#         (input$prefixContaminants == "") || (input$prefixReverse == ""))
-#     {
-#         shinyjs::disable("performFilteringContaminants")
-#         rv$nbContaminantsDeleted <- NULL
-#         rv$nbReverseDeleted <- NULL
-#         rv$nbBothDeleted <- NULL
-#         
-#         return(NULL)
-#     }
-#     else {
-#         shinyjs::enable("performFilteringContaminants")
-#         
-#     }
-# })
-
-
-
-# 
-# majPropContaminants <- reactive({
-#     input$performFilteringContaminants
-#     
-#   input$idBoxContaminants
-#   input$prefixContaminants
-#   input$idBoxReverse
-#   input$prefixReverse
-# 
-#     if (is.null(input$performFilteringContaminants)){return (NULL)}
-#   if (is.null(rv$current.obj)){return (NULL)}
-#   if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
-#        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
-#        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
-#       (input$prefixContaminants == "") || (input$prefixReverse == ""))
-#   {
-#       return(NULL)
-#       }
-#     
-#   isolate({
-#   l <- length(rv$dataset)
-#         if (l ==1){ #Original dataset
-#             obj <- rv$dataset[[1]]
-#         } else {
-#             dname <- unlist(strsplit(names(rv$dataset)[l], " - "))[1]
-#             if (dname == "Filtered") {
-#                 obj <- rv$dataset[[l - 1]]
-#             } else {
-#                 obj <- rv$dataset[[l]]
-#             }
-#         }
-#   
-#   
-#    ind <- getIndicesOfLinesToRemove(obj,
-#                                    input$idBoxContaminants,
-#                                    input$prefixContaminants)
-#   if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
-# 
-#   ind <- getIndicesOfLinesToRemove(obj,
-#                                    input$idBoxReverse,
-#                                    input$prefixReverse)
-#   if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
-#   
-#   
-#   
-# 
-#   })
-# })
-
-
-
-
-#########################
-# observeEvent(input$performFilteringContaminants,{
-# 
-#   rv$current.obj
-#   #input$idBoxContaminants
-#   #input$prefixContaminants
-#   #input$idBoxReverse
-#   #input$prefixReverse
-#   
-#   if (is.null(rv$current.obj)){return (NULL)}
-#   if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-#       is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-#       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-#       is.null(input$prefixReverse) || (input$prefixReverse == "")
-#   ) {return(NULL)}
-#     #if (is.null(input$perform.filtering.Contaminants) ){return()}
-#     #if (input$perform.filtering.Contaminants == 0){return()}
-#     
-#     isolate({
-#         
-#         result = tryCatch(
-#             {
-#                 temp <- rv$current.obj
-#                 
-#                 res <- StringBasedFiltering(temp,
-#                                             input$idBoxContaminants, 
-#                                             input$prefixContaminants,
-#                                             input$idBoxReverse,
-#                                             input$prefixReverse
-#                                             )
-#                 
-#                 
-#                 rv$deleted.both <- res[["deleted.both"]]
-#                 rv$deleted.contaminants <-res[["deleted.contaminants"]]
-#                 rv$deleted.reverse <-res[["deleted.reverse"]]
-#                 
-#                 # majPropContaminants()
-#                 rv$nbReverseDeleted <- nrow(rv$deleted.reverse)
-#                 rv$nbContaminantsDeleted <- nrow(rv$deleted.contaminants)
-#                 rv$nbBothDeleted <- nrow(rv$deleted.both)
-#                 
-#                 rv$current.obj <- res[["obj"]]
-#                 rv$stringBasedFiltering_Done = TRUE
-#                 
-#                 updateSelectInput(session, "idBoxReverse", selected = input$idBoxReverse)
-#                 updateSelectInput(session, "idBoxContaminants", selected = input$idBoxContaminants)
-#                 updateSelectInput(session, "prefixContaminants",  selected = input$prefixContaminants)
-#                 updateSelectInput(session,  "prefixReverse", selected = input$prefixReverse)
-#                 
-#                 updateTabsetPanel(session, "tabFilter",  selected = "FilterContaminants")
-#                 
-#                 #disableActionButton("resetFilterParamsButton", session)
-#                 #createPNG_Filtering()
-#             }
-#             #, warning = function(w) {
-#             #    shinyjs::info(conditionMessage(w))
-#             # }
-#             , error = function(e) {
-#                 shinyjs::info(paste("Perform contaminants filtering",":",
-#                                     conditionMessage(e), 
-#                                     sep=" "))
-#             }, finally = {
-#                 #cleanup-code 
-#             })
-#         
-#         
-#         
-#         
-#         
-#         
-#     })
-# })
 
 
 
@@ -576,9 +318,9 @@ disableActionButton <- function(id,session) {
 
 #-----------------------------------------------
 output$ObserverStringBasedFilteringDone <- renderUI({
-  rv$current.obj
+  req(rv$current.obj)
   rv$stringBasedFiltering_Done
-  if (is.null(rv$current.obj)) {return(NULL)}
+
   isolate({
     if (!rv$stringBasedFiltering_Done) 
     {return(NULL)  }
@@ -596,9 +338,7 @@ output$ObserverStringBasedFilteringDone <- renderUI({
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
-  
-  #if( (input$ValidateFilters == 0)) {return(NULL)}
-  if(is.null(rv$current.obj)) {return(NULL)}
+  req(rv$current.obj)
   if((input$ChooseFilters != gFilterNone) || (nrow(rv$DT_filterSummary )>1)){
     
     if (nrow(rv$DT_filterSummary) <=1) {
@@ -618,27 +358,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
     
-    
-    ###### write to commandLog File
-    #if (input$showCommandLog){
-    #    writeToCommandLogFile(  
-    #    paste("dataset[['",name, "']] <- current.obj", sep=""))
-    #}
-    ###### end write to command log file
-    
-    
-    updateSelectInput(session, "datasets", 
-                      #paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                      choices = names(rv$dataset), 
-                      selected = name)
-    
-    
-    ## Add the necessary text to the Rmd file
-    #txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
-    #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-    #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    #createPNG_Filtering()
-    
+    updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   }
   
   
@@ -646,80 +366,11 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
 
 
 
-# observeEvent(input$resetFilterParamsButton, ignoreInit = TRUE,{
-#   updateSelectInput(session, "idBoxContaminants", selected="")
-#   updateSelectInput(session, "idBoxReverse", selected="")
-#   updateTextInput(session, "prefixContaminants", value="")
-#   updateTextInput(session, "prefixReverse", value="")
-#   
-#   #rv$nbReverseDeleted <- NULL
-#   #rv$nbContaminantsDeleted <- NULL
-# })
-
-
-# 
-# output$choosePrefixContaminants <- renderUI({
-#     rv$current.obj
-#     input$idBoxContaminants
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#    # if (input$idBoxContaminants=="") {return(NULL)  }
-#     if (is.null(input$idBoxContaminants) ) {return(NULL)  }
-#     
-#    # if (input$idBoxContaminants != ""){
-#       textInput("prefixContaminants", label = "Choose prefix",value = "")
-#    # }
-# })
-
-
-# output$choosePrefixReverse <- renderUI({
-#     rv$current.obj
-#     input$idBoxReverse
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     #if (input$idBoxReverse == "") {return(NULL)  }
-#     if (is.null(input$idBoxReverse) ) {return(NULL)  }
-#     
-#    # if (input$idBoxReverse != ""){
-#       textInput("prefixReverse", label = "Choose prefix",value = "")
-#    # }
-# })
-# 
-
-# 
-# output$id_Contaminants <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     
-#     .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
-#     names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
-#     selectInput("idBoxContaminants", 
-#                 label = "Choose column", 
-#                 choices = .choices , 
-#                 selected = "")
-# })
-
-# 
-# output$id_Reverse <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     
-#     .choices <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-#     names(.choices) <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-#     selectInput("idBoxReverse", 
-#                 label = "Choose column", 
-#                 choices = .choices , 
-#                 selected = "")
-# })
-
-
-
-
-
 #########################################################
 ##' Show the widget for filters
 ##' @author Samuel Wieczorek
 output$choixFiltres <- renderUI({
-  input$file
-  if (is.null(input$file)) {return(NULL)}
+  req(input$file)
   rv$current.obj
   radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
   
@@ -728,7 +379,6 @@ output$choixFiltres <- renderUI({
 
 
 output$helpTextMV <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)}
+  req(rv$current.obj)
   helpText("After checking the data, validate the filters.")
 })
