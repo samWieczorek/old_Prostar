@@ -3,7 +3,9 @@
 
 output$citationText <- renderUI({
   tagList(
-    tags$p(class="body",tags$b("Maintaining ProStaR as free software is a heavy and time-consuming
+    tags$div(
+      style="background-color: lightgrey;",
+tags$p(class="body",tags$b("Maintaining ProStaR as free software is a heavy and time-consuming
                 duty. If you use it, please cite the following reference:"),
            tags$br(),
            "S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
@@ -13,8 +15,9 @@ output$citationText <- renderUI({
               tags$i("Bioinformatics 33(1), 135-136"),
            tags$b("2017")),
   tags$a("http://doi.org/10.1093/bioinformatics/btw580", href="http://doi.org/10.1093/bioinformatics/btw580", target="_blank")
-    )
   
+    )
+  )
   })
 
 
@@ -31,10 +34,10 @@ tags$b("DAPAR")," and ", tags$b("ProStaR"), " form a
            relative quantitative data from discovery experiments.", tags$br(),"
            It is composed of two distinct R packages :",
     tags$ul(
-      tags$li(tags$p(tags$a("Prostar", href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", target="_blank")," (version ",
-                             ProstarVersion, "): the web based graphical user interface to DAPAR")),
-      tags$li(tags$p(tags$a("DAPAR", href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", target="_blank")," (version ",
-                              daparVersion,"): acollection of tools and graphs dedicated to proteomic analysis"))
+      tags$li(tags$p(tags$a("Prostar", href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", target="_blank"),paste0(" (version ",
+                             ProstarVersion,"): the web based graphical user interface to DAPAR"))),
+      tags$li(tags$p(tags$a("DAPAR", href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", target="_blank"),paste0(" (version ",
+                              daparVersion,"): a collection of tools and graphs dedicated to proteomic analysis")))
     )
             )
 )
