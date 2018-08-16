@@ -1,4 +1,4 @@
 tabPanel("Release notes",
          value="ReleaseNotesTab",
-         uiOutput("versionLog"),
+         uiOutput("versionNotes"),
          uiOutput("warningDependanciesVersion"))

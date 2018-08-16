@@ -8,8 +8,8 @@ tabPanel(title="Home",
              tags$img(src='images/logoProstarComplet.png', width='150px', height='150px')
                      ),
          tags$div(
-           style="margin-top: 50px;">
-             tags$p()
+           style="margin-top: 50px;",
+             tags$p("")
          ),
          uiOutput("versionsText"),
          tags$br(), tags$br(),
