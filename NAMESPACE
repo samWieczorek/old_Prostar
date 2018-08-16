@@ -7,7 +7,7 @@ import(htmlwidgets)
 import(DAPARdata)
 import(shinyAce)
 import(shinyBS)
-
+import(BiocManager)
 import(highcharter)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
