@@ -76,7 +76,7 @@ output$descriptionText <- renderUI({
                      quantitative dataset;")),
       tags$li(tags$p(class="body",tags$b("Differential analysis"), " which includes multiple testing correction 
                      (for false discovery rate estimation).")),
-      tags$li(tags$p(class="body",tags$b("Gene Ontology (GO) analysis"), " allows is to map protein list onto GO terms and 
+      tags$li(tags$p(class="body",tags$b("Gene Ontology (GO) analysis"), " allows to map protein list onto GO terms and 
                      to test category enrichment."))
     )
   )

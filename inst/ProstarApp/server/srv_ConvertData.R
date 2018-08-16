@@ -12,15 +12,260 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
 
 callModule(moduleDatasetOverview,"overview_convertData")
 
+
+
+
+
+buildTable <- function(text, color){
+  
+  rows.color <- rows.text <- list()
+  rows.text <- list()
+  for( i in 1:length( color ) ) {
+    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
+    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
+  }
+  
+ html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 2px;",
+                           tags$tr( rows.color ),
+                           tags$tr( rows.text )
+ )
+ return(html.table)
+  
+}
+
+output$checkConvertPanel <- renderUI({
+    rv$tab1
+    rv$pageConvert
+    color <- rep("lightgrey",NUM_PAGES_CONVERT)
+    
+   ##Step 1
+    if (rv$pageConvert >= 1){
+    res <- !is.null(rv$tab1)
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+   }
+  
+    ##Step 2: Choose data ID
+    
+    if (rv$pageConvert >= 2){
+      res <- !is.null(input$autoID) && 
+            (
+            (input$autoID=="Auto ID") ||
+            ( (input$autoID=="custom ID") &&(!is.null(input$idBox) && (input$idBox != "") && datasetID_Ok()) )
+            )
+      ifelse(res, color[2] <- "green", color[2] <- "red")
+      
+    } 
+    
+    ## Step 3: Choose quantitative data
+    if (rv$pageConvert >= 3){
+      res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
+      
+      ifelse(res, color[3] <- "green", color[3] <- "red")
+      
+    }
+    
+    if (rv$pageConvert >= 4){
+      res <- isTRUE(rv$designChecked$valid)
+      ifelse(res, color[4] <- "green", color[4] <- "red")
+    }
+    
+    if (rv$pageConvert >= 5){
+      res <- TRUE
+      ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
+    }
+    
+    txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
+    buildTable(txt, color)
+})
+
+NUM_PAGES_CONVERT <- 5
+
+observe({
+  toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
+  hide(selector = ".page")
+  show(paste0("step", rv$pageConvert))
+})
+
+navPageConvert <- function(direction) {
+  rv$pageConvert <- rv$pageConvert + direction
+}
+
+observeEvent(input$prevBtnConvert, navPageConvert(-1))
+observeEvent(input$nextBtnConvert, navPageConvert(1))
+
+
+
+#################################
+output$Convert_SelectFile <- renderUI({
+  if (rv$pageConvert != 1){return()}
+  tagList(br(), br(),
+          fluidRow(
+            column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
+            column(width = 10, fileInput("file1", "", 
+                                         multiple=FALSE, 
+                                         accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
+          uiOutput("ManageXlsFiles"),
+          # helpText("Hint : before importing quantification 
+          #             file data, check the syntax of your text 
+          #             file."),
+          br(),
+          uiOutput("ConvertOptions")
+          )
+})
+
+
+output$Convert_DataId <- renderUI({
+  if (rv$pageConvert != 2){return()}
+  
+  tagList(
+    br(), br(),
+  #uiOutput("helpTextDataID"),
+  modulePopoverUI("modulePopover_convertIdType"),
+  radioButtons("autoID", width="500px",
+               "", 
+               choices=G_ConvertDataID_Choices,
+               selected=character(0)),
+  conditionalPanel(
+    condition = 'input.autoID == "custom ID"',
+    uiOutput("id"),
+    uiOutput("warningNonUniqueID"))
+  )
+
+})
+
+
+
+output$Convert_ExpFeatData <- renderUI({
+  if (rv$pageConvert != 3){return()}
+  
+  tagList(
+    fluidRow(
+      column(width=4,checkboxInput("selectIdent", 
+                                   "Select columns for identification method", 
+                                   value = FALSE)),
+      column(width=4,uiOutput("checkIdentificationTab"))
+    ),
+    fluidRow(
+      column(width=4,uiOutput("eData",width = "400px")),
+      column(width=8,dataTableOutput("x1", width='500px'))),
+    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                     Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+})"))
+                           )
+})
+
+
+
+output$Convert_BuildDesign <- renderUI({
+  if (rv$pageConvert != 4){return()}
+  
+
+  tagList(
+    tags$p("If you do not know how to fill the experimental design, you can click
+           on the '?' next to each design in the list that appear once the conditions 
+           are checked or go to the ", 
+           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+           " page."),
+    fluidRow(
+      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
+      column(width=6,uiOutput("UI_checkConditions")  )
+    ),
+    fluidRow(
+      column(width=6,uiOutput("UI_hierarchicalExp")),
+      column(width=6,uiOutput("checkDesign") )
+    )
+  ,
+  hr(),
+  
+  tags$div(
+    
+    tags$div(style="display:inline-block; vertical-align: top;",
+             uiOutput("viewDesign",width="100%")
+    ),
+    tags$div(style="display:inline-block; vertical-align: top;",
+             shinyjs::hidden(
+               div(id = "exLevels",uiOutput("designExamples")))
+    )
+  )
+    
+  )
+  
+})
+
+
+
+output$Convert_Convert <- renderUI({
+  if (rv$pageConvert != 5){return()}
+   
+  tagList(
+    htmlOutput("msgAlertCreateMSnset"),
+    # fluidRow(
+    #   column(width=4,textInput("filenameToCreate","Enter the name of the study")),
+    #   column(width=4,actionButton("createMSnsetButton","Convert data"))),
+    # 
+    
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                textInput("filenameToCreate","Enter the name of the study")
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                tags$p(""),
+                actionButton("createMSnsetButton","Convert data")
+      )
+    ),
+    
+    
+    uiOutput("warningCreateMSnset"),
+    tags$div(style="align: center;",
+             moduleDatasetOverviewUI("overview_convertData")
+    ),
+    uiOutput("conversionDone")
+  )
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################
+
+
+
+
+
+datasetID_Ok <- reactive({
+  req(input$idBox)
+  req(rv$tab1)
+  #if ((input$idBox =="")) {return(NULL)  }
+  
+  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  
+  t
+})
+
+
 output$warningNonUniqueID <- renderUI({
     input$idBox
     req(rv$tab1)
     if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
     
-    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-    
-    if (!t){
+    # t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+    #       == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+    # 
+    if (!datasetID_Ok()){
         text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
@@ -148,12 +393,15 @@ observeEvent(c(input$file1,input$XLSsheets),{
 
 
 output$conversionDone <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) { return(NULL)}
+  req(rv$current.obj)
+  shinyjs::hide('prevBtnConvert')
+  shinyjs::hide('nextBtnConvert')
   
-  h4("The conversion is done. Your dataset has been automatically loaded 
+  tags$p(style="font-size: 16;",
+         "The conversion is done. Your dataset has been automatically loaded 
        in memory. Now, you can switch to the Descriptive statistics panel to 
        vizualize your data.")
+  
   
 })
 
@@ -181,8 +429,7 @@ output$ManageXlsFiles <- renderUI({
 
 #########################################################
 output$id <- renderUI({
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
+   req(rv$tab1)
     
     .choices <- c("",colnames(rv$tab1))
     names(.choices) <- c("",colnames(rv$tab1))
@@ -365,6 +612,7 @@ observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{
 
 
 
+
 output$warningCreateMSnset <- renderUI({
     if (isTRUE(input$selectIdent)){
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
@@ -380,18 +628,28 @@ output$warningCreateMSnset <- renderUI({
 
 
 
+checkIdentificationMethod_Ok <- reactive({
+  #req(input$selectIdent)
+  res <- TRUE
+  tmp <- NULL
+  if (isTRUE(input$selectIdent)) {
+    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
+  } 
+  res
+  
+})
 
 #######################################
 observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
     #{return(NULL)}
-    
-    colNamesForOriginofValues <- NULL
-    if (isTRUE(input$selectIdent)) {
-        colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-        if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
-    } 
-    
+   if (is.null(rv$designChecked)){return()}
+   
+   if (!(rv$designChecked$valid)){return(NULL)}
+  
+    if(!checkIdentificationMethod_Ok()){ return (NULL)   }
+ 
     isolate({
         result = tryCatch(
             {
@@ -421,7 +679,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$autoID == "user ID") {
+                if (input$autoID == "custom ID") {
                     indexForIDBox <- match(input$idBox, colnames(rv$tab1))
                 }
                 
@@ -431,7 +689,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                 
                 indexForOriginOfValue <- NULL
-                if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
+                if (isTRUE(input$selectIdent)){
                     for (i in 1:length(tmp.eData.box)){
                         indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                     }
@@ -454,6 +712,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                     pep_prot_data = input$typeOfData,
                                     versions
                 )
+                
                 ClearUI()
                 ClearMemory()
                 rv$current.obj <- tmp
@@ -463,60 +722,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 l.params <- list(filename = input$filenameToCreate)
                 UpdateLog("Original",l.params)
                 
-                # 
-                # #if (input$showCommandLog){
-                # 
-                # metadata <- as.data.frame(metadata)
-                # t <- "metadata <- data.frame("
-                # for (c in colnames(metadata)){
-                #     t <- paste(t,c, " = c(",sep="")
-                #     
-                #     for (i in 1:(nrow(metadata)-1)){
-                #         
-                #         car <- metadata[i,as.character(c)]
-                #         #if (car == " ") { car <- NA}
-                #         t <- paste(t,"\"",car, "\",",
-                #                    sep="")
-                #     }
-                #     
-                #     car <- last(metadata[,as.character(c)])
-                #     #if (car == " ") { car <- NA}
-                #     
-                #     t <- paste(t,"\"",car, "\")",
-                #                sep="")
-                #     if (c!= last(colnames(metadata))){t <- paste(t,", ") }
-                #     else {t <- paste(t,")") }
-                # }
-                # 
-                # 
-                # writeToCommandLogFile(t)
-                # 
-                # t <- "rownames(metadata) <- c("
-                # for (i in rownames(metadata)){
-                #     t <- paste(t,"\"",as.character(i), "\"",sep="")
-                #     if (i != last(rownames(metadata))){t <- paste(t,", ") }
-                #     else {t <- paste(t,")") }
-                # }
-                # writeToCommandLogFile(t)
-                # 
-                # 
-                # p <- "c("
-                # for (i in 1:(length(indexForEData)-1)){
-                #     p <- paste(p,indexForEData[i], ",",sep="")}
-                # p <- paste(p, last(indexForEData), ")", sep="")
-                # writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
-                # 
-                # p <- "c("
-                # for (i in 1:(length(indexForFData)-1)){
-                #     p <- paste(p,indexForFData[i], ",",sep="")}
-                # p <- paste(p, last(indexForFData), ")", sep="")
-                # writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
-                # 
                 
-                
+                rv$pageConvert <- 5
                 loadObjectInMemoryFromConverter()
-                
-                updateTabsetPanel(session, "tabImport", selected = "Convert")
+              
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){

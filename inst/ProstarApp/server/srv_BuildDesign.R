@@ -24,20 +24,20 @@ color_renderer <- reactive({
 
 
 
-output$convertFinalStep <- renderUI({
-req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data"),
-    uiOutput("warningCreateMSnset"),
-    moduleDatasetOverviewUI("overview_convertData"),
-    uiOutput("conversionDone")
-  )
-})
+# output$convertFinalStep <- renderUI({
+# req(rv$designChecked)
+#   if (!(rv$designChecked$valid)){return(NULL)}
+#   tagList(
+#     uiOutput("checkAll_convert", width="50"),
+#     htmlOutput("msgAlertCreateMSnset"),
+#     hr(),
+#     textInput("filenameToCreate","Enter the name of the study"),
+#     actionButton("createMSnsetButton","Convert data"),
+#     uiOutput("warningCreateMSnset"),
+#     moduleDatasetOverviewUI("overview_convertData"),
+#     uiOutput("conversionDone")
+#   )
+# })
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{

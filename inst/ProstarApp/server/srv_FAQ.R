@@ -2,8 +2,20 @@
 output$FAQ_output <- renderUI({
   
   tagList(
-    tags$br(),tags$br(),tags$br(),
-    tags$h4("1 - Why the table in experimental design blinks when I am editing it?"),
+    
+    ## table of contents
+    tags$h3("Table of contents"),
+    tags$ol(
+      tags$li(tags$a("Why the table in experimental design blinks when I am editing it?", href="#tableBlinks")),
+      tags$li(tags$a("How to build a valid experimental design?", href="#buildDesign")),
+      tags$li(tags$a("The items of the contextual menus for plots are 'undefined'", href="#undefinedItems"))
+    ),
+    
+    
+    
+    
+    tags$hr(),
+    tags$h4(id="tableBlinks", "1 - Why the table in experimental design blinks when I am editing it?"),
     tags$p("When you edit the experimental design (during converting a text file to MSnset or during the update of the design),
            it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. 
            This happens if you edit the cells too fast w.r.t. the speed of update of the table. We apologize for this caveat : this is a known bug of the package used to
@@ -11,7 +23,7 @@ output$FAQ_output <- renderUI({
     tags$br(),
     
     
-    tags$h4("2 - How to build a valid experimental design?"),
+    tags$h4( id="buildDesign", "2 - How to build a valid experimental design?"),
     tags$p("The differential analysis with ProStaR is devoted to the processing of", tags$b("hierarchical unpaired experimental designs"), 
             ". However, in former versions, this was not explicit enough, so that users with paired samples could used ProStaR 
             with wrong assumptions. To clear this out, we have changed the experimental design construction step so that 
@@ -28,7 +40,7 @@ output$FAQ_output <- renderUI({
            due to a numbering convention, and the statistical test is not impacted."),
     tags$br(),
     
-    tags$h4("3 - The items of the contextual menus for plots are 'undefined'"),
+    tags$h4(id="undefinedItems", "3 - The items of the contextual menus for plots are 'undefined'"),
     tags$p("This happens if the version of the package 'highcharter' is less or equal to 0.5.0. To fix this issue, you
            should install the devel version of the package by typing the following command in a R console:
            devtools::install_github('jbkunst/highcharter')"),

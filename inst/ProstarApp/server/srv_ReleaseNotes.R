@@ -2,7 +2,7 @@
 output$warningDependanciesVersion <- renderUI({
   
   DTVersion <- installed.packages()["DT","Version"]
-  highcharterVersion <-installed.packages()["highcharter","Version"]
+  highcharterVersion <- installed.packages()["highcharter","Version"]
   
   if (DTVersion != "0.4.11" || highcharterVersion != "0.6.0"){
     tagList(
@@ -22,16 +22,8 @@ output$warningDependanciesVersion <- renderUI({
 
 
 
-output$versionLog <- renderUI({
+output$versionNotes <- renderUI({
   
-  txt <- "<strong><font size=\"4\" color=\"red\">Note:</font></strong> <br>
-  <font color=\"red\">For a better experience with Prostar, we advice you to install the development version of the following
-  packages : DT and highcharter. <br>
-  To do so, type and execute the followings commands in a R console:<br>
-  <ul>
-  <li> devtools::install_github('rstudio/DT')</li>
-  <li> devtools::install_github('jbkunst/highcharter')</li>
-  </ul> </font>"
   
   tagList(
     tags$h4("News in Prostar 1.13.x"),
@@ -47,7 +39,10 @@ output$versionLog <- renderUI({
               experimental design table, the column names 'Experiment' and 'Label' have been replaced
               respectively by 'Sample.name' and 'Condition'."),
       tags$li("Better managment of dropdown menus"),
-      tags$li("Add a Bug report tab in the 'Help' menu")
+      tags$li("Add a Bug report tab in the 'Help' menu"),
+      tags$li("Reorganisation of the menus: Data preprocessing, Data mining"),
+      tags$li("Add proportions in logFC distribution plot"),
+      tags$li("Delete the dependancy to the package imputeLCMD")
       )
     
     
