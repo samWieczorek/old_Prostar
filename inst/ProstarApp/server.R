@@ -1,3 +1,4 @@
+
 rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2) 
@@ -15,20 +16,19 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
-    Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
+   
+  #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
     
     #Set up writing
-    logfilename <-paste(tempdir(),"shiny.log", sep="/")
-    print(logfilename)
-    con <- file(logfilename)
+    logfilename <- tempfile(fileext=".log")
+    con <- file(logfilename,"w")
     if(!interactive()){
       sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
     }
-    
     
     
     
@@ -62,11 +62,12 @@ shinyServer(function(input, output, session) {
     #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
     #activatePopover()
-  
+    
+    loadLibraries()
     
      observe({
         req(input$navPage)
-        print(input$navPage)
+        #print(input$navPage)
         
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,

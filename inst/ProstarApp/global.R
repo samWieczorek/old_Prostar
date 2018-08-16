@@ -4,34 +4,41 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 
-library(DAPAR, lib.loc = DAPAR.loc)
-library(R.utils)
+
 library(shinycssloaders)
-library(highcharter)
 library(shinythemes)
 library(shiny)
-library(rhandsontable)
-library(data.table)
 library(shinyjs)
 library(shinyAce)
 library(shinyBS)
-library(RColorBrewer)
 library(rclipboard)
-library(tidyr)
-library(dplyr)
-library(data.table)
-library(reshape2)
 library(DT)
-library(MSnbase)
-#library(openxlsx)
-library(sm)
-#library(imp4p)
-library(tidyverse)
-library(webshot)
+
 library(htmlwidgets)
-library(vioplot)
-library(ggplot2)
-library(gplots)
+
+
+
+loadLibraries <- function(){
+  
+  library(vioplot)
+  library(ggplot2)
+  library(gplots)
+  library(tidyr)
+  library(dplyr)
+  library(data.table)
+  library(reshape2)
+
+  library(MSnbase)
+  library(sm)
+  library(tidyverse)
+  library(RColorBrewer)
+  library(webshot)
+  library(DAPAR, lib.loc = DAPAR.loc)
+  library(R.utils)
+  library(highcharter)
+  library(rhandsontable)
+  library(data.table)
+}
 
 
 library(future)
@@ -589,7 +596,7 @@ G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
 
 G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
 
-G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "User ID" = "user ID")
+G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "Custom ID" = "custom ID")
 G_exportFileFormat_Choices <- c( "MSnset","Excel", "zip")
 gFileFormatExport <- list(msnset = "MSnset",excel = "Excel", zip="zip")
 gFileExtension <- list(txt = ".txt",

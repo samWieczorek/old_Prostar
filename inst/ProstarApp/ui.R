@@ -8,7 +8,6 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
 shinyUI <- tagList(
  
-  
   rclipboardSetup(),
   
     shinyjs::useShinyjs(),
@@ -33,12 +32,19 @@ sidebarPanelWidth()
 ,includeScript("www/progressBar/ShinyProgress2.js")
 ,includeCSS("www/css/prostar.css")
 , inlineCSS(".body { font-size:14px;}")
+, inlineCSS(".rect {float: left;
+                     width: 100px;
+                      height: 20px;
+                      margin: 2px;
+                      border: 1px solid rgba(0, 0, 0, .2);}")
+, inlineCSS(".green {background: green;}")
+, inlineCSS(".red {background:red;}")
+, inlineCSS(".grey {background:lightgrey;}")
 
 #,source(file.path("ui", "ui_navbarPage.R"),  local = TRUE)$value
 ,navbarPage(theme = shinytheme("cerulean")
             
             ,id = "navPage"
-            #,""
             ,absolutePanel(
               id  = "#AbsolutePanel",
               top = 0,
@@ -70,3 +76,5 @@ sidebarPanelWidth()
                         source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
             )
 ))
+
+
