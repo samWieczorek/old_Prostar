@@ -2,6 +2,179 @@ callModule(missingValuesPlots,"MVPlots_filtering")
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 
 
+
+
+output$filteringDone <- renderUI({
+  #input$datasets
+  if( length(grep("Filtered", input$datasets))==0) {return()}
+  
+  shinyjs::hide('prevBtnFiltering')
+  shinyjs::hide('nextBtnFiltering')
+  
+  tags$p(style="font-size: 24;",
+         tags$b("The filtering has been processed."))
+  
+  
+})
+
+output$checkFilteringPanel <- renderUI({
+  
+  #rv$pageFiltering
+  color <- rep("lightgrey",NUM_PAGES_FILTERING)
+  
+  ##Step 1
+  if (rv$pageFiltering >= 1){
+    res <- rv$mvFiltering_Done
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageFiltering >= 2){
+    res <- rv$stringBasedFiltering_Done
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  } 
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageFiltering == 3){
+    res <-   length(grep("Filtered", input$datasets))==1
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+  }
+
+  txt <- c("MV filtering", "String-based filtering", "Validate")
+  buildTable(txt, color)
+})
+
+
+
+NUM_PAGES_FILTERING <- 3
+
+observe({
+  toggleState(id = "prevBtnFiltering", condition = rv$pageFiltering > 1)
+  toggleState(id = "nextBtnFiltering", condition = rv$pageFiltering < NUM_PAGES_FILTERING)
+  hide(selector = ".page")
+ # show(paste0("step", rv$pageFiltering))
+})
+
+navPageFiltering <- function(direction) {
+  rv$pageFiltering <- rv$pageFiltering + direction
+  
+  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+  
+  
+}
+
+observeEvent(input$prevBtnFiltering, navPageFiltering(-1))
+observeEvent(input$nextBtnFiltering, navPageFiltering(1))
+
+
+
+output$mv_Filtering <- renderUI({
+  if (rv$pageFiltering != 1){return(NULL)}
+  
+  tagList(
+    uiOutput("DP_sidebar_FilterTab1"),
+   tags$p("The user-defined threshold allows it to tune the minimum amount of non-NA
+                                                         values for each line to <br> be kept in the dataset
+                                                         (the line is filtered out otherwise).
+                                                         The threshold either applies on the whole  <br> dataset, on
+                                                         each condition or on at least one condition."),
+   tags$div(style="margin-bottom:200px;",
+                  missingValuesPlotsUI("MVPlots_filtering")
+                )
+                
+              )
+
+})
+
+
+
+
+output$stringBased_Filtering <- renderUI({
+  if (rv$pageFiltering != 2){return(NULL)}
+  
+  req(rv$DT_filterSummary)
+  
+  if (nrow(rv$DT_filterSummary) <= 1) {
+    choice <- c("None", colnames(fData(rv$current.obj)))
+  } else {
+    index <- match(rv$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+    choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  }
+    
+    tagList(
+      tags$div(
+        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                  selectInput("symFilter_cname", "Column name", choices = choice)
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                  textInput("symFilter_tagName", "Prefix", value = "")
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle;",
+                  p(""),actionButton("actionButtonFilter", "Perform")
+        )
+      ),
+      tags$hr(),
+    DT::dataTableOutput("FilterSummaryData")
+              )
+})
+
+
+## Perform missing values filtering
+observeEvent(input$perform.filtering.MV,{
+  
+  # if (input$perform.filtering.MV == 0){return()}
+  
+   isolate({
+  
+  if (input$ChooseFilters == gFilterNone){
+    rv$current.obj <- rv$dataset[[input$datasets]]
+    rv$mvFiltering_Done <- FALSE
+  } else {
+    
+    keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
+                                   input$ChooseFilters,
+                                   as.integer(input$seuilNA))
+    if (!is.null(keepThat))
+    {
+      rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
+      rv$current.obj <- 
+        mvFilterFromIndices(rv$dataset[[input$datasets]],
+                            keepThat,
+                            GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
+      rv$mvFiltering_Done <- TRUE
+      updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+      updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+      
+    }
+  }
+  
+   })
+})
+
+
+
+
+
+output$valid_Filtering <- renderUI({
+  if (rv$pageFiltering != 3){return()}
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Filter3",
+                        uiOutput("DP_sidebar_FilterTab3"),
+                        actionButton("ValidateFilters","Save filtered dataset",styleclass = "primary"),
+                        uiOutput("legendForExprsData2")
+              ),
+              tagList(
+                DT::dataTableOutput("VizualizeFilteredData"),
+                uiOutput("helpTextMV")
+              )
+  )
+})
+
+
 observeEvent(input$actionButtonFilter,{
   rv$current.obj
   temp <- rv$current.obj
@@ -62,7 +235,8 @@ output$FilterSummaryData <- DT::renderDataTable({
                              bLengthChange = FALSE,
                              scrollX = 200,
                              scrollY = 600,
-                             scroller = TRUE
+                             scroller = TRUE,
+                             ordering = F
                 ))
 })
 
@@ -78,40 +252,65 @@ observe({
 })
 
 
+callModule(modulePopover,"modulePopover_filteringTypeFilter", 
+           data = reactive(list(title = tags$p(style="font-size:12;",tags$b("Type of filter")), 
+                                content="xxxx")))
+
+
 output$DP_sidebar_FilterTab1 <- renderUI({
   req(rv$current.obj)
   tag <- rv$current.obj@experimentData@other$mvFilter.method
   if (!is.null(tag)) { filter <- tag}
   
   tagList(
-    h4("Options")
-     ,radioButtons("ChooseFilters","",  choices = gFiltersList),
-    uiOutput("seuilNADelete"),
-    actionButton("perform.filtering.MV", "Perform MV filtering")
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                modulePopoverUI("modulePopover_filteringTypeFilter"),
+                radioButtons("ChooseFilters","",  choices = gFiltersList)
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                uiOutput("seuilNADelete")
+      ),
+      
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                actionButton("perform.filtering.MV", "Perform MV filtering")
+      )
+    )
   )
   
   
 })
 
 
-output$DP_sidebar_FilterTab3 <- renderUI({
-  
+
+#########################################################
+##' Show the widget (slider input) for filtering
+##' @author Samuel Wieczorek
+output$seuilNADelete <- renderUI({ 
+  input$ChooseFilters
   req(rv$current.obj)
+  
+  if ((input$ChooseFilters==gFilterNone) || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
+  
+  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
+  
   tagList(
-     radioButtons("ChooseTabAfterFiltering", 
-                 "Choose the data to display",
-                 choices=
-                   list("Quantitative data" = "quantiData",
-                        "Meta data" = "metaData"),
-                 selected=character(0))
-    ,radioButtons("ChooseViewAfterFiltering", 
-                  "Type of filtered data", 
-                  choices=
-                    list("Deleted on missing values" = "MissingValues",
-                         "Deleted string based" = "StringBased"),
-                  selected=character(0))
-    
+    modulePopoverUI("modulePopover_filteringChooseFilter"),
+    selectInput("seuilNA", "", choices = choix, width='100px')
   )
+})
+
+
+
+
+output$DP_sidebar_FilterTab3 <- renderUI({
+   tagList(
+     radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
+                 choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))
+    ,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
+                  choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
+                  selected=character(0))
+ )
 })
 
 
@@ -215,72 +414,9 @@ output$VizualizeFilteredData <- DT::renderDataTable({
 })
 
 
-#########################################################
-##' Show the widget (slider input) for filtering
-##' @author Samuel Wieczorek
-output$seuilNADelete <- renderUI({ 
-  input$ChooseFilters
-  
-  if (is.null(rv$current.obj)) {return(NULL)   }
-  if ((input$ChooseFilters==gFilterNone) || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
-  
-  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
-  selectInput("seuilNA", 
-              "Keep lines with at least x intensity values", 
-              choices = choix)
-  
-})
-
-# 
-# GlobalPieChart <- reactive({
-#     rv$current.obj
-#     rv$nbContaminantsDeleted
-#     rv$nbReverseDeleted
-#     rv$nbBothDeleted
-#     #input$idBoxContaminants
-#     #input$prefixContaminants
-#     #input$idBoxReverse
-#    # input$prefixReverse
-#    # if (is.null(rv$current.obj)) {return()}
-#    # if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-#    
-#     # result = tryCatch(
-#     #     {
-#     #         
-#     isolate({
-#         proportionConRev_HC(rv$nbBothDeleted,
-#                             rv$nbContaminantsDeleted, 
-#                             rv$nbReverseDeleted, 
-#                             nrow(rv$current.obj))
-#       
-#     })
-#     
-# })
-# 
-# output$GlobalPieChart <- renderHighchart({
-#   rv$current.obj
-#     rv$nbBothDeleted
-#     rv$nbContaminantsDeleted
-#   rv$nbReverseDeleted
-#   input$idBoxContaminants
-#   input$prefixContaminants
-#   input$idBoxReverse
-#   input$prefixReverse
-#   
-#   if (is.null(rv$current.obj)) {return()}
-#   #if (is.null(rv$nbContaminantsDeleted) || is.null(rv$nbReverseDeleted)){return(NULL)}
-#   if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-#       is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-#       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-#       is.null(input$prefixReverse) || (input$prefixReverse == "")
-#   ) {return(NULL)}
-#   
-# 
-#   
-#     GlobalPieChart()
-# })
-
-
+callModule(modulePopover,"modulePopover_filteringChooseFilter", 
+           data = reactive(list(title = tags$p(style="font-size:12;",tags$b("Keep ",tags$em("x"), " values / line")), 
+                                content="Keep lines with at least x intensity values")))
 
 
 
@@ -289,282 +425,56 @@ output$seuilNADelete <- renderUI({
 
 
 #########################################################
-UpdateFilterWidgets <- function(){
-  
-  isolate({
-    rv$current.obj
-    if (length(rv$current.obj@processingData@processing) > 0){
-      
-      val <- match (gReplaceAllZeros ,
-                    rv$current.obj@processingData@processing)
-      updateCheckboxInput(session, "replaceAllZeros",value=val)
-      
-      val <- match (gLogTransform, 
-                    rv$current.obj@processingData@processing)
-      #updateCheckboxInput(session,"log2transform",value=val)
-      
-      r <- grep(pattern = gFilterTextPrefix, 
-                rv$current.obj@processingData@processing, 
-                fixed=TRUE, value=FALSE)
-      if ( length(r) > 0)
-      { 
-        listMots <- unlist(strsplit(
-          rv$current.obj@processingData@processing[r], split=" "))
-        updateSliderInput(session,
-                          inputId = "seuilNA", 
-                          value = listMots[6])
-        updateRadioButtons(session,
-                           inputId = "ChooseFilters", 
-                           selected = listMots[3])
-      }
-      else
-      { 
-        updateRadioButtons(session,
-                           inputId = "ChooseFilters", 
-                           selected = gFilterNone)
-      }
-    }
-    else{
-      updateCheckboxInput(session, "replaceAllZeros",value=F)
-      updateRadioButtons(session,
-                         inputId = "ChooseFilters", 
-                         selected = gFilterNone)
-    }
-    updateSelectInput(session,"typeImputation",selected= c("None")) 
-    updateSelectInput(session, "normalization.family",selected = c("None"))
-  })
-}
-
-
-
-
-
-## Perform missing values filtering
-observeEvent(input$perform.filtering.MV,{
-  if (is.null(input$perform.filtering.MV) ){return()}
-  if (input$perform.filtering.MV == 0){return()}
-  
-  isolate({
-    
-    # result = tryCatch(
-    #     {
-    if (input$ChooseFilters == gFilterNone){
-      rv$current.obj <- rv$dataset[[input$datasets]]
-    } else {
-      
-      keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                     input$ChooseFilters,
-                                     as.integer(input$seuilNA))
-      if (!is.null(keepThat))
-      {
-        rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
-        rv$current.obj <- 
-          mvFilterFromIndices(rv$dataset[[input$datasets]],
-                              keepThat,
-                              GetFilterText(input$ChooseFilters, 
-                                            as.integer(input$seuilNA)))
-        
-        
-        #write command log
-        # l <- paste(keepThat,",", collapse="")
-        # writeToCommandLogFile(
-        #     paste("keepThat <- ",
-        #         findSequences(keepThat),
-        #     sep="")
-        # )
-        
-        
-        #if (input$showCommandLog){
-        # txt <- paste("keepThat <- mvFilterGetIndices(dataset[['",
-        #              input$datasets, 
-        #              "']], '",
-        #              input$ChooseFilters, "', '",
-        #              input$seuilNA, "')","\n",
-        #              "deleted.mv <- current.obj[-keepThat]","\n",
-        #             "txt <- '",GetFilterText(input$ChooseFilters,input$seuilNA),
-        #                             "'","\n",
-        #             "current.obj <- mvFilterFromIndices(",
-        #             "current.obj, keepThat, '",
-        #             GetFilterText(input$ChooseFilters,
-        #                           input$seuilNA),
-        #             "')",              
-        #              sep="")
-        
-        
-        #writeToCommandLogFile(txt)
-        # }
-        
-        updateSelectInput(session, "ChooseFilters", 
-                          selected = input$ChooseFilters)
-        updateSelectInput(session, "seuilNA", 
-                          selected = input$seuilNA)
-        
-      }
-    }
-    # #, warning = function(w) {
-    # #    shinyjs::info(conditionMessage(w))
-    # }
-    # , error = function(e) {
-    #     shinyjs::info(paste("Perform missing values filtering",":",
-    #                         conditionMessage(e), 
-    #                         sep=" "))
-    # }, finally = {
-    #     #cleanup-code 
-    # })
-  })
-})
-
-
-# observe({
-#     input$idBoxContaminants
-#     input$prefixContaminants
-#     input$idBoxReverse
-#     input$prefixReverse
-#     
-#     if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
-#         is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
-#         (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
-#         (input$prefixContaminants == "") || (input$prefixReverse == ""))
-#     {
-#         shinyjs::disable("performFilteringContaminants")
-#         rv$nbContaminantsDeleted <- NULL
-#         rv$nbReverseDeleted <- NULL
-#         rv$nbBothDeleted <- NULL
-#         
-#         return(NULL)
-#     }
-#     else {
-#         shinyjs::enable("performFilteringContaminants")
-#         
-#     }
-# })
-
-
-
-# 
-# majPropContaminants <- reactive({
-#     input$performFilteringContaminants
-#     
-#   input$idBoxContaminants
-#   input$prefixContaminants
-#   input$idBoxReverse
-#   input$prefixReverse
-# 
-#     if (is.null(input$performFilteringContaminants)){return (NULL)}
-#   if (is.null(rv$current.obj)){return (NULL)}
-#   if (is.null(input$idBoxContaminants) || is.null(input$idBoxReverse) ||
-#        is.null(input$prefixContaminants) || is.null(input$prefixReverse) ||
-#        (input$idBoxContaminants == "") ||  (input$idBoxReverse == "") ||
-#       (input$prefixContaminants == "") || (input$prefixReverse == ""))
-#   {
-#       return(NULL)
-#       }
-#     
+# UpdateFilterWidgets <- function(){
+#   
 #   isolate({
-#   l <- length(rv$dataset)
-#         if (l ==1){ #Original dataset
-#             obj <- rv$dataset[[1]]
-#         } else {
-#             dname <- unlist(strsplit(names(rv$dataset)[l], " - "))[1]
-#             if (dname == "Filtered") {
-#                 obj <- rv$dataset[[l - 1]]
-#             } else {
-#                 obj <- rv$dataset[[l]]
-#             }
-#         }
-#   
-#   
-#    ind <- getIndicesOfLinesToRemove(obj,
-#                                    input$idBoxContaminants,
-#                                    input$prefixContaminants)
-#   if (!is.null(ind)){ rv$nbContaminantsDeleted <- length(ind)}
-# 
-#   ind <- getIndicesOfLinesToRemove(obj,
-#                                    input$idBoxReverse,
-#                                    input$prefixReverse)
-#   if (!is.null(ind)){rv$nbReverseDeleted <- length(ind)}
-#   
-#   
-#   
-# 
+#     rv$current.obj
+#     if (length(rv$current.obj@processingData@processing) > 0){
+#       
+#       val <- match (gReplaceAllZeros ,
+#                     rv$current.obj@processingData@processing)
+#       updateCheckboxInput(session, "replaceAllZeros",value=val)
+#       
+#       val <- match (gLogTransform, 
+#                     rv$current.obj@processingData@processing)
+#       #updateCheckboxInput(session,"log2transform",value=val)
+#       
+#       r <- grep(pattern = gFilterTextPrefix, 
+#                 rv$current.obj@processingData@processing, 
+#                 fixed=TRUE, value=FALSE)
+#       if ( length(r) > 0)
+#       { 
+#         listMots <- unlist(strsplit(
+#           rv$current.obj@processingData@processing[r], split=" "))
+#         updateSliderInput(session,
+#                           inputId = "seuilNA", 
+#                           value = listMots[6])
+#         updateRadioButtons(session,
+#                            inputId = "ChooseFilters", 
+#                            selected = listMots[3])
+#       }
+#       else
+#       { 
+#         updateRadioButtons(session,
+#                            inputId = "ChooseFilters", 
+#                            selected = gFilterNone)
+#       }
+#     }
+#     else{
+#       updateCheckboxInput(session, "replaceAllZeros",value=F)
+#       updateRadioButtons(session,
+#                          inputId = "ChooseFilters", 
+#                          selected = gFilterNone)
+#     }
+#     updateSelectInput(session,"typeImputation",selected= c("None")) 
+#     updateSelectInput(session, "normalization.family",selected = c("None"))
 #   })
-# })
+# }
 
 
 
 
-#########################
-# observeEvent(input$performFilteringContaminants,{
-# 
-#   rv$current.obj
-#   #input$idBoxContaminants
-#   #input$prefixContaminants
-#   #input$idBoxReverse
-#   #input$prefixReverse
-#   
-#   if (is.null(rv$current.obj)){return (NULL)}
-#   if (is.null(input$idBoxContaminants) || (input$idBoxContaminants == "") ||
-#       is.null(input$idBoxReverse) || (input$idBoxReverse == "") ||
-#       is.null(input$prefixContaminants) || (input$prefixContaminants == "") ||
-#       is.null(input$prefixReverse) || (input$prefixReverse == "")
-#   ) {return(NULL)}
-#     #if (is.null(input$perform.filtering.Contaminants) ){return()}
-#     #if (input$perform.filtering.Contaminants == 0){return()}
-#     
-#     isolate({
-#         
-#         result = tryCatch(
-#             {
-#                 temp <- rv$current.obj
-#                 
-#                 res <- StringBasedFiltering(temp,
-#                                             input$idBoxContaminants, 
-#                                             input$prefixContaminants,
-#                                             input$idBoxReverse,
-#                                             input$prefixReverse
-#                                             )
-#                 
-#                 
-#                 rv$deleted.both <- res[["deleted.both"]]
-#                 rv$deleted.contaminants <-res[["deleted.contaminants"]]
-#                 rv$deleted.reverse <-res[["deleted.reverse"]]
-#                 
-#                 # majPropContaminants()
-#                 rv$nbReverseDeleted <- nrow(rv$deleted.reverse)
-#                 rv$nbContaminantsDeleted <- nrow(rv$deleted.contaminants)
-#                 rv$nbBothDeleted <- nrow(rv$deleted.both)
-#                 
-#                 rv$current.obj <- res[["obj"]]
-#                 rv$stringBasedFiltering_Done = TRUE
-#                 
-#                 updateSelectInput(session, "idBoxReverse", selected = input$idBoxReverse)
-#                 updateSelectInput(session, "idBoxContaminants", selected = input$idBoxContaminants)
-#                 updateSelectInput(session, "prefixContaminants",  selected = input$prefixContaminants)
-#                 updateSelectInput(session,  "prefixReverse", selected = input$prefixReverse)
-#                 
-#                 updateTabsetPanel(session, "tabFilter",  selected = "FilterContaminants")
-#                 
-#                 #disableActionButton("resetFilterParamsButton", session)
-#                 #createPNG_Filtering()
-#             }
-#             #, warning = function(w) {
-#             #    shinyjs::info(conditionMessage(w))
-#             # }
-#             , error = function(e) {
-#                 shinyjs::info(paste("Perform contaminants filtering",":",
-#                                     conditionMessage(e), 
-#                                     sep=" "))
-#             }, finally = {
-#                 #cleanup-code 
-#             })
-#         
-#         
-#         
-#         
-#         
-#         
-#     })
-# })
+
 
 
 
@@ -576,9 +486,9 @@ disableActionButton <- function(id,session) {
 
 #-----------------------------------------------
 output$ObserverStringBasedFilteringDone <- renderUI({
-  rv$current.obj
+  req(rv$current.obj)
   rv$stringBasedFiltering_Done
-  if (is.null(rv$current.obj)) {return(NULL)}
+
   isolate({
     if (!rv$stringBasedFiltering_Done) 
     {return(NULL)  }
@@ -596,9 +506,7 @@ output$ObserverStringBasedFilteringDone <- renderUI({
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
-  
-  #if( (input$ValidateFilters == 0)) {return(NULL)}
-  if(is.null(rv$current.obj)) {return(NULL)}
+  req(rv$current.obj)
   if((input$ChooseFilters != gFilterNone) || (nrow(rv$DT_filterSummary )>1)){
     
     if (nrow(rv$DT_filterSummary) <=1) {
@@ -618,27 +526,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
     rv$dataset[[name]] <- rv$current.obj
     
-    
-    ###### write to commandLog File
-    #if (input$showCommandLog){
-    #    writeToCommandLogFile(  
-    #    paste("dataset[['",name, "']] <- current.obj", sep=""))
-    #}
-    ###### end write to command log file
-    
-    
-    updateSelectInput(session, "datasets", 
-                      #paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                      choices = names(rv$dataset), 
-                      selected = name)
-    
-    
-    ## Add the necessary text to the Rmd file
-    #txt2Rmd <- readLines("Rmd_sources/filtering_Rmd.Rmd")
-    #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-    #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-    #createPNG_Filtering()
-    
+    updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   }
   
   
@@ -646,80 +534,11 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
 
 
 
-# observeEvent(input$resetFilterParamsButton, ignoreInit = TRUE,{
-#   updateSelectInput(session, "idBoxContaminants", selected="")
-#   updateSelectInput(session, "idBoxReverse", selected="")
-#   updateTextInput(session, "prefixContaminants", value="")
-#   updateTextInput(session, "prefixReverse", value="")
-#   
-#   #rv$nbReverseDeleted <- NULL
-#   #rv$nbContaminantsDeleted <- NULL
-# })
-
-
-# 
-# output$choosePrefixContaminants <- renderUI({
-#     rv$current.obj
-#     input$idBoxContaminants
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#    # if (input$idBoxContaminants=="") {return(NULL)  }
-#     if (is.null(input$idBoxContaminants) ) {return(NULL)  }
-#     
-#    # if (input$idBoxContaminants != ""){
-#       textInput("prefixContaminants", label = "Choose prefix",value = "")
-#    # }
-# })
-
-
-# output$choosePrefixReverse <- renderUI({
-#     rv$current.obj
-#     input$idBoxReverse
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     #if (input$idBoxReverse == "") {return(NULL)  }
-#     if (is.null(input$idBoxReverse) ) {return(NULL)  }
-#     
-#    # if (input$idBoxReverse != ""){
-#       textInput("prefixReverse", label = "Choose prefix",value = "")
-#    # }
-# })
-# 
-
-# 
-# output$id_Contaminants <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     
-#     .choices <- c("",colnames(Biobase::fData(rv$current.obj)))
-#     names(.choices) <- c("",colnames(Biobase::fData(rv$current.obj)))
-#     selectInput("idBoxContaminants", 
-#                 label = "Choose column", 
-#                 choices = .choices , 
-#                 selected = "")
-# })
-
-# 
-# output$id_Reverse <- renderUI({
-#     rv$current.obj
-#     if (is.null(rv$current.obj)) {return(NULL)  }
-#     
-#     .choices <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-#     names(.choices) <- c(G_emptyStr,colnames(Biobase::fData(rv$current.obj)))
-#     selectInput("idBoxReverse", 
-#                 label = "Choose column", 
-#                 choices = .choices , 
-#                 selected = "")
-# })
-
-
-
-
-
 #########################################################
 ##' Show the widget for filters
 ##' @author Samuel Wieczorek
 output$choixFiltres <- renderUI({
-  input$file
-  if (is.null(input$file)) {return(NULL)}
+  req(input$file)
   rv$current.obj
   radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
   
@@ -728,7 +547,6 @@ output$choixFiltres <- renderUI({
 
 
 output$helpTextMV <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)}
+  req(rv$current.obj)
   helpText("After checking the data, validate the filters.")
 })

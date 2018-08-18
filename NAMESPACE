@@ -7,6 +7,7 @@ import(htmlwidgets)
 import(DAPARdata)
 import(shinyAce)
 import(shinyBS)
+import(BiocManager)
 import(highcharter)
 importFrom(shinyjs, info)
 importFrom(DT, dataTableOutput,renderDataTable )
@@ -14,10 +15,75 @@ import(R.utils)
 import(shinythemes)
 import(XML)
 import(rclipboard)
-import(shiny)
+
 import(later)
 import(shinycssloaders)
+import(future)
+import(promises)
 
+importFrom(shiny,
+            absolutePanel ,
+            actionButton ,
+            checkboxGroupInput ,
+            checkboxInput,
+            column,
+            conditionalPanel,
+            fileInput,
+            fixedPage,
+            flowLayout,
+            fluidPage,
+            headerPanel,
+            helpText,
+            HTML,
+            htmlOutput,
+            icon,
+            isolate,
+            mainPanel,
+            makeReactiveBinding,
+            navbarPage,
+            navlistPanel,
+            numericInput,
+            observe,
+            pageWithSidebar,
+            plotOutput,
+            radioButtons,
+            reactive  ,
+            reactiveUI ,
+            reactiveValues  ,
+            renderPlot  ,
+            renderPrint  ,
+            renderTable ,
+            renderText ,
+            renderUI  ,
+            runApp  ,
+            selectInput  ,
+            shinyApp ,
+            shinyServer  ,
+            shinyUI  ,
+            sidebarLayout ,
+            sidebarPanel ,
+            singleton  ,
+            sliderInput  ,
+            splitLayout  ,
+            submitButton  ,
+            tableOutput  ,
+            tabPanel  ,
+            tag  ,
+            textInput  ,
+            textOutput ,
+            titlePanel  ,
+            updateCheckboxGroupInput ,
+            updateCheckboxInput ,
+            updateNumericInput ,
+            updateRadioButtons ,
+            updateSelectInput  ,
+            updateSliderInput ,
+            updateTabsetPanel  ,
+            updateTextInput ,
+            #validate ,
+            wellPanel ,
+            withTags 
+            )
 
 
 export("Prostar")

@@ -15,8 +15,7 @@ fileReaderData <- reactiveFileReader(500, session,logfilename, readLines)
 output$fileReaderText <- renderText({
   # Read the text, and make it a consistent number of lines so
   # that the output box doesn't grow in height.
-  text <- fileReaderData()
-  paste(text, collapse = '\n')
+  paste(fileReaderData(), collapse = '\n')
 })
 
 

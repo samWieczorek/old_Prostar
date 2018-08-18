@@ -1,0 +1,16 @@
+#boxx{
+  padding: 20px 20px 20px 20px;
+  position: fixed;
+  left: 30%;
+  border: 2px solid black;
+  font: 2em Calibri;
+  width:500px;
+  height: 1000px;
+  float: left;
+}
+
+img{ 
+  float: left;
+  vertical-align: top;
+  margin: 20px 20px 20px 20px; 
+}

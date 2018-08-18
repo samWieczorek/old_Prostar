@@ -15,71 +15,117 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
 
 
 
-##########
-#####  UI for the PROTEIN LEVEL Imputation process
-##########
-output$proteinLevelImputationPanel <- renderUI({
+
+
+
+output$checkProtImputPanel <- renderUI({
+  rv$pageProtImput
+  color <- rep("lightgrey",NUM_PAGES_PROT_IMPUT)
   
-  tabsetPanel(
-    id = "Imputation_tabSetPanel",
+  ##Step 1
+  if (rv$pageProtImput >= 1){
+    res <- rv$impute_Step >= 1
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageProtImput >= 2){
+    res <- rv$impute_Step >= 2
+    ifelse(res, color[2] <- "green", color[2] <- "red")
     
-    tabPanel("1 - Partially Observed Values",
-             value = "Classical_MV",
-            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation1",
-                                   height = "100%",
-                                   br(),
-                                   uiOutput("sidebar_imputation_step1"),
-                                   actionButton("perform.imputationClassical.button",
-                                                "Perform imputation")
-                                   
-                         ),
-                         tagList(
-                           uiOutput("ImputationStep1Done"),
-                           htmlOutput("helpForImputation"),
-                           uiOutput("POV_showDetQuantValues"),
-                           moduleMVPlotsUI("mvImputationPlots_MV")
-                         )
-                         
-             )
-    ),
-    tabPanel("2 - Missing on the Entire Condition",
-             value = "MEC_MV",
-             #sidebarCustom(),
-             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation2",
-                                   height = "100%",
-                                   uiOutput("MEC_chooseImputationMethod"),
-                                   uiOutput("MEC_Params"),
-                                   actionButton("perform.imputationMEC.button","Perform imputation")
-                         ),
-                         tagList(
-                           htmlOutput("warningMECImputation"),
-                           busyIndicator(WaitMsgCalc,wait = 0),
-                           uiOutput("ImputationStep2Done"),
-                           uiOutput("MEC_showDetQuantValues")
-                           #,moduleMVPlotsUI("mvImputationPlots_MEC")
-                           
-                         )
-             )
-    ),
-    tabPanel("3 - Validate & save",
-             value = "Imputation_ValidateAndSave",
-             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation3",
-                                   height = "100%",
-                                   busyIndicator(WaitMsgCalc,wait = 0),
-                                   actionButton("ValidImputation","Save imputation",styleclass = "primary")
-                         ),
-                         tagList(
-                            uiOutput("ImputationSaved")
-                         )
-             )
-    ) # end tabPanel(title = "4 - Validate and Save",
+  } 
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageProtImput >= 3){
+    res <- length(grep("Imputed",input$datasets)) ==1
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+    
+  }
+  
+  txt <- c("POV imputation", "MEC imputation", "Save imputation")
+  buildTable(txt, color)
+})
+
+NUM_PAGES_PROT_IMPUT <- 3
+
+observe({
+  toggleState(id = "prevBtnProtImput", condition = rv$pageProtImput > 1)
+  toggleState(id = "nextBtnProtImput", condition = rv$pageProtImput < NUM_PAGES_PROT_IMPUT)
+  hide(selector = ".page")
+  show(paste0("step", rv$pageProtImput))
+})
+
+navPageProtImput <- function(direction) {
+  rv$pageProtImput <- rv$pageProtImput + direction
+}
+
+observeEvent(input$prevBtnProtImput, navPageProtImput(-1))
+observeEvent(input$nextBtnProtImput, navPageProtImput(1))
+
+
+
+
+
+
+
+
+output$POV_imputation <- renderUI({
+  if (rv$pageProtImput != 1){return()}
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Imputation1",
+                        height = "100%",
+                        br(),
+                        uiOutput("sidebar_imputation_step1"),
+                        actionButton("perform.imputationClassical.button",
+                                     "Perform imputation")
+                        
+              ),
+              tagList(
+                uiOutput("ImputationStep1Done"),
+                htmlOutput("helpForImputation"),
+                uiOutput("POV_showDetQuantValues"),
+                moduleMVPlotsUI("mvImputationPlots_MV")
+              )
+              
+  )
+})
+
+
+
+output$MEC_imputation <- renderUI({
+  if (rv$pageProtImput != 2){return()}
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Imputation2",
+                        height = "100%",
+                        uiOutput("MEC_chooseImputationMethod"),
+                        uiOutput("MEC_Params"),
+                        actionButton("perform.imputationMEC.button","Perform imputation")
+              ),
+              tagList(
+                htmlOutput("warningMECImputation"),
+                busyIndicator(WaitMsgCalc,wait = 0),
+                uiOutput("ImputationStep2Done"),
+                uiOutput("MEC_showDetQuantValues")
+                #,moduleMVPlotsUI("mvImputationPlots_MEC")
+                
+              )
   )
   
-  
 })
+
+
+
+output$Validate_ProtImput <- renderUI({
+  if (rv$pageProtImput != 3){return()}
+  
+  tagList(
+    actionButton("ValidImputation","Save imputation",styleclass = "primary"),
+    uiOutput("ImputationSaved")
+              )
+})
+
 
 
 
@@ -149,7 +195,7 @@ output$sidebar_imputation_step1 <- renderUI({
   tagList(
     selectInput("POV_missing.value.algorithm",
                 "Algorithm for POV",
-                choices = names(algo)),
+                choices = names(algo), width='150px'),
     uiOutput("POV_Params")
   )
   
@@ -161,7 +207,7 @@ output$MEC_chooseImputationMethod <- renderUI({
   
   selectInput("MEC_missing.value.algorithm",
               "Algorithm for MEC",
-              choices = names(algo))
+              choices = names(algo), width='100px')
   
 })
 
@@ -171,21 +217,19 @@ output$MEC_chooseImputationMethod <- renderUI({
 
 
 output$POV_Params <- renderUI({
-  
-  #input$POV_missing.value.algorithm
-  if (is.null(input$POV_missing.value.algorithm)) {return(NULL)}
+  req(input$POV_missing.value.algorithm)
   
   switch(input$POV_missing.value.algorithm,
          detQuantile = {
            
            tagList(
              #h4("Det quantile parameters"),
-             numericInput("POV_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100),
-             numericInput("POV_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10)
+             numericInput("POV_detQuant_quantile", "Quantile", value = 2.5, step=0.5, min=0, max=100, width='100px'),
+             numericInput("POV_detQuant_factor", "Factor", value = 1, step=0.1, min=0, max=10, width='100px')
            )
          },
          KNN = {
-           numericInput("KNN_nbNeighbors", "Nb neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj))
+           numericInput("KNN_nbNeighbors", "Nb neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj), width='100px')
            
          }
   )
@@ -230,10 +274,10 @@ observeEvent(input$perform.imputationClassical.button,{
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
            },
            detQuantile = {
-             rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+           rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
                                                        qval = input$POV_detQuant_quantile/100,
                                                        factor = input$POV_detQuant_factor)
-             
+           
            },
            KNN = {
              rv$current.obj <- wrapper.impute.KNN(rv$current.obj , input$KNN_nbNeighbors)
@@ -298,8 +342,6 @@ observeEvent(input$perform.imputationMEC.button,{
 ##' -- Validate and Save the imputation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidImputation,{
-  if (is.null(input$ValidImputation) || (input$ValidImputation == 0))
-  {return(NULL)}
   
   isolate({
     
@@ -319,12 +361,7 @@ observeEvent(input$ValidImputation,{
     rv$dataset[[name]] <- rv$current.obj
     
     UpdateLog("Imputation", l.params)
-    
-    #write command log file
-    #writeToCommandLogFile(
-    #  paste("dataset[['",name,"']] <- current.obj", sep="")
-    #)
-    
+   
     updateSelectInput(session, "datasets",
                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
@@ -361,12 +398,14 @@ observeEvent(input$ValidImputation,{
 
 output$ImputationSaved <- renderUI({
   input$datasets
-  # rv$current.obj
-  if (is.null(input$datasets)|| (length(grep("Imputed",input$datasets)) !=1) ) {
-    return()  }
-  else if (grep("Imputed",input$datasets) == 1 ) {
-    h4("The imputed dataset has been saved.")
-  }
+  if ((length(grep("Imputed",input$datasets)) !=1) ) {return()}
+   
+    shinyjs::hide('prevBtnProtImput')
+    shinyjs::hide('nextBtnProtImput')
+    
+    tags$p(style="font-size: 24;",
+           tags$b("The imputed dataset has been saved."))
+    
 })
 
 output$ImputationStep1Done <- renderUI({
@@ -451,22 +490,3 @@ output$helpForImputation <- renderText({
 #     )
 # })
 
-
-# viewNAbyMean <- function(data){
-#   req(data)
-#   #if (is.null(data)) {return(NULL)}
-#   
-#   
-#   wrapper.hc_mvTypePlot2(data)
-#   
-# }
-
-
-
-# showImageNA <- function(data){
-#   req(data)
-#   #if (is.null(data)) {return(NULL)}
-#   
-#   wrapper.mvImage(data)
-#   
-# }

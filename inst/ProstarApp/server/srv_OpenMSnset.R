@@ -1,10 +1,54 @@
 callModule(moduleDatasetOverview,"overview_openMSnset")
 
+
+
+
+
+
+
+output$updateDesign <- renderUI({
+  rv$current.obj
+  
+  if(!NeedsUpdate()){return(NULL)}
+  source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
+  tagList(
+    fluidRow(
+      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
+      column(width=6,uiOutput("updateDesign_UI_checkConditions")  )
+    ),
+    fluidRow(
+      column(width=6,uiOutput("updateDesign_UI_hierarchicalExp")),
+      column(width=6,uiOutput("updateDesign_checkDesign") )
+    ),
+    uiOutput("updateDesign_SaveDesign"),
+    uiOutput("designUpdated"),
+    
+    hr(),
+    tags$div(
+      
+      tags$div(style="display:inline-block; vertical-align: top;",
+               uiOutput("viewNewDesign",width="100%")
+      ),
+      tags$div(style="display:inline-block; vertical-align: top;",
+               shinyjs::hidden(
+                 div(id = "updateDesign_exLevels",uiOutput("updateDesign_designExamples")))
+      )
+      
+    )
+    
+  )
+})
+
+
+
+
 output$openMSnsetScreen <- renderUI({
   
   tagList(
     fileInput("file", "Open a MSnset file", multiple = FALSE),
-    moduleDatasetOverviewUI("overview_openMSnset"),
+    tags$div(style="align: center;",
+              moduleDatasetOverviewUI("overview_openMSnset")
+            ),
     uiOutput("infoAboutAggregationTool")
   )
 })
@@ -15,9 +59,9 @@ output$openMSnsetScreen <- renderUI({
 
 
 
-observeEvent(input$LinkToupdateDesignTab, {
-  updateTabsetPanel(session, 'navPage', "updateDesignTab")
-})
+# observeEvent(input$LinkToupdateDesignTab, {
+#   updateTabsetPanel(session, 'navPage', "updateDesignTab")
+# })
 
 
 output$infoAboutAggregationTool <- renderUI({
@@ -31,9 +75,7 @@ output$infoAboutAggregationTool <- renderUI({
                tags$img(src = "images/Problem.png", height=25)),
       tags$div(style="display:inline-block; vertical-align: top;",
                HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
-                      software functionalities. Please go to"),
-               actionLink('LinkToupdateDesignTab', "Update design",style="background-color: white"),
-               HTML("in the \"Dataset manager\" menu tu update it."))
+                      software functionalities. Please update the design below"))
     )
   } else{
     

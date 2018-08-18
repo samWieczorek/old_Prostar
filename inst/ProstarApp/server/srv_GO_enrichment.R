@@ -24,9 +24,8 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"))
                                            ,modulePopoverUI("modulePopover_GenomeWide")
                                            ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
-                                           ,selectInput("Ontology", "Ontology",
-                                                        choices = G_ontology_Choices)
-                                           actionButton("mapProtein.GO.button",
+                                           ,selectInput("Ontology", "Ontology",choices = G_ontology_Choices)
+                                           ,actionButton("mapProtein.GO.button",
                                                         "Map proteins IDs")
                                  )
                                  ,tagList(
@@ -86,13 +85,13 @@ output$GOAnalysisMenu <- renderUI({
                      value = "tabPanelSaveGO",
                      sidebarCustom(),
                      splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                 wellPanel(id = "sidebar_GO4",
-                                           height = "100%",
-                                           uiOutput("chooseGOtoSave"),
-                                           actionButton("ValidGOAnalysis",
-                                                        "Save analysis",
-                                                        styleclass = "primary")
-                                 ),
+                                 #wellPanel(id = "sidebar_GO4",
+                                           #height = "100%",
+                                           #uiOutput("chooseGOtoSave")
+                                           # actionButton("ValidGOAnalysis",
+                                           #              "Save analysis",
+                                           #              styleclass = "primary")
+                                 #),
                                  tagList(
                                      busyIndicator(WaitMsgCalc,wait = 0)
                                      
@@ -103,6 +102,7 @@ output$GOAnalysisMenu <- renderUI({
     } else {
         h4("The dataset is a peptide one: the GO analysis cannot be performed.")
     }
+
 })
 
 
@@ -131,12 +131,14 @@ callModule(modulePopover,"modulePopover_GenomeWide",
 
 
 GetListInstalledOrgdDB <- function(){
-    l <- installed.packages()[,"Package"]
-    l <- l[grep("org", l)]
-    res <-  list_org_db[l,]$longName
-    names(l) <- res
-    
-    return(l)
+  l <- installed.packages()[,"Package"]
+  l <- l[grep("^org.", l)]
+  res <-  list_org_db[l,]$longName
+  names(l) <- res
+  
+  names(l)[which(is.na(names(l)))] <- l[which(is.na(names(l)))]
+  
+  return(l)
 }
 
 
@@ -182,7 +184,7 @@ output$chooseUniverseFile <- renderUI({
 
 
 observeEvent(input$UniprotIDCol,ignoreInit =  TRUE,{ 
-    if(is.null(input$UniprotIDCol) || (input$UniprotIDCol == "")) {  rv$GO$ProtIDList <- return (NULL)}
+    if((input$UniprotIDCol == "")) {  rv$GO$ProtIDList <- return (NULL)}
     else {
         rv$GO$ProtIDList <- Biobase::fData(rv$current.obj)[,input$UniprotIDCol]
     }
@@ -257,9 +259,7 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
     
     require(clusterProfiler)
     
-    # result = tryCatch(
-    #     {
-    
+
     if (input$universe == "Entire dataset") {
         rv$GO$universeData  <- rv$GO$ProtIDList
     } else if (input$universe == "Entire organism") {
@@ -356,7 +356,7 @@ output$GOplotGroup_level4 <- renderHighchart({
 GObarplotEnrich <- reactive({
     req(rv$GO$enrichGO_data)
      barplotEnrichGO_HC(rv$GO$enrichGO_data)
-    #barplot(rv$enrichGO_data)
+   
 })
 
 output$GObarplotEnrich <- renderHighchart({
@@ -367,7 +367,6 @@ output$GObarplotEnrich <- renderHighchart({
 GOdotplotEnrich <- reactive({
     req(rv$GO$enrichGO_data)
     
-    #dotplot(rv$enrichGO_data)
     scatterplotEnrichGO_HC(rv$GO$enrichGO_data)
 })
 
@@ -375,14 +374,6 @@ output$GOdotplotEnrich <- renderHighchart({
     GOdotplotEnrich()
     
 })
-
-# output$GOEnrichMap <- renderPlot({
-#     rv$enrichGO_data
-#     if (is.null(rv$enrichGO_data)) {return(NULL)}
-#     
-#     enrichMap(rv$enrichGO_data)
-#     
-# })
 
 
 output$GODatatable <- renderDataTable({
@@ -405,11 +396,6 @@ output$GODatatable <- renderDataTable({
     
     dt
 })
-
-
-# GetProteinMappedRatio <- reactive({
-#     return(ratio)
-# })
 
 
 output$GeneMappedRatio <- renderUI({
@@ -536,17 +522,16 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                        
                 )
                 
-                name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
-                rv$dataset[[name]] <- temp
-                rv$current.obj <- temp
+                #name <- paste("GOAnalysis - ", rv$typeOfDataset, sep="")
+                #rv$dataset[[name]] <- temp
+                #rv$current.obj <- temp
                 
                 
-                updateSelectInput(session, "datasets", 
-                                 # paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                                  choices = names(rv$dataset),
-                                  selected = name)
-                updateRadioButtons(session, "whichGO2Save", 
-                                   selected = input$whichGO2Save)
+                #updateSelectInput(session, "datasets", 
+                #                 # paste("Dataset versions of", rv$current.obj.name, sep=" "),
+                #                  choices = names(rv$dataset),
+                #                  selected = name)
+                #updateRadioButtons(session, "whichGO2Save",selected = input$whichGO2Save)
                 
                 # 
                 # ####write command Log file

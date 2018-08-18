@@ -134,11 +134,10 @@ output$choose_Normalization_Test <- renderUI({
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
-    input$perform.normalization
-    input$normalization.method
-    input$normalization.type
-    input$normalization.quantile
-    
+    # input$normalization.method
+    # input$normalization.type
+    # input$normalization.quantile
+    # 
     
     isolate({
 
@@ -226,14 +225,7 @@ observeEvent(input$valid.normalization,{
                     rv$dataset[[name]] <- rv$current.obj
                     
                     UpdateLog("Normalization", l.params)
-                    
-                    #write command log file
-                    #if (input$showCommandLog){
-                    #     writeToCommandLogFile(
-                    #     paste("dataset[['",name,"']] <- current.obj", sep="")
-                    # )
-                    #}
-                    
+
                     updateSelectInput(session, "datasets", 
                                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset),
@@ -245,22 +237,8 @@ observeEvent(input$valid.normalization,{
                     updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)
                     updateRadioButtons(session, "normalization.quantile", selected = input$normalization.quantile)
             
-                    ## Add the necessary text to the Rmd file
-                    #txt2Rmd <- readLines("Rmd_sources/normalization_Rmd.Rmd")
-                    #filename <- paste(tempdir(), sessionID, 'report.Rmd',sep="/")
-                    #write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                    #createPNG_Normalization()
-                    
                 }
-            # }
-            # , warning = function(w) {
-            #     shinyjs::info(conditionMessage(w))
-            # }, error = function(e) {
-            #     shinyjs::info(paste("Validate the normalization :",conditionMessage(e), sep=" "))
-            # }, finally = {
-            #     #cleanup-code 
-            # })
-        
+
     } )
 })
 
@@ -282,14 +260,6 @@ output$ChooseLegendForNormTabPanel <- renderUI({
                        selected = .names[1])
 })
 
-output$choose_Normalization_1 <- renderUI({
-    isolate({
-        selectInput("normalization.family", 
-                    "Normalization family", 
-                    names(normalization.methods))
-    })
-})
-
 
 
 
@@ -297,21 +267,6 @@ output$choose_Normalization_1 <- renderUI({
 
 viewComparisonNorm2 <- reactive({
 
-    
-    #rv$dataset[[input$datasets]]
-    #rv$current.obj
-    #input$legendXAxis
-    #input$whichGroup2Color
-    #input$lab2Show
-    #input$normalization.method
-    #input$perform.normalization
-    
-    
-    
-    # if (is.null(rv$current.obj) || 
-    #     (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData)) {
-    #     return(NULL)}
-    
     leg <- NULL
     grp <- NULL
     
@@ -339,8 +294,7 @@ viewComparisonNorm2 <- reactive({
                             sep= "_")
     }
     
-    # result = tryCatch(
-    #    {
+
            if (input$datasets == paste("Normalized", rv$typeOfDataset, sep=" - ")){
                obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
                obj2 <- rv$dataset[[input$datasets]]
@@ -355,17 +309,6 @@ viewComparisonNorm2 <- reactive({
                                   as.numeric(labelsToShowNorm),
                                   gToColorNorm)
            
-        #}
-        #, warning = function(w) {
-        #   shinyjs::info(conditionMessage(w))
-        #}
-        # , error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",conditionMessage(e), sep=" "))
-        # }, finally = {
-        #     #cleanup-code
-        # })
-    
-    
 })
 
 

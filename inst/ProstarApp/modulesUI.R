@@ -5,6 +5,7 @@ modulePopoverUI <- function(id){
 }
 
 
+#####################################################################ç
 
 moduleLegendColoredExprsUI <- function(id){
     ns <- NS(id)
@@ -33,6 +34,8 @@ moduleLegendColoredExprsUI <- function(id){
     )
 }
 
+
+#####################################################################ç
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
@@ -51,10 +54,16 @@ moduleDetQuantImpValuesUI <- function(id){
 
 missingValuesPlotsUI <- function(id) {
     ns <- NS(id)
+    # fluidRow(
+    #     column(width = 4, highchartOutput(ns("histo_MV"))%>% withSpinner(type=spinnerType)),
+    #     column(width = 4, highchartOutput(ns("histo_MV_per_lines"))%>% withSpinner(type=spinnerType)),
+    #     column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions"))%>% withSpinner(type=spinnerType))
+    # )
+    # 
     fluidRow(
-        column(width = 4, highchartOutput(ns("histo_MV"))%>% withSpinner(type=spinnerType), height="600px"),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))%>% withSpinner(type=spinnerType)),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions"))%>% withSpinner(type=spinnerType))
+      column(width = 4, highchartOutput(ns("histo_MV"))),
+      column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
+      column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
     )
     
 }

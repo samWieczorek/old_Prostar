@@ -1,4 +1,63 @@
+NUM_PAGES_AGGREG <- 2
 
+
+output$checkAggregPanel <- renderUI({
+  rv$pageAggreg
+  color <- rep("lightgrey",NUM_PAGES_AGGREG)
+  
+  ##Step 1
+  if (rv$pageAggreg >= 1){
+    res <- !is.null(rv$temp.aggregate)
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageAggreg >= 2){
+    res <- length(grep("Aggregated",input$datasets))
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  } 
+  
+  txt <- c("Aggregation", "Validation")
+  buildTable(txt, color)
+})
+
+
+observe({
+  toggleState(id = "prevBtnAggreg", condition = rv$pageAggreg > 1)
+  toggleState(id = "nextBtnAggreg", condition = rv$pageAggreg < NUM_PAGES_AGGREG)
+  hide(selector = ".page")
+})
+
+navPageAggreg <- function(direction) {
+  rv$pageAggreg <- rv$pageAggreg + direction
+}
+
+observeEvent(input$prevBtnAggreg, navPageAggreg(-1))
+observeEvent(input$nextBtnAggreg, navPageAggreg(1))
+
+
+
+output$Aggreg_Aggreg <- renderUI({
+  if (rv$pageAggreg != 1){return()}
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              uiOutput("AggregationSideBar_Step1"),
+              tagList(uiOutput("AggregationWellPanel_Step1")
+              )
+  )
+})
+
+callModule(moduleDatasetOverview,"overview_Aggregation")
+
+output$Aggreg_Valid <- renderUI({
+  if (rv$pageAggreg != 2){return()}
+  tagList(
+    uiOutput(outputId = "progressSaveAggregation"),
+  busyIndicator(WaitMsgCalc,wait = 0),
+  uiOutput("Aggregation_Step2")
+  )
+})
 
 
 
@@ -17,34 +76,12 @@ RunAggregation <- reactive({
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithSharedPeptides, 
                                     n)
-                #if (input$showCommandLog){
-                #     txt <- paste(
-                #     "data <- pepAgregate(current.obj, '",
-                #     input$proteinId, "', '",
-                #     input$aggregationMethod, 
-                #     "', mat$matWithSharedPeptides,",n,")",
-                #     sep=""
-                # )
-                # writeToCommandLogFile(txt)
-               # }
-                
             }else{
                 data <- pepAgregate(rv$current.obj, 
                                     input$proteinId,
                                     input$aggregationMethod, 
                                     rv$matAdj$matWithUniquePeptides
                                     , n)
-                #if (input$showCommandLog){
-                #     writeToCommandLogFile(
-                #     paste(
-                #         "data <- pepAgregate(current.obj, '",
-                #         input$proteinId, "', '",
-                #         input$aggregationMethod, 
-                #         "', mat$matWithUniquePeptides,",n,")",
-                #         sep=""
-                #     )
-                # )
-               # }
             }
             
             return(data)
@@ -57,10 +94,10 @@ RunAggregation <- reactive({
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.aggregation,{ 
-    input$nbPeptides
-    input$filterProtAfterAgregation
-    input$aggregationMethod
-    input$columnsForProteinDataset.box
+   # input$nbPeptides
+    #input$filterProtAfterAgregation
+    #input$aggregationMethod
+    #input$columnsForProteinDataset.box
     req(rv$matAdj)
     req(rv$temp.aggregate)
     
@@ -98,66 +135,53 @@ observeEvent(input$valid.aggregation,{
                 }
                 
                 rv$current.obj <- rv$temp.aggregate
+                #rv$temp.aggregate <- NULL
                 rv$current.obj <- saveParameters(rv$current.obj, "Aggregation",l.params)
                 rv$current.obj@experimentData@other$Prostar_Version <- 
                   installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
                 rv$current.obj@experimentData@other$DAPAR_Version <- 
                   installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+                rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
                 
                 name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
+                rv$dataset[[name]] <- rv$current.obj
+                
                 UpdateLog("Aggregation", l.params)
                 #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
-                
-                
-                loadObjectInMemoryFromConverter()
-                
-                
                 #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
                 #}
                 
-                updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
+                #updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
+                updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
+                BuildNavbarPage()
+
+                rv$pageAggreg <- 2
+                shinyjs::hide('prevBtnConvert')
+                shinyjs::hide('nextBtnConvert')
                 
-                updateSelectInput(session, "datasets", 
-                                 # paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                                  choices = names(rv$dataset),
-                                  selected = name)
-
-                rv$temp.aggregate <- NULL
-                #updatePB(session,inputId="pb_SaveAggregation",value=100,text_value="100 %", striped = TRUE, active=TRUE)
-
+                
     })
 
 
 })
 
 
-output$topNOption <- renderUI({
-    input$aggregationMethod
-    if(is.null(input$aggregationMethod )) {return(NULL)}
-    
-    if(input$aggregationMethod == gAgregateMethod[["sum on top n"]])
-        numericInput("nTopn", "nTopn",value = NULL, min = 0)
-    
+observeEvent(input$aggregationMethod,{
+  
+  toggle(id = "nTopn", 
+         condition = input$aggregationMethod == gAgregateMethod[["sum on top n"]])
 })
-
 
 
 
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
-    rv$temp.aggregate
-    input$perform.aggregation
-    if (is.null(rv$temp.aggregate)) {return(NULL)}
+    req(rv$temp.aggregate)
+    req(input$perform.aggregation)
     isolate({
-        if (input$perform.aggregation == 0) 
-        {return(NULL)  }
-        else if (input$aggregationMethod != "None"){
-            h3(paste("Aggregation done with the ", 
-                     input$aggregationMethod, 
-                     " method.", 
-                     sep=""))
+       if (input$aggregationMethod != "None"){
+            h3(paste("Aggregation done with the ",input$aggregationMethod, " method.",  sep=""))
         }
-        
     })
 })
 
@@ -171,15 +195,10 @@ observeEvent(input$proteinId,{
     
     result = tryCatch(
         {
-            matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                                      input$proteinId,
-                                                      FALSE)
-            matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, 
-                                                      input$proteinId,
-                                                      TRUE)
+            matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj,  input$proteinId,FALSE)
+            matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, input$proteinId,TRUE)
             
-            rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides,
-                              matWithUniquePeptides=matUniquePeptides)
+            rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
             
         }
     , error = function(e) {
@@ -194,19 +213,16 @@ observeEvent(input$proteinId,{
 
 
 
-output$aggregationStats <- renderUI ({
-    input$proteinId
-    rv$current.obj
-    rv$matAdj
-    if (is.null( input$proteinId) || (input$proteinId == "None") || is.null(rv$matAdj))
-      {return(NULL)}
-    if (is.null( rv$current.obj)){return(NULL)}
+output$aggregationStats <- renderDataTable ({
+    req(input$proteinId)
+    req(rv$current.obj)
+    req(rv$matAdj)
+    if ((input$proteinId == "None")) {return(NULL)}
     
     res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
                             rv$matAdj$matWithSharedPeptides)
     
-    
-    rv$AggregProtStats$nb <- c(nrow(rv$matAdj$matWithSharedPeptides),
+     rv$AggregProtStats$nb <- c(nrow(rv$matAdj$matWithSharedPeptides),
                                nrow(rv$matAdj$matWithUniquePeptides),
                                nrow(rv$matAdj$matWithSharedPeptides)-nrow(rv$matAdj$matWithUniquePeptides),
                                ncol(rv$matAdj$matWithSharedPeptides),
@@ -214,47 +230,18 @@ output$aggregationStats <- renderUI ({
                                length(res$protOnlySharedPep),
                                length(res$protMixPep))
     
-    text <- paste("<ul style=\"list-style-type:disc;\">
-                  <li>",
-                  rv$AggregProtStats$name[1],": ", 
-                  rv$AggregProtStats$nb[1],
-                  "</li>
-                  
-                  <li>",
-                  rv$AggregProtStats$name[2],": ", 
-                  rv$AggregProtStats$nb[2],
-                  "</li>
-                  
-                  
-                  <li>",
-                  rv$AggregProtStats$name[3],": ",
-                  rv$AggregProtStats$nb[3],
-                  "</li>
-                  
-                  <li>",
-                  rv$AggregProtStats$name[4],":  ", rv$AggregProtStats$nb[4],
-                  " </li>
-                  <li>",
-                  rv$AggregProtStats$name[5],": ", 
-                  rv$AggregProtStats$nb[5], 
-                  "</li>
-                  
-                  <li>",
-                  rv$AggregProtStats$name[6],":  ", 
-                  rv$AggregProtStats$nb[6], 
-                  "</li>
-                  
-                  <li>",
-                  rv$AggregProtStats$name[7],":  ", 
-                  rv$AggregProtStats$nb[7], 
-                  "</li>
-                  
-                  </ul>" , sep="")
-    
-    
-    
-    
-    HTML(text)
+    df <- as.data.frame(rv$AggregProtStats)
+    names(df) <- c('Description', 'Value')
+    DT::datatable(df, 
+                  escape = FALSE,
+                  rownames= FALSE,
+                  option=list(initComplete = initComplete(),
+                              dom = 't',
+                              autoWidth=TRUE,
+                              ordering=F,
+                              columnDefs = list(list(width='200px',targets= "_all"))
+                  )
+    )
 })
 
 output$aggregationPlotShared <- renderPlot({
@@ -299,7 +286,7 @@ output$AggregationSideBar_Step1 <-  renderUI({
                   uiOutput("chooseProteinId"),
                   checkboxInput("checkSharedPeptides", "Include shared peptides", value = FALSE),
                   selectInput("aggregationMethod","Aggregation methods",choices =  gAgregateMethod),
-                  uiOutput("topNOption"),
+                  hidden(numericInput("nTopn", "nTopn",value = NULL, min = 0)),
                   actionButton("perform.aggregation","Perform aggregation")
               )
     )
@@ -313,18 +300,12 @@ output$AggregationWellPanel_Step1 <- renderUI({
     req(rv$current.obj)
     
     tagList(
-            HTML("Please select first the id of protein in your dataset. 
-                <br>Then, the stats will be showed and it will be possible to 
-                perform the aggregation"),
-            # fluidRow(
-            #     column(width=6, h4("Only specific peptides")),
-            #     column(width=6, h4("All (specific & shared) peptides"))
-            #     ),
+            
             fluidRow(
                 column(width=6, uiOutput("specificPeptideBarplot")),
                 column(width=6, uiOutput("allPeptideBarplot"))
                 ),
-            uiOutput("aggregationStats"),
+            dataTableOutput("aggregationStats"),
             uiOutput("ObserverAggregationDone")
             )
    
@@ -360,39 +341,47 @@ output$displayNbPeptides <- renderUI({
 })
 
 
+callModule(modulePopover,"modulePopover_colsForAggreg", 
+           data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">Columns of the meta-data</font></strong>")),
+                                content= "Select the columns of the meta-data (related to proteins) that have to be recorded in the new protein dataset (e.g. the columns which contains the protein ID if you wish to perform a GO analysis.)")))
+
+
 
 output$Aggregation_Step2 <- renderUI({
     
     req(rv$current.obj)
     
     if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
-        tagList(
-            fluidRow(
-                column(width=4,uiOutput("displayNbPeptides")
-                )
-                
-            ),
+      choices <- colnames(Biobase::fData(rv$current.obj))
+      names(choices) <- colnames(Biobase::fData(rv$current.obj))
+      tagList(
+            uiOutput("displayNbPeptides"),
             
-            
-            helpText("Select the columns of the meta-data (related to proteins)
-                    that have to be recorded in the new protein dataset."),
-            helpText("(e.g. the column which contains the protein ID if you wish 
-                     to perform a GO analysis.)"),
-            div(class="row"),
-            div(class="span5", "",
-                uiOutput("columnsForProteinDataset"),
-                fluidRow(
-                    column(width=3,
-                           actionButton("valid.aggregation",
-                                        "Save aggregation", 
-                                        styleclass = "primary")
+            div(
+              div(
+                style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                modulePopoverUI("modulePopover_colsForAggreg")
+              ),
+              div(
+                style="display:inline-block; vertical-align: middle;",
+                selectInput("columnsForProteinDataset.box",
+                            label = "",
+                            choices = choices,
+                            multiple = TRUE, width='200px',
+                            size = 10,
+                            selectize = FALSE)
+              )
+            ) ,
+          actionButton("valid.aggregation","Save aggregation", styleclass = "primary")
                     )
-                ) 
-                
-            )
-            )
+    
     } else {
-        h4("The peptide dataset has been aggregated into a protein dataset.")
+        tagList(
+          h4("The peptide dataset has been aggregated into a protein dataset."),
+          tags$div(style="align: center;",
+                   moduleDatasetOverviewUI("overview_Aggregation")
+          )
+        )
     }
     
 })
@@ -430,15 +419,17 @@ buildWritableVector <- function(v){
 
 ######################################################### 
 output$columnsForProteinDataset <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return(NULL)  }
+    req(rv$current.obj)
     
     choices <- colnames(Biobase::fData(rv$current.obj))
     names(choices) <- colnames(Biobase::fData(rv$current.obj))
-    selectizeInput("columnsForProteinDataset.box",
-                   label = "",
-                   choices = choices,
-                   multiple = TRUE, width='200%')
+    
+    selectInput("columnsForProteinDataset.box",
+                label = "",
+                choices = choices,
+                multiple = TRUE, width='200px',
+                size = 20,
+                selectize = FALSE)
     
 })
 
@@ -448,8 +439,7 @@ output$columnsForProteinDataset <- renderUI({
 ######################################################### 
 
 output$chooseProteinId <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return (NULL)}
+    req(rv$current.obj)
     
     selectInput("proteinId", 
                 "Choose the protein ID",

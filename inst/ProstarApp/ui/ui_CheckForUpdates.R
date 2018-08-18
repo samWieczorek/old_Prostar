@@ -2,6 +2,8 @@ tabPanel("Check for updates",
                   value="checkForUpdatesTab",
                   br(),
                   br(),
-                  dataTableOutput("tab_versions", width = '600px')
+                  uiOutput("baseVersions"),
+                  dataTableOutput("tab_versions", width = '600px'),
+                  uiOutput("update")
          )
 

@@ -109,7 +109,6 @@ getDatasetName <- reactive({
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
 
-  print("observeEvent( input$datasets,ignoreInit = TRUE,")
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
@@ -119,7 +118,7 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
         }
 
     })
-    print(rv$current.obj)
+    
 })
 
 
@@ -282,6 +281,14 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
+  
+  rv$pageConvert = 1
+  rv$pageFiltering = 1
+  rv$pageProtImput = 1
+  rv$pageAggreg = 1
+  rv$pageDiffAna = 1
+  
+  
   rv$current.comp = NULL
   
     rv$current.obj = NULL
@@ -368,6 +375,7 @@ ClearMemory <- function(){
                               History="", 
                               stringsAsFactors=F)
     rv$GOWarningMessage = NULL
+    rv$mvFiltering_Done = FALSE
     rv$stringBasedFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
@@ -410,6 +418,16 @@ ClearMemory <- function(){
 
 #-------------------------------------------------------------
 rv <- reactiveValues(
+  
+  
+  ## count of actives pages for next/previous
+  pageConvert = 1,
+  pageFiltering = 1,
+  pageProtImput = 1,
+  pageAggreg = 1,
+  pageDiffAna = 1,
+  
+  
   UI_TabsList = NULL,
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,
@@ -512,7 +530,8 @@ rv <- reactiveValues(
     iDat = NULL,
     tempDatasetImputation = NULL,
     MECIndex = NULL,
-    stringBasedFiltering_Done = FALSE,
+  mvFiltering_Done = FALSE,
+  stringBasedFiltering_Done = FALSE,
     imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
                             step2 = NULL),
@@ -630,110 +649,28 @@ NeedsUpdate <- reactive({
 })
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#-------------------------------------------------------------------
-output$aboutText <- renderUI({
-  t <- sessionInfo()
-  daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
-  ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
-  
-  
-  text <- paste("<strong>Maintaining ProStaR as free software is a heavy and time-consuming
-                duty. If you use it, please cite the following reference</strong><br> 
-                S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
-                L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
-                C. Bruley and T. Burger. <br>
-                <u>\"DAPAR & ProStaR: software to perform statistical 
-                analyses in quantitative discovery 
-                proteomics\"</u><br>
-                <i>Bioinformatics 33(1), 135-136</i>, <strong>2017</strong><br>
-                <a href=\"http://doi.org/10.1093/bioinformatics/btw580\"
-                title=\"here\" target=\"_blank\">http://doi.org/10.1093/bioinformatics/btw580</a>
-                
-                <br><hr>
-                <strong>DAPAR</strong> and <strong>ProStaR</strong> form a 
-                software suite for quantitative analysis of mass spectrometry 
-                based proteomics.<br>
-                More specifically it is designed to process 
-                relative quantitative data from discovery experiments.<br>
-                It is composed of two distinct R packages : <br>", 
-                "<ul style=\"list-style-type:disc;\">
-                <li>
-                <a href=\"http://www.bioconductor.org/packages/release/bioc/html/Prostar.html\"
-                title=\"here\" target=\"_blank\">Prostar</a> (version ",
-                ProstarVersion, "): the web based graphical user interface to DAPAR 
-                </li>
-                <li>
-                <a href=\"http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html\"
-                title=\"here\" target=\"_blank\">DAPAR</a> (version ",daparVersion,"): a 
-                collection of tools and graphs dedicated to proteomic analysis
-                </li>
-                </ul> 
-                DAPAR includes wrappers to numerous other R packages, either available on 
-                <a href=\"the https://cran.r-project.org/\" title=\"here\" target=\"_blank\">
-                CRAN</a> or on the <a href=\"http://www.bioconductor.org\"
-                title=\"here\" target=\"_blank\">Bioconductor</a>.
-                <br>
-                Here is a brief overview of the available functionalities:
-                <ul style=\"list-style-type:disc;\">
-                <li>  
-                <strong>Descriptive statistics</strong> are available, for exploration and visualization of the 
-                quantitative dataset;
-                </li>
-                <li>  
-                <strong>Filtering</strong> options allows pruning the protein or peptide list according to 
-                various criteria (missing values, contaminants, reverse sequences);
-                </li>
-                
-                <li>
-                <strong>Cross replicate normalization</strong>, so as to make the quantitative 
-                values comparable between the different analyzed samples;
-                </li>
-                
-                <li>  
-                <strong>Missing values imputation</strong> with different methods, depending 
-                on the nature of  the missing values;
-                </li>
-                <li>  
-                <strong>Aggregation</strong> from peptide to protein intensity values;
-                </li>
-                
-                <li>
-                <strong>Differential analysis</strong>, which includes null hypothesis 
-                significance testing as well as multiple testing correction 
-                (for false discovery rate estimation).
-                </li>
-                <li>
-                <strong>Gene Ontology (GO) analysis</strong> allows is to map protein list onto GO terms and to test category enrichment.
-                </li>
-                </ul>
-                
-                <br>", sep="")
-  tagList(
-    HTML(text),
-    HTML("For more details, please refer to the "),
-    actionLink('LinkToUsefulLinksTab', "Useful links",style="background-color: white"),
-    HTML("in the Help menu")
-  )
-  
-})
-
-
 observeEvent(input$LinkToUsefulLinksTab, {
   updateTabsetPanel(session, 'navPage', "usefulLinksTab")
 })
 
+
+
+
+
+buildTable <- function(text, color){
+  
+  rows.color <- rows.text <- list()
+  rows.text <- list()
+  for( i in 1:length( color ) ) {
+    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
+    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
+  }
+  
+  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 2px;",
+                            tags$tr( rows.color ),
+                            tags$tr( rows.text )
+  )
+  return(html.table)
+  
+}
 

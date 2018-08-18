@@ -1,4 +1,4 @@
 tabPanel("Useful links",
          value="usefulLinksTab",
-         htmlOutput("References")
+         htmlOutput("References2")
 )

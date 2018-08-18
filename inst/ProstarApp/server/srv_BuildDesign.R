@@ -24,25 +24,25 @@ color_renderer <- reactive({
 
 
 
-output$convertFinalStep <- renderUI({
-req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data"),
-    uiOutput("warningCreateMSnset"),
-    moduleDatasetOverviewUI("overview_convertData"),
-    uiOutput("conversionDone")
-  )
-})
+# output$convertFinalStep <- renderUI({
+# req(rv$designChecked)
+#   if (!(rv$designChecked$valid)){return(NULL)}
+#   tagList(
+#     uiOutput("checkAll_convert", width="50"),
+#     htmlOutput("msgAlertCreateMSnset"),
+#     hr(),
+#     textInput("filenameToCreate","Enter the name of the study"),
+#     actionButton("createMSnsetButton","Convert data"),
+#     uiOutput("warningCreateMSnset"),
+#     moduleDatasetOverviewUI("overview_convertData"),
+#     uiOutput("conversionDone")
+#   )
+# })
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
   
-  rv$hot
+  #rv$hot
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
   
   rv$newOrder <- order(rv$hot["Condition"])
@@ -238,23 +238,23 @@ observeEvent(input$chooseExpDesign, {
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
-           rv$hot  <- data.frame(rv$hot[,1:2],
+                      rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         },
+                      },
          twoLevelsDesign = {
-           rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
+                      rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         },
+                          },
          threeLevelsDesign = {
-           #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
-           rv$hot  <- data.frame(rv$hot[,1:2],
+                        #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+                        rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = rep("",nrow(rv$hot)),
                                  Analyt.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-         }
+                              }
   )
 })
 

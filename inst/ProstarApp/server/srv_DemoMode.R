@@ -7,8 +7,8 @@ output$chooseDataset <- renderUI({
     print("DAPARdata is loaded correctly")
     selectInput("demoDataset",
                 "Demo dataset",
-                choices = utils::data(package="DAPARdata")$results[,"Item"]
-    )
+                choices = utils::data(package="DAPARdata")$results[,"Item"],
+                width='200px'    )
   } else {
     print("trying to install DAPARdata")
     install.packages("DAPARdata")
@@ -16,7 +16,8 @@ output$chooseDataset <- renderUI({
       print("DAPARdata installed and loaded")
       selectInput("demoDataset",
                   "Demo dataset",
-                  choices = utils::data(package='DAPARdata')$results[,"Item"])
+                  choices = utils::data(package='DAPARdata')$results[,"Item"],
+                  width='200px'   )
     } else {
       stop("Could not install the package DAPARdata")
     }
@@ -75,12 +76,11 @@ output$infoAboutDemoDataset <- renderUI({
     
     if (NA.count > 0){
       tags$p("As your dataset contains missing values, you should 
-             impute them prior to proceed",br()," 
-             to the differential analysis.")
+             impute them prior to proceed to the differential analysis.")
     },
     if (nb.empty.lines > 0){
       tags$p("As your dataset contains lines with no values, you 
-             should remove them with the filter",br()," tool
+             should remove them with the filter tool
              prior to proceed to the analysis of the data.")
     }
     
@@ -105,9 +105,7 @@ output$progressDemoMode <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
-    if (is.null(input$demoDataset)){return (NULL)}
-    
-    
+   
     ClearMemory()
     ClearUI()
     utils::data(list = input$demoDataset)
@@ -125,19 +123,6 @@ observeEvent(input$loadDemoDataset,{
     UpdateLog("Original",l.params)
     
     loadObjectInMemoryFromConverter()
-    
-    
-    # }
-    # , warning = function(w) {
-    #     shinyjs::info(paste("load Demo dataset",conditionMessage(w), sep=""))
-    # }, error = function(e) {
-    #     shinyjs::info(paste("load Demo dataset",match.call()[[1]],":",
-    #                         conditionMessage(e), 
-    #                         sep=" "))
-    # }, finally = {
-    #     #cleanup-code 
-    # })
-    
-    
+
 })
 
