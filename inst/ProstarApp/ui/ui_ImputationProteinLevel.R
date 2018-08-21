@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 tabPanel("Miss. values imputation",
         value = "imputationProteinLevelTabs",
         
@@ -19,3 +20,14 @@ tabPanel("Miss. values imputation",
 
 
 
+=======
+tabPanel("Miss. values imputation",
+        value = "imputationProteinLevelTabs",
+        uiOutput("proteinLevelImputationPanel")
+)
+
+
+
+
+
+>>>>>>> ceee6a0719f73dbf86eb71708e3099eee6d98083

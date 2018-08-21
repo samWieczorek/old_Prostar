@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 tabPanel("Differential analysis",
          value = "diffAnalysisTab",
          uiOutput("checkDiffAnaPanel" ),
@@ -8,3 +9,10 @@ tabPanel("Differential analysis",
          uiOutput("anaDiffPanel")
          
 )
+=======
+tabPanel("Differential analysis",
+         value = "diffAnalysisTab",
+         uiOutput("anaDiffPanel")
+         
+)
+>>>>>>> ceee6a0719f73dbf86eb71708e3099eee6d98083

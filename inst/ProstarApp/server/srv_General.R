@@ -283,10 +283,6 @@ ClearMemory <- function(){
   
   
   rv$pageConvert = 1
-  rv$pageFiltering = 1
-  rv$pageProtImput = 1
-  rv$pageAggreg = 1
-  rv$pageDiffAna = 1
   
   
   rv$current.comp = NULL
@@ -375,7 +371,6 @@ ClearMemory <- function(){
                               History="", 
                               stringsAsFactors=F)
     rv$GOWarningMessage = NULL
-    rv$mvFiltering_Done = FALSE
     rv$stringBasedFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
@@ -422,11 +417,6 @@ rv <- reactiveValues(
   
   ## count of actives pages for next/previous
   pageConvert = 1,
-  pageFiltering = 1,
-  pageProtImput = 1,
-  pageAggreg = 1,
-  pageDiffAna = 1,
-  
   
   UI_TabsList = NULL,
   UI_fileSourced = NULL,
@@ -530,8 +520,7 @@ rv <- reactiveValues(
     iDat = NULL,
     tempDatasetImputation = NULL,
     MECIndex = NULL,
-  mvFiltering_Done = FALSE,
-  stringBasedFiltering_Done = FALSE,
+    stringBasedFiltering_Done = FALSE,
     imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
                             step2 = NULL),
@@ -653,27 +642,4 @@ observeEvent(input$LinkToUsefulLinksTab, {
   updateTabsetPanel(session, 'navPage', "usefulLinksTab")
 })
 
-<<<<<<< HEAD
-
-
-
-
-buildTable <- function(text, color){
-  
-  rows.color <- rows.text <- list()
-  rows.text <- list()
-  for( i in 1:length( color ) ) {
-    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
-    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
-  }
-  
-  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 2px;",
-                            tags$tr( rows.color ),
-                            tags$tr( rows.text )
-  )
-  return(html.table)
-  
-}
-=======
->>>>>>> ceee6a0719f73dbf86eb71708e3099eee6d98083
 
