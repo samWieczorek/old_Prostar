@@ -133,7 +133,22 @@ observeEvent(input$file,ignoreInit =TRUE,{
         names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
         
         if (is.null(rv$current.obj@experimentData@other$RawPValues ))
-            rv$current.obj@experimentData@other$RawPValues <- FALSE
+        {rv$current.obj@experimentData@other$RawPValues <- FALSE}
+        else if(rv$current.obj@experimentData@other$RawPValues ){
+          
+          names.logFC <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC
+          names.P_Value <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$P_Value
+          
+          .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
+          .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
+          names(.logFC) <- names.logFC
+          names(.P_Value) <- names.P_Value
+          
+          rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
+                                            P_Value = .P_Value)
+          
+          rv$seuilLogFC <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$th_logFC
+        }
         
         rv$current.obj <- addOriginOfValue(rv$current.obj)
         l.params <- list(filename = rv$current.obj.name)

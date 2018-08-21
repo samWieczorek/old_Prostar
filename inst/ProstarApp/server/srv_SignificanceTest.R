@@ -68,16 +68,13 @@ output$FoldChangePlot <- renderHighchart({
 #######################################################
 observe({
   req(input$diffAnaMethod)
-  #req(rv$current.obj)
   req(input$anaDiff_Design)
-  #req(input$seuilLogFC)
   input$ttest_options
   
   
   if ((input$diffAnaMethod=="None")) {return ()}
   if ((input$anaDiff_Design=="None")) {return ()}
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-    return()}
+  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   
   if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])){
@@ -88,8 +85,6 @@ observe({
                                                                 input$anaDiff_Design)
            },
            ttests={
-             print(input$ttest_options)
-             #if (is.null(input$ttest_options)) {return()}
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
                                                                       Contrast=input$anaDiff_Design,
                                                                       type=input$ttest_options)

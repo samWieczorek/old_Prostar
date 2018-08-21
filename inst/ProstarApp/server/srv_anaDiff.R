@@ -87,7 +87,6 @@ output$diffAna_pvalCalib <- renderUI({
 
   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
               wellPanel(
-                id = "sidebar_DiffAna3",
                 height = "100%"
                 ,uiOutput("diffAnalysis_Calibration_SB")
               ),
@@ -115,13 +114,10 @@ output$diffAna_fdrCompute <- renderUI({
               ),
 
               tagList(
-                fluidRow(
-                  column(width= 4, htmlOutput("equivPVal")),
-                  column(width= 4, htmlOutput("showFDR"))
-                ),
-                hr(),
-                moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
-                DT::dataTableOutput("showSelectedItems", width='800px')
+                  htmlOutput("showFDR"),
+                  moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
+                  hidden(dataTableOutput("showSelectedItems"))
+                
               )
   )
 })
@@ -163,7 +159,6 @@ output$resumeParams <- DT::renderDataTable({
    rv$resAnaDiff
   req(rv$res_AllPairwiseComparisons)
   
-  #if ((input$ValidDiffAna == 0)) { return()}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   
@@ -198,7 +193,8 @@ output$resumeParams <- DT::renderDataTable({
                 options = list(initComplete = initComplete(),
                                dom = 'Bfrtip',
                                buttons = c('copy','excel', 'pdf', 'print'),
-                               columnDefs = list(list(width='200px',targets= "_all")))
+                               columnDefs = list(list(width='200px',targets= "_all")),
+                               ordering = FALSE)
   )
   #}
 })
@@ -280,7 +276,8 @@ output$AnaDiff_seuilNADelete <- renderUI({
 
 observeEvent(input$swapVolcano,{
     req(rv$resAnaDiff)
-    rv$resAnaDiff$FC <- - (rv$resAnaDiff$logFC)
+    rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
+   
 })
 
 
@@ -384,7 +381,7 @@ if (input$AnaDiff_ChooseFilters == gFilterNone){
 
 output$tooltipInfo <- renderUI({
   req(c(rv$current.obj,input$selectComparison))
-   if (input$selectComparison=="None"){return()}
+  # if (input$selectComparison=="None"){return()}
   
   tagList(
     hr(),
@@ -416,10 +413,8 @@ output$diffAnalysis_Calibration_SB <- renderUI({
 
 
 output$diffAnalysis_FDR_SB <- renderUI({
-    req(rv$current.obj)
-    
-    
-        numericInput("seuilPVal", 
+    #req(rv$current.obj)
+    numericInput("seuilPVal", 
                      "Define the -log10(p_value) threshold",
                      min = 0,value = 0,step=0.1)
      })
@@ -432,10 +427,10 @@ output$diffAnalysis_FDR_SB <- renderUI({
 
 
 #-------------------------------------------------------------
-output$showFDR <- renderText({
+output$showFDR <- renderUI({
     req(rv$current.obj)
-    rv$seuilPVal
-    rv$seuilLogFC
+    req(rv$seuilPVal)
+    req(rv$seuilLogFC)
     input$numericValCalibration
     input$calibrationMethod
     req(rv$resAnaDiff)
@@ -443,27 +438,26 @@ output$showFDR <- renderText({
     
     if (is.null(input$selectComparison) || (input$selectComparison == "None")) 
     {return()}
-    if (is.null(rv$seuilLogFC) ||is.na(rv$seuilLogFC)  ) 
-    {return()}
-    if (is.null(rv$seuilPVal) || is.na(rv$seuilPVal)) { return ()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
+    if (is.na(rv$seuilLogFC) || is.na(rv$seuilPVal) ){return()}
+    
 
-
-                m <- NULL
-                if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
-                else if (input$calibrationMethod == "numeric value") {
+    m <- NULL
+    if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
+       else if (input$calibrationMethod == "numeric value") {
                     m <- as.numeric(input$numericValCalibration)} 
-                else {m <- input$calibrationMethod }
+             else {m <- input$calibrationMethod }
                 
-                rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
-                                            rv$resAnaDiff[["P_Value"]],
-                                            rv$seuilPVal, 
-                                            rv$seuilLogFC, 
-                                            m)
-                if (!is.infinite(rv$fdr)){
-                    HTML(paste("<h4>FDR = ", 
-                               round(100*rv$fdr, digits=2)," % </h4>", sep=""))
-                }
+    rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
+                                rv$resAnaDiff[["P_Value"]],
+                                rv$seuilPVal, 
+                                rv$seuilLogFC, 
+                                m)
+   tagList(
+     if (!is.infinite(rv$fdr)){
+                    tags$p(style="font-size: 20;","FDR = ", round(100*rv$fdr, digits=2)," % (p-value = ",
+                           signif(10^(- (input$seuilPVal)), digits=3), ")")
+       }
+   )
 
 
 })
@@ -534,20 +528,14 @@ output$calibrationResults <- renderUI({
 
 
 calibrationPlot <- reactive({
-    rv$seuilPVal
     rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
+    req(input$calibrationMethod)
+    req(rv$resAnaDiff)
     req(rv$current.obj)
     
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$logFC) == 0)) { return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+    if (length(rv$resAnaDiff$logFC) == 0) { return()}
+    #if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-    # ________
-    
-    if (is.null(input$calibrationMethod)  ) {return()}
     
     t <- NULL
     method <- NULL
@@ -565,8 +553,7 @@ calibrationPlot <- reactive({
     result = tryCatch(
         {
             
-            if ((input$calibrationMethod == "numeric value") 
-                && !is.null(input$numericValCalibration)) {
+            if ((input$calibrationMethod == "numeric value")&& !is.null(input$numericValCalibration)) {
                 
                 ll <-catchToList(
                     wrapperCalibrationPlot(t, 
@@ -604,9 +591,7 @@ output$calibrationPlot <- renderPlot({
 
 output$errMsgCalibrationPlot <- renderUI({
     req(rv$errMsgCalibrationPlot)
-    rv$seuilLogFC
-    req(rv$current.obj)
-    
+
     txt <- NULL
     
     for (i in 1:length(rv$errMsgCalibrationPlot)) {
@@ -619,11 +604,7 @@ output$errMsgCalibrationPlot <- renderUI({
 
 
 output$errMsgCalibrationPlotAll <- renderUI({
-    rv$errMsgCalibrationPlotAll
-    rv$seuilLogFC
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
-    if (is.null(rv$errMsgCalibrationPlotAll) ) {return()}
+    req(rv$errMsgCalibrationPlotAll)
     
     txt <- NULL
     for (i in 1:length(rv$errMsgCalibrationPlotAll)) {
@@ -636,21 +617,14 @@ output$errMsgCalibrationPlotAll <- renderUI({
 
 
 calibrationPlotAll <- reactive({
-    rv$seuilPVal
-    rv$seuilLogFC
-    input$diffAnaMethod
-    rv$resAnaDiff
-    rv$current.obj
-    if (is.null(rv$current.obj) ) {return()}
+    req(rv$seuilLogFC)
+    req(rv$resAnaDiff)
+    req(rv$current.obj)
     
-    if ( is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ||
-        (length(rv$resAnaDiff$logFC) == 0)) { return()}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+    if (length(rv$resAnaDiff$logFC) == 0) { return()}
+    #if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-    # ________
     
-    if (is.null(input$calibrationMethod)  ) {return()}
     
     t <- NULL
     method <- NULL
@@ -665,8 +639,7 @@ calibrationPlotAll <- reactive({
     result = tryCatch(
         {
             l <-catchToList(wrapperCalibrationPlot(t, "ALL")  )
-            rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:", 
-                                                            l$warnings)]
+            rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:",l$warnings)]
         }
         , warning = function(w) {
             shinyjs::info(paste("Calibration Plot All methods",":",
@@ -711,7 +684,7 @@ observeEvent(input$ValidDiffAna,{
     rv$resAnaDiff
     req(rv$res_AllPairwiseComparisons)
     
-    if ((input$ValidDiffAna == 0)) { return()}
+    #if ((input$ValidDiffAna == 0)) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
 
      
@@ -826,9 +799,9 @@ observeEvent(input$ValidDiffAna,{
 
 
 output$DiffAnalysisSaved <- renderUI({
-    #input$datasets
+    req(input$datasets)
     #rv$current.obj
-    if (is.null(input$datasets) || (length(grep("DiffAnalysis.",input$datasets)) !=1) ) {
+    if ( (length(grep("DiffAnalysis.",input$datasets)) !=1) ) {
         return()  }
     else if (grep("DiffAnalysis.",input$datasets) == 1 ) {
         h4("The differential analysis has been saved.")
@@ -840,34 +813,24 @@ output$DiffAnalysisSaved <- renderUI({
 
 
 
-output$equivPVal <- renderText ({
-    req(input$seuilPVal)
-    input$diffAnaMethod
-    req(rv$current.obj)
-    input$selectComparison
+output$equivPVal <- renderUI ({
+    req(rv$seuilPVal)
+    #req(rv$current.obj)
+    req(input$selectComparison)
     
     
-    if (is.null(input$selectComparison) || (input$selectComparison=="None")){return()}
-    if (is.null(input$diffAnaMethod) || (input$diffAnaMethod == G_noneStr))
-    {return(NULL)}
-     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+    if (input$selectComparison=="None"){return()}
     
-    HTML(paste("<h4>(p-value = ",
-               signif(10^(- (input$seuilPVal)), digits=3), ") </h4>", sep=""))
+     #if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+    
+    tags$p(paste0("(p-value = ",signif(10^(- (input$seuilPVal)), digits=3), ")"))
 })
 
 
 output$equivLog10 <- renderText ({
-    req(input$test.threshold)
-    req(rv$current.obj)
-    req(input$diffAnaMethod)
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
-    
-    HTML(paste("<h4>-log10 (p-value) = ",
-               signif(- log10(input$test.threshold/100), digits=1),
-               "</h4>", sep=""))
+    req(rv$seuilPVal)
+   
+    tags$p(paste0("-log10 (p-value) = ",signif(- log10(rv$seuilPVal/100), digits=1)))
 })
 
 
@@ -904,17 +867,25 @@ observeEvent(input$seuilPVal,{
 })
 
 
+observeEvent(input$showpvalTable, {
+
+  shinyjs::toggle(id = "showSelectedItems", condition=input$showpvalTable)
+})
+
+
 ########################################################
-output$showSelectedItems <- DT::renderDataTable({
-    req(rv$current.obj)
-    req(input$diffAnaMethod)
-    req(input$seuilLogFC)
-    req(input$seuilPVal)
+output$showSelectedItems <- renderDataTable({
+    #input$showpvalTable
+    #req(rv$current.obj)
+    #req(input$diffAnaMethod)
+    #req(rv$seuilLogFC)
+    req(rv$seuilPVal)
     req(input$selectComparison)
-    req(input$showpvalTable)
     input$tooltipInfo
-    
-    if ((input$selectComparison == "None") || (input$diffAnaMethod == "None")) 
+
+    .diffAnaMethod <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$method
+     
+    if ((input$selectComparison == "None") || (.diffAnaMethod == "None")) 
     {return()}
 
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
@@ -928,8 +899,8 @@ output$showSelectedItems <- DT::renderDataTable({
             #                                                    c("logFC", "P_Value", "Significant")], digits=input$settings_nDigits))
             # } else{
                 data <- rv$resAnaDiff
-                upItems1 <- which(-log10(data$P_Value) >= rv$seuilPVal)
-                upItems2 <- which(abs(data$logFC) >= rv$seuilLogFC)
+                upItems1 <- which(-log10(data$P_Value) >= input$seuilPVal)
+                upItems2 <- which(abs(data$logFC) >= rv$seuilLogFC )
                 selectedItems <- intersect(upItems1, upItems2)
                 
                  t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
