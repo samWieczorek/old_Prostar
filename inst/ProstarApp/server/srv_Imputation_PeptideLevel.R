@@ -249,16 +249,38 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                               selected = input$peptideLevel_imp4p_nbiter)
             
           } else if (input$peptideLevel_missing.value.algorithm == "Basic methods"){
-            busyIndicator(WaitMsgCalc,wait = 0)
-            tmp.qData <- Biobase::exprs(rv$dataset[[input$datasets]])
-            switch(input$peptideLevel_missing.value.basic.algorithm,
-                   KNN = rv$current.obj <- DAPAR::wrapper.impute.KNN(rv$current.obj, 3),
-                   MLE = rv$current.obj <- DAPAR::wrapper.impute.mle(rv$current.obj),
-                   detQuantile = rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
-                                                                           qval = (input$peptideLevel_detQuant_quantile/100),
-                                                                           factor = input$peptideLevel_detQuant_factor)
-            )
-
+            if (input$peptideLevel_missing.value.basic.algorithm %in% c("KNN", "MLE")) 
+            {
+              
+              busyIndicator(WaitMsgCalc,wait = 0)
+              rv$current.obj <- wrapper.mvImputation(rv$dataset[[input$datasets]],
+                                                     input$peptideLevel_missing.value.basic.algorithm)
+              
+              #write log command file
+              #if (input$showCommandLog){
+              #writeToCommandLogFile(
+              #    paste("current.obj <- wrapper.mvImputation(",
+              #          "dataset[['",input$datasets, "']],'",input$peptideLevel_missing.value.basic.algorithm,"')", sep="")
+              #)
+              #}
+              
+            } 
+            else if (input$peptideLevel_missing.value.basic.algorithm ==  "detQuantile")
+            {
+              
+              rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
+                                                        qval = (input$peptideLevel_detQuant_quantile/100),
+                                                        factor = input$peptideLevel_detQuant_factor)
+              #write log command file
+              #if (input$showCommandLog){
+              #writeToCommandLogFile(
+              #    paste("current.obj <- wrapper.impute.detQuant(",
+              #          "dataset[['", input$datasets,"']])",sep="")
+              #)
+              #}
+              
+              
+            }
           }
         }
         

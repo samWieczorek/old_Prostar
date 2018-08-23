@@ -53,7 +53,7 @@ output$helpForNormalizationMethods <- renderUI({
     
     
     
-    HTML(helpNormalization[input$normalization.method])
+    tags$p(helpNormalization[input$normalization.method])
 })
 
 
@@ -68,7 +68,7 @@ output$choose_normalizationQuantile <- renderUI({
     # check if the normalisation has already been performed
     quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
     
-    radioButtons("normalization.quantile", "Normalization quantile",  choices = quantileChoices, selected=0.15)
+    selectInput("normalization.quantile", "Normalization quantile",  choices = quantileChoices)
     
     
 })
@@ -81,8 +81,7 @@ output$choose_normalizationQuantileOther <- renderUI({
    
     if (input$normalization.quantile == "Other"){
         numericInput("normalization.quantileOther", "Normalization quantile other",
-                     min=0, max = 1 , value = 0.15,
-                     step = 0.1)
+                     min=0, max = 1 , value = 0.15,step = 0.1)
         
     }
     
@@ -106,28 +105,16 @@ output$choose_normalizationType <- renderUI({
     req(input$normalization.method)
     
     if (input$normalization.method == "None") { return (NULL)}
-    
     if (input$normalization.method %in% c("Quantile Centering", "Mean Centering", "Sum by columns")){
-        
-        # check if the normalisation has already been performed
-        type <- c("overall", "within conditions")
-        selectInput("normalization.type", "Normalization type",  choices = type)
-
+        selectInput("normalization.type", "Normalization type",  choices = c("overall", "within conditions"), width='150px')
     } 
-
-    
 })
 
 
 
 output$choose_Normalization_Test <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) { return (NULL)}
-    
-    # check if the normalisation has already been performed
-    method <- normMethods
-    
-    selectInput("normalization.method","Normalization method", method)
+    req(rv$current.obj)
+    selectInput("normalization.method","Normalization method", normMethods, width='200px')
 })
 
 
@@ -195,16 +182,15 @@ observeEvent(input$perform.normalization,{
 
         
     })
+  
+  shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })
 
 
 ##' -- Validate and save the normalization ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.normalization,{ 
-    
-    req(input$normalization.method)
-    #if (is.null(input$valid.normalization) || (input$valid.normalization == 0)) 
-    #{return(NULL)}
+    req(input$perform.normalization)
     
     isolate({
         # result = tryCatch(

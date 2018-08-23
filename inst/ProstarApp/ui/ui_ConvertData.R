@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-tabPanel("Convert data",
-        value = "convertTab",
-        uiOutput("checkConvertPanel" ),
-        actionButton("prevBtnConvert", "< Previous"),
-        actionButton("nextBtnConvert", "Next >"),
-        hr(),
-        uiOutput("Convert_SelectFile"),
-        uiOutput("Convert_DataId"),
-        uiOutput("Convert_ExpFeatData"),
-        uiOutput("Convert_BuildDesign"),
-        uiOutput("Convert_Convert")
-        
-)
-=======
 tabPanel("Convert data",
         value = "convertTab",
          helpText("These steps allow to create a MSnSet file 
@@ -116,4 +101,3 @@ tabPanel("Convert data",
              )
          )
 )
->>>>>>> ceee6a0719f73dbf86eb71708e3099eee6d98083
