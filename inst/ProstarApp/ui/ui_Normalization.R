@@ -1,25 +1,20 @@
 tabPanel("Normalization",
          value = "Normalization",
-         sidebarCustom(),
-         splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                     wellPanel(id = "sidebar_Normalization"
-                               ,height = "100%"
-                               ,uiOutput("choose_Normalization_Test")
-                               ,uiOutput("choose_normalizationType")
-                               ,uiOutput("choose_normalizationScaling")
-                               ,uiOutput("choose_normalizationQuantile")
-                               ,uiOutput("choose_normalizationQuantileOther")
-                               ,actionButton("perform.normalization", "Perform normalization", width="170px")
-                               ,br(),br()
-                               ,actionButton("valid.normalization","Save normalization", width="170px")
-                     )
-                     ,tagList(
-                       uiOutput("helpForNormalizationMethods"),
-                       fluidRow(
-                                column(width=6, moduleDensityplotUI("densityPlot_Norm") %>% withSpinner(type=spinnerType)),
-                                column(width=6, plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))),
-                                moduleBoxplotUI("boxPlot_Norm") %>% withSpinner(type=spinnerType)
-                                )
+         tagList(
+           fluidRow(
+             column(width=2, uiOutput("choose_Normalization_Test")),
+             column(width=2, uiOutput("choose_normalizationType")),
+             column(width=2, uiOutput("choose_normalizationScaling")),
+             column(width=2, uiOutput("choose_normalizationQuantile")),
+             column(width=2, uiOutput("choose_normalizationQuantileOther")),
+             column(width=2, actionButton("perform.normalization", "Perform normalization", width="170px"),
+                              hidden(actionButton("valid.normalization","Save normalization", width="170px")))),
+           uiOutput("helpForNormalizationMethods"),
+           tags$hr(),
+           fluidRow(
+                    column(width=4, moduleDensityplotUI("densityPlot_Norm")),
+                    column(width=4, plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType)),
+                    column(width=4,moduleBoxplotUI("boxPlot_Norm") %>% withSpinner(type=spinnerType))
                     )
-
          )
+)

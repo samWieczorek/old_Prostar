@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 tabPanel("Demo mode",
          value = "demoTab",
          tags$div(
@@ -14,24 +13,6 @@ tabPanel("Demo mode",
          hr(),
          moduleDatasetOverviewUI("overview_DemoMode")
          ,uiOutput("showDatasetDoc")
-          #,uiOutput("progressDemoMode")
+         #,uiOutput("progressDemoMode")
          ,uiOutput("infoAboutDemoDataset")
-         )
-=======
-tabPanel("Demo mode",
-         value = "demoTab",
-         sidebarCustom(),
-         splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                     wellPanel(id = "chooseDatasetFromDAPARdata_wellPanel",
-                               uiOutput("chooseDataset"),
-                               uiOutput("optionsDemomode")
-                               
-                     ),
-                     tagList(
-                       moduleDatasetOverviewUI("overview_DemoMode")
-                       ,uiOutput("showDatasetDoc")
-                       #,uiOutput("progressDemoMode")
-                       ,uiOutput("infoAboutDemoDataset")
-                     )
-         ))
->>>>>>> ceee6a0719f73dbf86eb71708e3099eee6d98083
+)
