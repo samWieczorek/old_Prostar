@@ -109,6 +109,7 @@ getDatasetName <- reactive({
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
 
+  print("observeEvent( input$datasets,ignoreInit = TRUE,")
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
@@ -118,7 +119,7 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
         }
 
     })
-    
+    print(rv$current.obj)
 })
 
 
@@ -281,10 +282,6 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
-  
-  rv$pageConvert = 1
-  
-  
   rv$current.comp = NULL
   
     rv$current.obj = NULL
@@ -413,11 +410,6 @@ ClearMemory <- function(){
 
 #-------------------------------------------------------------
 rv <- reactiveValues(
-  
-  
-  ## count of actives pages for next/previous
-  pageConvert = 1,
-  
   UI_TabsList = NULL,
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,

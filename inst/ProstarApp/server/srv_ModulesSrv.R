@@ -23,6 +23,7 @@ modulePopover <- function(input, output, session, data){
     output$customPopover <- renderUI({
           req(data())
         
+          print("output$customPopover <- renderUI")
           div(
             div(
                 # edit1
@@ -300,7 +301,7 @@ moduleBoxplot <- function(input, output, session,legendXAxis) {
       
       wrapper.boxPlotD(rv$current.obj,  rv$legDS)
       })
-    }, width=600, height=400)
+    })
       
   
 }

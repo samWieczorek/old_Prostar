@@ -1,5 +1,99 @@
 callModule(missingValuesPlots,"MVPlots_filtering")
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
+callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Keep vals",
+                                                                        content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
+
+
+
+
+
+
+
+output$mv_Filtering <- renderUI({
+  req(rv$current.obj)
+  tag <- rv$current.obj@experimentData@other$mvFilter.method
+  if (!is.null(tag)) { filter <- tag}
+  
+  tagList(
+      tags$div(
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                  selectInput("ChooseFilters","Type",  choices = gFiltersList, width='150px')
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle;",
+                  uiOutput("seuilNADelete")
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                  actionButton("perform.filtering.MV", "Perform MV filtering")
+        )
+      ),
+    tags$div(style="margin-bottom:200px;",
+             missingValuesPlotsUI("MVPlots_filtering")
+    )
+    
+    )
+  
+})
+
+
+
+
+output$stringBased_Filtering <- renderUI({
+  req(rv$current.obj)
+  req(rv$DT_filterSummary)
+  
+  if (nrow(rv$DT_filterSummary) <= 1) {
+    choice <- c("None", colnames(fData(rv$current.obj)))
+  } else {
+    index <- match(rv$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+    choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  }
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                selectInput("symFilter_cname", "Column name", choices = choice)
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                textInput("symFilter_tagName", "Prefix", value = "", width='50px')
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                p(""),actionButton("actionButtonFilter", "Perform")
+      )
+    ),
+    tags$hr(),
+    DT::dataTableOutput("FilterSummaryData")
+  )
+})
+
+
+
+output$valid_Filtering <- renderUI({
+  req(rv$current.obj)
+  
+  tagList(
+    fluidRow(
+      column(width=3,radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
+                 choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))),
+      column(width=3,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
+                  choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
+                  selected=character(0))),
+      column(width=3,uiOutput("legendForExprsData2")),
+      column(width=3,actionButton("ValidateFilters","Save filtered dataset",styleclass = "primary"))
+      ),
+         tags$hr(),
+         DT::dataTableOutput("VizualizeFilteredData"),
+         uiOutput("helpTextMV")
+         )
+})
+
+
+
+
+
+
+
+
+
 
 
 observeEvent(input$actionButtonFilter,{
@@ -78,33 +172,33 @@ observe({
 })
 
 
-output$DP_sidebar_FilterTab1 <- renderUI({
-  req(rv$current.obj)
-  tag <- rv$current.obj@experimentData@other$mvFilter.method
-  if (!is.null(tag)) { filter <- tag}
-  
-  tagList(
-    h4("Options")
-     ,radioButtons("ChooseFilters","",  choices = gFiltersList),
-    uiOutput("seuilNADelete"),
-    actionButton("perform.filtering.MV", "Perform MV filtering")
-  )
-  
-  
-})
+# output$DP_sidebar_FilterTab1 <- renderUI({
+#   req(rv$current.obj)
+#   tag <- rv$current.obj@experimentData@other$mvFilter.method
+#   if (!is.null(tag)) { filter <- tag}
+#   
+#   tagList(
+#     h4("Options")
+#      ,radioButtons("ChooseFilters","",  choices = gFiltersList),
+#     uiOutput("seuilNADelete"),
+#     actionButton("perform.filtering.MV", "Perform MV filtering")
+#   )
+#   
+#   
+# })
 
 
-output$DP_sidebar_FilterTab3 <- renderUI({
-  
-  req(rv$current.obj)
-  tagList(
-     radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
-                 choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))
-    ,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
-                  choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
-                  selected=character(0))
- )
-})
+# output$DP_sidebar_FilterTab3 <- renderUI({
+#   
+#   req(rv$current.obj)
+#   tagList(
+#      radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
+#                  choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))
+#     ,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
+#                   choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
+#                   selected=character(0))
+#  )
+# })
 
 
 
@@ -158,7 +252,6 @@ output$VizualizeFilteredData <- DT::renderDataTable({
            quantiData =  data <- getDataForMVFiltered(),
            metaData = data <- cbind(ID = rownames(Biobase::fData(rv$deleted.mvLines)), Biobase::fData(rv$deleted.mvLines))
     )
-    
   } 
   
   else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
@@ -211,15 +304,14 @@ output$VizualizeFilteredData <- DT::renderDataTable({
 ##' Show the widget (slider input) for filtering
 ##' @author Samuel Wieczorek
 output$seuilNADelete <- renderUI({ 
-  input$ChooseFilters
+  req(input$ChooseFilters)
   
-  if (is.null(rv$current.obj)) {return(NULL)   }
-  if ((input$ChooseFilters==gFilterNone) || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
+  if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
   
   choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
-  selectInput("seuilNA", 
-              "Keep lines with at least x intensity values", 
-              choices = choix, width='100px')
+  tagList(
+    modulePopoverUI("modulePopover_keepVal"),
+  selectInput("seuilNA", "", choices = choix, width='150px'))
   
 })
 
@@ -280,7 +372,7 @@ UpdateFilterWidgets <- function(){
 
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,{
-  if (input$perform.filtering.MV == 0){return()}
+  #if (input$perform.filtering.MV == 0){return()}
   
   isolate({
     
