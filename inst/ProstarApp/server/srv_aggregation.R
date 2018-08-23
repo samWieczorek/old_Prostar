@@ -1,3 +1,7 @@
+callModule(moduleDatasetOverview,"overview_Aggregation")
+
+
+
 
 output$Aggreg_Aggreg <- renderUI({
   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -7,7 +11,6 @@ output$Aggreg_Aggreg <- renderUI({
   )
 })
 
-callModule(moduleDatasetOverview,"overview_Aggregation")
 
 output$Aggreg_Valid <- renderUI({
   tagList(
