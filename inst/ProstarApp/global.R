@@ -4,11 +4,9 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 
-
 library(shinycssloaders)
 library(shinythemes)
-library(shiny)
-library(shinyjs)
+
 library(shinyAce)
 library(shinyBS)
 library(rclipboard)

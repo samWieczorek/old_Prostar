@@ -50,7 +50,6 @@ shinyServer(function(input, output, session) {
     #Sys.sleep(1)
 
     # Hide the loading message when the rest of the server function has executed
-    hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
     source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
@@ -129,5 +128,7 @@ shinyServer(function(input, output, session) {
                )
 
      })
-    
+     shinyjs::hide(id = "loading_page", anim = TRUE, animType = "fade")
+     
+     shinyjs::show("main_content", anim = TRUE, animType = "fade")
 })
