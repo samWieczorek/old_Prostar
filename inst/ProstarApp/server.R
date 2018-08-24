@@ -45,7 +45,7 @@ shinyServer(function(input, output, session) {
     #Sys.sleep(1)
 
     # Hide the loading message when the rest of the server function has executed
-    hide(id = "loading-content", anim = TRUE, animType = "fade")
+    #hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
     source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
@@ -74,5 +74,7 @@ shinyServer(function(input, output, session) {
     
     #activatePopover()
 
+    shinyjs::show("main-content", anim=TRUE, animType="fade")
+    shinyjs::hide("loading-content", anim=TRUE, animType="fade")
     
 })

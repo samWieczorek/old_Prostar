@@ -10,22 +10,26 @@ shinyUI <- tagList(
     
     
     shinyjs::useShinyjs(),
+    titlePanel("", windowTitle = "Prostar"),
+    
+    
+    
+    # Loading message
+    div(
+        id = "loading-content",
+        h2("Prostar is loading, please wait...")
+    ),
+    hidden(
+        div(
+            id = "main-content",
+   
+    
+    
     #,tags$head(includeScript("google-analytics.js"))
     tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
     
     inlineCSS(appCSS),
     
-    # Loading message
-    div(
-        br(),br(),br(),br(),br(),br(),
-        id = "loading-content",
-        h2("Prostar is loading, please wait...")
-    ),
-
-    
-    
-    
-titlePanel("", windowTitle = "Prostar"),
 sidebarPanelWidth()
 ,includeCSS("www/progressBar/progressBar.css")
 ,includeScript("www/progressBar/ShinyProgress2.js")
@@ -96,6 +100,8 @@ navbarMenu("Help",
 
 #inputs = modulePopoverUI("modulePopover_dataset")
 #inputs = list(uiOutput("datasetAbsPanel" )
+)
+        )
 
 )
 
