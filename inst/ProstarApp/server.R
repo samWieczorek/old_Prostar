@@ -16,8 +16,8 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
+  Sys.sleep(10)
     cat(file=stderr())
-    #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
@@ -41,11 +41,6 @@ shinyServer(function(input, output, session) {
         sessionLogFile <- paste("www/sessionLogs_", gsub("\\.", "_", rv$IP_Client), "_", sessionID, ".txt",sep="")
         if (!interactive()) sink(sessionLogFile, type = "output")
     }
-    # Simulate work being done for 1 second
-    #Sys.sleep(1)
-
-    # Hide the loading message when the rest of the server function has executed
-    #hide(id = "loading-content", anim = TRUE, animType = "fade")
     
     env <- environment()
     source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
@@ -74,7 +69,8 @@ shinyServer(function(input, output, session) {
     
     #activatePopover()
 
+    shinyjs::hide("loading-content")
     shinyjs::show("main-content", anim=TRUE, animType="fade")
-    shinyjs::hide("loading-content", anim=TRUE, animType="fade")
+    
     
 })

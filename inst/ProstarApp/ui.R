@@ -7,17 +7,31 @@ source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- tagList(
-    
-    
-    shinyjs::useShinyjs(),
+shinyjs::useShinyjs(),
+    includeCSS("www/progressBar/progressBar.css"),
     titlePanel("", windowTitle = "Prostar"),
-    
-    
-    
     # Loading message
     div(
         id = "loading-content",
-        h2("Prostar is loading, please wait...")
+        tags$head(tags$style(
+          HTML('#loadingPanel {background-color: rgba(0,36,106,190);}')
+        )),
+        absolutePanel(
+          id  = "loadingPanel",
+          class = "panel panel-default",
+          top = '30%',
+          left = '0%',
+          width = "100%",
+          height = "150px",
+          draggable = FALSE,
+          fixed = TRUE,
+          tagList(
+            tags$h1(style='text-align: center', "Prostar is loading, please wait..."),br(),
+            tags$div(class="progress",
+                     tags$div(class="indeterminate")
+            )
+          )
+        )
     ),
     hidden(
         div(
@@ -31,8 +45,6 @@ shinyUI <- tagList(
     inlineCSS(appCSS),
     
 sidebarPanelWidth()
-,includeCSS("www/progressBar/progressBar.css")
-,includeScript("www/progressBar/ShinyProgress2.js")
 ,includeCSS("www/css/prostar.css")
 
 #,navbarPageWithInputs(
