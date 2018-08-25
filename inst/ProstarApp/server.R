@@ -16,7 +16,8 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
-   
+   #Sys.sleep(40)
+  
   #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
@@ -29,7 +30,7 @@ shinyServer(function(input, output, session) {
       sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
     }
-    
+
     
     
    # unsuspendAll(session)
@@ -50,19 +51,21 @@ shinyServer(function(input, output, session) {
     #Sys.sleep(1)
 
     # Hide the loading message when the rest of the server function has executed
-    
+  
     env <- environment()
     source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
     source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
     source(file.path("server", "srv_General.R"), local = TRUE)$value
     source(file.path("server", "srv_Home.R"), local = TRUE)$value
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
+
     
     #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
     
     #activatePopover()
     
     loadLibraries()
+
     
      observe({
         req(input$navPage)
@@ -128,7 +131,9 @@ shinyServer(function(input, output, session) {
                )
 
      })
-     shinyjs::hide(id = "loading_page", anim = TRUE, animType = "fade")
+   
+     
+     shinyjs::hide(id = "loading_page", anim = FALSE)
      
      shinyjs::show("main_content", anim = TRUE, animType = "fade")
 })

@@ -1,6 +1,7 @@
 
 library(shiny)
 library(shinyjs)
+library(shinyWidgets)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
@@ -9,10 +10,43 @@ source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 shinyUI <- tagList(
   shinyjs::useShinyjs(),
+  includeCSS("www/progressBar/progressBar.css"),
+  
   titlePanel("", windowTitle = "Prostar"),
-  div(
-    id = "loading_page",
-    h1("Prostar is loading, please wait...")
+      div(
+        id = "loading_page",
+       # tagList(
+      tags$head(tags$style(
+      HTML('#AbsolutePanel {background-color: rgba(0,36,106,190);}')
+    )),
+    absolutePanel(
+      id  = "AbsolutePanel",
+      class = "panel panel-default",
+      top = '30%',
+      left = '0%',
+      width = "100%",
+      height = "150px",
+      draggable = FALSE,
+      fixed = TRUE,
+      tagList(
+        tags$h1(style='text-align: center', "Prostar is loading, please wait..."),br(),
+        tags$div(class="progress",
+                 tags$div(class="indeterminate")
+        )
+        )
+
+    #)
+    )
+    #tagList(
+    #  h1("Prostar is loading, please wait..."),br()
+    # progressBar(
+    #   id = "pb2",
+    #   value = 50,
+    #   total = 100,
+    #   title = NULL,
+    #   display_pct = FALSE,
+    #   striped = TRUE
+    # ),
   ),
   hidden(
     div(
@@ -26,8 +60,6 @@ shinyUI <- tagList(
       inlineCSS(appCSS),
       
       sidebarPanelWidth()
-      ,includeCSS("www/progressBar/progressBar.css")
-      ,includeScript("www/progressBar/ShinyProgress2.js")
       ,includeCSS("www/css/prostar.css")
       , inlineCSS(".body { font-size:14px;}")
       , inlineCSS(".rect {float: left;
