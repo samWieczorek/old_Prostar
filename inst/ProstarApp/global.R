@@ -9,8 +9,8 @@ library(shinycssloaders)
 library(shinythemes)
 library(rclipboard)
 library(htmlwidgets)
-
-
+library(highcharter)
+library(rhandsontable)
 
 loadLibraries <- function(){
   
@@ -29,8 +29,8 @@ loadLibraries <- function(){
   library(webshot)
   library(DAPAR, lib.loc = DAPAR.loc)
   library(R.utils)
-  library(highcharter)
-  library(rhandsontable)
+ 
+  
   library(data.table)
   library(shinyAce)
   library(shinyBS)
