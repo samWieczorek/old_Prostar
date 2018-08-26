@@ -1,4 +1,5 @@
-
+library(shiny)
+library(shinyjs)
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -10,9 +11,10 @@ shinyUI <- tagList(
 shinyjs::useShinyjs(),
     includeCSS("www/progressBar/progressBar.css"),
     titlePanel("", windowTitle = "Prostar"),
+
     # Loading message
     div(
-        id = "loading-content",
+        id = "loading_page",
         tags$head(tags$style(
           HTML('#loadingPanel {background-color: rgba(0,36,106,190);}')
         )),
@@ -35,7 +37,7 @@ shinyjs::useShinyjs(),
     ),
     hidden(
         div(
-            id = "main-content",
+            id = "main_content",
    
     
     

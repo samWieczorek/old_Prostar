@@ -2,36 +2,41 @@
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
-
-
 library(DAPAR, lib.loc = DAPAR.loc)
-library(R.utils)
 
-library(highcharter)
 library(shinythemes)
-library(shiny)
-library(rhandsontable)
-library(data.table)
-library(shinyjs)
-library(shinyAce)
-library(shinyBS)
-library(RColorBrewer)
-
-library(tidyr)
-library(dplyr)
-library(data.table)
-library(reshape2)
-library(DT)
-library(MSnbase)
-#library(openxlsx)
-library(sm)
-library(imp4p)
-library(tidyverse)
-library(webshot)
+library(shinycssloaders)
+library(shinythemes)
+library(rclipboard)
 library(htmlwidgets)
-library(vioplot)
-library(ggplot2)
-library(gplots)
+
+
+
+loadLibraries <- function(){
+  
+  library(vioplot)
+  library(ggplot2)
+  library(gplots)
+  library(tidyr)
+  library(dplyr)
+  library(data.table)
+  library(reshape2)
+  library(DT)
+  library(MSnbase)
+  library(sm)
+  library(tidyverse)
+  library(RColorBrewer)
+  library(webshot)
+  library(DAPAR, lib.loc = DAPAR.loc)
+  library(R.utils)
+  library(highcharter)
+  library(rhandsontable)
+  library(data.table)
+  library(shinyAce)
+  library(shinyBS)
+}
+
+
 
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value

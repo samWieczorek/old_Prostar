@@ -1,11 +1,7 @@
 rm(list=ls())
-
 options(shiny.maxRequestSize=300*1024^2) 
-
-
 require(compiler)
 enableJIT(3)
-###library(DAPARdata)
 
 source(file.path("ui", "uiConfigure.R"),  local = TRUE)$value
 
@@ -16,7 +12,7 @@ colnames(df) <- c("Input1", "Input2")
 
 
 shinyServer(function(input, output, session) {
-  Sys.sleep(10)
+  
     cat(file=stderr())
     Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
@@ -66,11 +62,11 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_export.R"),  local = TRUE)$value
     # 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
-    
+    loadLibraries()
     #activatePopover()
 
-    shinyjs::hide("loading-content")
-    shinyjs::show("main-content", anim=TRUE, animType="fade")
+    shinyjs::hide("loading_page", anim=FALSE)
+    shinyjs::show("main_content", anim=TRUE, animType="fade")
     
     
 })
