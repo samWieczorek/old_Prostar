@@ -1,7 +1,6 @@
 
 library(shiny)
 library(shinyjs)
-library(shinyWidgets)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
