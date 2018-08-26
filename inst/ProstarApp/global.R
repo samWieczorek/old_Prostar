@@ -12,8 +12,9 @@ library(htmlwidgets)
 library(highcharter)
 library(rhandsontable)
 
-loadLibraries <- function(){
-  
+library(shinyBS)
+
+
   library(vioplot)
   library(ggplot2)
   library(gplots)
@@ -28,13 +29,12 @@ loadLibraries <- function(){
   library(RColorBrewer)
   library(webshot)
   library(DAPAR, lib.loc = DAPAR.loc)
-  library(R.utils)
  
-  
   library(data.table)
   library(shinyAce)
-  library(shinyBS)
-}
+  
+  library(R.utils)
+  
 
 
 

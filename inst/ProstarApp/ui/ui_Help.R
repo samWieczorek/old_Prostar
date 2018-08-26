@@ -13,6 +13,6 @@ tabPanel("Help",
                       
                       br(),
                       br(),
-                      dataTableOutput("tab_versions", width = '600px'))
+                      dataTableOutput("tab_versions"))
          )
 )

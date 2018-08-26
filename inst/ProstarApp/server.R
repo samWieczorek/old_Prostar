@@ -39,30 +39,30 @@ shinyServer(function(input, output, session) {
     }
     
     env <- environment()
-    source(file.path("server", "srv_modulesSrv.R"),  local = TRUE)$value
-    source(file.path("server", "srv_help.R"),  local = TRUE)$value
-    source(file.path("server", "srv_openMSnset.R"),  local = TRUE)$value
-    source(file.path("server", "srv_general.R"), local = TRUE)$value
-    source(file.path("server", "srv_datasetManager.R"),  local = TRUE)$value
-    source(file.path("server", "srv_descriptiveStats.R"),  local = TRUE)$value
+    source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
+    source(file.path("server", "srv_Help.R"),  local = TRUE)$value
+    source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
+    source(file.path("server", "srv_General.R"), local = TRUE)$value
+    source(file.path("server", "srv_DatasetManager.R"),  local = TRUE)$value
+    source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value
     
     hideTab(inputId ="navPage", target = "updateDesignTab")
-     source(file.path("server", "srv_updateDesign.R"),  local = TRUE)$value
-      source(file.path("server", "srv_buildDesign.R"),  local = TRUE)$value
-      source(file.path("server", "srv_convertData.R"),  local = TRUE)$value
-      source(file.path("server", "srv_saveGraphics.R"), local = TRUE)$value
-     source(file.path("server", "srv_filtering.R"),  local = TRUE)$value
-      source(file.path("server", "srv_imputation_ProteinLevel.R"),  local = TRUE)$value
-      source(file.path("server", "srv_imputation_PeptideLevel.R"),  local = TRUE)$value
-      source(file.path("server", "srv_normalization.R"),  local = TRUE)$value
-      source(file.path("server", "srv_anaDiff.R"),  local = TRUE)$value
-      source(file.path("server", "srv_aggregation.R"),  local = TRUE)$value
+     source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
+      source(file.path("server", "srv_BuildDesign.R"),  local = TRUE)$value
+      source(file.path("server", "srv_ConvertData.R"),  local = TRUE)$value
+      source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
+     source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value
+      source(file.path("server", "srv_Imputation_ProteinLevel.R"),  local = TRUE)$value
+      source(file.path("server", "srv_Imputation_PeptideLevel.R"),  local = TRUE)$value
+      source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value
+      source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
+      source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value
      source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value
-    source(file.path("server", "srv_demoMode.R"),  local = TRUE)$value
-    source(file.path("server", "srv_export.R"),  local = TRUE)$value
+    source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value
+    source(file.path("server", "srv_Export.R"),  local = TRUE)$value
     # 
     outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
-    loadLibraries()
+   # loadLibraries()
     #activatePopover()
 
     shinyjs::hide("loading_page", anim=FALSE)

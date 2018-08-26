@@ -58,7 +58,7 @@ sidebarPanelWidth()
         id  = "#AbsolutePanel",
                 top = 0,
                 right = 50,
-                width = "500px",
+                width = "400px",
                 height = "50px",
                 draggable = FALSE,
                 fixed = FALSE,
@@ -107,7 +107,7 @@ navbarMenu("Help",
            tabPanel("Check for updates",
                     br(),
                     br(),
-                    dataTableOutput("tab_versions", width = '600px')
+                    dataTableOutput("tab_versions")
             )
 )
 

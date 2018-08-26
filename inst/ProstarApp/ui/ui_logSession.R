@@ -7,7 +7,7 @@ tabPanel("Session logs",
                       value = "ChangeDataset",
                       sidebarCustom(),
                       tagList(
-                          DT::dataTableOutput("logSession", width = "800px")
+                          DT::dataTableOutput("logSession")
                       )
              ),
             tabPanel("R source code (Beta)", 

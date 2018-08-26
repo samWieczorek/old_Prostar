@@ -81,7 +81,7 @@ tabPanel("Differential analysis",
                                         hr(),
                                         busyIndicator("Building plot, please wait",wait = 0),
                                         moduleVolcanoplotUI("volcano_Step2"),
-                                        DT::dataTableOutput("showSelectedItems", width='800px')
+                                        DT::dataTableOutput("showSelectedItems")
                                         )
                       )
              ), # end tabPanel(title = "3 - Visualize FDR"
