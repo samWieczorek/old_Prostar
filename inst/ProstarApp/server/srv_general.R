@@ -141,7 +141,8 @@ output$datasetAbsPanel <- renderUI({
 })
 
 ###-------------------------------------------------------------------
-onStop(function() cat("Session stopped\n"))
+onStop(function() cat("Session stopped.\n"))
+
 
 
 session$onSessionEnded(function() {
@@ -153,7 +154,8 @@ session$onSessionEnded(function() {
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
- 
+    cat("Session stopped. Temporary files cleaned up\n")
+  
     
     #rm(list= list(myListOfThings))
     stopApp()

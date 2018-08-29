@@ -186,7 +186,7 @@ output$viewpData <- DT::renderDataTable({
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
   
-  pal <- brewer.pal(length(unique(data$Condition)),"Dark2")
+  pal <- RColorBrewer::brewer.pal(length(unique(data$Condition)),"Dark2")
   pal <- pal[1:length(unique(data$Condition))]
   dt <- DT::datatable(  data,
                         extensions = 'Scroller',

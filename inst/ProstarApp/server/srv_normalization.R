@@ -9,90 +9,58 @@
 callModule(moduleDensityplot,"densityPlot_Norm",reactive({input$lab2Show_DS}),reactive({ input$whichGroup2Color_DS}))
 callModule(moduleBoxplot,"boxPlot_Norm", reactive({input$legendXAxis_DS}))
 
+callModule(modulePopover,"modulePopover_normQuanti", 
+           data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
+                                content="lower limit/noise (quantile = 0.15), median (quantile = 0.5)")))
 
 
 output$helpForNormalizationMethods <- renderUI({
-    input$normalization.method
-    input$normalization.type
-    rv$typeOfDataset
-    if (is.null(input$normalization.method) || (input$normalization.method == "None")) {return(NULL)}
+    req(input$normalization.method)
+    if (input$normalization.method == "None") {return(NULL)}
     
-     helpNormalization <- matrix(rep("", 12),nrow = 3, 
-                                dimnames=list(c("Global quantile Alignment", "Quantile Centering", "Mean Centering"),
-                                              c("sum by columns", "Alignment on all quantiles", "overall", "within conditions")))
-    
-    
-    helpNormalization["Global quantile alignment"] <- "These methods propose 
-    normalizations of important magnitude that should be cautiously used.<br>
-    it proposes to align the quantiles of all the 
-    replicates as described in [6]; <br> practically it amounts to replace 
-    abundances by order statistics."
-
-
-
-
-    helpNormalization["Sum by columns"] <- "These methods propose 
-    normalizations of important magnitude that should be cautiously used.<br>
-    It operates on the original scale (not the log2 one) and propose to 
-    normalize each abundance <br> by the total abundance of the sample (so as to focus 
-    on the analyte proportions among each sample)."
-
-    
-    helpNormalization["Quantile Centering"] <- "These methods propose 
-    to shift the sample distributions (either all of them at once, or within 
-    each condition at a time) to align <br> a specific quantile: the median (under 
-    the assumption that up-regulations and down-regulations are equally frequent), <br>
-    the 15% quantile <br> (under the assumption that the signal/noise ratio is 
-    roughly the same in all the samples), or any other user's choice."
-    
-    
-    helpNormalization["Mean Centering"] <- "These methods propose to shift the 
-    sample distributions (either all of them at once, or within each condition 
-    at a time) to align their means. <br> It is also possible to force unit variance 
-    (or not)."
-    
-    
-    
-    tags$p(helpNormalization[input$normalization.method])
+    switch(input$normalization.method,
+           GlobalQuantileAlignment= txt <- "These methods propose normalizations of important magnitude that should be cautiously used. It proposes to align the quantiles of all the replicates as described in [6]; practically it amounts to replace 
+           abundances by order statistics.",
+           QuantileCentering = txt <- "These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align a specific quantile: the median (under the assumption that up-regulations and down-regulations are equally frequent), the 15% quantile (under the assumption that the signal/noise ratio is 
+    roughly the same in all the samples), or any other user's choice.",
+           MeanCentering = txt <- "These methods propose to shift the sample distributions (either all of them at once, or within each condition at a time) to align their means. It is also possible to force unit variance (or not).",
+           SumByColumns = txt <- "These methods propose normalizations of important magnitude that should be cautiously used.
+    It operates on the original scale (not the log2 one) and propose to normalize each abundance by the total abundance of the sample (so as to focus on the analyte proportions among each sample).",
+           LOESS = txt <- "This method proposes to apply a cyclic LOESS [11, 12] normalization to the data (either all of them at once, or on each condition independently). It relates to  a 
+           combination of multiple regression models. The user can tune the regression span (an higher span smooths
+           the fit more, while a lower span captures more trends).",
+           vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization [13] to the data (either all of them at once, or on each condition independently). No specific parameters required."
+           )
+   
+    tags$p(txt)
 })
-
 
 
 
 output$choose_normalizationQuantile <- renderUI({
-   req(rv$current.obj)
-   req(input$normalization.method)
-    if (input$normalization.method != "Quantile Centering") { return (NULL)}
-    
-    #    if (input$normalization.method == "Quantile Centering"){
-    # check if the normalisation has already been performed
-    quantileChoices <- list("0.15 (lower limit / noise)"="0.15", "0.5 (median)" = "0.5", "Other"="Other")
-    
-    selectInput("normalization.quantile", "Normalization quantile",  choices = quantileChoices)
-    
-    
-})
-
-
-output$choose_normalizationQuantileOther <- renderUI({
-    req(input$normalization.quantile)
-    input$normalization.method
-    if (input$normalization.method != "Quantile Centering") { return (NULL)}
+    req(input$normalization.method)
+    if (input$normalization.method != "QuantileCentering") { return (NULL)}
    
-    if (input$normalization.quantile == "Other"){
-        numericInput("normalization.quantileOther", "Normalization quantile other",
+    tagList(
+      modulePopoverUI("modulePopover_normQuanti"),
+        numericInput("normalization.quantile", "",
                      min=0, max = 1 , value = 0.15,step = 0.1)
-        
-    }
+    )
     
 })
 
+output$choose_span_LOESS <- renderUI({
+  req(input$normalization.method)
+  if (input$normalization.method != "LOESS") { return (NULL)}
+  
+    numericInput("spanLOESS", "Span",min=0, max = 1 , value = 0.7,step = 0.1)
+})
 
 output$choose_normalizationScaling <- renderUI({
-    req(rv$current.obj)
+    #req(rv$current.obj)
     req(input$normalization.method)
 
-    if (input$normalization.method %in% c("Mean Centering")){
+    if (input$normalization.method %in% c("MeanCentering")){
         # check if the normalisation has already been performed
         
         checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = FALSE)
@@ -105,7 +73,7 @@ output$choose_normalizationType <- renderUI({
     req(input$normalization.method)
     
     if (input$normalization.method == "None") { return (NULL)}
-    if (input$normalization.method %in% c("Quantile Centering", "Mean Centering", "Sum by columns")){
+    if (input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")){
         selectInput("normalization.type", "Normalization type",  choices = c("overall", "within conditions"), width='150px')
     } 
 })
@@ -114,7 +82,7 @@ output$choose_normalizationType <- renderUI({
 
 output$choose_Normalization_Test <- renderUI({
     req(rv$current.obj)
-    selectInput("normalization.method","Normalization method", normMethods, width='200px')
+    selectInput("normalization.method","Normalization method", normMethods, width='300px')
 })
 
 
@@ -128,24 +96,17 @@ observeEvent(input$perform.normalization,{
     
     isolate({
 
-                if (input$normalization.method == G_noneStr){
-                    rv$current.obj <- rv$dataset[[input$datasets]]
-                } else {
-                    
-                    if (input$normalization.method == "Global quantile alignment"){
-                        rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                              input$normalization.method)
-                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
-
-                    }
-                    else if (input$normalization.method =="Quantile Centering"){
-                        
-                        
-                        quant <-NA
-                        #print(input$normalization.quantile)
-                        if (!is.null(input$normalization.quantile) && (input$normalization.quantile != "Other"))
+        switch(input$normalization.method, 
+          G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
+          GlobalQuantileAlignment = {
+              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], input$normalization.method)
+              updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+              },
+          QuantileCentering = {
+                         quant <-NA
+                        if (!is.null(input$normalization.quantile))
                         {quant <- as.numeric(input$normalization.quantile)}
-                        else {quant <- as.numeric(input$normalization.quantileOther)}
+
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
@@ -153,14 +114,10 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         if (!is.null(input$normalization.quantile)){
-                            updateRadioButtons(session, "normalization.quantile", selected = input$normalization.quantile)}
+                          updateNumericInput(session, "normalization.quantile", value = input$normalization.quantile)}
                         
-                        if (!is.null(input$normalization.quantileOther)){
-                            updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)}
-
-                        
-                    }   
-                    else if (input$normalization.method =="Mean Centering"){
+                    } ,  
+         MeanCentering = {
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type, 
@@ -168,19 +125,31 @@ observeEvent(input$perform.normalization,{
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
-                    } 
-                    else if (input$normalization.method =="Sum by columns"){
+                    }, 
+         SumByColumns = {
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                               input$normalization.method, 
                                                               input$normalization.type)
                         updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                         updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
-                    }
-
-                }
-
-        
+                    },
+         LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                 input$normalization.method, 
+                                                 input$normalization.type,
+                                                 span=input$spanLOESS)
+                    updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                    updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                    updateNumericInput(session, "spanLOESS", value = input$spanLOESS)
+                },
+         vsn = {
+            rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                 input$normalization.method, 
+                                                 input$normalization.type)
+            updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+            updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+            }
+        )
     })
   
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
@@ -202,7 +171,7 @@ observeEvent(input$valid.normalization,{
                                    type = input$normalization.type,
                                    varReduction = input$normalization.variance.reduction,
                                    quantile = input$normalization.quantile,
-                                   otherQuantile = input$normalization.quantileOther)
+                                   spanLOESS = input$spanLOESS)
                   
                   rv$current.obj <- saveParameters(rv$current.obj,"Norm",l.params)
                   
@@ -220,9 +189,8 @@ observeEvent(input$valid.normalization,{
                     updateSelectInput(session, "normalization.method", selected = input$normalization.method)
                     updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                     updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
-                    updateNumericInput(session, "normalization.quantileOther", value = input$normalization.quantileOther)
-                    updateRadioButtons(session, "normalization.quantile", selected = input$normalization.quantile)
-            
+                    updateNumericInput(session, "normalization.quantile", value = input$normalization.quantile)
+                    updateNumericInput(session, "spanLOESS", value = input$spanLOESS)
                 }
 
     } )

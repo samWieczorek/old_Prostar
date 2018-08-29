@@ -49,7 +49,7 @@ BuildNavbarPage <- reactive({
                          ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
                          ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
                          ),
-              target = "Dataset manager",
+              target = "Data manager",
               position="after")
                isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessProtTab")      })
              }

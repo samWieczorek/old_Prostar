@@ -8,7 +8,7 @@ observeEvent(input$linkToFaq1, {
 
 color_renderer <- reactive({
   conds <- rv$hot$Condition
-  pal <- brewer.pal(length(unique(conds)),"Dark2")
+  pal <- RColorBrewer::brewer.pal(length(unique(conds)),"Dark2")
   
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"
@@ -73,34 +73,34 @@ output$hot <- renderRHandsontable({
                           stringsAsFactors = FALSE)
   }
   
-  hot <- rhandsontable(rv$hot,rowHeaders=NULL, 
+  hot <- rhandsontable::rhandsontable(rv$hot,rowHeaders=NULL, 
                        fillHandle = list(direction='vertical', 
                                          autoInsertRow=FALSE,
                                          maxRows=nrow(rv$hot))) %>%
-    hot_rows(rowHeights = 30) %>%
-    hot_context_menu(allowRowEdit = TRUE, 
+    rhandsontable::hot_rows(rowHeights = 30) %>%
+    rhandsontable::hot_context_menu(allowRowEdit = TRUE, 
                      allowColEdit = FALSE,
                      allowInsertRow = FALSE,
                      allowInsertColumn = FALSE,
                      allowRemoveRow = TRUE,
                      allowRemoveColumn = FALSE,
                      autoInsertRow=FALSE     ) %>%
-    hot_cols(renderer = color_renderer()) %>%
-    hot_col(col = "Sample.name", readOnly = TRUE)
+    rhandsontable:: hot_cols(renderer = color_renderer()) %>%
+    rhandsontable::hot_col(col = "Sample.name", readOnly = TRUE)
   
   if (!is.null(input$chooseExpDesign)) {
     switch(input$chooseExpDesign,
            FlatDesign = {
                if ("Bio.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% hot_col(col = "Bio.Rep", readOnly = TRUE)
+                   hot <- hot %>% rhandsontable::hot_col(col = "Bio.Rep", readOnly = TRUE)
                },
            twoLevelsDesign = {
                if ("Tech.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% hot_col(col =  "Tech.Rep", readOnly = TRUE)
+                   hot <- hot %>% rhandsontable::hot_col(col =  "Tech.Rep", readOnly = TRUE)
            } ,
            threeLevelsDesign = {
                if ("Analyt.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% hot_col(col = "Analyt.Rep", readOnly = TRUE)
+                   hot <- hot %>% rhandsontable::hot_col(col = "Analyt.Rep", readOnly = TRUE)
            }
     )
   }
@@ -270,7 +270,7 @@ output$twolevelsExample <- renderRHandsontable({
                    stringsAsFactors = FALSE)
   
   
-  pal <- brewer.pal(3,"Dark2")
+  pal <- RColorBrewer::brewer.pal(3,"Dark2")
   
   color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -287,14 +287,14 @@ output$twolevelsExample <- renderRHandsontable({
   {td.style.background = 'lightgrey';}
 }"
 
-  rhandsontable(df,rowHeaders=NULL, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
+  rhandsontable::rhandsontable(df,rowHeaders=NULL, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
                                                       maxRows=nrow(rv$hot))) %>%
-    hot_rows(rowHeights = 30) %>%
-    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
+    rhandsontable::hot_rows(rowHeights = 30) %>%
+    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
                      allowInsertRow = FALSE,allowInsertColumn = FALSE,
                      allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
                      autoInsertRow=FALSE     ) %>%
-    hot_cols(readOnly = TRUE,renderer = color_rend)
+    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
   
   })
 
@@ -311,7 +311,7 @@ output$threelevelsExample <- renderRHandsontable({
                    stringsAsFactors = FALSE)
   
   
-  pal <- brewer.pal(2,"Dark2")
+  pal <- RColorBrewer::brewer.pal(2,"Dark2")
   
   color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -332,14 +332,14 @@ output$threelevelsExample <- renderRHandsontable({
   if(col==4 && (row==0||row==2||row==4||row==6|| row==8||row==10||row==12||row==14)) 
   {td.style.background = 'lightgrey';}
 }"
- rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
+  rhandsontable::rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
                                                     maxRows=nrow(rv$hot))) %>%
-    hot_rows(rowHeights = 30) %>%
-    hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
+    rhandsontable::hot_rows(rowHeights = 30) %>%
+    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
                      allowInsertRow = FALSE,allowInsertColumn = FALSE,
                      allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
                      autoInsertRow=FALSE     ) %>%
-    hot_cols(readOnly = TRUE,renderer = color_rend)
+    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
   
   })
 

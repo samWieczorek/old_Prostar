@@ -65,7 +65,12 @@ output$References2 <- renderUI({
     MSnbase - an R/Bioconductor package for isobaric tagged mass spectrometry data visualization, processing and quantitation.", 
         tags$i("Bioinformatics"), ", 28, pp. 288-289.")),
      tags$li(p("Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK (2015). 
-    Limma powers differential expression analyses for RNA-sequencing and microarray studies.", tags$i("Nucleic Acids Research"), ", 43(7), pp. e47."))
+    Limma powers differential expression analyses for RNA-sequencing and microarray studies.", tags$i("Nucleic Acids Research"), ", 43(7), pp. e47.")),
+     
+     
+     
+     tags$li(p("Cleveland, William S., and Susan J. Devlin. Locally weighted regression: an approach to regression analysis by local fitting.", tags$i("Journal of the American statistical association"), " 83.403 (1988): 596-610.")),
+     tags$li(p("Huber, Wolfgang, et al. Variance stabilization applied to microarray data calibration and to the quantification of differential expression.", tags$i("Bioinformatics"), " 18.suppl_1 (2002): S96-S104."))
    )
    
    

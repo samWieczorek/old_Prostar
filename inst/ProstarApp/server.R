@@ -13,7 +13,20 @@ source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 df <- data.frame(matrix(c("0","0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")
 
-
+onStart = function() {
+  cat("Doing application setup\n")
+  
+  onStop(function() {
+    cat("Doing application cleanup\n")
+    graphics.off()
+    unlink(sessionID, recursive = TRUE)
+    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), "*html", sep="/"))
+    unlink(paste(tempdir(), "*log", sep="/"))
+    unlink("www/*pdf")
+  })
+}
 
 shinyServer(function(input, output, session) {
    #Sys.sleep(40)

@@ -1,36 +1,25 @@
 
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
-
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
-
 
 library(shinycssloaders)
 library(shinythemes)
-
-library(shinyAce)
-library(shinyBS)
 library(rclipboard)
 library(DT)
 
-library(htmlwidgets)
-
-
-
 loadLibraries <- function(){
-  
+  library(shinyAce)
+  library(shinyBS)
   library(vioplot)
-  library(ggplot2)
+  #library(ggplot2)
   library(gplots)
-  library(tidyr)
-  library(dplyr)
+  #library(tidyr)
+  #library(dplyr)
   library(data.table)
-  library(reshape2)
-
   library(MSnbase)
-  library(sm)
   library(tidyverse)
-  library(RColorBrewer)
-  library(webshot)
+  #library(RColorBrewer)
+  #library(webshot)
   library(DAPAR, lib.loc = DAPAR.loc)
   library(R.utils)
   library(highcharter)
@@ -206,10 +195,12 @@ pData.complete.list <- list("Condition" = "Condition",
 
 
 normMethods <- list("None" = "None",
-                    "Global quantile alignment" = "Global quantile alignment",
-                    "Sum by columns" = "Sum by columns",
-                    "Quantile Centering" = "Quantile Centering",
-                    "Mean Centering" = "Mean Centering" 
+                    "Global quantile alignment" = "GlobalQuantileAlignment",
+                    "Sum by columns" = "SumByColumns",
+                    "Quantile Centering" = "QuantileCentering",
+                    "Mean Centering" = "MeanCentering",
+                    "LOESS" = "LOESS",
+                    "vsn" = "vsn"
  )
 
 

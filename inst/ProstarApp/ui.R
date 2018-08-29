@@ -33,27 +33,12 @@ shinyUI <- tagList(
                  tags$div(class="indeterminate")
         )
         )
-
-    #)
-    )
-    #tagList(
-    #  h1("Prostar is loading, please wait..."),br()
-    # progressBar(
-    #   id = "pb2",
-    #   value = 50,
-    #   total = 100,
-    #   title = NULL,
-    #   display_pct = FALSE,
-    #   striped = TRUE
-    # ),
-  ),
+ )
+   ),
   hidden(
     div(
       id = "main_content",
-      
-      
       rclipboardSetup(),
-      
       #,tags$head(includeScript("google-analytics.js"))
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       inlineCSS(appCSS),
@@ -72,16 +57,11 @@ shinyUI <- tagList(
       
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
       ,navbarPage(theme = shinytheme("cerulean")
-                  
                   ,id = "navPage"
                   ,absolutePanel(
                     id  = "#AbsolutePanel",
-                    top = 0,
-                    right = 50,
-                    width = "500px",
-                    height = "50px",
-                    draggable = FALSE,
-                    fixed = FALSE,
+                    top = 0, right = 50, width = "500px",height = "50px",
+                    draggable = FALSE,fixed = FALSE,
                     cursor = "default"
                     ,uiOutput("datasetAbsPanel" )
                   )
@@ -89,7 +69,7 @@ shinyUI <- tagList(
                               source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value
                   )
-                  ,navbarMenu("Dataset manager",
+                  ,navbarMenu("Data manager",
                               source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
