@@ -427,7 +427,7 @@ output$peptideLevel_warningImputationMethod <- renderText({
     (input$peptideLevel_missing.value.basic.algorithm ==  "dummy censored")
   
   if (var){
-    t <- "<br> <strong>Lapala</strong> (from French \"l‡/pas-l‡\", meaning \"here/not-here\") refers 
+    t <- "<br> <strong>Lapala</strong> (from French \"l√†/pas-l√†\", meaning \"here/not-here\") refers 
     to analytes (peptides or proteins) <br>that are entirely missing in some 
     conditions while they are (partially or totally) <br>visible in others. There 
     specific accounting in a conservative way is a real issue as the imputation <br>
