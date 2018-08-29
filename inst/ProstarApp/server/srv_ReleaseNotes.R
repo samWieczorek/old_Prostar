@@ -42,7 +42,7 @@ output$versionNotes <- renderUI({
       tags$li("Add a Bug report tab in the 'Help' menu"),
       tags$li("Reorganisation of the menus: Data preprocessing, Data mining"),
       tags$li("Add proportions in logFC distribution plot"),
-      tags$li("Delete the dependancy to the package imputeLCMD"),
+      tags$li("Delete the dependency to the package imputeLCMD"),
       tags$li("Add LOESS and vsn as new normalisation methods")
       )
     

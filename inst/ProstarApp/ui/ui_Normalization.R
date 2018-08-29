@@ -1,14 +1,29 @@
 tabPanel("Normalization",
          value = "Normalization",
          tagList(
-           fluidRow(
-             column(width=2, uiOutput("choose_Normalization_Test")),
-             column(width=2, uiOutput("choose_normalizationType")),
-             column(width=2, uiOutput("choose_span_LOESS"),
-                            uiOutput("choose_normalizationQuantile")),
-             column(width=2, uiOutput("choose_normalizationScaling")),
-             column(width=2, actionButton("perform.normalization", "Perform normalization", width="170px"),
-                              hidden(actionButton("valid.normalization","Save normalization", width="170px")))),
+           
+           
+           div(
+             div(
+               style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+               selectInput("normalization.method","Normalization method", normMethods, width='200px')
+             ),
+             div(
+               style="display:inline-block; vertical-align: middle;",
+               hidden(selectInput("normalization.type", "Normalization type",  choices = c("overall", "within conditions"), width='150px'))
+             ),
+             div(
+               style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+               hidden(numericInput("spanLOESS", "Span",min=0, max = 1 , value = 0.7,step = 0.1, width='100px')),
+               uiOutput("choose_normalizationQuantile"),
+               uiOutput("choose_normalizationScaling")
+             ),
+             div(
+               style="display:inline-block; vertical-align: middle;",
+               hidden(actionButton("perform.normalization", "Perform normalization", width="170px")),
+               hidden(actionButton("valid.normalization","Save normalization", width="170px"))
+             )
+           ),
            uiOutput("helpForNormalizationMethods"),
            tags$hr(),
            fluidRow(

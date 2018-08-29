@@ -29,8 +29,7 @@ onStart = function() {
 }
 
 shinyServer(function(input, output, session) {
-   #Sys.sleep(40)
-  
+   
   #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()

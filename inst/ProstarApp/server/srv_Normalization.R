@@ -44,23 +44,17 @@ output$choose_normalizationQuantile <- renderUI({
     tagList(
       modulePopoverUI("modulePopover_normQuanti"),
         numericInput("normalization.quantile", "",
-                     min=0, max = 1 , value = 0.15,step = 0.1)
+                     min=0, max = 1 , value = 0.15,step = 0.1, width='150px')
     )
     
 })
 
-output$choose_span_LOESS <- renderUI({
-  req(input$normalization.method)
-  if (input$normalization.method != "LOESS") { return (NULL)}
-  
-    numericInput("spanLOESS", "Span",min=0, max = 1 , value = 0.7,step = 0.1)
-})
+
 
 output$choose_normalizationScaling <- renderUI({
-    #req(rv$current.obj)
     req(input$normalization.method)
 
-    if (input$normalization.method %in% c("MeanCentering")){
+    if (input$normalization.method == "MeanCentering"){
         # check if the normalisation has already been performed
         
         checkboxInput("normalization.variance.reduction", "Include variance reduction",  value = FALSE)
@@ -68,21 +62,18 @@ output$choose_normalizationScaling <- renderUI({
     
 })
 
-output$choose_normalizationType <- renderUI({
-    req(rv$current.obj)
-    req(input$normalization.method)
-    
-    if (input$normalization.method == "None") { return (NULL)}
-    if (input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")){
-        selectInput("normalization.type", "Normalization type",  choices = c("overall", "within conditions"), width='150px')
-    } 
-})
 
-
-
-output$choose_Normalization_Test <- renderUI({
-    req(rv$current.obj)
-    selectInput("normalization.method","Normalization method", normMethods, width='300px')
+observeEvent(input$normalization.method,{
+  #req(input$normalization.method)
+  if (input$normalization.method == "None"){
+    rv$current.obj <- rv$dataset[[input$datasets]]
+  }
+  
+  shinyjs::toggle("perform.normalization", condition=input$normalization.method != "None")
+  shinyjs::toggle("spanLOESS", condition=input$normalization.method == "LOESS")
+  
+  shinyjs::toggle("normalization.type", 
+                  condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 })
 
 
