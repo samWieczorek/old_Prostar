@@ -1040,6 +1040,21 @@ dataset (value "overall") or over each condition (value "within conditions"),
 to rescale the dataset to have unitary variance.
 \end{itemize}
 
+\item[LOcally weighted regrESSion (LOESS)]
+(See \href{https://academic.oup.com/nar/article/43/7/e47/2414268}{ref1} and
+\href{https://www.tandfonline.com/doi/abs/10.1080/01621459.1988.10478639}{ref2})
+ This method proposes to apply a cyclic LOESS normalization to the data
+(either all of them at once, or on each condition independently). It relates to
+a combination of multiple regression models. The user can tune the regression
+span between 0 and 1. An higher span smooths the fit more, while a lower span
+captures more trends.
+
+ \item[Variance Stabilization Normalization (vsn)]
+(See \href{https://academic.oup.com/bioinformatics/article/18/suppl_1/S96/231881}{ref})
+ This method proposes to apply the Variance Stabilization Normalization to the
+data (either all of them at once, or on each condition independently). There are
+no specific parameters required.
+
     % \item[Sum by column] The abundance of each protein is divided by the 
     % total abundance of all the proteins in the same replicates. This 
     % normalization is interesting to compare the proportions of a given 
