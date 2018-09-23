@@ -1,6 +1,7 @@
 
 library(shiny)
 library(shinyjs)
+library(shinyjqui)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
@@ -42,9 +43,10 @@ shinyUI <- tagList(
       #,tags$head(includeScript("google-analytics.js"))
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       inlineCSS(appCSS),
-      
+      tags$head(tags$style(".modal-dialog{ width:200px}")),
       sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
+      ,includeCSS("www/css/fontawesome.css")
       , inlineCSS(".body { font-size:14px;}")
       , inlineCSS(".rect {float: left;
                   width: 100px;
@@ -53,10 +55,17 @@ shinyUI <- tagList(
                   border: 1px solid rgba(0, 0, 0, .2);}")
       , inlineCSS(".green {background: green;}")
       , inlineCSS(".red {background:red;}")
-      , inlineCSS(".grey {background:lightgrey;}")
+      , inlineCSS(".grey {background:lightgrey;}"),
       
+      # #header {
+      # position: fixed;
+      # z-index: 100000;
+      # }
+
+div(
+        id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
-      ,navbarPage(theme = shinytheme("cerulean")
+      navbarPage(theme = shinytheme("cerulean")
                   ,id = "navPage"
                   ,absolutePanel(
                     id  = "#AbsolutePanel",
@@ -67,25 +76,26 @@ shinyUI <- tagList(
                   )
                   ,navbarMenu("Prostar",
                               source(file.path("ui", "ui_Home.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value
+                              source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
+                              source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,
+                              source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value
                   )
                   ,navbarMenu("Data manager",
                               source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
+                              source(file.path("ui", "ui_Export.R"),  local = TRUE)$value
+                              #source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
                   )
                   
                   ,navbarMenu("Help",
                               source(file.path("ui", "ui_UsefulLinks.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
                   )
     )
   )
+    )
   
 ))
 

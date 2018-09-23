@@ -4,16 +4,21 @@ tabPanel(title="Global settings",
          #             "Type of plots",
          #             choices = c("Interactive (nice but slower)" = "Interactive",
          #                     "Static (faster)" = "Static")),
-         div(
-           div(
+         tabsetPanel(
+           tabPanel("Miscallenous",
+                    div(
+              div(
              style="display:inline-block; vertical-align: middle; padding-right: 20px;",
              modulePopoverUI("modulePopover_numPrecision")
            ),
            div(
              style="display:inline-block; vertical-align: middle;",
-             numericInput("settings_nDigits", "", value=3, min=0, width="100px")
+             uiOutput("settings_nDigits_UI")
            )
+         )),
+         tabPanel("Colors",
+                  hidden(uiOutput("defineColorsUI"))
          )
-          
+         )
 )
          

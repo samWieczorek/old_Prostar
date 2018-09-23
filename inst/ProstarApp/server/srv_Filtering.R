@@ -27,7 +27,10 @@ output$mv_Filtering <- renderUI({
         )
       ),
     tags$div(style="margin-bottom:200px;",
-             missingValuesPlotsUI("MVPlots_filtering")
+             tagList(
+               missingValuesPlotsUI("MVPlots_filtering"),
+             uiOutput("ObserverMVFilteringDone")
+            )
     )
     
     )
@@ -118,6 +121,7 @@ observeEvent(input$actionButtonFilter,{
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$DT_filterSummary <- rbind(rv$DT_filterSummary , df)
+
   #colnames(rv$DT_filterSummary) <- c("Filter", "Prefix", "nbDeleted", "Total")
   
 })
@@ -172,36 +176,6 @@ observe({
 })
 
 
-# output$DP_sidebar_FilterTab1 <- renderUI({
-#   req(rv$current.obj)
-#   tag <- rv$current.obj@experimentData@other$mvFilter.method
-#   if (!is.null(tag)) { filter <- tag}
-#   
-#   tagList(
-#     h4("Options")
-#      ,radioButtons("ChooseFilters","",  choices = gFiltersList),
-#     uiOutput("seuilNADelete"),
-#     actionButton("perform.filtering.MV", "Perform MV filtering")
-#   )
-#   
-#   
-# })
-
-
-# output$DP_sidebar_FilterTab3 <- renderUI({
-#   
-#   req(rv$current.obj)
-#   tagList(
-#      radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
-#                  choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))
-#     ,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
-#                   choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
-#                   selected=character(0))
-#  )
-# })
-
-
-
 getDataForMVFiltered <- reactive({
   req(input$settings_nDigits)
   rv$deleted.mvLines
@@ -231,7 +205,7 @@ output$legendForExprsData2 <- renderUI({
   req(input$ChooseTabAfterFiltering)
   
   if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-  moduleLegendColoredExprsUI("FilterColorLegend_DS")
+  moduleLegendColoredExprsUI("FilterColorLegend_DS", rv$colorsTypeMV)
   
 })
 
@@ -280,7 +254,7 @@ output$VizualizeFilteredData <- DT::renderDataTable({
         formatStyle(
           colnames(data)[1:(ncol(data)/2)],
           colnames(data)[((ncol(data)/2)+1):ncol(data)],
-          backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange'))
+          backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
         )
     } else {
       dt <- datatable( data,extensions = 'Scroller',
@@ -326,12 +300,10 @@ UpdateFilterWidgets <- function(){
     rv$current.obj
     if (length(rv$current.obj@processingData@processing) > 0){
       
-      val <- match (gReplaceAllZeros ,
-                    rv$current.obj@processingData@processing)
+      val <- match (gReplaceAllZeros ,rv$current.obj@processingData@processing)
       updateCheckboxInput(session, "replaceAllZeros",value=val)
       
-      val <- match (gLogTransform, 
-                    rv$current.obj@processingData@processing)
+      val <- match (gLogTransform,rv$current.obj@processingData@processing)
       #updateCheckboxInput(session,"log2transform",value=val)
       
       r <- grep(pattern = gFilterTextPrefix, 
@@ -341,12 +313,8 @@ UpdateFilterWidgets <- function(){
       { 
         listMots <- unlist(strsplit(
           rv$current.obj@processingData@processing[r], split=" "))
-        updateSliderInput(session,
-                          inputId = "seuilNA", 
-                          value = listMots[6])
-        updateRadioButtons(session,
-                           inputId = "ChooseFilters", 
-                           selected = listMots[3])
+        updateSliderInput(session, inputId = "seuilNA", value = listMots[6])
+        updateRadioButtons(session, inputId = "ChooseFilters", selected = listMots[3])
       }
       else
       { 
@@ -391,7 +359,8 @@ observeEvent(input$perform.filtering.MV,{
                               keepThat,
                               GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
-         updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+        rv$mvFiltering_Done <- TRUE
+        updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
         updateSelectInput(session, "seuilNA", selected = input$seuilNA)
         
       }
@@ -423,7 +392,22 @@ output$ObserverStringBasedFilteringDone <- renderUI({
   })
 })
 
-
+output$ObserverMVFilteringDone <- renderUI({
+  req(rv$current.obj)
+  rv$MVFiltering_Done
+  
+  isolate({
+    
+    n <- 0
+    if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
+    if (!rv$mvFiltering_Done) 
+    {return(NULL)  }
+    else {
+      h3(paste0("MV filtering done. ",n, " lines were deleted."))
+    }
+    
+  })
+})
 
 
 #########################################################
@@ -447,9 +431,10 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     
     rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-    name <- paste ("Filtered", " - ", rv$typeOfDataset, sep="")
+    name <- paste0("Filtered", ".", rv$typeOfDataset)
     rv$dataset[[name]] <- rv$current.obj
-    
+    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
+      ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   }
   

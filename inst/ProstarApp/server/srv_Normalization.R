@@ -6,8 +6,8 @@
 ###########################################################################
 
 
-callModule(moduleDensityplot,"densityPlot_Norm",reactive({input$lab2Show_DS}),reactive({ input$whichGroup2Color_DS}))
-callModule(moduleBoxplot,"boxPlot_Norm", reactive({input$legendXAxis_DS}))
+callModule(moduleDensityplot,"densityPlot_Norm")
+callModule(moduleBoxplot,"boxPlot_Norm")
 
 callModule(modulePopover,"modulePopover_normQuanti", 
            data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
@@ -164,10 +164,10 @@ observeEvent(input$valid.normalization,{
                                    quantile = input$normalization.quantile,
                                    spanLOESS = input$spanLOESS)
                   
-                  rv$current.obj <- saveParameters(rv$current.obj,"Norm",l.params)
+                  rv$current.obj <- saveParameters(rv$current.obj,"Normalization",l.params)
                   
                   rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-                    name <- paste ("Normalized", " - ", rv$typeOfDataset, sep="")
+                    name <- paste0("Normalized", ".", rv$typeOfDataset)
                     rv$dataset[[name]] <- rv$current.obj
                     
                     UpdateLog("Normalization", l.params)
@@ -211,25 +211,20 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #######################
 
 viewComparisonNorm2 <- reactive({
-
+  rv$PlotParams$paletteConditions
     leg <- NULL
     grp <- NULL
     
     labelsNorm <- NULL
     labelsToShowNorm <- NULL
     gToColorNorm <- NULL
-    if (is.null(input$lab2Show)) { 
+    
         labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-    }
-    else { labelsToShowNorm <- input$lab2Show}
-    
-    if (is.null(input$whichGroup2Color)){
-        gToColorNorm <- "Condition"
-    }else{gToColorNorm <- input$whichGroup2Color}
     
     
-    if (is.null(input$whichGroup2Color) 
-        || (input$whichGroup2Color == "Condition")){
+    
+    if (is.null(rv$whichGroup2Color) 
+        || (rv$whichGroup2Color == "Condition")){
         labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
     }else {
         labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
@@ -240,7 +235,7 @@ viewComparisonNorm2 <- reactive({
     }
     
 
-           if (input$datasets == paste("Normalized", rv$typeOfDataset, sep=" - ")){
+           if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
                obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
                obj2 <- rv$dataset[[input$datasets]]
            }
@@ -249,17 +244,18 @@ viewComparisonNorm2 <- reactive({
                obj2 <- rv$current.obj
                
            }
+    
             wrapper.compareNormalizationD(obj1, obj2,
                                   labelsNorm,
                                   as.numeric(labelsToShowNorm),
-                                  gToColorNorm)
+                                  palette = rv$PlotParams$paletteConditions)
            
 })
 
 
 
 viewComparisonNorm <- reactive({
-    
+  rv$PlotParams$paletteConditions
     req(rv$current.obj)
     
      leg <- NULL
@@ -273,13 +269,13 @@ viewComparisonNorm <- reactive({
     }
     else { labelsToShowNorm <- input$lab2Show}
     
-    if (is.null(input$whichGroup2Color)){
+    if (is.null(rv$whichGroup2Color)){
         gToColorNorm <- "Condition"
-    }else{gToColorNorm <- input$whichGroup2Color}
+    }else{gToColorNorm <- rv$whichGroup2Color}
     
     
-    if (is.null(input$whichGroup2Color) 
-        || (input$whichGroup2Color == "Condition")){
+    if (is.null(rv$whichGroup2Color) 
+        || (rv$whichGroup2Color == "Condition")){
         labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
     }else {
         labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
@@ -288,7 +284,7 @@ viewComparisonNorm <- reactive({
     }
     
 
-            dname <- paste("Normalized", rv$typeOfDataset, sep=" - ")
+            dname <- paste0("Normalized.", rv$typeOfDataset)
                 if (input$datasets == dname){
                 obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
                 obj2 <- rv$dataset[[input$datasets]]
@@ -302,7 +298,7 @@ viewComparisonNorm <- reactive({
             wrapper.compareNormalizationD(obj1, obj2,
                                           labelsNorm,
                                           as.numeric(labelsToShowNorm),
-                                          gToColorNorm)
+                                          palette = rv$PlotParams$paletteConditions)
   
 })
 

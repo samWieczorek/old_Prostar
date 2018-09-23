@@ -28,8 +28,8 @@ tabPanel("Normalization",
            tags$hr(),
            fluidRow(
                     column(width=4, moduleDensityplotUI("densityPlot_Norm")),
-                    column(width=4, plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType)),
-                    column(width=4,moduleBoxplotUI("boxPlot_Norm") %>% withSpinner(type=spinnerType))
+                    column(width=4,moduleBoxplotUI("boxPlot_Norm")  %>% withSpinner(type=spinnerType)),
+                    column(width=4,plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
                     )
          )
 )

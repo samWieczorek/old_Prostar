@@ -1,4 +1,4 @@
-tabPanel("Miss. values imputation",
+tabPanel("Imputation",
         value = "imputationProteinLevelTabs",
         uiOutput("proteinLevelImputationPanel")
 )

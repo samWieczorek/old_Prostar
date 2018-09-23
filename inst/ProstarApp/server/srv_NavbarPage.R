@@ -1,4 +1,5 @@
 
+observeEvent(rv$current.obj,{  BuildNavbarPage()})
 
 
 ClearNavbarPage <- reactive({
@@ -39,8 +40,12 @@ BuildNavbarPage <- reactive({
 
       switch(rv$typeOfDataset,
            protein = {
-
-             if (!("dataProcessProtTab" %in% rv$UI_TabsList))
+             if ("dataProcessPeptTab" %in% rv$UI_TabsList){
+               removeTab(inputId = "navPage", target = "Data processing (peptide)")
+               isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
+             } 
+             
+               if (!("dataProcessProtTab" %in% rv$UI_TabsList))
              {
              insertTab(inputId = "navPage",
               navbarMenu("Data processing (protein)" 
@@ -57,6 +62,11 @@ BuildNavbarPage <- reactive({
            
            
         ,peptide = {
+          if ("dataProcessProtTab" %in% rv$UI_TabsList){
+            removeTab(inputId = "navPage", target = "Data processing (protein)")
+            isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessProtTab"))] })
+          }
+          
           if (!("dataProcessPeptTab" %in% rv$UI_TabsList))
           {
             insertTab(inputId = "navPage",
@@ -66,8 +76,8 @@ BuildNavbarPage <- reactive({
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value),
-          target = "Help",
-          position="before"
+          target = "Data manager",
+          position="after"
           )
             isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessPeptTab")      })
           }

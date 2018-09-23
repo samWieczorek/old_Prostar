@@ -15,7 +15,7 @@ import(R.utils)
 import(shinythemes)
 import(XML)
 import(rclipboard)
-
+import(colourpicker)
 import(later)
 import(shinycssloaders)
 import(future)

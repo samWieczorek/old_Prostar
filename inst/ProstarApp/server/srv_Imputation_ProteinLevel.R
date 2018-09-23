@@ -147,9 +147,7 @@ output$sidebar_imputation_step1 <- renderUI({
   algo <- imputationAlgorithmsProteins_POV
   
   tagList(
-    selectInput("POV_missing.value.algorithm",
-                "Algorithm for POV",
-                choices = names(algo)),
+    selectInput("POV_missing.value.algorithm","Algorithm for POV",choices = algo),
     uiOutput("POV_Params")
   )
   
@@ -159,10 +157,7 @@ output$sidebar_imputation_step1 <- renderUI({
 output$MEC_chooseImputationMethod <- renderUI({
   algo <- imputationAlgorithmsProteins_MEC
   
-  selectInput("MEC_missing.value.algorithm",
-              "Algorithm for MEC",
-              choices = names(algo))
-  
+  selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo)
 })
 
 
@@ -220,7 +215,7 @@ observeEvent(input$perform.imputationClassical.button,{
     
     rv$MECIndex <-NULL
     rv$current.obj <- rv$imputePlotsSteps[["step0"]]
-    
+    nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$MECIndex <- findMECBlock(rv$current.obj)
     busyIndicator(WaitMsgCalc,wait = 0)
     switch(input$POV_missing.value.algorithm,
@@ -238,10 +233,11 @@ observeEvent(input$perform.imputationClassical.button,{
            }
     )
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+    nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+    rv$nbPOVimputed <- nbMVAfter - nbMVBefore
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
-    
     
     updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
     updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
@@ -308,9 +304,9 @@ observeEvent(input$ValidImputation,{
                      MEC_detQuant_factor = input$MEC_detQuant_factor,
                      MEC_fixedValue= input$MEC_fixedValue)
     
-    rv$current.obj <- saveParameters(rv$current.obj, "Imputation",l.params)
+    rv$current.obj <- saveParameters(rv$current.obj, "proteinImputation",l.params)
     
-    name <- paste ("Imputed", " - ", rv$typeOfDataset, sep="")
+    name <- paste0("Imputed", ".", rv$typeOfDataset)
     
     rv$dataset[[name]] <- rv$current.obj
     
@@ -363,7 +359,7 @@ output$ImputationStep1Done <- renderUI({
   rv$impute_Step
   if (rv$impute_Step >= 1) {
     tagList(
-      h5("POV imputation done."),
+      h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
       # br(),
       h5("Updated graphs can be seen on tab \"2 - Missing on the Entire Condition\".")
     )

@@ -1,7 +1,6 @@
 ---
 title: "ProStaR analysis report"
 
-
 output:
   html_document:
     toc: true
@@ -10,23 +9,16 @@ output:
     toc: true
     theme: united
 
-params:
-    listOverview: !r as.list(NA)
-    listFiltering: !r as.list(NA)
-    listNormalization: !r as.list(NA)
-    listImputation: !r as.list(NA)
-    listAggregation: !r as.list(NA)
-    listAnaDiff: !r as.list(NA)
-    listGOEnrichmentAnalysis: !r as.list(NA)
-    listGOClassifAnalysis: !r as.list(NA)
 ---
 
-***
-  
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
-#knitr::opts_chunk$set(dev = 'pdf')
-#knitr::opts_chunk$set(dpi=600)
+# Versions
+
+```{r DT_versions,out.width = "50%", echo=FALSE}
+library(knitr)
+library(kableExtra)
+kable(as.data.frame(getPackagesVersions('installed')),escape = F)%>% row_spec(0,bold=TRUE,background = grey) %>% 
+kable_styling(bootstrap_options = c( "bordered","striped"), full_width = F)
+
 ```
 
 

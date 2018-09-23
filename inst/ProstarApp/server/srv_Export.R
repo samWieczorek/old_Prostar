@@ -1,6 +1,4 @@
 
-
-
 output$choosedataToExportMSnset <- renderUI({
   req(rv$dataset)
   
@@ -14,6 +12,56 @@ output$choosedataToExportMSnset <- renderUI({
 })
 
 
+
+BuildParamDT <- reactive({
+  req(rv$current.obj)
+  tmp.params <- rv$current.obj@experimentData@other$Params
+  
+  df <- data.frame(Process=names(tmp.params),
+                   Parameters = rep("",length(names(tmp.params))),
+                   stringsAsFactors = FALSE)
+  
+  for (p in names(tmp.params)) {
+    df[which(df$Process==p),"Parameters"]<- do.call(paste0("getTextFor",p), list(l.params=tmp.params[[p]]))
+  }
+  
+  df
+})
+
+
+output$viewProcessingData <- DT::renderDataTable({
+  DT::datatable(BuildParamDT(), escape=FALSE,
+option=list(initComplete = initComplete(),
+            pageLength=DT_pagelength,
+            orderClasses = TRUE,
+            autoWidth=FALSE,
+            dom = 'R<"clear">lfrtip',
+            columnDefs = list(list(columns.width=c("60px"),
+                                   columnDefs.targets= c(list(0),list(1),list(2)))))
+)
+}
+)
+
+
+
+observeEvent(rv$dataset, {
+  
+  for (i in 1:length(names(rv$dataset))){
+    shinyjs::toggle(paste0('plotsFor.',names(rv$dataset)[i]))
+   }
+  
+})
+
+
+
+
+
+GetDatasetShortNames <- reactive({
+  req(rv$dataset)
+  
+  dnames <- unlist(lapply(names(rv$dataset), function(x){unlist(strsplit(x, ".", fixed=TRUE))[[1]]}))
+  dnames
+})
 
 
 
@@ -123,13 +171,12 @@ output$downloadMSnSet <- downloadHandler(
     }
     
     
-    colnames(fData(dataToExport)) <- gsub(".", "_", 
-                                          colnames(fData(dataToExport)), 
-                                          fixed=TRUE)
+    colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     
     dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
     dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+    dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
     
     if (input$fileformatExport == gFileFormatExport$excel) {
       fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
@@ -168,6 +215,5 @@ output$choosedataTobuildReport <- renderUI({
                      selected = names(rv$dataset))
   
 })
-
 
 

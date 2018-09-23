@@ -542,7 +542,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 # writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
                 #                             input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
                 # writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
-                #                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
+                #                             input$diffAnaMethod, ".", rv$typeOfDataset,"\"", sep="" ))
                 # writeToCommandLogFile("dataset[[name]] <- temp")
                 # writeToCommandLogFile("current.obj <- temp")
                 # 
@@ -598,7 +598,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                organism = \"",input$Organism,"\",ontology = \"", input$Ontology,"\",\n",
                                "level = ", input$GO_level,", pvalueCutoff = ", input$pvalueCutoff,",\n",
                                "typeUniverse = \"", input$universe,"\")\n",
-                               " name <- \"GOAnalysis", " - ", rv$typeOfDataset,"\"",
+                               " name <- \"GOAnalysis", ".", rv$typeOfDataset,"\"",
                                "dataset[[name]] <- temp\n",
                                "current.obj <- temp\n", sep= " ")
                            # writeToCommandLogFile(text2Log)

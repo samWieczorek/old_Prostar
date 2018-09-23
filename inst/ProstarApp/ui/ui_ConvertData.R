@@ -32,7 +32,8 @@ tabPanel("Convert data",
                        conditionalPanel(
                            condition = 'input.autoID == "user ID"',
                            uiOutput("id"),
-                           uiOutput("warningNonUniqueID"))
+                           uiOutput("warningNonUniqueID")),
+                       uiOutput("convertChooseProteinID_UI")
              ),
              
              tabPanel( "3 - Exp. and feat. data",
@@ -81,8 +82,7 @@ tabPanel("Convert data",
                                   uiOutput("viewDesign",width="100%")
                          ),
                          tags$div(style="display:inline-block; vertical-align: top;",
-                                  shinyjs::hidden(
-                                    div(id = "exLevels",uiOutput("designExamples")))
+                                  shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
                          )
                          
                          
@@ -94,7 +94,9 @@ tabPanel("Convert data",
                        value = "Convert",
                        br(), br(),
                        
-                       uiOutput("convertFinalStep")
+                       uiOutput("convertFinalStep"),
+                       moduleStaticDataTableUI("overview_convertData"),
+                       uiOutput("conversionDone")
                        
                        
                        

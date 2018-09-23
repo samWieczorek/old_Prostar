@@ -1,15 +1,15 @@
-callModule(moduleDatasetOverview,"overview_Aggregation")
+callModule(moduleStaticDataTable,"overview_Aggregation", table2show=GetDatasetOverview(), withBtns = FALSE)
 
 
 
 
-output$Aggreg_Aggreg <- renderUI({
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              uiOutput("AggregationSideBar_Step1"),
-              tagList(uiOutput("AggregationWellPanel_Step1")
-              )
-  )
-})
+# output$Aggreg_Aggreg <- renderUI({
+#   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#               uiOutput("AggregationSideBar_Step1"),
+#               tagList(uiOutput("AggregationWellPanel_Step1")
+#               )
+#   )
+# })
 
 
 output$Aggreg_Valid <- renderUI({
@@ -21,52 +21,54 @@ output$Aggreg_Valid <- renderUI({
 })
 
 
+
+observeEvent(input$AggregationConsider,{
+  shinyjs::toggle('nTopn', condition=input$AggregationConsider=='onlyN')
+})
+
+observeEvent(input$radioBtn_includeShared, {
+  if (input$radioBtn_includeShared=='Yes2'){
+    ch <- c("mean"="mean")  
+  } else {
+      ch <- c("sum"='sum', "mean"="mean")}
+  updateRadioButtons(session,"AggregationOperator", choices=ch, selected='mean')
+})
+
 ########################################################
 RunAggregation <- reactive({
     req(rv$matAdj)
+    input$radioBtn_includeShared
+    input$AggregationOperator
+    input$AggregationConsider
+    input$nTopn
     
-    n <- NULL
-    if (input$aggregationMethod == gAgregateMethod[["sum on top n"]]) { 
-        n <- as.numeric(input$nTopn)
+   
+    obj.prot <- NULL
+    if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
+      X <- rv$matAdj$matWithSharedPeptides
+      if (input$radioBtn_includeShared == 'Yes1'){
+          if (input$AggregationConsider == 'allPeptides') {
+              obj.prot <- do.call(paste0('aggregate.',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+          } else {
+            obj.prot <- aggregate.topn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
+          }
+      } else {
+        if (input$AggregationConsider == 'allPeptides') {
+          obj.prot <- aggreate.iter.parallel(rv$current.obj, init.method='sum', method='mean',X)
+        } else {
+          obj.prot <- aggreate.iter.parallel(rv$current.obj, init.method='sum', method='onlyN',X, n.pep=as.numeric(input$nTopn))
         }
-
-    if (input$checkSharedPeptides){
-                data <- pepAgregate(rv$current.obj, 
-                                    input$proteinId,
-                                    input$aggregationMethod, 
-                                    rv$matAdj$matWithSharedPeptides, 
-                                    n)
-                #if (input$showCommandLog){
-                #     txt <- paste(
-                #     "data <- pepAgregate(current.obj, '",
-                #     input$proteinId, "', '",
-                #     input$aggregationMethod, 
-                #     "', mat$matWithSharedPeptides,",n,")",
-                #     sep=""
-                # )
-                # writeToCommandLogFile(txt)
-               # }
-                
-            }else{
-                data <- pepAgregate(rv$current.obj, 
-                                    input$proteinId,
-                                    input$aggregationMethod, 
-                                    rv$matAdj$matWithUniquePeptides
-                                    , n)
-                #if (input$showCommandLog){
-                #     writeToCommandLogFile(
-                #     paste(
-                #         "data <- pepAgregate(current.obj, '",
-                #         input$proteinId, "', '",
-                #         input$aggregationMethod, 
-                #         "', mat$matWithUniquePeptides,",n,")",
-                #         sep=""
-                #     )
-                # )
-               # }
-            }
-            
-            return(data)
+      }
+    } else {
+      X <- rv$matAdj$matWithUniquePeptides
+      if (input$AggregationConsider == 'allPeptides') {
+        obj.prot <- do.call(paste0('aggregate.',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+      } else {
+        obj.prot <- aggregate.topn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
+      }
+    }
+        
+    return(obj.prot)
 
 })
 
@@ -84,20 +86,21 @@ observeEvent(input$valid.aggregation,{
   req(rv$temp.aggregate)
   
   isolate({
-    m <- NULL
-    if (input$checkSharedPeptides){ 
-      m <- rv$matAdj$matWithSharedPeptides
-    }else{
-      m <-rv$matAdj$matWithUniquePeptides
-    }
+    X <- NULL
+    if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
+      X <- rv$matAdj$matWithSharedPeptides}
+    else { X <- rv$matAdj$matWithUniquePeptides}
     
+   
     updateSelectInput(session, "proteinId",selected = input$proteinId)
-    updateSelectInput(session, "aggregationMethod",selected = input$aggregationMethod)
+    updateRadioButtons(session, "AggregationOperator",selected = input$AggregationOperator)
+    updateRadioButtons(session, "AggregationConsider",selected = input$AggregationConsider)
     updateSelectInput(session, "nTopn",selected = input$nTopn)
-    updateCheckboxInput(session,"checkSharedPeptides",input$checkSharedPeptides)
+    updateRadioButtons(session,"radioBtn_includeShared",input$radioBtn_includeShared)
     
-    l.params <- list(withSharedPeptides = input$checkSharedPeptides,
-                     agregMethod = input$aggregationMethod,
+    l.params <- list(includeSharedPeptides = input$radioBtn_includeShared,
+                     operator = input$AggregationOperator,
+                     considerPeptides = input$AggregationConsider,
                      proteinId = input$proteinId,
                      topN = input$nTopn
     )
@@ -107,7 +110,7 @@ observeEvent(input$valid.aggregation,{
     #cpt <- 10
     for(c in input$columnsForProteinDataset.box){
       newCol <- BuildColumnToProteinDataset(
-        Biobase::fData(rv$current.obj), m, c, rownames(Biobase::fData(rv$temp.aggregate)))
+        Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate)))
       cnames <- colnames(Biobase::fData(rv$temp.aggregate))
       Biobase::fData(rv$temp.aggregate) <- 
         data.frame(Biobase::fData(rv$temp.aggregate), newCol)
@@ -125,7 +128,7 @@ observeEvent(input$valid.aggregation,{
       installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     
-    name <- paste ("Aggregated", " - ", rv$typeOfDataset, sep="")
+    name <- paste0("Aggregated", ".", rv$typeOfDataset)
     rv$dataset[[name]] <- rv$current.obj
     
     UpdateLog("Aggregation", l.params)
@@ -148,22 +151,14 @@ observeEvent(input$valid.aggregation,{
 })
 
 
-observeEvent(input$aggregationMethod,{
-  
-  toggle(id = "nTopn", 
-         condition = input$aggregationMethod == gAgregateMethod[["sum on top n"]])
-})
-
-
 
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
   req(input$perform.aggregation)
   isolate({
-    if (input$aggregationMethod != "None"){
-      h3(paste("Aggregation done with the ",input$aggregationMethod, " method.",  sep=""))
-    }
+     h3("Aggregation done with the ")
+
   })
 })
 
@@ -172,26 +167,11 @@ output$ObserverAggregationDone <- renderUI({
 
 
 observeEvent(input$proteinId,{
-  
-  rv$current.obj
-  
-  result = tryCatch(
-    {
-      matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj,  input$proteinId,FALSE)
-      matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, input$proteinId,TRUE)
-      
-      rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
-      
-    }
-    , error = function(e) {
-      shinyjs::info(paste("Build adjacency matrix:",
-                          conditionMessage(e), 
-                          sep=" "))
-    }, finally = {
-      #cleanup-code 
-    })
-  
-})
+  req(input$proteinId)
+  if (input$proteinId == "None"){return(NULL)}
+  rv$proteinId <-input$proteinId  
+  rv$matAdj <- ComputeAdjacencyMatrices()
+  })
 
 
 
@@ -244,39 +224,10 @@ output$aggregationPlotUnique <- renderPlot({
 observeEvent(input$perform.aggregation,{
   
   isolate({
-    if (input$aggregationMethod != "None")
-    {rv$temp.aggregate <- RunAggregation()
-    }
-    
+      rv$temp.aggregate <- RunAggregation()
+
   })
 })
-
-
-
-
-
-
-
-
-
-output$AggregationSideBar_Step1 <-  renderUI({
-  
-  wellPanel(id = "sidebar_Aggregation",
-            height = "100%",
-            tagList(
-              uiOutput("warningAgregationMethod"),
-              uiOutput("chooseProteinId"),
-              checkboxInput("checkSharedPeptides", "Include shared peptides", value = FALSE),
-              selectInput("aggregationMethod","Aggregation methods",choices =  gAgregateMethod),
-              hidden(numericInput("nTopn", "nTopn",value = NULL, min = 0)),
-              actionButton("perform.aggregation","Perform aggregation")
-            )
-  )
-  
-})
-
-
-
 
 output$AggregationWellPanel_Step1 <- renderUI({
   req(rv$current.obj)
@@ -361,7 +312,7 @@ output$Aggregation_Step2 <- renderUI({
     tagList(
       h4("The peptide dataset has been aggregated into a protein dataset."),
       tags$div(style="align: center;",
-               moduleDatasetOverviewUI("overview_Aggregation")
+               moduleStaticDataTableUI("overview_Aggregation")
       )
     )
   }
@@ -421,7 +372,7 @@ output$columnsForProteinDataset <- renderUI({
 ######################################################### 
 
 output$chooseProteinId <- renderUI({
-  req(rv$current.obj)
+  if (!is.null(rv$current.obj@experimentData@other$proteinId)) {return(NULL)}
   
   selectInput("proteinId", 
               "Choose the protein ID",

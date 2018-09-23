@@ -11,7 +11,7 @@ tabPanel("Demo mode",
          ),
          checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
          hr(),
-         moduleDatasetOverviewUI("overview_DemoMode")
+         moduleStaticDataTableUI("overview_DemoMode")
          ,uiOutput("showDatasetDoc")
          #,uiOutput("progressDemoMode")
          ,uiOutput("infoAboutDemoDataset")

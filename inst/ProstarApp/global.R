@@ -6,23 +6,25 @@ library(shinycssloaders)
 library(shinythemes)
 library(rclipboard)
 library(DT)
+library(highcharter)
+library(shinyBS)
 
 loadLibraries <- function(){
   library(shinyAce)
-  library(shinyBS)
+  
   library(vioplot)
   #library(ggplot2)
+  library(colourpicker)
   library(gplots)
   #library(tidyr)
   #library(dplyr)
   library(data.table)
   library(MSnbase)
   library(tidyverse)
-  #library(RColorBrewer)
+  library(RColorBrewer)
   #library(webshot)
   library(DAPAR, lib.loc = DAPAR.loc)
   library(R.utils)
-  library(highcharter)
   library(rhandsontable)
   library(data.table)
 }
@@ -35,6 +37,10 @@ plan(multiprocess)
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
+
+## gestion des couleurs
+
+grey <- "#FFFFFF"
 
 # 
 # unsuspendAll <- function(session = getDefaultReactiveDomain()) {
@@ -158,18 +164,37 @@ originOfValue[["ByAlignment"]] <- 3
 
 
 
-gFiltersList <- list()
-gFiltersList[["None"]] <- "None"
-gFiltersList[["Empty lines"]] <- "EmptyLines"
-gFiltersList[["Whole matrix"]] <- "wholeMatrix"
-gFiltersList[["For every condition"]] <- "allCond"
-gFiltersList[["At least one condition"]] <- "atLeastOneCond"
+gFiltersList <- c("None" = "None",
+                  "Empty lines" = "EmptyLines",
+                  "Whole matrix" = "wholeMatrix",
+                  "For every condition" = "allCond",
+                  "At least one condition" = "atLeastOneCond")
 
 gFiltersListAnaDiff <- list()
 gFiltersListAnaDiff[["None"]] <- "None"
 gFiltersListAnaDiff[["Whole matrix"]] <- "wholeMatrix"
 gFiltersListAnaDiff[["For every condition"]] <- "allCond"
 gFiltersListAnaDiff[["At least one condition"]] <- "atLeastOneCond"
+
+group2ColorByDefault <- "Condition"
+
+listBrewerPalettes <- c("Dark2 (qualit.)" = "Dark2",
+                        "Accent (qualit.)"="Accent",
+                        "Paired (qualit.)" = "Paired",
+                        "Pastel1 (qualit.)" = "Pastel1",
+                        "Pastel2 (qualit.)" = "Pastel2",
+                        "Set1 (qualit.)" = "Set1",
+                        "Set2 (qualit.)" = "Set2", 
+                        "Set3 (qualit.)" = "Set3",
+                        "BrBG (diverging)"="BrBG",
+                        "PiYG (diverging)"=  "PiYG",
+                        "PRGn (diverging)" ="PRGn",
+                        "PuOr (diverging)" ="PuOr",
+                        "RdBu (diverging)"="RdBu",
+                        "RdGy (diverging)" ="RdGy",
+                        "RdYlBu (diverging)" ="RdYlBu",
+                        "RdYlGn (diverging)" ="RdYlGn",
+                        "Spectral (diverging)"="Spectral")
 
 
 gDatasets <- list()
@@ -204,11 +229,11 @@ normMethods <- list("None" = "None",
  )
 
 
-imputationAlgorithms <- list("None" = "None",
+imputationAlgorithms <- c("None" = "None",
                              "imp4p" = "imp4p",
-                             "Basic methods" = "Basic methods")
+                             "Basic methods" = "BasicMethods")
 
-basicMethodsImputationAlgos <- list("detQuantile" = "detQuantile",
+basicMethodsImputationAlgos <- c("Det. quantile" = "detQuantile",
                                     "KNN" = "KNN",
                                     "MLE" = "MLE"
                                         )
@@ -216,31 +241,22 @@ basicMethodsImputationAlgos <- list("detQuantile" = "detQuantile",
 imputationAlgorithmsPeptides_POV <- list("None" = "None",
                                                  "imp4p" = "imp4p",
                                                  "slsa" = "slsa",
-                                                "detQuantile" = "detQuantile",
+                                                "Det. quantile" = "detQuantile",
                                                 "KNN" = "KNN")
 
 imputationAlgorithmsProteins_POV <- list(
                                                 "None" = "None",
                                                 "slsa" = "slsa",
-                                                 "detQuantile" = "detQuantile",
+                                                 "Det quantile" = "detQuantile",
                                                  "KNN" = "KNN")
 
 imputationAlgorithmsPeptides_MEC<- list("None" = "None",
-                                           "detQuantile" = "detQuantile",
-                                           "fixedValue" = "fixedValue")
+                                           "Det quantile" = "detQuantile",
+                                           "Fixed value" = "fixedValue")
 
 imputationAlgorithmsProteins_MEC <- list("None" = "None",
-                                            "detQuantile" = "detQuantile",
-                                            "fixedValue" = "fixedValue")
-
-# basicMethodsImputationAlgos <- list(
-#                                 "None" = "None",
-#                                 "detQuantile" = "detQuantile",
-#                                 #"dummy censored" = "dummy censored",
-#                                 "KNN" = "KNN",
-#                                 "MLE" = "MLE"
-#                             )
-
+                                            "Det quantile" = "detQuantile",
+                                            "Fixed value" = "fixedValue")
 
 JSCSSTags <- function() 
 { 
@@ -303,6 +319,20 @@ return (
 
 
 
+
+plots.dataProcessing <- list(
+  Original = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
+  Filtered = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
+  Normalized = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "compNorm"),
+  Aggregated = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
+  Imputed.peptide = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
+  Imputed.protein = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
+  HypothesisTest = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3","logFCDistr" )
+)
+
+
+
+
 gGraphicsFilenames <- list(
     
     histoMV_Image_DS = "histoMV_Image_DS.png",
@@ -330,14 +360,16 @@ gGraphicsFilenames <- list(
     AgregMatSharedPeptides = "AgregMatSharedPeptides.png",
     logFCDistribution = "logFC_Distribution.png",
    # volcanoPlot_1 = "volcanoPlot_1.png",
-    volcanoPlot = "volcanoPlot_3.png",
+    volcanoPlot = "volcanoPlot.png",
     calibrationPlot = "calibrationPlot.png",
     calibrationPlotAll = "calibrationPlotAll.png",
     GOEnrichDotplot = "GOEnrichDotplot.png",
     GOEnrichBarplot = "GOEnrichBarplot.png",
     GOClassificationImg1 = "GOClassification_img1.png",
     GOClassificationImg2 = "GOClassification_img2.png",
-    GOClassificationImg3 = "GOClassification_img3.png"
+    GOClassificationImg3 = "GOClassification_img3.png",
+   
+   logFCDistr = "logFC_distribution.png"
 )
 
 defaultGradientRate <- 0.9

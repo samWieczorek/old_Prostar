@@ -21,7 +21,8 @@ onStart = function() {
     graphics.off()
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), "*", sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
@@ -43,7 +44,7 @@ shinyServer(function(input, output, session) {
       sink(con, append=TRUE, type="message")
     }
 
-    
+    print(tempdir())
     
    # unsuspendAll(session)
        
@@ -77,18 +78,20 @@ shinyServer(function(input, output, session) {
     #activatePopover()
     
     loadLibraries()
-
+     
+    observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
+    observeEvent(input$distance,{rv$PlotParams$heatmap.linkage <- input$linkage})
+    
     
      observe({
         req(input$navPage)
-        #print(input$navPage)
-        
+       
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
                openMSnsetTab = {
                  source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
                  },
-               SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
+               #SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
                
                  demoTab = 
                  source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,

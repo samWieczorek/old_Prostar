@@ -1,42 +1,23 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-callModule(moduleDensityplot, "densityPlot_DS",reactive({input$lab2Show_DS}),reactive({ input$whichGroup2Color_DS}))
+callModule(moduleDensityplot, "densityPlot_DS")
 callModule(missingValuesPlots, "MVPlots_DS")
-callModule(moduleBoxplot, "boxPlot_DS", reactive({input$legendXAxis_DS}))
-callModule(moduleDatasetOverview,"overview_DS")
+callModule(moduleBoxplot, "boxPlot_DS")
+callModule(moduleStaticDataTable,"overview_DS", table2show=GetDatasetOverview(), withBtns = FALSE)
 
 
 
 
 
-output$viewProcessingData <- DT::renderDataTable({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)}
-  
-  result = tryCatch(
-    {
-      data.frame(History=(rv$current.obj)@processingData@processing
-                 [-grep("Subset", (rv$current.obj)@processingData@processing)])
-    }
-    , warning = function(w) {
-      shinyjs::info(conditionMessage(w))
-    }, error = function(e) {
-      shinyjs::info(paste("view processing data",":",
-                          conditionMessage(e), 
-                          sep=" "))
-    }, finally = {
-      #cleanup-code 
-    })
-  
-},
-option=list(initComplete = initComplete(),
-            pageLength=DT_pagelength,
-            orderClasses = TRUE,
-            autoWidth=FALSE,
-            dom = 'R<"clear">lfrtip',
-            columnDefs = list(list(columns.width=c("60px"),
-                                   columnDefs.targets= c(list(0),list(1),list(2)))))
-)
+# outs <- outputOptions(output)
+# print(names(outs))
+# outputOptions(output, 'densityPlot_DS-Densityplot', suspendWhenHidden = FALSE)
+# outputOptions(output, 'boxPlot_DS-BoxPlot', suspendWhenHidden = FALSE)
+
+
+# lapply(names(outs), function(name) {
+#   outputOptions(output, name, suspendWhenHidden = FALSE)
+# })
 
 
 
@@ -81,15 +62,20 @@ output$DS_sidebarPanel_tab <- renderUI({
 })
 
 
+
+
+
 output$DS_sidebarPanel_heatmap <- renderUI({
     req(rv$current.obj)
     tagList(
                      h3("Clustering Options"),
                      selectInput("distance","Distance",
-                                  choices = G_heatmapDistance_Choices),
+                                  choices = G_heatmapDistance_Choices, 
+                                 selected = rv$PlotParams$heatmap.distance),
                      br(),
                      selectInput("linkage","Linkage for clustering",
-                                  choices=G_heatmapLinkage_Choices))
+                                  choices=G_heatmapLinkage_Choices,
+                                 selected=rv$PlotParams$heatmap.linkage))
 })
 
 #----------------------------------------------
@@ -101,11 +87,11 @@ output$tabToShow <- renderUI({
           None = {return(NULL)},
           tabExprs = DT::dataTableOutput("table"),
           tabfData = DT::dataTableOutput("viewfData"),
-          tabpData = DT::dataTableOutput("viewpData"),
-          processingData = {
-                      helpText("Previous operations made on the original dataset :")
-                      DT::dataTableOutput("viewProcessingData")
-                      }
+          tabpData = DT::dataTableOutput("viewpData")
+          # processingData = {
+          #             helpText("Previous operations made on the original dataset :")
+          #             DT::dataTableOutput("viewProcessingData")
+          #             }
     )
     
 })
@@ -185,9 +171,9 @@ output$viewpData <- DT::renderDataTable({
     req(rv$current.obj)
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
-  
-  pal <- RColorBrewer::brewer.pal(length(unique(data$Condition)),"Dark2")
-  pal <- pal[1:length(unique(data$Condition))]
+  print(data)
+  pal <- unique(rv$PlotParams$paletteConditions)
+  print(pal)
   dt <- DT::datatable(  data,
                         extensions = 'Scroller',
                         rownames=  FALSE,
@@ -287,61 +273,14 @@ output$viewExprsMissValues <- DT::renderDataTable({
 
 
 
-
-violinPlot2 <- reactive({
-    req(rv$current.obj)
-    req(input$legendXAxisViolin_DS)
-    
-    
-    if (!is.null(input$legendXAxisViolin_DS)){
-      rv$PlotParams$legDS_Violinplot <- input$legendXAxisViolin_DS}
-    
-    # result = tryCatch(
-    #     {
-            isolate({
-              if (is.null(rv$PlotParams$legDS_Violinplot)) {
-                wrapper.violinPlotD(rv$current.obj)
-                }  else {
-                    wrapper.violinPlotD(rv$current.obj,  rv$PlotParams$legDS_Violinplot)
-                }
-              
-            })
-        # }
-        # , warning = function(w) {
-        #     shinyjs::info(conditionMessage(w))
-        # }, error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",
-        #                         conditionMessage(e), 
-        #                         sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-        # 
-})
-
-
-
-
-
 viewDistCV <- reactive({
     
     req(rv$current.obj)
-    
-    # result = tryCatch(
-    #     {
-            isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj)})
+  rv$PlotParams$paletteConditions
+
+            isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,rv$PlotParams$paletteConditions)})
             rv$tempplot$varDist
-        # }
-        # , warning = function(w) {
-        #     shinyjs::info(conditionMessage(w))
-        # }, error = function(e) {
-        #     shinyjs::info(paste(match.call()[[1]],":",
-        #                         conditionMessage(e), 
-        #                         sep=" "))
-        # }, finally = {
-        #     #cleanup-code 
-        # })
-        # 
+
     
 })
 
@@ -368,24 +307,15 @@ corrMatrix <- reactive({
 heatmap <- reactive({
     
     req(rv$current.obj)
-    input$linkage
-    input$distance
-    if (!is.null(input$linkage) && !is.null(input$distance)
-        #&& (getNumberOfEmptyLines(Biobase::exprs(rv$current.obj)) == 0)
-    ) {
-        
-
-                rv$PlotParams$HeatmapLinkage <- input$linkage
-      rv$PlotParams$HeatmapDistance <- input$distance
-      
-              isolate({  wrapper.heatmapD(rv$current.obj,
-                                 rv$PlotParams$HeatmapDistance, 
-                                 rv$PlotParams$HeatmapLinkage,
+  rv$PlotParams$heatmap.linkage
+  rv$PlotParams$heatmap.distance
+  
+  isolate({  wrapper.heatmapD(rv$current.obj,
+                                 rv$PlotParams$heatmap.distance, 
+                                 rv$PlotParams$heatmap.linkage,
                                  TRUE)
               })
-  
-    }
-    
+
 })
 
 
@@ -409,25 +339,10 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 
-output$DS_sidebarPanel_Boxplot <- renderUI({
-    uiOutput("ChooseLegendForAxis_DS")
-})
-
-output$DS_sidebarPanel_Violinplot <- renderUI({
-    uiOutput("ChooseLegendForAxisViolin_DS")
-    
-})
-
-
-
-
-
-
-
 #################
 output$table <- renderDataTable({
    # req(rv$current.obj)
-    df <- getDataForExprs()
+    df <- getDataForExprs(rv$current.obj)
     dt <- datatable( df,
                      extensions = c('Scroller', 'Buttons'),
                     options = list(
@@ -446,7 +361,7 @@ output$table <- renderDataTable({
        formatStyle(
            colnames(df)[1:(ncol(df)/2)],
            colnames(df)[((ncol(df)/2)+1):ncol(df)],
-           backgroundColor = styleEqual(c("POV", "MEC"), c('lightblue', 'orange')),
+           backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)),
            backgroundSize = '98% 48%',
            backgroundRepeat = 'no-repeat',
            backgroundPosition = 'center'
@@ -459,101 +374,23 @@ output$table <- renderDataTable({
 
 
 
-
-# options for vioplot
-output$ChooseLegendForAxisViolin_DS <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)){return(NULL)}
-  isolate(rv$current.obj)
-  .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-  tags$head(tags$link(rel="stylesheet", type="text/css", 
-                      href="css/overrides.css"))
-  
-  checkboxGroupInput("legendXAxisViolin_DS",
-                     label = "Data to show in legend",
-                     choices = .names,
-                     selected = .names[1])
-})
-
-
 # options for boxplot
-#------------------------------------------------------
-output$ChooseLegendForAxis_DS <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)){return(NULL)}
-    
-  .names <- colnames(Biobase::pData(rv$current.obj))[-1]
-    tags$head(tags$link(rel="stylesheet", type="text/css", 
-                        href="css/overrides.css"))
-    
-    checkboxGroupInput("legendXAxis_DS",
+# #------------------------------------------------------
+output$ChooseLegendForSamples <- renderUI({
+    req(rv$current.obj)
+
+  .names <- colnames(Biobase::pData(rv$current.obj))
+ 
+
+    checkboxGroupInput("legendForSamples",
                        label = "Choose data to show in legend",
                        choices = .names,
-                       selected = .names[1])
+                       selected=.names[2])
 })
 
-
-
-##' Select the labels to be highlighted in densityplots
-##' @author Samuel Wieczorek
-# output$nGroup_DS <- renderUI({
-#    # req(rv$current.obj)
-#     #if (is.null(rv$current.obj) ) {return(NULL) }
-#     
-#     radioButtons("whichGroup2Color_DS",
-#                  "Color lines",
-#                  choices=list("By condition" = "Condition",
-#                               "By replicate" = "Replicate"))
-#     
-# })
-
-
-
-
-##' Select the labels to show in densityplots
-##' @author Samuel Wieczorek
-output$nShow_DS <- renderUI({
-   # rv$current.obj
-   # if (is.null(rv$current.obj) ) {return(NULL) }
-    
-         # labs <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-         #              Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-         #              Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-         #              Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-         #              sep= "_")
-         labs <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
-         names(labs)<- NULL
-        label.names <- setNames(as.list(c(1:length(labs))),labs)
-        
-        
-        checkboxGroupInput("lab2Show_DS"
-                           , label = "Hide/show replicates"
-                           , choices = label.names
-                           , selected = unlist(label.names))
-   
+observeEvent(input$legendForSamples, {
+  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(rv$current.obj)[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
 })
-
-
-
-
-
-##' boxplot of intensities in current.obj
-##' @author Samuel Wieczorek
-# output$viewBoxPlot <- renderPlot({
-#     boxPlot()
-#     
-# })
-
-
-output$viewViolinPlot_DS <- renderPlot({
-    violinPlot2()
-}, width=600, height=400) 
-
-
-
-
-
-
 
 
 addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info", 
@@ -598,7 +435,7 @@ output$corrMatrix <- renderHighchart({
    req(input$DS_TabsChoice)
      
      if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-     moduleLegendColoredExprsUI("ExprsColorLegend_DS")
+     moduleLegendColoredExprsUI("ExprsColorLegend_DS",rv$colorsTypeMV)
 
  })
 

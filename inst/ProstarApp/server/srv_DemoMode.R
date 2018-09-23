@@ -1,4 +1,4 @@
-callModule(moduleDatasetOverview,"overview_DemoMode")
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=GetDatasetOverview(), withBtns = FALSE)
 
 
 output$chooseDataset <- renderUI({
@@ -111,13 +111,8 @@ observeEvent(input$loadDemoDataset,{
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
   rv$current.obj.name <- input$demoDataset
-  rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
   rv$indexNA <- which(is.na(rv$current.obj))
-  colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-  names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
   
-  if (is.null(rv$current.obj@experimentData@other$RawPValues ))
-    rv$current.obj@experimentData@other$RawPValues <- FALSE
   rv$current.obj <- addOriginOfValue(rv$current.obj)
   l.params <- list(filename = input$demoDataset)
   UpdateLog("Original",l.params)

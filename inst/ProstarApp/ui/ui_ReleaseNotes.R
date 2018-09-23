@@ -1,4 +1,5 @@
 tabPanel("Release notes",
          value="ReleaseNotesTab",
-         uiOutput("versionNotes"),
+         #uiOutput("versionNotes"),
+         includeMarkdown("server/versionNotes.md"),
          uiOutput("warningDependanciesVersion"))

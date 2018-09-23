@@ -6,7 +6,7 @@ tabPanel("Descriptive statistics",
                      #------------------------------------------------------------
                      tabPanel("Overview",
                               value = "DS_tabGeneral",
-                              moduleDatasetOverviewUI("overview_DS")
+                              moduleStaticDataTableUI("overview_DS")
                      ),
                      
                      tabPanel(
@@ -60,57 +60,30 @@ tabPanel("Descriptive statistics",
                               )
                      ),
                      
-                     #-----------------------------------------------------------
-                     tabPanel("Boxplot",
-                              value="DS_tabBoxplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_boxplot",
-                                                    #uiOutput("DS_sidebarPanel_Boxplot")
-                                                    uiOutput("ChooseLegendForAxis_DS")
-                                          ),
-                                         tagList(
-                                             moduleBoxplotUI("boxPlot_DS")
-                                          )
-                              )
-                     ),
-                     
                      
                      #-----------------------------------------------------------
-                     tabPanel("Violinplot",
-                              value="DS_tabViolinplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_Violonplot",
-                                                    #uiOutput("DS_sidebarPanel_Violinplot")
-                                                    uiOutput("ChooseLegendForAxisViolin_DS")
-                                          ),
-                                          tagList(
-                                              plotOutput("viewViolinPlot_DS",width = plotWidth,
-                                                                      height = plotHeight) %>% withSpinner(type=spinnerType)
-                                          )
-                              )
-                     ),
-                     
-                     #-----------------------------------------------------------
-                     tabPanel("Densityplot",
+                     tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_densityplot",
-                                                    tagList(
-                                                      radioButtons("whichGroup2Color_DS",
-                                                                   "Color lines",
-                                                                   choices=list("By condition" = "Condition",
-                                                                                "By replicate" = "Replicate")),
-                                                      br()
-                                                      #uiOutput("nShow_DS")
-                                                      )
-                                          ),
-                                          tagList(
-                                              moduleDensityplotUI("densityPlot_DS")
-                                           )
+                              tagList(
+                                tags$div(
+                                
+                                tags$div(style="display:inline-block; vertical-align: top;",
+                                         selectInput("whichGroup2Color",
+                                                     "Color lines",
+                                                     choices=list("By condition" = "Condition",
+                                                                  "By replicate" = "Replicate"), 
+                                                     selected=GetWhichGroup2Color(), width='150px')
+                                ),
+                                tags$div(style="display:inline-block; vertical-align: top;",
+                                         uiOutput("ChooseLegendForSamples")
+                                )
                               )
+                              ),
+                              fluidRow(
+                                  column(width=6,moduleDensityplotUI("densityPlot_DS")),
+                                   column(width=6, moduleBoxplotUI("boxPlot_DS"))
+                                  )
+
                      ),
                      
                      #-----------------------------------------------------------

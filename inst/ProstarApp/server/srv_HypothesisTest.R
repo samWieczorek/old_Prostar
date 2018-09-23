@@ -30,7 +30,7 @@ output$testPanel <- renderUI({
         )
       ),
       tags$hr(),
-      highchartOutput("FoldChangePlot", height="100%", width="100%") %>% withSpinner(type=spinnerType)
+      highchartOutput("FoldChangePlot", height="100%") %>% withSpinner(type=spinnerType)
     )
     
   }
@@ -56,11 +56,13 @@ output$FoldChangePlot <- renderHighchart({
   req(input$seuilLogFC)
   req(input$diffAnaMethod)
   req(input$anaDiff_Design)
+  rv$PlotParams$paletteConditions
+  
   
   if ((input$diffAnaMethod=="None") || (input$anaDiff_Design=="None")){return(NULL)}
   data <- rv$res_AllPairwiseComparisons
-  hc_logFC_DensityPlot(data$logFC,input$seuilLogFC)
-  
+  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,input$seuilLogFC)
+  rv$tempplot$logFCDistr
 })
 
 
@@ -79,13 +81,13 @@ observe({
   if ((input$anaDiff_Design=="None")) {return ()}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-  
-  if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])){
+
+  #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
     switch(input$diffAnaMethod,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
-                                                                input$anaDiff_Design)
+                                                                input$anaDiff_Design) 
            },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
@@ -93,16 +95,7 @@ observe({
                                                                       type=input$ttest_options)
            })
     rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
-  } else {
-    params <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
-    rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$logFC]),
-                                                           rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC),
-                                          P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$P_Value]),
-                                                             rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$P_Value
-                                          ))
-    
-    rv$listNomsComparaison <-rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC
-  }
+
 })
 
 
@@ -119,29 +112,27 @@ observeEvent(input$ValidTest,{
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   ### Save RAW data
-  temp <-   rv$current.obj
-  l.params <- list(design = input$anaDiff_Design,
+l.params <- list(design = input$anaDiff_Design,
                    method = input$diffAnaMethod,
                    ttest_options = input$ttest_options,
-                   th_logFC = input$seuilLogFC,
+                   th_logFC = as.numeric(input$seuilLogFC),
                    AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
                                                P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
   )
   
   
-  temp <- DAPAR::diffAnaSave(obj = temp,
-                             allComp = rv$res_AllPairwiseComparisons,
-                             l.params = l.params)
+  temp <- DAPAR::diffAnaSave(obj = rv$current.obj,
+                             allComp = rv$res_AllPairwiseComparisons)
   
+  rv$current.obj <- saveParameters(rv$current.obj, "HypothesisTest", l.params)
   
-  name <- paste("Signif.test - ", rv$typeOfDataset, sep="")
+  name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
   
-  rv$dataset[[name]] <- temp
-  rv$current.obj <- temp
+  rv$dataset[[name]] <- rv$current.obj
+ # rv$current.obj <- temp
   UpdateLog("Test", l.params)
   
   updateSelectInput(session, "datasets", 
-                    #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                     choices = names(rv$dataset),
                     selected = name)
   
