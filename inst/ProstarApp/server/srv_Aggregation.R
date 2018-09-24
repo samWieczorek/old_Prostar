@@ -28,10 +28,11 @@ observeEvent(input$AggregationConsider,{
 
 observeEvent(input$radioBtn_includeShared, {
   if (input$radioBtn_includeShared=='Yes2'){
-    ch <- c("mean"="mean")  
+    ch <- c("Mean"="Mean")  
   } else {
-      ch <- c("sum"='sum', "mean"="mean")}
-  updateRadioButtons(session,"AggregationOperator", choices=ch, selected='mean')
+      ch <- c("Sum"='Sum', "Mean"="Mean")
+      }
+  updateRadioButtons(session,"AggregationOperator", choices=ch, selected='Mean')
 })
 
 ########################################################
@@ -48,23 +49,23 @@ RunAggregation <- reactive({
       X <- rv$matAdj$matWithSharedPeptides
       if (input$radioBtn_includeShared == 'Yes1'){
           if (input$AggregationConsider == 'allPeptides') {
-              obj.prot <- do.call(paste0('aggregate.',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+              obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
           } else {
             obj.prot <- aggregate.topn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
           }
       } else {
         if (input$AggregationConsider == 'allPeptides') {
-          obj.prot <- aggreate.iter.parallel(rv$current.obj, init.method='sum', method='mean',X)
+          obj.prot <- aggregateIterParallel(rv$current.obj, init.method='sum', method='mean',X)
         } else {
-          obj.prot <- aggreate.iter.parallel(rv$current.obj, init.method='sum', method='onlyN',X, n.pep=as.numeric(input$nTopn))
+          obj.prot <- aggregateIterParallel(rv$current.obj, init.method='sum', method='onlyN',X, n.pep=as.numeric(input$nTopn))
         }
       }
     } else {
       X <- rv$matAdj$matWithUniquePeptides
       if (input$AggregationConsider == 'allPeptides') {
-        obj.prot <- do.call(paste0('aggregate.',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+        obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
       } else {
-        obj.prot <- aggregate.topn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
+        obj.prot <- aggregateTopn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
       }
     }
         
