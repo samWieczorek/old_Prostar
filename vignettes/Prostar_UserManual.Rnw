@@ -159,9 +159,8 @@ To run the stand-alone version, it is necessary to install the package in a
 directory where the user have read/write permissions. If the user have 
 administrator privileges, then in a R console, enter:
 << installProstaRBiocond>>=
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-BiocManager::install("Prostar")
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("Prostar")
 @
 
 This step will automatically install the following packages: \CRANpkg{shiny}, 
@@ -241,9 +240,8 @@ To install the package \Biocpkg{DAPAR} from the source file with administrator
 rights, start R and enter:
 
 << installDAPARBiocond>>=
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-BiocManager::install("DAPAR")
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DAPAR")
 @
 
 This step will automatically install the following packages:
@@ -264,9 +262,8 @@ This step will automatically install the following packages:
 The installation of the package \Biocpkg{DAPARdata} follows 
 the classical way for Bioconductor packages. In a R console, enter:
 << installDAPARdata>>=
-if (!requireNamespace("BiocManager", quietly=TRUE))
-    install.packages("BiocManager")
-BiocManager::install("DAPARdata")
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("DAPARdata")
 @
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
