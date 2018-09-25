@@ -46,13 +46,13 @@ output$References2 <- renderUI({
       tags$li(a(p("S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
   A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. 
                 DAPAR & ProStaR: software to perform statistical analyses in 
-                quantitative discovery proteomics,", tags$i("Bioinformatics"), ", 33(1):135-136, 2017"), 
+                quantitative discovery proteomics.", tags$i("Bioinformatics"), ", 33(1):135-136, 2017"), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/prostar.pdf?attredirects=0", target="_blank")),
       tags$li(a(p("T. Burger. Gentle introduction to the statistical 
   foundations of false discovery rate in quantitative proteomics.", tags$i("Journal of Proteome Research"), ", 17(1):12-22, 2017."), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/fdrtuto.pdf?attredirects=0", target="_blank")),
-      tags$li(a(" L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
-    from relative quantitative proteomics data using shared peptides. (accepted for publication, 2018).", 
+      tags$li(a(p("L. Jacob, F. Combes and T. Burger. PEPA test: fast and powerful differential analysis
+    from relative quantitative proteomics data using shared peptides.", tags$i("Biostatistics"), ", kxy021, 2018."), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/revised-biostat-proteom-preprint.pdf?attredirects=0", target="_blank")),
       tags$li(p("Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
     T. Burger. Multiple imputation strategy for mass spectrometry-based 
