@@ -58,16 +58,14 @@ output$References2 <- renderUI({
     T. Burger. Multiple imputation strategy for mass spectrometry-based 
                 proteomic data. (in preparation).")),
      tags$h4(tags$b("Other references:")),
-     tags$li(p("Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1"), 
-             a("link",href="https://github.com/bmbolstad/preprocessCore", target="_blank")),
+     tags$li(p("Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1")),
      tags$li(p("Hastie T, Tibshirani R, Narasimhan B and Chu G (2017). impute: Imputation for microarray data. R package version 1.50.1")),
      tags$li(p("Gatto L and Lilley K (2012). 
     MSnbase - an R/Bioconductor package for isobaric tagged mass spectrometry data visualization, processing and quantitation.", 
         tags$i("Bioinformatics"), ", 28, pp. 288-289.")),
      tags$li(p("Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK (2015). 
     Limma powers differential expression analyses for RNA-sequencing and microarray studies.", tags$i("Nucleic Acids Research"), ", 43(7), pp. e47.")),
-     
-     
+        
      
      tags$li(p("Cleveland, William S., and Susan J. Devlin. Locally weighted regression: an approach to regression analysis by local fitting.", tags$i("Journal of the American statistical association"), " 83.403 (1988): 596-610.")),
      tags$li(p("Huber, Wolfgang, et al. Variance stabilization applied to microarray data calibration and to the quantification of differential expression.", tags$i("Bioinformatics"), " 18.suppl_1 (2002): S96-S104."))
