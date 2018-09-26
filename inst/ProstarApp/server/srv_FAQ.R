@@ -9,7 +9,7 @@ output$FAQ_output <- renderUI({
       tags$li(tags$a("Why does the table in experimental design blink during edition?", href="#tableBlinks")),
       tags$li(tags$a("How to build a valid experimental design?", href="#buildDesign")),
       tags$li(tags$a("Why do the items of the contextual menus for plots remain 'undefined'?", href="#undefinedItems")),
-      tags$li(tags$a("What is the update strategy for Prostar?", href="#updateStrategy"))
+      tags$li(tags$a("Why does my volcano plot look so aligned?", href="#alignedVolcano"))
     ),
     
     
@@ -46,8 +46,14 @@ output$FAQ_output <- renderUI({
            should install the devel version of the package by typing the following command in a R console:
            devtools::install_github('jbkunst/highcharter')"),
     tags$br(),
-    tags$h4(id="updateStrategy", "4 - What is the update strategy for Prostar?"),
-    tags$p("xxxxxx)"),
+    tags$h4(id="alignedVolcano", "4 - Why does my volcano plot look so aligned?"),
+    tags$p("In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. 
+            This is due to using Limma on a dataset for which it is not adapted: 
+            Briefly, the numerical values in the quantitative matrix appears to have a repetitive pattern 
+            that prevent Limma routines to compute the number of degrees of freedom of the Chi2 distribution 
+            on which the protein variances should be fitted. As a result, Limma returns a result directly 
+            proportional to the fold-change, and the p-values are none-informative. 
+            In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test."),
     tags$br()
     )
 })
