@@ -46,28 +46,26 @@ output$References2 <- renderUI({
       tags$li(a(p("S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, 
   A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. 
                 DAPAR & ProStaR: software to perform statistical analyses in 
-                quantitative discovery proteomics,", tags$i("Bioinformatics"), ", 33(1):135-136, 2017"), 
+                quantitative discovery proteomics.", tags$i("Bioinformatics"), ", 33(1):135-136, 2017"), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/prostar.pdf?attredirects=0", target="_blank")),
       tags$li(a(p("T. Burger. Gentle introduction to the statistical 
   foundations of false discovery rate in quantitative proteomics.", tags$i("Journal of Proteome Research"), ", 17(1):12-22, 2017."), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/fdrtuto.pdf?attredirects=0", target="_blank")),
-      tags$li(a(" L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis
-    from relative quantitative proteomics data using shared peptides. (accepted for publication, 2018).", 
+      tags$li(a(p("L. Jacob, F. Combes and T. Burger. PEPA test: fast and powerful differential analysis
+    from relative quantitative proteomics data using shared peptides.", tags$i("Biostatistics"), ", kxy021, 2018."), 
                 href="https://sites.google.com/site/thomasburgerswebpage/download/revised-biostat-proteom-preprint.pdf?attredirects=0", target="_blank")),
       tags$li(p("Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and 
     T. Burger. Multiple imputation strategy for mass spectrometry-based 
                 proteomic data. (in preparation).")),
      tags$h4(tags$b("Other references:")),
-     tags$li(p("Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1"), 
-             a("link",href="https://github.com/bmbolstad/preprocessCore", target="_blank")),
+     tags$li(p("Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1")),
      tags$li(p("Hastie T, Tibshirani R, Narasimhan B and Chu G (2017). impute: Imputation for microarray data. R package version 1.50.1")),
      tags$li(p("Gatto L and Lilley K (2012). 
     MSnbase - an R/Bioconductor package for isobaric tagged mass spectrometry data visualization, processing and quantitation.", 
         tags$i("Bioinformatics"), ", 28, pp. 288-289.")),
      tags$li(p("Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK (2015). 
     Limma powers differential expression analyses for RNA-sequencing and microarray studies.", tags$i("Nucleic Acids Research"), ", 43(7), pp. e47.")),
-     
-     
+        
      
      tags$li(p("Cleveland, William S., and Susan J. Devlin. Locally weighted regression: an approach to regression analysis by local fitting.", tags$i("Journal of the American statistical association"), " 83.403 (1988): 596-610.")),
      tags$li(p("Huber, Wolfgang, et al. Variance stabilization applied to microarray data calibration and to the quantification of differential expression.", tags$i("Bioinformatics"), " 18.suppl_1 (2002): S96-S104."))
