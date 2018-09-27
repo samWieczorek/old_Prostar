@@ -225,7 +225,6 @@ ClearUI <- reactive({
 
 ComputeAdjacencyMatrices <- reactive({
   rv$matAdj <- NULL
-  print("(Re-)computing of adjacency matrices")
   matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
   matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)

@@ -268,9 +268,9 @@ output$updateDesign_UI_hierarchicalExp <- renderUI({
 
   })
 
+callModule(moduleDesignExample,"updateDesignExampleTwo", 2)
 
-callModule(moduleDesignExample3,"updateDesignExample3")
-callModule(moduleDesignExample2,"updateDesignExample2")
+callModule(moduleDesignExample,"updateDesignExampleThree", 3)
 
 
 
@@ -278,8 +278,8 @@ output$updateDesign_designExamples <- renderUI({
 
   switch(input$updateDesign_chooseExpDesign,
          FlatDesign = h4("No example"),
-         twoLevelsDesign = moduleDesignExample2UI("updateDesignExample2"),
-         threeLevelsDesign = moduleDesignExample3UI("updateDesignExample3")
+         twoLevelsDesign = moduleDesignExample2UI("updateDesignExampleTwo"),
+         threeLevelsDesign = moduleDesignExample3UI("updateDesignExampleThree")
          )
 })
 

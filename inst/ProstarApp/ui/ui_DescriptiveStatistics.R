@@ -59,7 +59,22 @@ tabPanel("Descriptive statistics",
                                           )
                               )
                      ),
-                     
+                     tabPanel("PCA",
+                              value="DS_PCA",
+                              tagList(
+                                     uiOutput("pcaOptions"),
+                                            
+                                     fluidRow(
+                                       column(width=6,  plotOutput("pcaPlot1")),
+                                       column(width=6,  plotOutput("pcaPlot2"))
+                                     ),
+                                     fluidRow(
+                                        column(width=6,  highchartOutput("pcaPlotEigen")),
+                                        column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+                                      )
+                              )
+
+                     ),
                      
                      #-----------------------------------------------------------
                      tabPanel("Intensity distr.",

@@ -40,7 +40,7 @@ shinyUI <- tagList(
     div(
       id = "main_content",
       rclipboardSetup(),
-      #,tags$head(includeScript("google-analytics.js"))
+      #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),

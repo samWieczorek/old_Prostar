@@ -461,13 +461,15 @@ moduleDensityplot <- function(input, output, session) {
     output$Densityplot <- renderHighchart({
       req(rv$current.obj)
       rv$PlotParams$paletteConditions
-      req(rv$PlotParams$legendForSamples)
+      rv$PlotParams$legendForSamples
       tmp <- NULL
       isolate({
       
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
-          tmp <- DAPAR::densityPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples,rv$PlotParams$paletteConditions)
+          tmp <- DAPAR::densityPlotD_HC(rv$current.obj, 
+                                        rv$PlotParams$legendForSamples,
+                                        rv$PlotParams$paletteConditions)
          # future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
         })
       })
@@ -581,16 +583,18 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns) {
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE) {
     
     output$StaticDataTable <- renderDataTable({
       req(rv$current.obj)
-      table2show
+      
+      print(table2show)
+      if (length(table2show)==0){return(NULL)}
       
       if (withBtns == FALSE){
            DT::datatable(table2show, 
                           escape = FALSE,
-                          rownames= FALSE,
+                          rownames= showRownames,
                           option=list(initComplete = initComplete(),
                                 dom = 't',
                                 autoWidth=TRUE,
@@ -603,7 +607,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns) {
         
         DT::datatable(table2show,
                       escape = FALSE,
-                      rownames=FALSE,
+                      rownames=showRownames,
                       extensions = 'Buttons',
                       options = list(initComplete = initComplete(),
                                      dom = 'Bfrtip',

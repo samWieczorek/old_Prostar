@@ -6,7 +6,7 @@ callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=GetDatasetOverview(), withBtns = FALSE)
 
 
-
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=round(ComputePCA()$var$coord, digits=7), withBtns = FALSE, showRownames=TRUE)
 
 
 # outs <- outputOptions(output)
@@ -20,7 +20,79 @@ callModule(moduleStaticDataTable,"overview_DS", table2show=GetDatasetOverview(),
 # })
 
 
+eventReactive(ComputePCA(), {
+  shinyjs::toggle("PCAvarCoord")
+})
 
+Compute_PCA_nbDimensions <- reactive({
+  nmax <- 12 # ncp should not be greater than... 
+  # pour info, ncp = nombre de composantes ou de dimensions dans les résultats de l'ACP
+  
+  y <- exprs(rv$current.obj)
+  nprot <- dim(y)[1]
+  n <- dim(y)[2] # If too big, take the number of conditions.
+  
+  if (n > nmax){
+    n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  }
+  
+  
+  ncp <- min(n, nmax)
+  ncp
+})
+
+ComputePCA <- reactive({
+  req(input$varScale_PCA)
+  Compute_PCA_nbDimensions()
+  
+  pca <- wrapper.pca(rv$current.obj, input$varScale_PCA, ncp=Compute_PCA_nbDimensions())
+
+  pca
+  })
+
+
+output$pcaPlot1 <- renderPlot({
+  req(c(input$pca.axe1,input$pca.axe2))
+  
+  res.pca <- ComputePCA()
+  plot.pca.var(res.pca, c(input$pca.axe1, input$pca.axe2))
+  
+})
+
+output$pcaPlot2 <- renderPlot({
+  req(c(input$pca.axe1,input$pca.axe2))
+  
+  res.pca <- ComputePCA()
+  plot.pca.ind(res.pca, c(input$pca.axe1, input$pca.axe2))
+  
+})
+
+
+output$pcaPlotEigen <- renderHighchart({
+  res.pca <- ComputePCA()
+
+  #plot.pca.eigen(res.pca)
+  plot.pca.eigen.hc(res.pca)
+})
+
+output$pcaOptions <- renderUI({
+  tagList(
+    tags$div(
+      
+      tags$div( style="display:inline-block; vertical-align: middle;",
+        checkboxInput('varScale_PCA', "Var scaling", value=TRUE)),
+      
+    tags$div( style="display:inline-block; vertical-align: middle;",
+              numericInput('pca.axe1', "Dim 1", min=1, max=Compute_PCA_nbDimensions(),value=1,width='100px')
+    ),
+    tags$div( style="display:inline-block; vertical-align: middle;",
+              numericInput('pca.axe2', "Dim 2", min=1, max=Compute_PCA_nbDimensions(),value=2,width='100px')
+    )
+
+  )
+)
+})
+    
 
 #######################################
 

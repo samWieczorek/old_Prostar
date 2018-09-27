@@ -43,29 +43,29 @@ RunAggregation <- reactive({
     input$AggregationConsider
     input$nTopn
     
-   
+   require(foreach)
     obj.prot <- NULL
     if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides
       if (input$radioBtn_includeShared == 'Yes1'){
           if (input$AggregationConsider == 'allPeptides') {
-              obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+              obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
           } else {
-            obj.prot <- aggregate.topn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
+            obj.prot <- aggregate.topn(X, rv$current.obj, n=as.numeric(input$nTopn), input$AggregationOperator)
           }
       } else {
         if (input$AggregationConsider == 'allPeptides') {
-          obj.prot <- aggregateIterParallel(rv$current.obj, init.method='sum', method='mean',X)
+          obj.prot <- aggregateIterParallel(rv$current.obj, X,init.method='Sum', method='Mean')
         } else {
-          obj.prot <- aggregateIterParallel(rv$current.obj, init.method='sum', method='onlyN',X, n.pep=as.numeric(input$nTopn))
+          obj.prot <- aggregateIterParallel(rv$current.obj, X, init.method='Sum', method='onlyN', n=input$nTopn)
         }
       }
     } else {
       X <- rv$matAdj$matWithUniquePeptides
       if (input$AggregationConsider == 'allPeptides') {
-        obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(X=X, obj.pep=rv$current.obj))
+        obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(obj.pep=rv$current.obj,X=X))
       } else {
-        obj.prot <- aggregateTopn(X, rv$current.obj, as.numeric(input$nTopn), input$AggregationOperator)
+        obj.prot <- aggregateTopn(rv$current.obj, X,n=input$nTopn, input$AggregationOperator)
       }
     }
         

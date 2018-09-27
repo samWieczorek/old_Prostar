@@ -18,7 +18,7 @@ tabPanel("Aggregation",
                                                                    "only the N most abundant ones"="onlyN"), selected='onlyN'),
                                             
                                             radioButtons("AggregationOperator", "Operator", choices=c("mean"="mean")),
-                                            numericInput("nTopn", "N",value = 3, min = 0, step=1),
+                                            numericInput("nTopn", "N",value = 3, min = 0, step=1, width='100px'),
                                               actionButton("perform.aggregation","Perform aggregation")
                                            
                                   ),
