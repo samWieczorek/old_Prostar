@@ -1,4 +1,94 @@
 
+output$plotsFor_Original_protein <- renderTree({
+  list("Descr stats"= ll_descrStats)
+})
+
+
+
+output$plotsFor_Original_peptide<- renderTree({
+  list( "Descr stats"= ll_descrStats )
+})
+
+
+output$plotsFor_Filtered_protein <- renderTree({
+  list("Descr stats"= ll_descrStats)
+})
+
+
+
+output$plotsFor_Filtered_peptide <- renderTree({
+  list( "Descr stats"= ll_descrStats)
+})
+
+
+
+output$plotsFor_Normalized_protein <- renderTree({
+  list("Descr stats"= ll_descrStats,
+       "compNorm"="compNorm")
+})
+
+
+
+output$plotsFor_Normalized_peptide<- renderTree({
+  list( "Descr stats"= ll_descrStats,
+        "compNorm"="compNorm")
+})
+
+
+output$plotsFor_Imputed_protein <- renderTree({
+  list("Descr stats"= ll_descrStats)
+})
+
+
+
+output$plotsFor_Imputed_peptide<- renderTree({
+  list( "Descr stats"= ll_descrStats)
+})
+
+
+output$plotsFor_HypothesisTest_protein <- renderTree({
+  list("Descr stats"= ll_descrStats,
+       "logFCDistr" ="logFCDistr" )
+})
+
+
+
+output$plotsFor_HypothesisTest_peptide<- renderTree({
+  list( "Descr stats"= ll_descrStats,
+        "logFCDistr" ="logFCDistr" )
+})
+
+
+output$plotsFor_Aggregated_protein <- renderTree({
+  list("Descr stats"= ll_descrStats)
+})
+
+
+
+output$plotsFor_Aggregated_peptide<- renderTree({
+  list( "Descr stats"= ll_descrStats)
+})
+
+
+
+
+
+
+
+shinyTree_GetSelected <- reactive({
+  tmp <- unlist(shinyTree::get_selected(input$plotsFor_Original_peptide, format = "names"))
+  tmp
+})
+
+
+# observeEvent(input$plotsFor_Original_peptide, {
+#   tmp <- unlist(shinyTree::get_selected(input$plotsFor_Original_peptide, format = "names"))
+#   for (i in 1:length(ll)){
+#     print(ll[[i]][1])
+#   }
+#   })
+
+
 output$choosedataToExportMSnset <- renderUI({
   req(rv$dataset)
   
@@ -47,9 +137,12 @@ option=list(initComplete = initComplete(),
 observeEvent(rv$dataset, {
   
   for (i in 1:length(names(rv$dataset))){
-    shinyjs::toggle(paste0('plotsFor.',names(rv$dataset)[i]))
+    txt <-paste0('treeFor.',names(rv$dataset)[i])
+    txt <- gsub(".", "_", txt, fixed=TRUE)
+    print(paste0("toggle:", txt))
+    shinyjs::toggle(txt)
    }
-  
+ 
 })
 
 

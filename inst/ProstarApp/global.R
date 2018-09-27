@@ -8,10 +8,10 @@ library(rclipboard)
 library(DT)
 library(highcharter)
 library(shinyBS)
-
+library(shinyTree)
 loadLibraries <- function(){
   library(shinyAce)
-  
+
   library(vioplot)
   #library(ggplot2)
   library(colourpicker)
@@ -318,17 +318,30 @@ return (
 }
 
 
-
-
-plots.dataProcessing <- list(
-  Original = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
-  Filtered = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
-  Normalized = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "compNorm"),
-  Aggregated = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
-  Imputed.peptide = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
-  Imputed.protein = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3"),
-  HypothesisTest = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3","logFCDistr" )
+ll_descrStats <- list("boxplot" = "boxplot", 
+                      "densityplot" = "densityplot", 
+                      "heatmap"="heatmap", 
+                      "CVDistr"="CVDistr", 
+                      "violinplot"="violinplot", 
+                      "corrMatrix"="corrMatrix", 
+                      "MV plots"=list( "MVPlot1" = "MVPlot1",
+                                       "MVPlot2" = "MVPlot2",
+                                       "MVPlot3" = "MVPlot3"),
+                      "PCA plots"=list("PCA_Ind"="PCA_Ind", 
+                                       "PCA_Var"="PCA_Var", 
+                                       "PCA_Eigen"="PCA_Eigen")
 )
+  
+
+# plots.dataProcessing <- list(
+#   Original = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen"),
+#   Filtered = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen"),
+#   Normalized = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen", "compNorm"),
+#   Aggregated = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen"),
+#   Imputed.peptide = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen"),
+#   Imputed.protein = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen"),
+#   HypothesisTest = list("boxplot", "densityplot", "heatmap", "CVDistr", "violinplot", "corrMatrix", "MVPlot1","MVPlot2","MVPlot3", "PCA_Ind", "PCA_Var", "PCA_Eigen","logFCDistr" )
+# )
 
 
 

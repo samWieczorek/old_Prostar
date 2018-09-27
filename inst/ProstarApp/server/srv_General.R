@@ -232,6 +232,31 @@ ComputeAdjacencyMatrices <- reactive({
   rv$matAdj
 })
 
+
+
+
+###-------------------------------------
+
+Compute_PCA_nbDimensions <- reactive({
+  nmax <- 12 # ncp should not be greater than... 
+  # pour info, ncp = nombre de composantes ou de dimensions dans les résultats de l'ACP
+  
+  y <- exprs(rv$current.obj)
+  nprot <- dim(y)[1]
+  n <- dim(y)[2] # If too big, take the number of conditions.
+  
+  if (n > nmax){
+    n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  }
+  
+  
+  ncp <- min(n, nmax)
+  ncp
+})
+
+
+
+
 ######################################
 loadObjectInMemoryFromConverter <- function(){
     req(rv$current.obj)
@@ -258,8 +283,9 @@ loadObjectInMemoryFromConverter <- function(){
   
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-      ComputeAdjacencyMatrices()}
+    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
+    
+    rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     
     ClearNavbarPage()
     BuildNavbarPage()
@@ -324,7 +350,11 @@ ClearMemory <- function(){
   rv$colorsTypeMV = list(MEC='orange', POV='lightblue')
   rv$typeOfPalette = 'predefined'
   rv$whichGroup2Color = 'Condition'
+  rv$PCA_axes = c(1,2)
+  rv$PCA_varScale = TRUE
   rv$choosePalette = 'Dark2'
+  
+  rv$res.pca = NULL
   ########
   ### Parameters
   ######## 
@@ -483,8 +513,10 @@ rv <- reactiveValues(
                                   stringsAsFactors=F),
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
+  PCA_axes = c(1,2),
+  PCA_varScale = TRUE,
   choosePalette = 'Dark2',
-  
+  res.pca = NULL,
   
   init.distance = "euclidean",
    outfile = NULL,

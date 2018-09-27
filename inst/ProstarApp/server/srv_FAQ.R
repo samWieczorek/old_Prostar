@@ -6,7 +6,7 @@ output$FAQ_output <- renderUI({
     ## table of contents
     tags$h3("Table of contents"),
     tags$ol(
-      tags$li(tags$a("Why does the table in experimental design blink during edition?", href="#tableBlinks")),
+      tags$li(tags$a("Why does the table in experimental design blink during edition?", href="#tableBlinks")),
       tags$li(tags$a("How to build a valid experimental design?", href="#buildDesign")),
       tags$li(tags$a("Why do the items of the contextual menus for plots remain 'undefined'?", href="#undefinedItems")),
       tags$li(tags$a("Why does my volcano plot look so aligned?", href="#alignedVolcano"))
@@ -41,11 +41,12 @@ output$FAQ_output <- renderUI({
            due to a numbering convention, and the statistical test is not impacted."),
     tags$br(),
     
-    tags$h4(id="Why do the items of the contextual menus for plots remain 'undefined'?"),
+    tags$h4(id="undefinedItems", "3 - Why do the items of the contextual menus for plots remain 'undefined'?"),
     tags$p("This happens if the version of the package 'highcharter' is less or equal to 0.5.0. To fix this issue, you
            should install the devel version of the package by typing the following command in a R console:
            devtools::install_github('jbkunst/highcharter')"),
     tags$br(),
+    
     tags$h4(id="alignedVolcano", "4 - Why does my volcano plot look so aligned?"),
     tags$p("In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. 
             This is due to using Limma on a dataset for which it is not adapted: 
@@ -54,6 +55,8 @@ output$FAQ_output <- renderUI({
             on which the protein variances should be fitted. As a result, Limma returns a result directly 
             proportional to the fold-change, and the p-values are none-informative. 
             In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test."),
+    tags$img(src='images/dfPriorIssue.png', 
+             style="display: block; margin-left: auto; margin-right: auto; box-shadow:inset 0px 2px 8px #333;"),
     tags$br()
     )
 })

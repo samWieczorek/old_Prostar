@@ -31,13 +31,16 @@ observeEvent(input$generateReport,{
   ntotal <- 0
   for (i in 1:length(names(rv$dataset))){
     widgetName <- paste0('plotsFor.',names(rv$dataset)[i])
-      ntotal <- ntotal + length(input[[widgetName]])
+    widgetName <- gsub(".", "_", widgetName, fixed=TRUE)
+    ll_plots <- unlist(shinyTree::get_selected(input[[widgetName]]))
+    ntotal <- ntotal + length(ll_plots)
   }
   
   withProgress(message = '',detail = '', value = 0, {
     ### for each available dataset, create the selected plots
     for (i in 1:length(names(rv$dataset))){
-         for (plot.name in input[[widgetName]]) {
+      ll_plots <- unlist(shinyTree::get_selected(input[[widgetName]]))
+         for (plot.name in ll_plots) {
           
             obj <- rv$dataset[[names(rv$dataset)[i]]]
             pattern <- paste0(names(rv$dataset)[i],".", plot.name)
@@ -114,6 +117,60 @@ addPNG_to_Rmd <- function(pngfilename, tagRmd, outfile){
   write(txt, file = outfile,append = TRUE, sep = "\n")
 }
 
+
+
+
+createPNG_PCA_Var <- function(obj,params=NULL,basename = NULL){
+ # if (is.null(basename)||is.null(obj)){return(NULL)}
+  req(c(basename, obj,rv$res.pca  ))
+  
+  pngfile <- paste0(basename, ".png")
+  fullname <- normalizePath(paste(tempdir(), pngfile, sep="/"))
+  if (!file.exists(pngfile)){
+    png (fullname)
+    print(plot.pca.var(rv$res.pca, rv$PCA_axes))
+    dev.off ()
+    
+    #width = pngWidth,
+    #height=pngHeight,
+    #res=resolution
+    
+  }
+  return(pngfile)
+}
+
+
+
+createPNG_PCA_Ind <- function(obj,params=NULL,basename = NULL){
+  if (is.null(basename) || is.null(obj) || is.null(rv$res.pca)){return(NULL)}
+  #if (is.null(basename)||is.null(obj)){return(NULL)}
+  print(rv$res.pca)
+  print(rv$PCA_axes)
+  pngfile <- paste0(basename, ".png")
+  fullname <- normalizePath(paste(tempdir(), pngfile, sep="/"))
+  if (!file.exists(pngfile)){
+    png (fullname)
+    print(plot.pca.ind(rv$res.pca, rv$PCA_axes))
+    dev.off ()
+  }
+  return(pngfile)
+}
+
+
+
+
+###----------------------------------------------------------
+createPNG_PCA_Eigen <- function(obj,params=NULL,basename = NULL){
+  if (is.null(basename)||is.null(obj)){return(NULL)}
+  pngfile <- paste0(basename, ".png")
+  if (!file.exists(pngfile)){
+    tempplot <- DAPAR::plot.pca.eigen.hc(rv$res.pca)
+    createPNGFromWidget(tempplot,basename) 
+  }
+  return(pngfile)
+}
+
+
 ###----------------------------------------------------------
 createPNG_BoxplotHC <- function(obj,params=NULL,basename = NULL){
   if (is.null(basename)||is.null(obj)){return(NULL)}
@@ -124,6 +181,8 @@ createPNG_BoxplotHC <- function(obj,params=NULL,basename = NULL){
   }
   return(pngfile)
 }
+
+
 
 
 createPNG_boxplot <- function(obj,params=NULL,basename = NULL){

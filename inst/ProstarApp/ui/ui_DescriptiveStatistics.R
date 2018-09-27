@@ -65,8 +65,8 @@ tabPanel("Descriptive statistics",
                                      uiOutput("pcaOptions"),
                                             
                                      fluidRow(
-                                       column(width=6,  plotOutput("pcaPlot1")),
-                                       column(width=6,  plotOutput("pcaPlot2"))
+                                       column(width=6,  plotOutput("pcaPlotVar")),
+                                       column(width=6,  plotOutput("pcaPlotInd"))
                                      ),
                                      fluidRow(
                                         column(width=6,  highchartOutput("pcaPlotEigen")),
