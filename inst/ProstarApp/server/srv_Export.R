@@ -1,76 +1,33 @@
 
-output$plotsFor_Original_protein <- renderTree({
-  list("Descr stats"= ll_descrStats)
-})
+callModule(moduleStaticDataTable,"viewProcessingData", 
+           table2show=BuildParamDT(), 
+           withBtns = FALSE, showRownames=FALSE)
 
 
 
-output$plotsFor_Original_peptide<- renderTree({
-  list( "Descr stats"= ll_descrStats )
-})
 
+output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Filtered_protein <- renderTree({
-  list("Descr stats"= ll_descrStats)
-})
+output$plotsFor_Original_peptide<- renderTree({list( "Descr stats"= ll_descrStats )})
 
+output$plotsFor_Filtered_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
 
+output$plotsFor_Filtered_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
 
-output$plotsFor_Filtered_peptide <- renderTree({
-  list( "Descr stats"= ll_descrStats)
-})
+output$plotsFor_Normalized_protein <- renderTree({list("Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
+output$plotsFor_Normalized_peptide<- renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
+output$plotsFor_Imputed_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Normalized_protein <- renderTree({
-  list("Descr stats"= ll_descrStats,
-       "compNorm"="compNorm")
-})
+output$plotsFor_Imputed_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
 
+output$plotsFor_HypothesisTest_protein <- renderTree({ list("Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
+output$plotsFor_HypothesisTest_peptide<- renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
-output$plotsFor_Normalized_peptide<- renderTree({
-  list( "Descr stats"= ll_descrStats,
-        "compNorm"="compNorm")
-})
-
-
-output$plotsFor_Imputed_protein <- renderTree({
-  list("Descr stats"= ll_descrStats)
-})
-
-
-
-output$plotsFor_Imputed_peptide<- renderTree({
-  list( "Descr stats"= ll_descrStats)
-})
-
-
-output$plotsFor_HypothesisTest_protein <- renderTree({
-  list("Descr stats"= ll_descrStats,
-       "logFCDistr" ="logFCDistr" )
-})
-
-
-
-output$plotsFor_HypothesisTest_peptide<- renderTree({
-  list( "Descr stats"= ll_descrStats,
-        "logFCDistr" ="logFCDistr" )
-})
-
-
-output$plotsFor_Aggregated_protein <- renderTree({
-  list("Descr stats"= ll_descrStats)
-})
-
-
-
-output$plotsFor_Aggregated_peptide<- renderTree({
-  list( "Descr stats"= ll_descrStats)
-})
-
-
-
+output$plotsFor_Aggregated_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+output$plotsFor_Aggregated_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
 
 
 
@@ -106,31 +63,36 @@ output$choosedataToExportMSnset <- renderUI({
 BuildParamDT <- reactive({
   req(rv$current.obj)
   tmp.params <- rv$current.obj@experimentData@other$Params
-  
-  df <- data.frame(Process=names(tmp.params),
+  if (is.null(tmp.params)){return(NULL)}
+  df <- data.frame(Dataset = names(tmp.params),
+                   Process = rep("",length(names(tmp.params))),
                    Parameters = rep("",length(names(tmp.params))),
                    stringsAsFactors = FALSE)
   
-  for (p in names(tmp.params)) {
-    df[which(df$Process==p),"Parameters"]<- do.call(paste0("getTextFor",p), list(l.params=tmp.params[[p]]))
+  for (iData in 1:length(tmp.params)) {
+      p <- tmp.params[[iData]]
+      processName <- names(tmp.params[[iData]])
+      df[iData, "Process"] <- processName
+      df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
+                                       list(l.params=tmp.params[[iData]][[processName]]))
   }
   
   df
 })
 
 
-output$viewProcessingData <- DT::renderDataTable({
-  DT::datatable(BuildParamDT(), escape=FALSE,
-option=list(initComplete = initComplete(),
-            pageLength=DT_pagelength,
-            orderClasses = TRUE,
-            autoWidth=FALSE,
-            dom = 'R<"clear">lfrtip',
-            columnDefs = list(list(columns.width=c("60px"),
-                                   columnDefs.targets= c(list(0),list(1),list(2)))))
-)
-}
-)
+# output$viewProcessingData <- DT::renderDataTable({
+#   DT::datatable(BuildParamDT(), escape=FALSE,
+# option=list(initComplete = initComplete(),
+#             pageLength=DT_pagelength,
+#             orderClasses = TRUE,
+#             autoWidth=FALSE,
+#             dom = 'R<"clear">lfrtip',
+#             columnDefs = list(list(columns.width=c("60px"),
+#                                    columnDefs.targets= c(list(0),list(1),list(2)))))
+# )
+# }
+# )
 
 
 

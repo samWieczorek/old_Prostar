@@ -164,9 +164,10 @@ observeEvent(input$valid.normalization,{
                                    quantile = input$normalization.quantile,
                                    spanLOESS = input$spanLOESS)
                   
-                  rv$current.obj <- saveParameters(rv$current.obj,"Normalization",l.params)
                   
                   rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+                  rv$current.obj <- saveParameters(rv$current.obj,GetCurrentDatasetName(),"Normalization",l.params)
+                  
                     name <- paste0("Normalized", ".", rv$typeOfDataset)
                     rv$dataset[[name]] <- rv$current.obj
                     

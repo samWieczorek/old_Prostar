@@ -3,7 +3,7 @@ tabPanel("Export",
          tabsetPanel(
            id = "Export_tabSetPanel",
            tabPanel("Process summary",
-                    dataTableOutput("viewProcessingData")
+                    moduleStaticDataTableUI("viewProcessingData")
                     ),
            tabPanel("Export to file",
                     value = "export",

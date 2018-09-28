@@ -426,13 +426,14 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
                      mvThNA = input$seuilNA, 
                      stringFilter.df = df)
     
-    rv$current.obj <- saveParameters(rv$current.obj,"Filtering",l.params)
     UpdateLog("Filtering", l.params)
+    rv$current.obj <- saveParameters(rv$current.obj,GetCurrentDatasetName(),"Filtering",l.params)
     
     rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     name <- paste0("Filtered", ".", rv$typeOfDataset)
     rv$dataset[[name]] <- rv$current.obj
+    
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)

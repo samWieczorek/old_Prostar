@@ -5,6 +5,12 @@ output$test2 <- renderUI({
 })
 
 
+GetTreeSelected <- function(toto){
+  tmp <- unlist(shinyTree::get_selected(toto))
+  toExclude <- c('MV plots', 'PCA plots')
+  tmp <- setdiff(tmp, toExclude)
+  return(tmp)
+}
 
 ######---------------------------------------------------------------------
 observeEvent(input$generateReport,{
@@ -32,14 +38,19 @@ observeEvent(input$generateReport,{
   for (i in 1:length(names(rv$dataset))){
     widgetName <- paste0('plotsFor.',names(rv$dataset)[i])
     widgetName <- gsub(".", "_", widgetName, fixed=TRUE)
-    ll_plots <- unlist(shinyTree::get_selected(input[[widgetName]]))
+    
+    ll_plots <- GetTreeSelected(input[[widgetName]])
     ntotal <- ntotal + length(ll_plots)
   }
   
   withProgress(message = '',detail = '', value = 0, {
     ### for each available dataset, create the selected plots
     for (i in 1:length(names(rv$dataset))){
-      ll_plots <- unlist(shinyTree::get_selected(input[[widgetName]]))
+      print(paste0("Dataset:",names(rv$dataset)[i]))
+      widgetName <- paste0('plotsFor.',names(rv$dataset)[i])
+      widgetName <- gsub(".", "_", widgetName, fixed=TRUE)
+      
+      ll_plots <-  GetTreeSelected(input[[widgetName]])
          for (plot.name in ll_plots) {
           
             obj <- rv$dataset[[names(rv$dataset)[i]]]
@@ -121,21 +132,21 @@ addPNG_to_Rmd <- function(pngfilename, tagRmd, outfile){
 
 
 createPNG_PCA_Var <- function(obj,params=NULL,basename = NULL){
- # if (is.null(basename)||is.null(obj)){return(NULL)}
-  req(c(basename, obj,rv$res.pca  ))
+  if (is.null(basename) || is.null(obj) || is.null(rv$res.pca)){return(NULL)}
+  #req(c(basename, obj,rv$res.pca  ))
   
   pngfile <- paste0(basename, ".png")
   fullname <- normalizePath(paste(tempdir(), pngfile, sep="/"))
-  if (!file.exists(pngfile)){
+ # if (!file.exists(pngfile)){
     png (fullname)
-    print(plot.pca.var(rv$res.pca, rv$PCA_axes))
+    print(plotPCA_Var(rv$res.pca, rv$PCA_axes))
     dev.off ()
     
     #width = pngWidth,
     #height=pngHeight,
     #res=resolution
     
-  }
+  #}
   return(pngfile)
 }
 
@@ -144,15 +155,13 @@ createPNG_PCA_Var <- function(obj,params=NULL,basename = NULL){
 createPNG_PCA_Ind <- function(obj,params=NULL,basename = NULL){
   if (is.null(basename) || is.null(obj) || is.null(rv$res.pca)){return(NULL)}
   #if (is.null(basename)||is.null(obj)){return(NULL)}
-  print(rv$res.pca)
-  print(rv$PCA_axes)
   pngfile <- paste0(basename, ".png")
-  fullname <- normalizePath(paste(tempdir(), pngfile, sep="/"))
-  if (!file.exists(pngfile)){
+  fullname <- normalizePath( paste(tempdir(), pngfile, sep="/"))
+  #if (!file.exists(pngfile)){
     png (fullname)
-    print(plot.pca.ind(rv$res.pca, rv$PCA_axes))
+    print(plotPCA_Ind(rv$res.pca, rv$PCA_axes))
     dev.off ()
-  }
+  #}
   return(pngfile)
 }
 
@@ -164,7 +173,7 @@ createPNG_PCA_Eigen <- function(obj,params=NULL,basename = NULL){
   if (is.null(basename)||is.null(obj)){return(NULL)}
   pngfile <- paste0(basename, ".png")
   if (!file.exists(pngfile)){
-    tempplot <- DAPAR::plot.pca.eigen.hc(rv$res.pca)
+    tempplot <- DAPAR::plotPCA_Eigen_hc(rv$res.pca)
     createPNGFromWidget(tempplot,basename) 
   }
   return(pngfile)
@@ -227,7 +236,7 @@ createPNG_violinplot <- function(obj,params=NULL,basename = NULL){
   
   pngfile <- paste0(basename, ".png")
   fullname <- normalizePath(paste(tempdir(), pngfile, sep="/"))
-  if (!file.exists(pngfile)){
+  #if (!file.exists(pngfile)){
     plotPNG(function(){
       DAPAR::violinPlotD(obj, legend = rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
     },
@@ -236,7 +245,7 @@ createPNG_violinplot <- function(obj,params=NULL,basename = NULL){
     #height=pngHeight,
     #res=resolution
     )
-    }
+   # }
   return(pngfile)
 }
 

@@ -226,11 +226,12 @@ observeEvent(input$peptideLevel_ValidImputation,{
   isolate({
 
         l.params <- build_ParamsList_PepImputation()
-        rv$current.obj <- saveParameters(rv$current.obj, "peptideImputation",l.params)
+        rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"peptideImputation",l.params)
         
         name <- paste0("Imputed", ".", rv$typeOfDataset)
         
         rv$dataset[[name]] <- rv$current.obj
+        
         UpdateLog("Imputation", l.params)
         
         

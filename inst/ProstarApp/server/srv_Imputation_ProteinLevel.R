@@ -304,7 +304,7 @@ observeEvent(input$ValidImputation,{
                      MEC_detQuant_factor = input$MEC_detQuant_factor,
                      MEC_fixedValue= input$MEC_fixedValue)
     
-    rv$current.obj <- saveParameters(rv$current.obj, "proteinImputation",l.params)
+    rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"proteinImputation",l.params)
     
     name <- paste0("Imputed", ".", rv$typeOfDataset)
     

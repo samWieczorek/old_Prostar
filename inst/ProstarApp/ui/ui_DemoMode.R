@@ -1,4 +1,4 @@
-tabPanel("Demo mode",
+tabPanel("Demo data",
          value = "demoTab",
          tags$div(
            tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -6,7 +6,9 @@ tabPanel("Demo mode",
            ),
            tags$div( style="display:inline-block; vertical-align: middle;",
                      p(""),
-                     actionButton("loadDemoDataset", "Load demo dataset")
+                     actionButton("loadDemoDataset", "Load demo dataset",
+                                  color = "primary"
+                     )
            )
          ),
          checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),

@@ -28,6 +28,11 @@ shinyValue <- function(id,num) {
 
 
 
+GetCurrentDatasetName <- reactive({
+  name <- last(names(rv$dataset))
+  name
+})
+
 # activatePopover <- function(){
 #     txt_histo_M <- paste0("<p>Test",
 #                           "test</p><p>Explanation .</p>")
@@ -290,8 +295,13 @@ loadObjectInMemoryFromConverter <- function(){
     ClearNavbarPage()
     BuildNavbarPage()
     
+    
+    
+    
     name <- paste0("Original", ".", rv$typeOfDataset)
     rv$dataset[[name]] <- rv$current.obj
+    
+    
     
     updateSelectInput(session, "datasets", 
                       #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),

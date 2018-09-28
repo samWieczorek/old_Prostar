@@ -118,5 +118,6 @@ observeEvent(input$loadDemoDataset,{
   UpdateLog("Original",l.params)
   
   loadObjectInMemoryFromConverter()
+  rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"NA",list(1))
   
 })

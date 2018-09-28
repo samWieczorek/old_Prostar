@@ -121,15 +121,15 @@ l.params <- list(design = input$anaDiff_Design,
   )
   
   
-  temp <- DAPAR::diffAnaSave(obj = rv$current.obj,
+rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
                              allComp = rv$res_AllPairwiseComparisons)
   
-  rv$current.obj <- saveParameters(rv$current.obj, "HypothesisTest", l.params)
+  rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"HypothesisTest", l.params)
   
   name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
   
   rv$dataset[[name]] <- rv$current.obj
- # rv$current.obj <- temp
+  
   UpdateLog("Test", l.params)
   
   updateSelectInput(session, "datasets", 
