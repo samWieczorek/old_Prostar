@@ -166,13 +166,11 @@ observeEvent(input$valid.normalization,{
                   
                   
                   rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-                  rv$current.obj <- saveParameters(rv$current.obj,GetCurrentDatasetName(),"Normalization",l.params)
                   
                     name <- paste0("Normalized", ".", rv$typeOfDataset)
+                    rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",l.params)
                     rv$dataset[[name]] <- rv$current.obj
                     
-                    UpdateLog("Normalization", l.params)
-
                     updateSelectInput(session, "datasets", 
                                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset),

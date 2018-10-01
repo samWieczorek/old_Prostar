@@ -285,54 +285,54 @@ output$seuilNADelete <- renderUI({
   choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
-  selectInput("seuilNA", "", choices = choix, width='150px'))
+    selectInput("seuilNA", "", choices = choix, width='150px'))
   
 })
 
 
 
 
-
-#########################################################
-UpdateFilterWidgets <- function(){
-  
-  isolate({
-    rv$current.obj
-    if (length(rv$current.obj@processingData@processing) > 0){
-      
-      val <- match (gReplaceAllZeros ,rv$current.obj@processingData@processing)
-      updateCheckboxInput(session, "replaceAllZeros",value=val)
-      
-      val <- match (gLogTransform,rv$current.obj@processingData@processing)
-      #updateCheckboxInput(session,"log2transform",value=val)
-      
-      r <- grep(pattern = gFilterTextPrefix, 
-                rv$current.obj@processingData@processing, 
-                fixed=TRUE, value=FALSE)
-      if ( length(r) > 0)
-      { 
-        listMots <- unlist(strsplit(
-          rv$current.obj@processingData@processing[r], split=" "))
-        updateSliderInput(session, inputId = "seuilNA", value = listMots[6])
-        updateRadioButtons(session, inputId = "ChooseFilters", selected = listMots[3])
-      }
-      else
-      { 
-        updateRadioButtons(session,
-                           inputId = "ChooseFilters", 
-                           selected = gFilterNone)
-      }
-    }
-    else{
-      updateCheckboxInput(session, "replaceAllZeros",value=F)
-      updateRadioButtons(session,
-                         inputId = "ChooseFilters", 
-                         selected = gFilterNone)
-    }
-    updateSelectInput(session,"typeImputation",selected= c("None")) 
-    updateSelectInput(session, "normalization.family",selected = c("None"))
-  })
-}
+# 
+# #########################################################
+# UpdateFilterWidgets <- function(){
+#   
+#   isolate({
+#     rv$current.obj
+#     if (length(rv$current.obj@processingData@processing) > 0){
+#       
+#       val <- match (gReplaceAllZeros ,rv$current.obj@processingData@processing)
+#       updateCheckboxInput(session, "replaceAllZeros",value=val)
+#       
+#       val <- match (gLogTransform,rv$current.obj@processingData@processing)
+#       #updateCheckboxInput(session,"log2transform",value=val)
+#       
+#       r <- grep(pattern = gFilterTextPrefix, 
+#                 rv$current.obj@processingData@processing, 
+#                 fixed=TRUE, value=FALSE)
+#       if ( length(r) > 0)
+#       { 
+#         listMots <- unlist(strsplit(
+#           rv$current.obj@processingData@processing[r], split=" "))
+#         updateNumericInput(session, inputId = "seuilNA", value =input$seuilNA)
+#         updateRadioButtons(session, inputId = "ChooseFilters", selected = listMots[3])
+#       }
+#       else
+#       { 
+#         updateRadioButtons(session,
+#                            inputId = "ChooseFilters", 
+#                            selected = gFilterNone)
+#       }
+#     }
+#     else{
+#       updateCheckboxInput(session, "replaceAllZeros",value=F)
+#       updateRadioButtons(session,
+#                          inputId = "ChooseFilters", 
+#                          selected = gFilterNone)
+#     }
+#     updateSelectInput(session,"typeImputation",selected= c("None")) 
+#     updateSelectInput(session, "normalization.family",selected = c("None"))
+#   })
+# }
 
 
 
@@ -360,13 +360,15 @@ observeEvent(input$perform.filtering.MV,{
                               GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
         rv$mvFiltering_Done <- TRUE
-        updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-        updateSelectInput(session, "seuilNA", selected = input$seuilNA)
         
       }
     }
 
   })
+  
+  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+  
 })
 
 
@@ -423,20 +425,21 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       df <- rv$DT_filterSummary}
     
     l.params <- list(mvFilterType = input$ChooseFilters,
-                     mvThNA = input$seuilNA, 
+                     mvThNA = as.numeric(input$seuilNA), 
                      stringFilter.df = df)
     
-    UpdateLog("Filtering", l.params)
-    rv$current.obj <- saveParameters(rv$current.obj,GetCurrentDatasetName(),"Filtering",l.params)
     
     rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     name <- paste0("Filtered", ".", rv$typeOfDataset)
+    rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
+    
     rv$dataset[[name]] <- rv$current.obj
     
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+    updateSelectInput(session, "seuilNA", selected=input$seuilNA)
   }
   
   

@@ -10,7 +10,7 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleStaticDataTable,"overview_convertData", table2show=GetDatasetOverview(), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
@@ -442,8 +442,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
                 l.params <- list(filename = input$filenameToCreate)
-                UpdateLog("Original",l.params)
-                
+                 
                 
                 
                 loadObjectInMemoryFromConverter()

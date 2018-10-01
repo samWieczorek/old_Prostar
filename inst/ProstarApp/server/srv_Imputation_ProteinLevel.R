@@ -58,7 +58,7 @@ output$proteinLevelImputationPanel <- renderUI({
                            busyIndicator(WaitMsgCalc,wait = 0),
                            uiOutput("ImputationStep2Done"),
                            uiOutput("MEC_showDetQuantValues")
-                           #,moduleMVPlotsUI("mvImputationPlots_MEC")
+                           ,moduleMVPlotsUI("mvImputationPlots_MEC")
                            
                          )
              )
@@ -101,7 +101,7 @@ output$MEC_showDetQuantValues <- renderUI({
   
   req(input$MEC_missing.value.algorithm)
   
-  if (input$POV_missing.value.algorithm == 'detQuantile')
+  if (input$MEC_missing.value.algorithm == 'detQuantile')
   {
     tagList(
       h5("The MEC will be imputed by the following values :"),
@@ -304,14 +304,12 @@ observeEvent(input$ValidImputation,{
                      MEC_detQuant_factor = input$MEC_detQuant_factor,
                      MEC_fixedValue= input$MEC_fixedValue)
     
-    rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"proteinImputation",l.params)
     
     name <- paste0("Imputed", ".", rv$typeOfDataset)
+    rv$current.obj <- saveParameters(rv$current.obj, name,"proteinImputation",l.params)
     
     rv$dataset[[name]] <- rv$current.obj
     
-    UpdateLog("Imputation", l.params)
-   
     updateSelectInput(session, "datasets",
                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),

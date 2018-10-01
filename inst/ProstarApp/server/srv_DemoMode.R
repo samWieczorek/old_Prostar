@@ -1,4 +1,4 @@
-callModule(moduleStaticDataTable,"overview_DemoMode", table2show=GetDatasetOverview(), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 
 output$chooseDataset <- renderUI({
@@ -115,9 +115,7 @@ observeEvent(input$loadDemoDataset,{
   
   rv$current.obj <- addOriginOfValue(rv$current.obj)
   l.params <- list(filename = input$demoDataset)
-  UpdateLog("Original",l.params)
   
   loadObjectInMemoryFromConverter()
-  rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"NA",list(1))
   
 })

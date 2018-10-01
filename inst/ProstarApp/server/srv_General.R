@@ -104,6 +104,67 @@ getData <- reactive({
 
 
 
+
+
+GetDatasetOverview <- reactive({
+  req(rv$current.obj)
+  
+  
+    columns <- c("Number of samples","Number of conditions",
+                 "Number of lines", "Number of missing values", "% of missing values", 
+                 "Number of empty lines")
+    
+    do <- data.frame(Definition= columns,
+                     Value=rep(0,length(columns)))
+    
+    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+    pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
+    nb.empty.lines <- sum(apply(
+      is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+    
+    
+    val <- c(ncol((Biobase::exprs(rv$current.obj))),
+             length(unique(Biobase::pData(rv$current.obj)$Condition)),
+             nrow((Biobase::exprs(rv$current.obj))),
+             NA.count,
+             pourcentage,
+             nb.empty.lines)
+    do$Value <- val
+  
+  do
+})
+
+BuildParamDT <- reactive({
+   req(rv$current.obj)
+  req(input$datasets)
+  tmp.params <- rv$current.obj@experimentData@other$Params
+  ind <- which(input$datasets == names(tmp.params))
+  df <- data.frame(Dataset = names(tmp.params),
+                   Process = rep("",length(names(tmp.params))),
+                   Parameters = rep("",length(names(tmp.params))),
+                   stringsAsFactors = FALSE)
+  
+  for (iData in 1:ind) {
+    p <- tmp.params[[iData]]
+    processName <- ifelse(is.null(names(tmp.params[[iData]])), "-",names(tmp.params[[iData]]))
+    df[iData, "Process"] <- processName
+    if (length(tmp.params[[iData]][[processName]])==0){
+      df[iData,"Parameters"]<- '-'
+    } else {
+      df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
+                                       list(l.params=tmp.params[[iData]][[processName]]))
+    }
+  }
+  
+  
+  print(df)
+  df
+})
+
+
+
+
+
 data <- eventReactive(rv$current$obj, {
   input$settings_nDigits
   rv$current$obj
@@ -215,7 +276,6 @@ ClearUI <- reactive({
         updateTextInput(session,"filenameToCreate",value= "")
         updateTextInput(session,"nameExport",value= "")
         
-        #UpdateLog("Memory has been cleared","None")
         updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
         updateRadioButtons(session,
                            inputId = "ChooseFilters", 
@@ -264,7 +324,7 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function(){
-    req(rv$current.obj)
+  req(rv$current.obj)
   rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
   if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
@@ -286,6 +346,7 @@ loadObjectInMemoryFromConverter <- function(){
     rv$current.obj@experimentData@other$RawPValues <- FALSE
   
   
+  
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
@@ -296,9 +357,14 @@ loadObjectInMemoryFromConverter <- function(){
     BuildNavbarPage()
     
     
-    
-    
     name <- paste0("Original", ".", rv$typeOfDataset)
+    
+    if (is.null(rv$current.obj@experimentData@other$Params))
+      rv$current.obj <- saveParameters(rv$current.obj, name,"-")
+    else {
+      names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
+    }
+    
     rv$dataset[[name]] <- rv$current.obj
     
     
@@ -682,32 +748,6 @@ catchToList <- function(expr) {
 
 
 
-GetDatasetOverview <- reactive({
-  req(rv$current.obj)
-  columns <- c("Number of samples","Number of conditions",
-               "Number of lines", "Number of missing values", "% of missing values", 
-               "Number of empty lines")
-  
-  do <- data.frame(Definition= columns,
-                   Value=rep(0,length(columns)))
-  
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-  pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
-  nb.empty.lines <- sum(apply(
-    is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
-  
-  
-  val <- c(ncol((Biobase::exprs(rv$current.obj))),
-           length(unique(Biobase::pData(rv$current.obj)$Condition)),
-           nrow((Biobase::exprs(rv$current.obj))),
-           NA.count,
-           pourcentage,
-           nb.empty.lines)
-  do$Value <- val
-  
-  print(do)
-  do
-})
 
 ###-------------------------------------------------------------------
 # output$currentObjLoaded <- reactive({
@@ -741,17 +781,6 @@ retroCompatibility <- reactive({
 
 
 
-
-
-########################################################
-# Update the global variable log
-UpdateLog <- function(name, l.params){
-  
-  hist <- buildLogText(name, l.params, level=rv$typeOfDataset)
-  rv$text.log <- rbind(rv$text.log,
-                       c(Date=date(), Dataset=name, History=ifelse(is.null(hist), "",hist)))
-  
-}
 
 
 

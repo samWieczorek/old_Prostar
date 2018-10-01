@@ -19,7 +19,7 @@ tabPanel("Export",
                      bsCollapse(id = "collapseExport", open = c("Options"),
                                  bsCollapsePanel("Plots for data processing tools", 
                                                  tags$div(
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Original_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("Original protein")),
@@ -28,7 +28,7 @@ tabPanel("Export",
                                                                              )
                                                                     )
                                                              ),
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Original_peptide',
                                                                              tagList(
                                                                                tags$p(tags$b("Original peptide")),
@@ -38,7 +38,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                    
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Filtered_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("Filtered protein")),
@@ -48,7 +48,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                    
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Filtered_peptide',
                                                                              tagList(
                                                                                tags$p(tags$b("Filtered peptide")),
@@ -58,7 +58,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
 
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Normalized_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("Normalized protein")),
@@ -68,7 +68,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                    
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                               hidden(tags$div(id='treeFor_Normalized_peptide',
                                                                               tagList(
                                                                                 tags$p(tags$b("Normalized peptide")),
@@ -78,7 +78,7 @@ tabPanel("Export",
                                                                      )
                                                              ),
 
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Aggregated_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("Aggregated protein")),
@@ -89,7 +89,7 @@ tabPanel("Export",
                                                              ),
                                                    
                                                    
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Aggregated_peptide',
                                                                              tagList(
                                                                                tags$p(tags$b("Aggregated peptide")),
@@ -99,7 +99,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                  
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Imputed_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("Imputed protein")),
@@ -109,7 +109,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                    
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_Imputed_peptide',
                                                                              tagList(
                                                                                tags$p(tags$b("Imputed peptide")),
@@ -119,7 +119,7 @@ tabPanel("Export",
                                                                     )
                                                              ),
                                                  
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                              hidden(tags$div(id='treeFor_HypothesisTest_protein',
                                                                              tagList(
                                                                                tags$p(tags$b("HypothesisTest protein")),
@@ -128,7 +128,7 @@ tabPanel("Export",
                                                                              )
                                                                     )
                                                              ),
-                                                   tags$div( style="display:inline-block; vertical-align: middle;",
+                                                   tags$div( style="display:inline-block; vertical-align: top;",
                                                               hidden(tags$div(id='treeFor_HypothesisTest_peptide',
                                                                               tagList(
                                                                                 tags$p(tags$b("HypothesisTest peptide")),

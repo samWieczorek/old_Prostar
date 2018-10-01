@@ -1,4 +1,4 @@
-callModule(moduleStaticDataTable,"overview_openMSnset", table2show=GetDatasetOverview(), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 
 
@@ -165,7 +165,6 @@ observeEvent(input$file,ignoreInit =TRUE,{
     
     rv$current.obj <- addOriginOfValue(rv$current.obj)
     l.params <- list(filename = rv$current.obj.name)
-    UpdateLog("Original",l.params)
     
     
     

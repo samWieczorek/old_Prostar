@@ -1,4 +1,4 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=GetDatasetOverview(), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 
 
@@ -128,11 +128,11 @@ observeEvent(input$valid.aggregation,{
       installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     
-    rv$current.obj <- saveParameters(rv$current.obj, GetCurrentDatasetName(),"Aggregation",l.params)
     name <- paste0("Aggregated", ".", rv$typeOfDataset)
+    rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",l.params)
+    
     rv$dataset[[name]] <- rv$current.obj
     
-    UpdateLog("Aggregation", l.params)
     #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}

@@ -604,7 +604,6 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                            # writeToCommandLogFile(text2Log)
                        }
                 )
-                UpdateLog("GOAnalysis", l.params)
                 
                 updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
                 

@@ -3,10 +3,10 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(missingValuesPlots, "MVPlots_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleStaticDataTable,"overview_DS", table2show=GetDatasetOverview(), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=round(rv$res.pca$var$coord, digits=7), withBtns = FALSE, showRownames=TRUE)
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({round(rv$res.pca$var$coord, digits=7)}), withBtns = FALSE, showRownames=TRUE)
 
 
 # outs <- outputOptions(output)
@@ -24,8 +24,6 @@ observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,i
 observeEvent(input$varScale_PCA,{rv$PCA_varScale <- input$varScale_PCA})
 
 observeEvent(c(rv$varScale_PCA, Compute_PCA_nbDimensions()), {
-  print(rv$PCA_varScale)
-  print(Compute_PCA_nbDimensions())
   rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
 })
 
@@ -33,21 +31,21 @@ observeEvent(c(rv$varScale_PCA, Compute_PCA_nbDimensions()), {
 output$pcaPlotVar <- renderPlot({
   req(c(rv$PCA_axes, rv$res.pca))
   
-  plot.pca.var(rv$res.pca, rv$PCA_axes)
+  plotPCA_Var(rv$res.pca, rv$PCA_axes)
   
 })
 
 output$pcaPlotInd <- renderPlot({
   req(c(rv$PCA_axes, rv$res.pca))
   
-  plot.pca.ind(rv$res.pca, rv$PCA_axes)
+  plotPCA_Ind(rv$res.pca, rv$PCA_axes)
   
 })
 
 
 output$pcaPlotEigen <- renderHighchart({
   req(rv$res.pca)
-plot.pca.eigen.hc(rv$res.pca)
+plotPCA_Eigen_hc(rv$res.pca)
 })
 
 output$pcaOptions <- renderUI({
@@ -79,20 +77,17 @@ output$DS_sidebarPanel_tab <- renderUI({
            protein = {
                       .choices <- list( "Quantitative data" = "tabExprs",
                                         "Proteins metadata" = "tabfData",
-                                        "Experimental design" = "tabpData",
-                                        "Dataset history" = "processingData")
+                                        "Experimental design" = "tabpData")
                       },
         peptide = {
                       .choices <- list("Quantitative data" = "tabExprs",
                                        "Peptides metadata" = "tabfData",
-                                        "Experimental design" = "tabpData",
-                                        "Dataset history" = "processingData")
+                                        "Experimental design" = "tabpData")
                       },
                 {
                 .choices <- list("Quantitative data" = "tabExprs",
                                 "Analyte metadata" = "tabfData",
-                                "Experimental design" = "tabpData",
-                                "Dataset history" = "processingData")
+                                "Experimental design" = "tabpData")
                 }
     )
     

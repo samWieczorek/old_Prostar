@@ -35,7 +35,7 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 
 ### Other references
 
-8. <a href="https://github.com/bmbolstad/preprocessCore" target="_blank">Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1</a>
+8. Bolstad BM (2017). preprocessCore: A collection of pre-processing functions. R package version 1.38.1
 9. Hastie T, Tibshirani R, Narasimhan B and Chu G (2017). impute: Imputation for microarray data. R package version 1.50.1
 10. Gatto L and Lilley K (2012). MSnbase - an R/Bioconductor package for isobaric tagged mass spectrometry data visualization, processing and quantitation. Bioinformatics , 28, pp. 288-289.
 11. Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK (2015). Limma powers differential expression analyses for RNA-sequencing and microarray studies. Nucleic Acids Research , 43(7), pp. e47.

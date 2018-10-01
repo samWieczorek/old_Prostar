@@ -1,15 +1,16 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=rv$params.anaDiff, withBtns = FALSE)
-callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=GetSelectedItems(), withBtns = TRUE)
+callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), withBtns = FALSE)
+callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = TRUE)
 
 
 output$anaDiffPanel <- renderUI({
   #req(rv$current.obj)
   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  dataset.name <- last(names(rv$dataset))
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else if (is.null(rv$current.obj@experimentData@other$Params[['HypothesisTest']])) {
+  } else if (is.null(rv$current.obj@experimentData@other$Params[[dataset.name]]['HypothesisTest'])) {
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
   tabsetPanel(

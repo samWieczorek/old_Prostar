@@ -1,6 +1,6 @@
 
 callModule(moduleStaticDataTable,"viewProcessingData", 
-           table2show=BuildParamDT(), 
+           table2show=reactive({BuildParamDT()}), 
            withBtns = FALSE, showRownames=FALSE)
 
 
@@ -60,25 +60,6 @@ output$choosedataToExportMSnset <- renderUI({
 
 
 
-BuildParamDT <- reactive({
-  req(rv$current.obj)
-  tmp.params <- rv$current.obj@experimentData@other$Params
-  if (is.null(tmp.params)){return(NULL)}
-  df <- data.frame(Dataset = names(tmp.params),
-                   Process = rep("",length(names(tmp.params))),
-                   Parameters = rep("",length(names(tmp.params))),
-                   stringsAsFactors = FALSE)
-  
-  for (iData in 1:length(tmp.params)) {
-      p <- tmp.params[[iData]]
-      processName <- names(tmp.params[[iData]])
-      df[iData, "Process"] <- processName
-      df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
-                                       list(l.params=tmp.params[[iData]][[processName]]))
-  }
-  
-  df
-})
 
 
 # output$viewProcessingData <- DT::renderDataTable({
