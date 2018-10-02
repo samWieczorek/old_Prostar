@@ -34,6 +34,7 @@ This happens if the version of the package 'highcharter' is less or equal to 0.5
 
 ## Why does my volcano plot look so aligned?
 
+
 ![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/dfPriorIssue.png "Volcano plot resulting from a Limma issue")
 
 In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. This is due to using Limma on a dataset for which it is not adapted: Briefly, the numerical values in the quantitative matrix appears to have a repetitive pattern that prevent Limma routines to compute the number of degrees of freedom of the Chi2 distribution on which the protein variances should be fitted. As a result, Limma returns a result directly proportional to the fold-change, and the p-values are none-informative. In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test.
