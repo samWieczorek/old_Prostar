@@ -153,11 +153,16 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
  
   output$quantiDT <- renderUI({
     req(input$eventPointClicked)
-    bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
+    
+    if (is.null(rv$matAdj)){
+      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
+                 bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"))
+    } else {
+      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
                bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"),
                bsCollapsePanel("Specific peptides", dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
                bsCollapsePanel("Shared peptides", dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
-    
+    }
   })
   
   
@@ -356,8 +361,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     rv$seuilPVal
     rv$seuilLogFC
     rv$colorsVolcanoplot
-    #req(rv$resAnaDiff)
-    #req(rv$current.obj)
     tooltip()
     
     if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
@@ -610,7 +613,10 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
               )
             )
       } else {
-        
+        butt_js <- "[{
+          extend: 'csv',
+        text: 'View Columns',
+        filename: 'custom-filename'}]"
         
         DT::datatable(table2show(),
                       escape = FALSE,
@@ -619,7 +625,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
                       options = list(initComplete = initComplete(),
                                      dom = 'Bfrtip',
                                      server = TRUE,
-                                     buttons = c('copy','excel', 'pdf', 'print'),
+                                     buttons = DT::JS(butt_js),
                                      columnDefs = list(list(width='200px',targets= "_all")),
                                      ordering = FALSE)
         )

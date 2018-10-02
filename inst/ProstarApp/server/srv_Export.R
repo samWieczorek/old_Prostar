@@ -1,7 +1,7 @@
 
 callModule(moduleStaticDataTable,"viewProcessingData", 
            table2show=reactive({BuildParamDT()}), 
-           withBtns = FALSE, showRownames=FALSE)
+           withBtns = TRUE, showRownames=FALSE)
 
 callModule(moduleStaticDataTable,"viewProstarVersions", 
            table2show=reactive({getPackagesVersions('installed')}), 
