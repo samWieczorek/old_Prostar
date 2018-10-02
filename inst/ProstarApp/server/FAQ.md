@@ -4,6 +4,7 @@
 * [How to build a valid experimental design?](#how-to-build-a-valid-experimental-design)
 * [Why do the items of the contextual menus for plots remain 'undefined'?](#why-do-the-items-of-the-contextual-menus-for-plots-remain-undefined)
 * [Why does my volcano plot look so aligned?](#why-does-my-volcano-plot-look-so-aligned)
+* [How to recover differential analysis results?](#how-to-recover-differential-analysis-results)
 
 ## Why does the table in experimental design blink during edition?
 
@@ -34,8 +35,11 @@ This happens if the version of the package 'highcharter' is less or equal to 0.5
 
 ## Why does my volcano plot look so aligned?
 
-
 ![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/dfPriorIssue.png "Volcano plot resulting from a Limma issue")
 
 In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. This is due to using Limma on a dataset for which it is not adapted: Briefly, the numerical values in the quantitative matrix appears to have a repetitive pattern that prevent Limma routines to compute the number of degrees of freedom of the Chi2 distribution on which the protein variances should be fitted. As a result, Limma returns a result directly proportional to the fold-change, and the p-values are none-informative. In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test.
+
+## How to recover differential analysis results?
+
+From Prostar 1.14, the differential analysis results are not exported anymore when using the "Export fo file" functionality, regardless the format (MSnset, excel or zipped CSV). This is due to the separate management of the "data mining" and "data processing outputs. As a result, after performing the differential analysis, the results must be downloaded thanks to the devoted buttons (otherwise, they will be lost when closing the Prostar session). However, all the p-value computatations (from the "hypothesis testing" menu) can be exported and recover from one session to another one.
 
