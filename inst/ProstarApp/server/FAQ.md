@@ -1,6 +1,6 @@
 ## FAQ table of contents
 
-* Why does the table in experimental design blink during edition?
+* [Why does the table in experimental design blink during edition?](#Why-does-the-table-in-experimental-design-blink-during-edition)
 * How to build a valid experimental design?
 * Why do the items of the contextual menus for plots remain 'undefined'?
 * Why does my volcano plot look so aligned?
@@ -10,20 +10,18 @@
 When you edit the experimental design (during converting a text file to MSnset or during the update of the design), it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
 
 
-## How to build a valid experimental design?
+## How to build a valid experimental design? 
 In Prostar, the differential analysis is devoted is devoted to the processing of hierarchical unpaired experimental designs . However, in former versions, this was not explicit enough, so that users with paired samples could used Prostar with wrong assumptions. To clear this out, we have changed the experimental design construction step so that its explicitly appears unpaired.
 
 As a result, the samples must now be numbered as in the following example:
 
-Condition 1: 1 - 2 - 3 - 4,
-
-Condition 2: 5 - 6 - 7 - 8
+* Condition 1: 1 - 2 - 3 - 4,
+* Condition 2: 5 - 6 - 7 - 8
 
 As opposed to:
 
-Condition 1: 1 - 2 - 3 - 4,
-
-Condition 2: 1 - 2 - 3 - 4
+* Condition 1: 1 - 2 - 3 - 4,
+* Condition 2: 1 - 2 - 3 - 4
 
 Which, depending on the context, could suggest that the 8 samples comes only from 4 different biological subjects, and thus leading to paired tests - for instance, patients that are compared between Before (Condition 1) and After (Condition 2) some treatment.
 
