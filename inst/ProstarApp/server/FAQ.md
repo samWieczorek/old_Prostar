@@ -16,12 +16,15 @@ In Prostar, the differential analysis is devoted is devoted to the processing of
 As a result, the samples must now be numbered as in the following example:
 
 Condition 1: 1 - 2 - 3 - 4,
+
 Condition 2: 5 - 6 - 7 - 8
 
 As opposed to:
 
 Condition 1: 1 - 2 - 3 - 4,
+
 Condition 2: 1 - 2 - 3 - 4
+
 Which, depending on the context, could suggest that the 8 samples comes only from 4 different biological subjects, and thus leading to paired tests - for instance, patients that are compared between Before (Condition 1) and After (Condition 2) some treatment.
 
 However, one should note that even if the experimental design now looks different, this is just due to a numbering convention, and the statistical test is not impacted.
@@ -32,6 +35,8 @@ This happens if the version of the package 'highcharter' is less or equal to 0.5
 
 
 ## Why does my volcano plot look so aligned?
+
+![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/dfPriorIssue.png "Volcano plot resulting from a Limma issue")
 
 In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. This is due to using Limma on a dataset for which it is not adapted: Briefly, the numerical values in the quantitative matrix appears to have a repetitive pattern that prevent Limma routines to compute the number of degrees of freedom of the Chi2 distribution on which the protein variances should be fitted. As a result, Limma returns a result directly proportional to the fold-change, and the p-values are none-informative. In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test.
 
