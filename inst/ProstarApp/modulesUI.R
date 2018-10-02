@@ -35,8 +35,15 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("nbSelectedItems")),
-    highchartOutput(ns("volcanoPlot")),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                uiOutput(ns("nbSelectedItems"))
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                highchartOutput(ns("volcanoPlot"), width='600px', height='600px')
+      )
+    ),
+
     uiOutput(ns("quantiDT"))
   )
 }

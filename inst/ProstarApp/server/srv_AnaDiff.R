@@ -15,13 +15,13 @@ output$anaDiffPanel <- renderUI({
     } else {
   tabsetPanel(
     id = "xxx",
-    tabPanel("2 - Pairwise comparison",value = "DiffAnalysis_PairewiseComparison",
+    tabPanel("1 - Pairwise comparison",value = "DiffAnalysis_PairewiseComparison",
              uiOutput("diffAna_pairwiseComp")),
-    tabPanel("3 - p-value calibration", value = "DiffAnalysis_Calibrate",
+    tabPanel("2 - p-value calibration", value = "DiffAnalysis_Calibrate",
              uiOutput("diffAna_pvalCalib")),
-    tabPanel("4 - FDR",value = "DiffAnalysis_viewFDR",
+    tabPanel("3 - FDR",value = "DiffAnalysis_viewFDR",
              uiOutput("diffAna_fdrCompute")),
-    tabPanel("5 - Summary",value = "DiffAnalysis_ValidateAndSave",
+    tabPanel("4 - Summary",value = "DiffAnalysis_ValidateAndSave",
              uiOutput("diffAna_Summary"))
   ) # end tabsetPanel
 }
@@ -39,8 +39,7 @@ output$diffAna_pairwiseComp <- renderUI({
                          height = "100%"
                          ,uiOutput("newComparisonUI")
                          ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                         ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass),
-                         uiOutput("tooltipInfo")
+                         ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
                        ),
                        tagList(
                          moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
@@ -77,18 +76,29 @@ output$diffAna_pvalCalib <- renderUI({
 output$diffAna_fdrCompute <- renderUI({
   req(input$selectComparison)
      
- tagList(
-        numericInput("seuilPVal",  "Define the -log10(p_value) threshold",
-                           min = 0,value = 0,step=0.1, width='100px'),
-        checkboxInput("showpvalTable","Show p-value table", value=FALSE),
-        htmlOutput("showFDR"),
-        moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
-        #hidden(div(id = 'toto',
-        #.           moduleStaticDataTableUI("anaDiff_selectedItems")
-        #)
-        downloadButton('downloadSelectedItems', 'Download as Excel file'),
-        hidden(DTOutput("anaDiff_selectedItems"))
-        )
+  
+  sidebarCustom()
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(
+                id = "sidebar_DiffAna3", height = "100%",
+                numericInput("seuilPVal",  "Define the -log10(p_value) threshold",
+                             min = 0,value = 0,step=0.1, width='100px'),
+                checkboxInput("showpvalTable","Show p-value table", value=FALSE),
+                uiOutput("tooltipInfo"),
+                br(),
+                radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" )),
+                downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass)
+                
+              ),
+             tagList(
+               htmlOutput("showFDR"),
+               moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
+                #hidden(div(id = 'toto',
+                #.           moduleStaticDataTableUI("anaDiff_selectedItems")
+                #)
+                hidden(DTOutput("anaDiff_selectedItems"))
+              )
+  )
 
 })     
 
@@ -119,10 +129,10 @@ output$downloadSelectedItems <- downloadHandler(
   },
   content = function(file) {
     wb <- openxlsx::createWorkbook() # Create wb in R
-    openxlsx::addWorksheet(wb,sheetName="Output") #create sheet
+    openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     #Creates a Data Table in Excel if you want, otherwhise only use write Data
     openxlsx::writeData(wb,1, GetSelectedItems(), colNames = TRUE)
-    openxlsx::mergeCells(wb,sheet = "Output", cols=1:5, rows=1)
+    #openxlsx::mergeCells(wb,sheet = "Output", cols=1:5, rows=1)
     #writeData(wb,1, "Include text also based on reactive function and in merged cells" )
     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
   },
@@ -639,33 +649,10 @@ output$calibrationPlotAll <- renderPlot({
 })
 
 
-# 
-# observe({
-#   rv$res_AllPairwiseComparisons
-#   rv$seuilPVal 
-#   rv$seuilLogFC
-#   input$selectComparison
-#   input$anaDiff_Design
-#   input$diffAnaMethod
-#   input$ttest_options
-#   
-#   #shinyjs::disable("ValidDiffAna")
-#   
-#   shinyjs::enable("ValidDiffAna")
-# })
-
-
-
 
 output$equivPVal <- renderUI ({
   req(rv$seuilPVal)
-  #req(rv$current.obj)
   req(input$selectComparison)
-  
-  
-  # if (input$selectComparison=="None"){return()}
-  
-  #if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   tags$p(paste0("(p-value = ",signif(10^(- (input$seuilPVal)), digits=3), ")"))
 })
@@ -685,13 +672,20 @@ observeEvent(input$seuilPVal,{ rv$seuilPVal <- as.numeric(input$seuilPVal)})
 
 
 GetSelectedItems <- reactive({
-  #req(rv$seuilPVal)
-  #req(input$selectComparison)
   req(rv$resAnaDiff$logFC)
   req(rv$resAnaDiff$P_Value )
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
-  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)
-  selectedItems <- intersect(upItems1, upItems2)
+  input$downloadAnaDiff
+  
+  t <- NULL
+  if (input$downloadAnaDiff == "All"){
+    selectedItems <- 1:nrow(rv$current.obj)
+  } else {
+    upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
+    upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)
+    selectedItems <- intersect(upItems1, upItems2)
+    
+  }
+  
   
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),

@@ -29,7 +29,7 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 3. <a href="http://prabig-prostar.univ-lyon1.fr/Articles/OnTheMissuseOfFudgeFactorInProteomics_FV.pdf" target="_blank">Q. Giai Gianetto, Y. Coute, C. Bruley and T. Burger. Uses and misuses of the fudge factor in quantitative discovery proteomics. Proteomics , 16(14):1955-60, 2016.</a>
 4. <a href="http://prabig-prostar.univ-lyon1.fr/Articles/prostar.pdf" target="_blank">S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger. DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics, Bioinformatics , 33(1):135-136, 2017</a>
 5. <a href="http://prabig-prostar.univ-lyon1.fr/Articles/fdrtuto.pdf" target="_blank">T. Burger. Gentle introduction to the statistical foundations of false discovery rate in quantitative proteomics. Journal of Proteome Research , 17(1):12-22, 2017.</a>
-6. <a href="http://prabig-prostar.univ-lyon1.fr/Articles/revised-biostat-proteom-preprint.pdf" target="_blank">L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis from relative quantitative proteomics data using shared peptides. (accepted for publication, 2018).</a>
+6. <a href="http://prabig-prostar.univ-lyon1.fr/Articles/revised-biostat-proteom-preprint.pdf" target="_blank">L. Jacob, F. Combes and T. Burger. PEPA test : fast and powerful differential analysis from relative quantitative proteomics data using shared peptides. Biostatistics, kxy021, 2018).</a>
 7. Q. Giai Gianetto, C. Lazar, S. Wieczorek, C. Bruley, Y. Coute and T. Burger. Multiple imputation strategy for mass spectrometry-based proteomic data. (in preparation).
 
 
