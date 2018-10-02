@@ -32,7 +32,7 @@ req(rv$designChecked)
     htmlOutput("msgAlertCreateMSnset"),
     hr(),
     textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data"),
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
     uiOutput("warningCreateMSnset")
     
   )
@@ -121,7 +121,7 @@ output$UI_checkConditions  <- renderUI({
   if (sum(rv$hot$Condition == "")==0){
     tags$div(
       tags$div(style="display:inline-block;",
-               actionButton("btn_checkConds", "Check conditions")
+               actionButton("btn_checkConds", "Check conditions", class = actionBtnClass)
       ),
       
       tags$div(style="display:inline-block;",
@@ -292,7 +292,7 @@ output$checkDesign <- renderUI({
   tags$div(
     tags$div(
       style="display:inline-block;",
-      actionButton("btn_checkDesign", "Check design")
+      actionButton("btn_checkDesign", "Check design", class = actionBtnClass)
     ),
     
     tags$div(

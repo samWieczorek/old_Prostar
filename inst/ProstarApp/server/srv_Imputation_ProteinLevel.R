@@ -31,7 +31,7 @@ output$proteinLevelImputationPanel <- renderUI({
                                    br(),
                                    uiOutput("sidebar_imputation_step1"),
                                    actionButton("perform.imputationClassical.button",
-                                                "Perform imputation")
+                                                "Perform imputation", class = actionBtnClass)
                                    
                          ),
                          tagList(
@@ -51,7 +51,7 @@ output$proteinLevelImputationPanel <- renderUI({
                                    height = "100%",
                                    uiOutput("MEC_chooseImputationMethod"),
                                    uiOutput("MEC_Params"),
-                                   actionButton("perform.imputationMEC.button","Perform imputation")
+                                   actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
                          ),
                          tagList(
                            htmlOutput("warningMECImputation"),
@@ -69,7 +69,7 @@ output$proteinLevelImputationPanel <- renderUI({
                          wellPanel(id = "sidebar_Imputation3",
                                    height = "100%",
                                    busyIndicator(WaitMsgCalc,wait = 0),
-                                   actionButton("ValidImputation","Save imputation",styleclass = "primary")
+                                   actionButton("ValidImputation","Save imputation", class = actionBtnClass)
                          ),
                          tagList(
                             uiOutput("ImputationSaved")

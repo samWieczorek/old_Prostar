@@ -29,31 +29,39 @@ output$chooseDataset <- renderUI({
 
 
 
-output$optionsDemomode <- renderUI({
-  
+# output$optionsDemomode <- renderUI({
+#   
+#   req(input$demoDataset)
+#   tagList(
+#     checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
+#     actionButton("loadDemoDataset", "Load demo dataset", class = actionBtnClass)
+#   )
+# })
+# 
+
+output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
-  tagList(
-    checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
-    actionButton("loadDemoDataset", "Load demo dataset")
-  )
-})
-
-
-
-
-
-output$showDatasetDoc <- renderUI({
-  req(input$demoDataset)
-  req(input$showDemoDatasetPDF)
   
   file<- paste(system.file(package = "DAPARdata"),"/doc/",
                input$demoDataset,".pdf", sep="")
   cmd <- paste("cp ",file," www/.", sep="")
-  system(cmd)
-  tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), 
-              width="900", height="700")
-  
-})
+    system(cmd)
+  filename <-paste0(input$demoDataset,".pdf", sep="")
+  tags$a(href=filename, target='_blank', filename)
+ })
+
+
+# output$showDemoDatasetPDF <- renderUI({
+#   req(input$demoDataset)
+#   req(input$showDemoDatasetPDF)
+#   
+#   file<- paste(system.file(package = "DAPARdata"),"/doc/",
+#                input$demoDataset,".pdf", sep="")
+#   cmd <- paste("cp ",file," www/.", sep="")
+#   system(cmd)
+#   tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), width="900", height="700")
+# 
+# })
 
 
 

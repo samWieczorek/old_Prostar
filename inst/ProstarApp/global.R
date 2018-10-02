@@ -647,6 +647,7 @@ bsButtonRight <- function(...) {
     btn
 }
 
+actionBtnClass <- "btn-primary"
 
 # Call this function with all the regular navbarPage() parameters, plus a text parameter,
 # if you want to add text to the navbar

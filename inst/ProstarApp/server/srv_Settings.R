@@ -10,8 +10,13 @@ output$settings_nDigits_UI <- renderUI({
   numericInput("settings_nDigits", "", value=rv$settings_nDigits, min=0, width="100px")
 })
 
-observeEvent(input$settings_nDigits,{ rv$settings_nDigits <-input$settings_nDigits })
+observeEvent(input$settings_nDigits,{ rv$settings_nDigits <- input$settings_nDigits })
 
+
+# observeEvent(input$shinythemeSelector,{
+#   tags$script("$('#shinythemeSelector')\n  .on('change', function(el) {\n      curThemePath = 'shinythemes/css/' + curTheme + '.min.css';\n    }\n\n    // Find the <link> element with that has the bootstrap.css\n    var $link = $('link').filter(function() {\n      var theme = $(this).attr('href');\n      theme = theme.replace(/^.*\\//, '').replace(/(\\.min)?\\.css$/, '');\n      return $.inArray(theme, allThemes) !== -1;\n    });\n\n    // Set it to the correct path\n    $link.attr('href', curThemePath);\n  });")
+#   #theme = shinytheme(input$shinythemeSelector)
+# })
 
 observe({
   shinyjs::onclick("btn_configConditionsColors",{
@@ -229,7 +234,6 @@ output$customPaletteUI <- renderUI({
 
 
 observeEvent(c(rv$choosePalette,rv$typeOfPalette,rv$current.obj,GetTest(), rv$whichGroup2Color), {rv$PlotParams$paletteConditions <- GetExamplePalette()})
-observeEvent(input$settings_nDigits,{rv$nDigits <- input$settings_nDigits})
 
 observeEvent(input$colMEC, {rv$colorsTypeMV$MEC <- input$colMEC})
 observeEvent(input$colPOV, { rv$colorsTypeMV$POV <- input$colPOV})

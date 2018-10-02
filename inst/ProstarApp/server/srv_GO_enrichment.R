@@ -21,7 +21,7 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",choices = G_ontology_Choices)
                                            ,actionButton("mapProtein.GO.button",
-                                                        "Map proteins IDs")
+                                                        "Map proteins IDs", class = actionBtnClass)
                                  )
                                  ,tagList(
                                      uiOutput("warnDifferentSizeID"),
@@ -43,7 +43,7 @@ output$GOAnalysisMenu <- renderUI({
                                            height = "100%",
                                            modulePopoverUI("modulePopover_GOlevel"),
                                            checkboxGroupInput("GO_level", "",choices =c(2:4), selected=2),
-                                           actionButton("group.GO.perform.button","Perform GO grouping")
+                                           actionButton("group.GO.perform.button","Perform GO grouping", class = actionBtnClass)
                                  ),
                                  tagList(
                                      highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
@@ -68,7 +68,7 @@ output$GOAnalysisMenu <- renderUI({
                                            modulePopoverUI("modulePopover_GOfdr"),
                                            numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
-                                           actionButton("perform.GO.button","Perform enrichment analysis")
+                                           actionButton("perform.GO.button","Perform enrichment analysis", class = actionBtnClass)
                                  ),
                                  tagList(
                                      highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),

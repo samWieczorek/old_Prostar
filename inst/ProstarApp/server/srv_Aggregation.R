@@ -306,7 +306,7 @@ output$Aggregation_Step2 <- renderUI({
                       selectize = FALSE)
         )
       ) ,
-      actionButton("valid.aggregation","Save aggregation", styleclass = "primary")
+      actionButton("valid.aggregation","Save aggregation", sclass = actionBtnClass)
     )
     
   } else {

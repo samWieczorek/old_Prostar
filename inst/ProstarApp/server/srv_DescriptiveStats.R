@@ -6,7 +6,7 @@ callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
 
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({round(rv$res.pca$var$coord, digits=7)}), withBtns = FALSE, showRownames=TRUE)
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), withBtns = FALSE, showRownames=TRUE)
 
 
 # outs <- outputOptions(output)
@@ -29,14 +29,16 @@ observeEvent(c(rv$varScale_PCA, Compute_PCA_nbDimensions()), {
 
 
 output$pcaPlotVar <- renderPlot({
-  req(c(rv$PCA_axes, rv$res.pca))
+  req(rv$PCA_axes)
+  req(rv$res.pca)
   
   plotPCA_Var(rv$res.pca, rv$PCA_axes)
   
 })
 
 output$pcaPlotInd <- renderPlot({
-  req(c(rv$PCA_axes, rv$res.pca))
+  req(rv$PCA_axes)
+  req(rv$res.pca)
   
   plotPCA_Ind(rv$res.pca, rv$PCA_axes)
   
@@ -49,7 +51,19 @@ plotPCA_Eigen_hc(rv$res.pca)
 })
 
 output$pcaOptions <- renderUI({
+  req(rv$current.obj)
+    
+  
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
+    {
+      text <- "<font color=\"red\"> Warning ! <br> 
+      Your dataset contains missing values.
+      <br> For better results, you should impute  <br> them first"
+      HTML(text)
+    }
+    else{
   tagList(
+  
     tags$div(
       
       tags$div( style="display:inline-block; vertical-align: middle;",
@@ -63,8 +77,11 @@ output$pcaOptions <- renderUI({
     )
 
 )
+      
+    }
 })
     
+
 
 #######################################
 

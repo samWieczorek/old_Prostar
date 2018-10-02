@@ -6,12 +6,11 @@ tabPanel("Demo data",
            ),
            tags$div( style="display:inline-block; vertical-align: middle;",
                      p(""),
-                     actionButton("loadDemoDataset", "Load demo dataset",
-                                  color = "primary"
-                     )
+                     actionButton("loadDemoDataset", "Load demo dataset",class = actionBtnClass)
            )
          ),
-         checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
+         #checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
+         uiOutput("linktoDemoPdf"),
          hr(),
          moduleStaticDataTableUI("overview_DemoMode")
          ,uiOutput("showDatasetDoc")

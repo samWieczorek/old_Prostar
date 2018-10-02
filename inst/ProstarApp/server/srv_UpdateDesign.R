@@ -10,7 +10,7 @@ output$updateDesign_UI_checkConditions  <- renderUI({
     if (sum(rv$updateDesign_hot$Condition == "")==0){
         tags$div(
             tags$div(style="display:inline-block;",
-                     actionButton("updateDesign_btn_checkConds", "Check conditions")
+                     actionButton("updateDesign_btn_checkConds", "Check conditions", class = actionBtnClass)
             ),
             
             tags$div(style="display:inline-block;",
@@ -139,7 +139,7 @@ output$updateDesign_SaveDesign <- renderUI({
       column(width=6,tags$b("3 - Click the button to update the design.")),
       column(width=6,tags$div(
           tags$div(style="display:inline-block;",
-                   actionButton("btn_SaveDesign","Save design")
+                   actionButton("btn_SaveDesign","Save design", class = actionBtnClass)
           ),
           
           tags$div(style="display:inline-block;",
@@ -347,7 +347,7 @@ output$updateDesign_checkDesign <- renderUI({
   tags$div(
     tags$div(
       style="display:inline-block;",
-      actionButton("updateDesign_btn_checkDesign", "Check design")
+      actionButton("updateDesign_btn_checkDesign", "Check design", class = actionBtnClass)
     ),
 
     tags$div(

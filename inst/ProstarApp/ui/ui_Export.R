@@ -3,7 +3,11 @@ tabPanel("Export",
          tabsetPanel(
            id = "Export_tabSetPanel",
            tabPanel("Process summary",
+                    tagList(
+                      moduleStaticDataTableUI("viewProstarVersions"),
+                    br(),br(),br(),
                     moduleStaticDataTableUI("viewProcessingData")
+                    )
                     ),
            tabPanel("Export to file",
                     value = "export",
@@ -152,8 +156,8 @@ tabPanel("Export",
                       ),
                       
                       br(),
-                      actionButton("generateReport", "Generate report"),
-                      downloadButton('downloadReport', "Download report")
+                      actionButton("generateReport", "Generate report", class = actionBtnClass),
+                      downloadButton('downloadReport', "Download report", class = actionBtnClass)
                     )
            )
            

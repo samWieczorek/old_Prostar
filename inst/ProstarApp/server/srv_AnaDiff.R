@@ -1,7 +1,7 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), withBtns = FALSE)
-callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = TRUE)
+#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = TRUE)
 
 
 output$anaDiffPanel <- renderUI({
@@ -39,7 +39,7 @@ output$diffAna_pairwiseComp <- renderUI({
                          height = "100%"
                          ,uiOutput("newComparisonUI")
                          ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                         ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
+                         ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass),
                          uiOutput("tooltipInfo")
                        ),
                        tagList(
@@ -83,10 +83,57 @@ output$diffAna_fdrCompute <- renderUI({
         checkboxInput("showpvalTable","Show p-value table", value=FALSE),
         htmlOutput("showFDR"),
         moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
-        hidden(moduleStaticDataTableUI("anaDiff_selectedItems"))
+        #hidden(div(id = 'toto',
+        #.           moduleStaticDataTableUI("anaDiff_selectedItems")
+        #)
+        downloadButton('downloadSelectedItems', 'Download as Excel file'),
+        hidden(DTOutput("anaDiff_selectedItems"))
         )
 
 })     
+
+
+
+output$anaDiff_selectedItems <- renderDT({
+  
+  DT::datatable(GetSelectedItems(),
+                escape = FALSE,
+                rownames=TRUE,
+                extensions = 'Buttons',
+                options = list(initComplete = initComplete(),
+                               dom = 't',
+                               server = TRUE,
+                               columnDefs = list(list(width='200px',targets= "_all")),
+                               ordering = FALSE)
+  )
+})
+
+
+output$downloadSelectedItems <- downloadHandler(
+  #input$chooseDatasetToExportToMSnset,
+  filename = function() { 
+    #input$nameExport
+    #if (input$fileformatExport == gFileFormatExport$excel) {
+    #  paste(input$nameExport,gFileExtension$excel,  sep="")}
+    paste0('diffanalysis_', input$datasets,'.xlsx')
+  },
+  content = function(file) {
+    wb <- openxlsx::createWorkbook() # Create wb in R
+    openxlsx::addWorksheet(wb,sheetName="Output") #create sheet
+    #Creates a Data Table in Excel if you want, otherwhise only use write Data
+    openxlsx::writeData(wb,1, GetSelectedItems(), colNames = TRUE)
+    openxlsx::mergeCells(wb,sheet = "Output", cols=1:5, rows=1)
+    #writeData(wb,1, "Include text also based on reactive function and in merged cells" )
+    openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+  },
+  contentType= "excel/xlsx")
+
+
+
+
+observeEvent(input$showpvalTable, {
+  print("show : anaDiff_selectedItems")
+  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))})
 
     
     
@@ -135,7 +182,7 @@ callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HT
 output$newComparisonUI <- renderUI({
   req(rv$current.obj)
   if ("Significant" %in% colnames(Biobase::fData(rv$current.obj))){
-    actionButton("newComparison", "New comparison")
+    actionButton("newComparison", "New comparison", class = actionBtnClass)
   }
   
 })
@@ -184,9 +231,10 @@ observeEvent(input$swapVolcano,{
 ####  SELECT AND LOAD ONE PARIWISE COMPARISON
 ####
 observeEvent(input$selectComparison,{
-  req(rv$res_AllPairwiseComparisons)
+ # req(rv$res_AllPairwiseComparisons)
   
-if (input$selectComparison== ""){rv$resAnaDiff <- NULL
+if (input$selectComparison== ""){
+  rv$resAnaDiff <- NULL
 } else {
     #if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])) {  ### There is no previous analysis
         index <- which(paste(input$selectComparison, "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
@@ -634,20 +682,20 @@ output$equivLog10 <- renderText ({
 observeEvent(input$seuilPVal,{ rv$seuilPVal <- as.numeric(input$seuilPVal)})
 
 
-observeEvent(input$showpvalTable, { shinyjs::toggle(id = "showSelectedItems", condition=input$showpvalTable)})
 
 
 GetSelectedItems <- reactive({
-  req(rv$seuilPVal)
-  req(input$selectComparison)
-  
-   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
+  #req(rv$seuilPVal)
+  #req(input$selectComparison)
+  req(rv$resAnaDiff$logFC)
+  req(rv$resAnaDiff$P_Value )
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)
   selectedItems <- intersect(upItems1, upItems2)
   
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
-                  logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=input$settings_nDigits),
-                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=input$settings_nDigits))
+                  logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
+                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits))
   tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems,input$tooltipInfo])
   t <- cbind(t, tmp)
   

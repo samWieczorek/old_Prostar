@@ -20,8 +20,8 @@ tabPanel("Normalization",
              ),
              div(
                style="display:inline-block; vertical-align: middle;",
-               hidden(actionButton("perform.normalization", "Perform normalization", width="170px")),
-               hidden(actionButton("valid.normalization","Save normalization", width="170px"))
+               hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px")),
+               hidden(actionButton("valid.normalization","Save normalization", class = actionBtnClass, width="170px"))
              )
            ),
            uiOutput("helpForNormalizationMethods"),

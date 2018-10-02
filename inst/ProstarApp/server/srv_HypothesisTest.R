@@ -26,7 +26,7 @@ output$testPanel <- renderUI({
                                width='150px')
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
-                  hidden(actionButton("ValidTest","Save significance test"))
+                  hidden(actionButton("ValidTest","Save significance test", class = actionBtnClass))
         )
       ),
       tags$hr(),

@@ -30,7 +30,6 @@ onStart = function() {
 }
 
 shinyServer(function(input, output, session) {
-   
   #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
@@ -73,7 +72,7 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
 
     
-    #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
+   # outputOptions(output, 'settings_nDigits', suspendWhenHidden=FALSE)
     
     #activatePopover()
     

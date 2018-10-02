@@ -569,7 +569,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
             br(),
             #actionButton("resetFilterParamsButton","Reset parameters"),
             actionButton("performFilteringContaminants",
-                         "Perform string-based filtering")
+                         "Perform string-based filtering", class = actionBtnClass)
         )
         
         
@@ -588,9 +588,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
-  observe({
-    replaceData(proxy, table2show(), resetPaging = FALSE)
-  })
+  observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 
   
     output$StaticDataTable <- renderDT({
@@ -598,15 +596,15 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       #table2show
       if (length(table2show())==0){return(NULL)}
       
-      if (withBtns == FALSE){
+      isolate({
+        if (withBtns == FALSE){
            DT::datatable(table2show(), 
                           escape = FALSE,
                           rownames= showRownames,
                           option=list(initComplete = initComplete(),
                                 dom = 't',
                                 server = FALSE,
-                                
-                                autoWidth=TRUE,
+                                #autoWidth=TRUE,
                           columnDefs = list(list(width='200px',targets= "_all")),
                           ordering = FALSE
               )
@@ -620,12 +618,13 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
                       extensions = 'Buttons',
                       options = list(initComplete = initComplete(),
                                      dom = 'Bfrtip',
-                                     server = FALSE,
+                                     server = TRUE,
                                      buttons = c('copy','excel', 'pdf', 'print'),
                                      columnDefs = list(list(width='200px',targets= "_all")),
                                      ordering = FALSE)
         )
       }
+      })
 
     })
 }

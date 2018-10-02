@@ -44,8 +44,8 @@ output$peptideLevelImputationPanel <- renderUI({
                                   hidden(numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound", value = 2.5, step=0.1, min=0, max=100)),
                                   hidden(radioButtons("peptideLevel_imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)), 
                                   
-                                  actionButton("peptideLevel_perform.imputation.button", "Perform imputation"),
-                                   actionButton("peptideLevel_ValidImputation", "Save imputation",styleclass = "primary"),
+                                  actionButton("peptideLevel_perform.imputation.button", "Perform imputation", class = actionBtnClass),
+                                   actionButton("peptideLevel_ValidImputation", "Save imputation", class = actionBtnClass),
                                    br(), br(), br()
                                    #uiOutput("warningImputationMethod"),
                                    
@@ -121,7 +121,7 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable({
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), 
                               input$peptideLevel_detQuant_quantile/100, 
                               input$peptideLevel_detQuant_factor)
-    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=input$settings_nDigits), 
+    DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits), 
                   options = list(initComplete = initComplete(),
                                  dom = 't',
                                  bLengthChange = FALSE))

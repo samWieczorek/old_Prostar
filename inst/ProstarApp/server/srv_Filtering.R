@@ -23,7 +23,7 @@ output$mv_Filtering <- renderUI({
                   uiOutput("seuilNADelete")
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                  actionButton("perform.filtering.MV", "Perform MV filtering")
+                  actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         )
       ),
     tags$div(style="margin-bottom:200px;",
@@ -60,7 +60,7 @@ output$stringBased_Filtering <- renderUI({
                 textInput("symFilter_tagName", "Prefix", value = "", width='50px')
       ),
       tags$div( style="display:inline-block; vertical-align: middle;",
-                p(""),actionButton("actionButtonFilter", "Perform")
+                p(""),actionButton("actionButtonFilter", "Perform", class = actionBtnClass)
       )
     ),
     tags$hr(),
@@ -81,7 +81,7 @@ output$valid_Filtering <- renderUI({
                   choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
                   selected=character(0))),
       column(width=3,uiOutput("legendForExprsData2")),
-      column(width=3,actionButton("ValidateFilters","Save filtered dataset",styleclass = "primary"))
+      column(width=3,actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass))
       ),
          tags$hr(),
          DT::dataTableOutput("VizualizeFilteredData"),
@@ -140,7 +140,7 @@ output$SymbolicFilterOptions <- renderUI({
   tagList(
     selectInput("symFilter_cname", "Column name", choices = choice),
     textInput("symFilter_tagName", "Prefix", value = ""),
-    actionButton("actionButtonFilter", "Perform")
+    actionButton("actionButtonFilter", "Perform", class = actionBtnClass)
   )
 })
 
@@ -177,10 +177,10 @@ observe({
 
 
 getDataForMVFiltered <- reactive({
-  req(input$settings_nDigits)
+  req(rv$settings_nDigits)
   rv$deleted.mvLines
   
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=input$settings_nDigits))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=rv$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
   
   table
@@ -190,11 +190,11 @@ getDataForMVFiltered <- reactive({
 
 
 getDataForMVStringFiltered <- reactive({
-  req(input$settings_nDigits)
+  req(rv$settings_nDigits)
   rv$deleted.stringBased
   
   
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=input$settings_nDigits))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
   
   table
@@ -212,7 +212,7 @@ output$legendForExprsData2 <- renderUI({
 
 #----------------------------------------------
 output$VizualizeFilteredData <- DT::renderDataTable({
-  req(input$settings_nDigits)
+  req(rv$settings_nDigits)
   rv$deleted.mvLines
   req(input$ChooseViewAfterFiltering)
   req(input$ChooseTabAfterFiltering)

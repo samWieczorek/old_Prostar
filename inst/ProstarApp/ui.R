@@ -5,14 +5,20 @@ library(shinyjqui)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
-
+theme = shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
 
-shinyUI <- tagList(
+shinyUI <- fluidPage(
+  theme = shinytheme("cerulean"),
+  
+  tagList(
+  
   shinyjs::useShinyjs(),
   includeCSS("www/progressBar/progressBar.css"),
   
   titlePanel("", windowTitle = "Prostar"),
+  
+  ###### DIV LOADING PAGE  #######
       div(
         id = "loading_page",
        # tagList(
@@ -36,17 +42,21 @@ shinyUI <- tagList(
         )
  )
    ),
+ 
+ ###### DIV MAIN CONTENT  #######
   hidden(
     div(
       id = "main_content",
+      
       rclipboardSetup(),
+      
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
-      inlineCSS(appCSS),
+      #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
-      sidebarPanelWidth()
+       sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
-      ,includeCSS("www/css/fontawesome.css")
+      #,includeCSS("www/css/fontawesome.css")
       , inlineCSS(".body { font-size:14px;}")
       , inlineCSS(".rect {float: left;
                   width: 100px;
@@ -56,18 +66,26 @@ shinyUI <- tagList(
       , inlineCSS(".green {background: green;}")
       , inlineCSS(".red {background:red;}")
       , inlineCSS(".grey {background:lightgrey;}"),
+      #tags$style(".btn.disabled {background-color: red;}"),
+     # inlineCSS('.btn{color: blue; background-color: #35e51d}'),
+      #inlineCSS('.btn-default{color:#555555;background-color:#ffbbff;border-color:rgba(0,0,0,0.1)}'),
       
       # #header {
       # position: fixed;
       # z-index: 100000;
       # }
 
-div(
+      div(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
-      navbarPage(theme = shinytheme("cerulean")
-                  ,id = "navPage"
-                  ,absolutePanel(
+      navbarPage(
+                 
+                 #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
+                 
+                  id = "navPage",
+                  #theme = shinytheme("cerulean")
+                  
+                  absolutePanel(
                     id  = "#AbsolutePanel",
                     top = 0, right = 50, width = "500px",height = "50px",
                     draggable = FALSE,fixed = FALSE,
@@ -93,10 +111,13 @@ div(
                               source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
                   )
-    )
-  )
-    )
+    ) ## end navbarPage
+  )  ## end div for main content 2
+    ) ## end div for main content 1
   
-))
+) ## end hidden
+
+)
+) ## end fluid
 
 

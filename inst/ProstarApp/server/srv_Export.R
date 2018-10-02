@@ -3,6 +3,9 @@ callModule(moduleStaticDataTable,"viewProcessingData",
            table2show=reactive({BuildParamDT()}), 
            withBtns = FALSE, showRownames=FALSE)
 
+callModule(moduleStaticDataTable,"viewProstarVersions", 
+           table2show=reactive({getPackagesVersions('installed')}), 
+           withBtns = FALSE, showRownames=FALSE)
 
 
 
@@ -148,7 +151,6 @@ output$chooseMetaDataExport <- renderUI({
 
 
 
-
 callModule(modulePopover,"modulePopover_exportMetaData", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Metadata</font></strong>")), 
                                 content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
@@ -168,12 +170,8 @@ callModule(modulePopover,"modulePopover_exportFilename",
 
 output$chooseExportFilename <- renderUI({
   
-  textInput("nameExport", 
-            label = "",
-            value = rv$current.obj.name)
+  textInput("nameExport", label = "", value = rv$current.obj.name)
 })
-
-
 
 
 

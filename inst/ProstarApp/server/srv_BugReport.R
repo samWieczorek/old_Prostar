@@ -31,7 +31,7 @@ output$BugReport_output <- renderUI({
     
     
     a(actionButton(inputId = "email1", label = "Contact maintainer", 
-                   icon = icon("envelope", lib = "font-awesome")),
+                   icon = icon("envelope", lib = "font-awesome"), class = actionBtnClass),
       href=paste0("mailto:", mail,"?subject=[Prostar bug report]&body="))
       ) 
 

@@ -95,10 +95,10 @@ getDataForExprs <- function(obj){
 
 
 getData <- reactive({
-  req(input$settings_nDigits)
+  req(rv$settings_nDigits)
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 })
 
@@ -166,10 +166,10 @@ BuildParamDT <- reactive({
 
 
 data <- eventReactive(rv$current$obj, {
-  input$settings_nDigits
+  rv$settings_nDigits
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 }, ignoreNULL = FALSE)
 
@@ -351,7 +351,8 @@ loadObjectInMemoryFromConverter <- function(){
     
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
     
-    rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+      rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+    
     
     ClearNavbarPage()
     BuildNavbarPage()

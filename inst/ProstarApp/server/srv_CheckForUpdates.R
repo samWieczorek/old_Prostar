@@ -45,7 +45,7 @@ output$update <- renderUI({
     tags$p(class="body",
            "Some of the packages of Prostar needs to be updated (for bug fixing). You can update Prostar by clicking on the Update button.
            This will attempt to update packages from CRAN and/or Bioconductor repositories."),
-    actionButton("updateProstar", "Update Prostar")
+    actionButton("updateProstar", "Update Prostar", class = actionBtnClass)
     )
   
   

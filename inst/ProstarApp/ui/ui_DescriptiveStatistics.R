@@ -6,7 +6,10 @@ tabPanel("Descriptive statistics",
                      #------------------------------------------------------------
                      tabPanel("Overview",
                               value = "DS_tabGeneral",
-                              moduleStaticDataTableUI("overview_DS")
+                              tagList(
+                                br(),
+                                moduleStaticDataTableUI("overview_DS")
+                                )
                      ),
                      
                      tabPanel(
@@ -62,6 +65,7 @@ tabPanel("Descriptive statistics",
                      tabPanel("PCA",
                               value="DS_PCA",
                               tagList(
+                                     uiOutput("WarningNA_PCA"),
                                      uiOutput("pcaOptions"),
                                             
                                      fluidRow(

@@ -19,7 +19,7 @@ tabPanel("Aggregation",
                                             
                                             radioButtons("AggregationOperator", "Operator", choices=c("mean"="mean")),
                                             numericInput("nTopn", "N",value = 3, min = 0, step=1, width='100px'),
-                                              actionButton("perform.aggregation","Perform aggregation")
+                                              actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
                                            
                                   ),
                                   tagList(uiOutput("AggregationWellPanel_Step1")

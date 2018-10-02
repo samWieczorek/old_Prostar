@@ -119,7 +119,14 @@ moduleBoxplotUI <- function(id) {
 
 moduleStaticDataTableUI <- function(id) {
     ns <- NS(id)
-    dataTableOutput(ns("StaticDataTable"))
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                dataTableOutput(ns("StaticDataTable"))
+      )
+    )
+    
+     
+
 }
 
 
