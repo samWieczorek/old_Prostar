@@ -1,7 +1,7 @@
 ## User manuals and tutorials
 
-1. <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf" target="_blank">ProStaR user manual</a>
-2. <a href="https://sites.google.com/site/thomasburgerswebpage/download/Prostar_Tutorial.pdf"  target="_blank">ProStaR tutorial</a>  (not up-to-date)
+1. <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf" target="_blank">Prostar user manual</a>
+2. <a href="https://sites.google.com/site/thomasburgerswebpage/download/Prostar_Tutorial.pdf"  target="_blank">Prostar tutorial</a>  (not up-to-date)
 3. <a href="https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf" target="_blank">cp4p tutorial</a>
 4. Prostar protein-level protocol (tba)
 
@@ -11,7 +11,7 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 
 ## Reference manuals
 
-1. <a href="https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf" target="_blank">ProStaR reference manual</a>
+1. <a href="https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf" target="_blank">Prostar reference manual</a>
 2. <a href="https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf" target="_blank">DAPAR reference manual</a>
 3. <a href="https://www.bioconductor.org/packages/release/bioc/html/MSnbase.html" target="_blank">MSnbase package webpage</a>
 4. <a href="https://cran.r-project.org/web/packages/cp4p/cp4p.pdf" target="_blank">CP4P reference manual</a>
