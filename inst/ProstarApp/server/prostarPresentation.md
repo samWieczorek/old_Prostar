@@ -6,12 +6,12 @@
 
 ## Data processing
 * **Filtering**: xxx
-* **Normalization**: xxx
+* **Normalization**: to correct batch or group effects.
 * **Imputation**: xxx
-* **Aggregation**: xxx
-* **Hypothesis testing**: xxx
+* **Aggregation**: for peptide-level datasets, it is possible to estimate protein abundances.
+* **Hypothesis testing**: to compute the significance of each protein differential abundance.
 
 ## Data mining
-* ** Descriptive statistics**: xxx
-* ** Differential analysis**: xxx
-* ** Gene Ontology analysis**: xxx
+* **Descriptive statistics**: available at any stage of the anayslys, for data exploration and visualization.
+* **Differential analysis**: xxx
+* **Gene Ontology analysis**: xxx
