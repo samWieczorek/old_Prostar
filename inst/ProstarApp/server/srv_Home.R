@@ -33,18 +33,22 @@ output$versionsText <- renderUI({
   
   tagList(
      tags$p(class="body",
-tags$b("DAPAR")," and ", tags$b("Prostar"), " form a 
-                software suite for quantitative analysis of mass spectrometry 
-           based proteomics. More specifically it is designed to process 
-           relative quantitative data from discovery experiments.", tags$br(),"
-           It is composed of two distinct R packages :",
-    tags$ul(
-      tags$li(tags$p(tags$a("Prostar", href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", target="_blank"),paste0(" (version ",
-                             ProstarVersion,"): the web based graphical user interface to DAPAR"))),
-      tags$li(tags$p(tags$a("DAPAR", href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", target="_blank"),paste0(" (version ",
-                              daparVersion,"): a collection of tools and graphs dedicated to proteomic analysis")))
-    )
+            tags$b("DAPAR"),
+            " and ", 
+            tags$b("Prostar"), 
+            " form a software suite devoted to the differential analysis of 
+              quantitative data resulting from discovery proteomics experiments.", 
+            tags$br(),
+            "It is composed of two distinct ",
+            tags$b("R"),
+            " packages:",
+            tags$ul(
+              tags$li(tags$p(tags$a("Prostar", href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", target="_blank"),paste0(" (version ",
+                             ProstarVersion,"), which proposes a web-based graphical user interface to DAPAR."))),
+               tags$li(tags$p(tags$a("DAPAR", href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", target="_blank"),paste0(" (version ",
+                              daparVersion,"), which contains all the routines to analyze and visualize proteomics data.")))
             )
+     )
 )
 })
 
