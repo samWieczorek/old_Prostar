@@ -13,5 +13,5 @@
 
 ## Data mining
 * **Descriptive statistics**: available at any stage of the anayslys, for data exploration and visualization.
-* **Differential analysis**: xxx
-* **Gene Ontology analysis**: xxx
+* **Differential analysis**: to select a list of differentially abundant proteins with a controlled false discovery rate.
+* **Gene Ontology analysis**: to  map a protein list onto GO terms and test category enrichment.
