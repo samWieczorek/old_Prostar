@@ -1,15 +1,15 @@
-### User manuals and tutorials
+## User manuals and tutorials
 
 1. <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf" target="_blank">ProStaR user manual</a>
 2. <a href="https://sites.google.com/site/thomasburgerswebpage/download/Prostar_Tutorial.pdf"  target="_blank">ProStaR tutorial</a>  (not up-to-date)
 3. <a href="https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf" target="_blank">cp4p tutorial</a>
 4. Prostar protein-level protocol (tba)
 
-### Contact
+## Contact
 
 If you need any help, but also if you wish to make comments or suggestions, please contact Samuel Wieczorek or Thomas Burger (firstname.lastname@cea.fr).
 
-### Reference manuals
+## Reference manuals
 
 1. <a href="https://www.bioconductor.org/packages/release/bioc/manuals/Prostar/man/Prostar.pdf" target="_blank">ProStaR reference manual</a>
 2. <a href="https://www.bioconductor.org/packages/release/bioc/manuals/DAPAR/man/DAPAR.pdf" target="_blank">DAPAR reference manual</a>
@@ -18,7 +18,7 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 5. <a href="https://cran.r-project.org/web/packages/imp4p/imp4p.pdf" target="_blank">IMP4P reference manual</a>
 
 
-## References
+## Bibliographical references
 
 ### Our referenced works
 
