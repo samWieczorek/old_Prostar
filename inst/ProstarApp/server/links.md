@@ -5,6 +5,10 @@
 3. <a href="https://sites.google.com/site/thomasburgerswebpage/download/tutorial-CP4P-4.pdf" target="_blank">cp4p tutorial</a>
 4. Prostar protein-level protocol (tba)
 
+5. [Prostar user manual](https://www.bioconductor.org/packages/release/bioc/vignettes/Prostar/inst/doc/Prostar_UserManual.pdf){:target="_blank"}
+6. [Prostar tutorial](https://sites.google.com/site/thomasburgerswebpage/download/Prostar_Tutorial.pdf) (not up-to-date)
+
+
 ## Contact
 
 If you need any help, but also if you wish to make comments or suggestions, please contact Samuel Wieczorek or Thomas Burger (firstname.lastname@cea.fr).
