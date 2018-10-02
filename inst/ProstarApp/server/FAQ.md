@@ -1,9 +1,9 @@
 ## FAQ table of contents
 
-* [Why does the table in experimental design blink during edition?](#Why-does-the-table-in-experimental-design-blink-during-edition)
+* [Why does the table in experimental design blink during edition?](#why-does-the-table-in-experimental-design-blink-during-edition)
 * How to build a valid experimental design?
 * Why do the items of the contextual menus for plots remain 'undefined'?
-* [Why does my volcano plot look so aligned?](#Why-does-my-volcano-plot-look-so-aligned)
+* [Why does my volcano plot look so aligned?](#why-does-my-volcano-plot-look-so-aligned)
 
 ## Why does the table in experimental design blink during edition?
 
