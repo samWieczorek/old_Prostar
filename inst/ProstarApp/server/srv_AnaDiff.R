@@ -1,7 +1,7 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), withBtns = TRUE)
-#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = TRUE)
+callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), withBtns = FALSE)
+#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = FALSE)
 
 
 output$anaDiffPanel <- renderUI({

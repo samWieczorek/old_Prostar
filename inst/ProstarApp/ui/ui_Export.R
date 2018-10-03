@@ -2,13 +2,14 @@ tabPanel("Export",
          value = "ExportTab",
          tabsetPanel(
            id = "Export_tabSetPanel",
-           tabPanel("Process summary",
-                    tagList(
-                      moduleStaticDataTableUI("viewProstarVersions"),
-                    br(),br(),br(),
-                    moduleStaticDataTableUI("viewProcessingData")
-                    )
-                    ),
+           # tabPanel("Process summary",
+           #          tagList(
+           #            moduleStaticDataTableUI("viewProstarVersions"),
+           #          br(),br(),br(),
+           #          downloadButton('downloadProcessingData', 'Download', class=actionBtnClass),
+           #          moduleStaticDataTableUI("viewProcessingData")
+           #          )
+           #          ),
            tabPanel("Export to file",
                     value = "export",
                     helpText("Export format of the dataset and filename."),
@@ -20,7 +21,17 @@ tabPanel("Export",
            
            tabPanel("Build report (Beta)",
                     tagList(
-                     bsCollapse(id = "collapseExport", open = c("Options"),
+                      tags$div(
+                        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                                  moduleStaticDataTableUI("viewProstarVersions")
+                        ),
+                        tags$div( style="display:inline-block; vertical-align: middle;",
+                                  moduleStaticDataTableUI("viewProcessingData")
+                        )
+                      ),
+                      br(),br(),br(),
+                      #downloadButton('downloadProcessingData', 'Download', class=actionBtnClass),
+                      bsCollapse(id = "collapseExport", open = c("Options"),
                                  bsCollapsePanel("Plots for data processing tools", 
                                                  tags$div(
                                                    tags$div( style="display:inline-block; vertical-align: top;",
@@ -143,21 +154,13 @@ tabPanel("Export",
                                                              )
                                                   ),
                                                  style = "primary"),
-                                 bsCollapsePanel("Plots for data mining tools", tagList(), style = "primary"),
-                                 bsCollapsePanel("Options", 
-                                                 tagList(
-                                                   tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                                                             selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800"), width='150px')),
-                                                 tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                                                           selectInput("resoPNGplots", "Resolution", choices = c(150), width='150px')),
-                                                 radioButtons('format', 'Report document format', c('PDF', 'HTML', 'Word'),inline = TRUE)
-                                                 ), style = "primary")
+                                 bsCollapsePanel("Plots for data mining tools", tagList(), style = "primary")
                                  
                       ),
                       
                       br(),
-                      actionButton("generateReport", "Generate report", class = actionBtnClass),
-                      downloadButton('downloadReport', "Download report", class = actionBtnClass)
+                      #actionButton("generateReport", "Generate report", class = actionBtnClass),
+                      downloadButton('downloadReport', "Build and download pdf report", class = actionBtnClass)
                     )
            )
            

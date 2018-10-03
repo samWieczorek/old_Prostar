@@ -1,26 +1,39 @@
 ---
 title: "ProStaR analysis report"
-
 output:
-  html_document:
-    toc: true
-    theme: united
-  pdf_document:
-    toc: true
-    theme: united
-
+  pdf_document: default
+  html_document: default
+always_allow_html: yes
 ---
+
 
 # Versions
 
 ```{r DT_versions,out.width = "50%", echo=FALSE}
-library(knitr)
-library(kableExtra)
-kable(as.data.frame(getPackagesVersions('installed')),escape = F)%>% row_spec(0,bold=TRUE,background = grey) %>% 
+require(knitr)
+require(kableExtra)
+df <- getPackagesVersions('installed')
+kable(as.data.frame(df[-3,]),escape = F)%>% row_spec(0,bold=TRUE, background='#fff8ff') %>% 
 kable_styling(bootstrap_options = c( "bordered","striped"), full_width = F)
+detach("package:kableExtra", unload=TRUE)
 
 ```
 
 
 
+# Summary 
+
+
+```{r DT_summary,out.width = "50%", echo=FALSE}
+require(knitr)
+require(kableExtra)
+df <- BuildParamDT()
+
+if (!is.null(df)){
+  kable(as.data.frame(df),escape = F)%>% row_spec(0,bold=TRUE,background = '#ffff0f') %>%
+  kable_styling(bootstrap_options = c( "bordered","striped"), full_width = F)
+}
+detach("package:kableExtra", unload=TRUE)
+
+```
 

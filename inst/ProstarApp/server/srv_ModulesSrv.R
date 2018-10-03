@@ -607,28 +607,11 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
                           option=list(initComplete = initComplete(),
                                 dom = 't',
                                 server = FALSE,
-                                #autoWidth=TRUE,
-                          columnDefs = list(list(width='200px',targets= "_all")),
+                                autoWidth=TRUE,
+                          columnDefs = list(list(width='150px',targets= "_all")),
                           ordering = FALSE
               )
             )
-      } else {
-        butt_js <- "[{
-          extend: 'csv',
-        text: 'View Columns',
-        filename: 'custom-filename'}]"
-        
-        DT::datatable(table2show(),
-                      escape = FALSE,
-                      rownames=showRownames,
-                      extensions = 'Buttons',
-                      options = list(initComplete = initComplete(),
-                                     dom = 'Bfrtip',
-                                     server = TRUE,
-                                     buttons = DT::JS(butt_js),
-                                     columnDefs = list(list(width='200px',targets= "_all")),
-                                     ordering = FALSE)
-        )
       }
       })
 

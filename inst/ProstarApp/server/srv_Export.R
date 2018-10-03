@@ -1,10 +1,10 @@
 
 callModule(moduleStaticDataTable,"viewProcessingData", 
            table2show=reactive({BuildParamDT()}), 
-           withBtns = TRUE, showRownames=FALSE)
+           withBtns = FALSE, showRownames=FALSE)
 
 callModule(moduleStaticDataTable,"viewProstarVersions", 
-           table2show=reactive({getPackagesVersions('installed')}), 
+           table2show=reactive({getPackagesVersions('installed')[-3,]}), 
            withBtns = FALSE, showRownames=FALSE)
 
 
@@ -250,4 +250,41 @@ output$choosedataTobuildReport <- renderUI({
   
 })
 
+
+# 
+# output$downloadProcessingData <- downloadHandler(
+#   
+#   filename = function() { 
+#     paste0('summary_', input$datasets,'.pdf')
+#   },
+#   content = function(file) {
+#     out <- rmarkdown::render('Rmd_sources/report.Rmd', 
+#                       output_file = rv$outfile,
+#                       rmarkdown::pdf_document())
+#   }
+# )
+#     
+
+
+######-----------------------------------------------------------------
+output$downloadReport <- downloadHandler(
+  input$reportFilename,
+  filename = function() {
+    paste0(input$reportFilename, sep = '.pdf')
+  },
+  
+  content = function(file) {
+    toto()
+    filename <- rv$outfile
+    print(filename)
+    require(rmarkdown)
+    #paramRmd <- list(current.obj=rv$current.obj)
+    out <- rmarkdown::render(rv$outfile, 
+                             output_file = file,
+                             pdf_document()
+    ) # END render
+    
+    #file.rename(out, file)
+  }
+)
 

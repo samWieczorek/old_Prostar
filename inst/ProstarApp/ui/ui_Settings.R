@@ -15,7 +15,13 @@ tabPanel(title="Global settings",
              style="display:inline-block; vertical-align: middle;",
              uiOutput("settings_nDigits_UI")
            )
-         )),
+         ),
+         tagList(
+           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                     selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800"), width='150px')),
+           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                     selectInput("resoPNGplots", "Resolution", choices = c(150), width='150px'))
+           )),
          tabPanel("Colors",
                   hidden(uiOutput("defineColorsUI"))
          )

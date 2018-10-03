@@ -12,28 +12,22 @@ GetTreeSelected <- function(toto){
   return(tmp)
 }
 
-######---------------------------------------------------------------------
-observeEvent(input$generateReport,{
- # req(input$chooseDatasetToExport)
+
+
+toto <- reactive({
   rv$dataset
-  #input$whichGO2Save
   
-  #nSteps <- 1 + length(input$chooseDatasetToExport)+ (Get_ParamValue('params.anaDiff','Condition1') != "")
-  #print(nSteps)
-  #addResourcePath('Rmd_sources', normalizePath('Rmd_sources'))
-  #withProgress(message = 'Calculation in progress',detail = '', value = 0, {
-                 
   ## Init the Rmd file for the report
   src <- file.path("Rmd_sources", "report.Rmd")
   rv$outfile <- tempfile(pattern = "report",fileext='.Rmd')
   file.create(rv$outfile)
   file.copy(src, rv$outfile, overwrite = TRUE)
-                 
-  if (!is.null(rv$current.obj)){
-      txt2Rmd <- readLines("Rmd_sources/summary.Rmd")
-      write(txt2Rmd, file = rv$outfile, append = TRUE, sep = "\n")
-  }            
-     
+  
+  # if (!is.null(rv$current.obj)){
+  #     txt2Rmd <- readLines("Rmd_sources/summary.Rmd")
+  #     write(txt2Rmd, file = rv$outfile, append = TRUE, sep = "\n")
+  # }            
+  #    
   ntotal <- 0
   for (i in 1:length(names(rv$dataset))){
     widgetName <- paste0('plotsFor.',names(rv$dataset)[i])
@@ -49,83 +43,47 @@ observeEvent(input$generateReport,{
       print(paste0("Dataset:",names(rv$dataset)[i]))
       widgetName <- paste0('plotsFor.',names(rv$dataset)[i])
       widgetName <- gsub(".", "_", widgetName, fixed=TRUE)
+      write(paste0("# ",gsub(".", "_", names(rv$dataset)[i], fixed=TRUE),"
+                   " ), file = rv$outfile,append = TRUE, sep = "\n")
       
       ll_plots <-  GetTreeSelected(input[[widgetName]])
-         for (plot.name in ll_plots) {
-          
-            obj <- rv$dataset[[names(rv$dataset)[i]]]
-            pattern <- paste0(names(rv$dataset)[i],".", plot.name)
-            incProgress(1/ntotal, detail = paste0('Building ',pattern))
-            params <- NULL
-            #params <- GetParamsForPlot()
-            #pngfile <- createPNG_BoxplotHC(obj,params,basename = pattern)
-            print(paste0("createPNG_",plot.name))
-            pngfile <- do.call(paste0("createPNG_",plot.name),
-                            list(obj=obj,params=params,basename = pattern))
-            
-            addPNG_to_Rmd(pngfile, paste0("fig_",pattern), rv$outfile)
+      for (plot.name in ll_plots) {
         
-          # future(do.call(paste0("createPNG_",plot.name),
-          #                list(obj=obj,params=params,basename = pattern))) %...>%
-          #   addPNG_to_Rmd(paste0("fig_",pattern), rv$outfile)
-        }
+        obj <- rv$dataset[[names(rv$dataset)[i]]]
+        pattern <- paste0(names(rv$dataset)[i],".", plot.name)
+        pattern <- gsub(".", "_", pattern, fixed=TRUE)
+        
+        incProgress(1/ntotal, detail = paste0('Building ',pattern))
+        params <- NULL
+        #params <- GetParamsForPlot()
+        #pngfile <- createPNG_BoxplotHC(obj,params,basename = pattern)
+        print(paste0("createPNG_",plot.name))
+        pngfile <- do.call(paste0("createPNG_",plot.name),
+                           list(obj=obj,params=params,basename = pattern))
+        
+        addPNG_to_Rmd(pngfile, paste0("fig_",pattern), rv$outfile)
+      }
     }
-  })         
-           
-                   ## Insert differential analysis
-                   # if (Get_ParamValue('params.anaDiff','Condition1') != "") {
-                   #   createPNG_DifferentialAnalysis()
-                   #  txt2Rmd <- readLines("Rmd_sources/anaDiff_Rmd.Rmd")
-                   #   write(txt2Rmd, file = rv$outfile,append = TRUE, sep = "\n")
-                   #   #incProgress(1/nSteps, detail = paste("Computing differential analysis"))
-                   #   
-                   # }
-                 
-                 
-                   ## Insert GO analysis
-                   # if(!is.null){
-                   #   switch(input$whichGO2Save,
-                   #        Both={
-                   #          createPNG_Enrichment()
-                   #          createPNG_GroupGO()
-                   #          txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-                   #          filename <- paste(tempdir(), 'report.Rmd',sep="/")
-                   #          write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                   #          
-                   #          txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-                   #          filename <- paste(tempdir(), 'report.Rmd',sep="/")
-                   #          write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                   #        },
-                   #        Classification={
-                   #          createPNG_GroupGO()
-                   #          txt2Rmd <- readLines("Rmd_sources/GO_Classification_Rmd.Rmd")
-                   #          filename <- paste(tempdir(), 'report.Rmd',sep="/")
-                   #          write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                   #        },
-                   #        Enrichment={
-                   #          createPNG_Enrichment()
-                   #          txt2Rmd <- readLines("Rmd_sources/GO_Enrichment_Rmd.Rmd")
-                   #          filename <- paste(tempdir(), 'report.Rmd',sep="/")
-                   #          write(txt2Rmd, file = filename,append = TRUE, sep = "\n")
-                   #        },
-                   #        default=NULL
-                   # )
-                   # }
-               
-                 
-         # })
-
-  shinyjs::enable("downloadReport")
-  #setwd(wd)
+  })
+  
+  
 })
-
+  
+ 
 
 addPNG_to_Rmd <- function(pngfilename, tagRmd, outfile){
-  txt <- paste0("```{r ",tagRmd,",out.width = \"75%\", echo=FALSE}
-  filename <-  normalizePath(paste(tempdir(), '",pngfilename,"', sep=\"/\"))
-                if (file.exists(filename)){knitr::include_graphics(filename) }
-                ```")
+  
+  
+  txt <- paste0("
+```{r ",tagRmd,",out.width = '75%', echo=FALSE}
+  filename <-  normalizePath(paste(tempdir(), '",pngfilename,"', sep='/'), winslash='/')
+  if (file.exists(filename)){knitr::include_graphics(filename) }
+
+ ```
+")
+
   write(txt, file = outfile,append = TRUE, sep = "\n")
+
 }
 
 
@@ -423,30 +381,4 @@ foreach(i=1:l) %dopar% {
 
 
 
-######-----------------------------------------------------------------
-output$downloadReport <- downloadHandler(
-    input$reportFilename,
-    filename = function() {
-        paste(input$reportFilename, sep = '.', switch(
-            input$format, PDF = 'pdf', HTML = 'html', Word = 'docx'
-        ))
-    },
-    
-    content = function(file) {
-        filename <- rv$outfile
-        print(filename)
-        library(rmarkdown)
-        #paramRmd <- list(current.obj=rv$current.obj)
-        out <- rmarkdown::render(rv$outfile, 
-                      output_file = file,
-                      switch(
-                          input$format,
-                          PDF = pdf_document(), 
-                          HTML = html_document(), 
-                          Word = word_document()
-                      )
-                  ) # END render
-        #file.rename(out, file)
-    }
-)
 
