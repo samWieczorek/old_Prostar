@@ -97,7 +97,7 @@ This type of install works with any operating system among Unix/Linux, Mac OS X 
 However, it is necessary to have the latest version of R installed in a directory where the user has read/write permissions. 
 
 1. Install Bioconductor package manager by copy-paste of teh following commands (see Bioconductor webpage for details):
-```r
+```R
 chooseCRANmirror()
 install.packages("BiocManager")
 ```
