@@ -8,9 +8,9 @@
 
 | &#x2610; [Home](#home) |  | &#x2610; [Prostar](#prostar) | | &#x2610; [Support & Resources](#support-resources) | | &#x2610; [Community](#community)  |
 | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ |
-| &rarr; [About](#about)  | | &rarr; [Zero-install](#zero-install)  |  | &rarr; [Useful links](#useful-links)  |  | &rarr; [Team presentation](#team-presentation)  |
-| &rarr; [Citation](#citation) | | &rarr; [Bioconductor installs](#bioconductor-installs)  |  | &rarr; [FAQ](#frequently-asked-questions)  |  | &rarr; [Bug report](#bug-report)  |
-| &rarr; [Version](#version)  | | &rarr; [Online demo](#online-demo) | |  &rarr; [Forum](#forum)  |  | &rarr; [Happiness report](#happiness-report)  |
+| -&rarr; [About](#about)  | | &rarr; [Zero-install](#zero-install)  |  | &rarr; [Useful links](#useful-links)  |  | &rarr; [Team presentation](#team-presentation)  |
+| &minus;&rarr; [Citation](#citation) | | &rarr; [Bioconductor installs](#bioconductor-installs)  |  | &rarr; [FAQ](#frequently-asked-questions)  |  | &rarr; [Bug report](#bug-report)  |
+| &ndash;&rarr; [Version](#version)  | | &rarr; [Online demo](#online-demo) | |  &rarr; [Forum](#forum)  |  | &rarr; [Happiness report](#happiness-report)  |
 | &rarr; [Presentation](#presentation) | | &rarr; [Release Notes](#release-notes) | | | |  | 
 
 **Direct access to [Zero-install version of Prostar](#zero-install) or to the [Online demo](#online-demo).**
