@@ -1,6 +1,7 @@
 ![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png 
 "Prostar logo")
 
+# Menu
 
 | [Home](#home)   | [Prostar](#prostar)  | [Support & Resources](#support-resources)  | [Community](#community)  |
 | :------------: | :------------: | :------------: | :------------: |
@@ -12,7 +13,7 @@
 
 
 
-Direct access to [Zero-install version of Prostar](#zero-install) and to the [Online demo](#online-demo).
+Direct access to [Zero-install version of Prostar](#zero-install) or to the [Online demo](#online-demo).
 
 ------------
 
