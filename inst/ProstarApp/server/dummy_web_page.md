@@ -1,7 +1,7 @@
 ![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png 
 "Prostar logo")
 
-## Menu
+# Menu
 
 | ~~ [Home](#home) ~~ | | ~~ [Prostar](#prostar) ~~  | | ~~ [Support & Resources](#support-resources) ~~ | | ~~ [Community](#community) ~~ |
 | :------------: | :------------: | :------------: | :------------: | :------------: | :------------: | :------------: |
