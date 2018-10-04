@@ -26,7 +26,7 @@ and well-documented (see our [reference page](#useful-links)).
 Moreover, it has been regularly updated along years to provide state-of-the-art data science methodologies.
 
 ## Citation
-Maintaining Prostar as free software is a heavy duty. Please cite the following reference
+**Maintaining Prostar as free software is a heavy duty. Please cite the following reference**
 
 *S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger*.  
 DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics.  
