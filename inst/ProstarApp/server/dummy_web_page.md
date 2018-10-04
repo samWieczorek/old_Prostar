@@ -1,5 +1,5 @@
 ![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png 
-"Prostar logo")
+"Prostar logo" =25x)
 ------------
 # Menu
 
