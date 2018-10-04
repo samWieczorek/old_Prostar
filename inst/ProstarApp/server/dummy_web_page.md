@@ -33,6 +33,7 @@ Moreover, it has been regularly updated along years to provide state-of-the-art 
 DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics.  
 **Bioinformatics** 33(1), 135-136, 2017.
 <a href="http://doi.org/10.1093/bioinformatics/btw580" target="_blank">http://doi.org/10.1093/bioinformatics/btw580.</a>
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Version
 **dd/mm/yyyy:**  
@@ -40,7 +41,7 @@ Prostar version 1.XX has been released on the Bioconductor.
 
 **dd/mm/yyyy:**  
 Prostar version 1.YY is available through the Zero-install.
-
+<div align="right"><a href="#menu">↥ menu</a></div>
 ## Presentation
 ### Data management
 * **Conversion**: To import a tabulated file containing quantitative data and convert it into an MSnset structure.
