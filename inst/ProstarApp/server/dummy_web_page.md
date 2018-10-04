@@ -1,4 +1,5 @@
-![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png "Volcano plot resulting from a Limma issue")
+![alt text](https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png 
+"Prostar logo")
 
 
 | [Home](#home)   | [Prostar](#prostar)  | [Support & Resources](#support-resources)  | [Community](#community)  |
@@ -19,14 +20,22 @@ Direct access to [Zero-install version of Prostar](#zero-install) and to the [On
 ## About
 Prostar is a software tool devoted to the differential analysis of quantitative data resulting from discovery proteomics experiments.
 
-Prostar is easy to install (see our Zero-install page), easy to use (thanks to its Shiny-based click-button interface) and well-documented (see our reference page). Moreover, it has been regularly updated along years to provide state-of-the-art data science methodologies.
+Prostar is easy to install (see our [Zero-install page](#zero-install)), 
+easy to use (thanks to its [Shiny](https://shiny.rstudio.com/)-based click-button interface) 
+and well-documented (see our [reference page](#useful-links)). 
+Moreover, it has been regularly updated along years to provide state-of-the-art data science methodologies.
 
 ## Citation
 Maintaining Prostar as free software is a heavy duty. Please cite the following reference
 
 *S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, C. Bruley and T. Burger*.  
 DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics.  
-**Bioinformatics** 33(1), 135-136, 2017. [http://doi.org/10.1093/bioinformatics/btw580](http://doi.org/10.1093/bioinformatics/btw580 "http://doi.org/10.1093/bioinformatics/btw580")
+**Bioinformatics** 33(1), 135-136, 2017.
+<a href="http://doi.org/10.1093/bioinformatics/btw580" target="_blank">http://doi.org/10.1093/bioinformatics/btw580.</a>
+
+
+
+
 
 ## Version
 **dd/mm/yyyy:**  
@@ -86,10 +95,12 @@ Prostar version 1.YY is available through the Zero-install.
 
 #### New features
 * The entire pipeline is now compatible with datasets with more than 2 conditions.
-* Descriptive statistics: The expression datasets are colored with respect to the nature of missing value (either POV or MEC, see below), even when the value has been imputed.
+* Descriptive statistics: The expression datasets are colored with respect to the nature of missing value 
+(either POV or MEC, see below), even when the value has been imputed.
 * Filtering: Manage designs with more than 2 conditions and with conditions containing different number of samples.
 * Filtering: More user friendly interface for the string-based filtering (Tab 2).
-* Imputation (protein level): Distinction between missing values on an entire condition (Missing on the Entire Condition - MEC) and the other ones (Partially Observed Value - POV).
+* Imputation (protein level): Distinction between missing values on an entire condition 
+(Missing on the Entire Condition - MEC) and the other ones (Partially Observed Value - POV).
 * Imputation (protein level): for POV, it is possible to use SLSA which take into account the experimental design.
 * Differential analysis: All tests can be applied on datasets with different number of samples in each condition.
 * Differential analysis: Limma takes into account all the hierarchical experimental designs.
@@ -109,16 +120,22 @@ Prostar version 1.YY is available through the Zero-install.
 * Tooltip implementation.
 
 # Prostar
-1. **Zero-install:** The easiest way, so far only available on Microsoft Windows desktop machines.
-2. **Stand-alone Bioconductor install:** The standard method to install Bioconductor distributed software. This method works for any operating systems (Unix/Linux, Mac OS X and Windows) as long as R is installed.
-3. **Server install:** When one wants Prostar to run on a Unix server, on which remote users connect. This more advanced type of install is detailed in the user manual.
-4. **Online demo:** Before installing Prostar on your desktop machine, test our online demo!
+1. [**Zero-install**](#zero-install)  
+The easiest way, so far only available on Microsoft Windows desktop machines.
+2. [**Stand-alone Bioconductor install**](#bioconductor-installs)  
+The standard method to install Bioconductor distributed software. 
+This method works for any operating systems (Unix/Linux, Mac OS X and Windows) as long as R is installed.
+3. **Server install**  
+When one wants Prostar to run on a Unix server, on which remote users connect. 
+This more advanced type of install is detailed in the [user manual](#useful-links).
+4. [**Online demo**](#online-demo)  
+Before installing Prostar on your desktop machine, test our online demo!
 
 ## Zero-install
 
 Just download the zip file below and unzip it !
 
-[**Download Prostar 1.X.X zip file**](http://live.prostar-proteomics.org/ "Download Prostar 1.X.X zip file") (Release date: XX/XX/XXXX)
+<a href="http://live.prostar-proteomics.org/" target="_blank">**Download Prostar 1.X.X zip file**</a> (Release date: XX/XX/XXXX)
 
 The unzipped folder contains an executable file which directly launches Prostar.
 
@@ -130,7 +147,9 @@ The unzipped folder contains an executable file which directly launches Prostar.
 
 ## Bioconductor installs
 
-Only stand-alone install is detailed below. For server install, please refer to the user manual. This type of install works with any operating system among Unix/Linux, Mac OS X and Windows. However, it is necessary to have the latest version of R installed in a directory where the user has read/write permissions. 
+Only stand-alone install is detailed below. For server install, please refer to the user manual. 
+This type of install works with any operating system among Unix/Linux, Mac OS X and Windows. 
+However, it is necessary to have the latest version of R installed in a directory where the user has read/write permissions. 
 
 1. Install Bioconductor package manager by copy-paste of teh following commands (see Bioconductor webpage for details):
 ```r
@@ -148,7 +167,8 @@ library(Prostar)
 Prostar()
 ```
 
-4. For a better experience, it is advised to install the development version DT and highcharter packages. To do so, install the devtools package and execute the following commands:
+4. For a better experience, it is advised to install the development version DT and highcharter packages. 
+To do so, install the devtools package and execute the following commands:
 ```r
 install.packages("devtools")
 devtools::install_github('rstudio/DT')
@@ -158,9 +178,11 @@ devtools::install_github('jbkunst/highcharter')
 ## Online demo
 
 An online demo of Prostar software is available at:
-[**http://live.prostar-proteomics.org**](http://live.prostar-proteomics.org/ "http://live.prostar-proteomics.org")
+<a href="http://live.prostar-proteomics.org/" target="_blank">**http://live.prostar-proteomics.org**</a>
 
-**Remark:** The server hosting the online demo has limiting capacities. Thus, uploading your own dataset may lead to server overload. To test the online demo, please rely on the toy datasets that are available in "Demo data" (from "Data manager" menu).
+**Remark:** The server hosting the online demo has limiting capacities. 
+Thus, uploading your own dataset may lead to server overload. 
+To test the online demo, please rely on the toy datasets that are available in "Demo data" (from "Data manager" menu).
 
 # Support & resources
 ## Useful links
@@ -218,11 +240,16 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 
 ### Why does the table in experimental design blink during edition?
 
-When you edit the experimental design (during converting a text file to MSnset or during the update of the design), it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
+When you edit the experimental design (during converting a text file to MSnset or during the update of the design),
+it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. 
+This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : 
+this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
 
 
 ### How to build a valid experimental design? 
-In Prostar, the differential analysis is devoted is devoted to the processing of hierarchical unpaired experimental designs . However, in former versions, this was not explicit enough, so that users with paired samples could used Prostar with wrong assumptions. To clear this out, we have changed the experimental design construction step so that its explicitly appears unpaired.
+In Prostar, the differential analysis is devoted is devoted to the processing of hierarchical unpaired experimental designs . 
+However, in former versions, this was not explicit enough, so that users with paired samples could used Prostar with wrong assumptions. 
+To clear this out, we have changed the experimental design construction step so that its explicitly appears unpaired.
 
 As a result, the samples must now be numbered as in the following example:
 
@@ -234,14 +261,19 @@ As opposed to:
 * Condition 1: 1 - 2 - 3 - 4,
 * Condition 2: 1 - 2 - 3 - 4
 
-Which, depending on the context, could suggest that the 8 samples comes only from 4 different biological subjects, and thus leading to paired tests - for instance, patients that are compared between Before (Condition 1) and After (Condition 2) some treatment.
+Which, depending on the context, could suggest that the 8 samples comes only from 4 different biological subjects, 
+and thus leading to paired tests - for instance, patients that are compared between Before (Condition 1) and After (Condition 2) some treatment.
 
-However, one should note that even if the experimental design now looks different, this is just due to a numbering convention, and the statistical test is not impacted.
+However, one should note that even if the experimental design now looks different, 
+this is just due to a numbering convention, and the statistical test is not impacted.
 
 
 ### Why do the items of the contextual menus for plots remain 'undefined'?
-This happens if the version of the package 'highcharter' is less or equal to 0.5.0. To fix this issue, you should install the devel version of the package by typing the following command in a R console: devtools::install_github('jbkunst/highcharter')
-
+This happens if the version of the package 'highcharter' is less or equal to 0.5.0. 
+To fix this issue, you should install the devel version of the package by typing the following command in a R console: 
+```r
+devtools::install_github('jbkunst/highcharter')
+```
 
 ### Why does my volcano plot look so aligned?
 
@@ -256,7 +288,8 @@ From Prostar 1.14, the differential analysis results are not exported anymore wh
 ## Forum
  
 Our community forum is hosted by the Bioconductor:
-[https://support.bioconductor.org/t/prostar/](https://support.bioconductor.org/t/prostar/)
+<a href="https://support.bioconductor.org/t/prostar/" target="_blank">**https://support.bioconductor.org/t/prostar/**</a>
+
 
 
 # Community
@@ -266,10 +299,21 @@ Our community forum is hosted by the Bioconductor:
 ### Core team
 
 **Samuel Wiezcorek**  
-After a first career as IT support technician, Sam obtained an engineering degree (2004) at "Conservatoire National des Arts et Métiers", followed by a MS degree in computer sciences and a PhD in machine learning (2009) at Grenoble-Alpes University. Since then, he has been working as a research engineer at EDyP-lab, where he has been developing and maintaining software tools for proteomics. Sam has been involved in Prostar project since its beginning. He is the code guru and supervises all the software aspects of the project, such as coding, packaging, deployment, debugging, graphical user interfaces, etc.
+After a first career as IT support technician, Sam obtained an engineering degree (2004) at "Conservatoire National des Arts et Métiers", 
+followed by a MS degree in computer sciences and a PhD in machine learning (2009) at Grenoble-Alpes University. 
+Since then, he has been working as a research engineer at EDyP-lab, where he has been developing and maintaining software tools for proteomics. 
+Sam has been involved in Prostar project since its beginning. 
+He is the code guru and supervises all the software aspects of the project, such as coding, packaging, deployment, 
+debugging, graphical user interfaces, etc.
 
-[**Thomas Burger**](https://sites.google.com/site/thomasburgerswebpage "Tom webpage")  
-After two MS degrees in computer sciences and in applied mathematics (2004), Thomas defended a PhD in pattern recognition (2007) at Grenoble-Alpes University. From 2008 to 2011, he held an associate professor position in statistics (South Britany University). In November 2011, he obtained a full time CNRS researcher position at EDyP-lab, and started addressing computational proteomics questions. He is the principal investigator of Prostar project. His expertise focuses on the statistical, methodological and algorithmic aspects of proteomics data analysis.  
+
+<a href="https://sites.google.com/site/thomasburgerswebpage" target="_blank">**Thomas Burger**</a>  
+After two MS degrees in computer sciences and in applied mathematics (2004), 
+Thomas defended a PhD in pattern recognition (2007) at Grenoble-Alpes University. 
+From 2008 to 2011, he held an associate professor position in statistics (South Britany University). 
+In November 2011, he obtained a full time CNRS researcher position at EDyP-lab, and started addressing computational proteomics questions. 
+He is the principal investigator of Prostar project. 
+His expertise focuses on the statistical, methodological and algorithmic aspects of proteomics data analysis.  
 
 
 **Contact us** - firstname.lastname@cea.fr
@@ -281,17 +325,20 @@ After two MS degrees in computer sciences and in applied mathematics (2004), Tho
 * [Laurent Gatto](https://lgatto.github.io/) (Université catholique de Louvain, Belgique)
 * Cosmin Lazar
 * Hélène Borges
-* [Yohann Couté](https://scholar.google.fr/citations?user=pUQIR6wAAAAJ&hl=fr)
+* <a href="https://scholar.google.fr/citations?user=pUQIR6wAAAAJ&hl=fr" target="_blank">Yohann Couté</a>
 * Christophe Bruley
 * Anne-Marie Hesse
 * Alexia Dorffer​
 
 ### Beta-testing & co.
-The entire EDyP proteomics platform (see [www.edyp.fr](www.edyp.fr)): Prostar being permanently hosted by EDyP lab, the first users (the original ones, but also the testers) are naturally the lab members. They are all warmly acknowledged for their contributions.
+The entire EDyP proteomics platform (see <a href="www.edyp.fr" target="_blank">www.edyp.fr</a>): 
+Prostar being permanently hosted by EDyP lab, the first users (the original ones, but also the testers) are naturally the lab members. 
+They are all warmly acknowledged for their contributions.
 
 ## Bug report
 
-To report any issue with Prostar, it is best to use the devoted tab in Prostar software (click on **Bug report** in the **Help menu**), as it allows easy sharing of the session logs and data (essential to efficient debugging).
+To report any issue with Prostar, it is best to use the devoted tab in Prostar software (click on **Bug report** in the **Help menu**), 
+as it allows easy sharing of the session logs and data (essential to efficient debugging).
 
 ​However, it is also possible to the development team by email (see [team presentation](#team-presentation)).
 
