@@ -8,7 +8,7 @@
 | [About](#about)  | [Zero-install](#zero-install)  | [Useful links](#useful-links)  | [Team presentation](#team-presentation)  |
 | [Citation](#citation) | [Bioconductor installs](#bioconductor-installs)  | [FAQ](#frequently-asked-questions)  | [Bug report](#bug-report)  |
 | [Version](#version)  |  [Online demo](#online-demo) | [Forum](#forum)  | [Happiness report](#happiness-report)  |
-| [Presentation](#presentation) | [Release Notes](#release-notes)  |  
+| [Presentation](#presentation) | [Release Notes](#release-notes)
 
 
 
