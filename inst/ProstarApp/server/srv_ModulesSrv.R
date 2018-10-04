@@ -586,7 +586,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE) {
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='t') {
     
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
@@ -600,19 +600,17 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       if (length(table2show())==0){return(NULL)}
       
       isolate({
-        if (withBtns == FALSE){
            DT::datatable(table2show(), 
                           escape = FALSE,
                           rownames= showRownames,
                           option=list(initComplete = initComplete(),
-                                dom = 't',
+                                dom = dom,
                                 server = FALSE,
                                 autoWidth=TRUE,
                           columnDefs = list(list(width='150px',targets= "_all")),
                           ordering = FALSE
               )
             )
-      }
       })
 
     })

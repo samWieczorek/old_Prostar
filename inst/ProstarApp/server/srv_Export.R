@@ -1,11 +1,15 @@
 
 callModule(moduleStaticDataTable,"viewProcessingData", 
-           table2show=reactive({BuildParamDT()}), 
-           withBtns = FALSE, showRownames=FALSE)
+           table2show=reactive({BuildParamDataProcessingDT()}), 
+           showRownames=FALSE)
+
+callModule(moduleStaticDataTable,"viewDataMining", 
+           table2show=reactive({BuildParamDataMiningDT()}), 
+           showRownames=FALSE)
 
 callModule(moduleStaticDataTable,"viewProstarVersions", 
            table2show=reactive({getPackagesVersions('installed')[-3,]}), 
-           withBtns = FALSE, showRownames=FALSE)
+           showRownames=FALSE)
 
 
 
@@ -60,23 +64,6 @@ output$choosedataToExportMSnset <- renderUI({
                choices = c("None"="None",.choices))
   
 })
-
-
-
-
-
-# output$viewProcessingData <- DT::renderDataTable({
-#   DT::datatable(BuildParamDT(), escape=FALSE,
-# option=list(initComplete = initComplete(),
-#             pageLength=DT_pagelength,
-#             orderClasses = TRUE,
-#             autoWidth=FALSE,
-#             dom = 'R<"clear">lfrtip',
-#             columnDefs = list(list(columns.width=c("60px"),
-#                                    columnDefs.targets= c(list(0),list(1),list(2)))))
-# )
-# }
-# )
 
 
 

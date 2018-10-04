@@ -21,31 +21,31 @@ output$warningDependanciesVersion <- renderUI({
 
 
 
-
-output$versionNotes <- renderUI({
-  
-  
-  tagList(
-    tags$h4("News in Prostar 1.13.6"),
-    tags$h5("Bug fixed:"),
-    tags$ol(
-      tags$li("Auto reset of dropdown menu in differential analysis.")
-    ),
-    
-    tags$h5("New features:"),
-    
-    tags$ol(
-      tags$li("In the feature metadata table, the FC tag has been replaced by 'logFC'. In the 
-              experimental design table, the column names 'Experiment' and 'Label' have been replaced
-              respectively by 'Sample.name' and 'Condition'."),
-      tags$li("Better managment of dropdown menus"),
-      tags$li("Add a Bug report tab in the 'Help' menu"),
-      tags$li("Reorganisation of the menus: Data preprocessing, Data mining"),
-      tags$li("Add proportions in logFC distribution plot"),
-      tags$li("Delete the dependency to the package imputeLCMD"),
-      tags$li("Add LOESS and vsn as new normalisation methods")
-      )
-    
-    
-    )
-})
+# 
+# output$versionNotes <- renderUI({
+#   
+#   
+#   tagList(
+#     tags$h4("News in Prostar 1.13.6"),
+#     tags$h5("Bug fixed:"),
+#     tags$ol(
+#       tags$li("Auto reset of dropdown menu in differential analysis.")
+#     ),
+#     
+#     tags$h5("New features:"),
+#     
+#     tags$ol(
+#       tags$li("In the feature metadata table, the FC tag has been replaced by 'logFC'. In the 
+#               experimental design table, the column names 'Experiment' and 'Label' have been replaced
+#               respectively by 'Sample.name' and 'Condition'."),
+#       tags$li("Better managment of dropdown menus"),
+#       tags$li("Add a Bug report tab in the 'Help' menu"),
+#       tags$li("Reorganisation of the menus: Data preprocessing, Data mining"),
+#       tags$li("Add proportions in logFC distribution plot"),
+#       tags$li("Delete the dependency to the package imputeLCMD"),
+#       tags$li("Add LOESS and vsn as new normalisation methods")
+#       )
+#     
+#     
+#     )
+# })

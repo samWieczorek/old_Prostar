@@ -1,4 +1,4 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}))
 
 
 

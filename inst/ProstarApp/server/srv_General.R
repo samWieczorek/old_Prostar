@@ -134,7 +134,7 @@ GetDatasetOverview <- reactive({
   do
 })
 
-BuildParamDT <- reactive({
+BuildParamDataProcessingDT <- reactive({
    req(rv$current.obj)
   req(input$datasets)
   tmp.params <- rv$current.obj@experimentData@other$Params
@@ -161,6 +161,28 @@ BuildParamDT <- reactive({
   df
 })
 
+
+
+BuildParamDataMiningDT <- reactive({
+  req(rv$current.obj)
+  
+  nbLines <- sum(!is.null(rv$params.anaDiff), !is.null(rv$params.GO))
+  df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
+                   Process = rep("",length(names(nbLines))),
+                   Parameters = rep("",length(names(nbLines))),
+                   stringsAsFactors = FALSE)
+ 
+  if (!is.null(rv$params.anaDiff)){
+    df[1,"Dataset"]<- input$datasets
+    df[1,"Process"]<- "Differential analysis"
+    ll <- setNames(split(rv$params.anaDiff[,2], seq(nrow(rv$params.anaDiff))), rv$params.anaDiff[,1])
+    df[1,"Parameters"]<- getTextForAnaDiff(ll)
+    } else {}
+  
+  
+  print(df)
+  df
+})
 
 
 

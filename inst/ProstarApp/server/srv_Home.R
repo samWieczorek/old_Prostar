@@ -12,7 +12,7 @@ output$citationText <- renderUI({
           tags$u("DAPAR & ProStaR: software to perform statistical 
                 analyses in quantitative discovery."),
                 tags$b("Bioinformatics"),", 33(1), 135-136, 2017.",
-                tags$a("(pdf)", href="http://doi.org/10.1093/bioinformatics/btw580", target="_blank")
+                tags$a("http://doi.org/10.1093/bioinformatics/btw580", href="http://doi.org/10.1093/bioinformatics/btw580", target="_blank")
                 )
       )
   )

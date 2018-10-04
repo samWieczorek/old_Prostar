@@ -10,7 +10,7 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
 
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)

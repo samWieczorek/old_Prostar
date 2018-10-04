@@ -36,10 +36,10 @@ moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
     tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
                 uiOutput(ns("nbSelectedItems"))
       ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
+      tags$div( style="display:inline-block; vertical-align: top;",
                 highchartOutput(ns("volcanoPlot"), width='600px', height='600px')
       )
     ),

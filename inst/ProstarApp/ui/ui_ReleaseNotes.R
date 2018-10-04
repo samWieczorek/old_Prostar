@@ -1,6 +1,6 @@
 tabPanel("Release notes",
          value="ReleaseNotesTab",
-         #uiOutput("versionNotes"),
-         includeMarkdown("server/versionNotes.md"),
-         includeMarkdown("server/formerReleases.md"),
+         bsCollapse(id = "collapseFormerReleases", open = "Current release",multiple = TRUE,
+                    bsCollapsePanel("Current release", includeMarkdown("server/versionNotes.md"),style = "info"),
+                    bsCollapsePanel("Former releases", includeMarkdown("server/formerReleases.md"),style = "info")),
          uiOutput("warningDependanciesVersion"))

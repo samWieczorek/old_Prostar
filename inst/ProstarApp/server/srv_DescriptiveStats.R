@@ -3,10 +3,10 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(missingValuesPlots, "MVPlots_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}), withBtns = FALSE)
+callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), withBtns = FALSE, showRownames=TRUE)
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
 # outs <- outputOptions(output)

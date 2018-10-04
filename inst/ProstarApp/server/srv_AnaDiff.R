@@ -1,7 +1,7 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({input$selectComparison}),reactive({input$tooltipInfo}))
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), withBtns = FALSE)
-#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}), withBtns = FALSE)
+callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({rv$params.anaDiff}), dom='t')
+#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
 
 
 output$anaDiffPanel <- renderUI({
@@ -35,15 +35,14 @@ output$diffAna_pairwiseComp <- renderUI({
    # actionLink("toggleSidebar", "Hide/show options"),
   sidebarCustom(),
            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-  div(id="sidebar_diffAna_1",
       wellPanel(
                id = "sidebar_DiffAna2",
                height = "100%"
                ,uiOutput("newComparisonUI")
                ,uiOutput("diffAnalysis_PairwiseComp_SB")
                ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
-                )
-      ),
+                ),
+   
    moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
 
            #)
@@ -88,9 +87,9 @@ output$diffAna_fdrCompute <- renderUI({
                 id = "sidebar_DiffAna3", height = "100%",
                 numericInput("seuilPVal",  "Define the -log10(p_value) threshold",
                              min = 0,value = 0,step=0.1, width='100px'),
-                checkboxInput("showpvalTable","Show p-value table", value=FALSE),
                 uiOutput("tooltipInfo"),
                 br(),
+                checkboxInput("showpvalTable","Show p-value table", value=FALSE),
                 radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" )),
                 downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass)
                 
@@ -114,12 +113,11 @@ output$anaDiff_selectedItems <- renderDT({
   DT::datatable(GetSelectedItems(),
                 escape = FALSE,
                 rownames=TRUE,
-                extensions = 'Buttons',
                 options = list(initComplete = initComplete(),
-                               dom = 't',
+                               dom = 'Bfrtip',
                                server = TRUE,
                                columnDefs = list(list(width='200px',targets= "_all")),
-                               ordering = FALSE)
+                               ordering = TRUE)
   )
 })
 
@@ -136,7 +134,7 @@ output$downloadSelectedItems <- downloadHandler(
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     #Creates a Data Table in Excel if you want, otherwhise only use write Data
-    openxlsx::writeData(wb,1, GetSelectedItems(), colNames = TRUE)
+    openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
     #openxlsx::mergeCells(wb,sheet = "Output", cols=1:5, rows=1)
     #writeData(wb,1, "Include text also based on reactive function and in merged cells" )
     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
@@ -405,31 +403,13 @@ Get_FDR <- reactive({
 output$showFDR <- renderUI({
   req(rv$current.obj)
   req(rv$seuilPVal)
-  req(rv$seuilLogFC)
-  input$numericValCalibration
-  input$calibrationMethod
-  req(rv$resAnaDiff)
-  #input$selectComparison
   
-  #if (is.null(input$selectComparison) || (input$selectComparison == "None")) {return()}
-  #if (is.na(rv$seuilLogFC) || is.na(rv$seuilPVal) ){return()}
-  
-  
-  # m <- NULL
-  # if (input$calibrationMethod == "Benjamini-Hochberg") { m <- 1}
-  # else if (input$calibrationMethod == "numeric value") {
-  #   m <- as.numeric(input$numericValCalibration)} 
-  # else {m <- input$calibrationMethod }
-  # 
-  # rv$fdr <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
-  #                             rv$resAnaDiff[["P_Value"]],
-  #                             rv$seuilPVal, 
-  #                             rv$seuilLogFC, 
-  #                             m)
   tagList(
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 20;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
              signif(10^(- (input$seuilPVal)), digits=3), ")")
+    } else {
+      tags$p(style="font-size: 20;","FDR = NA") 
     }
   )
   
@@ -682,20 +662,25 @@ GetSelectedItems <- reactive({
   input$downloadAnaDiff
   
   t <- NULL
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
+  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)
+  
   if (input$downloadAnaDiff == "All"){
     selectedItems <- 1:nrow(rv$current.obj)
+    significant <- rep(FALSE, nrow(rv$current.obj))
+    significant[intersect(upItems1, upItems2)] <- TRUE
   } else {
-    upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal)
-    upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC)
     selectedItems <- intersect(upItems1, upItems2)
-    
+    significant <- rep(TRUE, length(selectedItems))
   }
   
   
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
-                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits))
+                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),
+                  isDifferential = significant)
   tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems,input$tooltipInfo])
+  names(tmp) <-input$tooltipInfo
   t <- cbind(t, tmp)
   
   t

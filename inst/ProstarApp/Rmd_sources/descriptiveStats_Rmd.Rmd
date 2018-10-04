@@ -5,7 +5,7 @@
 ```{r tab_DatasetOverview,out.width = "50%", echo=FALSE}
 library(knitr)
 library(kableExtra)
-kable(as.data.frame(rv$text.log),escape = F)%>% row_spec(0,bold=TRUE,background = '#fff8ff') %>% 
+kable(as.data.frame(rv$text.log),format = "html", escape = FALSE)%>% row_spec(0,bold=TRUE,background = '#fff8ff') %>% 
 kable_styling(bootstrap_options = c( "bordered","striped"), full_width = F)
 detach("package:kableExtra", unload=TRUE)
 ```
