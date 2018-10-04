@@ -27,24 +27,29 @@ output$anaDiffPanel <- renderUI({
 }
 })
 
-
+observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
 
 output$diffAna_pairwiseComp <- renderUI({
   req(rv$current.obj)
-  
-  sidebarCustom()
+  tagList(
+   # actionLink("toggleSidebar", "Hide/show options"),
+  sidebarCustom(),
            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                       wellPanel(
-                         id = "sidebar_DiffAna2",
-                         height = "100%"
-                         ,uiOutput("newComparisonUI")
-                         ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                         ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
-                       ),
-                       tagList(
-                         moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
-                       )
-           )
+  div(id="sidebar_diffAna_1",
+      wellPanel(
+               id = "sidebar_DiffAna2",
+               height = "100%"
+               ,uiOutput("newComparisonUI")
+               ,uiOutput("diffAnalysis_PairwiseComp_SB")
+               ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
+                )
+      ),
+   moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
+
+           #)
+  )
+  )
+
 })
 
 

@@ -23,15 +23,10 @@ tabPanel("Descriptive statistics",
                      #-------------------------------------------------------------
                      tabPanel(title="Data explorer",
                               value = "DS_DataExplorer",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_dataExplorer",
-                                                    uiOutput("DS_sidebarPanel_tab")
-                                          ),
-                                          tagList(
-                                            uiOutput("tabToShow")
-                                          )
-                              )
+                               tagList(
+                                       uiOutput("DS_sidebarPanel_tab"),
+                                       uiOutput("tabToShow")
+                                       )
                      ),
                      
                      tabPanel("Corr. matrix",

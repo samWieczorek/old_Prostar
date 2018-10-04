@@ -1,11 +1,12 @@
 ## Data management
 * **Loading**: xxx
-* **Conversion**: xxx
+* **Conversion**: to convert xxx
 * **Export**: xxx (data/results)
 * **Demo data**: xxx
 
 ## Data processing
-* **Filtering**: xxx
+* **Filtering**: to prune the protein or peptide list according to 
+                various criteria (missing values, contaminants, reverse sequences);
 * **Normalization**: to correct batch or group effects.
 * **Imputation**: xxx
 * **Aggregation**: for peptide-level datasets, it is possible to estimate protein abundances.

@@ -3,24 +3,17 @@
 
 output$citationText <- renderUI({
   tagList(
-    tags$div(
-      style="background-color: lightgrey;",
-tags$p(class="body",tags$b("Maintaining ProStaR as free software is a heavy and time-consuming
-                duty. If you use it, please cite the following reference:"),
-           tags$br(),
-           tags$i("S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
+    tags$div(style="background-color: lightgrey;",
+    tags$p(class="body",tags$b("Maintaining ProStaR as free software is a heavy and time-consuming
+                duty. If you use it, please cite the following reference:")),
+    tags$p(tags$i("S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
                 L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 
                 C. Bruley and T. Burger."),
-          tags$br(),
-          tags$br(),
           tags$u("DAPAR & ProStaR: software to perform statistical 
                 analyses in quantitative discovery."),
-          tags$br(),
-          tags$b("Bioinformatics"),
-          ", 33(1), 135-136, 2017.",
-          tags$br(),
-          tags$a("http://doi.org/10.1093/bioinformatics/btw580", href="http://doi.org/10.1093/bioinformatics/btw580", target="_blank")
-      ),
+                tags$b("Bioinformatics"),", 33(1), 135-136, 2017.",
+                tags$a("(pdf)", href="http://doi.org/10.1093/bioinformatics/btw580", target="_blank")
+                )
       )
   )
   })
@@ -53,42 +46,42 @@ output$versionsText <- renderUI({
 })
 
 
-#-------------------------------------------------------------------
-output$descriptionText <- renderUI({
-  
-  tagList(
-#    tags$p(class="body",
-#        "The package DAPAR includes wrappers to numerous other R packages, either available on the ",
-#           tags$a("CRAN", href="https://cran.r-project.org", target="_blank"), " or the ",
-#           tags$a("Bioconductor", href="http://www.bioconductor.org", target="_blank"),
-#           tags$br(),
-#           "Here is a brief overview of the available functionalities:"),
-    tags$p(style=" font-size:20px;",tags$b("Data processing")),
-    tags$ul(
-      style="list-style-type:disc;",
-      tags$li(tags$p(class="body",tags$b("Filtering"), "options allows pruning the protein or peptide list according to 
-                various criteria (missing values, contaminants, reverse sequences);")),
-      tags$li(tags$p(class="body",tags$b("Cross replicate normalization"), ", so as to make the quantitative 
-                values comparable between the different analyzed samples;")),
-      tags$li(tags$p(class="body",tags$b("Missing values imputation"), " with different methods, depending 
-                on the nature of  the missing values;")),
-      tags$li(tags$p(class="body",tags$b("Aggregation"), " from peptide to protein intensity values;")),
-      tags$li(tags$p(class="body",tags$b("Hypothesis testing"), ", which includes null hypothesis 
-                significance testing."))
-    ),
-      
-    tags$br(),
-    tags$p(style=" font-size:20px;",tags$b("Data mining")),
-    tags$ul(
-      style="list-style-type:disc;",
-      tags$li(tags$p(class="body",tags$b("Descriptive statistics"), "are available, for exploration and visualization of the 
-                     quantitative dataset;")),
-      tags$li(tags$p(class="body",tags$b("Differential analysis"), " which includes multiple testing correction 
-                     (for false discovery rate estimation).")),
-      tags$li(tags$p(class="body",tags$b("Gene Ontology (GO) analysis"), " allows is to map protein list onto GO terms and 
-                     to test category enrichment."))
-    )
-  )
-   
-  
-})
+# #-------------------------------------------------------------------
+# output$descriptionText <- renderUI({
+#   
+#   tagList(
+# #    tags$p(class="body",
+# #        "The package DAPAR includes wrappers to numerous other R packages, either available on the ",
+# #           tags$a("CRAN", href="https://cran.r-project.org", target="_blank"), " or the ",
+# #           tags$a("Bioconductor", href="http://www.bioconductor.org", target="_blank"),
+# #           tags$br(),
+# #           "Here is a brief overview of the available functionalities:"),
+#     tags$p(style=" font-size:20px;",tags$b("Data processing")),
+#     tags$ul(
+#       style="list-style-type:disc;",
+#       tags$li(tags$p(class="body",tags$b("Filtering"), "options allows pruning the protein or peptide list according to 
+#                 various criteria (missing values, contaminants, reverse sequences);")),
+#       tags$li(tags$p(class="body",tags$b("Cross replicate normalization"), ", so as to make the quantitative 
+#                 values comparable between the different analyzed samples;")),
+#       tags$li(tags$p(class="body",tags$b("Missing values imputation"), " with different methods, depending 
+#                 on the nature of  the missing values;")),
+#       tags$li(tags$p(class="body",tags$b("Aggregation"), " from peptide to protein intensity values;")),
+#       tags$li(tags$p(class="body",tags$b("Hypothesis testing"), ", which includes null hypothesis 
+#                 significance testing."))
+#     ),
+#       
+#     tags$br(),
+#     tags$p(style=" font-size:20px;",tags$b("Data mining")),
+#     tags$ul(
+#       style="list-style-type:disc;",
+#       tags$li(tags$p(class="body",tags$b("Descriptive statistics"), "are available, for exploration and visualization of the 
+#                      quantitative dataset;")),
+#       tags$li(tags$p(class="body",tags$b("Differential analysis"), " which includes multiple testing correction 
+#                      (for false discovery rate estimation).")),
+#       tags$li(tags$p(class="body",tags$b("Gene Ontology (GO) analysis"), " allows is to map protein list onto GO terms and 
+#                      to test category enrichment."))
+#     )
+#   )
+#    
+#   
+# })

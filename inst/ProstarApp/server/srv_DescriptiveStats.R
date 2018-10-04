@@ -21,9 +21,12 @@ callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.nul
 
 
 observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
-observeEvent(input$varScale_PCA,{rv$PCA_varScale <- input$varScale_PCA})
+observeEvent(input$varScale_PCA,{
+  rv$PCA_varScale <- input$varScale_PCA
+  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+})
 
-observeEvent(c(rv$varScale_PCA, Compute_PCA_nbDimensions()), {
+observeEvent(rv$current.obj, {
   rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
 })
 
@@ -53,32 +56,33 @@ plotPCA_Eigen_hc(rv$res.pca)
 output$pcaOptions <- renderUI({
   req(rv$current.obj)
     
-  
+  tagList(
+    
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
     {
-      text <- "<font color=\"red\"> Warning ! <br> 
-      Your dataset contains missing values.
-      <br> For better results, you should impute  <br> them first"
-      HTML(text)
+      tags$p("Warning: As your dataset contains missing values, the PCA cannot be computed.
+             Please impute them first")
     }
     else{
-  tagList(
   
     tags$div(
       
-      tags$div( style="display:inline-block; vertical-align: middle;",
-        checkboxInput('varScale_PCA', "Variance scaling", value=rv$PCA_varScale))),
       
-    tags$div( style="display:inline-block; vertical-align: middle;",
-              numericInput('pca.axe1', "Dim 1", min=1, max=Compute_PCA_nbDimensions(),value=rv$PCA_axes[1],width='100px')
+    tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+              numericInput('pca.axe1', "Dimension 1", min=1, max=Compute_PCA_nbDimensions(),value=1,width='100px')
     ),
     tags$div( style="display:inline-block; vertical-align: middle;",
-              numericInput('pca.axe2', "Dim 2", min=1, max=Compute_PCA_nbDimensions(),value=rv$PCA_axes[2],width='100px')
-    )
-
-)
-      
+              numericInput('pca.axe2', "Dimension 2", min=1, max=Compute_PCA_nbDimensions(),value=2,width='100px')
+    ),
+    
+    tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              checkboxInput('varScale_PCA', "Variance scaling", value=rv$PCA_varScale))
+  )
+   
     }
+    
+)
+  
 })
     
 
@@ -109,13 +113,19 @@ output$DS_sidebarPanel_tab <- renderUI({
     )
     
     tagList(
-                     radioButtons("DS_TabsChoice", "Table to display",
-                                  choices = .choices,
-                                  selected=character(0)),
-                     br(),
-                    
-                     uiOutput("legendForExprsData")
+      tags$div(
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                  radioButtons("DS_TabsChoice", "Table to display",
+                               choices = .choices,
+                               inline = TRUE,
+                               selected=character(0))
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle;",
+                  uiOutput("legendForExprsData")
+        )
+      )
     )
+
     
 })
 

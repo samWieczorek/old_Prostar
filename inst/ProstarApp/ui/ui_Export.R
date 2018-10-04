@@ -21,11 +21,12 @@ tabPanel("Export",
            
            tabPanel("Build report (Beta)",
                     tagList(
+                      tags$br(),
                       tags$div(
-                        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                        tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
                                   moduleStaticDataTableUI("viewProstarVersions")
                         ),
-                        tags$div( style="display:inline-block; vertical-align: middle;",
+                        tags$div( style="display:inline-block; vertical-align: top;",
                                   moduleStaticDataTableUI("viewProcessingData")
                         )
                       ),

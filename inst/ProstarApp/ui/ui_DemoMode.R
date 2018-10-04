@@ -4,16 +4,24 @@ tabPanel("Demo data",
            tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                      uiOutput("chooseDataset")
            ),
-           tags$div( style="display:inline-block; vertical-align: middle;",
+           
+           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                      p(""),
                      actionButton("loadDemoDataset", "Load demo dataset",class = actionBtnClass)
+           ),
+           tags$div( style="display:inline-block; vertical-align: middle;",
+                     p(""),
+                     uiOutput("linktoDemoPdf")
            )
          ),
          #checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
-         uiOutput("linktoDemoPdf"),
+         
          hr(),
-         moduleStaticDataTableUI("overview_DemoMode")
-         ,uiOutput("showDatasetDoc")
-         #,uiOutput("progressDemoMode")
-         ,uiOutput("infoAboutDemoDataset")
+         
+         fluidRow(
+           column(width=6,moduleStaticDataTableUI("overview_DemoMode")),
+           column(width=6,uiOutput("infoAboutDemoDataset"))
+
+         )
+
 )
