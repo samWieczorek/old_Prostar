@@ -331,7 +331,7 @@ His expertise focuses on the statistical, methodological and algorithmic aspects
 * Alexia Dorffer​
 
 ### Beta-testing & co.
-The entire EDyP proteomics platform (see <a href="www.edyp.fr" target="_blank">www.edyp.fr</a>): 
+The entire EDyP proteomics platform (see <a href="www.edyp.fr" target="_blank">http://www.edyp.fr</a>): 
 Prostar being permanently hosted by EDyP lab, the first users (the original ones, but also the testers) are naturally the lab members. 
 They are all warmly acknowledged for their contributions.
 
