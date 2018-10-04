@@ -15,8 +15,6 @@
 
 **Direct access to [Zero-install version of Prostar](#zero-install) or to the [Online demo](#online-demo).**
 
-# Table of Content
-
 ------------
 
 # Home
