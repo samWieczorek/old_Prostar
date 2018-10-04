@@ -6,7 +6,7 @@
 ------------
 # Menu
 
-| &loz; [Home](#home) |  | &loz; [Prostar](#prostar) | | &loz; [Support & Resources](#support-resources) | | &loz; [Community](#community)  |
+| &#x2610; [Home](#home) |  | &#x2610; [Prostar](#prostar) | | &#x2610; [Support & Resources](#support-resources) | | &#x2610; [Community](#community)  |
 | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ |
 | &rarr; [About](#about)  | | &rarr; [Zero-install](#zero-install)  |  | &rarr; [Useful links](#useful-links)  |  | &rarr; [Team presentation](#team-presentation)  |
 | &rarr; [Citation](#citation) | | &rarr; [Bioconductor installs](#bioconductor-installs)  |  | &rarr; [FAQ](#frequently-asked-questions)  |  | &rarr; [Bug report](#bug-report)  |
