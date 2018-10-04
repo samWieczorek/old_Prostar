@@ -81,7 +81,7 @@ Before installing Prostar on your desktop machine, test our online demo!
 
 Just download the zip file below and unzip it !
 
-<a href="http://live.prostar-proteomics.org/" target="_blank">**Download Prostar 1.X.X zip file**</a> (Release date: XX/XX/XXXX - TBA)
+<a href="http://live.prostar-proteomics.org/" target="_blank">**Download Prostar 1.X.X zip file**</a> (Release date: XX/XX/XXXX - **TBA**)
 
 The unzipped folder contains an executable file which directly launches Prostar.
 
