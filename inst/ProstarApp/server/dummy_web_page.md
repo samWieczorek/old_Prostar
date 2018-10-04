@@ -8,8 +8,8 @@
 
 | &#x2610; [Home](#home) |  | &#x2610; [Prostar](#prostar) | | &#x2610; [Support & Resources](#support-resources) | | &#x2610; [Community](#community)  |
 | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ | :------------ |
-| &ensp;&rarr; [About](#about)  | | &ensp;&rarr; [Zero-install](#zero-install)  |  | &ensp;&rarr; [Useful links](#useful-links)  |  | &emsp;&rarr; [Team presentation](#team-presentation)  |
-| &ensp;&rarr; [Citation](#citation) | | &ensp;&rarr; [Bioconductor installs](#bioconductor-installs)  |  | &ensp;&rarr; [FAQ](#frequently-asked-questions)  |  | &emsp;&rarr; [Bug report](#bug-report)  |
+| &ensp;&rarr; [About](#about)  | | &ensp;&rarr; [Zero-install](#zero-install)  |  | &ensp;&rarr; [Useful links](#useful-links)  |  | &ensp;&rarr; [Team presentation](#team-presentation)  |
+| &ensp;&rarr; [Citation](#citation) | | &ensp;&rarr; [Bioconductor installs](#bioconductor-installs)  |  | &ensp;&rarr; [FAQ](#frequently-asked-questions)  |  | &ensp;&rarr; [Bug report](#bug-report)  |
 | &ensp;&rarr; [Version](#version)  | | &ensp;&rarr; [Online demo](#online-demo) | |  &ensp;&rarr; [Forum](#forum)  |  | &ensp;&rarr; [Happiness report](#happiness-report)  |
 | &ensp;&rarr; [Presentation](#presentation) | | &ensp;&rarr; [Release Notes](#release-notes) | | | |  | 
 
