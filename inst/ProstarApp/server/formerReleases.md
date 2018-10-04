@@ -1,12 +1,12 @@
 
-## News in Prostar 1.12
+### News in Prostar 1.12
 
-### Bug fixed
+#### Bug fixed
 * Normalization: "Sum by columns" has been modified to provide log-abundances compatible with subsequent processing.
 * Normalization: Any normalization can now be applied "for each condition independantly" or "globally".
 * Imputation: All methods are now only applied "for each condition independantly".
 
-### New features
+#### New features
 * The entire pipeline is now compatible with datasets with more than 2 conditions.
 * Descriptive statistics: The expression datasets are colored with respect to the nature of missing value (either POV or MEC, see below), even when the value has been imputed.
 * Filtering: Manage designs with more than 2 conditions and with conditions containing different number of samples.
@@ -17,12 +17,12 @@
 * Differential analysis: Limma takes into account all the hierarchical experimental designs.
 * GO analysis: the GeneID nomenclature is now available.
 
-## News in Prostar 1.10
+### News in Prostar 1.10
 
-### Bug fixed
+#### Bug fixed
 * not traced.
 
-### New features
+#### New features
 * Gene Ontology (GO) analysis (Beta version).
 * Automatic report generation (Beta).
 * Preliminary separation between peptide and protein level pipelines.
