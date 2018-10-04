@@ -18,15 +18,15 @@
 # Table of Content
 
 1. [Home](#home)
- 1. [About](#about)
- 2. [Citation](#citation)
- 3. [Version](#version)
- 4. [Presentation](#presentation)
+  1. [About](#about)
+  2. [Citation](#citation)
+  3. [Version](#version)
+  4. [Presentation](#presentation)
 2. [Prostar](#prostar)
- 1. [Zero-install](#zero-install)
- 2. [Bioconductor installs](#bioconductor-installs)
- 3. [Online demo](#online-demo)
- 4. [Release Notes](#release-notes)
+  1. [Zero-install](#zero-install)
+  2. [Bioconductor installs](#bioconductor-installs)
+  3. [Online demo](#online-demo)
+  4. [Release Notes](#release-notes)
 
 ~~ | | ~~  ~~  | | ~~ [Support & Resources](#support-resources) ~~ | | ~~ [Community](#community) ~~ |
 | :------------: | :------------: | :------------: | :------------: | :------------: | :------------: | :------------: |
