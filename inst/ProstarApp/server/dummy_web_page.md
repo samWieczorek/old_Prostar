@@ -1,4 +1,6 @@
-<img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png" width="350"/>
+<img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png" width="300"/>
+<img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png" width="300"/>
+<img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png" width="300"/>
 
 ------------
 # Menu
