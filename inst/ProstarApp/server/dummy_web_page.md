@@ -102,19 +102,19 @@ chooseCRANmirror()
 install.packages("BiocManager")
 ```
 2. Install Prostar:
-```r
+```R
 BiocManager::install("Prostar")
 ```
 
 3. Launch Prostar:
-```r
+```R
 library(Prostar)
 Prostar()
 ```
 
 4. For a better experience, it is advised to install the development version DT and highcharter packages. 
 To do so, install the devtools package and execute the following commands:
-```r
+```R
 install.packages("devtools")
 devtools::install_github('rstudio/DT')
 devtools::install_github('jbkunst/highcharter')
@@ -276,7 +276,7 @@ this is just due to a numbering convention, and the statistical test is not impa
 ### Why do the items of the contextual menus for plots remain 'undefined'?
 This happens if the version of the package 'highcharter' is less or equal to 0.5.0. 
 To fix this issue, you should install the devel version of the package by typing the following command in a R console: 
-```r
+```R
 devtools::install_github('jbkunst/highcharter')
 ```
 
