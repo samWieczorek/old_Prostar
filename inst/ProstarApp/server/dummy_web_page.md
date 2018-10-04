@@ -321,8 +321,9 @@ His expertise focuses on the statistical, methodological and algorithmic aspects
 ### Occasional contributors
 
 * Florence Combes
-* [Quentin Giai-Gianetto](https://research.pasteur.fr/fr/member/quentin-giai-gianetto/) (Institut Pasteur, France)
-* [Laurent Gatto](https://lgatto.github.io/) (Université catholique de Louvain, Belgique)
+* <a href="https://research.pasteur.fr/fr/member/quentin-giai-gianetto/" target="_blank">Quentin Giai-Gianetto</a> (Institut Pasteur, France)
+* <a href="https://lgatto.github.io/" target="_blank">Laurent Gatto</a> 
+(Université catholique de Louvain, Belgique)
 * Cosmin Lazar
 * Hélène Borges
 * <a href="https://scholar.google.fr/citations?user=pUQIR6wAAAAJ&hl=fr" target="_blank">Yohann Couté</a>
