@@ -24,6 +24,7 @@ Prostar is easy to install (see our [Zero-install page](#zero-install)),
 easy to use (thanks to its [Shiny](https://shiny.rstudio.com/)-based click-button interface) 
 and well-documented (see our [reference page](#useful-links)). 
 Moreover, it has been regularly updated along years to provide state-of-the-art data science methodologies.
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Citation
 **Maintaining Prostar as free software is a heavy duty. Please cite the following reference**
