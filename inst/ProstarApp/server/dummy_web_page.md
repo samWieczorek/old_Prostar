@@ -35,10 +35,10 @@ DAPAR & ProStaR: software to perform statistical analyses in quantitative discov
 <div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Version
-**dd/mm/yyyy:**  
+**dd/mm/yyyy (TBA)**  
 Prostar version 1.XX has been released on the Bioconductor.
 
-**dd/mm/yyyy:**  
+**dd/mm/yyyy (TBA)**  
 Prostar version 1.YY is available through the Zero-install.
 <div align="right"><a href="#menu">↥ menu</a></div>
 
@@ -78,7 +78,7 @@ Before installing Prostar on your desktop machine, test our online demo!
 
 Just download the zip file below and unzip it !
 
-<a href="http://live.prostar-proteomics.org/" target="_blank">**Download Prostar 1.X.X zip file**</a> (Release date: XX/XX/XXXX)
+<a href="http://live.prostar-proteomics.org/" target="_blank">**Download Prostar 1.X.X zip file**</a> (Release date: XX/XX/XXXX - TBA)
 
 The unzipped folder contains an executable file which directly launches Prostar.
 
