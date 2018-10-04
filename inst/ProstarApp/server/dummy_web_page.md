@@ -1,5 +1,5 @@
 <div align="center">
- <img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png"    width="300"/>
+ <img src="https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/www/images/LogoProstarComplet.png"    width="320"/>
 </div> 
 
 
