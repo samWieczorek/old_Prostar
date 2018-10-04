@@ -42,6 +42,7 @@ Prostar version 1.XX has been released on the Bioconductor.
 **dd/mm/yyyy:**  
 Prostar version 1.YY is available through the Zero-install.
 <div align="right"><a href="#menu">↥ menu</a></div>
+
 ## Presentation
 ### Data management
 * **Conversion**: To import a tabulated file containing quantitative data and convert it into an MSnset structure.
@@ -60,6 +61,7 @@ Prostar version 1.YY is available through the Zero-install.
 * **Descriptive statistics**: Available at any stage of the anayslys, for data exploration and visualization.
 * **Differential analysis**: To select a list of differentially abundant proteins with a controlled false discovery rate.
 * **Gene Ontology analysis**: To  map a protein list onto GO terms and test category enrichment.
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 # Prostar
 1. [**Zero-install**](#zero-install)  
@@ -86,6 +88,7 @@ The unzipped folder contains an executable file which directly launches Prostar.
 2. For now, Zero-install is only available for Microsoft Windows machines.
 3. At first launch, an internet connection is necessary to finish the install.
 4. To ensure full compatibility and debugging, the zip file is available up to one month after each Bioconductor release.
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Bioconductor installs
 
@@ -116,6 +119,7 @@ install.packages("devtools")
 devtools::install_github('rstudio/DT')
 devtools::install_github('jbkunst/highcharter')
 ```
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Online demo
 
@@ -125,6 +129,7 @@ An online demo of Prostar software is available at:
 **Remark:** The server hosting the online demo has limiting capacities. 
 Thus, uploading your own dataset may lead to server overload. 
 To test the online demo, please rely on the toy datasets that are available in "Demo data" (from "Data manager" menu).
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Release notes
 ### News in Prostar 1.13
@@ -181,7 +186,7 @@ To test the online demo, please rely on the toy datasets that are available in "
 * IMP4P method for peptide level imputation.
 * DetQuantile method for protein level imputation.
 * Tooltip implementation.
-
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 # Support & resources
 ## Useful links
@@ -227,6 +232,7 @@ If you need any help, but also if you wish to make comments or suggestions, plea
 11. _Ritchie ME, Phipson B, Wu D, Hu Y, Law CW, Shi W and Smyth GK_ (2015). Limma powers differential expression analyses for RNA-sequencing and microarray studies. **Nucleic Acids Research**, 43(7), pp. e47.
 12. _Cleveland, W. S., & Devlin, S. J._ (1988). Locally weighted regression: an approach to regression analysis by local fitting. **Journal of the American statistical association**, 83(403), 596-610.
 13. _Huber, W., Von Heydebreck, A., Sültmann, H., Poustka, A., & Vingron, M._ (2002). Variance stabilization applied to microarray data calibration and to the quantification of differential expression. **Bioinformatics**, 18(suppl_1), S96-S104.
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Frequently asked questions
 ### FAQ table of contents
@@ -283,12 +289,13 @@ In very uncommun situations, one may obtain a bowl shape volcano plot such as de
 ### How to recover differential analysis results?
 
 From Prostar 1.14, the differential analysis results are not exported anymore when using the "Export fo file" functionality, regardless the format (MSnset, excel or zipped CSV). This is due to the separate management of the "data mining" and "data processing outputs. As a result, after performing the differential analysis, the results must be downloaded thanks to the devoted buttons (otherwise, they will be lost when closing the Prostar session). However, all the p-value computatations (from the "hypothesis testing" menu) can be exported and recover from one session to another one.
+<div align="right"><a href="#menu">↥ menu</a></div>
  
 ## Forum
  
 Our community forum is hosted by the Bioconductor:
 <a href="https://support.bioconductor.org/t/prostar/" target="_blank">**https://support.bioconductor.org/t/prostar/**</a>
-
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 
 # Community
@@ -334,13 +341,15 @@ His expertise focuses on the statistical, methodological and algorithmic aspects
 The entire EDyP proteomics platform (see <a href="http://www.edyp.fr" target="_blank">www.edyp.fr</a>): 
 Prostar being permanently hosted by EDyP lab, the first users (the original ones, but also the testers) are naturally the lab members. 
 They are all warmly acknowledged for their contributions.
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Bug report
 
 To report any issue with Prostar, it is best to use the devoted tab in Prostar software (click on **Bug report** in the **Help menu**), 
 as it allows easy sharing of the session logs and data (essential to efficient debugging).
 
-​However, it is also possible to the development team by email (see [team presentation](#team-presentation)).
+However, it is also possible to the development team by email (see [team presentation](#team-presentation)).
+<div align="right"><a href="#menu">↥ menu</a></div>
 
 ## Happiness report
 
@@ -348,3 +357,4 @@ as it allows easy sharing of the session logs and data (essential to efficient d
 :-)
 
 Do not forget to [cite Prostar in your publications](#citation)!
+<div align="right"><a href="#menu">↥ menu</a></div>
