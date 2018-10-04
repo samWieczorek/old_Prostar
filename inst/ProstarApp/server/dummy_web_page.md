@@ -3,6 +3,12 @@
 
 # Menu
 
+| Home  | Prostar  | Support & Resources  | Community  |
+| ------------ | ------------ | ------------ | ------------ |
+|   |   |   |   |
+|   |   |   |   |
+|   |   |   | 
+
 | ~~ [Home](#home) ~~ | ~~ [Prostar](#prostar) ~~  | ~~ [Support & Resources](#support-resources) ~~ | ~~ [Community](#community) ~~ |
 | :------------: | :------------: | :------------: | :------------: |
 | [About](#about)  | [Zero-install](#zero-install)  | [Useful links](#useful-links)  | [Team presentation](#team-presentation)  |
