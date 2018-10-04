@@ -13,8 +13,27 @@
 | [Version](#version)  |  |  [Online demo](#online-demo) | |  [Forum](#forum)  |  | [Happiness report](#happiness-report)  |
 | [Presentation](#presentation) |  | [Release Notes](#release-notes) | | | |  | 
 
-
 **Direct access to [Zero-install version of Prostar](#zero-install) or to the [Online demo](#online-demo).**
+
+# Table of Content
+
+1. [Home](#home)
+ * [About](#about)
+ * [Citation](#citation)
+ * [Version](#version)
+ * [Presentation](#presentation)
+2. [Prostar](#prostar)
+ * [Zero-install](#zero-install)
+ * [Bioconductor installs](#bioconductor-installs)
+ * [Online demo](#online-demo)
+ * [Release Notes](#release-notes)
+
+~~ | | ~~  ~~  | | ~~ [Support & Resources](#support-resources) ~~ | | ~~ [Community](#community) ~~ |
+| :------------: | :------------: | :------------: | :------------: | :------------: | :------------: | :------------: |
+|   | |    |  | [Useful links](#useful-links)  |  | [Team presentation](#team-presentation)  |
+|  | |    |  | [FAQ](#frequently-asked-questions)  |  | [Bug report](#bug-report)  |
+|   |  |   | |  [Forum](#forum)  |  | [Happiness report](#happiness-report)  |
+|  |  |  | | | |  | 
 
 ------------
 
