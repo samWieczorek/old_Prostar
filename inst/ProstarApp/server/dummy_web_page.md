@@ -98,7 +98,9 @@ Only stand-alone install is detailed below. For server install, please refer to 
 This type of install works with any operating system among Unix/Linux, Mac OS X and Windows. 
 However, it is necessary to have the latest version of R installed in a directory where the user has read/write permissions. 
 
-1. Install Bioconductor package manager by copy-paste of teh following commands (see Bioconductor webpage for details):
+1. Install Bioconductor package manager by copy-paste of the following commands (see 
+<a href="https://cran.r-project.org/web/packages/BiocManager/vignettes/BiocManager.html" target="_blank">this page</a>
+for details):
 ```R
 chooseCRANmirror()
 install.packages("BiocManager")
