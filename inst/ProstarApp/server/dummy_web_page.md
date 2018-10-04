@@ -8,8 +8,7 @@
 | [About](#about)  | [Zero-install](#zero-install)  | [Useful links](#useful-links)  | [Team presentation](#team-presentation)  |
 | [Citation](#citation) | [Bioconductor installs](#bioconductor-installs)  | [FAQ](#frequently-asked-questions)  | [Bug report](#bug-report)  |
 | [Version](#version)  |  [Online demo](#online-demo) | [Forum](#forum)  | [Happiness report](#happiness-report)  |
-| [Presentation](#presentation) |   |   |   |
-| [Release Notes](#release-notes)  |   |   |   |
+| [Presentation](#presentation) | [Release Notes](#release-notes)  |   |   |
 
 
 
@@ -33,10 +32,6 @@ Maintaining Prostar as free software is a heavy duty. Please cite the following 
 DAPAR & ProStaR: software to perform statistical analyses in quantitative discovery proteomics.  
 **Bioinformatics** 33(1), 135-136, 2017.
 <a href="http://doi.org/10.1093/bioinformatics/btw580" target="_blank">http://doi.org/10.1093/bioinformatics/btw580.</a>
-
-
-
-
 
 ## Version
 **dd/mm/yyyy:**  
@@ -63,62 +58,6 @@ Prostar version 1.YY is available through the Zero-install.
 * **Descriptive statistics**: Available at any stage of the anayslys, for data exploration and visualization.
 * **Differential analysis**: To select a list of differentially abundant proteins with a controlled false discovery rate.
 * **Gene Ontology analysis**: To  map a protein list onto GO terms and test category enrichment.
-
-## Release notes
-### News in Prostar 1.13
-
-#### Bug fixed
-* Auto reset of dropdown menu in differential analysis.
-* In the feature metadata table, the FC tag has been replaced by 'logFC'.
-* In the experimental design table, the column names 'Experiment' and 'Label' have been replaced respectively by 'Sample.name' and 'Condition'.
-* Delete the dependency to the package imputeLCMD.
-* Tooltip persistance dealt with.
-
-#### New features
-* Better managment of dropdown menus in the main menu.
-* Add a Bug report tab in the 'Help' menu.
-* Reorganization of the menus into Data preprocessing and Data mining.
-* Add proportions in logFC distribution plot.
-* Add LOESS normalization.
-* Add VSN normalization.
-* Improve automatic report generation.
-* New peptide-to-protein aggregation with fair account of shared peptides.
-* Peptide visualization on protein volcano plots.
-* Add customisation of colors for plots.
-
-
-### News in Prostar 1.12
-
-#### Bug fixed
-* Normalization: "Sum by columns" has been modified to provide log-abundances compatible with subsequent processing.
-* Normalization: Any normalization can now be applied "for each condition independantly" or "globally".
-* Imputation: All methods are now only applied "for each condition independantly".
-
-#### New features
-* The entire pipeline is now compatible with datasets with more than 2 conditions.
-* Descriptive statistics: The expression datasets are colored with respect to the nature of missing value 
-(either POV or MEC, see below), even when the value has been imputed.
-* Filtering: Manage designs with more than 2 conditions and with conditions containing different number of samples.
-* Filtering: More user friendly interface for the string-based filtering (Tab 2).
-* Imputation (protein level): Distinction between missing values on an entire condition 
-(Missing on the Entire Condition - MEC) and the other ones (Partially Observed Value - POV).
-* Imputation (protein level): for POV, it is possible to use SLSA which take into account the experimental design.
-* Differential analysis: All tests can be applied on datasets with different number of samples in each condition.
-* Differential analysis: Limma takes into account all the hierarchical experimental designs.
-* GO analysis: the GeneID nomenclature is now available.
-
-### News in Prostar 1.10
-
-#### Bug fixed
-* not traced.
-
-#### New features
-* Gene Ontology (GO) analysis (Beta version).
-* Automatic report generation (Beta).
-* Preliminary separation between peptide and protein level pipelines.
-* IMP4P method for peptide level imputation.
-* DetQuantile method for protein level imputation.
-* Tooltip implementation.
 
 # Prostar
 1. [**Zero-install**](#zero-install)  
@@ -184,6 +123,63 @@ An online demo of Prostar software is available at:
 **Remark:** The server hosting the online demo has limiting capacities. 
 Thus, uploading your own dataset may lead to server overload. 
 To test the online demo, please rely on the toy datasets that are available in "Demo data" (from "Data manager" menu).
+
+## Release notes
+### News in Prostar 1.13
+
+#### Bug fixed
+* Auto reset of dropdown menu in differential analysis.
+* In the feature metadata table, the FC tag has been replaced by 'logFC'.
+* In the experimental design table, the column names 'Experiment' and 'Label' have been replaced respectively by 'Sample.name' and 'Condition'.
+* Delete the dependency to the package imputeLCMD.
+* Tooltip persistance dealt with.
+
+#### New features
+* Better managment of dropdown menus in the main menu.
+* Add a Bug report tab in the 'Help' menu.
+* Reorganization of the menus into Data preprocessing and Data mining.
+* Add proportions in logFC distribution plot.
+* Add LOESS normalization.
+* Add VSN normalization.
+* Improve automatic report generation.
+* New peptide-to-protein aggregation with fair account of shared peptides.
+* Peptide visualization on protein volcano plots.
+* Add customisation of colors for plots.
+
+
+### News in Prostar 1.12
+
+#### Bug fixed
+* Normalization: "Sum by columns" has been modified to provide log-abundances compatible with subsequent processing.
+* Normalization: Any normalization can now be applied "for each condition independantly" or "globally".
+* Imputation: All methods are now only applied "for each condition independantly".
+
+#### New features
+* The entire pipeline is now compatible with datasets with more than 2 conditions.
+* Descriptive statistics: The expression datasets are colored with respect to the nature of missing value 
+(either POV or MEC, see below), even when the value has been imputed.
+* Filtering: Manage designs with more than 2 conditions and with conditions containing different number of samples.
+* Filtering: More user friendly interface for the string-based filtering (Tab 2).
+* Imputation (protein level): Distinction between missing values on an entire condition 
+(Missing on the Entire Condition - MEC) and the other ones (Partially Observed Value - POV).
+* Imputation (protein level): for POV, it is possible to use SLSA which take into account the experimental design.
+* Differential analysis: All tests can be applied on datasets with different number of samples in each condition.
+* Differential analysis: Limma takes into account all the hierarchical experimental designs.
+* GO analysis: the GeneID nomenclature is now available.
+
+### News in Prostar 1.10
+
+#### Bug fixed
+* not traced.
+
+#### New features
+* Gene Ontology (GO) analysis (Beta version).
+* Automatic report generation (Beta).
+* Preliminary separation between peptide and protein level pipelines.
+* IMP4P method for peptide level imputation.
+* DetQuantile method for protein level imputation.
+* Tooltip implementation.
+
 
 # Support & resources
 ## Useful links
