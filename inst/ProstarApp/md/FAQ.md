@@ -1,10 +1,10 @@
 ### FAQ table of contents
 
-* [Why does the table in experimental design blink during edition?](#tablelinks)
-* [How to build a valid experimental design?](#expdesign)
-* [Why do the items of the contextual menus for plots remain 'undefined'?](#menus)
-* [Why does my volcano plot look so aligned?](#volcano)
-* [How to recover differential analysis results?](#recoverDA)
+* [Why does the table in experimental design blink during edition?]
+* [How to build a valid experimental design?]
+* [Why do the items of the contextual menus for plots remain 'undefined'?]
+* [Why does my volcano plot look so aligned?]
+* [How to recover differential analysis results?]
 
 ### <a id="tablelinks"></a>Why does the table in experimental design blink during edition?
 When you edit the experimental design (during converting a text file to MSnset or during the update of the design), it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
