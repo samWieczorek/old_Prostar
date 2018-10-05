@@ -1,4 +1,4 @@
-### FAQ table of contents toto
+### FAQ table of contents
 
 * [Why does the table in experimental design blink during edition?](#tablelinks)
 * [How to build a valid experimental design?](#expdesign)
