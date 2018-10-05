@@ -29,7 +29,10 @@ However, one should note that even if the experimental design now looks differen
 
 
 ### <a id="menus"></a>Why do the items of the contextual menus for plots remain 'undefined'?
-This happens if the version of the package 'highcharter' is less or equal to 0.5.0. To fix this issue, you should install the devel version of the package by typing the following command in a R console: devtools::install_github('jbkunst/highcharter')
+This happens if the version of the package 'highcharter' is less or equal to 0.5.0. To fix this issue, you should install the devel version of the package by typing the following command in a R console:
+```R
+devtools::install_github('jbkunst/highcharter')
+```
 
 
 ### <a id="volcano"></a>Why does my volcano plot look so aligned?
