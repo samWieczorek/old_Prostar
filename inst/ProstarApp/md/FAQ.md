@@ -4,7 +4,7 @@
 * [How to build a valid experimental design?](#expdesign)
 * [Why do the items of the contextual menus for plots remain 'undefined'?](#menus)
 * [Why does my volcano plot look so aligned?](#volcano)
-* [How to recover differential analysis results?](#How-to-recover-differential-analysis-results)
+* [How to recover differential analysis results?](#recoverDA)
 
 ### <a id="tablelinks"></a>Why does the table in experimental design blink during edition?
 When you edit the experimental design (during converting a text file to MSnset or during the update of the design), it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
@@ -42,7 +42,7 @@ devtools::install_github('jbkunst/highcharter')
 In very uncommun situations, one may obtain a bowl shape volcano plot such as depicted above. This is due to using Limma on a dataset for which it is not adapted: Briefly, the numerical values in the quantitative matrix appears to have a repetitive pattern that prevent Limma routines to compute the number of degrees of freedom of the Chi2 distribution on which the protein variances should be fitted. As a result, Limma returns a result directly proportional to the fold-change, and the p-values are none-informative. In such cases, which are fortunately extremely odd, we advise to replace Limma test by a classical t-test.
 
 
-### How to recover differential analysis results?
+### <a id="recoverDA"></a>How to recover differential analysis results?
  From Prostar 1.14, the differential analysis results are not exported anymore when using the "Export fo file" functionality, regardless the format (MSnset, excel or zipped CSV). This is due to the separate management of the "data mining" and "data processing outputs. As a result, after performing the differential analysis, the results must be downloaded thanks to the devoted buttons (otherwise, they will be lost when closing the Prostar session). However, all the p-value computatations (from the "hypothesis testing" menu) can be exported and recover from one session to another one.
 
 
