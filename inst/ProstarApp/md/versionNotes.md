@@ -18,3 +18,5 @@
 * New peptide-to-protein aggregation with fair account of shared peptides.
 * Peptide visualization on protein volcano plots.
 * Add customisation of colors for plots.
+* New interface for the analysis report (still in Beta)
+* Better managment of processing parameters
