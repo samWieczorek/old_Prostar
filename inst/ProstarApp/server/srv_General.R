@@ -445,7 +445,7 @@ ClearMemory <- function(){
   ### Settings
   ########
   rv$current.comp = NULL
-  rv$colorsVolcanoplot = list(In="orange", Out=grey)
+  rv$colorsVolcanoplot = list(In="orange", Out='lightgrey')
   rv$colorsTypeMV = list(MEC='orange', POV='lightblue')
   rv$typeOfPalette = 'predefined'
   rv$whichGroup2Color = 'Condition'
@@ -620,7 +620,7 @@ rv <- reactiveValues(
   init.distance = "euclidean",
    outfile = NULL,
   tableVersions = NULL,
-  colorsVolcanoplot = list(In="orange", Out=grey),
+  colorsVolcanoplot = list(In="orange", Out='lightgrey'),
   colorsTypeMV = list(MEC='orange', POV='lightblue'),
     # variable to keep memory of previous datasets before 
     # transformation of the data

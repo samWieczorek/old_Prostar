@@ -423,7 +423,6 @@ output$table <- renderDataTable({
                         scrollY = 600,
                         scroller = TRUE,
                         ordering=FALSE,
-                        buttons=c('copy', 'csv', 'excel'),
                         server = TRUE,
                             columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
        formatStyle(

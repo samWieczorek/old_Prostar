@@ -387,7 +387,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
         cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-        
         rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                    threshold_logFC = rv$seuilLogFC,
                                    threshold_pVal = rv$seuilPVal,

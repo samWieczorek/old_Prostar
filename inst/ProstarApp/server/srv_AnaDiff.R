@@ -118,7 +118,12 @@ output$anaDiff_selectedItems <- renderDT({
                                server = TRUE,
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = TRUE)
-  )
+  ) %>%
+    formatStyle(
+      'isDifferential',
+      target = 'row',
+      backgroundColor = styleEqual(c(0, 1), c("white","orange"))
+    )
 })
 
 
@@ -131,10 +136,17 @@ output$downloadSelectedItems <- downloadHandler(
     paste0('diffanalysis_', input$datasets,'.xlsx')
   },
   content = function(file) {
+    DA_Style <- openxlsx::createStyle(fgFill = "orange")
+    
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     #Creates a Data Table in Excel if you want, otherwhise only use write Data
     openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
+    ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
+     openxlsx::addStyle(wb, sheet=1, cols=1:ncol(GetSelectedItems()),
+                        rows = 1+ ll.DA.row, style = DA_Style)
+    
+     #rep(which(colnames(GetSelectedItems())=='isDifferential'), length(ll.DA.row))
     #openxlsx::mergeCells(wb,sheet = "Output", cols=1:5, rows=1)
     #writeData(wb,1, "Include text also based on reactive function and in merged cells" )
     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
@@ -667,11 +679,11 @@ GetSelectedItems <- reactive({
   
   if (input$downloadAnaDiff == "All"){
     selectedItems <- 1:nrow(rv$current.obj)
-    significant <- rep(FALSE, nrow(rv$current.obj))
-    significant[intersect(upItems1, upItems2)] <- TRUE
+    significant <- rep(0, nrow(rv$current.obj))
+    significant[intersect(upItems1, upItems2)] <- 1
   } else {
     selectedItems <- intersect(upItems1, upItems2)
-    significant <- rep(TRUE, length(selectedItems))
+    significant <- rep(1, length(selectedItems))
   }
   
   
