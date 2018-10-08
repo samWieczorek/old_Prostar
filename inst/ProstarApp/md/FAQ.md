@@ -11,7 +11,7 @@ When you edit the experimental design (during converting a text file to MSnset o
 
 
 ### <a id="expdesign"></a>2 - How to build a valid experimental design?
-In Prostar, the differential analysis is devoted is devoted to the processing of hierarchical unpaired experimental designs . However, in former versions, this was not explicit enough, so that users with paired samples could used Prostar with wrong assumptions. To clear this out, we have changed the experimental design construction step so that its explicitly appears unpaired.
+In Prostar, the differential analysis is devoted to the processing of hierarchical unpaired experimental designs . However, in former versions, this was not explicit enough, so that users with paired samples could used Prostar with wrong assumptions. To clear this out, we have changed the experimental design construction step so that its explicitly appears unpaired.
 
 As a result, the samples must now be numbered as in the following example:
 
