@@ -12,7 +12,7 @@ tabPanel("Export",
            #          ),
            tabPanel("Export to file",
                     value = "export",
-                    helpText("Export format of the dataset and filename."),
+                    helpText("Export customization tab"),
                     
                     uiOutput("choosedataToExportMSnset"),
                     hr(),
