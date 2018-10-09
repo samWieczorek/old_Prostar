@@ -60,7 +60,7 @@ output$choosedataToExportMSnset <- renderUI({
   .choices <- names(rv$dataset)
   names(.choices) <- dnames
   radioButtons("chooseDatasetToExportToMSnset", 
-               "Datasets to export",
+               "Choose which dataset to export",
                choices = c("None"="None",.choices))
   
 })
