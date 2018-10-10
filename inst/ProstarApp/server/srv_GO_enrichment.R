@@ -76,7 +76,7 @@ output$GOAnalysisMenu <- renderUI({
                                      )
                      )
             ),
-            tabPanel("Parameters summmary",
+            tabPanel("Parameter summmary",
                      value = "tabPanelSaveGO",
                      dataTableOutput("GO_resumeParams")
             )
