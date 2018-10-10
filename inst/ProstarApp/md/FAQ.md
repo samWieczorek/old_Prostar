@@ -6,6 +6,8 @@
 * Why does my volcano plot look so aligned?
 * How to recover differential analysis results?
 * Why isn't it possible to adjust the logFC threshold on each differential analysis comparison?
+* How does "Push p-value" works?
+* How should I tune the calibration plot options?
 
 ### <a id="tablelinks"></a>1 - Why does the table in experimental design blink during edition?
 When you edit the experimental design (during converting a text file to MSnset or during the update of the design), it may happen that the cells begin to blink in a random order. Then, no more operation is possible in the table. This happens if you edit the cells too fast with respect to the table update speed. We apologize for this caveat : this is a known bug of the package used to provide the table. No patch is available yet. The only workaround is to close then reopen Prostar.
@@ -52,3 +54,8 @@ Shortly, because from a statistical viewpoint, doing so roughly amount to FDR ch
 * T. Burger. Gentle introduction to the statistical foundations of false discovery rate in quantitative proteomics. Journal of Proteome Research, 17(1):12-22, 2017.
 (links to these articles can be found in the "Useful links" page).
 
+### <a id="pushpval"></a>7 - How does "Push p-values" works?
+This is now clearly explained and illustrated in Prostar user manual (available at the "Useful links" page).
+
+### <a id="tuneCP4P"></a>8 - How should I tune the calibration plot options?
+This is now clearly explained and illustrated in Prostar user manual (available at the "Useful links" page).
