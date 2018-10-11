@@ -30,7 +30,7 @@ output$peptideLevelImputationPanel <- renderUI({
                                    height = "100%"
                                    ,br(),
                                    selectInput("peptideLevel_missing.value.algorithm",
-                                               "Algorithm",
+                                               "POV imputation method",
                                                choices = imputationAlgorithms, width='200px'),
                                    hidden(selectInput("peptideLevel_missing.value.basic.algorithm", 
                                                       "Algorithm",
@@ -40,7 +40,7 @@ output$peptideLevelImputationPanel <- renderUI({
                                   hidden(numericInput("peptideLevel_detQuant_factor", "Factor", value = 1, step=1, min=0, max=10)),
 
                                   hidden(numericInput("peptideLevel_imp4p_nbiter", "Number of iterations", value = 10, step=1, min=1, width='200px')),
-                                  hidden(checkboxInput("peptideLevel_imp4p_withLapala", "with MEC", value = FALSE)),
+                                  hidden(checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also", value = FALSE)),
                                   hidden(numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound", value = 2.5, step=0.1, min=0, max=100)),
                                   hidden(radioButtons("peptideLevel_imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)), 
                                   
