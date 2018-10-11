@@ -19,7 +19,7 @@ output$helpForNormalizationMethods <- renderUI({
     if (input$normalization.method == "None") {return(NULL)}
     
     switch(input$normalization.method,
-           GlobalQuantileAlignment= txt <- "These methods propose normalizations of important
+           GlobalQuantileAlignment= txt <- "This method proposes a normalization of important
            magnitude that should be cautiously used. It proposes to align the quantiles of all 
            the replicates as described in [Other ref. 1]; practically it amounts to replace 
            abundances by order statistics.",
