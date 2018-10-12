@@ -12,13 +12,14 @@ tabPanel("Aggregation",
                                                            c("No (only protein-specific peptides)" = "No",
                                                              "Yes (shared peptides processed as protein specific)"= "Yes1" ,
                                                              "Yes (proportional redistribution of shared peptides). Better but slower." = "Yes2" ),
-                                                         selected="Yes2"),
+                                                         selected=rv$widgets$aggregation$includeSharedPeptides),
                                             radioButtons("AggregationConsider", "Consider", 
                                                          choices=c('all peptides'="allPeptides", 
-                                                                   "only the N most abundant ones"="onlyN"), selected='onlyN'),
+                                                                   "only the N most abundant ones"="onlyN"), 
+                                                         selected=rv$widgets$aggregation$considerPeptides),
                                             
-                                            radioButtons("AggregationOperator", "Operator", choices=c("mean"="mean")),
-                                            numericInput("nTopn", "N",value = 3, min = 0, step=1, width='100px'),
+                                            radioButtons("AggregationOperator", "Operator", choices=c("mean"="mean"), selected=rv$widgets$aggregation$operator),
+                                            numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px'),
                                               actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
                                            
                                   ),

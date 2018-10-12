@@ -166,20 +166,23 @@ BuildParamDataProcessingDT <- reactive({
 BuildParamDataMiningDT <- reactive({
   req(rv$current.obj)
   
-  nbLines <- sum(!is.null(rv$params.anaDiff), !is.null(rv$params.GO))
+    nbLines <- sum((rv$widgets$anaDiff$Comparison != "None"), !is.null(rv$params.GO))
+  if (nbLines ==0) {
+    df <- NULL
+  } else {
   df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
                    Process = rep("",length(names(nbLines))),
                    Parameters = rep("",length(names(nbLines))),
                    stringsAsFactors = FALSE)
  
-  if (!is.null(rv$params.anaDiff)){
+  if (!is.null(rv$widgets$anaDiff$Comparison)){
     df[1,"Dataset"]<- input$datasets
     df[1,"Process"]<- "Differential analysis"
-    ll <- setNames(split(rv$params.anaDiff[,2], seq(nrow(rv$params.anaDiff))), rv$params.anaDiff[,1])
-    df[1,"Parameters"]<- getTextForAnaDiff(ll)
+    #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
+    df[1,"Parameters"]<- getTextForAnaDiff(rv$widgets$anaDiff)
     } else {}
   
-  
+    }
   print(df)
   df
 })
@@ -290,7 +293,6 @@ ClearUI <- reactive({
                           choices = G_noneStr)
         updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
-        updateRadioButtons(session, "autoID", selected = "Auto ID")
         
         updateSelectInput(session, "idBox", selected = NULL)
         
@@ -359,8 +361,8 @@ loadObjectInMemoryFromConverter <- function(){
     if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
-        rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC
-        rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold_p_value
+        rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
+        rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
         
     }
     
@@ -457,9 +459,9 @@ ClearMemory <- function(){
   ########
   ### Parameters
   ######## 
-  rv$params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
-                                value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
-                                stringsAsFactors = FALSE )
+  # rv$params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
+  #                               value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
+  #                               stringsAsFactors = FALSE )
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
@@ -467,11 +469,7 @@ ClearMemory <- function(){
     rv$deleted.stringBased = NULL
     rv$deleted.stringBased.fData = NULL
     rv$deleted.stringBased = NULL
-    rv$DT_filterSummary = data.frame(Filtre=NULL, 
-                                     Prefix=NULL,
-                                     nbDeleted=NULL, 
-                                     Total=NULL, 
-                                     stringsAsFactors=F)
+
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -482,14 +480,64 @@ ClearMemory <- function(){
                              stringsAsFactors=F)
     rv$tableVersions = NULL
     rv$listLogFC = list()
-    rv$seuilLogFC = 0
-    rv$seuilPVal = 1e-60
+    rv$widgets = list(
+                      filtering = list(ChooseFilters = "None",
+                                       seuilNA = 0,
+                                       DT_filterSummary = data.frame(Filtre=NULL, 
+                                                                     Prefix=NULL,
+                                                                     nbDeleted=NULL, 
+                                                                     Total=NULL, 
+                                                                     stringsAsFactors=F)),
+                      normalization=list(method = "None",
+                                         type = "None",
+                                         varReduction = FALSE,
+                                         quantile = 0.15,
+                                         spanLOESS = 0.7),
+                      aggregation = list(includeSharedPeptides = "Yes2",
+                                         operator = "mean",
+                                         considerPeptides = 'onlyN',
+                                         proteinId = "None",
+                                         topN = 3),
+                      hypothesisTest = list(design = "None",
+                                            method = "None",
+                                            ttest_options = "Student",
+                                            th_logFC = 0,
+                                            listNomsComparaison = NULL),
+                      peptideImput = list( pepLevel_algorithm = "None",
+                                           pepLevel_basicAlgorithm = "detQuantile",
+                                           pepLevel_detQuantile = 2.5,
+                                           pepLevel_detQuant_factor = 1,
+                                           pepLevel_imp4p_nbiter = 10,
+                                           pepLevel_imp4p_withLapala = FALSE,
+                                           pepLevel_imp4p_qmin = 2.5,
+                                           pepLevel_imp4pLAPALA_distrib = "unif"),
+                      
+                      proteinImput = list(POV_algorithm = "None",
+                                          POV_detQuant_quantile = 2.5,
+                                          POV_detQuant_factor = 1,
+                                          POV_KNN_n = 10,
+                                          MEC_algorithm = "None",
+                                          MEC_detQuant_quantile = 2.5,
+                                          MEC_detQuant_factor = 1,
+                                          MEC_fixedValue= 0),
+                      anaDiff = list(Comparison = "None",
+                                     Condition1 = "",
+                                     Condition2 = "",
+                                     swapVolcano = FALSE,
+                                    filterType = "None",
+                                    filter_th_NA = 0,
+                                    calibMethod = 'None',
+                                    numValCalibMethod = 0,
+                                    th_pval = 1e-60,
+                                    FDR = 0,
+                                    NbSelected = 0)
+                      )
     rv$tab1 = NULL
     rv$dirname = ""
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-   rv$calibrationRes = NULL
+    rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
     rv$errMsgcalibrationPlotALL = NULL
     rv$typeOfDataset = ""
@@ -605,11 +653,7 @@ rv <- reactiveValues(
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
-    DT_filterSummary = data.frame(Filtre=NULL, 
-                                  Prefix=NULL,
-                                  nbDeleted=NULL, 
-                                  Total=NULL, 
-                                  stringsAsFactors=F),
+
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
   PCA_axes = c(1,2),
@@ -631,23 +675,72 @@ rv <- reactiveValues(
                           History="", 
                           stringsAsFactors=F),
     listLogFC = list(),
-    seuilLogFC = 0,
-    seuilPVal = 1e-60,
+    
     tab1 = NULL,
     dirname = "",
     dirnameforlink = "",
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
-    params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
-                                value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
-                                stringsAsFactors = FALSE ),
+    #params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
+    #                            value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
+    #                            stringsAsFactors = FALSE ),
  
     # design = list(designChecked=NULL,
     #                  hot=NULL,
     #                  newOrder=NULL,
     #                  conditionsChecked=NULL,
     #                  designSaved=FALSE),
-    
+  widgets = list(
+                 filtering = list(ChooseFilters = "None",
+                                  seuilNA = 0,
+                                  DT_filterSummary = data.frame(Filtre=NULL, 
+                                                                Prefix=NULL,
+                                                                nbDeleted=NULL, 
+                                                                Total=NULL, 
+                                                                stringsAsFactors=F)),
+                  normalization=list(method = "None",
+                                      type = "None",
+                                      varReduction = FALSE,
+                                      quantile = 0.15,
+                                      spanLOESS = 0.7),
+                aggregation = list(includeSharedPeptides = "Yes2",
+                                    operator = "mean",
+                                    considerPeptides = 'onlyN',
+                                    proteinId = "None",
+                                    topN = 3),
+       hypothesisTest = list(design = "None",
+                            method = "None",
+                            ttest_options = "Student",
+                            th_logFC = 0,
+                            listNomsComparaison = NULL),
+       peptideImput = list( pepLevel_algorithm = "None",
+                            pepLevel_basicAlgorithm = "detQuantile",
+                            pepLevel_detQuantile = 2.5,
+                            pepLevel_detQuant_factor = 1,
+                            pepLevel_imp4p_nbiter = 10,
+                            pepLevel_imp4p_withLapala = FALSE,
+                            pepLevel_imp4p_qmin = 2.5,
+                            pepLevel_imp4pLAPALA_distrib = "unif"),
+       proteinImput = list(POV_algorithm = "None",
+                           POV_detQuant_quantile = 2.5,
+                           POV_detQuant_factor = 1,
+                           POV_KNN_n = 10,
+                           MEC_algorithm = "None",
+                           MEC_detQuant_quantile = 2.5,
+                           MEC_detQuant_factor = 1,
+                           MEC_fixedValue= 0),
+       anaDiff = list(Comparison = "None",
+                      Condition1 = "",
+                      Condition2 = "",
+                      swapVolcano = FALSE,
+                      filterType = "None",
+                      filter_th_NA = 0,
+                      calibMethod = 'None',
+                      numValCalibMethod = 0,
+                      th_pval = 1e-60,
+                      FDR = 0,
+                      NbSelected = 0)
+  ),
     hot = NULL,
     newOrder = NULL,
     designChecked = NULL,
@@ -830,7 +923,7 @@ observeEvent(input$LinkToUsefulLinksTab, {
 
 Get_ParamValue <- function(pp, key){
   switch(pp,
-         params.anaDiff= df <- rv$params.anaDiff
+         params.anaDiff= df <- rv$widgets$anaDiff
   ) 
   
   return(df[which(df$param==key),]$value)

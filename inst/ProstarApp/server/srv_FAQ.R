@@ -1,4 +1,8 @@
 
+callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
+
+
+
 output$FAQ_output <- renderUI({
   
   tagList(

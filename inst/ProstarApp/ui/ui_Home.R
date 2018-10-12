@@ -14,6 +14,7 @@ tabPanel(title="Home",
          uiOutput("versionsText"),
          tags$br(), tags$br(),
          #uiOutput("descriptionText")
-         includeMarkdown(URL_ProstarPresentation)
+         #includeMarkdown(URL_ProstarPresentation)
+         moduleInsertMarkdownUI("ProstarPresentation_MD")
          )
 )

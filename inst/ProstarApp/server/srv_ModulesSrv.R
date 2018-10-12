@@ -174,8 +174,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   output$nbSelectedItems <- renderUI({ 
     
-    rv$seuilPVal
-    rv$seuilLogFC
+    rv$widgets$anaDiff$th_pval
+    rv$widgets$hypothesisTest$th_logFC
     rv$current.obj
     rv$resAnaDiff
     
@@ -188,18 +188,22 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     upItemsLogFC <- NULL
     
     
-    upItemsLogFC <- which(abs(p$logFC) >= rv$seuilLogFC)
-    upItemsPVal <- which(-log10(p$P_Value) >= rv$seuilPVal)
+    upItemsLogFC <- which(abs(p$logFC) >= rv$widgets$hypothesisTest$th_logFC)
+    upItemsPVal <- which(-log10(p$P_Value) >= rv$widgets$anaDiff$th_pval
+    )
     
     rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
     rv$nbSelectedAnaDiff <- NULL
     t <- NULL
     
-    if (!is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+    if (!is.null(rv$widgets$anaDiff$th_pval
+    ) && !is.null(rv$widgets$hypothesisTest$th_logFC) ) {
       t <- intersect(upItemsPVal, upItemsLogFC)}
-    else if (!is.null(rv$seuilPVal) && is.null(rv$seuilLogFC) ) {
+    else if (!is.null(rv$widgets$anaDiff$th_pval
+    ) && is.null(rv$widgets$hypothesisTest$th_logFC) ) {
       t <- upItemsPVal}
-    else if (is.null(rv$seuilPVal) && !is.null(rv$seuilLogFC) ) {
+    else if (is.null(rv$widgets$anaDiff$th_pval
+    ) && !is.null(rv$widgets$hypothesisTest$th_logFC) ) {
       t <- upItemsLogFC}
     rv$nbSelectedAnaDiff <- length(t)
     
@@ -299,12 +303,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     req(rv$current.obj)
     req(comp())
     req(input$eventPointClicked)
-    rv$seuilLogFC
-    rv$seuilPVal
+    rv$widgets$hypothesisTest$th_logFC
+    rv$widgets$anaDiff$th_pval
+    
     rv$resAnaDiff
     
-    condition1 = strsplit(comp(), "_vs_")[[1]][1]
-    condition2 = strsplit(comp(), "_vs_")[[1]][2]
+    condition1 = rv$widgets$anaDiff$Condition1
+    condition2 = rv$widgets$anaDiff$Condition2
     ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
               which(pData(rv$current.obj)$Condition==condition2))
     
@@ -316,7 +321,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data <-getDataForExprs(rv$current.obj)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$seuilPVal) & (abs(rv$resAnaDiff$logFC) >= rv$seuilLogFC))
+    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
+    ) & (abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC))
     
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
@@ -358,12 +364,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   
   output$volcanoPlot <-  renderHighchart({ 
-    rv$seuilPVal
-    rv$seuilLogFC
+    rv$widgets$anaDiff$th_pval
+    rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
     tooltip()
     
-    if (is.null(rv$seuilLogFC) || is.na(rv$seuilLogFC) ){return()}
+    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
@@ -388,8 +394,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
         
         cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
         rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
-                                   threshold_logFC = rv$seuilLogFC,
-                                   threshold_pVal = rv$seuilPVal,
+                                   threshold_logFC = rv$widgets$hypothesisTest$th_logFC,
+                                   threshold_pVal = rv$widgets$anaDiff$th_pval,
                                    conditions = cond,
                                    clickFunction=clickFun,
                                    rv$colorsVolcanoplot)
@@ -613,4 +619,27 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       })
 
     })
+}
+
+
+
+moduleInsertMarkdown <- function(input, output, session,url){
+  
+  output$insertMD <- renderUI({
+    print(url)
+    tryCatch(
+      {
+        includeMarkdown(url)
+      }
+      , warning = function(w) {
+        tags$p("URL not found<br>",conditionMessage(w))
+        #shinyjs::info(paste("URL not found",":",conditionMessage(w), sep=" "))
+      }, error = function(e) {
+        shinyjs::info(paste("Error :","CreateMSnSet",":", conditionMessage(e), sep=" "))
+      }, finally = {
+        #cleanup-code 
+      })
+    
+  })
+  
 }

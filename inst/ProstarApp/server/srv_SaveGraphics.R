@@ -38,6 +38,8 @@ toto <- reactive({
   }
   
   withProgress(message = '',detail = '', value = 0, {
+    
+    
     ### for each available dataset, create the selected plots
     for (i in 1:length(names(rv$dataset))){
       print(paste0("Dataset:",names(rv$dataset)[i]))
@@ -63,7 +65,13 @@ toto <- reactive({
         
         addPNG_to_Rmd(pngfile, paste0("fig_",pattern), rv$outfile)
       }
-    }
+    }  ## END for each dataset
+    
+    
+    ##
+    # for (xxxx){
+    #   
+    # }
   })
   
   

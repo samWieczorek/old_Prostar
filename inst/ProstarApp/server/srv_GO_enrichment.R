@@ -631,7 +631,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
 
 output$GO_resumeParams <- DT::renderDataTable({
   req(c(rv$current.obj,input$selectComparison,
-        rv$seuilPVal,input$AnaDiff_ChooseFilters,input$calibrationMethod))
+        rv$widgets$anaDiff$th_pval,rv$widgets$anaDiff$filterType,rv$widgets$anaDiff$calibMethodS))
   rv$resAnaDiff
   req(rv$res_AllPairwiseComparisons)
   

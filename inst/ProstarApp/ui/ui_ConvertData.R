@@ -25,15 +25,18 @@ tabPanel("Convert data",
                        value = "ID",
                        br(), br(),
                        #uiOutput("helpTextDataID"),
-                       modulePopoverUI("modulePopover_convertIdType"),
-                       radioButtons("autoID", width="500px",
-                                    "", 
-                                    choices=G_ConvertDataID_Choices),
-                       conditionalPanel(
-                           condition = 'input.autoID == "user ID"',
-                           uiOutput("id"),
-                           uiOutput("warningNonUniqueID")),
-                       uiOutput("convertChooseProteinID_UI")
+                       
+                       tags$div(
+                         tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
+                                   uiOutput("id"),
+                                   uiOutput("warningNonUniqueID")
+                         ),
+                         tags$div( style="display:inline-block; vertical-align: top;",
+                                   uiOutput("convertChooseProteinID_UI")
+                         )
+                       )
+
+                       
              ),
              
              tabPanel( "3 - Exp. and feat. data",

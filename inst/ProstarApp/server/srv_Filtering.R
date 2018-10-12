@@ -6,18 +6,26 @@ callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Ke
 
 
 
+observeEvent(input$ChooseFilters,{
+  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
+})
 
-
+observeEvent(input$seuilNA,{
+  rv$widgets$filtering$seuilNA <- as.numeric(input$seuilNA)
+})
 
 output$mv_Filtering <- renderUI({
   req(rv$current.obj)
-  tag <- rv$current.obj@experimentData@other$mvFilter.method
-  if (!is.null(tag)) { filter <- tag}
+  #tag <- rv$current.obj@experimentData@other$mvFilter.method
+  #if (!is.null(tag)) { filter <- tag}
   
   tagList(
       tags$div(
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                  selectInput("ChooseFilters","Type",  choices = gFiltersList, width='150px')
+                  selectInput("ChooseFilters","Type",  
+                              choices = gFiltersList, 
+                              selected=rv$widgets$filtering$ChooseFilters,
+                              width='150px')
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
                   uiOutput("seuilNADelete")
@@ -42,12 +50,12 @@ output$mv_Filtering <- renderUI({
 
 output$stringBased_Filtering <- renderUI({
   req(rv$current.obj)
-  req(rv$DT_filterSummary)
+  req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$DT_filterSummary) <= 1) {
+  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
     choice <- c("None", colnames(fData(rv$current.obj)))
   } else {
-    index <- match(rv$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
     choice <- c("None", colnames(fData(rv$current.obj))[-index])
   }
   
@@ -120,21 +128,21 @@ observeEvent(input$actionButtonFilter,{
   rv$stringBasedFiltering_Done = TRUE
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
-  rv$DT_filterSummary <- rbind(rv$DT_filterSummary , df)
+  rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
 
-  #colnames(rv$DT_filterSummary) <- c("Filter", "Prefix", "nbDeleted", "Total")
+  #colnames(rv$widgets$filtering$DT_filterSummary) <- c("Filter", "Prefix", "nbDeleted", "Total")
   
 })
 
 
 output$SymbolicFilterOptions <- renderUI({
   req(rv$current.obj)
-  req(rv$DT_filterSummary)
+  req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$DT_filterSummary) <= 1) {
+  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
     choice <- c("None", colnames(fData(rv$current.obj)))
   } else {
-    index <- match(rv$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
     choice <- c("None", colnames(fData(rv$current.obj))[-index])
   }
   tagList(
@@ -147,14 +155,14 @@ output$SymbolicFilterOptions <- renderUI({
 
 output$FilterSummaryData <- DT::renderDataTable({
   req(rv$current.obj)
-  req(rv$DT_filterSummary)
+  req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$DT_filterSummary )==0){
+  if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
     df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
-    rv$DT_filterSummary <- rbind(rv$DT_filterSummary ,df)
+    rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary ,df)
   }
   
-  DT::datatable(rv$DT_filterSummary,extensions = 'Scroller',
+  DT::datatable(rv$widgets$filtering$DT_filterSummary,extensions = 'Scroller',
                 options=list(initComplete = initComplete(),
                              deferRender = TRUE,
                              bLengthChange = FALSE,
@@ -170,7 +178,7 @@ observe({
   if (length(grep("Filtered", input$datasets))==0 && rv$ValidFilteringClicked){
     rv$ValidFilteringClicked <- FALSE
     df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
-    rv$DT_filterSummary <- df
+    rv$widgets$filtering$DT_filterSummary <- df
   }
   
 })
@@ -278,14 +286,17 @@ output$VizualizeFilteredData <- DT::renderDataTable({
 ##' Show the widget (slider input) for filtering
 ##' @author Samuel Wieczorek
 output$seuilNADelete <- renderUI({ 
-  req(input$ChooseFilters)
+  req(rv$widgets$filtering$ChooseFilters)
   
-  if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
+  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
   
-  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
+  choix <- getListNbValuesInLines(rv$current.obj, type=rv$widgets$filtering$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
-    selectInput("seuilNA", "", choices = choix, width='150px'))
+    selectInput("seuilNA", "", 
+                choices = choix,
+                selected = rv$widgets$filtering$seuilNA,
+                width='150px'))
   
 })
 
@@ -344,20 +355,20 @@ observeEvent(input$perform.filtering.MV,{
   
   isolate({
     
-     if (input$ChooseFilters == gFilterNone){
+     if (rv$widgets$filtering$ChooseFilters == gFilterNone){
       rv$current.obj <- rv$dataset[[input$datasets]]
     } else {
       
       keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                     input$ChooseFilters,
-                                     as.integer(input$seuilNA))
+                                     rv$widgets$filtering$ChooseFilters,
+                                     as.integer(rv$widgets$filtering$seuilNA))
       if (!is.null(keepThat))
       {
         rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
         rv$current.obj <- 
           mvFilterFromIndices(rv$dataset[[input$datasets]],
                               keepThat,
-                              GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
+                              GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(rv$widgets$filtering$seuilNA)))
         
         rv$mvFiltering_Done <- TRUE
         
@@ -366,8 +377,8 @@ observeEvent(input$perform.filtering.MV,{
 
   })
   
-  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+  updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
+  updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
   
 })
 
@@ -417,15 +428,15 @@ output$ObserverMVFilteringDone <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
-  if((input$ChooseFilters != gFilterNone) || (nrow(rv$DT_filterSummary )>1)){
+  if((rv$widgets$filtering$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
     
-    if (nrow(rv$DT_filterSummary) <=1) {
+    if (nrow(rv$widgets$filtering$DT_filterSummary) <=1) {
       df <- NULL
     } else {
-      df <- rv$DT_filterSummary}
+      df <- rv$widgets$filtering$DT_filterSummary}
     
-    l.params <- list(mvFilterType = input$ChooseFilters,
-                     mvThNA = as.numeric(input$seuilNA), 
+    l.params <- list(mvFilterType = rv$widgets$filtering$ChooseFilters,
+                     mvThNA = as.numeric(rv$widgets$filtering$seuilNA), 
                      stringFilter.df = df)
     
     
@@ -439,7 +450,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-    updateSelectInput(session, "seuilNA", selected=input$seuilNA)
+    updateSelectInput(session, "seuilNA", selected=rv$widgets$filtering$seuilNA)
   }
   
   

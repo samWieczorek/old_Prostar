@@ -43,8 +43,8 @@ source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")
 URL_links <- paste0(base_URL, "links.md")
-URL_ProstarPresentation <- paste0(base_URL, "ProstarPresentation.md")
-URL_formerReleases <-paste0(base_URL, "formerRelease.md")
+URL_ProstarPresentation <- paste0(base_URL, "prostarPresentation.md")
+URL_formerReleases <-paste0(base_URL, "formerReleases.md")
 URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
 ## gestion des couleurs
@@ -597,7 +597,7 @@ calibMethod_Choices <- c("Benjamini-Hochberg",
                          "pounds", "abh","slim", 
                          "numeric value")
 
-anaDiffMethod_Choices <- c("None"="",
+anaDiffMethod_Choices <- c("None"="None",
                            "Limma"="Limma", 
                            "t-tests"="ttests")
 

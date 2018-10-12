@@ -3,8 +3,15 @@ callModule(modulePopover,"modulePopover_convertChooseDatafile",
                                 content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
 callModule(modulePopover,"modulePopover_convertIdType", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Type de ID</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">ID definition</font></strong>")), 
                                 content="If you choose the automatic ID, Prostar will build an index.")))
+
+
+
+callModule(modulePopover,"modulePopover_convertProteinID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
+                                content="Select the column containing the parent protein IDs.")))
+
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
@@ -15,7 +22,7 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
     req(rv$tab1)
-    if (input$idBox =="") {return(NULL)  }
+    if (input$idBox =="Auto ID") {return(NULL)  }
     
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -36,11 +43,16 @@ output$warningNonUniqueID <- renderUI({
 output$convertChooseProteinID_UI <- renderUI({
   req(rv$tab1)
   
+  if (input$typeOfData == "protein") {return(NULL)}
+  
   .choices <- c("",colnames(rv$tab1))
   names(.choices) <- c("",colnames(rv$tab1))
-  selectInput("convert_proteinId", 
-              "Choose the protein ID",
+  tagList(
+    modulePopoverUI("modulePopover_convertProteinID"),
+    selectInput("convert_proteinId", 
+              "",
               choices =  .choices , selected = NULL)
+  )
 })
 
 
@@ -48,9 +60,13 @@ output$convertChooseProteinID_UI <- renderUI({
 output$id <- renderUI({
   req(rv$tab1)
   
-  .choices <- c("",colnames(rv$tab1))
-  names(.choices) <- c("",colnames(rv$tab1))
-  selectInput("idBox", label = "", choices = .choices , selected = NULL)
+  .choices <- c("Auto ID",colnames(rv$tab1))
+  names(.choices) <- c("Auto ID",colnames(rv$tab1))
+  
+  tagList(
+    modulePopoverUI("modulePopover_convertIdType"),
+    selectInput("idBox", label = "", choices = .choices)
+  )
   
 })
 
@@ -400,7 +416,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$autoID == "user ID") {
+                if (input$idBox !="Auto ID") {
                     indexForIDBox <- match(input$idBox, colnames(rv$tab1))
                 }
                 

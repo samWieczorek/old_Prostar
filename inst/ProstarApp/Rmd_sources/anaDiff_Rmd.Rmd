@@ -4,7 +4,7 @@ Parameters used for the differential analysis :
 
 ```{r tab_params_anaDiff,out.width = "100%", echo=FALSE}
 library(DT)
-callModule(moduleStaticDataTable,"summaryParamsAnaDiff", table2show=rv$params.anaDiff)
+callModule(moduleStaticDataTable,"summaryParamsAnaDiff", table2show=rv$widgets$anaDiff)
 moduleStaticDataTableUI("summaryParamsAnaDiff")
 ```
                                                       

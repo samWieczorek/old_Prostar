@@ -141,3 +141,10 @@ moduleFilterStringbasedOptionsUI <- function(id) {
     ns <- NS(id)
     uiOutput(ns("FilterStringbasedOptions"))
 }
+
+
+
+moduleInsertMarkdownUI <- function(id){
+  ns <- NS(id)
+  uiOutput(ns("insertMD"))
+}
