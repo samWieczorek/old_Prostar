@@ -193,8 +193,9 @@ output$POV_Params <- renderUI({
            )
          },
          KNN = {
-           numericInput("KNN_nbNeighbors", "Nb neighbors", value = rv$widgets$proteinImput$POV_KNN_n, step=1, min=0, max=nrow(rv$current.obj))
-           
+
+           numericInput("KNN_nbNeighbors", "Number of neighbors", value = 10, step=1, min=0, max=nrow(rv$current.obj))
+  
          }
   )
 })

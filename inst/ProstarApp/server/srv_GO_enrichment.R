@@ -76,7 +76,7 @@ output$GOAnalysisMenu <- renderUI({
                                      )
                      )
             ),
-            tabPanel("Parameters summmary",
+            tabPanel("Parameter summary",
                      value = "tabPanelSaveGO",
                      dataTableOutput("GO_resumeParams")
             )
@@ -142,11 +142,11 @@ output$chooseSourceForProtID <- renderUI({
     input$sourceOfProtID
     
     if (input$sourceOfProtID == "colInDataset"){
-        selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
+        selectInput("UniprotIDCol", "Select column containing protein IDs",
                     choices = c("", colnames(Biobase::fData(rv$current.obj))))
     }
     else  if (input$sourceOfProtID == "extFile"){
-        fileInput("UNIPROTID_File", "Select file for UNIPROT protein ID")
+        fileInput("UNIPROTID_File", "Select file containing protein IDs")
         
     }
 })

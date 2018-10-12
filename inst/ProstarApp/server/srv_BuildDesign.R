@@ -180,7 +180,7 @@ output$UI_hierarchicalExp <- renderUI({
       radioButtons("chooseExpDesign", "",
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
-                               "3 levels design (complete Bio.Rep a,d Tech.Rep columns)" = "threeLevelsDesign" ))
+                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" ))
     )
   }
   

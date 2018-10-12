@@ -92,10 +92,12 @@ output$peptideLevelImputationPanel <- renderUI({
                                                choices = imputationAlgorithms, 
                                                selected = rv$widgets$peptideImput$pepLevel_algorithm,
                                                width='200px'),
+
                                    hidden(selectInput("peptideLevel_missing.value.basic.algorithm", 
-                                                      "Algorithm",
+                                                      "Methods",
                                                       choices = basicMethodsImputationAlgos)
                                    ),
+
                                   hidden(numericInput("peptideLevel_detQuant_quantile", "Quantile", 
                                                       value = rv$widgets$peptideImput$pepLevel_detQuantile,
                                                       step=1, min=0, max=100)),
@@ -107,12 +109,13 @@ output$peptideLevelImputationPanel <- renderUI({
                                                       value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter, 
                                                       step=1, min=1, width='200px')),
                                   
-                                  hidden(checkboxInput("peptideLevel_imp4p_withLapala", "with MEC", 
+                                  hidden(checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also", 
                                                        value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala)),
                                   
                                   hidden(numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound", 
                                                       value = rv$widgets$peptideImput$pepLevel_imp4p_qmin, 
                                                       step=0.1, min=0, max=100)),
+
                                   
                                   hidden(radioButtons("peptideLevel_imp4pLAPALA_distrib", "Distribution type", choices = G_imp4PDistributionType_Choices)), 
                                   
