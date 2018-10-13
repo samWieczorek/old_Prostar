@@ -20,7 +20,7 @@ tabPanel("Normalization",
              ),
              div(
                style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-               hidden(numericInput("spanLOESS", "Span",min=0, max = 1 , value = rv$widgets$normalization$spanLOESS,step = 0.1, width='100px')),
+               hidden(textInput("spanLOESS", "Span",value = rv$widgets$normalization$spanLOESS, width='100px')),
                uiOutput("choose_normalizationQuantile"),
                uiOutput("choose_normalizationScaling")
              ),

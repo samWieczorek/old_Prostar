@@ -11,37 +11,14 @@ callModule(moduleBoxplot,"boxPlot_Norm")
 
 callModule(modulePopover,"modulePopover_normQuanti", 
            data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
-                                content="lower limit/noise (quantile = 0.15), median (quantile = 0.5)")))
+                                content="lower limit/noise (quantile = 0.15), median (quantile = 0.5). Min value=0, max value=1")))
 
-
-
-
-observeEvent(input$normalization.method,{
-  rv$widgets$normalization$method <- input$normalization.method
-})
-
-observeEvent(input$normalization.type,{
-  rv$widgets$normalization$type <- input$normalization.type
-})
-
-
-observeEvent(input$normalization.quantile,{
-  rv$widgets$normalization$quantile <- input$normalization.quantile
-})
-
-observeEvent(input$normalization.variance.reduction,{
-  rv$widgets$normalization$varReduction <- input$normalization.variance.reduction
-})
-
-observeEvent(input$spanLOESS,{
-  rv$widgets$normalization$spanLOESS <- input$spanLOESS
-})
 
 
 
 output$helpForNormalizationMethods <- renderUI({
-    req(rv$widgets$normalization$method)
-    if (rv$widgets$normalization$method == "None") {return(NULL)}
+    req(input$normalization.method)
+    if (input$normalization.method == "None") {return(NULL)}
     
 
     switch(input$normalization.method,
@@ -74,13 +51,13 @@ output$helpForNormalizationMethods <- renderUI({
 
 
 output$choose_normalizationQuantile <- renderUI({
-    req(rv$widgets$normalization$method)
-    if (rv$widgets$normalization$method != "QuantileCentering") { return (NULL)}
+    req(input$normalization.method)
+    if (input$normalization.method != "QuantileCentering") { return (NULL)}
    
     tagList(
       modulePopoverUI("modulePopover_normQuanti"),
-        numericInput("normalization.quantile", "",
-                     min=0, max = 1 , value = rv$widgets$normalization$quantile,step = 0.1, width='150px')
+        textInput("normalization.quantile", "",
+                     value = rv$widgets$normalization$quantile,width='150px')
     )
     
 })
@@ -88,9 +65,9 @@ output$choose_normalizationQuantile <- renderUI({
 
 
 output$choose_normalizationScaling <- renderUI({
-    req(rv$widgets$normalization$method)
+    req(input$normalization.method)
 
-    if (rv$widgets$normalization$method == "MeanCentering"){
+    if (input$normalization.method == "MeanCentering"){
         # check if the normalisation has already been performed
         
         checkboxInput("normalization.variance.reduction", "Include variance reduction",  
@@ -100,17 +77,17 @@ output$choose_normalizationScaling <- renderUI({
 })
 
 
-observeEvent(rv$widgets$normalization$method,{
+observeEvent(input$normalization.method,{
   #req(input$normalization.method)
-  if (rv$widgets$normalization$method == "None"){
+  if (input$normalization.method == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
   }
   
-  shinyjs::toggle("perform.normalization", condition=rv$widgets$normalization$method != "None")
-  shinyjs::toggle("spanLOESS", condition=rv$widgets$normalization$method == "LOESS")
+  shinyjs::toggle("perform.normalization", condition=input$normalization.method != "None")
+  shinyjs::toggle("spanLOESS", condition=input$normalization.method == "LOESS")
   
   shinyjs::toggle("normalization.type", 
-                  condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
+                  condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 })
 
 
@@ -120,58 +97,58 @@ observeEvent(input$perform.normalization,{
     
     isolate({
 
-        switch(rv$widgets$normalization$method, 
+        switch(input$normalization.method, 
           G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
           GlobalQuantileAlignment = {
-              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], rv$widgets$normalization$method)
-              updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
+              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], input$normalization.method)
+              updateSelectInput(session, "normalization.method", selected = input$normalization.method)
               },
           QuantileCentering = {
                          quant <-NA
-                        if (!is.null(rv$widgets$normalization$quantile))
-                        {quant <- as.numeric(rv$widgets$normalization$quantile)}
+                        if (!is.null(input$normalization.quantile))
+                        {quant <- as.numeric(input$normalization.quantile)}
 
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                             rv$widgets$normalization$method, 
-                                                             rv$widgets$normalization$type, 
+                                                             input$normalization.method, 
+                                                             input$normalization.type, 
                                                               quantile = quant)
-                        updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                        updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                        if (!is.null(rv$widgets$normalization$quantile)){
-                          updateNumericInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)}
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                        if (!is.null(input$normalization.quantile)){
+                          updateNumericInput(session, "normalization.quantile", value = input$normalization.quantile)}
                         
                     } ,  
          MeanCentering = {
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                             rv$widgets$normalization$method, 
-                                                             rv$widgets$normalization$type, 
-                                                              scaling=rv$widgets$normalization$varReduction)
-                        updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                        updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                        updateCheckboxInput(session,"normalization.variance.reduction", value=rv$widgets$normalization$varReduction)
+                                                             input$normalization.method, 
+                                                             input$normalization.type, 
+                                                              scaling=input$normalization.variance.reduction)
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                        updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
                     }, 
          SumByColumns = {
                         rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                             rv$widgets$normalization$method, 
-                                                             rv$widgets$normalization$type)
-                        updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                        updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
+                                                             input$normalization.method, 
+                                                             input$normalization.type)
+                        updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                        updateSelectInput(session, "normalization.type", selected = input$normalization.type)
                         
                     },
          LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                        rv$widgets$normalization$method, 
-                                                        rv$widgets$normalization$type,
-                                                  span=rv$widgets$normalization$spanLOESS)
-                    updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                    updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                    updateNumericInput(session, "spanLOESS", value = rv$widgets$normalization$spanLOESS)
+                                                        input$normalization.method, 
+                                                        input$normalization.type,
+                                                  span=as.numeric(input$spanLOESS))
+                    updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                    updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                    updateNumericInput(session, "spanLOESS", value = input$spanLOESS)
                 },
          vsn = {
             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                 rv$widgets$normalization$method, 
-                                                 rv$widgets$normalization$type)
-            updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-            updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
+                                                 input$normalization.method, 
+                                                 input$normalization.type)
+            updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+            updateSelectInput(session, "normalization.type", selected = input$normalization.type)
             }
         )
     })
@@ -186,30 +163,22 @@ observeEvent(input$valid.normalization,{
     req(input$perform.normalization)
     
     isolate({
-        # result = tryCatch(
-        #     {
-                if (rv$widgets$normalization$method != G_noneStr) {
-                    
-                  
-                  l.params <- rv$widgets$normalization
-                  
-                  
+                if (input$normalization.method != G_noneStr) {
                   rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
-                  
-                    name <- paste0("Normalized", ".", rv$typeOfDataset)
-                    rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",l.params)
-                    rv$dataset[[name]] <- rv$current.obj
+                  name <- paste0("Normalized", ".", rv$typeOfDataset)
+                  rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
+                  rv$dataset[[name]] <- rv$current.obj
                     
-                    updateSelectInput(session, "datasets", 
+                  updateSelectInput(session, "datasets", 
                                       #paste("Dataset versions of",rv$current.obj.name, sep=" "),
                                       choices = names(rv$dataset),
                                       selected = name)
                     
-                    updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                    updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                    updateCheckboxInput(session,"normalization.variance.reduction", value=rv$widgets$normalization$varReduction)
-                    updateNumericInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
-                    updateNumericInput(session, "spanLOESS", value = rv$widgets$normalization$spanLOESS)
+                    updateSelectInput(session, "normalization.method", selected = input$normalization.method)
+                    updateSelectInput(session, "normalization.type", selected = input$normalization.type)
+                    updateCheckboxInput(session,"normalization.variance.reduction", value=input$normalization.variance.reduction)
+                    updateNumericInput(session, "normalization.quantile", value = input$normalization.quantile)
+                    updateNumericInput(session, "spanLOESS", value = input$spanLOESS)
                 }
 
     } )

@@ -166,12 +166,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   })
   
   
-  # observeEvent(rv$matAdj,{
-  #   print(dim(rv$matAdj))
-  #   shinyjs::toggle("Specific peptides", condition=!is.null(rv$matAdj))
-  #   shinyjs::toggle("Shared peptides", condition=!is.null(rv$matAdj))
-  # })
-  
   output$nbSelectedItems <- renderUI({ 
     
     rv$widgets$anaDiff$th_pval
@@ -541,18 +535,14 @@ moduleBoxplot <- function(input, output, session) {
 moduleMVPlots <- function(input, output, session, data) {
   
   output$plot_viewNAbyMean <- renderHighchart({
-    # viewNAbyMean(data())
     req(data())
-    # isolate({
-    wrapper.hc_mvTypePlot2(data())
-    # })
+    wrapper.hc_mvTypePlot2(rv$current.obj)
   })
   
   output$plot_showImageNA <- renderPlot({
-    #showImageNA(data())
     req(data())
     isolate({
-      wrapper.mvImage(data())
+      wrapper.mvImage(rv$current.obj)
     })
   }, width=400, height=600)
 }

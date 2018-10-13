@@ -55,7 +55,11 @@ moduleVolcanoplotUI <- function(id){
 ########################################################
 moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
+  tagList(
+    h5("The missing values will be imputed by the following values :"),
+    
   dataTableOutput(ns("detQuantValues_DT"))
+  )
 }
 
 missingValuesPlotsUI <- function(id) {
@@ -84,10 +88,10 @@ moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
       tags$div(
        tags$div( style="display:inline-block; vertical-align: middle;",
-                 highchartOutput(ns("plot_viewNAbyMean")) %>% withSpinner(type=spinnerType)
+                 highchartOutput(ns("plot_viewNAbyMean"))
        ),
        tags$div( style="display:inline-block; vertical-align: middle;",
-                 plotOutput(ns("plot_showImageNA"))%>% withSpinner(type=spinnerType)
+                 plotOutput(ns("plot_showImageNA"))
        )
      )
      

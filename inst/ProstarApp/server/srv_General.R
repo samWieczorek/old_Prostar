@@ -166,7 +166,7 @@ BuildParamDataProcessingDT <- reactive({
 BuildParamDataMiningDT <- reactive({
   req(rv$current.obj)
   
-    nbLines <- sum((rv$widgets$anaDiff$Comparison != "None"), !is.null(rv$params.GO))
+    nbLines <- sum((as.character(input$selectComparison) != "None"), !is.null(rv$params.GO))
   if (nbLines ==0) {
     df <- NULL
   } else {
@@ -175,7 +175,7 @@ BuildParamDataMiningDT <- reactive({
                    Parameters = rep("",length(names(nbLines))),
                    stringsAsFactors = FALSE)
  
-  if (!is.null(rv$widgets$anaDiff$Comparison)){
+  if (!is.null(as.character(input$selectComparison))){
     df[1,"Dataset"]<- input$datasets
     df[1,"Process"]<- "Differential analysis"
     #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
@@ -362,7 +362,7 @@ loadObjectInMemoryFromConverter <- function(){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
         rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
-        rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
+        #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
         
     }
     
@@ -504,7 +504,7 @@ ClearMemory <- function(){
                                             th_logFC = 0,
                                             listNomsComparaison = NULL),
                       peptideImput = list( pepLevel_algorithm = "None",
-                                           pepLevel_basicAlgorithm = "detQuantile",
+                                           pepLevel_basicAlgorithm = "None",
                                            pepLevel_detQuantile = 2.5,
                                            pepLevel_detQuant_factor = 1,
                                            pepLevel_imp4p_nbiter = 10,

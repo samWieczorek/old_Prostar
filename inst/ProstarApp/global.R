@@ -242,30 +242,30 @@ imputationAlgorithms <- c("None" = "None",
                              "imp4p" = "imp4p",
                              "Basic methods" = "BasicMethods")
 
-basicMethodsImputationAlgos <- c("Det. quantile" = "detQuantile",
-                                    "KNN" = "KNN",
-                                    "MLE" = "MLE"
+basicMethodsImputationAlgos <- c("None" = "None",
+                                 "Det. quantile" = "detQuantile",
+                                 "KNN" = "KNN",
+                                 "MLE" = "MLE"
                                         )
 
 imputationAlgorithmsPeptides_POV <- list("None" = "None",
-                                                 "imp4p" = "imp4p",
-                                                 "slsa" = "slsa",
-                                                "Det. quantile" = "detQuantile",
-                                                "KNN" = "KNN")
+                                         "imp4p" = "imp4p",
+                                         "slsa" = "slsa",
+                                         "Det. quantile" = "detQuantile",
+                                         "KNN" = "KNN")
 
-imputationAlgorithmsProteins_POV <- list(
-                                                "None" = "None",
-                                                "slsa" = "slsa",
-                                                 "Det quantile" = "detQuantile",
-                                                 "KNN" = "KNN")
+imputationAlgorithmsProteins_POV <- list("None" = "None",
+                                         "slsa" = "slsa",
+                                         "Det quantile" = "detQuantile",
+                                         "KNN" = "KNN")
 
 imputationAlgorithmsPeptides_MEC<- list("None" = "None",
-                                           "Det quantile" = "detQuantile",
-                                           "Fixed value" = "fixedValue")
+                                        "Det quantile" = "detQuantile",
+                                        "Fixed value" = "fixedValue")
 
 imputationAlgorithmsProteins_MEC <- list("None" = "None",
-                                            "Det quantile" = "detQuantile",
-                                            "Fixed value" = "fixedValue")
+                                         "Det quantile" = "detQuantile",
+                                         "Fixed value" = "fixedValue")
 
 JSCSSTags <- function() 
 { 

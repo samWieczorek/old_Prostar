@@ -6,12 +6,12 @@ callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSt
 callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
 callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
-           reactive({rv$widgets$proteinImput$POV_detQuant_quantile}), 
-           reactive({rv$widgets$proteinImput$POV_detQuant_factor}))
+           reactive({input$POV_detQuant_quantile}), 
+           reactive({input$POV_detQuant_factor}))
 
 callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT", 
-           reactive({rv$widgets$proteinImput$MEC_detQuant_quantile}), 
-           reactive({rv$widgets$proteinImput$MEC_detQuant_factor}))
+           reactive({input$MEC_detQuant_quantile}), 
+           reactive({input$MEC_detQuant_factor}))
 
 
 
@@ -98,22 +98,20 @@ output$proteinLevelImputationPanel <- renderUI({
 
 output$POV_showDetQuantValues <- renderUI({
   
-  req(rv$widgets$proteinImput$POV_algorithm)
+  req(input$POV_missing.value.algorithm)
   
-  if (rv$widgets$proteinImput$POV_algorithm == 'detQuantile')
+  if (input$POV_missing.value.algorithm == 'detQuantile')
   {
-   tagList(
-     h5("The POV will be imputed by the following values :"),
-     moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
-   )
+    moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
+
   }
 })
 
 output$MEC_showDetQuantValues <- renderUI({
   
-  req(rv$widgets$proteinImput$MEC_algorithm)
+  req(input$MEC_missing.value.algorithm)
   
-  if (rv$widgets$proteinImput$MEC_algorithm == 'detQuantile')
+  if (input$MEC_missing.value.algorithm == 'detQuantile')
   {
     tagList(
       h5("The MEC will be imputed by the following values :"),
@@ -123,12 +121,6 @@ output$MEC_showDetQuantValues <- renderUI({
 })
 
 
-
-
-
-#observeEvent(rv$widgets$proteinImput$POV_algorithm,{
-#  updateSelectInput(session, "MEC_missing.value.algorithm", selected = "None")
-#})
 
 output$sidebar_imputation_step1 <- renderUI({
   
@@ -177,9 +169,9 @@ output$MEC_chooseImputationMethod <- renderUI({
 
 
 output$POV_Params <- renderUI({
-  req(rv$widgets$proteinImput$POV_algorithm)
+  req(input$POV_missing.value.algorithm)
   
-  switch(rv$widgets$proteinImput$POV_algorithm,
+  switch(input$POV_missing.value.algorithm,
          detQuantile = {
            
            tagList(
@@ -203,9 +195,9 @@ output$POV_Params <- renderUI({
 
 
 output$MEC_Params <- renderUI({
-  req(rv$widgets$proteinImput$MEC_algorithm)
+  req(input$MEC_missing.value.algorithm)
   
-  switch (rv$widgets$proteinImput$MEC_algorithm,
+  switch (input$MEC_missing.value.algorithm,
           detQuantile = {
             tagList(
               numericInput("MEC_detQuant_quantile", "Quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile,
@@ -235,18 +227,18 @@ observeEvent(input$perform.imputationClassical.button,{
     nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$MECIndex <- findMECBlock(rv$current.obj)
     busyIndicator(WaitMsgCalc,wait = 0)
-    switch(rv$widgets$proteinImput$POV_algorithm,
+    switch(input$POV_missing.value.algorithm,
            slsa = {
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
            },
            detQuantile = {
            rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
-                                                       qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
-                                                       factor = rv$widgets$proteinImput$POV_detQuant_factor)
+                                                       qval = input$POV_detQuant_quantile/100,
+                                                       factor = input$POV_detQuant_factor)
            
            },
            KNN = {
-             rv$current.obj <- wrapper.impute.KNN(rv$current.obj , rv$widgets$proteinImput$POV_KNN_n)
+             rv$current.obj <- wrapper.impute.KNN(rv$current.obj , input$KNN_nbNeighbors)
            }
     )
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
@@ -256,10 +248,10 @@ observeEvent(input$perform.imputationClassical.button,{
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
     
-    updateSelectInput(session, "POV_missing.value.algorithm",  selected = rv$widgets$proteinImput$POV_algorithm)
-    updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
-    updateNumericInput(session,"POV_detQuant_factor", "Factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
-    updateNumericInput(session,"KNN_nbNeighbors",  value = rv$widgets$proteinImput$POV_KNN_n)
+    updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
+    updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
+    updateNumericInput(session,"POV_detQuant_factor", "Factor", value = input$POV_detQuant_factor)
+    updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
     
     shinyjs::enable("perform.imputationMEC.button")
     shinyjs::enable("ValidImputation")
@@ -278,21 +270,21 @@ observeEvent(input$perform.imputationMEC.button,{
      
     busyIndicator(WaitMsgCalc,wait = 0)
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-    switch(rv$widgets$proteinImput$MEC_algorithm,
+    switch(input$MEC_missing.value.algorithm,
            detQuantile = {
              rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
-                                                       qval = rv$widgets$proteinImput$MEC_detQuant_quantile/100,
-                                                       factor = rv$widgets$proteinImput$MEC_detQuant_factor)
+                                                       qval = input$MEC_detQuant_quantile/100,
+                                                       factor = input$MEC_detQuant_factor)
            },
            fixedValue = {
              rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
-                                                         fixVal = rv$widgets$proteinImput$MEC_fixedValue)
+                                                         fixVal = input$MEC_fixedValue)
            }
     )
     
-    updateSelectInput(session,"MEC_missing.value.algorithm",  selected = rv$widgets$proteinImput$MEC_algorithm)
-    updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
-    updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
+    updateSelectInput(session,"MEC_missing.value.algorithm",  selected = input$MEC_missing.value.algorithm)
+    updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
+    updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
     rv$impute_Step <- 2
     isolate({
       rv$imputePlotsSteps[["step2"]] <- rv$current.obj
@@ -312,11 +304,8 @@ observeEvent(input$ValidImputation,{
   
   isolate({
     
-    l.params <- rv$widgets$proteinImput
-    
-    
     name <- paste0("Imputed", ".", rv$typeOfDataset)
-    rv$current.obj <- saveParameters(rv$current.obj, name,"proteinImputation",l.params)
+    rv$current.obj <- saveParameters(rv$current.obj, name,"proteinImputation",build_ParamsList_ProteinImputation())
     
     rv$dataset[[name]] <- rv$current.obj
     
@@ -326,15 +315,15 @@ observeEvent(input$ValidImputation,{
                       selected = name)
     
     
-    updateSelectInput(session, "POV_missing.value.algorithm",  selected = rv$widgets$proteinImput$POV_algorithm)
-    updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
-    updateNumericInput(session,"POV_detQuant_factor", "Factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
-    updateNumericInput(session,"KNN_nbNeighbors",  value = rv$widgets$proteinImput$POV_KNN_n)
+    updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
+    updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
+    updateNumericInput(session,"POV_detQuant_factor", "Factor", value = input$POV_detQuant_factor)
+    updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
     
-    updateSelectInput(session,"MEC_missing.value.algorithm",  selected = rv$widgets$proteinImput$MEC_algorithm)
-    updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
-    updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
-    updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = rv$widgets$proteinImput$MEC_fixedValue)
+    updateSelectInput(session,"MEC_missing.value.algorithm",  selected = input$MEC_missing.value.algorithm)
+    updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
+    updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
+    updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = input$MEC_fixedValue)
     
     #shinyjs::disable("perform.imputationClassical.button")
     #shinyjs::disable("perform.imputationMEC.button")

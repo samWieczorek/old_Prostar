@@ -70,7 +70,8 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_General.R"), local = TRUE)$value
     source(file.path("server", "srv_Home.R"), local = TRUE)$value
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
-
+    source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
+    
     
    # outputOptions(output, 'settings_nDigits', suspendWhenHidden=FALSE)
     

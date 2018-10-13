@@ -3,21 +3,8 @@ callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Keep vals",
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
-
-
-
-observeEvent(input$ChooseFilters,{
-  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
-})
-
-observeEvent(input$seuilNA,{
-  rv$widgets$filtering$seuilNA <- as.numeric(input$seuilNA)
-})
-
 output$mv_Filtering <- renderUI({
   req(rv$current.obj)
-  #tag <- rv$current.obj@experimentData@other$mvFilter.method
-  #if (!is.null(tag)) { filter <- tag}
   
   tagList(
       tags$div(
@@ -286,16 +273,16 @@ output$VizualizeFilteredData <- DT::renderDataTable({
 ##' Show the widget (slider input) for filtering
 ##' @author Samuel Wieczorek
 output$seuilNADelete <- renderUI({ 
-  req(rv$widgets$filtering$ChooseFilters)
+  req(input$ChooseFilters)
   
-  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
+  if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
   
-  choix <- getListNbValuesInLines(rv$current.obj, type=rv$widgets$filtering$ChooseFilters)
+  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
     selectInput("seuilNA", "", 
                 choices = choix,
-                selected = rv$widgets$filtering$seuilNA,
+                selected = input$seuilNA,
                 width='150px'))
   
 })
@@ -355,20 +342,20 @@ observeEvent(input$perform.filtering.MV,{
   
   isolate({
     
-     if (rv$widgets$filtering$ChooseFilters == gFilterNone){
+     if (input$ChooseFilters == gFilterNone){
       rv$current.obj <- rv$dataset[[input$datasets]]
     } else {
       
       keepThat <- mvFilterGetIndices(rv$dataset[[input$datasets]],
-                                     rv$widgets$filtering$ChooseFilters,
-                                     as.integer(rv$widgets$filtering$seuilNA))
+                                     input$ChooseFilters,
+                                     as.integer(input$seuilNA))
       if (!is.null(keepThat))
       {
         rv$deleted.mvLines <- rv$dataset[[input$datasets]][-keepThat]
         rv$current.obj <- 
           mvFilterFromIndices(rv$dataset[[input$datasets]],
                               keepThat,
-                              GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(rv$widgets$filtering$seuilNA)))
+                              GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
         rv$mvFiltering_Done <- TRUE
         
@@ -377,8 +364,8 @@ observeEvent(input$perform.filtering.MV,{
 
   })
   
-  updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
-  updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
+  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
   
 })
 
@@ -428,16 +415,9 @@ output$ObserverMVFilteringDone <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
-  if((rv$widgets$filtering$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
+  if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
     
-    if (nrow(rv$widgets$filtering$DT_filterSummary) <=1) {
-      df <- NULL
-    } else {
-      df <- rv$widgets$filtering$DT_filterSummary}
-    
-    l.params <- list(mvFilterType = rv$widgets$filtering$ChooseFilters,
-                     mvThNA = as.numeric(rv$widgets$filtering$seuilNA), 
-                     stringFilter.df = df)
+        l.params <- build_ParamsList_Filtering()
     
     
     rv$ValidFilteringClicked <- TRUE
@@ -450,7 +430,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-    updateSelectInput(session, "seuilNA", selected=rv$widgets$filtering$seuilNA)
+    updateSelectInput(session, "seuilNA", selected= input$seuilNA)
   }
   
   
