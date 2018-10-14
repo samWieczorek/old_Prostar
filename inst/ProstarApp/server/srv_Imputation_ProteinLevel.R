@@ -149,7 +149,9 @@ output$sidebar_imputation_step1 <- renderUI({
   algo <- imputationAlgorithmsProteins_POV
   
   tagList(
-    selectInput("POV_missing.value.algorithm","Algorithm for POV",choices = algo, selected=rv$widgets$proteinImput$POV_algorithm),
+    selectInput("POV_missing.value.algorithm","Algorithm for POV",
+                choices = algo, 
+                selected=rv$widgets$proteinImput$POV_algorithm, width='200px'),
     uiOutput("POV_Params")
   )
   
@@ -160,7 +162,7 @@ output$MEC_chooseImputationMethod <- renderUI({
   algo <- imputationAlgorithmsProteins_MEC
   
   selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo,
-              selected=rv$widgets$proteinImput$MEC_algorithm)
+              selected=rv$widgets$proteinImput$MEC_algorithm, width='200px')
 })
 
 
@@ -178,10 +180,10 @@ output$POV_Params <- renderUI({
              #h4("Det quantile parameters"),
              numericInput("POV_detQuant_quantile", "Quantile", 
                           value = rv$widgets$proteinImput$POV_detQuant_quantile, 
-                          step=0.5, min=0, max=100),
+                          step=0.5, min=0, max=100, width='200px'),
              numericInput("POV_detQuant_factor", "Factor", 
                           value = rv$widgets$proteinImput$POV_detQuant_factor,
-                          step=0.1, min=0, max=10)
+                          step=0.1, min=0, max=10, width='200px')
            )
          },
          KNN = {

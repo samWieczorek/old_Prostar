@@ -31,11 +31,11 @@ output$testPanel <- renderUI({
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
                   textInput("seuilLogFC", "log(FC) threshold",  
-                               value=as.numeric(input$seuilLogFC),
+                               value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px')
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
-                  (actionButton("ValidTest","Save significance test", class = actionBtnClass))
+                  uiOutput("btn_valid")
         )
       ),
       tags$hr(),
@@ -45,8 +45,10 @@ output$testPanel <- renderUI({
   }
 })
 
-observeEvent(c(input$diffAnaMethod, input$anaDiff_Design),{
-  shinyjs::toggle("ValidTest", condition=(sum(c(input$diffAnaMethod,input$anaDiff_Design) != "None")==2 ))
+output$btn_valid <- renderUI({
+  cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")
+  if (!cond){return(NULL)}
+  actionButton("ValidTest","Save significance test", class = actionBtnClass)
 })
 
 
@@ -58,10 +60,10 @@ observeEvent(input$diffAnaMethod,{
 
 
 output$FoldChangePlot <- renderHighchart({
-  req(rv$res_AllPairwiseComparisons)
+  #req(rv$res_AllPairwiseComparisons)
   rv$PlotParams$paletteConditions
   
-  data <- rv$res_AllPairwiseComparisons
+  data <- ComputeComparisons()
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFC))
   rv$tempplot$logFCDistr
 })
@@ -72,13 +74,12 @@ output$FoldChangePlot <- renderHighchart({
 
 ### calcul des comparaisons              ####
 #######################################################
-observe({
-  req(input$diffAnaMethod)
-  req(input$anaDiff_Design)
-  input$ttest_options
+ComputeComparisons <- reactive({
+ # req(input$diffAnaMethod)
+  #req(input$anaDiff_Design)
+  #input$ttest_options
   
-  if (input$diffAnaMethod=="None") {return ()}
-  if (input$anaDiff_Design=="None") {return ()}
+  if ((input$diffAnaMethod=="None")|| (input$anaDiff_Design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
 
@@ -97,6 +98,7 @@ observe({
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
+  rv$res_AllPairwiseComparisons
 
 })
 
@@ -108,7 +110,7 @@ observe({
 #
 ########################################################################
 observeEvent(input$ValidTest,{ 
-  req(rv$current.obj)
+ # req(rv$current.obj)
   req(rv$res_AllPairwiseComparisons)
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}

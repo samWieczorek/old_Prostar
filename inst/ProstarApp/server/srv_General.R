@@ -135,16 +135,16 @@ GetDatasetOverview <- reactive({
 })
 
 BuildParamDataProcessingDT <- reactive({
-   req(rv$current.obj)
+  req(rv$current.obj)
   req(input$datasets)
   tmp.params <- rv$current.obj@experimentData@other$Params
-  ind <- which(input$datasets == names(tmp.params))
+  #ind <- which(input$datasets == names(tmp.params))
   df <- data.frame(Dataset = names(tmp.params),
                    Process = rep("",length(names(tmp.params))),
                    Parameters = rep("",length(names(tmp.params))),
                    stringsAsFactors = FALSE)
   
-  for (iData in 1:ind) {
+  for (iData in 1:length(names(tmp.params))) {
     p <- tmp.params[[iData]]
     processName <- ifelse(is.null(names(tmp.params[[iData]])), "-",names(tmp.params[[iData]]))
     df[iData, "Process"] <- processName

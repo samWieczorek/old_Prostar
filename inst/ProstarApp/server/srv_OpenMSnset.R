@@ -136,8 +136,10 @@ observeEvent(input$file,ignoreInit =TRUE,{
       rv$current.obj@experimentData@other$RawPValues <- FALSE
       } else if(rv$current.obj@experimentData@other$RawPValues ){
       
-      names.logFC <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$AllPairwiseCompNames$logFC
-      names.P_Value <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$AllPairwiseCompNames$P_Value
+        nn <- names(rv$current.obj@experimentData@other$Params)
+         ind <-  grep("HypothesisTest",nn)
+      names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
+      names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       
       .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
       .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
@@ -147,7 +149,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
       rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
                                             P_Value = .P_Value)
       
-      rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$th_logFC
+      rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
       rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
       }
     

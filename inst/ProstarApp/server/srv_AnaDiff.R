@@ -1,4 +1,4 @@
-callModule(moduleVolcanoplot,"volcano_Step1", reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}))
+callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}))
 callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
 #callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
@@ -15,21 +15,16 @@ convertAnaDiff2DF <- reactive({
   df
 })
 
-observeEvent(req(input$selectComparison), {
-  updateSelectInput(session,"selectComparison", selected="None")
-  updateCheckboxInput(session,"swapVolcano", value=FALSE )
-  updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=gFilterNone)
+observeEvent(input$selectComparison, {
+ # updateSelectInput(session,"selectComparison", selected="None")
+  #updateCheckboxInput(session,"swapVolcano", value=FALSE )
+ # updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=gFilterNone)
   
-  updateSelectInput(session,"calibrationMethod", selected="pounds")
-  updateNumericInput(session, "seuilPVal", value=as.numeric(input$seuilPVal))
+  #updateSelectInput(session,"calibrationMethod", selected="pounds")
+ # updateNumericInput(session, "seuilPVal", value=as.numeric(input$seuilPVal))
   
-  if (as.character(input$selectComparison) != "None")
-  {
-    rv$widgets$anaDiff$Condition1 <- strsplit(input$selectComparison, "_vs_")[[1]][1]
-    rv$widgets$anaDiff$Condition2 <- strsplit(input$selectComparison, "_vs_")[[1]][2]
-  }
   
-  if (as.character(input$selectComparison)== ""){
+  if (as.character(input$selectComparison)== "None"){
     rv$resAnaDiff <- NULL
   } else {
     #if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])) {  ### There is no previous analysis
@@ -65,9 +60,11 @@ output$anaDiffPanel <- renderUI({
   #req(rv$current.obj)
   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   dataset.name <- last(names(rv$dataset))
+  prev.dataset.name <- paste0('prev.',dataset.name)
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else if (is.null(rv$current.obj@experimentData@other$Params[[dataset.name]]['HypothesisTest'])) {
+  } else if (rv$current.obj@experimentData@other$Params[[dataset.name]]['HypothesisTest']=="None" &&
+             rv$current.obj@experimentData@other$Params[[prev.dataset.name]]['HypothesisTest']=="None") {
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
   tabsetPanel(
@@ -255,28 +252,6 @@ callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HT
                                                                         content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
 
-
-# output$newComparisonUI <- renderUI({
-#   req(rv$current.obj)
-#   if ("Significant" %in% colnames(Biobase::fData(rv$current.obj))){
-#     actionButton("newComparison", "New comparison", class = actionBtnClass)
-#   }
-#   
-# })
-
-
-# observeEvent(input$newComparison, {
-#     
-#     updateSelectInput(session,"selectComparison", selected="None")
-#     updateCheckboxInput(session,"swapVolcano", value=FALSE )
-#     updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=gFilterNone)
-#     
-#     updateSelectInput(session,"calibrationMethod", selected="pounds")
-#     updateNumericInput(session, "seuilPVal", value=0)
-# })
-# 
-
-
 output$AnaDiff_seuilNADelete <- renderUI({ 
   as.character(input$AnaDiff_ChooseFilters)
     req(rv$current.obj)
@@ -302,12 +277,13 @@ output$AnaDiff_seuilNADelete <- renderUI({
 
 
 output$diffAnalysis_PairwiseComp_SB <- renderUI({
-    req(rv$res_AllPairwiseComparisons)
+    #req(rv$res_AllPairwiseComparisons)
     
     .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
     
     tagList(
-        selectInput("selectComparison","Select comparison",choices = c("None"="",.choices),
+        selectInput("selectComparison","Select comparison",
+                    choices = c("None"="",.choices),
                     selected = rv$widgets$anaDiff$Comparison),
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
@@ -319,7 +295,6 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
 
 
 GetBackToCurrentResAnaDiff <- reactive({
-  rv$res_AllPairwiseComparisons
   req(rv$res_AllPairwiseComparisons)
   
   index <- which(paste(as.character(input$selectComparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
