@@ -8,6 +8,7 @@
 
 callModule(moduleDensityplot,"densityPlot_Norm")
 callModule(moduleBoxplot,"boxPlot_Norm")
+callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
            data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
@@ -49,6 +50,7 @@ output$helpForNormalizationMethods <- renderUI({
 })
 
 
+callModule(module_Not_a_numeric,"test_normQuant", reactive({input$normalization.quantile}))
 
 output$choose_normalizationQuantile <- renderUI({
     req(input$normalization.method)
@@ -57,7 +59,8 @@ output$choose_normalizationQuantile <- renderUI({
     tagList(
       modulePopoverUI("modulePopover_normQuanti"),
         textInput("normalization.quantile", "",
-                     value = rv$widgets$normalization$quantile,width='150px')
+                     value = rv$widgets$normalization$quantile,width='150px'),
+      module_Not_a_numericUI("test_normQuant")
     )
     
 })
@@ -85,7 +88,7 @@ observeEvent(input$normalization.method,{
   
   shinyjs::toggle("perform.normalization", condition=input$normalization.method != "None")
   shinyjs::toggle("spanLOESS", condition=input$normalization.method == "LOESS")
-  
+
   shinyjs::toggle("normalization.type", 
                   condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 })

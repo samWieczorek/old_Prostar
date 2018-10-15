@@ -528,7 +528,7 @@ ClearMemory <- function(){
                                     filter_th_NA = 0,
                                     calibMethod = 'None',
                                     numValCalibMethod = 0,
-                                    th_pval = 1e-60,
+                                    th_pval = 0,
                                     FDR = 0,
                                     NbSelected = 0)
                       )
@@ -737,7 +737,7 @@ rv <- reactiveValues(
                       filter_th_NA = 0,
                       calibMethod = 'None',
                       numValCalibMethod = 0,
-                      th_pval = 1e-60,
+                      th_pval = 0,
                       FDR = 0,
                       NbSelected = 0)
   ),

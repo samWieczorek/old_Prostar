@@ -1,3 +1,5 @@
+callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
+
 
 observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seuilLogFC})
 
@@ -32,7 +34,8 @@ output$testPanel <- renderUI({
         tags$div( style="display:inline-block; vertical-align: middle;",
                   textInput("seuilLogFC", "log(FC) threshold",  
                                value=rv$widgets$hypothesisTest$th_logFC,
-                               width='150px')
+                               width='150px'),
+                  module_Not_a_numericUI("test_seuillogFC")
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
                   uiOutput("btn_valid")

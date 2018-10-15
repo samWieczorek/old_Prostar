@@ -4,7 +4,10 @@ modulePopoverUI <- function(id){
     uiOutput(ns("customPopover"))
 }
 
-
+module_Not_a_numericUI <- function(id){
+  ns <- NS(id)
+  uiOutput(ns("msg_not_numeric"))
+}
 
 moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
     ns <- NS(id)
@@ -86,15 +89,10 @@ moduleDensityplotUI <- function(id) {
 
 moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
-      tags$div(
-       tags$div( style="display:inline-block; vertical-align: middle;",
-                 highchartOutput(ns("plot_viewNAbyMean"))
-       ),
-       tags$div( style="display:inline-block; vertical-align: middle;",
-                 plotOutput(ns("plot_showImageNA"))
+      tagList( highchartOutput(ns("plot_viewNAbyMean"), width='800px'),
+               plotOutput(ns("plot_showImageNA"), width='800px')
        )
-     )
-     
+
 }
 
 

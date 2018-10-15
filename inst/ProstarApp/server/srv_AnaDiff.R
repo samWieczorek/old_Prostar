@@ -2,10 +2,10 @@ callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison})
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}))
 callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
 #callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
+callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
 
-
-observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(input$seuilPVal)})
+observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(Get_seuilPVal())})
 convertAnaDiff2DF <- reactive({
   
   df <- cbind(names(rv$widgets$anaDiff),
@@ -141,6 +141,7 @@ output$diffAna_fdrCompute <- renderUI({
                 id = "sidebar_DiffAna3", height = "100%",
                 textInput("seuilPVal",  "Define the -log10(p_value) threshold",
                              value=rv$widgets$anaDiff$th_pval, width='100px'),
+                module_Not_a_numericUI("test_seuilPVal"),
                 uiOutput("tooltipInfo"),
                 br(),
                 checkboxInput("showpvalTable","Show p-value table", value=FALSE),
@@ -284,7 +285,8 @@ output$diffAnalysis_PairwiseComp_SB <- renderUI({
     tagList(
         selectInput("selectComparison","Select comparison",
                     choices = c("None"="",.choices),
-                    selected = rv$widgets$anaDiff$Comparison),
+                    selected = rv$widgets$anaDiff$Comparison,
+                    width='auto'),
         checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
         br(),
         modulePopoverUI("modulePopover_pushPVal"),
@@ -357,6 +359,25 @@ output$tooltipInfo <- renderUI({
   
 })
 
+
+
+not_a_numeric <- function(input) {
+  if (is.na(as.numeric(input))) {
+    "Please input a number"
+  }  else {
+    NULL
+  }
+}
+
+
+Get_seuilPVal <- reactive({
+   shiny::validate(
+    need(!is.na(as.numeric(input$seuilPVal)), "")
+  )
+  as.numeric(input$seuilPVal)
+})
+
+
 Get_FDR <- reactive({
   req(rv$current.obj)
   input$numericValCalibration
@@ -371,7 +392,7 @@ Get_FDR <- reactive({
   
   rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
                               rv$resAnaDiff[["P_Value"]],
-                              as.numeric(input$seuilPVal), 
+                              as.numeric(Get_seuilPVal()), 
                               rv$widgets$hypothesisTest$th_logFC, 
                               m)
   as.numeric(rv$widgets$anaDiff$FDR)
@@ -382,10 +403,10 @@ output$showFDR <- renderUI({
   
   tagList(
     if (!is.infinite(Get_FDR())){
-      tags$p(style="font-size: 20;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
-             signif(10^(- (as.numeric(input$seuilPVal))), digits=3), ")")
+      tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
+             signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")")
     } else {
-      tags$p(style="font-size: 20;","FDR = NA") 
+      tags$p(style="font-size: 25px;","FDR = NA") 
     }
   )
   
@@ -591,14 +612,14 @@ output$calibrationPlotAll <- renderPlot({
 output$equivPVal <- renderUI ({
   req(input$seuilPVal)
   
-  tags$p(paste0("(p-value = ",signif(10^(- (as.numeric(input$seuilPVal))), digits=3), ")"))
+  tags$p(paste0("(p-value = ",signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")"))
 })
 
 
 output$equivLog10 <- renderText ({
   req(input$seuilPVal)
   
-  tags$p(paste0("-log10 (p-value) = ",signif(- log10(as.numeric(input$seuilPVal)/100), digits=1)))
+  tags$p(paste0("-log10 (p-value) = ",signif(- log10(as.numeric(Get_seuilPVal())/100), digits=1)))
 })
 
 
@@ -610,7 +631,7 @@ GetSelectedItems <- reactive({
   input$downloadAnaDiff
   
   t <- NULL
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(input$seuilPVal))
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
   
   if (input$downloadAnaDiff == "All"){

@@ -21,6 +21,7 @@ tabPanel("Normalization",
              div(
                style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                hidden(textInput("spanLOESS", "Span",value = rv$widgets$normalization$spanLOESS, width='100px')),
+               module_Not_a_numericUI("test_spanLOESS"),
                uiOutput("choose_normalizationQuantile"),
                uiOutput("choose_normalizationScaling")
              ),

@@ -39,7 +39,7 @@ output$proteinLevelImputationPanel <- renderUI({
              value = "Classical_MV",
             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
                          wellPanel(id = "sidebar_Imputation1",
-                                   height = "100%",
+                                   #height = "100%",
                                    br(),
                                    uiOutput("sidebar_imputation_step1"),
                                    actionButton("perform.imputationClassical.button",
