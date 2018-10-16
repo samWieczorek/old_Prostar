@@ -57,14 +57,14 @@ observeEvent(req(input$calibrationMethod), {
 
 
 output$anaDiffPanel <- renderUI({
-  #req(rv$current.obj)
+  req(rv$current.obj)
   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   dataset.name <- last(names(rv$dataset))
-  prev.dataset.name <- paste0('prev.',dataset.name)
+  prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else if (rv$current.obj@experimentData@other$Params[[dataset.name]]['HypothesisTest']=="None" &&
-             rv$current.obj@experimentData@other$Params[[prev.dataset.name]]['HypothesisTest']=="None") {
+  } else if (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
+             rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
   tabsetPanel(

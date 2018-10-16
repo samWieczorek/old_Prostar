@@ -376,6 +376,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     print(rv$widgets$anaDiff$th_pval)
     print(rv$widgets$hypothesisTest$th_logFC)
     print(str(rv$resAnaDiff))
+    
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     

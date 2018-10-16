@@ -11,7 +11,7 @@ library(shinyBS)
 library(shinyTree)
 loadLibraries <- function(){
   library(shinyAce)
-
+  library(shinyWidgets)
   library(vioplot)
   #library(ggplot2)
   library(colourpicker)

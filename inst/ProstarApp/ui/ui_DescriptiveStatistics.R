@@ -78,14 +78,31 @@ tabPanel("Descriptive statistics",
                      #-----------------------------------------------------------
                      tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
+                              # shinyWidgets::dropdownButton(
+                              #   tags$div(
+                              #     tags$div(style="display:inline-block; vertical-align: top;",
+                              #              selectInput("whichGroup2Color",
+                              #                          "Color lines",
+                              #                          choices=list("By condition" = "Condition",
+                              #                                       "By replicate" = "Replicate"), 
+                              #                          selected=GetWhichGroup2Color(), width='150px')
+                              #     ),
+                              #     tags$div(style="display:inline-block; vertical-align: top;",
+                              #              uiOutput("ChooseLegendForSamples")
+                              #     )
+                              #   ),
+                              #   tooltip="Plots parameters",
+                              #   style = "material-circle", icon = icon("gear"), status = "primary"
+                              # ),
+                              
                               tagList(
                                 tags$div(
-                                
+
                                 tags$div(style="display:inline-block; vertical-align: top;",
                                          selectInput("whichGroup2Color",
                                                      "Color lines",
                                                      choices=list("By condition" = "Condition",
-                                                                  "By replicate" = "Replicate"), 
+                                                                  "By replicate" = "Replicate"),
                                                      selected=GetWhichGroup2Color(), width='150px')
                                 ),
                                 tags$div(style="display:inline-block; vertical-align: top;",
