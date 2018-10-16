@@ -263,15 +263,9 @@ output$peptideLevel_warningImputationMethod <- renderText({
     (input$peptideLevel_missing.value.basic.algorithm ==  "dummy censored")
   
   if (var){
-    t <- "<br> <strong>Lapala</strong> (from French \"là/pas-là\", meaning \"here/not-here\") refers 
-    to analytes (peptides or proteins) <br>that are entirely missing in some 
-    conditions while they are (partially or totally) <br>visible in others. There 
-    specific accounting in a conservative way is a real issue as the imputation <br>
-    cannot rely on any observed value in a given condition.
-    <br> The parameter \"Upper LAPALA bound\" defines the maximum imputed 
-    value as a centile of the observed <br>
-    distribution (a tuning between 0% and 10% is advised). <br>
-    <font color=\"red\"><strong>Warning:</strong> Imputed lapala values must be very cautiously interpreted.</font color=\"red\">"
+    t <- "<br> 
+    <font color=\"red\"><strong>Warning:</strong> Warning: Imputed MEC (Missing on the Entire Condition) 
+    values must be very cautiously interpreted <br>[see the User manual, Section 6.3.1].</font color=\"red\">"
     HTML(t)}
   
 })
@@ -313,16 +307,16 @@ output$peptideLevel_helpForImputation <- renderText({
   
   name <- NULL
   
-  helpTextImputation <- list("imp4p" = "<strong>imp4p [5]</strong> is a proteomic-specific multiple imputation 
+  helpTextImputation <- list("imp4p" = "<strong>imp4p [Ref. 7]</strong> is a proteomic-specific multiple imputation 
                              method that operates on peptide-level datasets and which proposes <br>
-                             to impute each missing value according to its nature (censored 
-                             or random). <br> The more iterations, the more accurate the results, 
-                             yet the more time-consuming.",
+                             to impute each missing value according to its nature (left-censored 
+                             or random). <br> To tune the number of iterations, let us keep in mind that, the more iterations, 
+                             the more accurate the results, yet the more time-consuming the computation.",
                              "dummy censored" = "Dummy censored: each missing value is supposed to be a censored value and 
                              is replaced by the XXX quantile <br> of the corresponding sample 
                              abundance distribution",
-                             "KNN" = "<strong>K- nearest neighbors</strong>, see [7]",
-                             "MLE" = "<strong>Maximum likelihood estimation</strong>, see [8]")
+                             "KNN" = "<strong>K-nearest neighbors</strong>, see [Other ref. 2].",
+                             "MLE" = "Imputation with the maximum likelihood estimate of the expected intensity (see the norm R package).")
   
   
   if (input$peptideLevel_missing.value.algorithm == "BasicMethods") {
