@@ -1,4 +1,4 @@
-### News in Prostar 1.13
+### News in Prostar 1.14
 
 #### Bug fixed
 * Auto reset of dropdown menu in differential analysis.
