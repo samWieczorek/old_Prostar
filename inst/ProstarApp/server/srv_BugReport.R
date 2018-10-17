@@ -36,17 +36,3 @@ output$BugReport_output <- renderUI({
       ) 
 
 })
-# 
-# output$pasteToMail <- renderUI({
-#   
-#   tagList(
-#     tags$h4("pData(obj)"),
-#     HTML(pData(rv$current.obj)),
-#     tags$h4("colnames(fData(obj))"),
-#     HTML(colnames(Biobase::fData(rv$current.obj))),
-#     tags$h4("colnames(exprs(obj))"),
-#     HTML(colnames(Biobase::exprs(rv$current.obj)))
-#   )
-#   
-#   
-# })

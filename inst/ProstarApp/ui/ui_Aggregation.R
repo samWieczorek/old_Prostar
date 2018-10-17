@@ -1,6 +1,7 @@
 tabPanel("Aggregation",
          value="AggregationTab",
-         tabsetPanel(
+         isolate({
+           tabsetPanel(
              tabPanel("1 - Aggregate peptides",
                       id = "aggregation",
                       splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -19,7 +20,7 @@ tabPanel("Aggregation",
                                                          selected=rv$widgets$aggregation$considerPeptides),
                                             
                                             radioButtons("AggregationOperator", "Operator", 
-                                                         choices=c("mean"="mean"), 
+                                                         choices=c("Mean"="Mean"), 
                                                          selected=rv$widgets$aggregation$operator),
                                             numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px'),
                                               actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
@@ -34,5 +35,5 @@ tabPanel("Aggregation",
                       uiOutput("Aggreg_Valid")
              )
          )
-         
+         })
 )

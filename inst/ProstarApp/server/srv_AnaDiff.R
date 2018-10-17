@@ -58,6 +58,8 @@ observeEvent(req(input$calibrationMethod), {
 
 output$anaDiffPanel <- renderUI({
   req(rv$current.obj)
+  isolate({
+    
   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   dataset.name <- last(names(rv$dataset))
   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
@@ -78,14 +80,17 @@ output$anaDiffPanel <- renderUI({
     tabPanel("4 - Summary",value = "DiffAnalysis_ValidateAndSave",
              uiOutput("diffAna_Summary"))
   ) # end tabsetPanel
-}
+    }
+  
+  })
 })
 
 observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
 
 output$diffAna_pairwiseComp <- renderUI({
-  req(rv$current.obj)
-  tagList(
+  #req(rv$current.obj)
+  isolate({
+    tagList(
    # actionLink("toggleSidebar", "Hide/show options"),
   sidebarCustom(),
            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -102,6 +107,7 @@ output$diffAna_pairwiseComp <- renderUI({
            #)
   )
   )
+  })
 
 })
 
@@ -134,7 +140,7 @@ output$diffAna_pvalCalib <- renderUI({
 output$diffAna_fdrCompute <- renderUI({
   if(as.character(input$selectComparison) == "None"){return(NULL)}
      
-  
+  isolate({
   sidebarCustom()
   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
               wellPanel(
@@ -159,6 +165,7 @@ output$diffAna_fdrCompute <- renderUI({
               )
   )
 
+  })
 })     
 
 
@@ -333,8 +340,8 @@ if (as.character(input$AnaDiff_ChooseFilters) == gFilterNone){
             rv$resAnaDiff$P_Value[-keepThat] <- 1
             rv$resAnaDiff
             
-            updateSelectInput(session, "AnaDiff_ChooseFilters", selected = as.character(input$AnaDiff_ChooseFilters))
-            updateSelectInput(session, "AnaDiff_seuilNA", selected = input$AnaDiff_seuilNA)
+            #updateSelectInput(session, "AnaDiff_ChooseFilters", selected = as.character(input$AnaDiff_ChooseFilters))
+            #updateSelectInput(session, "AnaDiff_seuilNA", selected = input$AnaDiff_seuilNA)
                     
         }
     }

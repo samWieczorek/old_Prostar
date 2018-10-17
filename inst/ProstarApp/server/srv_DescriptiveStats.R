@@ -409,8 +409,9 @@ output$DS_PlotHeatmap <- renderUI({
 
 #################
 output$table <- renderDataTable({
-   # req(rv$current.obj)
+    req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
+    print(head(df))
     dt <- datatable( df,
                      extensions = c('Scroller', 'Buttons'),
                     options = list(

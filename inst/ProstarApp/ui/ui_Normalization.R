@@ -1,6 +1,8 @@
 tabPanel("Normalization",
          value = "Normalization",
-         tagList(
+         
+         isolate({
+           tagList(
            
            
            div(
@@ -39,4 +41,5 @@ tabPanel("Normalization",
                     column(width=4,plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
                     )
          )
+         })
 )

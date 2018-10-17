@@ -87,8 +87,14 @@ getDataForExprs <- function(obj){
   #rv$current$obj
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
-  test.table <- cbind(test.table, 
+  print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+   test.table <- cbind(test.table, 
                         Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+  } else {
+    test.table <- cbind(test.table, 
+                        as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+  }
   return(test.table)
   
 }
@@ -499,7 +505,7 @@ ClearMemory <- function(){
                                          quantile = 0.15,
                                          spanLOESS = 0.7),
                       aggregation = list(includeSharedPeptides = "Yes2",
-                                         operator = "mean",
+                                         operator = "Mean",
                                          considerPeptides = 'allPeptides',
                                          proteinId = "None",
                                          topN = 3),
@@ -710,7 +716,7 @@ rv <- reactiveValues(
                                       quantile = 0.15,
                                       spanLOESS = 0.7),
                 aggregation = list(includeSharedPeptides = "Yes2",
-                                    operator = "mean",
+                                    operator = "Mean",
                                     considerPeptides = 'allPeptides',
                                     proteinId = "None",
                                     topN = 3),

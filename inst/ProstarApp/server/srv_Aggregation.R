@@ -31,7 +31,7 @@ observeEvent(input$radioBtn_includeShared, {
   } else {
       ch <- c("Sum"='Sum', "Mean"="Mean")
       }
-  updateRadioButtons(session,"AggregationOperator", choices=ch, selected=input$AggregationOperator)
+  #updateRadioButtons(session,"AggregationOperator", choices=ch, selected=input$AggregationOperator)
 })
 
 ########################################################
@@ -92,11 +92,11 @@ observeEvent(input$valid.aggregation,{
     else { X <- rv$matAdj$matWithUniquePeptides}
     
    
-    updateSelectInput(session, "proteinId",selected = input$proteinId)
-    updateRadioButtons(session, "AggregationOperator",selected = input$AggregationOperator)
-    updateRadioButtons(session, "AggregationConsider",selected = input$AggregationConsider)
-    updateSelectInput(session, "nTopn",selected = input$nTopn)
-    updateRadioButtons(session,"radioBtn_includeShared",input$radioBtn_includeShared)
+    # updateSelectInput(session, "proteinId",selected = input$proteinId)
+    # updateRadioButtons(session, "AggregationOperator",selected = input$AggregationOperator)
+    # updateRadioButtons(session, "AggregationConsider",selected = input$AggregationConsider)
+    # updateSelectInput(session, "nTopn",selected = input$nTopn)
+    # updateRadioButtons(session,"radioBtn_includeShared",input$radioBtn_includeShared)
     
     
     #total <- 60
