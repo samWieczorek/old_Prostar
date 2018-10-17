@@ -102,13 +102,13 @@ output$KNNOptsUI <- renderUI({
   if ((input$peptideLevel_missing.value.basic.algorithm != "KNN") || 
       (input$peptideLevel_missing.value.algorithm != "BasicMethods")){return(NULL)}
   
-  
+  isolate({
   numericInput("KNN_n", "Number of neighbors", 
                value = rv$widgets$peptideImput$pepLevel_KNN_n, 
                step=1, min=0, 
                max=max(rv$widgets$peptideImput$KNN_n,nrow(rv$current.obj)),
                width='100px')
-  
+  })
 })
 
 
@@ -119,7 +119,7 @@ output$imp4pOptsUI <- renderUI({
   tagList(
     numericInput("peptideLevel_imp4p_nbiter", "Number of iterations", 
                       value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter,
-                      step=1, min=1, width='200px'),
+                      step=1, min=1, width='100px'),
   
   checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also", 
                        value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala )
