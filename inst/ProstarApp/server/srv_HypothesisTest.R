@@ -5,12 +5,13 @@ observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seui
 
 
 output$testPanel <- renderUI({
-  req(rv$current.obj)
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  
+   # req(rv$current.obj)
+    isolate({
+      NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
   } else {
-    
     tagList(
       
       tags$div(
@@ -46,6 +47,7 @@ output$testPanel <- renderUI({
     )
     
   }
+    })
 })
 
 output$btn_valid <- renderUI({
@@ -75,17 +77,17 @@ output$FoldChangePlot <- renderHighchart({
 
 ########################################################
 
-### calcul des comparaisons              ####
-#######################################################
+### calcul des comparaisons                         ####
+########################################################
 ComputeComparisons <- reactive({
- # req(input$diffAnaMethod)
-  #req(input$anaDiff_Design)
+  req(input$diffAnaMethod)
+  req(input$anaDiff_Design)
   #input$ttest_options
   
   if ((input$diffAnaMethod=="None")|| (input$anaDiff_Design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-
+isolate({
   #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
     switch(input$diffAnaMethod,
            Limma={
@@ -101,8 +103,14 @@ ComputeComparisons <- reactive({
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
+  
+  # updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
+  # updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
+  # updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
+  # updateNumericInput(session, "seuilLogFC", value=as.numeric(input$seuilLogFC))
+  # 
   rv$res_AllPairwiseComparisons
-
+})
 })
 
 
@@ -119,8 +127,8 @@ observeEvent(input$ValidTest,{
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   ### Save RAW data
-
-rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
+isolate({
+  rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
                              allComp = rv$res_AllPairwiseComparisons)
   
   
@@ -132,10 +140,11 @@ rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   
-  
-  updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
-  updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
-  updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
-  updateNumericInput(session, "seuilLogFC", value=as.numeric(input$seuilLogFC))
+  # 
+  # updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
+  # updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
+  # updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
+  # updateNumericInput(session, "seuilLogFC", value=as.numeric(input$seuilLogFC))
+})
   
 })

@@ -10,7 +10,8 @@ build_ParamsList_PepImputation <- reactive({
               pepLevel_imp4p_nbiter = input$peptideLevel_imp4p_nbiter,
               pepLevel_imp4p_withLapala = input$peptideLevel_imp4p_withLapala,
               pepLevel_imp4p_qmin = input$peptideLevel_imp4p_qmin,
-              pepLevel_imp4pLAPALA_distrib = input$peptideLevel_imp4pLAPALA_distrib)
+              pepLevel_imp4pLAPALA_distrib = input$peptideLevel_imp4pLAPALA_distrib,
+              pepLevel_KNN_n = input$KNN_n)
   ll
 })
 
@@ -39,8 +40,6 @@ build_ParamsList_Normalization <- reactive({
   l.params
 })
 
-#------------------------------------------------------------------------
-build_ParamsList_PeptideImputation <- reactive({})
 
 #------------------------------------------------------------------------
 build_ParamsList_ProteinImputation <- reactive({

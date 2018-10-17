@@ -147,10 +147,15 @@ BuildParamDataProcessingDT <- reactive({
   for (iData in 1:length(names(tmp.params))) {
     p <- tmp.params[[iData]]
     processName <- ifelse(is.null(names(tmp.params[[iData]])), "-",names(tmp.params[[iData]]))
+    # if (processName=='Imputation'){
+    #   processName <- paste0(processName,rv$typeOfData)
+    # }
     df[iData, "Process"] <- processName
     if (length(tmp.params[[iData]][[processName]])==0){
       df[iData,"Parameters"]<- '-'
     } else {
+      
+      
       df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
                                        list(l.params=tmp.params[[iData]][[processName]]))
     }
@@ -495,7 +500,7 @@ ClearMemory <- function(){
                                          spanLOESS = 0.7),
                       aggregation = list(includeSharedPeptides = "Yes2",
                                          operator = "mean",
-                                         considerPeptides = 'onlyN',
+                                         considerPeptides = 'allPeptides',
                                          proteinId = "None",
                                          topN = 3),
                       hypothesisTest = list(design = "None",
@@ -510,7 +515,8 @@ ClearMemory <- function(){
                                            pepLevel_imp4p_nbiter = 10,
                                            pepLevel_imp4p_withLapala = FALSE,
                                            pepLevel_imp4p_qmin = 2.5,
-                                           pepLevel_imp4pLAPALA_distrib = "unif"),
+                                           pepLevel_imp4pLAPALA_distrib = "beta",
+                                           pepLevel_KNN_n = 10),
                       
                       proteinImput = list(POV_algorithm = "None",
                                           POV_detQuant_quantile = 2.5,
@@ -705,7 +711,7 @@ rv <- reactiveValues(
                                       spanLOESS = 0.7),
                 aggregation = list(includeSharedPeptides = "Yes2",
                                     operator = "mean",
-                                    considerPeptides = 'onlyN',
+                                    considerPeptides = 'allPeptides',
                                     proteinId = "None",
                                     topN = 3),
        hypothesisTest = list(design = "None",
@@ -720,7 +726,8 @@ rv <- reactiveValues(
                             pepLevel_imp4p_nbiter = 10,
                             pepLevel_imp4p_withLapala = FALSE,
                             pepLevel_imp4p_qmin = 2.5,
-                            pepLevel_imp4pLAPALA_distrib = "unif"),
+                            pepLevel_imp4pLAPALA_distrib = "beta",
+                            pepLevel_KNN_n = 10),
        proteinImput = list(POV_algorithm = "None",
                            POV_detQuant_quantile = 2.5,
                            POV_detQuant_factor = 1,

@@ -151,7 +151,7 @@ output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
   req(input$perform.aggregation)
   isolate({
-     h3("Aggregation done with the ")
+     h3("Aggregation done")
 
   })
 })
