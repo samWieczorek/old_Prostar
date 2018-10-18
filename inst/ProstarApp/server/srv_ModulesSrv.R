@@ -192,8 +192,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     upItemsLogFC <- NULL
     
     
-    upItemsLogFC <- which(abs(p$logFC) >= rv$widgets$hypothesisTest$th_logFC)
-    upItemsPVal <- which(-log10(p$P_Value) >= rv$widgets$anaDiff$th_pval
+    upItemsLogFC <- which(abs(p$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))
+    upItemsPVal <- which(-log10(p$P_Value) >= as.numeric(rv$widgets$anaDiff$th_pval)
     )
     
     rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
@@ -312,21 +312,26 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     rv$resAnaDiff
     
-    condition1 = rv$widgets$anaDiff$Condition1
-    condition2 = rv$widgets$anaDiff$Condition2
+    condition1 = strsplit(comp(), "_vs_")[[1]][1]
+    condition2 = strsplit(comp(), "_vs_")[[1]][2]
+    print(paste0('condition1 = ', condition1))
+    print(paste0('condition2 = ', condition1))
+    
+
     ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
               which(pData(rv$current.obj)$Condition==condition2))
     
-    #data <-getDataForExprs()
-    
+     
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
     
+    print("pre")
     data <-getDataForExprs(rv$current.obj)
+    print("post")
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
-    ) & (abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC))
+    ) & (abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
     
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
@@ -401,7 +406,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
         cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-        print(str(df))
         rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                    threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                    threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),

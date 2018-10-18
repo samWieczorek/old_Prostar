@@ -16,18 +16,10 @@ convertAnaDiff2DF <- reactive({
 })
 
 observeEvent(input$selectComparison, {
- # updateSelectInput(session,"selectComparison", selected="None")
-  #updateCheckboxInput(session,"swapVolcano", value=FALSE )
- # updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=gFilterNone)
-  
-  #updateSelectInput(session,"calibrationMethod", selected="pounds")
- # updateNumericInput(session, "seuilPVal", value=as.numeric(input$seuilPVal))
-  
   
   if (as.character(input$selectComparison)== "None"){
     rv$resAnaDiff <- NULL
   } else {
-    #if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])) {  ### There is no previous analysis
     index <- which(paste(as.character(input$selectComparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
     rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
                           P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
@@ -41,7 +33,7 @@ observeEvent(input$selectComparison, {
 
 observeEvent(req(input$swapVolcano), {
   if(!is.null(rv$resAnaDiff))
-    rv$resAnaDiff$logFC <- - rv$resAnaDiff$logFC
+    rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
 
 })
 
