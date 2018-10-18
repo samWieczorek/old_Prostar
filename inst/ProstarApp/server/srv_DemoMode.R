@@ -28,17 +28,6 @@ output$chooseDataset <- renderUI({
 
 
 
-
-# output$optionsDemomode <- renderUI({
-#   
-#   req(input$demoDataset)
-#   tagList(
-#     checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
-#     actionButton("loadDemoDataset", "Load demo dataset", class = actionBtnClass)
-#   )
-# })
-# 
-
 output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
   
@@ -50,20 +39,6 @@ output$linktoDemoPdf <- renderUI({
   tags$p("Dataset documentation ",
   tags$a(href=filename, target='_blank', "(pdf)"))
  })
-
-
-# output$showDemoDatasetPDF <- renderUI({
-#   req(input$demoDataset)
-#   req(input$showDemoDatasetPDF)
-#   
-#   file<- paste(system.file(package = "DAPARdata"),"/doc/",
-#                input$demoDataset,".pdf", sep="")
-#   cmd <- paste("cp ",file," www/.", sep="")
-#   system(cmd)
-#   tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), width="900", height="700")
-# 
-# })
-
 
 
 
@@ -100,31 +75,29 @@ output$infoAboutDemoDataset <- renderUI({
     })
 
 
-output$progressDemoMode <- renderUI({
-  #rv$indProgressDemomode
-  req(input$loadDemoDataset)
-  
-  if (!isTRUE(rv$indProgressDemomode)){
-    withProgress(message = 'Initialization. Please wait...', value = 1, {
-      Sys.sleep(2000)
-    })
-  }
-})
-
 
 
 observeEvent(input$loadDemoDataset,{
   
+  ntotal <- 4
+  withProgress(message = '',detail = '', value = 0, {
+    
   ClearMemory()
   ClearUI()
+  incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
+  incProgress(1/ntotal, detail = 'Load dataset ')
+  
   rv$current.obj.name <- input$demoDataset
   rv$indexNA <- which(is.na(rv$current.obj))
   
   rv$current.obj <- addOriginOfValue(rv$current.obj)
   l.params <- list(filename = input$demoDataset)
+  incProgress(1/ntotal, detail = 'Configure dataset')
   
   loadObjectInMemoryFromConverter()
+  incProgress(1/ntotal, detail = 'Load memory ')
   
+  })
 })

@@ -102,12 +102,6 @@ isolate({
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
-  
-  # updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
-  # updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
-  # updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
-  # updateNumericInput(session, "seuilLogFC", value=as.numeric(input$seuilLogFC))
-  # 
   rv$res_AllPairwiseComparisons
 })
 })
@@ -138,12 +132,7 @@ isolate({
   
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-  
-  # 
-  # updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
-  # updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
-  # updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
-  # updateNumericInput(session, "seuilLogFC", value=as.numeric(input$seuilLogFC))
+  BuildNavbarPage()
 })
   
 })

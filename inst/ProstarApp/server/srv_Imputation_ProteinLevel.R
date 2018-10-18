@@ -227,8 +227,13 @@ observeEvent(input$perform.imputationClassical.button,{
     rv$MECIndex <-NULL
     rv$current.obj <- rv$imputePlotsSteps[["step0"]]
     nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+    
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.25, detail = 'Find MEC blocks')
+      
     rv$MECIndex <- findMECBlock(rv$current.obj)
     busyIndicator(WaitMsgCalc,wait = 0)
+    incProgress(0.5, detail = 'POV Imputation')
     switch(input$POV_missing.value.algorithm,
            slsa = {
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
@@ -243,21 +248,19 @@ observeEvent(input$perform.imputationClassical.button,{
              rv$current.obj <- wrapper.impute.KNN(rv$current.obj , input$KNN_nbNeighbors)
            }
     )
+    incProgress(0.75, detail = 'Reintroduce MEC blocks')
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+    incProgress(1, detail = 'Finalize POV imputation')
     nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$nbPOVimputed <- nbMVAfter - nbMVBefore
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
     
-    # updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
-    # updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
-    # updateNumericInput(session,"POV_detQuant_factor", "Factor", value = input$POV_detQuant_factor)
-    # updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
-
     shinyjs::enable("perform.imputationMEC.button")
     shinyjs::enable("ValidImputation")
     
+    })
   })
 })
 
@@ -271,7 +274,11 @@ observeEvent(input$perform.imputationMEC.button,{
   
      isolate({
     busyIndicator(WaitMsgCalc,wait = 0)
+       withProgress(message = '',detail = '', value = 0, {
+         incProgress(0.25, detail = 'Reintroduce MEC')
+         
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+    incProgress(0.75, detail = 'MEC Imputation')
     switch(input$MEC_missing.value.algorithm,
            detQuantile = {
              rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
@@ -284,12 +291,11 @@ observeEvent(input$perform.imputationMEC.button,{
            }
     )
     
-    #updateSelectInput(session,"MEC_missing.value.algorithm",  selected = input$MEC_missing.value.algorithm)
-    #updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
-    #updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
+    incProgress(1, detail = 'Finalize MEC impuutation')
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
     })
+     })
 })
 
 

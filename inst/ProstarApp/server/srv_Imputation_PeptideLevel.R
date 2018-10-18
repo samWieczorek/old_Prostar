@@ -180,18 +180,19 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
     if (algo == "None"){
       rv$current.obj <- rv$dataset[[input$datasets]]
     } else {
-      
+      withProgress(message = '',detail = '', value = 0, {
+        incProgress(0.5, detail = 'Imputation in progress')
+        
       if (algo == "imp4p")
       {
         if (input$peptideLevel_imp4p_withLapala) {
-          
           rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
                                                     #eps = input$imp4p_eps,
                                                     nb.iter = input$peptideLevel_imp4p_nbiter,
                                                     lapala = input$peptideLevel_imp4p_withLapala,
                                                     q.min = input$peptideLevel_imp4p_qmin / 100,
                                                     distribution = as.character(input$peptideLevel_imp4pLAPALA_distrib))
-          
+         
           
         } else {
           rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
@@ -220,11 +221,15 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
               }
         )
       }
+        incProgress(1, detail = 'Finalize imputation')
+        
+      })
     }
     
     
     nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$nbMVimputed <- nbMVAfter - nbMVBefore
+    
     
 })
 

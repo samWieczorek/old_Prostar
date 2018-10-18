@@ -389,9 +389,7 @@ loadObjectInMemoryFromConverter <- function(){
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     
     
-    ClearNavbarPage()
-    BuildNavbarPage()
-    
+   
     
     name <- paste0("Original", ".", rv$typeOfDataset)
     
@@ -409,7 +407,9 @@ loadObjectInMemoryFromConverter <- function(){
                       #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
-
+    ClearNavbarPage()
+    BuildNavbarPage()
+    
 }
 
 #

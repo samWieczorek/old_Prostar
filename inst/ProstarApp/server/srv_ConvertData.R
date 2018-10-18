@@ -206,7 +206,8 @@ output$ManageXlsFiles <- renderUI({
   .ext <- GetExtension(input$file1$name)
   if ((.ext == "xls") || (.ext == "xlsx")){ 
     sheets <- listSheets(input$file1$datapath)
-    selectInput("XLSsheets", "sheets", choices = as.list(sheets))
+    selectInput("XLSsheets", "sheets", choices = as.list(sheets),
+                width='200px')
   }
   
 })

@@ -58,8 +58,7 @@ observeEvent(req(input$calibrationMethod), {
 
 output$anaDiffPanel <- renderUI({
   req(rv$current.obj)
-  isolate({
-    
+   
   NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   dataset.name <- last(names(rv$dataset))
   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
@@ -69,7 +68,8 @@ output$anaDiffPanel <- renderUI({
              rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
-  tabsetPanel(
+      isolate({
+        tabsetPanel(
     id = "xxx",
     tabPanel("1 - Pairwise comparison",value = "DiffAnalysis_PairewiseComparison",
              uiOutput("diffAna_pairwiseComp")),
@@ -80,9 +80,10 @@ output$anaDiffPanel <- renderUI({
     tabPanel("4 - Summary",value = "DiffAnalysis_ValidateAndSave",
              uiOutput("diffAna_Summary"))
   ) # end tabsetPanel
-    }
+    
   
   })
+    }
 })
 
 observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
