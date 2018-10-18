@@ -198,8 +198,12 @@ output$MEC_Params <- renderUI({
             tagList(
               numericInput("MEC_detQuant_quantile", "Quantile", 
                            value = rv$widgets$proteinImput$MEC_detQuant_quantile,
-                           step=0.5, min=0, max=100),
-              numericInput("MEC_detQuant_factor", "Factor", value = rv$widgets$proteinImput$MEC_detQuant_factor, step=0.1, min=0, max=10)
+                           step=0.5, min=0, max=100,
+                           width='100px'),
+              numericInput("MEC_detQuant_factor", "Factor", 
+                           value = rv$widgets$proteinImput$MEC_detQuant_factor, 
+                           step=0.1, min=0, max=10,
+                           width='100px')
             )
           },
           fixedValue = {

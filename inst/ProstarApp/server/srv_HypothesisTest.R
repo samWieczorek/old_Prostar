@@ -82,8 +82,7 @@ output$FoldChangePlot <- renderHighchart({
 ComputeComparisons <- reactive({
   req(input$diffAnaMethod)
   req(input$anaDiff_Design)
-  #input$ttest_options
-  
+  input$ttest_options
   if ((input$diffAnaMethod=="None")|| (input$anaDiff_Design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   

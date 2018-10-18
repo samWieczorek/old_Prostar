@@ -239,7 +239,6 @@ output$viewpData <- DT::renderDataTable({
     req(rv$current.obj)
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
-  print(data)
   pal <- unique(rv$PlotParams$paletteConditions)
   print(pal)
   dt <- DT::datatable(  data,
@@ -247,17 +246,19 @@ output$viewpData <- DT::renderDataTable({
                         rownames=  FALSE,
                         
                     options=list(initComplete = initComplete(),
+                                 dom = 't',
                                  pageLength=DT_pagelength,
                                  orderClasses = TRUE,
-                                 autoWidth=FALSE,
+                                 autoWidth=TRUE,
                                  deferRender = TRUE,
                                  bLengthChange = FALSE,
                                  scrollX = 200,
                                  scrollY = 500,
                                  scroller = TRUE,
-                                columnDefs = list(
-                                list(columns.width=c("60px"),
-                                      columnDefs.targets= c(list(0),list(1),list(2)))))) %>%
+                                #columnDefs = list(
+                                #list(columns.width=c("60px"), columnDefs.targets= c(list(0),list(1),list(2))))
+                                  columnDefs = list(list(width='60px',targets= "_all"))
+                    )) %>%
     formatStyle(
       columns = colnames(data)[1:2],
       valueColumns = colnames(data)[2],
@@ -332,9 +333,12 @@ output$viewExprsMissValues <- DT::renderDataTable({
             scrollY =600,
             scroller = TRUE,
             columns.searchable=F,
+            autoWidth=TRUE,
+            
             pageLength = DT_pagelength,
-            columnDefs = list(list(columns.width=c("60px"),
-                            columnDefs.targets=c(list(0),list(1),list(2)))))
+            #columnDefs = list(list(columns.width=c("60px"),columnDefs.targets=c(list(0),list(1),list(2))))
+            columnDefs = list(list(width='150px',targets= "_all"))
+            )
 )
 })
 
