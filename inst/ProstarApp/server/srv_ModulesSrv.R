@@ -314,9 +314,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     condition1 = strsplit(comp(), "_vs_")[[1]][1]
     condition2 = strsplit(comp(), "_vs_")[[1]][2]
-    print(paste0('condition1 = ', condition1))
-    print(paste0('condition2 = ', condition1))
-    
+     
 
     ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
               which(pData(rv$current.obj)$Condition==condition2))
@@ -325,9 +323,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
     
-    print("pre")
     data <-getDataForExprs(rv$current.obj)
-    print("post")
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
@@ -336,11 +332,10 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
     
-    if(this.series.name=='g1') {
-      data <- data.g1[this.index+1,]
-    } else if(this.series.name=='g2') {
-      data <- data.g2[this.index+1,]
-    }
+    switch (this.series.name,
+            g1=data <- data.g1[this.index+1,],
+            g2 = data <- data.g2[this.index+1,] 
+    )
     
     data
   })

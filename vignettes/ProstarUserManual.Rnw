@@ -1070,7 +1070,7 @@ A heatmap as well as the associated dendrogram is depicted on the fifth tab (see
 \subsubsection {PCA}\label{sec:pca}
 
 \begin {figure}
-\includegraphics[width=\textwidth]{images/desc_pca.png}
+\includegraphics[width=\textwidth]{images/desc_PCA.png}
 \caption{Principal compenent analysis tab.}\label{fig:pca}
 \end {figure}
 

@@ -22,12 +22,13 @@ shinyUI <- fluidPage(
       div(
         id = "loading_page",
        # tagList(
-      tags$head(tags$style(
-      HTML('#AbsolutePanel {background-color: #2fa4e7;}')
-    )),
+     # tags$head(tags$style(
+     # HTML('#AbsolutePanel {background-color: #2fa4e7;}')
+    #)  ),
     absolutePanel(
       id  = "AbsolutePanel",
       class = "panel panel-default",
+      style= "background-color: #2fa4e7;",
       top = '30%',
       left = '0%',
       width = "100%",
@@ -35,8 +36,12 @@ shinyUI <- fluidPage(
       draggable = FALSE,
       fixed = TRUE,
       tagList(
-        tags$h1(style='text-align: center', "Prostar is loading, please wait..."),br(),
-        tags$div(class="progress progress-bar-danger",
+        tags$h1(style='text-align: center', "Prostar is loading, please wait..."),
+        br(),
+        #tags$head(tags$style(".progress .indeterminate{background-color:#000000;}")),
+        tags$div(class="progress",
+                 #tags$div(class="progress-bar progress-bar-danger"),
+                   
                  tags$div(class="indeterminate")
         )
         )
