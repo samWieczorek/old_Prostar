@@ -1,43 +1,172 @@
-tabPanel("Export dataset",
+tabPanel("Export",
          value = "ExportTab",
          tabsetPanel(
            id = "Export_tabSetPanel",
+           # tabPanel("Process summary",
+           #          tagList(
+           #            moduleStaticDataTableUI("viewProstarVersions"),
+           #          br(),br(),br(),
+           #          downloadButton('downloadProcessingData', 'Download', class=actionBtnClass),
+           #          moduleStaticDataTableUI("viewProcessingData")
+           #          )
+           #          ),
            tabPanel("Export to file",
                     value = "export",
-                    helpText("Export format of the dataset and filename."),
+                    helpText("Export customization tab"),
                     
                     uiOutput("choosedataToExportMSnset"),
                     hr(),
                     uiOutput("exportOptions")
            ),
            
-           tabPanel("Generate report (Beta)",
+           tabPanel("Build report (Beta)",
                     tagList(
-                      fluidRow(
-                        column(width=4, uiOutput("choosedataTobuildReport")),
-                        column(width=4, tagList(
-                          selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800")),
-                          selectInput("resoPNGplots", "Resolution", choices = c(150)))
-                        ),
-                        column(width=4, tagList(
-                          radioButtons('format', 'Report document format', c('PDF', 'HTML', 'Word'),
-                                       inline = TRUE),
-                          br(),
-                          textInput("reportFilename",
-                                    label = "Name of the report",
-                                    value = ""))
-                        )
-                      ),
+                      moduleStaticDataTableUI("viewProstarVersions"),
+                      downloadButton('downloadReport', "Build and download pdf report", class = actionBtnClass),
                       
-                      br(),
-                      #busyIndicator(WaitMsgCalc,wait = 0),
-                      br(),br(),
-                      br(),br(),
-                      #busyIndicator("Building graphics, please wait...",wait = 0),
-                      actionButton("generateReport", "Generate report"),
-                      busyIndicator("Compiling report, please wait...",wait = 0),
-                      downloadButton('downloadReport', "Download report"),
-                      uiOutput("test")
+                      tags$hr(),
+                      tags$div(
+                        tags$div( style="display:inline-block; vertical-align: top;",
+                                  moduleStaticDataTableUI("viewProcessingData")
+                        ),
+                        tags$div( style="display:inline-block; vertical-align: top;",
+                                  bsCollapse(id = "collapseDataProcessingExport", open = "",
+                                             bsCollapsePanel("Plots for data processing tools", 
+                                                             tags$div(
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Original_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Original protein")),
+                                                                                           shinyTree("plotsFor_Original_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Original_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Original peptide")),
+                                                                                           shinyTree("plotsFor_Original_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Filtered_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Filtered protein")),
+                                                                                           shinyTree("plotsFor_Filtered_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Filtered_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Filtered peptide")),
+                                                                                           shinyTree("plotsFor_Filtered_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Normalized_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Normalized protein")),
+                                                                                           shinyTree("plotsFor_Normalized_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Normalized_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Normalized peptide")),
+                                                                                           shinyTree("plotsFor_Normalized_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Aggregated_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Aggregated protein")),
+                                                                                           shinyTree("plotsFor_Aggregated_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Aggregated_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Aggregated peptide")),
+                                                                                           shinyTree("plotsFor_Aggregated_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Imputed_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Imputed protein")),
+                                                                                           shinyTree("plotsFor_Imputed_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_Imputed_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("Imputed peptide")),
+                                                                                           shinyTree("plotsFor_Imputed_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_HypothesisTest_protein',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("HypothesisTest protein")),
+                                                                                           shinyTree("plotsFor_HypothesisTest_protein",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               ),
+                                                               tags$div( style="display:inline-block; vertical-align: top;",
+                                                                         hidden(tags$div(id='treeFor_HypothesisTest_peptide',
+                                                                                         tagList(
+                                                                                           tags$p(tags$b("HypothesisTest peptide")),
+                                                                                           shinyTree("plotsFor_HypothesisTest_peptide",theme="proton", themeIcons = FALSE, themeDots = FALSE, checkbox = TRUE)
+                                                                                         )
+                                                                         )
+                                                                         )
+                                                               )
+                                                             ),
+                                                             style = "primary")
+                        )
+                      )),
+                      br(),br(),br(),
+                      
+                      tags$div(
+                        tags$div( style="display:inline-block; vertical-align: top;",
+                                  moduleStaticDataTableUI("viewDataMining")
+                        ),
+                        tags$div( style="display:inline-block; vertical-align: top;",
+                                  bsCollapse(id = "collapseDataProcessingExport", open = "",
+                                             bsCollapsePanel("Plots for data mining tools", tagList(), style = "primary")
+                                  )
+                        )
+                      )
                     )
            )
            

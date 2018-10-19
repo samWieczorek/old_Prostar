@@ -4,16 +4,27 @@ tabPanel(title="Global settings",
          #             "Type of plots",
          #             choices = c("Interactive (nice but slower)" = "Interactive",
          #                     "Static (faster)" = "Static")),
-         div(
-           div(
+         tabsetPanel(
+           tabPanel("Miscallenous",
+                    div(
+              div(
              style="display:inline-block; vertical-align: middle; padding-right: 20px;",
              modulePopoverUI("modulePopover_numPrecision")
            ),
            div(
              style="display:inline-block; vertical-align: middle;",
-             numericInput("settings_nDigits", "", value=3, min=0, width="100px")
+             uiOutput("settings_nDigits_UI")
            )
+         ),
+         tagList(
+           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                     selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800"), width='150px')),
+           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                     selectInput("resoPNGplots", "Resolution", choices = c(150), width='150px'))
+           )),
+         tabPanel("Colors",
+                  hidden(uiOutput("defineColorsUI"))
          )
-          
+         )
 )
          

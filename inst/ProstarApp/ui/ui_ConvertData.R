@@ -25,14 +25,18 @@ tabPanel("Convert data",
                        value = "ID",
                        br(), br(),
                        #uiOutput("helpTextDataID"),
-                       modulePopoverUI("modulePopover_convertIdType"),
-                       radioButtons("autoID", width="500px",
-                                    "", 
-                                    choices=G_ConvertDataID_Choices),
-                       conditionalPanel(
-                           condition = 'input.autoID == "user ID"',
-                           uiOutput("id"),
-                           uiOutput("warningNonUniqueID"))
+                       
+                       tags$div(
+                         tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
+                                   uiOutput("id"),
+                                   uiOutput("warningNonUniqueID")
+                         ),
+                         tags$div( style="display:inline-block; vertical-align: top;",
+                                   uiOutput("convertChooseProteinID_UI")
+                         )
+                       )
+
+                       
              ),
              
              tabPanel( "3 - Exp. and feat. data",
@@ -81,8 +85,7 @@ tabPanel("Convert data",
                                   uiOutput("viewDesign",width="100%")
                          ),
                          tags$div(style="display:inline-block; vertical-align: top;",
-                                  shinyjs::hidden(
-                                    div(id = "exLevels",uiOutput("designExamples")))
+                                  shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
                          )
                          
                          
@@ -94,7 +97,9 @@ tabPanel("Convert data",
                        value = "Convert",
                        br(), br(),
                        
-                       uiOutput("convertFinalStep")
+                       uiOutput("convertFinalStep"),
+                       moduleStaticDataTableUI("overview_convertData"),
+                       uiOutput("conversionDone")
                        
                        
                        

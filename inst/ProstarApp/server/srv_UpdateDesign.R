@@ -10,7 +10,7 @@ output$updateDesign_UI_checkConditions  <- renderUI({
     if (sum(rv$updateDesign_hot$Condition == "")==0){
         tags$div(
             tags$div(style="display:inline-block;",
-                     actionButton("updateDesign_btn_checkConds", "Check conditions")
+                     actionButton("updateDesign_btn_checkConds", "Check conditions", class = actionBtnClass)
             ),
             
             tags$div(style="display:inline-block;",
@@ -92,7 +92,7 @@ observeEvent(input$btn_SaveDesign,{
   #     
   # }
   Biobase::pData(rv$current.obj) <- tmp
-  loadObjectInMemoryFromConverter_2(rv$current.obj)
+  loadObjectInMemoryFromConverter()
 
   rv$updateDesign_designSaved <- TRUE
   shinyjs::disable("updateDesign_btn_checkConds")
@@ -139,7 +139,7 @@ output$updateDesign_SaveDesign <- renderUI({
       column(width=6,tags$b("3 - Click the button to update the design.")),
       column(width=6,tags$div(
           tags$div(style="display:inline-block;",
-                   actionButton("btn_SaveDesign","Save design")
+                   actionButton("btn_SaveDesign","Save design", class = actionBtnClass)
           ),
           
           tags$div(style="display:inline-block;",
@@ -200,8 +200,12 @@ output$updateDesign_hot <- renderRHandsontable({
     }
   
   updateDesign_hot <-
-    rhandsontable::rhandsontable(rv$updateDesign_hot,rowHeaders=NULL, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                                         maxRows=nrow(rv$updateDesign_hot))) %>%
+    rhandsontable::rhandsontable(rv$updateDesign_hot,rowHeaders=NULL, 
+                                 fillHandle = list(direction='vertical', 
+                                                   autoInsertRow=FALSE,
+                                                   maxRows=nrow(rv$updateDesign_hot)
+                                                   )
+                                 ) %>%
     rhandsontable::hot_rows(rowHeights = 30) %>%
     rhandsontable::hot_context_menu(allowRowEdit = TRUE, allowColEdit = FALSE,
                      allowInsertRow = FALSE,
@@ -264,20 +268,18 @@ output$updateDesign_UI_hierarchicalExp <- renderUI({
 
   })
 
+callModule(moduleDesignExample,"updateDesignExampleTwo", 2)
+
+callModule(moduleDesignExample,"updateDesignExampleThree", 3)
+
 
 
 output$updateDesign_designExamples <- renderUI({
 
   switch(input$updateDesign_chooseExpDesign,
          FlatDesign = h4("No example"),
-         twoLevelsDesign = tagList(
-             h4("Example for a 2-levels design"),
-             rHandsontableOutput("updateDesign_twolevelsExample")
-         ),
-         threeLevelsDesign = tagList(
-             h4("Example for a 3-levels design"),
-             rHandsontableOutput("updateDesign_threelevelsExample")
-         )
+         twoLevelsDesign = moduleDesignExample2UI("updateDesignExampleTwo"),
+         threeLevelsDesign = moduleDesignExample3UI("updateDesignExampleThree")
          )
 })
 
@@ -322,94 +324,6 @@ observeEvent(input$updateDesign_chooseExpDesign,{
 
 
 # 
-output$updateDesign_twolevelsExample <- renderRHandsontable({
-
-  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
-                   Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
-                   Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
-                   Tech.Rep = c(1:14),
-                   stringsAsFactors = FALSE)
-
-
-  pal <- RColorBrewer::brewer.pal(3,"Dark2")
-
-  color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-  if(col==1 && (row>=0 && row<=3)) {td.style.background = '#1B9E77';}
-  if(col==1 && (row>=4 && row<=7)) {td.style.background = '#D95F02';}
-  if(col==1 && (row>=8 && row<=14)) {td.style.background = '#7570B3';}
-
-
-  if(col==2 && (row==0||row==1||row==4||row==5||row==8||row==9||row==12||row==13))
-  {td.style.background = 'lightgrey';}
-
-  if(col==3 && (row==0||row==2||row==4||row==6||row==8||row==10||row==12))
-  {td.style.background = 'lightgrey';}
-}"
-
-  rhandsontable::rhandsontable(df,rowHeaders=NULL, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                      maxRows=nrow(rv$updateDesign_hot))) %>%
-    rhandsontable::hot_rows(rowHeights = 30) %>%
-    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                     allowInsertRow = FALSE,allowInsertColumn = FALSE,
-                     allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
-    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
-
-  })
-
-
-
-output$updateDesign_threelevelsExample <- renderRHandsontable({
-
-  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
-                   Condition = c(rep( "A", 8), rep("B", 8)),
-                   Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
-                   Tech.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8)),
-                   Analyt.Rep = c(1:16),
-                   stringsAsFactors = FALSE)
-
-
-  pal <- RColorBrewer::brewer.pal(2,"Dark2")
-
-  color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-
-  if(col==1 && (row>=0 && row<=7))
-  {td.style.background = '#1B9E77';}
-
-  if(col==1 && (row>=8 && row<=15))
-  {td.style.background = '#D95F02';}
-
-  if(col==2 && (row==0||row==1||row==2||row==3||
-  row==8||row==9||row==10||row==11))
-  {td.style.background = 'lightgrey';}
-
-  if(col==3 && (row==0||row==1||row==4||row==5||
-  row==8||row==9||row==12||row==13))
-  {td.style.background = 'lightgrey';}
-
-
-  if(col==4 && (row==0||row==2||row==4||row==6||
-  row==8||row==10||row==12||row==14))
-  {td.style.background = 'lightgrey';}
-}"
-  rhandsontable::rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                    maxRows=nrow(rv$updateDesign_hot))) %>%
-    rhandsontable::hot_rows(rowHeights = 30) %>%
-    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                     allowInsertRow = FALSE,allowInsertColumn = FALSE,
-                     allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
-    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
-
-  })
-
-
-
-
-
 
 observeEvent(input$updateDesign_btn_checkDesign,{
   rv$updateDesign_designChecked <- DAPAR::check.design(rv$updateDesign_hot)
@@ -433,7 +347,7 @@ output$updateDesign_checkDesign <- renderUI({
   tags$div(
     tags$div(
       style="display:inline-block;",
-      actionButton("updateDesign_btn_checkDesign", "Check design")
+      actionButton("updateDesign_btn_checkDesign", "Check design", class = actionBtnClass)
     ),
 
     tags$div(

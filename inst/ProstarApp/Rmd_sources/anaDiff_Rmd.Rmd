@@ -2,29 +2,20 @@
 
 Parameters used for the differential analysis :
 
-* condition1 : `r params$listAnaDiff$condition1` 
-* condition2 : `r params$listAnaDiff$condition2`
-* calibrationMethod : `r params$listAnaDiff$calibrationMethod`
-* numericValCalibration = `r params$listAnaDiff$numericValCalibration`
-* seuilPValue = `r params$listAnaDiff$seuilPValue`
-* seuilLogFC = `r params$listAnaDiff$seuilLogFC`
-* Method : `r params$listAnaDiff$method`
-* __FDR__ = `r params$listAnaDiff$fdr` %
-* Nb of selected entities = `r params$listAnaDiff$nbSelected`
-                                                       
-                                                       
-                                                       
+```{r tab_params_anaDiff,out.width = "100%", echo=FALSE}
+library(DT)
+callModule(moduleStaticDataTable,"summaryParamsAnaDiff", table2show=rv$widgets$anaDiff)
+moduleStaticDataTableUI("summaryParamsAnaDiff")
+```
+                                                      
 ```{r fig_calibrationALL,out.width = "100%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlotAll, sep="/"))
+knitr::include_graphics(normalizePath(paste(tempdir(), gGraphicsFilenames$calibrationPlotAll, sep="/")))
 ```
 
-```{r fig_calibration,out.width = "50%", echo=FALSE}
-#knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$calibrationPlot, sep="/"))
-```
 
 
 
 ```{r fig_volcano,out.width = "100%", echo=FALSE}
-knitr::include_graphics(paste(tempdir(), sessionID, gGraphicsFilenames$volcanoPlot_3, sep="/"))
+knitr::include_graphics(normalizePath(paste(tempdir(), gGraphicsFilenames$volcanoPlot, sep="/")))
 ```
 

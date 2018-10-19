@@ -1,48 +1,61 @@
+callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
+
+
+observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seuilLogFC})
+
+
 output$testPanel <- renderUI({
-  req(rv$current.obj)
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  
+   # req(rv$current.obj)
+    isolate({
+      NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
   } else {
-    
     tagList(
       
       tags$div(
         tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                   selectInput("anaDiff_Design", "Contrast", 
-                              choices=c("None"="", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
+                              choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
+                              selected=rv$widgets$hypothesisTest$design,
                               width='150px')
         ),
         tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                  selectInput("diffAnaMethod","Statistical test",choices = anaDiffMethod_Choices,
+                  selectInput("diffAnaMethod","Statistical test",
+                              choices = anaDiffMethod_Choices,
+                              selected=rv$widgets$hypothesisTest$method,
                               width='150px')
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   hidden( radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"),
+                                       selected=input$ttest_options,
                                        width='150px'))
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
-                  numericInput("seuilLogFC", "log(FC) threshold", min=0, step=0.1, value=0,
-                               width='150px')
+                  textInput("seuilLogFC", "log(FC) threshold",  
+                               value=rv$widgets$hypothesisTest$th_logFC,
+                               width='150px'),
+                  module_Not_a_numericUI("test_seuillogFC")
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
-                  hidden(actionButton("ValidTest","Save significance test"))
+                  uiOutput("btn_valid")
         )
       ),
       tags$hr(),
-      highchartOutput("FoldChangePlot", height="100%", width="100%") %>% withSpinner(type=spinnerType)
+      highchartOutput("FoldChangePlot", height="100%") %>% withSpinner(type=spinnerType)
     )
     
   }
+    })
 })
 
-observe({
-  shinyjs::toggle("ValidTest", condition=((input$anaDiff_Design != "") && (input$diffAnaMethod != "")))
+output$btn_valid <- renderUI({
+  cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")
+  if (!cond){return(NULL)}
+  actionButton("ValidTest","Save significance test", class = actionBtnClass)
 })
 
-observeEvent(input$seuilLogFC,{
-  rv$seuilLogFC <- as.numeric(input$seuilLogFC)
-})
 
 observeEvent(input$diffAnaMethod,{
   
@@ -52,57 +65,45 @@ observeEvent(input$diffAnaMethod,{
 
 
 output$FoldChangePlot <- renderHighchart({
-  req(rv$res_AllPairwiseComparisons)
-  req(input$seuilLogFC)
-  req(input$diffAnaMethod)
-  req(input$anaDiff_Design)
+  #req(rv$res_AllPairwiseComparisons)
+  rv$PlotParams$paletteConditions
   
-  if ((input$diffAnaMethod=="None") || (input$anaDiff_Design=="None")){return(NULL)}
-  data <- rv$res_AllPairwiseComparisons
-  hc_logFC_DensityPlot(data$logFC,input$seuilLogFC)
-  
+  data <- ComputeComparisons()
+  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFC))
+  rv$tempplot$logFCDistr
 })
 
 
 
 ########################################################
 
-### calcul des comparaisons              ####
-#######################################################
-observe({
+### calcul des comparaisons                         ####
+########################################################
+ComputeComparisons <- reactive({
   req(input$diffAnaMethod)
   req(input$anaDiff_Design)
   input$ttest_options
-  
-  
-  if ((input$diffAnaMethod=="None")) {return ()}
-  if ((input$anaDiff_Design=="None")) {return ()}
+  if ((input$diffAnaMethod=="None")|| (input$anaDiff_Design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-  
-  if (is.null(rv$current.obj@experimentData@other$Params[["anaDiff"]])){
+isolate({
+  #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
     switch(input$diffAnaMethod,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
-                                                                input$anaDiff_Design)
+                                                                input$anaDiff_Design) 
+             
            },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
                                                                       Contrast=input$anaDiff_Design,
                                                                       type=input$ttest_options)
            })
-    rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
-  } else {
-    params <- rv$current.obj@experimentData@other$Params[["anaDiff"]]
-    rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$logFC]),
-                                                           rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC),
-                                          P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params$AllPairwiseCompNames$P_Value]),
-                                                             rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$P_Value
-                                          ))
+  rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
-    rv$listNomsComparaison <-rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC
-  }
+  rv$res_AllPairwiseComparisons
+})
 })
 
 
@@ -113,42 +114,25 @@ observe({
 #
 ########################################################################
 observeEvent(input$ValidTest,{ 
-  req(rv$current.obj)
+ # req(rv$current.obj)
   req(rv$res_AllPairwiseComparisons)
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   ### Save RAW data
-  temp <-   rv$current.obj
-  l.params <- list(design = input$anaDiff_Design,
-                   method = input$diffAnaMethod,
-                   ttest_options = input$ttest_options,
-                   th_logFC = input$seuilLogFC,
-                   AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
-                                               P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
-  )
+isolate({
+  rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
+                             allComp = rv$res_AllPairwiseComparisons)
   
   
-  temp <- DAPAR::diffAnaSave(obj = temp,
-                             allComp = rv$res_AllPairwiseComparisons,
-                             l.params = l.params)
+  name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
+  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
+  
+  rv$dataset[[name]] <- rv$current.obj
   
   
-  name <- paste("Signif.test - ", rv$typeOfDataset, sep="")
-  
-  rv$dataset[[name]] <- temp
-  rv$current.obj <- temp
-  UpdateLog("Test", l.params)
-  
-  updateSelectInput(session, "datasets", 
-                    #paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                    choices = names(rv$dataset),
-                    selected = name)
-  
-  
-  updateSelectInput(session,"anaDiff_Design", selected=input$anaDiff_Design)
-  updateSelectInput(session,"diffAnaMethod", selected=input$diffAnaMethod )
-  updateRadioButtons(session, "ttest_options", selected=input$ttest_options)
-  updateNumericInput(session, "seuilLogFC", value=input$seuilLogFC)
+  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+  BuildNavbarPage()
+})
   
 })

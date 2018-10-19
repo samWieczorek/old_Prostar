@@ -4,9 +4,12 @@ modulePopoverUI <- function(id){
     uiOutput(ns("customPopover"))
 }
 
+module_Not_a_numericUI <- function(id){
+  ns <- NS(id)
+  uiOutput(ns("msg_not_numeric"))
+}
 
-
-moduleLegendColoredExprsUI <- function(id){
+moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
     ns <- NS(id)
     
     tagList(
@@ -16,7 +19,7 @@ moduleLegendColoredExprsUI <- function(id){
             column(width=2, 
                    tags$div(class="input-color", checked=NA,
                             tags$input(type="text", value=""),
-                            tags$div(class="color-box", style="background-color: lightblue;")
+                            tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
                    )),
             column(width=10, tags$p("Partially Observed Value"))
         ),
@@ -25,7 +28,7 @@ moduleLegendColoredExprsUI <- function(id){
             column(width=2, 
                    tags$div(class="input-color", checked=NA,
                             tags$input(type="text", value=""),
-                            tags$div(class="color-box", style="background-color: orange;")
+                            tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
                    )),
             column(width=10, tags$p("Missing in Entire Condition"))
         )
@@ -35,17 +38,31 @@ moduleLegendColoredExprsUI <- function(id){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("nbSelectedItems")),
-  dataTableOutput(ns("Infos")),
-  #uiOutput(ns("found")),
-  highchartOutput(ns("volcanoPlot"))
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                uiOutput(ns("nbSelectedItems"))
+      ),
+      tags$div( style="display:inline-block; vertical-align: top;",
+                highchartOutput(ns("volcanoPlot"), width='600px', height='600px')
+      )
+    ),
+
+    uiOutput(ns("quantiDT"))
   )
 }
 
 
+
+########################################################
+###### -------------------------------------------------
+########################################################
 moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
+  tagList(
+    h5("The missing values will be imputed by the following values :"),
+    
   dataTableOutput(ns("detQuantValues_DT"))
+  )
 }
 
 missingValuesPlotsUI <- function(id) {
@@ -62,7 +79,9 @@ missingValuesPlotsUI <- function(id) {
 moduleDensityplotUI <- function(id) {
     ns <- NS(id)
     
-   highchartOutput(ns("Densityplot")) %>% withSpinner(type=spinnerType)
+  
+     highchartOutput(ns("Densityplot")) %>% withSpinner(type=spinnerType)
+   
 
 }
 
@@ -70,15 +89,10 @@ moduleDensityplotUI <- function(id) {
 
 moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
-      tags$div(
-       tags$div( style="display:inline-block; vertical-align: middle;",
-                 highchartOutput(ns("plot_viewNAbyMean")) %>% withSpinner(type=spinnerType)
-       ),
-       tags$div( style="display:inline-block; vertical-align: middle;",
-                 plotOutput(ns("plot_showImageNA"))%>% withSpinner(type=spinnerType)
+      tagList( highchartOutput(ns("plot_viewNAbyMean"), width='800px'),
+               plotOutput(ns("plot_showImageNA"), width='800px')
        )
-     )
-     
+
 }
 
 
@@ -93,20 +107,46 @@ moduleMVPlotsUI <- function(id) {
 #     plotOutput(ns("showImageNA")) %>% withSpinner(type=spinnerType)
 # }
 
-
-moduleBoxplotUI <- function(id) {
-    ns <- NS(id)
-    plotOutput(ns("BoxPlot")) %>% withSpinner(type=spinnerType)
+moduleDesignExampleUI <- function(id){
+  ns <- NS(id)
+  tagList(
+     rHandsontableOutput(ns("nlevelsExample"))
+  )
+  
 }
 
 
-moduleDatasetOverviewUI <- function(id) {
+moduleBoxplotUI <- function(id) {
     ns <- NS(id)
-    dataTableOutput(ns("DatasetOverviewDT"))
+    tagList(
+      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='150px'),
+    highchartOutput(ns("BoxPlot")),
+    plotOutput(ns("viewViolinPlot"))
+    )
+}
+
+
+moduleStaticDataTableUI <- function(id) {
+    ns <- NS(id)
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                withSpinner(dataTableOutput(ns("StaticDataTable")))
+      )
+    )
+    
+     
+
 }
 
 
 moduleFilterStringbasedOptionsUI <- function(id) {
     ns <- NS(id)
     uiOutput(ns("FilterStringbasedOptions"))
+}
+
+
+
+moduleInsertMarkdownUI <- function(id){
+  ns <- NS(id)
+  uiOutput(ns("insertMD"))
 }

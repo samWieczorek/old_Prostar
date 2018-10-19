@@ -1,4 +1,4 @@
-callModule(moduleDatasetOverview,"overview_openMSnset")
+callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}))
 
 
 
@@ -46,7 +46,7 @@ output$openMSnsetScreen <- renderUI({
   
   tagList(
     fileInput("file", "Open a MSnset file", multiple = FALSE),
-    moduleDatasetOverviewUI("overview_openMSnset"),
+    moduleStaticDataTableUI("overview_openMSnset"),
     uiOutput("infoAboutAggregationTool")
   )
 })
@@ -132,11 +132,14 @@ observeEvent(input$file,ignoreInit =TRUE,{
     names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
-    {rv$current.obj@experimentData@other$RawPValues <- FALSE}
-    else if(rv$current.obj@experimentData@other$RawPValues ){
+    {
+      rv$current.obj@experimentData@other$RawPValues <- FALSE
+      } else if(rv$current.obj@experimentData@other$RawPValues ){
       
-      names.logFC <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$logFC
-      names.P_Value <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$AllPairwiseCompNames$P_Value
+        nn <- names(rv$current.obj@experimentData@other$Params)
+         ind <-  grep("HypothesisTest",nn)
+      names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
+      names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       
       .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
       .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
@@ -146,13 +149,24 @@ observeEvent(input$file,ignoreInit =TRUE,{
       rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
                                             P_Value = .P_Value)
       
-      rv$seuilLogFC <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$th_logFC
-      rv$method <- rv$current.obj@experimentData@other$Params[["anaDiff"]]$method
+      rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
+      rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
+      }
+    
+    params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
+    if (!is.null(params.tmp)){
+      rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
+                                                           params.tmp$AllPairwiseCompNames$logFC),
+                                          P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
+                                                             params.tmp$AllPairwiseCompNames$P_Value
+                                          ))
+    
+    rv$listNomsComparaison <- colnames(params.tmp$AllPairwiseCompNames$logFC)
     }
+    
     
     rv$current.obj <- addOriginOfValue(rv$current.obj)
     l.params <- list(filename = rv$current.obj.name)
-    UpdateLog("Original",l.params)
     
     
     
@@ -160,7 +174,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
     
     
     #loadObjectInMemoryFromConverter()
-    loadObjectInMemoryFromConverter_2(rv$current.obj)
+    loadObjectInMemoryFromConverter()
     
   }
   

@@ -1,4 +1,56 @@
 
+callModule(moduleStaticDataTable,"viewProcessingData", 
+           table2show=reactive({BuildParamDataProcessingDT()}), 
+           showRownames=FALSE)
+
+callModule(moduleStaticDataTable,"viewDataMining", 
+           table2show=reactive({BuildParamDataMiningDT()}), 
+           showRownames=FALSE)
+
+callModule(moduleStaticDataTable,"viewProstarVersions", 
+           table2show=reactive({getPackagesVersions('installed')[-3,]}), 
+           showRownames=FALSE)
+
+
+
+output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
+
+output$plotsFor_Original_peptide<- renderTree({list( "Descr stats"= ll_descrStats )})
+
+output$plotsFor_Filtered_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+
+output$plotsFor_Filtered_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
+
+output$plotsFor_Normalized_protein <- renderTree({list("Descr stats"= ll_descrStats,"compNorm"="compNorm")})
+
+output$plotsFor_Normalized_peptide<- renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
+
+output$plotsFor_Imputed_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+
+output$plotsFor_Imputed_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
+
+output$plotsFor_HypothesisTest_protein <- renderTree({ list("Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
+
+output$plotsFor_HypothesisTest_peptide<- renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
+
+output$plotsFor_Aggregated_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+output$plotsFor_Aggregated_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
+
+
+
+
+shinyTree_GetSelected <- reactive({
+  tmp <- unlist(shinyTree::get_selected(input$plotsFor_Original_peptide, format = "names"))
+  tmp
+})
+
+
+# observeEvent(input$plotsFor_Original_peptide, {
+#   tmp <- unlist(shinyTree::get_selected(input$plotsFor_Original_peptide, format = "names"))
+#   for (i in 1:length(ll)){
+#     print(ll[[i]][1])
+#   }
+#   })
 
 
 output$choosedataToExportMSnset <- renderUI({
@@ -8,12 +60,34 @@ output$choosedataToExportMSnset <- renderUI({
   .choices <- names(rv$dataset)
   names(.choices) <- dnames
   radioButtons("chooseDatasetToExportToMSnset", 
-               "Datasets to export",
+               "Choose which dataset to export",
                choices = c("None"="None",.choices))
   
 })
 
 
+
+observeEvent(rv$dataset, {
+  
+  for (i in 1:length(names(rv$dataset))){
+    txt <-paste0('treeFor.',names(rv$dataset)[i])
+    txt <- gsub(".", "_", txt, fixed=TRUE)
+    print(paste0("toggle:", txt))
+    shinyjs::toggle(txt)
+   }
+ 
+})
+
+
+
+
+
+GetDatasetShortNames <- reactive({
+  req(rv$dataset)
+  
+  dnames <- unlist(lapply(names(rv$dataset), function(x){unlist(strsplit(x, ".", fixed=TRUE))[[1]]}))
+  dnames
+})
 
 
 
@@ -64,7 +138,6 @@ output$chooseMetaDataExport <- renderUI({
 
 
 
-
 callModule(modulePopover,"modulePopover_exportMetaData", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Metadata</font></strong>")), 
                                 content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
@@ -84,12 +157,8 @@ callModule(modulePopover,"modulePopover_exportFilename",
 
 output$chooseExportFilename <- renderUI({
   
-  textInput("nameExport", 
-            label = "",
-            value = rv$current.obj.name)
+  textInput("nameExport", label = "", value = rv$current.obj.name)
 })
-
-
 
 
 
@@ -123,13 +192,12 @@ output$downloadMSnSet <- downloadHandler(
     }
     
     
-    colnames(fData(dataToExport)) <- gsub(".", "_", 
-                                          colnames(fData(dataToExport)), 
-                                          fixed=TRUE)
+    colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     
     dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
     dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+    dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
     
     if (input$fileformatExport == gFileFormatExport$excel) {
       fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
@@ -170,4 +238,40 @@ output$choosedataTobuildReport <- renderUI({
 })
 
 
+# 
+# output$downloadProcessingData <- downloadHandler(
+#   
+#   filename = function() { 
+#     paste0('summary_', input$datasets,'.pdf')
+#   },
+#   content = function(file) {
+#     out <- rmarkdown::render('Rmd_sources/report.Rmd', 
+#                       output_file = rv$outfile,
+#                       rmarkdown::pdf_document())
+#   }
+# )
+#     
+
+
+######-----------------------------------------------------------------
+output$downloadReport <- downloadHandler(
+  input$reportFilename,
+  filename = function() {
+    paste0(input$reportFilename, sep = '.pdf')
+  },
+  
+  content = function(file) {
+    toto()
+    filename <- rv$outfile
+    print(filename)
+    require(rmarkdown)
+    #paramRmd <- list(current.obj=rv$current.obj)
+    out <- rmarkdown::render(rv$outfile, 
+                             output_file = file,
+                             pdf_document()
+    ) # END render
+    
+    #file.rename(out, file)
+  }
+)
 

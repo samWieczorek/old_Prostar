@@ -8,7 +8,7 @@ observeEvent(input$linkToFaq1, {
 
 color_renderer <- reactive({
   conds <- rv$hot$Condition
-  pal <- RColorBrewer::brewer.pal(length(unique(conds)),"Dark2")
+  pal <- rv$PlotParams$paletteConditions
   
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"
@@ -32,10 +32,9 @@ req(rv$designChecked)
     htmlOutput("msgAlertCreateMSnset"),
     hr(),
     textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data"),
-    uiOutput("warningCreateMSnset"),
-    moduleDatasetOverviewUI("overview_convertData"),
-    uiOutput("conversionDone")
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
+    uiOutput("warningCreateMSnset")
+    
   )
 })
 
@@ -122,7 +121,7 @@ output$UI_checkConditions  <- renderUI({
   if (sum(rv$hot$Condition == "")==0){
     tags$div(
       tags$div(style="display:inline-block;",
-               actionButton("btn_checkConds", "Check conditions")
+               actionButton("btn_checkConds", "Check conditions", class = actionBtnClass)
       ),
       
       tags$div(style="display:inline-block;",
@@ -181,7 +180,8 @@ output$UI_hierarchicalExp <- renderUI({
       radioButtons("chooseExpDesign", "",
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
-                               "3 levels design (complete Bio.Rep a,d Tech.Rep columns)" = "threeLevelsDesign" ))
+                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" ),
+                   selected=character(0))
     )
   }
   
@@ -205,36 +205,44 @@ output$viewDesign <- renderUI({
 })
 
 
+callModule(moduleDesignExample,"buildDesignExampleThree", 3)
+callModule(moduleDesignExample,"buildDesignExampleTwo", 2)
 
 
 #------------------------------------------------------------------------------
 output$designExamples <- renderUI({
   input$chooseExpDesign
-  
+  print(input$chooseExpDesign)
   switch(input$chooseExpDesign,
-         FlatDesign = tagList(
-           tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")
-         ),
-         twoLevelsDesign = tagList(
-           h4("Example for a 2-levels design"),
-           rHandsontableOutput("twolevelsExample")
-         ),
-         threeLevelsDesign = tagList(
-           h4("Example for a 3-levels design"),
-           rHandsontableOutput("threelevelsExample")
-         ))
+         FlatDesign = 
+           {
+             tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")
+             },
+         twoLevelsDesign =  {
+           tagList(h4("Example for a 2-levels design"),
+                   moduleDesignExampleUI("buildDesignExampleTwo")
+           )
+           },
+         threeLevelsDesign =  {
+           tagList(
+             h4("Example for a 3-levels design"),
+           moduleDesignExampleUI("buildDesignExampleThree")
+           )
+           }
+         )
 })
 
 
 #------------------------------------------------------------------------------
 observe({
   shinyjs::onclick("btn_helpDesign",{
-    shinyjs::toggle(id = "exLevels", anim = TRUE)}
+    shinyjs::toggle(id = "showExamples", anim = TRUE)}
   )
 })
 
 #------------------------------------------------------------------------------
 observeEvent(input$chooseExpDesign, {
+  rv$hot
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
@@ -260,102 +268,14 @@ observeEvent(input$chooseExpDesign, {
 
 
 
-#------------------------------------------------------------------------------
-output$twolevelsExample <- renderRHandsontable({
-  
-  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
-                   Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
-                   Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
-                   Tech.Rep = c(1:14),
-                   stringsAsFactors = FALSE)
-  
-  
-  pal <- RColorBrewer::brewer.pal(3,"Dark2")
-  
-  color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-  if(col==1 && (row>=0 && row<=3)) {td.style.background = '#1B9E77';}
-  if(col==1 && (row>=4 && row<=7)) {td.style.background = '#D95F02';}
-  if(col==1 && (row>=8 && row<=14)) {td.style.background = '#7570B3';}
-  
-  
-  if(col==2 && (row==0||row==1||row==4||row==5||row==8||row==9||row==12||row==13)) 
-  {td.style.background = 'lightgrey';}
-  
-  if(col==3 && (row==0||row==2||row==4||row==6||row==8||row==10||row==12)) 
-  {td.style.background = 'lightgrey';}
-}"
 
-  rhandsontable::rhandsontable(df,rowHeaders=NULL, fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                      maxRows=nrow(rv$hot))) %>%
-    rhandsontable::hot_rows(rowHeights = 30) %>%
-    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                     allowInsertRow = FALSE,allowInsertColumn = FALSE,
-                     allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
-    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
-  
-  })
+#------------------------------------------------------------------------------
+observeEvent(input$hot,{ rv$hot <-  hot_to_r(input$hot)})
 
 
 
 #------------------------------------------------------------------------------
-output$threelevelsExample <- renderRHandsontable({
-  
-  df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
-                   Condition = c(rep( "A", 8), rep("B", 8)),
-                   Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
-                   Tech.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8)),
-                   Analyt.Rep = c(1:16),
-                   stringsAsFactors = FALSE)
-  
-  
-  pal <- RColorBrewer::brewer.pal(2,"Dark2")
-  
-  color_rend <- "function (instance, td, row, col, prop, value, cellProperties) {
-  Handsontable.renderers.TextRenderer.apply(this, arguments);
-  
-  if(col==1 && (row>=0 && row<=7)) 
-  {td.style.background = '#1B9E77';}
-  
-  if(col==1 && (row>=8 && row<=15)) 
-  {td.style.background = '#D95F02';}
-  
-  if(col==2 && (row==0||row==1||row==2||row==3||row==8||row==9||row==10||row==11)) 
-  {td.style.background = 'lightgrey';}
-  
-  if(col==3 && (row==0||row==1||row==4||row==5|| row==8||row==9||row==12||row==13)) 
-  {td.style.background = 'lightgrey';}
-  
-  
-  if(col==4 && (row==0||row==2||row==4||row==6|| row==8||row==10||row==12||row==14)) 
-  {td.style.background = 'lightgrey';}
-}"
-  rhandsontable::rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                    maxRows=nrow(rv$hot))) %>%
-    rhandsontable::hot_rows(rowHeights = 30) %>%
-    rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
-                     allowInsertRow = FALSE,allowInsertColumn = FALSE,
-                     allowRemoveRow = FALSE,allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
-    rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
-  
-  })
-
-
-#------------------------------------------------------------------------------
-observeEvent(input$hot,{
-  rv$hot <-  hot_to_r(input$hot)
-  
-})
-
-
-
-#------------------------------------------------------------------------------
-observeEvent(input$btn_checkDesign,{
-  rv$designChecked <- DAPAR::check.design(rv$hot)
-})
+observeEvent(input$btn_checkDesign,{ rv$designChecked <- DAPAR::check.design(rv$hot)})
 
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
@@ -374,7 +294,7 @@ output$checkDesign <- renderUI({
   tags$div(
     tags$div(
       style="display:inline-block;",
-      actionButton("btn_checkDesign", "Check design")
+      actionButton("btn_checkDesign", "Check design", class = actionBtnClass)
     ),
     
     tags$div(

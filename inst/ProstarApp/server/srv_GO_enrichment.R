@@ -21,7 +21,7 @@ output$GOAnalysisMenu <- renderUI({
                                            ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
                                            ,selectInput("Ontology", "Ontology",choices = G_ontology_Choices)
                                            ,actionButton("mapProtein.GO.button",
-                                                        "Map proteins IDs")
+                                                        "Map proteins IDs", class = actionBtnClass)
                                  )
                                  ,tagList(
                                      uiOutput("warnDifferentSizeID"),
@@ -43,7 +43,7 @@ output$GOAnalysisMenu <- renderUI({
                                            height = "100%",
                                            modulePopoverUI("modulePopover_GOlevel"),
                                            checkboxGroupInput("GO_level", "",choices =c(2:4), selected=2),
-                                           actionButton("group.GO.perform.button","Perform GO grouping")
+                                           actionButton("group.GO.perform.button","Perform GO grouping", class = actionBtnClass)
                                  ),
                                  tagList(
                                      highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
@@ -68,7 +68,7 @@ output$GOAnalysisMenu <- renderUI({
                                            modulePopoverUI("modulePopover_GOfdr"),
                                            numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
                                            
-                                           actionButton("perform.GO.button","Perform enrichment analysis")
+                                           actionButton("perform.GO.button","Perform enrichment analysis", class = actionBtnClass)
                                  ),
                                  tagList(
                                      highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),
@@ -76,7 +76,7 @@ output$GOAnalysisMenu <- renderUI({
                                      )
                      )
             ),
-            tabPanel("Parameters summmary",
+            tabPanel("Parameter summary",
                      value = "tabPanelSaveGO",
                      dataTableOutput("GO_resumeParams")
             )
@@ -142,11 +142,11 @@ output$chooseSourceForProtID <- renderUI({
     input$sourceOfProtID
     
     if (input$sourceOfProtID == "colInDataset"){
-        selectInput("UniprotIDCol", "Select column which contains protein ID (UNIPROT)",
+        selectInput("UniprotIDCol", "Select column containing protein IDs",
                     choices = c("", colnames(Biobase::fData(rv$current.obj))))
     }
     else  if (input$sourceOfProtID == "extFile"){
-        fileInput("UNIPROTID_File", "Select file for UNIPROT protein ID")
+        fileInput("UNIPROTID_File", "Select file containing protein IDs")
         
     }
 })
@@ -542,7 +542,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                 # writeToCommandLogFile(paste(" temp <- diffAnaSave(dataset[['",
                 #                             input$datasets,"']],  data, method, cond1, cond2, threshold_pValue, threshold_logFC, fdr, calibMethod)", sep=""))
                 # writeToCommandLogFile(paste(" name <- \"DiffAnalysis.", 
-                #                             input$diffAnaMethod, " - ", rv$typeOfDataset,"\"", sep="" ))
+                #                             input$diffAnaMethod, ".", rv$typeOfDataset,"\"", sep="" ))
                 # writeToCommandLogFile("dataset[[name]] <- temp")
                 # writeToCommandLogFile("current.obj <- temp")
                 # 
@@ -598,13 +598,12 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
                                organism = \"",input$Organism,"\",ontology = \"", input$Ontology,"\",\n",
                                "level = ", input$GO_level,", pvalueCutoff = ", input$pvalueCutoff,",\n",
                                "typeUniverse = \"", input$universe,"\")\n",
-                               " name <- \"GOAnalysis", " - ", rv$typeOfDataset,"\"",
+                               " name <- \"GOAnalysis", ".", rv$typeOfDataset,"\"",
                                "dataset[[name]] <- temp\n",
                                "current.obj <- temp\n", sep= " ")
                            # writeToCommandLogFile(text2Log)
                        }
                 )
-                UpdateLog("GOAnalysis", l.params)
                 
                 updateTabsetPanel(session, "tabsetPanel_GO", selected = "tabPanelSaveGO")
                 
@@ -632,7 +631,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
 
 output$GO_resumeParams <- DT::renderDataTable({
   req(c(rv$current.obj,input$selectComparison,
-        rv$seuilPVal,input$AnaDiff_ChooseFilters,input$calibrationMethod))
+        as.numeric(input$seuilPVal),as.character(input$AnaDiff_ChooseFilters),input$calibrationMethod))
   rv$resAnaDiff
   req(rv$res_AllPairwiseComparisons)
   

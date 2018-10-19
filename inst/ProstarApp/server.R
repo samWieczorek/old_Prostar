@@ -21,7 +21,8 @@ onStart = function() {
     graphics.off()
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), "*", sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
@@ -29,22 +30,20 @@ onStart = function() {
 }
 
 shinyServer(function(input, output, session) {
-   #Sys.sleep(40)
-  
-  #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
+  Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
     
     #Set up writing
     logfilename <- tempfile(fileext=".log")
-    con <- file(logfilename,"w")
+    con <- file(logfilename,open="wt")
     if(!interactive()){
       sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
     }
 
-    
+    print(tempdir())
     
    # unsuspendAll(session)
        
@@ -71,25 +70,28 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_General.R"), local = TRUE)$value
     source(file.path("server", "srv_Home.R"), local = TRUE)$value
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
-
+    source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
     
-    #outputOptions(output, 'currentObjLoaded', suspendWhenHidden=FALSE)
+    
+   # outputOptions(output, 'settings_nDigits', suspendWhenHidden=FALSE)
     
     #activatePopover()
     
     loadLibraries()
-
+     
+    observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
+    observeEvent(input$distance,{rv$PlotParams$heatmap.linkage <- input$linkage})
+    
     
      observe({
         req(input$navPage)
-        #print(input$navPage)
-        
+       
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
                openMSnsetTab = {
                  source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
                  },
-               SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
+               #SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
                
                  demoTab = 
                  source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,

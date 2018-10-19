@@ -6,7 +6,10 @@ tabPanel("Descriptive statistics",
                      #------------------------------------------------------------
                      tabPanel("Overview",
                               value = "DS_tabGeneral",
-                              moduleDatasetOverviewUI("overview_DS")
+                              tagList(
+                                br(),
+                                moduleStaticDataTableUI("overview_DS")
+                                )
                      ),
                      
                      tabPanel(
@@ -20,15 +23,10 @@ tabPanel("Descriptive statistics",
                      #-------------------------------------------------------------
                      tabPanel(title="Data explorer",
                               value = "DS_DataExplorer",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_dataExplorer",
-                                                    uiOutput("DS_sidebarPanel_tab")
-                                          ),
-                                          tagList(
-                                            uiOutput("tabToShow")
-                                          )
-                              )
+                               tagList(
+                                       uiOutput("DS_sidebarPanel_tab"),
+                                       uiOutput("tabToShow")
+                                       )
                      ),
                      
                      tabPanel("Corr. matrix",
@@ -59,58 +57,64 @@ tabPanel("Descriptive statistics",
                                           )
                               )
                      ),
-                     
-                     #-----------------------------------------------------------
-                     tabPanel("Boxplot",
-                              value="DS_tabBoxplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_boxplot",
-                                                    #uiOutput("DS_sidebarPanel_Boxplot")
-                                                    uiOutput("ChooseLegendForAxis_DS")
-                                          ),
-                                         tagList(
-                                             moduleBoxplotUI("boxPlot_DS")
-                                          )
+                     tabPanel("PCA",
+                              value="DS_PCA",
+                              tagList(
+                                     uiOutput("WarningNA_PCA"),
+                                     uiOutput("pcaOptions"),
+                                            
+                                     fluidRow(
+                                       column(width=6,  plotOutput("pcaPlotVar")),
+                                       column(width=6,  plotOutput("pcaPlotInd"))
+                                     ),
+                                     fluidRow(
+                                        column(width=6,  highchartOutput("pcaPlotEigen")),
+                                        column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+                                      )
                               )
-                     ),
-                     
-                     
-                     #-----------------------------------------------------------
-                     tabPanel("Violinplot",
-                              value="DS_tabViolinplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_Violonplot",
-                                                    #uiOutput("DS_sidebarPanel_Violinplot")
-                                                    uiOutput("ChooseLegendForAxisViolin_DS")
-                                          ),
-                                          tagList(
-                                              plotOutput("viewViolinPlot_DS",width = plotWidth,
-                                                                      height = plotHeight) %>% withSpinner(type=spinnerType)
-                                          )
-                              )
+
                      ),
                      
                      #-----------------------------------------------------------
-                     tabPanel("Densityplot",
+                     tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_densityplot",
-                                                    tagList(
-                                                      radioButtons("whichGroup2Color_DS",
-                                                                   "Color lines",
-                                                                   choices=list("By condition" = "Condition",
-                                                                                "By replicate" = "Replicate")),
-                                                      br()
-                                                      #uiOutput("nShow_DS")
-                                                      )
-                                          ),
-                                          tagList(
-                                              moduleDensityplotUI("densityPlot_DS")
-                                           )
+                              # shinyWidgets::dropdownButton(
+                              #   tags$div(
+                              #     tags$div(style="display:inline-block; vertical-align: top;",
+                              #              selectInput("whichGroup2Color",
+                              #                          "Color lines",
+                              #                          choices=list("By condition" = "Condition",
+                              #                                       "By replicate" = "Replicate"), 
+                              #                          selected=GetWhichGroup2Color(), width='150px')
+                              #     ),
+                              #     tags$div(style="display:inline-block; vertical-align: top;",
+                              #              uiOutput("ChooseLegendForSamples")
+                              #     )
+                              #   ),
+                              #   tooltip="Plots parameters",
+                              #   style = "material-circle", icon = icon("gear"), status = "primary"
+                              # ),
+                              
+                              tagList(
+                                tags$div(
+
+                                tags$div(style="display:inline-block; vertical-align: top;",
+                                         selectInput("whichGroup2Color",
+                                                     "Color lines",
+                                                     choices=list("By condition" = "Condition",
+                                                                  "By replicate" = "Replicate"),
+                                                     selected=GetWhichGroup2Color(), width='150px')
+                                ),
+                                tags$div(style="display:inline-block; vertical-align: top;",
+                                         uiOutput("ChooseLegendForSamples")
+                                )
                               )
+                              ),
+                              fluidRow(
+                                  column(width=6,moduleDensityplotUI("densityPlot_DS")),
+                                   column(width=6, moduleBoxplotUI("boxPlot_DS"))
+                                  )
+
                      ),
                      
                      #-----------------------------------------------------------

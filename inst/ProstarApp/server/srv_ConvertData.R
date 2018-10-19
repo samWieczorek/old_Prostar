@@ -3,19 +3,26 @@ callModule(modulePopover,"modulePopover_convertChooseDatafile",
                                 content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
 callModule(modulePopover,"modulePopover_convertIdType", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Type de ID</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">ID definition</font></strong>")), 
                                 content="If you choose the automatic ID, Prostar will build an index.")))
+
+
+
+callModule(modulePopover,"modulePopover_convertProteinID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
+                                content="Select the column containing the parent protein IDs.")))
+
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleDatasetOverview,"overview_convertData")
+callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
 
 output$warningNonUniqueID <- renderUI({
-    input$idBox
+    req(input$idBox)
     req(rv$tab1)
-    if (is.null(input$idBox) || (input$idBox =="")) {return(NULL)  }
+    if (input$idBox =="Auto ID") {return(NULL)  }
     
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -33,7 +40,35 @@ output$warningNonUniqueID <- renderUI({
 })
 
 
+output$convertChooseProteinID_UI <- renderUI({
+  req(rv$tab1)
+  
+  if (input$typeOfData == "protein") {return(NULL)}
+  
+  .choices <- c("",colnames(rv$tab1))
+  names(.choices) <- c("",colnames(rv$tab1))
+  tagList(
+    modulePopoverUI("modulePopover_convertProteinID"),
+    selectInput("convert_proteinId", 
+              "",
+              choices =  .choices , selected = NULL)
+  )
+})
 
+
+#########################################################
+output$id <- renderUI({
+  req(rv$tab1)
+  
+  .choices <- c("Auto ID",colnames(rv$tab1))
+  names(.choices) <- c("Auto ID",colnames(rv$tab1))
+  
+  tagList(
+    modulePopoverUI("modulePopover_convertIdType"),
+    selectInput("idBox", label = "", choices = .choices)
+  )
+  
+})
 
 
 
@@ -171,7 +206,8 @@ output$ManageXlsFiles <- renderUI({
   .ext <- GetExtension(input$file1$name)
   if ((.ext == "xls") || (.ext == "xlsx")){ 
     sheets <- listSheets(input$file1$datapath)
-    selectInput("XLSsheets", "sheets", choices = as.list(sheets))
+    selectInput("XLSsheets", "sheets", choices = as.list(sheets),
+                width='200px')
   }
   
 })
@@ -179,16 +215,6 @@ output$ManageXlsFiles <- renderUI({
 
 
 
-#########################################################
-output$id <- renderUI({
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
-    
-    .choices <- c("",colnames(rv$tab1))
-    names(.choices) <- c("",colnames(rv$tab1))
-    selectInput("idBox", label = "", choices = .choices , selected = NULL)
-    
-})
 
 
 
@@ -230,33 +256,6 @@ output$eData <- renderUI({
 #     }
 # }
 
-
-shinyOutput <- function(FUN,id,num,...) {
-    inputs <- character(num)
-    for (i in seq_len(num)) {
-        inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
-    }
-    inputs
-}
-
-
-# function for dynamic inputs in DT
-shinyInput <- function(FUN,id,num,...) {
-  inputs <- character(num)
-  for (i in seq_len(num)) {
-    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
-  }
-  inputs
-}
-
-
-# function to read DT inputs
-shinyValue <- function(id,num) {
-  unlist(lapply(seq_len(num),function(i) {
-    value <- input[[paste0(id,i)]]
-    if (is.null(value)) NA else value
-  }))
-}
 
 
 
@@ -358,10 +357,7 @@ output$x1 <- renderDataTable(
     )
 
 
-observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{
-    
-}
-)
+observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
 
 
 
@@ -421,7 +417,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$autoID == "user ID") {
+                if (input$idBox !="Auto ID") {
                     indexForIDBox <- match(input$idBox, colnames(rv$tab1))
                 }
                 
@@ -452,66 +448,18 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                     logData, 
                                     input$replaceAllZeros,
                                     pep_prot_data = input$typeOfData,
+                                    proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
                                     versions
                 )
                 ClearUI()
                 ClearMemory()
                 rv$current.obj <- tmp
+                
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
                 l.params <- list(filename = input$filenameToCreate)
-                UpdateLog("Original",l.params)
-                
-                # 
-                # #if (input$showCommandLog){
-                # 
-                # metadata <- as.data.frame(metadata)
-                # t <- "metadata <- data.frame("
-                # for (c in colnames(metadata)){
-                #     t <- paste(t,c, " = c(",sep="")
-                #     
-                #     for (i in 1:(nrow(metadata)-1)){
-                #         
-                #         car <- metadata[i,as.character(c)]
-                #         #if (car == " ") { car <- NA}
-                #         t <- paste(t,"\"",car, "\",",
-                #                    sep="")
-                #     }
-                #     
-                #     car <- last(metadata[,as.character(c)])
-                #     #if (car == " ") { car <- NA}
-                #     
-                #     t <- paste(t,"\"",car, "\")",
-                #                sep="")
-                #     if (c!= last(colnames(metadata))){t <- paste(t,", ") }
-                #     else {t <- paste(t,")") }
-                # }
-                # 
-                # 
-                # writeToCommandLogFile(t)
-                # 
-                # t <- "rownames(metadata) <- c("
-                # for (i in rownames(metadata)){
-                #     t <- paste(t,"\"",as.character(i), "\"",sep="")
-                #     if (i != last(rownames(metadata))){t <- paste(t,", ") }
-                #     else {t <- paste(t,")") }
-                # }
-                # writeToCommandLogFile(t)
-                # 
-                # 
-                # p <- "c("
-                # for (i in 1:(length(indexForEData)-1)){
-                #     p <- paste(p,indexForEData[i], ",",sep="")}
-                # p <- paste(p, last(indexForEData), ")", sep="")
-                # writeToCommandLogFile(paste("indexForEData <- ",p, sep=""))
-                # 
-                # p <- "c("
-                # for (i in 1:(length(indexForFData)-1)){
-                #     p <- paste(p,indexForFData[i], ",",sep="")}
-                # p <- paste(p, last(indexForFData), ")", sep="")
-                # writeToCommandLogFile(paste("indexForFData <- ",p, sep=""))
-                # 
+                 
                 
                 
                 loadObjectInMemoryFromConverter()

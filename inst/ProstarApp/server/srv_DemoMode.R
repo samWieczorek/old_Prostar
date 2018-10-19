@@ -1,4 +1,4 @@
-callModule(moduleDatasetOverview,"overview_DemoMode")
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
 
 
 output$chooseDataset <- renderUI({
@@ -28,33 +28,17 @@ output$chooseDataset <- renderUI({
 
 
 
-
-output$optionsDemomode <- renderUI({
-  
+output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
-  tagList(
-    checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
-    actionButton("loadDemoDataset", "Load demo dataset")
-  )
-})
-
-
-
-
-
-output$showDatasetDoc <- renderUI({
-  req(input$demoDataset)
-  req(input$showDemoDatasetPDF)
   
   file<- paste(system.file(package = "DAPARdata"),"/doc/",
                input$demoDataset,".pdf", sep="")
   cmd <- paste("cp ",file," www/.", sep="")
-  system(cmd)
-  tags$iframe(src=paste(input$demoDataset,".pdf", sep=""), 
-              width="900", height="700")
-  
-})
-
+    system(cmd)
+  filename <-paste0(input$demoDataset,".pdf", sep="")
+  tags$p("Dataset documentation ",
+  tags$a(href=filename, target='_blank', "(pdf)"))
+ })
 
 
 
@@ -91,37 +75,29 @@ output$infoAboutDemoDataset <- renderUI({
     })
 
 
-output$progressDemoMode <- renderUI({
-  #rv$indProgressDemomode
-  req(input$loadDemoDataset)
-  
-  if (!isTRUE(rv$indProgressDemomode)){
-    withProgress(message = 'Initialization. Please wait...', value = 1, {
-      Sys.sleep(2000)
-    })
-  }
-})
-
 
 
 observeEvent(input$loadDemoDataset,{
   
+  ntotal <- 4
+  withProgress(message = '',detail = '', value = 0, {
+    
   ClearMemory()
   ClearUI()
+  incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
-  rv$current.obj.name <- input$demoDataset
-  rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-  rv$indexNA <- which(is.na(rv$current.obj))
-  colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-  names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+  incProgress(1/ntotal, detail = 'Load dataset ')
   
-  if (is.null(rv$current.obj@experimentData@other$RawPValues ))
-    rv$current.obj@experimentData@other$RawPValues <- FALSE
+  rv$current.obj.name <- input$demoDataset
+  rv$indexNA <- which(is.na(rv$current.obj))
+  
   rv$current.obj <- addOriginOfValue(rv$current.obj)
   l.params <- list(filename = input$demoDataset)
-  UpdateLog("Original",l.params)
+  incProgress(1/ntotal, detail = 'Configure dataset')
   
   loadObjectInMemoryFromConverter()
+  incProgress(1/ntotal, detail = 'Load memory ')
   
+  })
 })

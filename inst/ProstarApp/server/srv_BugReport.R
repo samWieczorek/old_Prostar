@@ -31,22 +31,8 @@ output$BugReport_output <- renderUI({
     
     
     a(actionButton(inputId = "email1", label = "Contact maintainer", 
-                   icon = icon("envelope", lib = "font-awesome")),
+                   icon = icon("envelope", lib = "font-awesome"), class = actionBtnClass),
       href=paste0("mailto:", mail,"?subject=[Prostar bug report]&body="))
       ) 
 
 })
-# 
-# output$pasteToMail <- renderUI({
-#   
-#   tagList(
-#     tags$h4("pData(obj)"),
-#     HTML(pData(rv$current.obj)),
-#     tags$h4("colnames(fData(obj))"),
-#     HTML(colnames(Biobase::fData(rv$current.obj))),
-#     tags$h4("colnames(exprs(obj))"),
-#     HTML(colnames(Biobase::exprs(rv$current.obj)))
-#   )
-#   
-#   
-# })

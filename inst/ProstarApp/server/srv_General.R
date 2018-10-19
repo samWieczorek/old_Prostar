@@ -1,4 +1,38 @@
 
+shinyOutput <- function(FUN,id,num,...) {
+  inputs <- character(num)
+  for (i in seq_len(num)) {
+    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+  }
+  inputs
+}
+
+
+# function for dynamic inputs in DT
+shinyInput <- function(FUN,id,num,...) {
+  inputs <- character(num)
+  for (i in seq_len(num)) {
+    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+  }
+  inputs
+}
+
+
+# function to read DT inputs
+shinyValue <- function(id,num) {
+  unlist(lapply(seq_len(num),function(i) {
+    value <- input[[paste0(id,i)]]
+    if (is.null(value)) NA else value
+  }))
+}
+
+
+
+GetCurrentDatasetName <- reactive({
+  name <- last(names(rv$dataset))
+  name
+})
+
 # activatePopover <- function(){
 #     txt_histo_M <- paste0("<p>Test",
 #                           "test</p><p>Explanation .</p>")
@@ -49,33 +83,132 @@
 
 
 
-getDataForExprs <- reactive({
-  req(input$settings_nDigits)
-  rv$current$obj
+getDataForExprs <- function(obj){
+  #rv$current$obj
   
+  test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
+  print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+   test.table <- cbind(test.table, 
+                        Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+   print(paste0("tutu:",head(test.table)))
+   
+  } else {
+    test.table <- cbind(test.table, 
+                        as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+    print(paste0("tata:",head(test.table)))
+    }
+  return(test.table)
   
-  test.table <- as.data.frame(round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits))
-  test.table <- cbind(test.table, Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues])
-  test.table
-  
-})
+}
 
 
 getData <- reactive({
-  req(input$settings_nDigits)
+  req(rv$settings_nDigits)
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 })
+
+
+
+
+
+GetDatasetOverview <- reactive({
+  req(rv$current.obj)
+  
+  
+    columns <- c("Number of samples","Number of conditions",
+                 "Number of lines", "Number of missing values", "% of missing values", 
+                 "Number of empty lines")
+    
+    do <- data.frame(Definition= columns,
+                     Value=rep(0,length(columns)))
+    
+    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+    pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
+    nb.empty.lines <- sum(apply(
+      is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+    
+    
+    val <- c(ncol((Biobase::exprs(rv$current.obj))),
+             length(unique(Biobase::pData(rv$current.obj)$Condition)),
+             nrow((Biobase::exprs(rv$current.obj))),
+             NA.count,
+             pourcentage,
+             nb.empty.lines)
+    do$Value <- val
+  
+  do
+})
+
+BuildParamDataProcessingDT <- reactive({
+  req(rv$current.obj)
+  req(input$datasets)
+  tmp.params <- rv$current.obj@experimentData@other$Params
+  #ind <- which(input$datasets == names(tmp.params))
+  df <- data.frame(Dataset = names(tmp.params),
+                   Process = rep("",length(names(tmp.params))),
+                   Parameters = rep("",length(names(tmp.params))),
+                   stringsAsFactors = FALSE)
+  
+  for (iData in 1:length(names(tmp.params))) {
+    p <- tmp.params[[iData]]
+    processName <- ifelse(is.null(names(tmp.params[[iData]])), "-",names(tmp.params[[iData]]))
+    # if (processName=='Imputation'){
+    #   processName <- paste0(processName,rv$typeOfData)
+    # }
+    df[iData, "Process"] <- processName
+    if (length(tmp.params[[iData]][[processName]])==0){
+      df[iData,"Parameters"]<- '-'
+    } else {
+      
+      
+      df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
+                                       list(l.params=tmp.params[[iData]][[processName]]))
+    }
+  }
+  
+  
+  print(df)
+  df
+})
+
+
+
+BuildParamDataMiningDT <- reactive({
+  req(rv$current.obj)
+  
+    nbLines <- sum((as.character(input$selectComparison) != "None"), !is.null(rv$params.GO))
+  if (nbLines ==0) {
+    df <- NULL
+  } else {
+  df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
+                   Process = rep("",length(names(nbLines))),
+                   Parameters = rep("",length(names(nbLines))),
+                   stringsAsFactors = FALSE)
+ 
+  if (!is.null(as.character(input$selectComparison))){
+    df[1,"Dataset"]<- input$datasets
+    df[1,"Process"]<- "Differential analysis"
+    #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
+    df[1,"Parameters"]<- getTextForAnaDiff(rv$widgets$anaDiff)
+    } else {}
+  
+    }
+  print(df)
+  df
+})
+
 
 
 
 data <- eventReactive(rv$current$obj, {
-  input$settings_nDigits
+  rv$settings_nDigits
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=input$settings_nDigits)
+  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 }, ignoreNULL = FALSE)
 
@@ -109,7 +242,6 @@ getDatasetName <- reactive({
 ##' @author Samuel Wieczorek
 observeEvent( input$datasets,ignoreInit = TRUE,{ 
 
-  print("observeEvent( input$datasets,ignoreInit = TRUE,")
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
@@ -119,7 +251,7 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
         }
 
     })
-    print(rv$current.obj)
+    
 })
 
 
@@ -151,9 +283,14 @@ session$onSessionEnded(function() {
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), "*Rmd", sep="/"),recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
+    
+    #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
+    #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
+                  
     cat("Session stopped. Temporary files cleaned up\n")
   
     
@@ -170,7 +307,6 @@ ClearUI <- reactive({
                           choices = G_noneStr)
         updateRadioButtons(session,"typeOfData",selected = typePeptide )
         updateRadioButtons(session, "checkDataLogged", selected="no")
-        updateRadioButtons(session, "autoID", selected = "Auto ID")
         
         updateSelectInput(session, "idBox", selected = NULL)
         
@@ -178,7 +314,6 @@ ClearUI <- reactive({
         updateTextInput(session,"filenameToCreate",value= "")
         updateTextInput(session,"nameExport",value= "")
         
-        #UpdateLog("Memory has been cleared","None")
         updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
         updateRadioButtons(session,
                            inputId = "ChooseFilters", 
@@ -188,70 +323,97 @@ ClearUI <- reactive({
 
 
 
+#
 
-loadObjectInMemoryFromConverter_2 <- function(obj){
-  rv$typeOfDataset <- obj@experimentData@other$typeOfData
-  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
+
+ComputeAdjacencyMatrices <- reactive({
+  rv$matAdj <- NULL
+  matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
+  matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
+  rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   
-  #If there are already pVal values, then do no compute them 
-  if (G_logFC_Column %in% names(Biobase::fData(obj) )){
-    rv$resAnaDiff <- list(logFC = Biobase::fData(obj)$FC,
-                          P_Value = Biobase::fData(obj)$P_Value)
-    rv$seuilLogFC <- obj@experimentData@other$threshold_logFC
-    rv$seuilPVal  <- obj@experimentData@other$threshold_p_value
-    
+  rv$matAdj
+})
+
+
+
+
+###-------------------------------------
+
+Compute_PCA_nbDimensions <- reactive({
+  nmax <- 12 # ncp should not be greater than... 
+  # pour info, ncp = nombre de composantes ou de dimensions dans les résultats de l'ACP
+  
+  y <- exprs(rv$current.obj)
+  nprot <- dim(y)[1]
+  n <- dim(y)[2] # If too big, take the number of conditions.
+  
+  if (n > nmax){
+    n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
   }
   
   
-  name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
-  rv$dataset[[name]] <- obj
-  ClearNavbarPage()
-  BuildNavbarPage()
-  
-  
-  # txt <- paste("dataset <- list()","\n", "dataset[['", name,"']] <- current.obj","\n","typeOfDataset <- \"",  
-  #              rv$typeOfDataset, "\"", "\n",
-  #              "colnames(fData(current.obj)) <- gsub(\".\", \"_\", colnames(fData(current.obj)), fixed=TRUE)",
-  #              sep="")
-  # writeToCommandLogFile(txt)
-  # 
-  updateSelectInput(session, "datasets", 
-                    #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                    choices = names(rv$dataset),
-                    selected = name)
-  
-}
+  ncp <- min(n, nmax)
+  ncp
+})
 
-#
+
+
 
 ######################################
-loadObjectInMemoryFromConverter <- reactive({
-    req(rv$current.obj)
+loadObjectInMemoryFromConverter <- function(){
+  req(rv$current.obj)
   rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-    if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
+  rv$proteinId <-rv$current.obj@experimentData@other$proteinId
+  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
+  colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+  names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+  
+  
     #If there are already pVal values, then do no compute them 
     if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
         rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
-        rv$seuilLogFC <- rv$current.obj@experimentData@other$threshold_logFC
-        rv$seuilPVal  <- rv$current.obj@experimentData@other$threshold_p_value
+        rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
+        #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
         
     }
     
+  if (is.null(rv$current.obj@experimentData@other$RawPValues ))
+    rv$current.obj@experimentData@other$RawPValues <- FALSE
+  
+  
+  
+    rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    name <- paste ("Original", " - ", rv$typeOfDataset, sep="")
+    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
+    
+      rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+    
+    
+   
+    
+    name <- paste0("Original", ".", rv$typeOfDataset)
+    
+    if (is.null(rv$current.obj@experimentData@other$Params))
+      rv$current.obj <- saveParameters(rv$current.obj, name,"-")
+    else {
+      names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
+    }
+    
     rv$dataset[[name]] <- rv$current.obj
     
-    ClearNavbarPage()
-    BuildNavbarPage()
+    
     
     updateSelectInput(session, "datasets", 
                       #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
-
-})
+    ClearNavbarPage()
+    BuildNavbarPage()
+    
+}
 
 #
 
@@ -275,8 +437,18 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
+GetCurrentObjName <- reactive({
+  rv$datasets[[input$datasets]]})
 
-
+createPNGFromWidget <- function(tempplot, pattern){
+  tmp_filename <- paste0(pattern, '.html')
+  png_filename <- paste0(pattern, '.png')
+  htmlwidgets::saveWidget(widget = tempplot, file = paste(tempdir(), tmp_filename, sep="/"))
+  webshot::webshot(url = paste(tempdir(), tmp_filename, sep="/"),
+                   file = paste(tempdir(), png_filename, sep="/"),
+                   delay = 1,
+                   zoom = zoomWebshot)
+}
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
@@ -284,8 +456,26 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
-  rv$current.comp = NULL
   
+  ########
+  ### Settings
+  ########
+  rv$current.comp = NULL
+  rv$colorsVolcanoplot = list(In="orange", Out='lightgrey')
+  rv$colorsTypeMV = list(MEC='orange', POV='lightblue')
+  rv$typeOfPalette = 'predefined'
+  rv$whichGroup2Color = 'Condition'
+  rv$PCA_axes = c(1,2)
+  rv$PCA_varScale = TRUE
+  rv$choosePalette = 'Dark2'
+  
+  rv$res.pca = NULL
+  ########
+  ### Parameters
+  ######## 
+  # rv$params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
+  #                               value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
+  #                               stringsAsFactors = FALSE )
     rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
@@ -293,11 +483,7 @@ ClearMemory <- function(){
     rv$deleted.stringBased = NULL
     rv$deleted.stringBased.fData = NULL
     rv$deleted.stringBased = NULL
-    rv$DT_filterSummary = data.frame(Filtre=NULL, 
-                                     Prefix=NULL,
-                                     nbDeleted=NULL, 
-                                     Total=NULL, 
-                                     stringsAsFactors=F)
+
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -306,18 +492,71 @@ ClearMemory <- function(){
                              Dataset="", 
                              History="", 
                              stringsAsFactors=F)
+    rv$tableVersions = NULL
     rv$listLogFC = list()
-    rv$seuilLogFC = 0
-    rv$seuilPVal = 1e-60
+    rv$widgets = list(
+                      filtering = list(ChooseFilters = "None",
+                                       seuilNA = 0,
+                                       DT_filterSummary = data.frame(Filtre=NULL, 
+                                                                     Prefix=NULL,
+                                                                     nbDeleted=NULL, 
+                                                                     Total=NULL, 
+                                                                     stringsAsFactors=F)),
+                      normalization=list(method = "None",
+                                         type = "None",
+                                         varReduction = FALSE,
+                                         quantile = 0.15,
+                                         spanLOESS = 0.7),
+                      aggregation = list(includeSharedPeptides = "Yes2",
+                                         operator = "Mean",
+                                         considerPeptides = 'allPeptides',
+                                         proteinId = "None",
+                                         topN = 3),
+                      hypothesisTest = list(design = "None",
+                                            method = "None",
+                                            ttest_options = "Student",
+                                            th_logFC = 0,
+                                            listNomsComparaison = NULL),
+                      peptideImput = list( pepLevel_algorithm = "None",
+                                           pepLevel_basicAlgorithm = "None",
+                                           pepLevel_detQuantile = 2.5,
+                                           pepLevel_detQuant_factor = 1,
+                                           pepLevel_imp4p_nbiter = 10,
+                                           pepLevel_imp4p_withLapala = FALSE,
+                                           pepLevel_imp4p_qmin = 2.5,
+                                           pepLevel_imp4pLAPALA_distrib = "beta",
+                                           pepLevel_KNN_n = 10),
+                      
+                      proteinImput = list(POV_algorithm = "None",
+                                          POV_detQuant_quantile = 2.5,
+                                          POV_detQuant_factor = 1,
+                                          POV_KNN_n = 10,
+                                          MEC_algorithm = "None",
+                                          MEC_detQuant_quantile = 2.5,
+                                          MEC_detQuant_factor = 1,
+                                          MEC_fixedValue= 0),
+                      anaDiff = list(Comparison = "None",
+                                     Condition1 = "",
+                                     Condition2 = "",
+                                     swapVolcano = FALSE,
+                                    filterType = "None",
+                                    filter_th_NA = 0,
+                                    calibMethod = 'None',
+                                    numValCalibMethod = 0,
+                                    th_pval = 0,
+                                    FDR = 0,
+                                    NbSelected = 0)
+                      )
     rv$tab1 = NULL
     rv$dirname = ""
     rv$dirnameforlink = ""
     rv$conditions = list(cond1 = NULL, cond2 = NULL)
     rv$temp.aggregate = NULL
-   rv$calibrationRes = NULL
+    rv$calibrationRes = NULL
     rv$errMsgcalibrationPlot = NULL
     rv$errMsgcalibrationPlotALL = NULL
     rv$typeOfDataset = ""
+    rv$proteinId = NULL
     rv$commandLog =  "" 
     rv$normalizationFamily = NULL
     rv$normalizationMethod = NULL 
@@ -347,14 +586,14 @@ ClearMemory <- function(){
 
     rv$impute_Step = 0
     
-    
-    
+    rv$settings_nDigits = 10
     rv$hot = NULL
     rv$newOrder = NULL
     rv$designChecked = NULL
     rv$designSaved = FALSE
     rv$conditionsChecked = NULL
-    
+    rv$nbPOVimputed = 0
+    rv$nbMVimputed = 0
     
     rv$updateDesign_designSaved=FALSE
     rv$updateDesign_designChecked=NULL
@@ -362,6 +601,7 @@ ClearMemory <- function(){
     rv$updateDesign_newOrder=NULL
     rv$updateDesign_conditionsChecked=NULL
     
+    rv$outfile = NULL
     rv$designIsValid = FALSE
     rv$MECIndex = NULL
     rv$tempDatasetImputation = NULL
@@ -371,10 +611,13 @@ ClearMemory <- function(){
                               stringsAsFactors=F)
     rv$GOWarningMessage = NULL
     rv$stringBasedFiltering_Done = FALSE
+    rv$mvFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
                             step2 = NULL)
+    
+    
     rv$tempplot = list(Density = NULL,
                        corrMatrix = NULL,
                        varDist = NULL,
@@ -384,8 +627,10 @@ ClearMemory <- function(){
     rv$PlotParams = list(legDS = NULL,
                          corrMatrixGradient = defaultGradientRate,
                          legDS_Violinplot = NULL,
-                        HeatmapLinkage = NULL,
-                      HeatmapDistance = NULL
+                         heatmap.linkage = 'complete',
+                          heatmap.distance = "euclidean",
+                        paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                      legendForSamples = NULL
                       )
     rv$indProgressDemomode = 0
     rv$AggregProtStats = data.frame(name = c("Number of peptides",
@@ -396,7 +641,7 @@ ClearMemory <- function(){
                                               "Number of proteins only defined by shared peptides",
                                               "Number of proteins defined both by shared and specific peptides"),
                                      nb = rep(0,7))
-    
+    rv$distance = "euclidean"
     
     
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
@@ -423,11 +668,19 @@ rv <- reactiveValues(
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
-    DT_filterSummary = data.frame(Filtre=NULL, 
-                                  Prefix=NULL,
-                                  nbDeleted=NULL, 
-                                  Total=NULL, 
-                                  stringsAsFactors=F),
+
+  typeOfPalette = 'predefined',
+  whichGroup2Color = 'Condition',
+  PCA_axes = c(1,2),
+  PCA_varScale = TRUE,
+  choosePalette = 'Dark2',
+  res.pca = NULL,
+  
+  init.distance = "euclidean",
+   outfile = NULL,
+  tableVersions = NULL,
+  colorsVolcanoplot = list(In="orange", Out='lightgrey'),
+  colorsTypeMV = list(MEC='orange', POV='lightblue'),
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),
@@ -437,22 +690,73 @@ rv <- reactiveValues(
                           History="", 
                           stringsAsFactors=F),
     listLogFC = list(),
-    seuilLogFC = 0,
-    seuilPVal = 1e-60,
+    
     tab1 = NULL,
     dirname = "",
     dirnameforlink = "",
     conditions = list(cond1 = NULL, cond2 = NULL),
     temp.aggregate = NULL,
-    
-    
-    
+    #params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
+    #                            value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
+    #                            stringsAsFactors = FALSE ),
+ 
     # design = list(designChecked=NULL,
     #                  hot=NULL,
     #                  newOrder=NULL,
     #                  conditionsChecked=NULL,
     #                  designSaved=FALSE),
-    
+  widgets = list(
+                 filtering = list(ChooseFilters = "None",
+                                  seuilNA = 0,
+                                  DT_filterSummary = data.frame(Filtre=NULL, 
+                                                                Prefix=NULL,
+                                                                nbDeleted=NULL, 
+                                                                Total=NULL, 
+                                                                stringsAsFactors=F)),
+                  normalization=list(method = "None",
+                                      type = "None",
+                                      varReduction = FALSE,
+                                      quantile = 0.15,
+                                      spanLOESS = 0.7),
+                aggregation = list(includeSharedPeptides = "Yes2",
+                                    operator = "Mean",
+                                    considerPeptides = 'allPeptides',
+                                    proteinId = "None",
+                                    topN = 3),
+       hypothesisTest = list(design = "None",
+                            method = "None",
+                            ttest_options = "Student",
+                            th_logFC = 0,
+                            listNomsComparaison = NULL),
+       peptideImput = list( pepLevel_algorithm = "None",
+                            pepLevel_basicAlgorithm = "detQuantile",
+                            pepLevel_detQuantile = 2.5,
+                            pepLevel_detQuant_factor = 1,
+                            pepLevel_imp4p_nbiter = 10,
+                            pepLevel_imp4p_withLapala = FALSE,
+                            pepLevel_imp4p_qmin = 2.5,
+                            pepLevel_imp4pLAPALA_distrib = "beta",
+                            pepLevel_KNN_n = 10),
+       proteinImput = list(POV_algorithm = "None",
+                           POV_detQuant_quantile = 2.5,
+                           POV_detQuant_factor = 1,
+                           POV_KNN_n = 10,
+                           MEC_algorithm = "None",
+                           MEC_detQuant_quantile = 2.5,
+                           MEC_detQuant_factor = 1,
+                           MEC_fixedValue= 0),
+       anaDiff = list(Comparison = "None",
+                      Condition1 = "",
+                      Condition2 = "",
+                      swapVolcano = FALSE,
+                      filterType = "None",
+                      filter_th_NA = 0,
+                      calibMethod = 'None',
+                      numValCalibMethod = 0,
+                      th_pval = 0,
+                      FDR = 0,
+                      NbSelected = 0)
+  ),
     hot = NULL,
     newOrder = NULL,
     designChecked = NULL,
@@ -473,11 +777,12 @@ rv <- reactiveValues(
     updateDesign_conditionsChecked=NULL,
     updateDesign_designSaved=FALSE,
     
-    
+    settings_nDigits = 10,
     calibrationRes = NULL,
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
+  proteinId = NULL,
     ValidFilteringClicked = FALSE,
     ValidImputationClicked = FALSE,
     commandLog = "", 
@@ -515,7 +820,10 @@ rv <- reactiveValues(
     tempDatasetImputation = NULL,
     MECIndex = NULL,
     stringBasedFiltering_Done = FALSE,
-    imputePlotsSteps = list(step0 = NULL,
+    mvFiltering_Done = FALSE,
+    nbPOVimputed = 0,
+    nbMVimputed = 0,
+  imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
                             step2 = NULL),
     tempplot = list(Density = NULL,
@@ -526,9 +834,10 @@ rv <- reactiveValues(
     PlotParams = list(legDS = NULL,
                       corrMatrixGradient = defaultGradientRate,
                       legDS_Violinplot = NULL,
-                      HeatmapLinkage = NULL,
-                      HeatmapDistance = NULL
-                      
+                      heatmap.linkage = 'complete',
+                      heatmap.distance = "euclidean",
+                      paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                      legendForSamples = NULL
                       ),
     indProgressDemomode = 0,
     AggregProtStats = data.frame(name = c("Number of peptides",
@@ -571,6 +880,7 @@ catchToList <- function(expr) {
 
 
 
+
 ###-------------------------------------------------------------------
 # output$currentObjLoaded <- reactive({
 #     #rv$current.obj
@@ -605,17 +915,6 @@ retroCompatibility <- reactive({
 
 
 
-########################################################
-# Update the global variable log
-UpdateLog <- function(name, l.params){
-  
-  hist <- buildLogText(name, l.params, level=rv$typeOfDataset)
-  rv$text.log <- rbind(rv$text.log,
-                       c(Date=date(), Dataset=name, History=ifelse(is.null(hist), "",hist)))
-  
-}
-
-
 
 NeedsUpdate <- reactive({
   req(rv$current.obj)
@@ -637,3 +936,103 @@ observeEvent(input$LinkToUsefulLinksTab, {
 })
 
 
+
+Get_ParamValue <- function(pp, key){
+  switch(pp,
+         params.anaDiff= df <- rv$widgets$anaDiff
+  ) 
+  
+  return(df[which(df$param==key),]$value)
+}
+
+
+
+getPackagesVersions <- function(type="all"){
+  outOfDate <- "(Out of date)"
+  dev <- "(Devel)"
+  
+  biocRelease <- NULL
+  tryCatch({
+    biocRelease <-available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
+    require(XML)
+    html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
+    DAPARdata.version <- as.character(html[[3]][2][1,])
+    
+  }, warning = function(w) {
+    return()
+  }, error = function(e) {
+    return()
+  }, finally = {
+    #cleanup-code 
+  })
+  
+  pkgs <- c("Prostar", "DAPAR", "DAPARdata")
+  loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+  instPkgs <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+                   DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+                   DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+  
+  
+  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
+             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+             as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
+  
+  
+  df <- data.frame("Name" = names,
+                   "Installed.packages"= rep(NA, 3), 
+                   "Bioc.release" =  rep(NA, 3),
+                   "NeedsUpdate"= rep(FALSE,3),
+                   stringsAsFactors = FALSE)
+  
+  
+  df[, "Installed.packages"] <- unlist(instPkgs)
+  
+  if (!is.null(biocRelease)) {
+    biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
+                     DAPAR = as.character(biocRelease["DAPAR","Version"]),
+                     DAPARdata = as.character(DAPARdata.version))
+    
+    if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 0){df[1,"Name"] <-  names[1]}
+    else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 1){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
+    else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar)==-1){
+      df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
+      inst <- unlist(strsplit(instPkgs$Prostar, split=".", fixed=TRUE))
+      bioc <- unlist(strsplit(biocPkgs$Prostar, split=".", fixed=TRUE))
+      df[1,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+    }
+    
+    if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
+    else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR) == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+    else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR)==-1){
+      df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
+      inst <- unlist(strsplit(instPkgs$DAPAR, split=".", fixed=TRUE))
+      bioc <- unlist(strsplit(biocPkgs$DAPAR, split=".", fixed=TRUE))
+      df[2,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+    }
+    
+    if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
+    else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata) == 1){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
+    else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata)==-1){
+      df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
+      inst <- unlist(strsplit(instPkgs$DAPARdata, split=".", fixed=TRUE))
+      bioc <- unlist(strsplit(biocPkgs$DAPARdata, split=".", fixed=TRUE))
+      df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+    }
+    df[, "Bioc.release"] <- unlist(biocPkgs)
+  }
+  
+  
+  colnames(df) <- c("Names", "Installed packages", "Bioc release","NeedsUpdate")
+  
+  switch(type,
+         all=df <- df,
+         installed = {
+           df <- df[,1:2]
+           df[,1] <- c('Prostar', 'DAPAR', 'DAPARdata')
+           }
+         )
+  print(df)
+  
+  return(df)
+  
+}
