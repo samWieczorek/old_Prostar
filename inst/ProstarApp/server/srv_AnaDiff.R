@@ -5,6 +5,88 @@ callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertA
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
 
+
+##--------------------------------------------------------
+##---------------------------------------------------------
+
+output$checkDiffAnaPanel <- renderUI({
+  rv$pageDiffAna
+  color <- rep("lightgrey",NUM_PAGES_DIFFANA)
+  
+  ##Step 1
+  if (rv$pageDiffAna >= 1){
+    res <- TRUE
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageDiffAna >= 2){
+    res <- TRUE
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  }
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageDiffAna >= 3){
+    res <- TRUE
+    
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+    
+  }
+  
+  if (rv$pageDiffAna >= 4){
+    res <- TRUE
+    ifelse(res, color[4] <- "green", color[4] <- "red")
+  }
+  
+  
+  txt <- c("Pairwise comparisons", "p-values calibration", "FDR computation", "Valid")
+  buildTable(txt, color)
+})
+
+NUM_PAGES_DIFFANA <- 4
+
+observe({
+  toggleState(id = "prevBtnDiffAna", condition = rv$pageDiffAna > 1)
+  toggleState(id = "nextBtnDiffAna", condition = rv$pageDiffAna < NUM_PAGES_DIFFANA)
+  hide(selector = ".page")
+})
+
+navPageDiffAna <- function(direction) {
+  rv$pageDiffAna <- rv$pageDiffAna + direction
+}
+
+observeEvent(input$prevBtnDiffAna, navPageDiffAna(-1))
+observeEvent(input$nextBtnDiffAna, navPageDiffAna(1))
+
+##--------------------------------------------------------
+##---------------------------------------------------------
+
+
+
+output$diffAna_pairwiseComp <- renderUI({
+  if (rv$pageDiffAna != 1){return()}
+  
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(
+                id = "sidebar_DiffAna2",
+                height = "100%"
+                ,uiOutput("newComparisonUI")
+                ,uiOutput("diffAnalysis_PairwiseComp_SB")
+                ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
+                uiOutput("tooltipInfo")
+              ),
+              tagList(
+                moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
+              )
+  )
+})
+
+
+
+
 observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(Get_seuilPVal())})
 convertAnaDiff2DF <- reactive({
   
@@ -61,19 +143,12 @@ output$anaDiffPanel <- renderUI({
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
       isolate({
-        tabsetPanel(
-    id = "xxx",
-    tabPanel("1 - Pairwise comparison",value = "DiffAnalysis_PairewiseComparison",
-             uiOutput("diffAna_pairwiseComp")),
-    tabPanel("2 - p-value calibration", value = "DiffAnalysis_Calibrate",
-             uiOutput("diffAna_pvalCalib")),
-    tabPanel("3 - FDR",value = "DiffAnalysis_viewFDR",
-             uiOutput("diffAna_fdrCompute")),
-    tabPanel("4 - Summary",value = "DiffAnalysis_ValidateAndSave",
-             uiOutput("diffAna_Summary"))
-  ) # end tabsetPanel
-    
-  
+        tagList(
+          uiOutput("diffAna_pairwiseComp"),
+          uiOutput("diffAna_pvalCalib"),
+          uiOutput("diffAna_fdrCompute"),
+          uiOutput("diffAna_Summary")
+          )
   })
     }
 })
@@ -81,6 +156,8 @@ output$anaDiffPanel <- renderUI({
 observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
 
 output$diffAna_pairwiseComp <- renderUI({
+  if (rv$pageDiffAna != 1){return()}
+  
   #req(rv$current.obj)
   isolate({
     tagList(
@@ -106,6 +183,7 @@ output$diffAna_pairwiseComp <- renderUI({
 
 
 output$diffAna_pvalCalib <- renderUI({
+  if (rv$pageDiffAna != 2){return()}
   req(as.character(input$selectComparison))
   
    tagList(
@@ -131,6 +209,7 @@ output$diffAna_pvalCalib <- renderUI({
 
   
 output$diffAna_fdrCompute <- renderUI({
+  if (rv$pageDiffAna != 3){return()}
   if(as.character(input$selectComparison) == "None"){return(NULL)}
      
   isolate({
@@ -212,7 +291,7 @@ observeEvent(input$showpvalTable, {
     
     
 output$diffAna_Summary <- renderUI({     
-
+  if (rv$pageDiffAna != 4){return()}
   if (as.character(input$selectComparison) == "None"){return(NULL)}
  tagList(
    moduleStaticDataTableUI("params_AnaDiff")

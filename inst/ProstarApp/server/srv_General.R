@@ -456,6 +456,13 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
+  ##variables for navigation
+  rv$pageConvert = 1
+  rv$pageFiltering = 1
+  rv$pageProtImput = 1
+  rv$pageAggreg = 1
+  rv$pageDiffAna = 1
+  
   
   ########
   ### Settings
@@ -660,6 +667,13 @@ rv <- reactiveValues(
   UI_TabsList = NULL,
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,
+  
+  pageConvert = 1,
+  pageFiltering = 1,
+  pageProtImput = 1,
+  pageAggreg = 1,
+  pageDiffAna = 1,
+  
   # variable to handle the current object that will be showed
     current.comp = NULL,
     current.obj = NULL,
@@ -1036,3 +1050,24 @@ getPackagesVersions <- function(type="all"){
   return(df)
   
 }
+
+
+
+
+buildTable <- function(text, color){
+  
+  rows.color <- rows.text <- list()
+  rows.text <- list()
+  for( i in 1:length( color ) ) {
+    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
+    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
+  }
+  
+  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 2px;",
+                            tags$tr( rows.color ),
+                            tags$tr( rows.text )
+  )
+  return(html.table)
+  
+}
+
