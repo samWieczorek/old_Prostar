@@ -375,16 +375,18 @@ corrMatrix <- reactive({
 })
 
 
+observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
+observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
 
 heatmap <- reactive({
     
     req(rv$current.obj)
-  rv$PlotParams$heatmap.linkage
-  rv$PlotParams$heatmap.distance
+  input$linkage
+  input$distance
   
   isolate({  wrapper.heatmapD(rv$current.obj,
-                                 rv$PlotParams$heatmap.distance, 
-                                 rv$PlotParams$heatmap.linkage,
+                              input$distance, 
+                              input$linkage,
                                  TRUE)
               })
 
