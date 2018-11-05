@@ -19,6 +19,205 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
 
 callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
 
+
+
+
+##--------------------------------------------------------------
+## Gestion du slideshow
+##--------------------------------------------------------------
+
+
+output$checkConvertPanel <- renderUI({
+  rv$tab1
+  rv$pageConvert
+  color <- rep("lightgrey",NUM_PAGES_CONVERT)
+  
+  ##Step 1
+  if (rv$pageConvert >= 1){
+    res <- !is.null(rv$tab1)
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageConvert >= 2){
+    res <- !is.null(input$autoID) && 
+      (
+        (input$autoID=="Auto ID") ||
+          ( (input$autoID=="custom ID") &&(!is.null(input$idBox) && (input$idBox != "") && datasetID_Ok()) )
+      )
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  } 
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageConvert >= 3){
+    res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
+    
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+    
+  }
+  
+  if (rv$pageConvert >= 4){
+    res <- isTRUE(rv$designChecked$valid)
+    ifelse(res, color[4] <- "green", color[4] <- "red")
+  }
+  
+  if (rv$pageConvert >= 5){
+    res <- TRUE
+    ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
+  }
+  
+  txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
+  buildTable(txt, color)
+})
+
+NUM_PAGES_CONVERT <- 5
+
+observe({
+  toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
+  hide(selector = ".page")
+})
+
+navPageConvert <- function(direction) {
+  rv$pageConvert <- rv$pageConvert + direction
+}
+
+observeEvent(input$prevBtnConvert, navPageConvert(-1))
+observeEvent(input$nextBtnConvert, navPageConvert(1))
+
+##---------------------------------------------------------------
+##------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+#################################
+output$Convert_SelectFile <- renderUI({
+  if (rv$pageConvert != 1){return()}
+  tagList(br(), br(),
+          fluidRow(
+            column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
+            column(width = 10, fileInput("file1", "", 
+                                         multiple=FALSE, 
+                                         accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
+          uiOutput("ManageXlsFiles"),
+          # helpText("Hint : before importing quantification 
+          #             file data, check the syntax of your text 
+          #             file."),
+          br(),
+          uiOutput("ConvertOptions")
+  )
+})
+
+
+output$Convert_DataId <- renderUI({
+  if (rv$pageConvert != 2){return()}
+  
+  tagList(
+    
+br(), br(),
+#uiOutput("helpTextDataID"),
+
+tags$div(
+  tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
+            uiOutput("id"),
+            uiOutput("warningNonUniqueID")
+  ),
+  tags$div( style="display:inline-block; vertical-align: top;",
+            uiOutput("convertChooseProteinID_UI")
+  )
+)
+)
+})
+
+
+
+
+output$Convert_ExpFeatData <- renderUI({
+  if (rv$pageConvert != 3){return()}
+  
+  tagList(
+    fluidRow(
+      column(width=4,checkboxInput("selectIdent", 
+                                   "Select columns for identification method", 
+                                   value = FALSE)),
+      column(width=4,uiOutput("checkIdentificationTab"))
+    ),
+    fluidRow(
+      column(width=4,uiOutput("eData",width = "400px")),
+      column(width=8,dataTableOutput("x1", width='500px'))),
+    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+                                   })"))
+                           )
+  })
+
+
+
+
+
+output$Convert_BuildDesign <- renderUI({
+  if (rv$pageConvert != 4){return()}
+  
+  tagList(... = tagList(
+    tags$p("If you do not know how to fill the experimental design, you can click
+                                  on the '?' next to each design in the list that appear once the conditions 
+                                  are checked or got to the ", 
+           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+           " page."),
+    fluidRow(
+      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
+      column(width=6,uiOutput("UI_checkConditions")  )
+    ),
+    fluidRow(
+      column(width=6,uiOutput("UI_hierarchicalExp")),
+      column(width=6,uiOutput("checkDesign") )
+    )
+  ),
+  hr(),
+  
+  tags$div(
+    
+    tags$div(style="display:inline-block; vertical-align: top;",
+             uiOutput("viewDesign",width="100%")
+    ),
+    tags$div(style="display:inline-block; vertical-align: top;",
+             shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
+    )
+    
+    
+  ))
+  
+})
+
+
+
+
+
+
+output$Convert_Convert <- renderUI({
+  if (rv$pageConvert != 5){return()}
+  tagList(
+    br(), br(),
+  
+  uiOutput("convertFinalStep"),
+  moduleStaticDataTableUI("overview_convertData"),
+  uiOutput("conversionDone")
+  
+  )
+})
+
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
     req(rv$tab1)

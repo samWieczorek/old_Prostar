@@ -31,18 +31,31 @@ tabPanel("Descriptive statistics",
                      
                      tabPanel("Corr. matrix",
                               value="DS_tabCorrMatrix",
-                              sidebarCustom(),
+                              # sidebarCustom(),
+                              # 
+                              # splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+                              #             wellPanel(id = "sidebar_Corrmatrix",
+                              #                       sliderInput("expGradientRate",
+                              #                                   "Tune to modify the color gradient",
+                              #                                   min = 0,max = 1,value = defaultGradientRate,step=0.01)
+                              #             ),
+                              #             tagList(
+                              #             highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+                              #             )
+                              # )
+                              # 
+                              # 
                               
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_Corrmatrix",
-                                                    sliderInput("expGradientRate",
-                                                                "Tune to modify the color gradient",
-                                                                min = 0,max = 1,value = defaultGradientRate,step=0.01)
-                                          ),
-                                          tagList(
-                                          highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
-                                          )
-                              )
+                              tagList(
+                              shinyWidgets::dropdownButton(
+                                sliderInput("expGradientRate",
+                                            "Tune to modify the color gradient",
+                                            min = 0,max = 1,value = defaultGradientRate,step=0.01),
+                                tooltip="Plots parameters",
+                                style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                              ),
+                              highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+                              ) 
                      ),
                      
                      tabPanel("Heatmap",
@@ -78,44 +91,47 @@ tabPanel("Descriptive statistics",
                      #-----------------------------------------------------------
                      tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
-                              # shinyWidgets::dropdownButton(
-                              #   tags$div(
-                              #     tags$div(style="display:inline-block; vertical-align: top;",
-                              #              selectInput("whichGroup2Color",
-                              #                          "Color lines",
-                              #                          choices=list("By condition" = "Condition",
-                              #                                       "By replicate" = "Replicate"), 
-                              #                          selected=GetWhichGroup2Color(), width='150px')
-                              #     ),
-                              #     tags$div(style="display:inline-block; vertical-align: top;",
-                              #              uiOutput("ChooseLegendForSamples")
-                              #     )
-                              #   ),
-                              #   tooltip="Plots parameters",
-                              #   style = "material-circle", icon = icon("gear"), status = "primary"
-                              # ),
-                              
-                              tagList(
-                                tags$div(
 
-                                tags$div(style="display:inline-block; vertical-align: top;",
-                                         selectInput("whichGroup2Color",
-                                                     "Color lines",
-                                                     choices=list("By condition" = "Condition",
-                                                                  "By replicate" = "Replicate"),
-                                                     selected=GetWhichGroup2Color(), width='150px')
+                              shinyWidgets::dropdownButton(
+                                tags$div(
+                                  tags$div(style="display:inline-block; vertical-align: top;",
+                                           selectInput("whichGroup2Color",
+                                                       "Color lines",
+                                                       choices=list("By condition" = "Condition",
+                                                                    "By replicate" = "Replicate"),
+                                                       selected=GetWhichGroup2Color(), width='150px')
+                                  ),
+                                  tags$div(style="display:inline-block; vertical-align: top;",
+                                           uiOutput("ChooseLegendForSamples")
+                                  )
                                 ),
-                                tags$div(style="display:inline-block; vertical-align: top;",
-                                         uiOutput("ChooseLegendForSamples")
-                                )
-                              )
+                                tooltip="Plots parameters",
+                                style = "material-circle", icon = icon("gear"), status = optionsBtnClass
                               ),
+                              
+                     #          tagList(
+                     #            tags$div(
+                     # 
+                     #            tags$div(style="display:inline-block; vertical-align: top;",
+                     #                     selectInput("whichGroup2Color",
+                     #                                 "Color lines",
+                     #                                 choices=list("By condition" = "Condition",
+                     #                                              "By replicate" = "Replicate"),
+                     #                                 selected=GetWhichGroup2Color(), width='150px')
+                     #            ),
+                     #            tags$div(style="display:inline-block; vertical-align: top;",
+                     #                     uiOutput("ChooseLegendForSamples")
+                     #            )
+                     #          )
+                     #          ),
+
                               fluidRow(
                                   column(width=6,moduleDensityplotUI("densityPlot_DS")),
                                    column(width=6, moduleBoxplotUI("boxPlot_DS"))
                                   )
 
-                     ),
+                      ),
+
                      
                      #-----------------------------------------------------------
                      tabPanel("CV distr.", 

@@ -19,71 +19,201 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
 
 
 
+
 ##########
 #####  UI for the PROTEIN LEVEL Imputation process
 ##########
-output$proteinLevelImputationPanel <- renderUI({
-  isolate({
-  tabsetPanel(
-    id = "Imputation_tabSetPanel",
+# output$proteinLevelImputationPanel <- renderUI({
+#   isolate({
+#   tabsetPanel(
+#     id = "Imputation_tabSetPanel",
+#     
+#     tabPanel("1 - Partially Observed Values",
+#              value = "Classical_MV",
+#             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#                          wellPanel(id = "sidebar_Imputation1",
+#                                    height = "100%",
+#                                    br(),
+#                                    uiOutput("sidebar_imputation_step1"),
+#                                    actionButton("perform.imputationClassical.button",
+#                                                 "Perform imputation", class = actionBtnClass)
+#                                    
+#                          ),
+#                          tagList(
+#                            uiOutput("ImputationStep1Done"),
+#                            htmlOutput("helpForImputation"),
+#                            uiOutput("POV_showDetQuantValues"),
+#                            moduleMVPlotsUI("mvImputationPlots_MV")
+#                          )
+#                          
+#              )
+#     ),
+#     tabPanel("2 - Missing on the Entire Condition",
+#              value = "MEC_MV",
+#              #sidebarCustom(),
+#              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#                          wellPanel(id = "sidebar_Imputation2",
+#                                    height = "100%",
+#                                    uiOutput("MEC_chooseImputationMethod"),
+#                                    uiOutput("MEC_Params"),
+#                                    actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
+#                          ),
+#                          tagList(
+#                            htmlOutput("warningMECImputation"),
+#                            busyIndicator(WaitMsgCalc,wait = 0),
+#                            uiOutput("ImputationStep2Done"),
+#                            uiOutput("MEC_showDetQuantValues")
+#                            ,moduleMVPlotsUI("mvImputationPlots_MEC")
+#                            
+#                          )
+#              )
+#     ),
+#     tabPanel("3 - Validate & save",
+#              value = "Imputation_ValidateAndSave",
+#              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#                          wellPanel(id = "sidebar_Imputation3",
+#                                    height = "100%",
+#                                    busyIndicator(WaitMsgCalc,wait = 0),
+#                                    actionButton("ValidImputation","Save imputation", class = actionBtnClass)
+#                          ),
+#                          tagList(
+#                             uiOutput("ImputationSaved")
+#                          )
+#              )
+#     ) # end tabPanel(title = "4 - Validate and Save",
+#   )
+#   })
+
+
+
+
+
+##--------------------------------------------------------------
+## Gestion du slideshow
+##--------------------------------------------------------------
+
+
+
+
+output$checkProtImputPanel <- renderUI({
+  rv$pageProtImput
+  color <- rep("lightgrey",NUM_PAGES_PROT_IMPUT)
+  
+  ##Step 1
+  if (rv$pageProtImput >= 1){
+    res <- rv$impute_Step >= 1
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageProtImput >= 2){
+    res <- rv$impute_Step >= 2
+    ifelse(res, color[2] <- "green", color[2] <- "red")
     
-    tabPanel("1 - Partially Observed Values",
-             value = "Classical_MV",
-            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation1",
-                                   height = "100%",
-                                   br(),
-                                   uiOutput("sidebar_imputation_step1"),
-                                   actionButton("perform.imputationClassical.button",
-                                                "Perform imputation", class = actionBtnClass)
-                                   
-                         ),
-                         tagList(
-                           uiOutput("ImputationStep1Done"),
-                           htmlOutput("helpForImputation"),
-                           uiOutput("POV_showDetQuantValues"),
-                           moduleMVPlotsUI("mvImputationPlots_MV")
-                         )
-                         
-             )
-    ),
-    tabPanel("2 - Missing on the Entire Condition",
-             value = "MEC_MV",
-             #sidebarCustom(),
-             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation2",
-                                   height = "100%",
-                                   uiOutput("MEC_chooseImputationMethod"),
-                                   uiOutput("MEC_Params"),
-                                   actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
-                         ),
-                         tagList(
-                           htmlOutput("warningMECImputation"),
-                           busyIndicator(WaitMsgCalc,wait = 0),
-                           uiOutput("ImputationStep2Done"),
-                           uiOutput("MEC_showDetQuantValues")
-                           ,moduleMVPlotsUI("mvImputationPlots_MEC")
-                           
-                         )
-             )
-    ),
-    tabPanel("3 - Validate & save",
-             value = "Imputation_ValidateAndSave",
-             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                         wellPanel(id = "sidebar_Imputation3",
-                                   height = "100%",
-                                   busyIndicator(WaitMsgCalc,wait = 0),
-                                   actionButton("ValidImputation","Save imputation", class = actionBtnClass)
-                         ),
-                         tagList(
-                            uiOutput("ImputationSaved")
-                         )
-             )
-    ) # end tabPanel(title = "4 - Validate and Save",
+  } 
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageProtImput >= 3){
+    res <- length(grep("Imputed",input$datasets)) ==1
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+    
+  }
+  
+  txt <- c("POV imputation", "MEC imputation", "Save imputation")
+  buildTable(txt, color)
+})
+
+NUM_PAGES_PROT_IMPUT <- 3
+
+observe({
+  toggleState(id = "prevBtnProtImput", condition = rv$pageProtImput > 1)
+  toggleState(id = "nextBtnProtImput", condition = rv$pageProtImput < NUM_PAGES_PROT_IMPUT)
+  hide(selector = ".page")
+  show(paste0("step", rv$pageProtImput))
+})
+
+navPageProtImput <- function(direction) {
+  rv$pageProtImput <- rv$pageProtImput + direction
+}
+
+observeEvent(input$prevBtnProtImput, navPageProtImput(-1))
+observeEvent(input$nextBtnProtImput, navPageProtImput(1))
+
+##---------------------------------------------------------------
+##------------------------------------------------------------------
+
+
+
+
+
+
+
+output$POV_imputation <- renderUI({
+  if (rv$pageProtImput != 1){return()}
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Imputation1",
+                        height = "100%",
+                        br(),
+                        uiOutput("sidebar_imputation_step1"),
+                        actionButton("perform.imputationClassical.button",
+                                     "Perform imputation", class = actionBtnClass)
+                        
+              ),
+              tagList(
+                uiOutput("ImputationStep1Done"),
+                htmlOutput("helpForImputation"),
+                uiOutput("POV_showDetQuantValues"),
+                moduleMVPlotsUI("mvImputationPlots_MV")
+              )
+              
   )
-  })
+})
+
+
+
+output$MEC_imputation <- renderUI({
+  if (rv$pageProtImput != 2){return()}
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Imputation2",
+                        height = "100%",
+                        uiOutput("MEC_chooseImputationMethod"),
+                        uiOutput("MEC_Params"),
+                        actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
+              ),
+              tagList(
+                htmlOutput("warningMECImputation"),
+                busyIndicator(WaitMsgCalc,wait = 0),
+                uiOutput("ImputationStep2Done"),
+                uiOutput("MEC_showDetQuantValues")
+                ,moduleMVPlotsUI("mvImputationPlots_MEC")
+                
+              )
+  )
   
 })
+
+
+
+output$Validate_ProtImput <- renderUI({
+  if (rv$pageProtImput != 3){return()}
+
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Imputation3",
+                        height = "100%",
+                        busyIndicator(WaitMsgCalc,wait = 0),
+                        actionButton("ValidImputation","Save imputation", class = actionBtnClass)
+              ),
+              tagList(
+                uiOutput("ImputationSaved")
+              )
+  )
+})
+
+
+
 
 
 

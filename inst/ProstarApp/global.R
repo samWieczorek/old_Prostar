@@ -658,6 +658,10 @@ bsButtonRight <- function(...) {
 
 actionBtnClass <- "btn-primary"
 
+PrevNextBtnClass <- "btn-info"
+optionsBtnClass <- "info"
+
+
 # Call this function with all the regular navbarPage() parameters, plus a text parameter,
 # if you want to add text to the navbar
 navbarPageWithText <- function(..., text) {

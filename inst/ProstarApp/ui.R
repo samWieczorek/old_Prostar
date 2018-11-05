@@ -47,7 +47,8 @@ shinyUI <- fluidPage(
       id = "main_content",
       
       rclipboardSetup(),
-      
+
+      tags$p("VERSION DEVEL !!!", style='font-size: 30px; color: red;'),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
@@ -81,8 +82,9 @@ shinyUI <- fluidPage(
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
                  
                   id = "navPage",
-                  #theme = shinytheme("cerulean")
-                  
+
+                  inverse = TRUE,
+
                   absolutePanel(
                     id  = "#AbsolutePanel",
                     top = 0, right = 50, width = "500px",height = "50px",
@@ -109,6 +111,7 @@ shinyUI <- fluidPage(
                               source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
                   )
+
     ) ## end navbarPage
   )  ## end div for main content 2
     ) ## end div for main content 1
