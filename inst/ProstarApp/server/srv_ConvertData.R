@@ -156,7 +156,7 @@ output$Convert_ExpFeatData <- renderUI({
     ),
     fluidRow(
       column(width=4,uiOutput("eData",width = "400px")),
-      column(width=8,dataTableOutput("x1", width='500px'))),
+      column(width=8,DT::dataTableOutput("x1", width='500px'))),
     tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })"))

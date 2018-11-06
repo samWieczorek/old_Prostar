@@ -309,7 +309,7 @@ output$AggregationWellPanel_Step1 <- renderUI({
       column(width=6, uiOutput("specificPeptideBarplot")),
       column(width=6, uiOutput("allPeptideBarplot"))
     ),
-    dataTableOutput("aggregationStats"),
+    DT::dataTableOutput("aggregationStats"),
     uiOutput("ObserverAggregationDone")
   )
   
