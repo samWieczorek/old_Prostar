@@ -41,12 +41,10 @@ output$checkConvertPanel <- renderUI({
   ##Step 2: Choose data ID
   
   if (rv$pageConvert >= 2){
-    res <- !is.null(input$autoID) && 
-      (
-        (input$autoID=="Auto ID") ||
-          ( (input$autoID=="custom ID") &&(!is.null(input$idBox) && (input$idBox != "") && datasetID_Ok()) )
-      )
-    ifelse(res, color[2] <- "green", color[2] <- "red")
+    res1 <- !is.null(input$idBox) && ((input$idBox == "Auto ID") || datasetID_Ok())
+    res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
+    
+    ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
     
   } 
   
@@ -250,7 +248,7 @@ output$convertChooseProteinID_UI <- renderUI({
     modulePopoverUI("modulePopover_convertProteinID"),
     selectInput("convert_proteinId", 
               "",
-              choices =  .choices , selected = NULL)
+              choices =  .choices , selected = character(0))
   )
 })
 
@@ -559,6 +557,32 @@ output$x1 <- renderDataTable(
 observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
 
 
+checkIdentificationMethod_Ok <- reactive({
+  #req(input$selectIdent)
+  res <- TRUE
+  tmp <- NULL
+  if (isTRUE(input$selectIdent)) {
+    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
+  } 
+  res
+  
+})
+
+
+datasetID_Ok <- reactive({
+  req(input$idBox)
+  req(rv$tab1)
+  if (input$idBox == "Auto ID") {t <- TRUE}
+  else {
+  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  }
+  t
+})
+
+
+
 
 output$warningCreateMSnset <- renderUI({
     if (isTRUE(input$selectIdent)){
@@ -664,6 +688,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 loadObjectInMemoryFromConverter()
                 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
+                rv$pageConvert <- 5
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
