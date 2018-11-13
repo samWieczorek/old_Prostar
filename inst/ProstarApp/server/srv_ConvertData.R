@@ -36,6 +36,9 @@ output$checkConvertPanel <- renderUI({
   if (rv$pageConvert >= 1){
     res <- !is.null(rv$tab1)
     ifelse(res, color[1] <- "green", color[1] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   ##Step 2: Choose data ID
@@ -45,7 +48,9 @@ output$checkConvertPanel <- renderUI({
     res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
     
     ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
-    
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res1 && res2)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   } 
   
   ## Step 3: Choose quantitative data
@@ -53,17 +58,25 @@ output$checkConvertPanel <- renderUI({
     res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
     
     ifelse(res, color[3] <- "green", color[3] <- "red")
-    
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   if (rv$pageConvert >= 4){
     res <- isTRUE(rv$designChecked$valid)
     ifelse(res, color[4] <- "green", color[4] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   if (rv$pageConvert >= 5){
     res <- TRUE
     ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
@@ -72,11 +85,11 @@ output$checkConvertPanel <- renderUI({
 
 NUM_PAGES_CONVERT <- 5
 
-observe({
-  toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-  toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
-  hide(selector = ".page")
-})
+# observe({
+#   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+#  # toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
+#   hide(selector = ".page")
+# })
 
 navPageConvert <- function(direction) {
   rv$pageConvert <- rv$pageConvert + direction
@@ -683,8 +696,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                 l.params <- list(filename = input$filenameToCreate)
                  
-                
-                
                 loadObjectInMemoryFromConverter()
                 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
