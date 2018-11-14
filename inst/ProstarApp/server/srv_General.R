@@ -85,6 +85,23 @@ GetCurrentDatasetName <- reactive({
 
 getDataForExprs <- function(obj){
   #rv$current$obj
+
+  # 
+  # test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
+  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  # if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+  #  test.table <- cbind(test.table, 
+  #                       Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+  #  print(paste0("tutu:",head(test.table)))
+  #  
+  # } else {
+  #   test.table <- cbind(test.table, 
+  #                       as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+  #   print(paste0("tata:",head(test.table)))
+  #   }
+  # return(test.table)
+  
+
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
   print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
@@ -99,7 +116,7 @@ getDataForExprs <- function(obj){
     print(paste0("tata:",head(test.table)))
     }
   return(test.table)
-  
+
 }
 
 
@@ -456,6 +473,7 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
+
   ##variables for navigation
   rv$pageConvert = 1
   rv$pageFiltering = 1
@@ -463,6 +481,7 @@ ClearMemory <- function(){
   rv$pageAggreg = 1
   rv$pageDiffAna = 1
   
+
   
   ########
   ### Settings
@@ -1049,6 +1068,9 @@ getPackagesVersions <- function(type="all"){
   
   return(df)
   
+
+#}
+
 }
 
 
@@ -1070,4 +1092,5 @@ buildTable <- function(text, color){
   return(html.table)
   
 }
+
 

@@ -48,6 +48,15 @@ observeEvent(input$nextBtnAggreg, navPageAggreg(1))
 
 
 
+
+# output$Aggreg_Aggreg <- renderUI({
+#   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#               uiOutput("AggregationSideBar_Step1"),
+#               tagList(uiOutput("AggregationWellPanel_Step1")
+#               )
+#   )
+# })
+
 output$Aggreg_Aggreg <- renderUI({
   if (rv$pageAggreg != 1){return()}
   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
@@ -76,6 +85,7 @@ output$Aggreg_Aggreg <- renderUI({
               )
   )
 })
+
 
 
 output$Aggreg_Valid <- renderUI({
@@ -299,7 +309,7 @@ output$AggregationWellPanel_Step1 <- renderUI({
       column(width=6, uiOutput("specificPeptideBarplot")),
       column(width=6, uiOutput("allPeptideBarplot"))
     ),
-    dataTableOutput("aggregationStats"),
+    DT::dataTableOutput("aggregationStats"),
     uiOutput("ObserverAggregationDone")
   )
   

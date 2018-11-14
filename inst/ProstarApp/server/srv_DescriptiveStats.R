@@ -381,12 +381,13 @@ observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
 heatmap <- reactive({
     
     req(rv$current.obj)
-  input$linkage
+ input$linkage
   input$distance
   
   isolate({  wrapper.heatmapD(rv$current.obj,
                               input$distance, 
                               input$linkage,
+
                                  TRUE)
               })
 
@@ -414,7 +415,7 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 #################
-output$table <- renderDataTable({
+output$table <- DT::renderDataTable({
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
     print(head(df))

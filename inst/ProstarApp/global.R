@@ -657,6 +657,7 @@ bsButtonRight <- function(...) {
 }
 
 actionBtnClass <- "btn-primary"
+
 PrevNextBtnClass <- "btn-info"
 optionsBtnClass <- "info"
 

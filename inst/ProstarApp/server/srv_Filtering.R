@@ -4,6 +4,7 @@ callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Ke
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
 
+
 ##--------------------------------------------------------------
 ## Gestion du slideshow
 ##--------------------------------------------------------------
@@ -28,14 +29,14 @@ output$checkFilteringPanel <- renderUI({
   ##Step 1
   if (rv$pageFiltering >= 1){
     res <- rv$mvFiltering_Done
-    ifelse(res, color[1] <- "green", color[1] <- "red")
+    ifelse(res, color[1] <- "green", color[1] <- "orange")
   }
   
   ##Step 2: Choose data ID
   
   if (rv$pageFiltering >= 2){
     res <- rv$stringBasedFiltering_Done
-    ifelse(res, color[2] <- "green", color[2] <- "red")
+    ifelse(res, color[2] <- "green", color[2] <- "orange")
     
   } 
   
@@ -73,6 +74,7 @@ observeEvent(input$nextBtnFiltering, navPageFiltering(1))
 
 ##---------------------------------------------------------------
 ##------------------------------------------------------------------
+
 output$mv_Filtering <- renderUI({
   if (rv$pageFiltering != 1){return(NULL)}
   req(rv$current.obj)
@@ -491,9 +493,10 @@ output$ObserverMVFilteringDone <- renderUI({
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
   if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
-    
+
         l.params <- build_ParamsList_Filtering()
     
+
     
     rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData

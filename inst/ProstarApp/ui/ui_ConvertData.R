@@ -1,4 +1,5 @@
 tabPanel("Convert data",
+
          value = "convertTab",
          uiOutput("checkConvertPanel" ),
          actionButton("prevBtnConvert", "< Previous", class = PrevNextBtnClass),
@@ -9,5 +10,6 @@ tabPanel("Convert data",
          uiOutput("Convert_ExpFeatData"),
          uiOutput("Convert_BuildDesign"),
          uiOutput("Convert_Convert")
+
 )
 

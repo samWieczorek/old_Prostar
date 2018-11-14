@@ -5,6 +5,48 @@ callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertA
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
 
+observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(Get_seuilPVal())})
+convertAnaDiff2DF <- reactive({
+  
+  df <- cbind(names(rv$widgets$anaDiff),
+              as.data.frame(unlist(rv$widgets$anaDiff)))
+  names(df) <- c("Parameter", "Value")
+  rownames(df) <- NULL
+  df
+})
+
+observeEvent(input$selectComparison, {
+  
+  if (as.character(input$selectComparison)== "None"){
+    rv$resAnaDiff <- NULL
+  } else {
+    index <- which(paste(as.character(input$selectComparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
+    rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
+                          P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
+                          condition1 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][1],
+                          condition2 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][2]
+    )
+    
+  }
+})
+
+
+observeEvent(req(input$swapVolcano), {
+  if(!is.null(rv$resAnaDiff))
+    rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
+
+})
+
+
+observeEvent(req(input$AnaDiff_ChooseFilters), {
+  if (input$AnaDiff_ChooseFilters==gFilterNone) {
+    updateSelectInput(session, "AnaDiff_seuilNA", selected = 0)}})
+
+
+observeEvent(req(input$calibrationMethod), {
+  shinyjs::toggle("numericValCalibration", condition=input$calibrationMethod == "numeric value")
+  })
+
 
 ##--------------------------------------------------------
 ##---------------------------------------------------------
@@ -143,12 +185,14 @@ output$anaDiffPanel <- renderUI({
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
       isolate({
+
         tagList(
           uiOutput("diffAna_pairwiseComp"),
           uiOutput("diffAna_pvalCalib"),
           uiOutput("diffAna_fdrCompute"),
           uiOutput("diffAna_Summary")
           )
+
   })
     }
 })
@@ -156,8 +200,10 @@ output$anaDiffPanel <- renderUI({
 observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
 
 output$diffAna_pairwiseComp <- renderUI({
+
   if (rv$pageDiffAna != 1){return()}
   
+
   #req(rv$current.obj)
   isolate({
     tagList(
@@ -183,7 +229,9 @@ output$diffAna_pairwiseComp <- renderUI({
 
 
 output$diffAna_pvalCalib <- renderUI({
+
   if (rv$pageDiffAna != 2){return()}
+
   req(as.character(input$selectComparison))
   
    tagList(
@@ -209,7 +257,9 @@ output$diffAna_pvalCalib <- renderUI({
 
   
 output$diffAna_fdrCompute <- renderUI({
+
   if (rv$pageDiffAna != 3){return()}
+
   if(as.character(input$selectComparison) == "None"){return(NULL)}
      
   isolate({
@@ -242,6 +292,65 @@ output$diffAna_fdrCompute <- renderUI({
 
 
 
+# output$anaDiff_selectedItems <- renderDT({
+#   
+#   DT::datatable(GetSelectedItems(),
+#                 escape = FALSE,
+#                 rownames=TRUE,
+#                 options = list(initComplete = initComplete(),
+#                                dom = 'Bfrtip',
+#                                server = TRUE,
+#                                columnDefs = list(list(width='200px',targets= "_all")),
+#                                ordering = TRUE)
+#   ) %>%
+#     formatStyle(
+#       'isDifferential',
+#       target = 'row',
+#       backgroundColor = styleEqual(c(0, 1), c("white","orange"))
+#     )
+# })
+
+
+output$downloadSelectedItems <- downloadHandler(
+  #input$chooseDatasetToExportToMSnset,
+  filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
+  content = function(file) {
+    print(paste0("file to write=", file))
+    DA_Style <- openxlsx::createStyle(fgFill = "orange")
+    
+    wb <- openxlsx::createWorkbook() # Create wb in R
+    openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
+    openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
+    ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
+    ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
+    
+     openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col,
+                        rows = 1+ ll.DA.row, style = DA_Style)
+    
+     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+     
+  })
+
+
+
+
+observeEvent(input$showpvalTable, {
+  print("show : anaDiff_selectedItems")
+  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))})
+
+    
+    
+output$diffAna_Summary <- renderUI({     
+
+  if (as.character(input$selectComparison) == "None"){return(NULL)}
+ tagList(
+   moduleStaticDataTableUI("params_AnaDiff")
+   
+         )
+})
+      
+
+
 output$anaDiff_selectedItems <- renderDT({
   
   DT::datatable(GetSelectedItems(),
@@ -259,6 +368,7 @@ output$anaDiff_selectedItems <- renderDT({
       backgroundColor = styleEqual(c(0, 1), c("white","orange"))
     )
 })
+
 
 
 output$downloadSelectedItems <- downloadHandler(
@@ -708,6 +818,7 @@ GetSelectedItems <- reactive({
   req(rv$resAnaDiff$logFC)
   req(rv$resAnaDiff$P_Value )
   input$downloadAnaDiff
+<<<<<<< HEAD
   
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
@@ -723,6 +834,23 @@ GetSelectedItems <- reactive({
   }
   
   
+=======
+  
+  t <- NULL
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
+  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
+  
+  if (input$downloadAnaDiff == "All"){
+    selectedItems <- 1:nrow(rv$current.obj)
+    significant <- rep(0, nrow(rv$current.obj))
+    significant[intersect(upItems1, upItems2)] <- 1
+  } else {
+    selectedItems <- intersect(upItems1, upItems2)
+    significant <- rep(1, length(selectedItems))
+  }
+  
+  
+>>>>>>> chantier
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
                   P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),

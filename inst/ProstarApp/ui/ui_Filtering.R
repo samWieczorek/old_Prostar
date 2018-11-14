@@ -16,6 +16,7 @@
 
 tabPanel("Filter data",
          value = "FilterDataTab",
+
          uiOutput("checkFilteringPanel" ),
          actionButton("prevBtnFiltering", "< Previous", class = PrevNextBtnClass),
          actionButton("nextBtnFiltering", "Next >", class = PrevNextBtnClass),
@@ -24,7 +25,6 @@ tabPanel("Filter data",
          uiOutput("mv_Filtering"),
          uiOutput("stringBased_Filtering"),
          uiOutput("valid_Filtering")
-         
-         
+
 )
 

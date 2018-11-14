@@ -3,7 +3,7 @@ tabPanel("Check for updates",
                   br(),
                   br(),
                   uiOutput("baseVersions"),
-                  dataTableOutput("tab_versions", width = '600px'),
+         DT::dataTableOutput("tab_versions", width = '600px'),
                   uiOutput("update")
          )
 

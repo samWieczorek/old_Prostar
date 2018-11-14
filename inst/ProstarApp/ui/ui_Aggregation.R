@@ -1,5 +1,6 @@
 tabPanel("Aggregation",
          value="AggregationTab",
+
          uiOutput("checkAggregPanel" ),
          actionButton("prevBtnAggreg", "< Previous", class = PrevNextBtnClass),
          actionButton("nextBtnAggreg", "Next >", class = PrevNextBtnClass),
@@ -27,3 +28,4 @@ tabPanel("Aggregation",
 #          )
 #          })
 # )
+

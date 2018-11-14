@@ -91,6 +91,7 @@ tabPanel("Descriptive statistics",
                      #-----------------------------------------------------------
                      tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
+
                               shinyWidgets::dropdownButton(
                                 tags$div(
                                   tags$div(style="display:inline-block; vertical-align: top;",
@@ -123,12 +124,14 @@ tabPanel("Descriptive statistics",
                      #            )
                      #          )
                      #          ),
+
                               fluidRow(
                                   column(width=6,moduleDensityplotUI("densityPlot_DS")),
                                    column(width=6, moduleBoxplotUI("boxPlot_DS"))
                                   )
 
                       ),
+
                      
                      #-----------------------------------------------------------
                      tabPanel("CV distr.", 

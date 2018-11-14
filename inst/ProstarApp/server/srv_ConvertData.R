@@ -21,6 +21,7 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 
 
 
+
 ##--------------------------------------------------------------
 ## Gestion du slideshow
 ##--------------------------------------------------------------
@@ -35,18 +36,21 @@ output$checkConvertPanel <- renderUI({
   if (rv$pageConvert >= 1){
     res <- !is.null(rv$tab1)
     ifelse(res, color[1] <- "green", color[1] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   ##Step 2: Choose data ID
   
   if (rv$pageConvert >= 2){
-    res <- !is.null(input$autoID) && 
-      (
-        (input$autoID=="Auto ID") ||
-          ( (input$autoID=="custom ID") &&(!is.null(input$idBox) && (input$idBox != "") && datasetID_Ok()) )
-      )
-    ifelse(res, color[2] <- "green", color[2] <- "red")
+    res1 <- !is.null(input$idBox) && ((input$idBox == "Auto ID") || datasetID_Ok())
+    res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
     
+    ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res1 && res2)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   } 
   
   ## Step 3: Choose quantitative data
@@ -54,17 +58,25 @@ output$checkConvertPanel <- renderUI({
     res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
     
     ifelse(res, color[3] <- "green", color[3] <- "red")
-    
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   if (rv$pageConvert >= 4){
     res <- isTRUE(rv$designChecked$valid)
     ifelse(res, color[4] <- "green", color[4] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   if (rv$pageConvert >= 5){
     res <- TRUE
     ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
+    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+    hide(selector = ".page")
   }
   
   txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
@@ -73,11 +85,11 @@ output$checkConvertPanel <- renderUI({
 
 NUM_PAGES_CONVERT <- 5
 
-observe({
-  toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-  toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
-  hide(selector = ".page")
-})
+# observe({
+#   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+#  # toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
+#   hide(selector = ".page")
+# })
 
 navPageConvert <- function(direction) {
   rv$pageConvert <- rv$pageConvert + direction
@@ -155,7 +167,7 @@ output$Convert_ExpFeatData <- renderUI({
     ),
     fluidRow(
       column(width=4,uiOutput("eData",width = "400px")),
-      column(width=8,dataTableOutput("x1", width='500px'))),
+      column(width=8,DT::dataTableOutput("x1", width='500px'))),
     tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })"))
@@ -217,7 +229,6 @@ output$Convert_Convert <- renderUI({
   )
 })
 
-
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
     req(rv$tab1)
@@ -250,7 +261,7 @@ output$convertChooseProteinID_UI <- renderUI({
     modulePopoverUI("modulePopover_convertProteinID"),
     selectInput("convert_proteinId", 
               "",
-              choices =  .choices , selected = NULL)
+              choices =  .choices , selected = character(0))
   )
 })
 
@@ -559,6 +570,32 @@ output$x1 <- renderDataTable(
 observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
 
 
+checkIdentificationMethod_Ok <- reactive({
+  #req(input$selectIdent)
+  res <- TRUE
+  tmp <- NULL
+  if (isTRUE(input$selectIdent)) {
+    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
+  } 
+  res
+  
+})
+
+
+datasetID_Ok <- reactive({
+  req(input$idBox)
+  req(rv$tab1)
+  if (input$idBox == "Auto ID") {t <- TRUE}
+  else {
+  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  }
+  t
+})
+
+
+
 
 output$warningCreateMSnset <- renderUI({
     if (isTRUE(input$selectIdent)){
@@ -659,11 +696,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 
                 l.params <- list(filename = input$filenameToCreate)
                  
-                
-                
                 loadObjectInMemoryFromConverter()
                 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
+                rv$pageConvert <- 5
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
