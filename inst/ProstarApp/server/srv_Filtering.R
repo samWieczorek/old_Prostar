@@ -29,14 +29,14 @@ output$checkFilteringPanel <- renderUI({
   ##Step 1
   if (rv$pageFiltering >= 1){
     res <- rv$mvFiltering_Done
-    ifelse(res, color[1] <- "green", color[1] <- "red")
+    ifelse(res, color[1] <- "green", color[1] <- "orange")
   }
   
   ##Step 2: Choose data ID
   
   if (rv$pageFiltering >= 2){
     res <- rv$stringBasedFiltering_Done
-    ifelse(res, color[2] <- "green", color[2] <- "red")
+    ifelse(res, color[2] <- "green", color[2] <- "orange")
     
   } 
   
