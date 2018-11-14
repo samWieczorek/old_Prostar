@@ -166,12 +166,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     if (is.null(rv$matAdj)){
       bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
+                 bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"))
     } else {
       bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-               bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
-               bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
-               bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
+               bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"),
+               bsCollapsePanel("Specific peptides", dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
+               bsCollapsePanel("Shared peptides", dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
     }
   })
   

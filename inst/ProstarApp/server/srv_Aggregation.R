@@ -3,52 +3,6 @@ callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({Ge
 
 
 
-
-NUM_PAGES_AGGREG <- 2
-
-
-output$checkAggregPanel <- renderUI({
-  rv$pageAggreg
-  color <- rep("lightgrey",NUM_PAGES_AGGREG)
-  
-  ##Step 1
-  if (rv$pageAggreg >= 1){
-    res <- !is.null(rv$temp.aggregate)
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageAggreg >= 2){
-    res <- length(grep("Aggregated",input$datasets))
-    ifelse(res, color[2] <- "green", color[2] <- "red")
-    
-  } 
-  
-  txt <- c("Aggregation", "Validation")
-  buildTable(txt, color)
-})
-
-
-observe({
-  toggleState(id = "prevBtnAggreg", condition = rv$pageAggreg > 1)
-  toggleState(id = "nextBtnAggreg", condition = rv$pageAggreg < NUM_PAGES_AGGREG)
-  hide(selector = ".page")
-})
-
-navPageAggreg <- function(direction) {
-  rv$pageAggreg <- rv$pageAggreg + direction
-}
-
-observeEvent(input$prevBtnAggreg, navPageAggreg(-1))
-observeEvent(input$nextBtnAggreg, navPageAggreg(1))
-
-
-
-
-
-
-
 # output$Aggreg_Aggreg <- renderUI({
 #   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
 #               uiOutput("AggregationSideBar_Step1"),
@@ -57,39 +11,8 @@ observeEvent(input$nextBtnAggreg, navPageAggreg(1))
 #   )
 # })
 
-output$Aggreg_Aggreg <- renderUI({
-  if (rv$pageAggreg != 1){return()}
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(id = "sidebar_Aggregation",
-                        height = "100%",
-                        uiOutput("warningAgregationMethod"),
-                        uiOutput("chooseProteinId"),
-                        radioButtons("radioBtn_includeShared", "Include shared peptides", choices=
-                                       c("No (only protein-specific peptides)" = "No",
-                                         "Yes (shared peptides processed as protein specific)"= "Yes1" ,
-                                         "Yes (proportional redistribution of shared peptides). Better but slower." = "Yes2" ),
-                                     selected=rv$widgets$aggregation$includeSharedPeptides),
-                        radioButtons("AggregationConsider", "Consider", 
-                                     choices=c('all peptides'="allPeptides", 
-                                               "only the N most abundant ones"="onlyN"), 
-                                     selected=rv$widgets$aggregation$considerPeptides),
-                        
-                        radioButtons("AggregationOperator", "Operator", 
-                                     choices=c("Mean"="Mean"), 
-                                     selected=rv$widgets$aggregation$operator),
-                        numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px'),
-                        actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
-                        
-              ),
-              tagList(uiOutput("AggregationWellPanel_Step1")
-              )
-  )
-})
-
-
 
 output$Aggreg_Valid <- renderUI({
-  if (rv$pageAggreg != 2){return()}
   tagList(
     uiOutput(outputId = "progressSaveAggregation"),
     busyIndicator(WaitMsgCalc,wait = 0),
@@ -309,7 +232,7 @@ output$AggregationWellPanel_Step1 <- renderUI({
       column(width=6, uiOutput("specificPeptideBarplot")),
       column(width=6, uiOutput("allPeptideBarplot"))
     ),
-    DT::dataTableOutput("aggregationStats"),
+    dataTableOutput("aggregationStats"),
     uiOutput("ObserverAggregationDone")
   )
   

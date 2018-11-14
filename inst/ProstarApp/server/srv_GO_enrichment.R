@@ -29,7 +29,7 @@ output$GOAnalysisMenu <- renderUI({
                                      br(), br(),
                                      uiOutput("GeneMappedRatio"),
                                      br(), br(),
-                                     DT::dataTableOutput("nonIdentifiedProteins", width = "80%")
+                                     dataTableOutput("nonIdentifiedProteins", width = "80%")
                                      
                                  )
                      )
@@ -78,7 +78,7 @@ output$GOAnalysisMenu <- renderUI({
             ),
             tabPanel("Parameter summary",
                      value = "tabPanelSaveGO",
-                     DT::dataTableOutput("GO_resumeParams")
+                     dataTableOutput("GO_resumeParams")
             )
         )
     

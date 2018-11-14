@@ -375,19 +375,16 @@ corrMatrix <- reactive({
 })
 
 
-observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
-observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
 
 heatmap <- reactive({
     
     req(rv$current.obj)
- input$linkage
-  input$distance
+  rv$PlotParams$heatmap.linkage
+  rv$PlotParams$heatmap.distance
   
   isolate({  wrapper.heatmapD(rv$current.obj,
-                              input$distance, 
-                              input$linkage,
-
+                                 rv$PlotParams$heatmap.distance, 
+                                 rv$PlotParams$heatmap.linkage,
                                  TRUE)
               })
 
@@ -415,7 +412,7 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 #################
-output$table <- DT::renderDataTable({
+output$table <- renderDataTable({
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
     print(head(df))
