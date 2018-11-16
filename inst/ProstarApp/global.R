@@ -38,14 +38,16 @@ plan(multiprocess)
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 
+base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
 
-
-base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
+#base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")
 URL_links <- paste0(base_URL, "links.md")
-URL_ProstarPresentation <- paste0(base_URL, "prostarPresentation.md")
+URL_ProstarPresentation <- paste0(base_URL, "presentation.md")
 URL_formerReleases <-paste0(base_URL, "formerReleases.md")
 URL_versionNotes <- paste0(base_URL, "versionNotes.md")
+
+
 
 ## gestion des couleurs
 

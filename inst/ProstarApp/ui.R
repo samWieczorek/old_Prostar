@@ -48,7 +48,7 @@ shinyUI <- fluidPage(
       
       rclipboardSetup(),
 
-      tags$p("VERSION DEVEL !!!", style='font-size: 30px; color: red;'),
+      tags$p("VERSION CHANTIER !!!", style='font-size: 30px; color: red;'),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
