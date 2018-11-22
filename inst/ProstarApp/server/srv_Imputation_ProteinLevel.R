@@ -1,9 +1,9 @@
 require(imp4p)
 
 
-callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSteps[["step0"]]), title=reactive("POV + MEC distribution"))
-callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSteps[["step1"]]), title=reactive("MEC distribution"))
-callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]), title=reactive("Missing values distribution"))
+callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSteps[["step0"]]))
+callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSteps[["step1"]]))
+callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
 
 callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
            reactive({input$POV_detQuant_quantile}), 
@@ -208,6 +208,7 @@ output$Validate_ProtImput <- renderUI({
               ),
               tagList(
                 uiOutput("ImputationSaved")
+                ,moduleMVPlotsUI("mvImputationPlots_Valid")
               )
   )
 })

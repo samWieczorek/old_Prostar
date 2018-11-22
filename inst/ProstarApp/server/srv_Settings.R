@@ -3,6 +3,7 @@ callModule(modulePopover,"modulePopover_numPrecision", data = reactive(list(titl
 
 observe({
   shinyjs::toggle("defineColorsUI", condition=!is.null(rv$current.obj))
+  shinyjs::toggle("showInfoColorOptions", condition=is.null(rv$current.obj))
 })
 
 

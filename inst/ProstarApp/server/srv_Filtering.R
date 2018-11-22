@@ -133,7 +133,12 @@ output$stringBased_Filtering <- renderUI({
       )
     ),
     tags$hr(),
-    DT::dataTableOutput("FilterSummaryData")
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                DT::dataTableOutput("FilterSummaryData")
+      )
+    )
+    
   )
 })
 
@@ -226,13 +231,18 @@ output$FilterSummaryData <- DT::renderDataTable({
     rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary ,df)
   }
   
-  DT::datatable(rv$widgets$filtering$DT_filterSummary,extensions = 'Scroller',
-                options=list(initComplete = initComplete(),
+  DT::datatable(rv$widgets$filtering$DT_filterSummary,
+                extensions = c('Scroller', 'Buttons'),
+                options=list(dom='Brtip',
+                             initComplete = initComplete(),
                              deferRender = TRUE,
                              bLengthChange = FALSE,
-                             scrollX = 200,
-                             scrollY = 600,
-                             scroller = TRUE
+                             # scrollX = 200,
+                             # scrollY = 600,
+                             # scroller = TRUE,
+                             columnDefs = list(list(width='150px',targets= c(1)),
+                                               list(width='50px',targets= c(2:4)))
+                             
                 ))
 })
 
@@ -311,8 +321,10 @@ output$VizualizeFilteredData <- DT::renderDataTable({
   if (!is.null(data)){
     
     if(input$ChooseTabAfterFiltering =="quantiData"){
-      dt <- datatable( data,extensions = 'Scroller',
-                       options = list(initComplete = initComplete(),
+      dt <- datatable( data,
+                       extensions = c('Scroller', 'Buttons'),
+                       options = list(dom = 'Brtip',
+                                      initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -321,7 +333,8 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                                       scroller = TRUE,
                                       ordering=FALSE,
                                       server = TRUE,
-                                      columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
+                                      columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
+                                                        list(width='150px',targets= "_all"))
                        )) %>%
         formatStyle(
           colnames(data)[1:(ncol(data)/2)],

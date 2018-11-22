@@ -246,8 +246,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data <- data[peptidesIndices,]
     
     dt <- datatable( data,colnames=NULL,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -285,8 +286,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data <- data[peptidesIndices,]
     
     dt <- datatable( data, colnames=NULL,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -347,8 +349,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     data <- GetExprsClickedProtein()
     
     dt <- datatable( data,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -546,12 +549,12 @@ moduleBoxplot <- function(input, output, session) {
 
 
 
-moduleMVPlots <- function(input, output, session, data, title) {
+moduleMVPlots <- function(input, output, session, data) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    req(title())
-    wrapper.hc_mvTypePlot2(data(), title = title())
+
+    wrapper.hc_mvTypePlot2(data())
   })
   
   output$plot_showImageNA <- renderPlot({

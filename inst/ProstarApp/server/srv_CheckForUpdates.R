@@ -4,12 +4,13 @@
 
 
 
-output$tab_versions <- renderDataTable({
+output$tab_versions <- DT::renderDataTable({
   dt <- DT::datatable(getPackagesVersions(), 
                       escape = FALSE,
                       rownames= FALSE,
+                      extensions = c('Scroller', 'Buttons'),
                       option=list(initComplete = initComplete(),
-                                  dom = 't',
+                                  dom = 'Bfrtip',
                                   autoWidth=TRUE,
                                   ordering = F,
                                   columnDefs = list(list(visible=FALSE,targets=c(3)),
@@ -58,23 +59,9 @@ output$baseVersions <- renderUI({
   
   tagList(
     
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; margin-right: 20px;",
-                tags$img(src='images/Rlogo.svg', height='30px')
-      ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
-                tags$p(R.version.string, style="font-size: 16px")
-      )
-    ),
-    tags$br(),
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; margin-right: 20px;",
-                tags$img(src='images/logo_bioconductor.gif', height='30px')
-      ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
-                tags$p(paste0("Release ",as.character(BiocManager::version())), style="font-size: 16px")
-      )
-    ),
+    tags$p(R.version.string, style="font-size: 16px"),
+    tags$p(paste0("Bioconductor Release ",as.character(BiocManager::version())), style="font-size: 16px"),
+  
     tags$br()
   )
   

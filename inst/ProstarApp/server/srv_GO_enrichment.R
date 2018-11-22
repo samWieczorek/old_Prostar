@@ -363,8 +363,9 @@ output$GODatatable <- renderDataTable({
     
     
     dt <- datatable( as.data.frame(rv$GO$groupGO_data@result),
-                     extensions = 'Scroller',
-                     options = list(initComplete = initComplete(),
+                     extensions = c('Scroller', 'Buttons'),
+                     options = list(dom = 'Bfrtip',
+                                    initComplete = initComplete(),
                                     displayLength = 20,
                                     deferRender = TRUE,
                                     bLengthChange = FALSE,
@@ -417,8 +418,9 @@ output$nonIdentifiedProteins <- renderDataTable({
     if( nrow(data) != 0){
       
       dt <- datatable( data,
-                       extensions = 'Scroller',
-                       options = list(initComplete = initComplete(),
+                       extensions = c('Scroller', 'Buttons'),
+                       options = list(dom = 'Bfrtip',
+                                      initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -647,7 +649,7 @@ output$GO_resumeParams <- DT::renderDataTable({
   DT::datatable(l.params,
                 escape = FALSE,
                 rownames=FALSE,
-                extensions = 'Buttons',
+                extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
                                dom = 'Bfrtip',
                                buttons = c('copy','excel', 'pdf', 'print'),

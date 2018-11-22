@@ -16,13 +16,16 @@ tabPanel(title="Global settings",
              uiOutput("settings_nDigits_UI")
            )
          ),
+         tags$br(),tags$hr(),
+         tags$p(style="font-size: 18px;", tags$b("Figure export options")),
          tagList(
            tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
                      selectInput("sizePNGplots", "Size of images (PNG)", choices = c("1200 * 800"), width='150px')),
            tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                     selectInput("resoPNGplots", "Resolution", choices = c(150), width='150px'))
+                     selectInput("resoPNGplots", "Resolution", choices = c(150), width='100px'))
            )),
          tabPanel("Colors",
+                  div(id = 'showInfoColorOptions', tags$p("The options for customize the colors are available when a dataset is loaded.")),
                   hidden(uiOutput("defineColorsUI"))
          )
          )

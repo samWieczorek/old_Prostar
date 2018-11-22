@@ -1,6 +1,6 @@
 require(imp4p)
 
-callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$current.obj), title=reactive("Missing values distribution"))
+callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$current.obj))
 
 
 callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT", 
@@ -161,9 +161,10 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable({
   values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), 
                             input$peptideLevel_detQuant_quantile/100, 
                             input$peptideLevel_detQuant_factor)
-  DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits), 
+  DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits),
+                extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
-                               dom = 't',
+                               dom = 'Bfrtip',
                                bLengthChange = FALSE))
 })
 

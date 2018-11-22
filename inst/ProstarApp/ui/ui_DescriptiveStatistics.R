@@ -94,14 +94,14 @@ tabPanel("Descriptive statistics",
 
                               shinyWidgets::dropdownButton(
                                 tags$div(
-                                  tags$div(style="display:inline-block; vertical-align: top;",
+                                  tags$div(style="display:inline-block; vertical-align: bottom;",
                                            selectInput("whichGroup2Color",
                                                        "Color lines",
                                                        choices=list("By condition" = "Condition",
                                                                     "By replicate" = "Replicate"),
                                                        selected=GetWhichGroup2Color(), width='150px')
                                   ),
-                                  tags$div(style="display:inline-block; vertical-align: top;",
+                                  tags$div(style="display:inline-block; vertical-align: bottom;",
                                            uiOutput("ChooseLegendForSamples")
                                   )
                                 ),
@@ -129,6 +129,18 @@ tabPanel("Descriptive statistics",
                                   column(width=6,moduleDensityplotUI("densityPlot_DS")),
                                    column(width=6, moduleBoxplotUI("boxPlot_DS"))
                                   )
+
+                     # 
+                     # 
+                     # tags$div(
+                     # 
+                     #              tags$div(style="display:inline-block; vertical-align: top;",
+                     #                       moduleDensityplotUI("densityPlot_DS")
+                     #              ),
+                     #              tags$div(style="display:inline-block; vertical-align: top;",
+                     #                       moduleBoxplotUI("boxPlot_DS")
+                     #              )
+                     #            )
 
                       ),
 

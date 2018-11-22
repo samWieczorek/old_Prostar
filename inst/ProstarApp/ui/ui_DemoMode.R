@@ -17,11 +17,12 @@ tabPanel("Demo data",
          #checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
          
          hr(),
-         
-         fluidRow(
-           column(width=6,moduleStaticDataTableUI("overview_DemoMode")),
-           column(width=6,uiOutput("infoAboutDemoDataset"))
-
+         uiOutput("infoAboutDemoDataset"),
+         tags$div(
+           tags$div( style="display:inline-block; vertical-align: top;",
+                     moduleStaticDataTableUI("overview_DemoMode")
+           )
          )
+ 
 
 )

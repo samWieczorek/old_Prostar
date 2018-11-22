@@ -119,10 +119,10 @@ moduleDesignExampleUI <- function(id){
 moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
-      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='150px'),
-    highchartOutput(ns("BoxPlot")),
-    plotOutput(ns("viewViolinPlot"))
-    )
+      highchartOutput(ns("BoxPlot")),
+      plotOutput(ns("viewViolinPlot")),
+      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+      )
 }
 
 

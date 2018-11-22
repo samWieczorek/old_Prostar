@@ -541,7 +541,7 @@ output$x1 <- renderDataTable(
     quantiDataTable(),
     escape=FALSE,
     rownames = FALSE,
-    extensions = 'Scroller',
+    extensions = c('Scroller', 'Buttons'),
     server=FALSE,
     selection='none', 
     class = 'compact',
@@ -553,7 +553,7 @@ output$x1 <- renderDataTable(
             'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
         # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-        dom = 't',
+        dom = 'Bfrtip',
         autoWidth=TRUE,
         deferRender = TRUE,
         bLengthChange = FALSE,

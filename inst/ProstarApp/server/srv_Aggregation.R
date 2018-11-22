@@ -57,19 +57,32 @@ observeEvent(input$nextBtnAggreg, navPageAggreg(1))
 #   )
 # })
 
+
+callModule(modulePopover,"modulePopover_includeShared", 
+           data = reactive(list(title=HTML(paste0("<strong>Include shared peptides</strong>")),
+                                content= HTML(paste0("<ul><li><strong>No:</strong> only protein-specific peptides</li><li><strong>Yes 1:</strong> shared peptides processed as protein specific</li><li><strong>Yes 2</strong>: proportional redistribution of shared peptides</li></ul>")
+                                              )
+                                )
+                           )
+           )
+
+
+
 output$Aggreg_Aggreg <- renderUI({
   if (rv$pageAggreg != 1){return()}
   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
               wellPanel(id = "sidebar_Aggregation",
                         height = "100%",
-                        uiOutput("warningAgregationMethod"),
                         uiOutput("chooseProteinId"),
-                        radioButtons("radioBtn_includeShared", "Include shared peptides", choices=
-                                       c("No (only protein-specific peptides)" = "No",
-                                         "Yes (shared peptides processed as protein specific)"= "Yes1" ,
-                                         "Yes (proportional redistribution of shared peptides). Better but slower." = "Yes2" ),
-                                     selected=rv$widgets$aggregation$includeSharedPeptides),
-                        radioButtons("AggregationConsider", "Consider", 
+                        modulePopoverUI("modulePopover_includeShared"),
+                        radioButtons("radioBtn_includeShared", "", choices=
+                                           c("No" = "No",
+                                             "as protein specific"= "Yes1" ,
+                                             "redistribution" = "Yes2" ),
+                                         selected=rv$widgets$aggregation$includeSharedPeptides),
+              
+                       
+                         radioButtons("AggregationConsider", "Consider", 
                                      choices=c('all peptides'="allPeptides", 
                                                "only the N most abundant ones"="onlyN"), 
                                      selected=rv$widgets$aggregation$considerPeptides),
@@ -81,7 +94,9 @@ output$Aggreg_Aggreg <- renderUI({
                         actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
                         
               ),
-              tagList(uiOutput("AggregationWellPanel_Step1")
+              tagList(
+                uiOutput("warningAgregationMethod"),
+                uiOutput("AggregationWellPanel_Step1")
               )
   )
 })
@@ -246,7 +261,7 @@ observeEvent(req(input$proteinId),{
 
 
 
-output$aggregationStats <- renderDataTable ({
+output$aggregationStats <- DT::renderDataTable ({
   req(input$proteinId)
   req(rv$current.obj)
   req(rv$matAdj)
@@ -268,8 +283,9 @@ output$aggregationStats <- renderDataTable ({
   DT::datatable(df, 
                 escape = FALSE,
                 rownames= FALSE,
+                extensions = c('Scroller', 'Buttons'),
                 option=list(initComplete = initComplete(),
-                            dom = 't',
+                            dom = 'Bfrtip',
                             autoWidth=TRUE,
                             ordering=F,
                             columnDefs = list(list(width='200px',targets= "_all"))
@@ -400,10 +416,8 @@ output$warningAgregationMethod <- renderUI({
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
   {
-    text <- "<font color=\"red\"> Warning ! <br> 
-    Your dataset contains missing values.
-    <br> For better results, you should impute  <br> them first"
-    HTML(text)
+    tags$p("<font color=\"red\"> Warning: Your dataset contains missing values.
+    <br> For better results, you should impute  <br> them first")
   }
   
 })
