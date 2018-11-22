@@ -546,12 +546,11 @@ moduleBoxplot <- function(input, output, session) {
 
 
 
-moduleMVPlots <- function(input, output, session, data, title) {
+moduleMVPlots <- function(input, output, session, data) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    req(title())
-    wrapper.hc_mvTypePlot2(data(), title = title())
+     wrapper.hc_mvTypePlot2(data())
   })
   
   output$plot_showImageNA <- renderPlot({

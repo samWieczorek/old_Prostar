@@ -1,6 +1,6 @@
 require(imp4p)
 
-callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$current.obj), title=reactive("Missing values distribution"))
+callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv$current.obj))
 
 
 callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT", 
