@@ -32,14 +32,14 @@ observeEvent(input$updateProstar,{
 
 output$update <- renderUI({
   
-  if(!file.exists(file.path(".", "prostar.conf"))){
-    tags$p("Unable to find the file prostar.conf")
-    return(NULL)
-  }
-  conf <- read.table("prostar.conf", header=FALSE)
+  #if(!file.exists(file.path(".", "prostar.conf"))){
+  #  tags$p("Unable to find the file prostar.conf")
+  #  return(NULL)
+  #}
+  #conf <- read.table("prostar.conf", header=FALSE)
   df <- getPackagesVersions()
   if (sum(df[,"NeedsUpdate"])==0) {return(NULL)}
-  if (!(conf[which(conf[1,]=="R-Portable"),2])) {return(NULL)}
+  #if (!(conf[which(conf[1,]=="R-Portable"),2])) {return(NULL)}
   
   tagList(
     tags$p(class="body",
