@@ -980,7 +980,9 @@ Get_ParamValue <- function(pp, key){
 
 
 
-getPackagesVersions <- function(type="all"){
+getPackagesVersions <- reactive({
+  
+  type <- "all"
   outOfDate <- "(Out of date)"
   dev <- "(Devel)"
   
@@ -1031,7 +1033,7 @@ getPackagesVersions <- function(type="all"){
       df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
       inst <- unlist(strsplit(instPkgs$Prostar, split=".", fixed=TRUE))
       bioc <- unlist(strsplit(biocPkgs$Prostar, split=".", fixed=TRUE))
-      df[1,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+      df[1,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
     }
     
     if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
@@ -1040,7 +1042,7 @@ getPackagesVersions <- function(type="all"){
       df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
       inst <- unlist(strsplit(instPkgs$DAPAR, split=".", fixed=TRUE))
       bioc <- unlist(strsplit(biocPkgs$DAPAR, split=".", fixed=TRUE))
-      df[2,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+      df[2,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
     }
     
     if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
@@ -1049,7 +1051,7 @@ getPackagesVersions <- function(type="all"){
       df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
       inst <- unlist(strsplit(instPkgs$DAPARdata, split=".", fixed=TRUE))
       bioc <- unlist(strsplit(biocPkgs$DAPARdata, split=".", fixed=TRUE))
-      df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) > as.numeric(bioc[3]))))
+      df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
     }
     df[, "Bioc.release"] <- unlist(biocPkgs)
   }
@@ -1066,12 +1068,12 @@ getPackagesVersions <- function(type="all"){
          )
   print(df)
   
-  return(df)
+  df
   
 
 #}
 
-}
+})
 
 
 
