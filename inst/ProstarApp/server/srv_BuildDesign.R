@@ -40,12 +40,15 @@ req(rv$designChecked)
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
+  input$convert_reorder
   
-  #rv$hot
-  if (length(grep("Bio.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+  if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
   
-  rv$newOrder <- order(rv$hot["Condition"])
-  rv$hot <- rv$hot[rv$newOrder,]
+  if (isTRUE(input$convert_reorder)) {
+    rv$newOrder <- order(rv$hot["Condition"])
+    rv$hot <- rv$hot[rv$newOrder,]
+  }
+  
   rv$conditionsChecked <- DAPAR::check.conditions(rv$hot$Condition)
   
 })
@@ -116,9 +119,9 @@ output$UI_checkConditions  <- renderUI({
 
   req(rv$hot)
   rv$conditionsChecked
+  input$convert_reorder
   
-  
-  if (sum(rv$hot$Condition == "")==0){
+  if ((sum(rv$hot$Condition == "")==0) && (input$convert_reorder != "None")){
     tags$div(
       tags$div(style="display:inline-block;",
                actionButton("btn_checkConds", "Check conditions", class = actionBtnClass)
