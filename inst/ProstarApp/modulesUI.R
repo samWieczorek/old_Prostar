@@ -89,10 +89,14 @@ moduleDensityplotUI <- function(id) {
 
 moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
-      tagList( highchartOutput(ns("plot_viewNAbyMean"), width='800px'),
-               plotOutput(ns("plot_showImageNA"), width='800px')
+      tagList( 
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    plotOutput(ns("plot_showImageNA"), width='600px'))
        )
-
+      )
 }
 
 

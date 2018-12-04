@@ -101,7 +101,8 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor)
     req(rv$current.obj, quant(), factor())
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
-      DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+      DT::datatable(as.data.frame(t(values$shiftedImpVal)),
+                    rownames = FALSE,
                     options = list(initComplete = initComplete(),
                                    dom = 't',
                                    bLengthChange = FALSE))
@@ -119,7 +120,7 @@ modulePopover <- function(input, output, session, data){
           div(
             div(
                 # edit1
-                style="display:inline-block; vertical-align: middle;",
+                style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
                 if (regexpr("Subsets", data()$title)[1] ==1){
                     data()$title}
                 else
@@ -129,7 +130,7 @@ modulePopover <- function(input, output, session, data){
             ),
             div(
             # edit2
-            style="display:inline-block; vertical-align: middle;",
+            style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
             if (regexpr("Subsets", data()$title)[1] ==1){
                 tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
                 } else {

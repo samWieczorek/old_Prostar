@@ -46,29 +46,63 @@ tabPanel("Descriptive statistics",
                               # 
                               # 
                               
+                              
                               tagList(
-                              shinyWidgets::dropdownButton(
-                                sliderInput("expGradientRate",
-                                            "Tune to modify the color gradient",
-                                            min = 0,max = 1,value = defaultGradientRate,step=0.01),
-                                tooltip="Plots parameters",
-                                style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                              ),
+                                tags$br(),tags$br(),
+                                tags$div(
+                                  tags$div(style="display:inline-block; vertical-align: middle;",
+                                           tags$p("Plot options")
+                                  ),
+                                  
+                                  tags$div(style="display:inline-block; vertical-align: middle;",
+                                           
+                                           tags$div(
+                                             tags$div(style="display:inline-block; vertical-align: top;",
+                                                      shinyWidgets::dropdownButton(
+                                                        tags$div(
+                                                          tags$div(style="display:inline-block; vertical-align: bottom;",
+                                                                   sliderInput("expGradientRate",
+                                                                               "Tune to modify the color gradient",
+                                                                               min = 0,max = 1,value = defaultGradientRate,step=0.01),
+                                                                   tooltip="Plots parameters",
+                                                                   style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                                                   
+                                                          )
+                                                        ),
+                                                        tooltip="Plots parameters",
+                                                        style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                                      )))
+                                           
+                                  ))),
                               highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
-                              ) 
+                              
+                              
                      ),
                      
                      tabPanel("Heatmap",
                               value="DS_tabHeatmap",
-                              sidebarCustom(),
-                              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                          wellPanel(id = "sidebar_heatmap",
-                                                    uiOutput("DS_sidebarPanel_heatmap")
-                                          ),
-                                          tagList(
-                                            uiOutput("DS_PlotHeatmap")
-                                          )
+                              tagList(
+                                div(
+                                  div(
+                                    style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                                    selectInput("distance","Distance",
+                                                choices = G_heatmapDistance_Choices, 
+                                                selected = rv$PlotParams$heatmap.distance,
+                                                width="150px")
+                                  ),
+                                  div(
+                                    style="display:inline-block; vertical-align: middle;",
+                                    selectInput("linkage","Linkage",
+                                                choices=G_heatmapLinkage_Choices,
+                                                selected=rv$PlotParams$heatmap.linkage,
+                                                width="150px")
+                                  ),
+                                  
+                                tags$hr(),
+                                uiOutput("DS_PlotHeatmap")
+                                )
                               )
+                              
                      ),
                      tabPanel("PCA",
                               value="DS_PCA",
@@ -92,22 +126,35 @@ tabPanel("Descriptive statistics",
                      tabPanel("Intensity distr.",
                               value="DS_tabDensityplot",
 
-                              shinyWidgets::dropdownButton(
-                                tags$div(
-                                  tags$div(style="display:inline-block; vertical-align: bottom;",
-                                           selectInput("whichGroup2Color",
-                                                       "Color lines",
-                                                       choices=list("By condition" = "Condition",
-                                                                    "By replicate" = "Replicate"),
-                                                       selected=GetWhichGroup2Color(), width='150px')
-                                  ),
-                                  tags$div(style="display:inline-block; vertical-align: bottom;",
-                                           uiOutput("ChooseLegendForSamples")
-                                  )
-                                ),
-                                tooltip="Plots parameters",
-                                style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                              ),
+                              tagList(
+                                      tags$br(),tags$br(),
+                                      tags$div(
+                                        tags$div(style="display:inline-block; vertical-align: middle;",
+                                                 tags$p("Plot options")
+                                        ),
+                                        
+                                        tags$div(style="display:inline-block; vertical-align: middle;",
+                                                 
+                                        tags$div(
+                                          tags$div(style="display:inline-block; vertical-align: top;",
+                                                    shinyWidgets::dropdownButton(
+                                                        tags$div(
+                                                            tags$div(style="display:inline-block; vertical-align: bottom;",
+                                                              selectInput("whichGroup2Color",
+                                                                          "Color lines",
+                                                                          choices=list("By condition" = "Condition",
+                                                                                        "By replicate" = "Replicate"),
+                                                                          selected=GetWhichGroup2Color(), width='150px')
+                                                             ),
+                                                tags$div(style="display:inline-block; vertical-align: bottom;",
+                                                            uiOutput("ChooseLegendForSamples")
+                                                )
+                                                                    ),
+                                                              tooltip="Plots parameters",
+                                                                 style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                                            )))
+                              
+                                               ))),
                               
                      #          tagList(
                      #            tags$div(

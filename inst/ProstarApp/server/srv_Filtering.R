@@ -1,6 +1,6 @@
 callModule(missingValuesPlots,"MVPlots_filtering")
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
-callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Keep vals",
+callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
 
@@ -85,15 +85,16 @@ output$mv_Filtering <- renderUI({
                   selectInput("ChooseFilters","Type",  
                               choices = gFiltersList, 
                               selected=rv$widgets$filtering$ChooseFilters,
-                              width='150px')
+                              width='200px')
         ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
+        tags$div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                   uiOutput("seuilNADelete")
         ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+        tags$div( style="display:inline-block; vertical-align: middle;",
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         )
       ),
+      tags$hr(),
     tags$div(style="margin-bottom:200px;",
              tagList(
                missingValuesPlotsUI("MVPlots_filtering"),
@@ -233,7 +234,7 @@ output$FilterSummaryData <- DT::renderDataTable({
   
   DT::datatable(rv$widgets$filtering$DT_filterSummary,
                 extensions = c('Scroller', 'Buttons'),
-                options=list(dom='Brtip',
+                options=list(dom='Brt',
                              initComplete = initComplete(),
                              deferRender = TRUE,
                              bLengthChange = FALSE,
@@ -370,7 +371,8 @@ output$seuilNADelete <- renderUI({
   choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
-    selectInput("seuilNA", "", 
+    
+    selectInput("seuilNA", NULL,
                 choices = choix,
                 selected = input$seuilNA,
                 width='150px'))

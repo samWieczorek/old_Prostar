@@ -139,11 +139,13 @@ output$DS_sidebarPanel_heatmap <- renderUI({
                      h3("Clustering Options"),
                      selectInput("distance","Distance",
                                   choices = G_heatmapDistance_Choices, 
-                                 selected = rv$PlotParams$heatmap.distance),
+                                 selected = rv$PlotParams$heatmap.distance,
+                                 width="150px"),
                      br(),
-                     selectInput("linkage","Linkage for clustering",
+                     selectInput("linkage","Linkage",
                                   choices=G_heatmapLinkage_Choices,
-                                 selected=rv$PlotParams$heatmap.linkage))
+                                 selected=rv$PlotParams$heatmap.linkage,
+                                 width="150px"))
 })
 
 #----------------------------------------------

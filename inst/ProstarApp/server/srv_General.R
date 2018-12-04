@@ -1079,7 +1079,7 @@ getPackagesVersions <- reactive({
 
 
 buildTable <- function(text, color){
-  
+  paste0("     ", text, "     ")
   rows.color <- rows.text <- list()
   rows.text <- list()
   for( i in 1:length( color ) ) {
@@ -1087,7 +1087,7 @@ buildTable <- function(text, color){
     rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
   }
   
-  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 2px;",
+  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 10px;padding-top: 0px;",
                             tags$tr( rows.color ),
                             tags$tr( rows.text )
   )

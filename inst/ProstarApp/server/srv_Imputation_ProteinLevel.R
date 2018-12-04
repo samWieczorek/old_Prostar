@@ -152,46 +152,55 @@ observeEvent(input$nextBtnProtImput, navPageProtImput(1))
 output$POV_imputation <- renderUI({
   if (rv$pageProtImput != 1){return()}
   
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(id = "sidebar_Imputation1",
-                        height = "100%",
-                        br(),
-                        uiOutput("sidebar_imputation_step1"),
-                        actionButton("perform.imputationClassical.button",
-                                     "Perform imputation", class = actionBtnClass)
-                        
-              ),
-              tagList(
-                uiOutput("ImputationStep1Done"),
-                htmlOutput("helpForImputation"),
-                uiOutput("POV_showDetQuantValues"),
-                moduleMVPlotsUI("mvImputationPlots_MV")
+  tagList(
+    tags$div(tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+              uiOutput("sidebar_imputation_step1")),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+              uiOutput("POV_Params")),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+              uiOutput("POV_showDetQuantValues"))
+    ),
+    tagList(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         actionButton("perform.imputationClassical.button",
+                                     "Perform imputation", class = actionBtnClass)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
+                uiOutput("ImputationStep1Done"))),
+    
+    htmlOutput("helpForImputation"),
+    tags$hr(),
+    moduleMVPlotsUI("mvImputationPlots_MV")
               )
-              
-  )
+
 })
 
 
 
 output$MEC_imputation <- renderUI({
   if (rv$pageProtImput != 2){return()}
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(id = "sidebar_Imputation2",
-                        height = "100%",
-                        uiOutput("MEC_chooseImputationMethod"),
-                        uiOutput("MEC_Params"),
-                        actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
-              ),
-              tagList(
-                htmlOutput("warningMECImputation"),
-                busyIndicator(WaitMsgCalc,wait = 0),
-                uiOutput("ImputationStep2Done"),
-                uiOutput("MEC_showDetQuantValues")
-                ,moduleMVPlotsUI("mvImputationPlots_MEC")
-                
-              )
-  )
   
+ 
+  tagList(
+    htmlOutput("warningMECImputation"),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                       uiOutput("MEC_chooseImputationMethod")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("MEC_Params")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("MEC_showDetQuantValues"))),
+                
+    tagList(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("ImputationStep2Done"))),
+    
+      busyIndicator(WaitMsgCalc,wait = 0),
+      tags$hr(),
+      moduleMVPlotsUI("mvImputationPlots_MEC")
+      )
+
 })
 
 
@@ -225,8 +234,10 @@ output$POV_showDetQuantValues <- renderUI({
   
   if (input$POV_missing.value.algorithm == 'detQuantile')
   {
-    moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
-
+    tagList(
+      h5("The MEC will be imputed by the following values :"),
+      moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
+    )
   }
 })
 
@@ -257,22 +268,13 @@ output$sidebar_imputation_step1 <- renderUI({
     shinyjs::disable("perform.imputationClassical.button")
   }
   
-  # if (length(grep("Imputed", input$datasets))==0 && rv$ValidImputationClicked){
-  #   updateSelectInput(session, "POV_missing.value.algorithm", selected= "None")
-  #   
-  #   rv$imputePlotsSteps[["step1"]] <- NULL
-  #   rv$imputePlotsSteps[["step2"]] <- NULL
-  #   rv$ValidImputationClicked <- FALSE
-  # }
-  
   algo <- imputationAlgorithmsProteins_POV
   
-  tagList(
-    selectInput("POV_missing.value.algorithm","Algorithm for POV",
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                selectInput("POV_missing.value.algorithm","Algorithm for POV",
                 choices = algo, 
                 selected=rv$widgets$proteinImput$POV_algorithm, 
-                width='150px'),
-    uiOutput("POV_Params")
+                width='150px')
   )
   
   })
@@ -282,8 +284,10 @@ output$sidebar_imputation_step1 <- renderUI({
 output$MEC_chooseImputationMethod <- renderUI({
   algo <- imputationAlgorithmsProteins_MEC
   
-  selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo,
+  tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+            selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo,
               selected=rv$widgets$proteinImput$MEC_algorithm, width='150px')
+  )
 })
 
 
@@ -299,17 +303,18 @@ output$POV_Params <- renderUI({
          detQuantile = {
            
            tagList(
-             #h4("Det quantile parameters"),
-             numericInput("POV_detQuant_quantile", "Quantile", 
-                          value = rv$widgets$proteinImput$POV_detQuant_quantile, 
-                          step=0.5, min=0, max=100, width='100px'),
-             numericInput("POV_detQuant_factor", "Factor", 
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                         numericInput("POV_detQuant_quantile", "Quantile", 
+                            value = rv$widgets$proteinImput$POV_detQuant_quantile, 
+                            step=0.5, min=0, max=100, width='100px')),
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                         numericInput("POV_detQuant_factor", "Factor", 
                           value = rv$widgets$proteinImput$POV_detQuant_factor,
-                          step=0.1, min=0, max=10, width='100px')
+                          step=0.1, min=0, max=10, width='100px'))
            )
          },
          KNN = {
-            numericInput("KNN_nbNeighbors", "Number of neighbors", 
+            numericInput("KNN_nbNeighbors", "Neighbors", 
                         value = rv$widgets$proteinImput$POV_KNN_n, step=1, min=0, 
                         max=max(nrow(rv$current.obj), rv$widgets$proteinImput$POV_KNN_n), 
                         width='100px')
@@ -327,23 +332,25 @@ output$MEC_Params <- renderUI({
   switch (input$MEC_missing.value.algorithm,
           detQuantile = {
             tagList(
-              numericInput("MEC_detQuant_quantile", "Quantile", 
+              tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                        numericInput("MEC_detQuant_quantile", "Quantile", 
                            value = rv$widgets$proteinImput$MEC_detQuant_quantile,
                            step=0.5, min=0, max=100,
-                           width='100px'),
-              numericInput("MEC_detQuant_factor", "Factor", 
+                           width='100px')),
+              tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+                        numericInput("MEC_detQuant_factor", "Factor", 
                            value = rv$widgets$proteinImput$MEC_detQuant_factor, 
                            step=0.1, min=0, max=10,
-                           width='100px')
+                           width='100px'))
             )
           },
           fixedValue = {
-            tagList(
+
               numericInput("MEC_fixedValue", "Fixed value", 
                            value = rv$widgets$proteinImput$MEC_fixedValue, 
                            step=0.1, min=0, max=100,
                            width='100px')
-            )
+ 
           })
     
   })

@@ -17,9 +17,16 @@
 tabPanel("Filter data",
          value = "FilterDataTab",
 
-         uiOutput("checkFilteringPanel" ),
-         actionButton("prevBtnFiltering", "< Previous", class = PrevNextBtnClass),
-         actionButton("nextBtnFiltering", "Next >", class = PrevNextBtnClass),
+         tags$div(tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+                            actionButton("prevBtnFiltering", "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%')),
+                  tags$div( style="align: center;display:inline-block; vertical-align: top;",
+                            uiOutput("checkFilteringPanel" )),
+                  tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+                            actionButton("nextBtnFiltering", ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%'))
+                  
+                  
+         ),
+         
          uiOutput("filteringDone"),
          hr(),
          uiOutput("mv_Filtering"),
