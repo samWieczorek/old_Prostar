@@ -54,7 +54,6 @@ shinyUI <- fluidPage(
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
-      
        sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
       #,includeCSS("www/css/fontawesome.css")

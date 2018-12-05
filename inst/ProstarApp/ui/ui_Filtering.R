@@ -1,17 +1,3 @@
-# 
-# tabPanel("Filter data",
-#          value = "FilterDataTab",
-#         tabsetPanel(
-#              id = "DP_Filtering_tabSetPanel",
-#              tabPanel( "1 - Missing values filtering",
-#                       uiOutput("mv_Filtering")),
-#          tabPanel( "2 - String based filtering",
-#                    uiOutput("stringBased_Filtering")),
-#          tabPanel( "3 - Visualize filtered data and validate",
-#                     uiOutput("valid_Filtering")
-#          )
-# )
-# )
 
 
 tabPanel("Filter data",
@@ -23,8 +9,6 @@ tabPanel("Filter data",
                             uiOutput("checkFilteringPanel" )),
                   tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
                             actionButton("nextBtnFiltering", ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%'))
-                  
-                  
          ),
          
          uiOutput("filteringDone"),

@@ -58,7 +58,7 @@ output$choose_normalizationQuantile <- renderUI({
    
     tagList(
       modulePopoverUI("modulePopover_normQuanti"),
-        textInput("normalization.quantile", NULL,
+      textInput("normalization.quantile", NULL,
                      value = rv$widgets$normalization$quantile,width='150px'),
       module_Not_a_numericUI("test_normQuant")
     )

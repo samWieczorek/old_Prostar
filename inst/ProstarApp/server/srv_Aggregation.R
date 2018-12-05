@@ -70,35 +70,48 @@ callModule(modulePopover,"modulePopover_includeShared",
 
 output$Aggreg_Aggreg <- renderUI({
   if (rv$pageAggreg != 1){return()}
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(id = "sidebar_Aggregation",
-                        height = "100%",
-                        uiOutput("chooseProteinId"),
+  
+  
+  tagList(
+    uiOutput("warningAgregationMethod"),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top;",
+                       uiOutput("chooseProteinId")),
+      tags$div( style="display:inline-block; vertical-align: top;;",       
                         modulePopoverUI("modulePopover_includeShared"),
-                        radioButtons("radioBtn_includeShared", "", choices=
-                                           c("No" = "No",
-                                             "as protein specific"= "Yes1" ,
-                                             "redistribution" = "Yes2" ),
-                                         selected=rv$widgets$aggregation$includeSharedPeptides),
-              
-                       
-                         radioButtons("AggregationConsider", "Consider", 
+                radioButtons("radioBtn_includeShared", NULL, choices=
+                               c("No" = "No",
+                                 "as protein specific"= "Yes1" ,
+                                 "redistribution" = "Yes2" ),
+                             selected=rv$widgets$aggregation$includeSharedPeptides)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+              radioButtons("AggregationConsider", "Consider", 
                                      choices=c('all peptides'="allPeptides", 
-                                               "only the N most abundant ones"="onlyN"), 
-                                     selected=rv$widgets$aggregation$considerPeptides),
-                        
-                        radioButtons("AggregationOperator", "Operator", 
+                                               "N most abundant"="onlyN"), 
+                                     selected=rv$widgets$aggregation$considerPeptides)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+                numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
+      
+      tags$div( style="display:inline-block; vertical-align: top;",
+                radioButtons("AggregationOperator", "Operator", 
                                      choices=c("Mean"="Mean"), 
-                                     selected=rv$widgets$aggregation$operator),
-                        numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px'),
-                        actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
-                        
-              ),
-              tagList(
-                uiOutput("warningAgregationMethod"),
-                uiOutput("AggregationWellPanel_Step1")
-              )
+                                     selected=rv$widgets$aggregation$operator))
+      ),
+    actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
+   
+    tags$hr(),
+    tags$div(
+       tags$div( style="display:inline-block; vertical-align: top;",
+                 uiOutput("specificPeptideBarplot")),
+       tags$div( style="display:inline-block; vertical-align: top;",       
+                 uiOutput("allPeptideBarplot")),
+      tags$div( style="display:inline-block; vertical-align: top;",
+    DT::dataTableOutput("aggregationStats2"))
+    )
+   
   )
+   
+
 })
 
 
@@ -261,11 +274,11 @@ observeEvent(req(input$proteinId),{
 
 
 
-output$aggregationStats <- DT::renderDataTable ({
-  req(input$proteinId)
+output$aggregationStats2 <- DT::renderDataTable ({
+  #req(input$proteinId)
   req(rv$current.obj)
   req(rv$matAdj)
-  if (input$proteinId == "None") {return(NULL)}
+  if (!is.null(input$proteinId) && input$proteinId == "None") {return(NULL)}
   
   res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
                           rv$matAdj$matWithSharedPeptides)
@@ -316,28 +329,13 @@ observeEvent(input$perform.aggregation,{
   })
 })
 
-output$AggregationWellPanel_Step1 <- renderUI({
-  req(rv$current.obj)
-  
-  tagList(
-    
-    fluidRow(
-      column(width=6, uiOutput("specificPeptideBarplot")),
-      column(width=6, uiOutput("allPeptideBarplot"))
-    ),
-    DT::dataTableOutput("aggregationStats"),
-    uiOutput("ObserverAggregationDone")
-  )
-  
-})
-
 
 
 output$specificPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("Only specific peptides"),
-    plotOutput("aggregationPlotUnique") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotUnique", width="300px") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -345,7 +343,7 @@ output$allPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("All (specific & shared) peptides"),
-    plotOutput("aggregationPlotShared") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotShared", width="300px") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -411,13 +409,12 @@ output$Aggregation_Step2 <- renderUI({
 
 
 output$warningAgregationMethod <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return (NULL)}
+  req(rv$current.obj)
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
   {
-    tags$p("<font color=\"red\"> Warning: Your dataset contains missing values.
-    <br> For better results, you should impute  <br> them first")
+    tags$p(tags$b('Warning:')," Your dataset contains missing values.
+    For better results, you should impute them first")
   }
   
 })

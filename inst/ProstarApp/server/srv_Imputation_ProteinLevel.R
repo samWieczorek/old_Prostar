@@ -19,75 +19,6 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
 
 
 
-
-##########
-#####  UI for the PROTEIN LEVEL Imputation process
-##########
-# output$proteinLevelImputationPanel <- renderUI({
-#   isolate({
-#   tabsetPanel(
-#     id = "Imputation_tabSetPanel",
-#     
-#     tabPanel("1 - Partially Observed Values",
-#              value = "Classical_MV",
-#             splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-#                          wellPanel(id = "sidebar_Imputation1",
-#                                    height = "100%",
-#                                    br(),
-#                                    uiOutput("sidebar_imputation_step1"),
-#                                    actionButton("perform.imputationClassical.button",
-#                                                 "Perform imputation", class = actionBtnClass)
-#                                    
-#                          ),
-#                          tagList(
-#                            uiOutput("ImputationStep1Done"),
-#                            htmlOutput("helpForImputation"),
-#                            uiOutput("POV_showDetQuantValues"),
-#                            moduleMVPlotsUI("mvImputationPlots_MV")
-#                          )
-#                          
-#              )
-#     ),
-#     tabPanel("2 - Missing on the Entire Condition",
-#              value = "MEC_MV",
-#              #sidebarCustom(),
-#              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-#                          wellPanel(id = "sidebar_Imputation2",
-#                                    height = "100%",
-#                                    uiOutput("MEC_chooseImputationMethod"),
-#                                    uiOutput("MEC_Params"),
-#                                    actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)
-#                          ),
-#                          tagList(
-#                            htmlOutput("warningMECImputation"),
-#                            busyIndicator(WaitMsgCalc,wait = 0),
-#                            uiOutput("ImputationStep2Done"),
-#                            uiOutput("MEC_showDetQuantValues")
-#                            ,moduleMVPlotsUI("mvImputationPlots_MEC")
-#                            
-#                          )
-#              )
-#     ),
-#     tabPanel("3 - Validate & save",
-#              value = "Imputation_ValidateAndSave",
-#              splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-#                          wellPanel(id = "sidebar_Imputation3",
-#                                    height = "100%",
-#                                    busyIndicator(WaitMsgCalc,wait = 0),
-#                                    actionButton("ValidImputation","Save imputation", class = actionBtnClass)
-#                          ),
-#                          tagList(
-#                             uiOutput("ImputationSaved")
-#                          )
-#              )
-#     ) # end tabPanel(title = "4 - Validate and Save",
-#   )
-#   })
-
-
-
-
-
 ##--------------------------------------------------------------
 ## Gestion du slideshow
 ##--------------------------------------------------------------
@@ -153,7 +84,8 @@ output$POV_imputation <- renderUI({
   if (rv$pageProtImput != 1){return()}
   
   tagList(
-    tags$div(tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               uiOutput("sidebar_imputation_step1")),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               uiOutput("POV_Params")),
@@ -181,7 +113,7 @@ output$MEC_imputation <- renderUI({
   
  
   tagList(
-    htmlOutput("warningMECImputation"),
+    uiOutput("warningMECImputation"),
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                        uiOutput("MEC_chooseImputationMethod")),
@@ -208,18 +140,14 @@ output$MEC_imputation <- renderUI({
 output$Validate_ProtImput <- renderUI({
   if (rv$pageProtImput != 3){return()}
 
-  
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(id = "sidebar_Imputation3",
-                        height = "100%",
-                        busyIndicator(WaitMsgCalc,wait = 0),
-                        actionButton("ValidImputation","Save imputation", class = actionBtnClass)
-              ),
-              tagList(
-                uiOutput("ImputationSaved")
-                ,moduleMVPlotsUI("mvImputationPlots_Valid")
+  tagList(
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+             actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+               uiOutput("ImputationSaved")),
+    tags$hr(),
+    moduleMVPlotsUI("mvImputationPlots_Valid")
               )
-  )
 })
 
 
@@ -511,11 +439,11 @@ output$ImputationStep2Done <- renderUI({
   })
 })
 
-output$warningMECImputation<- renderText({
-  t <- "<font color=\"red\"><strong>Warning:</strong> Warning: Imputing MEC in a conservative way
-  <br>is a real issue as, in the given condition, there is no observed value to rely on.
-  <br> Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.</font color=\"red\">"
-  HTML(t)
+output$warningMECImputation<- renderUI({
+  
+  tags$p(tags$b("Warning:"),"Imputing MEC in a conservative way
+  is a real issue as, in the given condition, there is no observed value to rely on.
+   Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.")
 })
 
 
