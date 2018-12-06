@@ -107,22 +107,37 @@ observeEvent(input$nextBtnDiffAna, navPageDiffAna(1))
 
 
 
+
 output$diffAna_pairwiseComp <- renderUI({
   if (rv$pageDiffAna != 1){return()}
   
+  .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
   
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(
-                id = "sidebar_DiffAna2",
-                height = "100%"
-                ,uiOutput("newComparisonUI")
-                ,uiOutput("diffAnalysis_PairwiseComp_SB")
-                ,actionButton("AnaDiff_perform.filtering.MV", "Perform"),
-                uiOutput("tooltipInfo")
-              ),
-              tagList(
-                moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
-              )
+  tagList(
+    tags$div(
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+              #uiOutput("newComparisonUI")
+              selectInput("selectComparison","Select comparison",
+                          choices = c("None"="",.choices),
+                          selected = rv$widgets$anaDiff$Comparison,
+                          width='200px'),
+              checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+              modulePopoverUI("modulePopover_pushPVal"),
+              radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff)),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+              uiOutput("AnaDiff_seuilNADelete")),
+              
+    tags$div( style="display:inline-block; vertical-align: top;",
+              modulePopoverUI("modulePopover_volcanoTooltip"),
+              selectInput("tooltipInfo",
+                          label = NULL,
+                          choices = colnames(fData(rv$current.obj)),
+                          multiple = TRUE, selectize=FALSE,width='200px', size=5))
+  ),
+  actionButton("AnaDiff_perform.filtering.MV", "Perform push", class = actionBtnClass),
+  tags$hr(),
+  moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -199,33 +214,33 @@ output$anaDiffPanel <- renderUI({
 
 observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
 
-output$diffAna_pairwiseComp <- renderUI({
+# output$diffAna_pairwiseComp <- renderUI({
+# 
+#   if (rv$pageDiffAna != 1){return()}
+#   
+# 
+#   #req(rv$current.obj)
+#   isolate({
+#     tagList(
+#    # actionLink("toggleSidebar", "Hide/show options"),
+#   sidebarCustom(),
+#            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+#       wellPanel(
+#                id = "sidebar_DiffAna2",
+#                height = "100%"
+#                #,uiOutput("newComparisonUI")
+#                ,uiOutput("diffAnalysis_PairwiseComp_SB")
+#                ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
+#                 ),
+#    
+#    moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
+# 
+#            #)
+#   )
+#   )
+#   })
 
-  if (rv$pageDiffAna != 1){return()}
-  
-
-  #req(rv$current.obj)
-  isolate({
-    tagList(
-   # actionLink("toggleSidebar", "Hide/show options"),
-  sidebarCustom(),
-           splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-      wellPanel(
-               id = "sidebar_DiffAna2",
-               height = "100%"
-               #,uiOutput("newComparisonUI")
-               ,uiOutput("diffAnalysis_PairwiseComp_SB")
-               ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
-                ),
-   
-   moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
-
-           #)
-  )
-  )
-  })
-
-})
+#  })
 
 
 output$diffAna_pvalCalib <- renderUI({
@@ -256,6 +271,15 @@ output$diffAna_pvalCalib <- renderUI({
   })    
 
   
+
+
+
+
+callModule(modulePopover,"modulePopover_pValThreshold", 
+           data = reactive(list(title = HTML(paste0("<strong>p-val cutoff</strong>")), 
+                                content="Define the -log10(p_value) threshold")))
+
+
 output$diffAna_fdrCompute <- renderUI({
 
   if (rv$pageDiffAna != 3){return()}
@@ -263,20 +287,25 @@ output$diffAna_fdrCompute <- renderUI({
   if(as.character(input$selectComparison) == "None"){return(NULL)}
      
   isolate({
-  sidebarCustom()
-  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-              wellPanel(
-                id = "sidebar_DiffAna3", height = "100%",
-                textInput("seuilPVal",  "Define the -log10(p_value) threshold",
-                             value=rv$widgets$anaDiff$th_pval, width='100px'),
-                module_Not_a_numericUI("test_seuilPVal"),
-                uiOutput("tooltipInfo"),
-                br(),
-                checkboxInput("showpvalTable","Show p-value table", value=FALSE),
-                radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" )),
-                downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass)
+    tagList(
+      tags$div(
+        tags$div( style="display:inline-block; vertical-align: top; padding-right: 2px;",
+                  modulePopoverUI("modulePopover_pValThreshold"),
+                  textInput("seuilPVal",  NULL,
+                             value=rv$widgets$anaDiff$th_pval, width='100px')),
+        tags$div( style="display:inline-block; vertical-align: top;",
+                  module_Not_a_numericUI("test_seuilPVal")),
+        tags$div( style="display:inline-block; vertical-align: top;",
+                uiOutput("tooltipInfo")),
+        tags$div( style="display:inline-block; vertical-align: top;",
+                checkboxInput("showpvalTable","Show p-value table", value=FALSE)),
+        tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" ))),
+        tags$div( style="display:inline-block; vertical-align: top;",
+                downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
                 
               ),
+      tags$hr(),
              tagList(
                htmlOutput("showFDR"),
                moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
@@ -292,23 +321,23 @@ output$diffAna_fdrCompute <- renderUI({
 
 
 
-# output$anaDiff_selectedItems <- renderDT({
-#   
-#   DT::datatable(GetSelectedItems(),
-#                 escape = FALSE,
-#                 rownames=TRUE,
-#                 options = list(initComplete = initComplete(),
-#                                dom = 'Bfrtip',
-#                                server = TRUE,
-#                                columnDefs = list(list(width='200px',targets= "_all")),
-#                                ordering = TRUE)
-#   ) %>%
-#     formatStyle(
-#       'isDifferential',
-#       target = 'row',
-#       backgroundColor = styleEqual(c(0, 1), c("white","orange"))
-#     )
-# })
+output$anaDiff_selectedItems <- renderDT({
+
+  DT::datatable(GetSelectedItems(),
+                escape = FALSE,
+                rownames=TRUE,
+                options = list(initComplete = initComplete(),
+                               dom = 'Bfrtip',
+                               server = TRUE,
+                               columnDefs = list(list(width='200px',targets= "_all")),
+                               ordering = TRUE)
+  ) %>%
+    formatStyle(
+      'isDifferential',
+      target = 'row',
+      backgroundColor = styleEqual(c(0, 1), c("white","orange"))
+    )
+})
 
 
 output$downloadSelectedItems <- downloadHandler(
@@ -412,35 +441,15 @@ output$diffAna_Summary <- renderUI({
 
 
 
-
-
-
-
-output$warningNA <- renderUI({
-    rv$current.obj
-    if (is.null(rv$current.obj)) {return ()}
-    
-    NA.count <- length(which(is.na(Biobase::exprs((rv$current.obj)))))
-    
-    if(NA.count    >    0){
-        
-        text <- "<br> <br> <font color=\"red\">
-        Warning ! Your dataset contains empty lines so that the 
-        imputation cannot be proceed.
-        <br> <br> Please filter your data first."
-        HTML(text)
-    }
-})
-
-
-
 callModule(modulePopover,"modulePopover_volcanoTooltip", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Tooltip</font></strong>")), 
                                 content="Infos to be displayed in the tooltip of volcanoplot")))
 
-callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">P-Value push</font></strong>")),
+callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong>P-Value push</strong>")),
                                                                         content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
+callModule(modulePopover,"modulePopover_keepLines", data = reactive(list(title=HTML(paste0("<strong>n values</strong>")),
+                                                                        content= "Keep the lines which have at least n intensity values.")))
 
 output$AnaDiff_seuilNADelete <- renderUI({ 
   as.character(input$AnaDiff_ChooseFilters)
@@ -448,12 +457,14 @@ output$AnaDiff_seuilNADelete <- renderUI({
     if (as.character(input$AnaDiff_ChooseFilters)==gFilterNone) {return(NULL)   }
     
     choix <- getListNbValuesInLines(rv$current.obj, type=as.character(input$AnaDiff_ChooseFilters))
-   
-    selectInput("AnaDiff_seuilNA", 
-                "Keep lines with at least x intensity values", 
+    tagList(
+      modulePopoverUI("modulePopover_keepLines"),
+      selectInput("AnaDiff_seuilNA", 
+                NULL, 
                 choices = choix,
-                selected=rv$widgets$anaDiff$filter_th_NA)
-    
+                selected=rv$widgets$anaDiff$filter_th_NA,
+                width="100px")
+    )
 })
 
 
@@ -464,24 +475,6 @@ output$AnaDiff_seuilNADelete <- renderUI({
 
 
 
-
-
-output$diffAnalysis_PairwiseComp_SB <- renderUI({
-    #req(rv$res_AllPairwiseComparisons)
-    
-    .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
-    
-    tagList(
-        selectInput("selectComparison","Select comparison",
-                    choices = c("None"="",.choices),
-                    selected = rv$widgets$anaDiff$Comparison,
-                    width='auto'),
-        checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE),
-        br(),
-        modulePopoverUI("modulePopover_pushPVal"),
-        radioButtons("AnaDiff_ChooseFilters","", choices = gFiltersListAnaDiff),
-        uiOutput("AnaDiff_seuilNADelete")
-    ) })
 
 
 
@@ -531,22 +524,6 @@ if (as.character(input$AnaDiff_ChooseFilters) == gFilterNone){
 
 
 
-
-
-
-output$tooltipInfo <- renderUI({
-  #req(c(rv$current.obj,input$selectComparison))
-  
-  tagList(
-    hr(),
-    modulePopoverUI("modulePopover_volcanoTooltip"),
-    selectInput("tooltipInfo",
-                label = "",
-                choices = colnames(fData(rv$current.obj)),
-                multiple = TRUE, selectize=FALSE,width='500px', size=5)
-  )
-  
-})
 
 
 
@@ -818,7 +795,22 @@ GetSelectedItems <- reactive({
   req(rv$resAnaDiff$logFC)
   req(rv$resAnaDiff$P_Value )
   input$downloadAnaDiff
-<<<<<<< HEAD
+
+  # t <- NULL
+  # upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
+  # upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
+  # 
+  # if (input$downloadAnaDiff == "All"){
+  #   selectedItems <- 1:nrow(rv$current.obj)
+  #   significant <- rep(0, nrow(rv$current.obj))
+  #   significant[intersect(upItems1, upItems2)] <- 1
+  # } else {
+  #   selectedItems <- intersect(upItems1, upItems2)
+  #   significant <- rep(1, length(selectedItems))
+  # }
+  # 
+  # 
+
   
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
@@ -834,23 +826,7 @@ GetSelectedItems <- reactive({
   }
   
   
-=======
-  
-  t <- NULL
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
-  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
-  
-  if (input$downloadAnaDiff == "All"){
-    selectedItems <- 1:nrow(rv$current.obj)
-    significant <- rep(0, nrow(rv$current.obj))
-    significant[intersect(upItems1, upItems2)] <- 1
-  } else {
-    selectedItems <- intersect(upItems1, upItems2)
-    significant <- rep(1, length(selectedItems))
-  }
-  
-  
->>>>>>> chantier
+
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
                   P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),

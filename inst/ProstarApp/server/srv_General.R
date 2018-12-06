@@ -480,7 +480,7 @@ ClearMemory <- function(){
   rv$pageProtImput = 1
   rv$pageAggreg = 1
   rv$pageDiffAna = 1
-  
+  rv$pageGO = 1
 
   
   ########
@@ -692,6 +692,7 @@ rv <- reactiveValues(
   pageProtImput = 1,
   pageAggreg = 1,
   pageDiffAna = 1,
+  pageGO = 1,
   
   # variable to handle the current object that will be showed
     current.comp = NULL,

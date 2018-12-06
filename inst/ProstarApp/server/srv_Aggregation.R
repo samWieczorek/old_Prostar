@@ -77,7 +77,7 @@ output$Aggreg_Aggreg <- renderUI({
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top;",
                        uiOutput("chooseProteinId")),
-      tags$div( style="display:inline-block; vertical-align: top;;",       
+      tags$div( style="display:inline-block; vertical-align: top;",       
                         modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL, choices=
                                c("No" = "No",
@@ -103,7 +103,7 @@ output$Aggreg_Aggreg <- renderUI({
     tags$div(
        tags$div( style="display:inline-block; vertical-align: top;",
                  uiOutput("specificPeptideBarplot")),
-       tags$div( style="display:inline-block; vertical-align: top;",       
+       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
                  uiOutput("allPeptideBarplot")),
       tags$div( style="display:inline-block; vertical-align: top;",
     DT::dataTableOutput("aggregationStats2"))
@@ -298,10 +298,11 @@ output$aggregationStats2 <- DT::renderDataTable ({
                 rownames= FALSE,
                 extensions = c('Scroller', 'Buttons'),
                 option=list(initComplete = initComplete(),
-                            dom = 'Bfrtip',
+                            dom = 'Brt',
                             autoWidth=TRUE,
                             ordering=F,
-                            columnDefs = list(list(width='200px',targets= "_all"))
+                            columnDefs = list(list(width='150px',targets= 0),
+                                              list(width='100px',targets= 1))
                 )
   )
 })
@@ -335,7 +336,7 @@ output$specificPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("Only specific peptides"),
-    plotOutput("aggregationPlotUnique", width="300px") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotUnique", width="400px") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -343,7 +344,7 @@ output$allPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("All (specific & shared) peptides"),
-    plotOutput("aggregationPlotShared", width="300px") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotShared", width="400px") %>% withSpinner(type=spinnerType)
   )
 })
 
