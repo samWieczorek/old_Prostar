@@ -2,6 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(shinyjqui)
+library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
@@ -9,6 +10,7 @@ theme = shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- fluidPage(
+  #theme = "css/ceruleanProstar.css",
   theme = shinytheme("cerulean"),
   
   tagList(
@@ -24,7 +26,7 @@ shinyUI <- fluidPage(
        absolutePanel(
       id  = "AbsolutePanel",
       class = "panel panel-default",
-      style= "text-align: center; background-color: #2fa4e7;",
+      style= "text-align: center; background-color: #25949A;",
       top = '30%',
       left = '25%',
       width = "50%",
@@ -32,7 +34,7 @@ shinyUI <- fluidPage(
       draggable = FALSE,
       fixed = TRUE,
       tagList(
-        tags$h1(style='text-align: center', "Prostar is loading, please wait..."),
+        tags$h1(style='text-align: center; color: white', "Prostar is loading, please wait..."),
         br(),
         tags$div(class="progress",
                  tags$div(class="indeterminate")
@@ -45,7 +47,8 @@ shinyUI <- fluidPage(
   hidden(
     div(
       id = "main_content",
-      
+      tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                                sass_options(output_style = "expanded")))),
       rclipboardSetup(),
 
       tags$p("VERSION CHANTIER !!!", style='font-size: 30px; color: red;'),
@@ -54,6 +57,7 @@ shinyUI <- fluidPage(
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
+      
        sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
       #,includeCSS("www/css/fontawesome.css")
