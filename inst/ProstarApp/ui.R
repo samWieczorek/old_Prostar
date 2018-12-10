@@ -17,7 +17,8 @@ shinyUI <- fluidPage(
   
   shinyjs::useShinyjs(),
   includeCSS("www/progressBar/progressBar.css"),
-  
+  tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                            sass_options(output_style = "expanded")))),
   titlePanel("", windowTitle = "Prostar"),
   
   ###### DIV LOADING PAGE  #######
@@ -47,10 +48,11 @@ shinyUI <- fluidPage(
   hidden(
     div(
       id = "main_content",
-      tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
-                                sass_options(output_style = "expanded")))),
+      
       rclipboardSetup(),
 
+      tags$head(includeCSS("www/css/arrow.css")),
+      #tagList(tags$div(class="arrow")),
       tags$p("VERSION CHANTIER !!!", style='font-size: 30px; color: red;'),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),

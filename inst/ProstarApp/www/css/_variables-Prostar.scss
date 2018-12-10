@@ -11,8 +11,8 @@ $gray-800: #343a40;
 $gray-900: #212529;
 
 $a-color: #2fa4e7;
-$a-focus: #157ab5;
-$titles: #317eac;
+$a-focus: #37C9D4;
+$titles: #2998A0;
 $titles-small: #999999;
 $mark: #FCF8E3;
 $text-primary: #2fa4e7;
@@ -29,22 +29,25 @@ $bg-primary: #2fa4e7;
 $bg-primary-focus: #178acc;
 $bg-success: #dff0d8;
 $bg-success-focus: #c1e2b3;
-$bg-info: #d9edf7;
-$bg-info-focus: #afd9ee;
+$bg-info: #BAE1E4;
+$bg-info-focus: #A9EAEF;
 $bg-warning: #fcf8e3;
 $bg-warning-focus: #f7ecb5;
 $bg-danger: #f2dede;
 $bg-danger-focus: #e4b9b9;
-$btn-primary: #2fa4e7;
+$btn-primary: #37C9D4;
 $btn-primary-focus: #178acc;
-$btn-primary-focus-border: #105b87;
-$btn-primary-hover-border: #1684c2;
+$btn-primary-focus-border: #1C676C;
+$btn-primary-hover-border: #2998A0;
+$btn-primary-active-hover: #25878E;
+
+$btn-info-focus-background: #064F54;
 
 $navbar-inverse: #1C676C;
-$navbar-inverse-focus: #2EA8B1;
-$navbar-inverse-hover: #20777D;
-
-
+$navbar-inverse-focus: #28C0CB; /* items selectionnes du menu general */
+$navbar-inverse-hover: #20777D; /* items survoles du menu general */
+$navbar-default-open-dropdown-menu: #28C0CB;
+$navbar-default-border-color: #1995dc;
 $mark-background: #ff0;
 $mark-bg: #fcf8e3;
 $mark-color: #000;
@@ -61,9 +64,16 @@ $navbar-default-gradient-endColorstr: '#ff1d9ce5';
 $navbar-inverse-gradient-start: #2EA8B1;
 $navbar-inverse-gradient-60: #25878E;
 $navbar-inverse-gradient-end: #1C676C;
-$navbar-inverse-gradient-startColorstr: '#ff04519b';
-$navbar-inverse-gradient-endColorstr: '#ff033769';
+$navbar-inverse-gradient-startColorstr: '#ff2EA8B1';
+$navbar-inverse-gradient-endColorstr: '#ff1C676C';
 
+$progressbar-success-background-color: #73a839;
+
+$btn-info-gradient-start: #047E87;
+$btn-info-gradient-60: #0D7E86;
+$btn-info-gradient-end: #016066;
+$btn-info-gradient-endColorstr: '#ff016066';
+$btn-info-gradient-startColorstr: '#ff047E87';
 
 
 

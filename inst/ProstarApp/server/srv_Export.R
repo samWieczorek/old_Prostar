@@ -8,7 +8,7 @@ callModule(moduleStaticDataTable,"viewDataMining",
            showRownames=FALSE)
 
 callModule(moduleStaticDataTable,"viewProstarVersions", 
-           table2show=reactive({getPackagesVersions('installed')[-3,]}), 
+           table2show=reactive({getPackagesVersions()[-3,]}), 
            showRownames=FALSE)
 
 

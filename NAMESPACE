@@ -2,6 +2,7 @@
 import(rhandsontable)
 import(data.table)
 import(DAPAR)
+import(sass)
 import(webshot)
 import(htmlwidgets)
 importFrom(shinyWidgets,dropdownButton)
