@@ -52,7 +52,7 @@ URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 ## gestion des couleurs
 
 grey <- "#FFFFFF"
-
+orangeProstar <- "#E97D5E"
 # 
 # unsuspendAll <- function(session = getDefaultReactiveDomain()) {
 #   observe({

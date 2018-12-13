@@ -121,22 +121,17 @@ modulePopover <- function(input, output, session, data){
             div(
                 # edit1
                 style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
-                if (regexpr("Subsets", data()$title)[1] ==1){
-                    data()$title}
-                else
-                {
-                  data()$title
-                  }
+                    data()$title
             ),
             div(
             # edit2
             style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
-            if (regexpr("Subsets", data()$title)[1] ==1){
-                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
-                } else {
+            if (!is.null(data()$color) && ('white' == data()$color)) {
+              tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
+              } else {
                 tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
-                    },
-            bsPopover(id = ns("q1"), title = "",
+                },
+                   bsPopover(id = ns("q1"), title = "",
                       content = data()$content,
                       placement = "right", 
                       trigger = "hover", 
@@ -600,7 +595,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='t') {
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt') {
     
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
@@ -615,7 +610,8 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       
       isolate({
            DT::datatable(table2show(), 
-                          escape = FALSE,
+                         extensions = c('Scroller', 'Buttons'),
+                         escape = FALSE,
                           rownames= showRownames,
                           option=list(initComplete = initComplete(),
                                 dom = dom,

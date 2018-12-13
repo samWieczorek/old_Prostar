@@ -176,7 +176,6 @@ output$viewpData <- DT::renderDataTable({
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
   pal <- unique(rv$PlotParams$paletteConditions)
-  print(pal)
   dt <- DT::datatable(  data,
                         extensions = c('Scroller', 'Buttons'),
                         rownames=  FALSE,

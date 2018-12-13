@@ -1,21 +1,15 @@
 
-callModule(moduleStaticDataTable,"viewProcessingData", 
-           table2show=reactive({BuildParamDataProcessingDT()}), 
-           showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({BuildParamDataProcessingDT()}), showRownames=FALSE)
 
-callModule(moduleStaticDataTable,"viewDataMining", 
-           table2show=reactive({BuildParamDataMiningDT()}), 
-           showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE)
 
-callModule(moduleStaticDataTable,"viewProstarVersions", 
-           table2show=reactive({getPackagesVersions()[-3,]}), 
-           showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE)
 
 
 
 output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Original_peptide<- renderTree({list( "Descr stats"= ll_descrStats )})
+output$plotsFor_Original_peptide <- renderTree({list( "Descr stats"= ll_descrStats )})
 
 output$plotsFor_Filtered_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
 
@@ -23,18 +17,18 @@ output$plotsFor_Filtered_peptide <- renderTree({list( "Descr stats"= ll_descrSta
 
 output$plotsFor_Normalized_protein <- renderTree({list("Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
-output$plotsFor_Normalized_peptide<- renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
+output$plotsFor_Normalized_peptide <- renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
 output$plotsFor_Imputed_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Imputed_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
+output$plotsFor_Imputed_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
 
 output$plotsFor_HypothesisTest_protein <- renderTree({ list("Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
-output$plotsFor_HypothesisTest_peptide<- renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
+output$plotsFor_HypothesisTest_peptide <- renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
 output$plotsFor_Aggregated_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
-output$plotsFor_Aggregated_peptide<- renderTree({list( "Descr stats"= ll_descrStats)})
+output$plotsFor_Aggregated_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
 
 
 

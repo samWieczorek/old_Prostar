@@ -241,7 +241,8 @@ data <- eventReactive(rv$current$obj, {
 callModule(modulePopover,"modulePopover_dataset", 
            data = reactive(list(title = p(if(is.null(rv$current.obj.name)) "No dataset" else paste0(rv$current.obj.name)),
 
-                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
+                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.",
+                                color = 'white')))
 
 
 observeEvent(input$navbar,{
@@ -279,8 +280,8 @@ output$datasetAbsPanel <- renderUI({
     req(rv$current.obj.name)
      div(
          div(
-             style="display:inline-block; vertical-align: middle;"
-             ,modulePopoverUI("modulePopover_dataset")
+             style="display:inline-block; vertical-align: middle;",
+             modulePopoverUI("modulePopover_dataset")
              ),
          div(
              style="display:inline-block; vertical-align: middle;",
@@ -487,8 +488,8 @@ ClearMemory <- function(){
   ### Settings
   ########
   rv$current.comp = NULL
-  rv$colorsVolcanoplot = list(In="orange", Out='lightgrey')
-  rv$colorsTypeMV = list(MEC='orange', POV='lightblue')
+  rv$colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey')
+  rv$colorsTypeMV = list(MEC=orangeProstar, POV='lightblue')
   rv$typeOfPalette = 'predefined'
   rv$whichGroup2Color = 'Condition'
   rv$PCA_axes = c(1,2)
@@ -510,6 +511,8 @@ ClearMemory <- function(){
     rv$deleted.stringBased.fData = NULL
     rv$deleted.stringBased = NULL
 
+    
+    rv$pi0 = NULL
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -703,6 +706,7 @@ rv <- reactiveValues(
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
 
+  pi0 = NULL,
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
   PCA_axes = c(1,2),
@@ -713,8 +717,9 @@ rv <- reactiveValues(
   init.distance = "euclidean",
    outfile = NULL,
   tableVersions = NULL,
-  colorsVolcanoplot = list(In="orange", Out='lightgrey'),
-  colorsTypeMV = list(MEC='orange', POV='lightblue'),
+  
+  colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey'),
+  colorsTypeMV = list(MEC=orangeProstar, POV='lightblue'),
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),

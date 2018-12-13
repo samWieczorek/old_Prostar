@@ -1048,7 +1048,7 @@ a{
 	text-decoration:none
 }
 a:hover,a:focus{
-	color:#157ab5;
+	color:$a-hover-focus;
 	text-decoration:underline
 }
 a:focus{

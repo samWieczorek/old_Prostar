@@ -71,9 +71,11 @@ tabPanel("Descriptive statistics",
                                                         ),
                                                         tooltip="Plots parameters",
                                                         style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                                                      )))
+                                                      ))
+                                             )
                                            
-                                  ))),
+                                  )
+                                  )),
                               highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
                               
                               

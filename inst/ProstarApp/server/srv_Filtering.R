@@ -12,8 +12,8 @@ output$filteringDone <- renderUI({
   #input$datasets
   if( length(grep("Filtered", input$datasets))==0) {return()}
   
-  shinyjs::hide('prevBtnFiltering')
-  shinyjs::hide('nextBtnFiltering')
+ # shinyjs::hide('prevBtnFiltering')
+ # shinyjs::hide('nextBtnFiltering')
   
   tags$p(style="font-size: 24;",
          tags$b("The filtering has been processed."))
@@ -29,14 +29,14 @@ output$checkFilteringPanel <- renderUI({
   ##Step 1
   if (rv$pageFiltering >= 1){
     res <- rv$mvFiltering_Done
-    ifelse(res, color[1] <- "green", color[1] <- "orange")
+    ifelse(res, color[1] <- "green", color[1] <- orangeProstar)
   }
   
   ##Step 2: Choose data ID
   
   if (rv$pageFiltering >= 2){
     res <- rv$stringBasedFiltering_Done
-    ifelse(res, color[2] <- "green", color[2] <- "orange")
+    ifelse(res, color[2] <- "green", color[2] <- orangeProstar)
     
   } 
   
@@ -234,6 +234,7 @@ output$FilterSummaryData <- DT::renderDataTable({
   
   DT::datatable(rv$widgets$filtering$DT_filterSummary,
                 extensions = c('Scroller', 'Buttons'),
+                rownames = FALSE,
                 options=list(dom='Brt',
                              initComplete = initComplete(),
                              deferRender = TRUE,

@@ -105,7 +105,30 @@ observeEvent(input$nextBtnDiffAna, navPageDiffAna(1))
 ##--------------------------------------------------------
 ##---------------------------------------------------------
 
+output$pushPValUI <- renderUI({
+  req(input$selectComparison)
+  if (input$selectComparison == "None"){return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_pushPVal"),
+    radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff),
+    actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass)
+    
+  )
+})
 
+output$volcanoTooltip_UI <- renderUI({
+  req(input$selectComparison)
+  if (input$selectComparison == "None"){return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_volcanoTooltip"),
+    selectInput("tooltipInfo",
+            label = NULL,
+            choices = colnames(fData(rv$current.obj)),
+            multiple = TRUE, selectize=FALSE,width='200px', size=5)
+  )
+})
 
 
 output$diffAna_pairwiseComp <- renderUI({
@@ -123,19 +146,13 @@ output$diffAna_pairwiseComp <- renderUI({
                           width='200px'),
               checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              modulePopoverUI("modulePopover_pushPVal"),
-              radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff)),
+              uiOutput("pushPValUI")),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
               uiOutput("AnaDiff_seuilNADelete")),
               
     tags$div( style="display:inline-block; vertical-align: top;",
-              modulePopoverUI("modulePopover_volcanoTooltip"),
-              selectInput("tooltipInfo",
-                          label = NULL,
-                          choices = colnames(fData(rv$current.obj)),
-                          multiple = TRUE, selectize=FALSE,width='200px', size=5))
+              uiOutput("volcanoTooltip_UI"))
   ),
-  actionButton("AnaDiff_perform.filtering.MV", "Perform push", class = actionBtnClass),
   tags$hr(),
   moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
   )
@@ -257,17 +274,21 @@ output$diffAna_pvalCalib <- renderUI({
                  tags$div( style="display:inline-block; vertical-align: middle;",
                            hidden(numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
                                                 value = 0, min=0, max=1, step=0.05, width='200px'))
-                 )
+                 ),
+                 tags$div( style="display:inline-block; vertical-align: middle;",
+                            numericInput("nBinsHistpval", "n bins", min=1, value=80, width=('100px')))
+                 
                ),
                tags$hr(),
+               
                fluidRow(
-                 column(width=6,htmlOutput("errMsgCalibrationPlotAll"),
-                        plotOutput("calibrationPlotAll") %>% withSpinner(type=spinnerType)),
-                 column(width=6,uiOutput("errMsgCalibrationPlot"),
-                        plotOutput("calibrationPlot") %>% withSpinner(type=spinnerType)
-                 )
+                 column(width=6,fluidRow(style = "height:800px;",plotOutput("calibrationPlotAll", height='800px') %>% withSpinner(type=spinnerType))),
+                 column(width=6,fluidRow(style = "height:400px;",plotOutput("calibrationPlot", height='400px') %>% withSpinner(type=spinnerType)),
+                        fluidRow(style = "height:400px;",highchartOutput("histPValue"))
+                  )
                )
-             )
+   )
+
   })    
 
   
@@ -325,7 +346,7 @@ output$anaDiff_selectedItems <- renderDT({
 
   DT::datatable(GetSelectedItems(),
                 escape = FALSE,
-                rownames=TRUE,
+                rownames=FALSE,
                 options = list(initComplete = initComplete(),
                                dom = 'Bfrtip',
                                server = TRUE,
@@ -335,7 +356,7 @@ output$anaDiff_selectedItems <- renderDT({
     formatStyle(
       'isDifferential',
       target = 'row',
-      backgroundColor = styleEqual(c(0, 1), c("white","orange"))
+      backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
     )
 })
 
@@ -345,7 +366,7 @@ output$downloadSelectedItems <- downloadHandler(
   filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
   content = function(file) {
     print(paste0("file to write=", file))
-    DA_Style <- openxlsx::createStyle(fgFill = "orange")
+    DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
     
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
@@ -394,7 +415,7 @@ output$anaDiff_selectedItems <- renderDT({
     formatStyle(
       'isDifferential',
       target = 'row',
-      backgroundColor = styleEqual(c(0, 1), c("white","orange"))
+      backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
     )
 })
 
@@ -405,19 +426,15 @@ output$downloadSelectedItems <- downloadHandler(
   filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
   content = function(file) {
     print(paste0("file to write=", file))
-    DA_Style <- openxlsx::createStyle(fgFill = "orange")
+    DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
     
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
     ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
-    
-     openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col,
-                        rows = 1+ ll.DA.row, style = DA_Style)
-    
-     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
-     
+    openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col, rows = 1+ ll.DA.row, style = DA_Style)
+    openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
   })
 
 
@@ -452,6 +469,10 @@ callModule(modulePopover,"modulePopover_keepLines", data = reactive(list(title=H
                                                                         content= "Keep the lines which have at least n intensity values.")))
 
 output$AnaDiff_seuilNADelete <- renderUI({ 
+  req(input$AnaDiff_ChooseFilters)
+  req(input$selectComparison)
+  if (input$selectComparison == "None"){return(NULL)}
+  
   as.character(input$AnaDiff_ChooseFilters)
     req(rv$current.obj)
     if (as.character(input$AnaDiff_ChooseFilters)==gFilterNone) {return(NULL)   }
@@ -487,6 +508,7 @@ GetBackToCurrentResAnaDiff <- reactive({
                         condition1 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][1],
                         condition2 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][2]
   )
+  rv$resAnaDiff
 })
 
 
@@ -582,17 +604,30 @@ output$showFDR <- renderUI({
 
 
 histPValue <- reactive({
-    req(rv$current.obj)
+    req(rv$resAnaDiff)
+    req(rv$pi0)
+    req(input$nBinsHistpval)
+    rv$widgets$hypothesisTest$th_logFC
+    
+    if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ||
+        (length(rv$resAnaDiff$logFC) == 0)) { return()}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
+    
+    
     t <- NULL
-     data <- RunDiffAna()
-        if (is.null(data)) {return ()}
-        t <- data$P_Value
-  hist(sort(1-t), breaks=80, col=grey)
+    method <- NULL
+    t <- rv$resAnaDiff$P_Value
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
+    toDelete <- which(t==1)
+    if (length(toDelete) > 0){	t <- t[-toDelete] }
+    
+    
+    histPValue_HC(t,bins=input$nBinsHistpval, pi0=rv$pi0)
     
     
 })
 
-output$histPValue <- renderPlot({
+output$histPValue <- renderHighchart({
     histPValue()
 })
 
@@ -646,9 +681,7 @@ calibrationPlot <- reactive({
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
-    if (length(toDelete) > 0){
-	t <- t[-toDelete]
-     }
+    if (length(toDelete) > 0){	t <- t[-toDelete] }
     
     
     
@@ -673,7 +706,7 @@ calibrationPlot <- reactive({
                 ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
                 rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
             }
-            
+        rv$pi0 <- ll$value$pi0            
         }
         , warning = function(w) {
             shinyjs::info(paste("Calibration plot",":",
@@ -792,10 +825,9 @@ output$equivLog10 <- renderText ({
 
 
 GetSelectedItems <- reactive({
-  req(rv$resAnaDiff$logFC)
-  req(rv$resAnaDiff$P_Value )
+  req(rv$resAnaDiff)
   input$downloadAnaDiff
-
+print(input$downloadAnaDiff)
   # t <- NULL
   # upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
   # upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)

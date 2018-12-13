@@ -59,7 +59,10 @@ shinyUI <- fluidPage(
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
-      
+      # tags$head(tags$style(" table.dataTable thead th {
+      #                      padding: 8px 10px !important;
+      #                      }
+      #                      ")),
        sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
       #,includeCSS("www/css/fontawesome.css")
@@ -69,8 +72,8 @@ shinyUI <- fluidPage(
                   height: 20px;
                   margin: 2px;
                   border: 1px solid rgba(0, 0, 0, .2);}")
-      , inlineCSS(".green {background: green;}")
-      , inlineCSS(".red {background:red;}")
+      , inlineCSS(".green {background: #06AB27}")
+      , inlineCSS(".red {background: #C90404}")
       , inlineCSS(".grey {background:lightgrey;}"),
       #tags$style(".btn.disabled {background-color: red;}"),
      # inlineCSS('.btn{color: blue; background-color: #35e51d}'),

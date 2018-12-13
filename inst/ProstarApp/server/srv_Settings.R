@@ -48,7 +48,7 @@ output$defineColorsUI <- renderUI({
   bsCollapse(id = "collapseExample", open = "",
              bsCollapsePanel("Colors for conditions", uiOutput("defineColorsForConditionsUI"), style = "primary"),
              bsCollapsePanel("Colors for missing values", tagList(
-               colourpicker::colourInput("colMEC", "Select colour for MEC", "orange",showColour = "background"),
+               colourpicker::colourInput("colMEC", "Select colour for MEC", orangeProstar,showColour = "background"),
                colourpicker::colourInput("colPOV", "Select colour for POV", "lightblue", showColour = "background")
              ), style = "primary"),
              bsCollapsePanel("Colors for volcanoplots", 

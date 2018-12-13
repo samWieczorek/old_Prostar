@@ -25,7 +25,7 @@ tabPanel(title="Global settings",
                      selectInput("resoPNGplots", "Resolution", choices = c(150), width='100px'))
            )),
          tabPanel("Colors",
-                  div(id = 'showInfoColorOptions', tags$p("The options for customize the colors are available when a dataset is loaded.")),
+                  div(id = 'showInfoColorOptions', tags$p("Color customization is available after data loading only.")),
                   hidden(uiOutput("defineColorsUI"))
          )
          )
