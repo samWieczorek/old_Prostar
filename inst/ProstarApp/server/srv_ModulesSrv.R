@@ -384,9 +384,10 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
 
     isolate({
       
-        df <- data_frame(x=rv$resAnaDiff$logFC, 
+        df <- data_frame(x = rv$resAnaDiff$logFC, 
                          y = -log10(rv$resAnaDiff$P_Value),
                          index = 1:nrow(fData(rv$current.obj)))
+        print(str(df))
         if (!is.null( tooltip())){
           df <- cbind(df,fData(rv$current.obj)[ tooltip()])
         }
