@@ -15,14 +15,13 @@ output$filteringDone <- renderUI({
  # shinyjs::hide('prevBtnFiltering')
  # shinyjs::hide('nextBtnFiltering')
   
-  tags$p(style="font-size: 24;",
-         tags$b("The filtering has been processed."))
+  tags$p(style="font-size: 24;",tags$b("The filtering has been processed."))
   
   
 })
 
 output$checkFilteringPanel <- renderUI({
-  
+ # input$datasets
   #rv$pageFiltering
   color <- rep("lightgrey",NUM_PAGES_FILTERING)
   
