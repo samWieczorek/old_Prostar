@@ -3,6 +3,52 @@ callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({Ge
 
 
 
+
+NUM_PAGES_AGGREG <- 2
+
+
+output$checkAggregPanel <- renderUI({
+  rv$pageAggreg
+  color <- rep("lightgrey",NUM_PAGES_AGGREG)
+  
+  ##Step 1
+  if (rv$pageAggreg >= 1){
+    res <- !is.null(rv$temp.aggregate)
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageAggreg >= 2){
+    res <- length(grep("Aggregated",input$datasets))
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  } 
+  
+  txt <- c("Aggregation", "Validation")
+  buildTable(txt, color)
+})
+
+
+observe({
+  toggleState(id = "prevBtnAggreg", condition = rv$pageAggreg > 1)
+  toggleState(id = "nextBtnAggreg", condition = rv$pageAggreg < NUM_PAGES_AGGREG)
+  hide(selector = ".page")
+})
+
+navPageAggreg <- function(direction) {
+  rv$pageAggreg <- rv$pageAggreg + direction
+}
+
+observeEvent(input$prevBtnAggreg, navPageAggreg(-1))
+observeEvent(input$nextBtnAggreg, navPageAggreg(1))
+
+
+
+
+
+
+
 # output$Aggreg_Aggreg <- renderUI({
 #   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
 #               uiOutput("AggregationSideBar_Step1"),
@@ -12,7 +58,68 @@ callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({Ge
 # })
 
 
+callModule(modulePopover,"modulePopover_includeShared", 
+           data = reactive(list(title=HTML(paste0("<strong>Include shared peptides</strong>")),
+                                content= HTML(paste0("<ul><li><strong>No:</strong> only protein-specific peptides</li><li><strong>Yes 1:</strong> shared peptides processed as protein specific</li><li><strong>Yes 2</strong>: proportional redistribution of shared peptides</li></ul>")
+                                              )
+                                )
+                           )
+           )
+
+
+
+output$Aggreg_Aggreg <- renderUI({
+  #if (rv$pageAggreg != 1){return()}
+  
+  
+  tagList(
+    uiOutput("warningAgregationMethod"),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top;",
+                       uiOutput("chooseProteinId")),
+      tags$div( style="display:inline-block; vertical-align: top;",       
+                        modulePopoverUI("modulePopover_includeShared"),
+                radioButtons("radioBtn_includeShared", NULL, choices=
+                               c("No" = "No",
+                                 "as protein specific"= "Yes1" ,
+                                 "redistribution" = "Yes2" ),
+                             selected=rv$widgets$aggregation$includeSharedPeptides)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+              radioButtons("AggregationConsider", "Consider", 
+                                     choices=c('all peptides'="allPeptides", 
+                                               "N most abundant"="onlyN"), 
+                                     selected=rv$widgets$aggregation$considerPeptides)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+                numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
+      
+      tags$div( style="display:inline-block; vertical-align: top;",
+                radioButtons("AggregationOperator", "Operator", 
+                                     choices=c("Mean"="Mean"), 
+                                     selected=rv$widgets$aggregation$operator))
+      ),
+    actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
+    uiOutput("ObserverAggregationDone"),
+   
+    tags$hr(),
+    tags$div(
+       tags$div( style="display:inline-block; vertical-align: top;",
+                 uiOutput("specificPeptideBarplot")),
+       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
+                 uiOutput("allPeptideBarplot")),
+      tags$div( style="display:inline-block; vertical-align: top;",
+    DT::dataTableOutput("aggregationStats2"))
+    )
+   
+  )
+   
+
+})
+
+
+
 output$Aggreg_Valid <- renderUI({
+  #if (rv$pageAggreg != 2){return()}
+  
   tagList(
     uiOutput(outputId = "progressSaveAggregation"),
     busyIndicator(WaitMsgCalc,wait = 0),
@@ -42,32 +149,43 @@ RunAggregation <- reactive({
   input$AggregationConsider
   input$nTopn
     
-   require(foreach)
+  ntotal <- 2
+  withProgress(message = '',detail = '', value = 0, {
+    
+    incProgress(1/ntotal, detail = 'Loading foreach package')
+    require(foreach)
     obj.prot <- NULL
     if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides
       if (input$radioBtn_includeShared == 'Yes1'){
           if (input$AggregationConsider == 'allPeptides') {
-              obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
-          } else {
+            incProgress(1/ntotal, detail = 'aggregate')
+            obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
+           } else {
+            incProgress(1/ntotal, detail = 'aggregate.topn')
             obj.prot <- aggregate.topn(X, rv$current.obj, n=as.numeric(input$nTopn), input$AggregationOperator)
           }
       } else {
+        incProgress(1/ntotal, detail = 'aggregateIterParallel')
         if (input$AggregationConsider == 'allPeptides') {
           obj.prot <- aggregateIterParallel(rv$current.obj, X,init.method='Sum', method='Mean')
+          
         } else {
           obj.prot <- aggregateIterParallel(rv$current.obj, X, init.method='Sum', method='onlyN', n=input$nTopn)
         }
-      }
+        }
     } else {
       X <- rv$matAdj$matWithUniquePeptides
       if (input$AggregationConsider == 'allPeptides') {
+        incProgress(1/ntotal, detail = 'aggregate')
         obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(obj.pep=rv$current.obj,X=X))
       } else {
+        incProgress(1/ntotal, detail = 'aggregateTopn')
         obj.prot <- aggregateTopn(rv$current.obj, X,n=input$nTopn, input$AggregationOperator)
       }
     }
-        
+       
+  }) 
     return(obj.prot)
 
 })
@@ -125,7 +243,7 @@ observeEvent(input$valid.aggregation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
     
     rv$dataset[[name]] <- rv$current.obj
-    
+    rv$temp.aggregate <- NULL
     #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}
@@ -150,10 +268,10 @@ observeEvent(input$valid.aggregation,{
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
   req(input$perform.aggregation)
-  isolate({
+  #isolate({
      h3("Aggregation done")
 
-  })
+  #})
 })
 
 
@@ -169,11 +287,11 @@ observeEvent(req(input$proteinId),{
 
 
 
-output$aggregationStats <- renderDataTable ({
-  req(input$proteinId)
+output$aggregationStats2 <- DT::renderDataTable ({
+  #req(input$proteinId)
   req(rv$current.obj)
   req(rv$matAdj)
-  if (input$proteinId == "None") {return(NULL)}
+  if (!is.null(input$proteinId) && input$proteinId == "None") {return(NULL)}
   
   res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
                           rv$matAdj$matWithSharedPeptides)
@@ -191,11 +309,13 @@ output$aggregationStats <- renderDataTable ({
   DT::datatable(df, 
                 escape = FALSE,
                 rownames= FALSE,
+                extensions = c('Scroller', 'Buttons'),
                 option=list(initComplete = initComplete(),
-                            dom = 't',
+                            dom = 'Brt',
                             autoWidth=TRUE,
                             ordering=F,
-                            columnDefs = list(list(width='200px',targets= "_all"))
+                            columnDefs = list(list(width='150px',targets= 0),
+                                              list(width='100px',targets= 1))
                 )
   )
 })
@@ -217,25 +337,11 @@ output$aggregationPlotUnique <- renderPlot({
 ###------------ Perform aggregation--------------------
 observeEvent(input$perform.aggregation,{
   
-  isolate({
+  #isolate({
       rv$temp.aggregate <- RunAggregation()
+      print("End aggregation")
 
-  })
-})
-
-output$AggregationWellPanel_Step1 <- renderUI({
-  req(rv$current.obj)
-  
-  tagList(
-    
-    fluidRow(
-      column(width=6, uiOutput("specificPeptideBarplot")),
-      column(width=6, uiOutput("allPeptideBarplot"))
-    ),
-    dataTableOutput("aggregationStats"),
-    uiOutput("ObserverAggregationDone")
-  )
-  
+  #})
 })
 
 
@@ -244,7 +350,7 @@ output$specificPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("Only specific peptides"),
-    plotOutput("aggregationPlotUnique") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotUnique", width="400px") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -252,7 +358,7 @@ output$allPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("All (specific & shared) peptides"),
-    plotOutput("aggregationPlotShared") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotShared", width="400px") %>% withSpinner(type=spinnerType)
   )
 })
 
@@ -299,7 +405,7 @@ output$Aggregation_Step2 <- renderUI({
                       selectize = FALSE)
         )
       ) ,
-      actionButton("valid.aggregation","Save aggregation", sclass = actionBtnClass)
+      actionButton("valid.aggregation","Save aggregation", class = actionBtnClass)
     )
     
   } else {
@@ -318,15 +424,12 @@ output$Aggregation_Step2 <- renderUI({
 
 
 output$warningAgregationMethod <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return (NULL)}
+  req(rv$current.obj)
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
   {
-    text <- "<font color=\"red\"> Warning ! <br> 
-    Your dataset contains missing values.
-    <br> For better results, you should impute  <br> them first"
-    HTML(text)
+    tags$p(style='color: red;', tags$b('Warning:')," Your dataset contains missing values.
+    For better results, you should impute them first")
   }
   
 })

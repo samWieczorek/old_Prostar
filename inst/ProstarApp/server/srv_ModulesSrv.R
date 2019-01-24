@@ -101,7 +101,8 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor)
     req(rv$current.obj, quant(), factor())
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
-      DT::datatable(as.data.frame(t(values$shiftedImpVal)), 
+      DT::datatable(as.data.frame(t(values$shiftedImpVal)),
+                    rownames = FALSE,
                     options = list(initComplete = initComplete(),
                                    dom = 't',
                                    bLengthChange = FALSE))
@@ -119,23 +120,18 @@ modulePopover <- function(input, output, session, data){
           div(
             div(
                 # edit1
-                style="display:inline-block; vertical-align: middle;",
-                if (regexpr("Subsets", data()$title)[1] ==1){
-                    data()$title}
-                else
-                {
-                  data()$title
-                  }
+                style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
+                    data()$title
             ),
             div(
             # edit2
-            style="display:inline-block; vertical-align: middle;",
-            if (regexpr("Subsets", data()$title)[1] ==1){
-                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
-                } else {
+            style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
+            if (!is.null(data()$color) && ('white' == data()$color)) {
+              tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
+              } else {
                 tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
-                    },
-            bsPopover(id = ns("q1"), title = "",
+                },
+                   bsPopover(id = ns("q1"), title = "",
                       content = data()$content,
                       placement = "right", 
                       trigger = "hover", 
@@ -156,7 +152,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session,comp, tooltip){
+moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
   
   ns <- session$ns
   
@@ -166,16 +162,17 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     if (is.null(rv$matAdj)){
       bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"))
+                 bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
     } else {
-      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-               bsCollapsePanel("Protein", dataTableOutput(ns("Infos")),style = "info"),
-               bsCollapsePanel("Specific peptides", dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
-               bsCollapsePanel("Shared peptides", dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
+      bsCollapse(id = ns("collapseVolcanoInfos"), open = c("Protein","Specific peptides","Shared peptides") ,multiple = TRUE,
+               bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
+               bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
+               bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
     }
   })
   
   
+  ##------------------------------------------------------------------------------
   output$nbSelectedItems <- renderUI({ 
     
     rv$widgets$anaDiff$th_pval
@@ -222,20 +219,49 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   
   
+  GetSortingIndices <- reactive({
+    req(comp())
+    
+    condition1 = strsplit(comp(), "_vs_")[[1]][1]
+    condition2 = strsplit(comp(), "_vs_")[[1]][2]
+    if (length(grep("all",condition2))==0) {
+      ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
+                which(pData(rv$current.obj)$Condition==condition2))
+    } else {
+      ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
+                c(1:nrow(pData(rv$current.obj)))[-(which(pData(rv$current.obj)$Condition==condition1))])
+    }
+    
+    ind
+    
+  })
+  
+  GetBorderIndices <- reactive({
+    conds <- (pData(rv$current.obj)$Condition)[GetSortingIndices()]
+    ## build index for border-formatting
+    borders_index <- unlist(lapply(unique(conds), function(x){first(grep(x, conds))}))
+    borders_index
+  })
+  
+  ##------------------------------------------------------------------------------
   
   output$sharedPeptidesInfos <- renderDataTable({
-    req(rv$current.obj)
+    #req(rv$current.obj)
     req(comp())
-    req(rv$matAdj)
+    #req(rv$matAdj)
     
+    
+    ind <- GetSortingIndices()
+    borders_index <- GetBorderIndices()
     
     prev.dataset <- rv$dataset[[names(rv$dataset)[last(grep(pattern='peptide', names(rv$dataset)))]]]
     
     prot <- GetExprsClickedProtein()
     prot.indice <- rownames(prot)
-    print(prot.indice)
     
     data <- getDataForExprs(prev.dataset)
+    data <- data[,c(ind, (ind + ncol(data)/2))]
+    
     Xspec <- rv$matAdj$matWithUniquePeptides
     Xshared <- rv$matAdj$matWithSharedPeptides
     
@@ -245,9 +271,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     peptidesIndices <- setdiff(allPeptidesIndices, specificPeptidesIndices)
     data <- data[peptidesIndices,]
     
-    dt <- datatable( data,colnames=NULL,
+    dt <- datatable( data,
+                     #colnames=NULL,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -258,35 +286,44 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
-      )
+      ) %>% 
+      formatStyle(borders_index, borderLeft = '3px solid #000000')
     
     dt
   })
   
   
+  ##------------------------------------------------------------------------------
   output$specificPeptidesInfos <- renderDataTable({
-    req(rv$current.obj)
+    #req(rv$current.obj)
     req(comp())
-    req(rv$matAdj)
+    #req(rv$matAdj)
     
+    ind <- GetSortingIndices()
+    borders_index <- GetBorderIndices()
     
     prev.dataset <- rv$dataset[[names(rv$dataset)[last(grep(pattern='peptide', names(rv$dataset)))]]]
     
     prot <- GetExprsClickedProtein()
     prot.indice <- rownames(prot)
-    print(prot.indice)
     
     data <- getDataForExprs(prev.dataset)
+    data <- data[,c(ind, (ind + ncol(data)/2))]
+    
+    
     Xspec <- rv$matAdj$matWithUniquePeptides
     
     i <- which(colnames(Xspec)==prot.indice)
-    print(i)
     peptidesIndices <- which(Xspec[,i]==1)
     data <- data[peptidesIndices,]
     
-    dt <- datatable( data, colnames=NULL,
+    #data <- data[,ind]
+    
+    dt <- datatable( data, 
+                     #colnames=NULL,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -297,12 +334,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
-      )
+      ) %>% 
+      formatStyle(borders_index, borderLeft = '3px solid #000000')
     
     dt
   })
   
   
+  ##------------------------------------------------------------------------------
   GetExprsClickedProtein <- reactive({
     req(rv$current.obj)
     req(comp())
@@ -312,18 +351,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     
     rv$resAnaDiff
     
-    condition1 = strsplit(comp(), "_vs_")[[1]][1]
-    condition2 = strsplit(comp(), "_vs_")[[1]][2]
-     
-
-    ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
-              which(pData(rv$current.obj)$Condition==condition2))
+    ind <- GetSortingIndices()
     
-     
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
     
-    data <-getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
@@ -341,14 +374,23 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   })
   
   
+  
+  
+  ##------------------------------------------------------------------------------
   output$Infos <- renderDataTable({ 
+    req(comp())
     
-
+    borders_index <- GetBorderIndices()
+    
     data <- GetExprsClickedProtein()
+   
+    print('################### Dans Infos  #################')
+    print(colnames(data))
     
     dt <- datatable( data,
+                     extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
-                                    dom='t',
+                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -359,24 +401,24 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
-      )
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))) %>% 
+      formatStyle(borders_index, borderLeft = '3px solid #000000')
+      
     
     
     dt
   })
   
-  
+  ##---------------------------------------------------------------------
   output$volcanoPlot <-  renderHighchart({ 
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
+    rv$resAnaDiff
     tooltip()
+    swap()
     
-    print(rv$widgets$anaDiff$th_pval)
-    print(rv$widgets$hypothesisTest$th_logFC)
-    print(str(rv$resAnaDiff))
-    
+     
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
@@ -406,12 +448,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                                    threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                    conditions = cond,
                                    clickFunction=clickFun,
-                                   rv$colorsVolcanoplot)
+                                   rv$colorsVolcanoplot, swap())
         
         })
-    
+
     rv$tempplot$volcano
-    })
+  })
   
   
 }
@@ -550,6 +592,7 @@ moduleMVPlots <- function(input, output, session, data) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
+
     wrapper.hc_mvTypePlot2(data())
   })
   
@@ -595,7 +638,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='t') {
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt') {
     
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
@@ -610,7 +653,8 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       
       isolate({
            DT::datatable(table2show(), 
-                          escape = FALSE,
+                         extensions = c('Scroller', 'Buttons'),
+                         escape = FALSE,
                           rownames= showRownames,
                           option=list(initComplete = initComplete(),
                                 dom = dom,

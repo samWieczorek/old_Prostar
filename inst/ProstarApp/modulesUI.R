@@ -61,7 +61,7 @@ moduleDetQuantImpValuesUI <- function(id){
   tagList(
     h5("The missing values will be imputed by the following values :"),
     
-  dataTableOutput(ns("detQuantValues_DT"))
+  DT::dataTableOutput(ns("detQuantValues_DT"))
   )
 }
 
@@ -89,10 +89,14 @@ moduleDensityplotUI <- function(id) {
 
 moduleMVPlotsUI <- function(id) {
     ns <- NS(id)
-      tagList( highchartOutput(ns("plot_viewNAbyMean"), width='800px'),
-               plotOutput(ns("plot_showImageNA"), width='800px')
+      tagList( 
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    plotOutput(ns("plot_showImageNA"), width='600px'))
        )
-
+      )
 }
 
 
@@ -119,10 +123,10 @@ moduleDesignExampleUI <- function(id){
 moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
-      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='150px'),
-    highchartOutput(ns("BoxPlot")),
-    plotOutput(ns("viewViolinPlot"))
-    )
+      highchartOutput(ns("BoxPlot")),
+      plotOutput(ns("viewViolinPlot")),
+      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+      )
 }
 
 
@@ -130,7 +134,7 @@ moduleStaticDataTableUI <- function(id) {
     ns <- NS(id)
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
-                withSpinner(dataTableOutput(ns("StaticDataTable")))
+                withSpinner(DT::dataTableOutput(ns("StaticDataTable")))
       )
     )
     

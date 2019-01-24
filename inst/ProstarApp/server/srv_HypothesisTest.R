@@ -32,7 +32,7 @@ output$testPanel <- renderUI({
                                        selected=input$ttest_options,
                                        width='150px'))
         ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   textInput("seuilLogFC", "log(FC) threshold",  
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),

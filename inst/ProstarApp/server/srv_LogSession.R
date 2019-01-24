@@ -27,10 +27,10 @@ output$logSession <- DT::renderDataTable({
   
   dt <- DT::datatable(rv$text.log,
                       escape = FALSE,
-                      extensions = 'Scroller',
+                      extensions = c('Scroller', 'Buttons'),
                       rownames = FALSE,
                       options=list(initComplete = initComplete(),
-                                   dom = 't',
+                                   dom = 'Bfrtip',
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
                                    bLengthChange = FALSE,

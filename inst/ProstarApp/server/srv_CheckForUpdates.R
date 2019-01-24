@@ -4,12 +4,13 @@
 
 
 
-output$tab_versions <- renderDataTable({
+output$tab_versions <- DT::renderDataTable({
   dt <- DT::datatable(getPackagesVersions(), 
                       escape = FALSE,
                       rownames= FALSE,
+                      extensions = c('Scroller', 'Buttons'),
                       option=list(initComplete = initComplete(),
-                                  dom = 't',
+                                  dom = 'Brt',
                                   autoWidth=TRUE,
                                   ordering = F,
                                   columnDefs = list(list(visible=FALSE,targets=c(3)),
@@ -27,19 +28,19 @@ output$tab_versions <- renderDataTable({
 #   
 #   BiocManager::install("Prostar", update=TRUE, ask=FALSE)
 # })
-
-
+# 
+# 
 # 
 # output$update <- renderUI({
 #   
-#   if(!file.exists(file.path(".", "prostar.conf"))){
-#     tags$p("Unable to find the file prostar.conf")
-#     return(NULL)
-#   }
-#   conf <- read.table("prostar.conf", header=FALSE)
+#   # if(!file.exists(file.path(".", "prostar.conf"))){
+#   #   tags$p("Unable to find the file prostar.conf")
+#   #   return(NULL)
+#   # }
+#   # conf <- read.table("prostar.conf", header=FALSE)
 #   df <- getPackagesVersions()
 #   if (sum(df[,"NeedsUpdate"])==0) {return(NULL)}
-#   if (!(conf[which(conf[1,]=="R-Portable"),2])) {return(NULL)}
+#   #if (!(conf[which(conf[1,]=="R-Portable"),2])) {return(NULL)}
 #   
 #   tagList(
 #     tags$p(class="body",
@@ -50,7 +51,7 @@ output$tab_versions <- renderDataTable({
 #   
 #   
 # })
-
+# 
 
 
 
@@ -58,23 +59,9 @@ output$baseVersions <- renderUI({
   
   tagList(
     
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; margin-right: 20px;",
-                tags$img(src='images/Rlogo.svg', height='30px')
-      ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
-                tags$p(R.version.string, style="font-size: 16px")
-      )
-    ),
-    tags$br(),
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; margin-right: 20px;",
-                tags$img(src='images/logo_bioconductor.gif', height='30px')
-      ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
-                tags$p(paste0("Release ",as.character(BiocManager::version())), style="font-size: 16px")
-      )
-    ),
+    tags$p(R.version.string, style="font-size: 16px"),
+    tags$p(paste0("Bioconductor Release ",as.character(BiocManager::version())), style="font-size: 16px"),
+  
     tags$br()
   )
   

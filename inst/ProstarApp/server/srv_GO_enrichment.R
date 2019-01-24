@@ -1,109 +1,189 @@
 
 
 
+##--------------------------------------------------------
+##---------------------------------------------------------
+
+output$checkGOPanel <- renderUI({
+  rv$pageGO
+  color <- rep("lightgrey",NUM_PAGES_GO)
+  
+  ##Step 1
+  if (rv$pageGO >= 1){
+    res <- TRUE
+    ifelse(res, color[1] <- "green", color[1] <- "red")
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageGO >= 2){
+    res <- TRUE
+    ifelse(res, color[2] <- "green", color[2] <- "red")
+    
+  }
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageGO >= 3){
+    res <- TRUE
+    
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+    
+  }
+  
+  if (rv$pageGO >= 4){
+    res <- TRUE
+    ifelse(res, color[4] <- "green", color[4] <- "red")
+  }
+  
+  
+  txt <- c("GO setup", "GO classification", "GO enrichment", "Parameter summary")
+  buildTable(txt, color)
+})
+
+NUM_PAGES_GO <- 4
+
+observe({
+  toggleState(id = "prevBtnGO", condition = rv$pageGO > 1)
+  toggleState(id = "nextBtnGO", condition = rv$pageGO < NUM_PAGES_GO)
+  hide(selector = ".page")
+})
+
+navPageGO <- function(direction) {
+  rv$pageGO <- rv$pageGO + direction
+}
+
+observeEvent(input$prevBtnGO, navPageGO(-1))
+observeEvent(input$nextBtnGO, navPageGO(1))
+
+##--------------------------------------------------------
+##---------------------------------------------------------
+
+
 
 output$GOAnalysisMenu <- renderUI({
     req(rv$current.obj)
+   isolate({
     
-    tabsetPanel(
-            id = "tabsetPanel_GO",
-            tabPanel("GO Setup",
-                     sidebarCustom(),
-                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                 wellPanel(id = "sidebar_Normalization"
-                                           ,height = "100%"
-                                           , radioButtons("sourceOfProtID", "Source of protein ID",
-                                                          choices = G_sourceOfProtID_Choices)
-                                           
-                                           ,uiOutput("chooseSourceForProtID")
-                                           ,selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"))
-                                           ,modulePopoverUI("modulePopover_GenomeWide")
-                                           ,selectInput("Organism", "", choices = GetListInstalledOrgdDB())
-                                           ,selectInput("Ontology", "Ontology",choices = G_ontology_Choices)
-                                           ,actionButton("mapProtein.GO.button",
-                                                        "Map proteins IDs", class = actionBtnClass)
-                                 )
-                                 ,tagList(
-                                     uiOutput("warnDifferentSizeID"),
-                                     uiOutput("infoIDProt_NA"),
-                                     br(), br(),
-                                     uiOutput("GeneMappedRatio"),
-                                     br(), br(),
-                                     dataTableOutput("nonIdentifiedProteins", width = "80%")
-                                     
-                                 )
-                     )
-                     
-                     
-            ),
-            tabPanel("GO Classification",
-                     sidebarCustom(),
-                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                 wellPanel(id = "sidebar_GO",
-                                           height = "100%",
-                                           modulePopoverUI("modulePopover_GOlevel"),
-                                           checkboxGroupInput("GO_level", "",choices =c(2:4), selected=2),
-                                           actionButton("group.GO.perform.button","Perform GO grouping", class = actionBtnClass)
-                                 ),
-                                 tagList(
-                                     highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
-                                     highchartOutput("GOplotGroup_level3",  width = "80%") %>% withSpinner(type=spinnerType),
-                                     highchartOutput("GOplotGroup_level4",  width = "80%") %>% withSpinner(type=spinnerType)
-
-                                 )
-                                 
-                                 
-                     )
-            ),
-            tabPanel("GO Enrichment",
-                     #id = "tabPanelEnrichGO",
-                     sidebarCustom(),
-                     splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-                                 wellPanel(id = "sidebar_GO1",
-                                           height = "100%",
-                                           modulePopoverUI("modulePopover_GOuniverse"),
-                                           radioButtons("universe", "", choices = G_universe_Choices),
-                                           uiOutput("chooseUniverseFile"),
-                                           # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
-                                           modulePopoverUI("modulePopover_GOfdr"),
-                                           numericInput("pvalueCutoff", "", min = 0, max = 1, step = 0.01, value = 0.01),
-                                           
-                                           actionButton("perform.GO.button","Perform enrichment analysis", class = actionBtnClass)
-                                 ),
-                                 tagList(
-                                     highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),
-                                     highchartOutput("GOdotplotEnrich", width = "80%") %>% withSpinner(type=spinnerType)
-                                     )
-                     )
-            ),
-            tabPanel("Parameter summary",
-                     value = "tabPanelSaveGO",
-                     dataTableOutput("GO_resumeParams")
-            )
-        )
+    # tagList(
+    #   uiOutput("GO_setup"),
+    #   uiOutput("GO_classif"),
+    #   uiOutput("GO_enrich"),
+    #   uiOutput("GO_Summary")
+    # )
+     
+     tabsetPanel(
+       id = "tabsetPanel_GO",
+       tabPanel("GO Setup",uiOutput("GO_setup")),
+       tabPanel("GO Classification",uiOutput("GO_classif")),     
+       tabPanel("GO Enrichment",uiOutput("GO_enrich")),       
+       tabPanel("Parameter summary",uiOutput("GO_Summary"))
+     )
+                
     
+  })
+  
+})
 
+
+output$GO_setup <- renderUI({
+  #if (rv$pageGO != 1){return()}
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                radioButtons("sourceOfProtID", "Source of protein ID",
+               choices = G_sourceOfProtID_Choices)),
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                uiOutput("chooseSourceForProtID")),
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID")), width="200px"),
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              modulePopoverUI("modulePopover_GenomeWide"),
+              selectInput("Organism", NULL, choices = GetListInstalledOrgdDB()), width="200px"),
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              selectInput("Ontology", "Ontology",choices = G_ontology_Choices), width="150px")
+    ),
+  actionButton("mapProtein.GO.button","Map proteins IDs", class = actionBtnClass),
+  uiOutput("warnDifferentSizeID"),
+  tags$hr(),
+  uiOutput("infoIDProt_NA"),
+  br(), br(),
+  uiOutput("GeneMappedRatio"),
+  br(), br(),
+  DT::dataTableOutput("nonIdentifiedProteins", width = "80%")
+  
+)
+
+})
+
+output$GO_classif <- renderUI({
+  #if (rv$pageGO != 2){return()}
+  
+  tagList(
+  tags$div(
+    tags$div( style="display:inline-block; vertical-align: middle;",
+              modulePopoverUI("modulePopover_GOlevel"),
+              checkboxGroupInput("GO_level", NULL,choices =c(2:4), selected=2)),
+    tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              actionButton("group.GO.perform.button","Perform GO grouping", class = actionBtnClass))
+  ),
+  tags$hr(),
+
+  highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
+  highchartOutput("GOplotGroup_level3",  width = "80%") %>% withSpinner(type=spinnerType),
+  highchartOutput("GOplotGroup_level4",  width = "80%") %>% withSpinner(type=spinnerType)
+  
+)
+})
+
+output$GO_enrich <- renderUI({
+  #if (rv$pageGO != 3){return()}
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                modulePopoverUI("modulePopover_GOuniverse"),
+                radioButtons("universe", NULL, choices = G_universe_Choices)),
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                uiOutput("chooseUniverseFile")),
+  # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
+  tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+            modulePopoverUI("modulePopover_GOfdr"),
+            numericInput("pvalueCutoff", NULL, min = 0, max = 1, step = 0.01, value = 0.01, width='100px'))
+  ),
+  
+  actionButton("perform.GO.button","Perform enrichment analysis", class = actionBtnClass),
+  tags$hr(),
+  highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),
+  highchartOutput("GOdotplotEnrich", width = "80%") %>% withSpinner(type=spinnerType)
+)
+})
+
+output$GO_Summary <- renderUI({
+ # if (rv$pageGO != 4){return()}
+  
+  DT::dataTableOutput("GO_resumeParams")
 })
 
 
 
 
 callModule(modulePopover,"modulePopover_GOlevel", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Level</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong>Level</strong>")), 
                                 content="Level")))
 
 
 callModule(modulePopover,"modulePopover_GOuniverse", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Universe</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong>Universe</strong>")), 
                                 content="universe")))
 callModule(modulePopover,"modulePopover_GOfdr", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">FDR</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong>FDR</strong>")), 
                                 content="BH Adjusted P-value cutoff")))
 
 
 
 callModule(modulePopover,"modulePopover_GenomeWide", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Genome Wide Annotation</font></strong>")), 
+           data = reactive(list(title = HTML(paste0("<strong>Genome Wide Annotation</strong>")), 
                                 content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
                                                tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
                                                tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))
@@ -142,7 +222,7 @@ output$chooseSourceForProtID <- renderUI({
     input$sourceOfProtID
     
     if (input$sourceOfProtID == "colInDataset"){
-        selectInput("UniprotIDCol", "Select column containing protein IDs",
+        selectInput("UniprotIDCol", "Protein IDs",
                     choices = c("", colnames(Biobase::fData(rv$current.obj))))
     }
     else  if (input$sourceOfProtID == "extFile"){
@@ -363,8 +443,9 @@ output$GODatatable <- renderDataTable({
     
     
     dt <- datatable( as.data.frame(rv$GO$groupGO_data@result),
-                     extensions = 'Scroller',
-                     options = list(initComplete = initComplete(),
+                     extensions = c('Scroller', 'Buttons'),
+                     options = list(dom = 'Bfrtip',
+                                    initComplete = initComplete(),
                                     displayLength = 20,
                                     deferRender = TRUE,
                                     bLengthChange = FALSE,
@@ -417,8 +498,9 @@ output$nonIdentifiedProteins <- renderDataTable({
     if( nrow(data) != 0){
       
       dt <- datatable( data,
-                       extensions = 'Scroller',
-                       options = list(initComplete = initComplete(),
+                       extensions = c('Scroller', 'Buttons'),
+                       options = list(dom = 'Bfrtip',
+                                      initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -647,9 +729,9 @@ output$GO_resumeParams <- DT::renderDataTable({
   DT::datatable(l.params,
                 escape = FALSE,
                 rownames=FALSE,
-                extensions = 'Buttons',
+                extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
-                               dom = 'Bfrtip',
+                               dom = 'Brt',
                                buttons = c('copy','excel', 'pdf', 'print'),
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = FALSE)

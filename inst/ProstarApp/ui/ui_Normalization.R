@@ -14,7 +14,7 @@ tabPanel("Normalization",
                            width='200px')
              ),
              div(
-               style="display:inline-block; vertical-align: middle;",
+               style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                hidden(selectInput("normalization.type", "Normalization type",  
                                   choices = c("overall", "within conditions"), 
                                   selected = rv$widgets$normalization$type,
@@ -28,7 +28,7 @@ tabPanel("Normalization",
                uiOutput("choose_normalizationScaling")
              ),
              div(
-               style="display:inline-block; vertical-align: middle;",
+               style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px")),
                hidden(actionButton("valid.normalization","Save normalization", class = actionBtnClass, width="170px"))
              )

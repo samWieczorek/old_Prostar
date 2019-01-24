@@ -2,6 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(shinyjqui)
+library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
@@ -9,13 +10,15 @@ theme = shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- fluidPage(
+  #theme = "css/ceruleanProstar.css",
   theme = shinytheme("cerulean"),
   
   tagList(
   
   shinyjs::useShinyjs(),
   includeCSS("www/progressBar/progressBar.css"),
-  
+  tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                            sass_options(output_style = "expanded")))),
   titlePanel("", windowTitle = "Prostar"),
   
   ###### DIV LOADING PAGE  #######
@@ -24,7 +27,7 @@ shinyUI <- fluidPage(
        absolutePanel(
       id  = "AbsolutePanel",
       class = "panel panel-default",
-      style= "text-align: center; background-color: #2fa4e7;",
+      style= "text-align: center; background-color: #25949A;",
       top = '30%',
       left = '25%',
       width = "50%",
@@ -32,7 +35,7 @@ shinyUI <- fluidPage(
       draggable = FALSE,
       fixed = TRUE,
       tagList(
-        tags$h1(style='text-align: center', "Prostar is loading, please wait..."),
+        tags$h1(style='text-align: center; color: white', "Prostar is loading, please wait..."),
         br(),
         tags$div(class="progress",
                  tags$div(class="indeterminate")
@@ -47,11 +50,19 @@ shinyUI <- fluidPage(
       id = "main_content",
       
       rclipboardSetup(),
-      
+
+      tags$head(includeCSS("www/css/arrow.css")),
+      #tagList(tags$div(class="arrow")),
+      tags$p("VERSION CHANTIER BIS !!!", style='font-size: 30px; color: red;'),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
+      tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
+      # tags$head(tags$style(" table.dataTable thead th {
+      #                      padding: 8px 10px !important;
+      #                      }
+      #                      ")),
        sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
       #,includeCSS("www/css/fontawesome.css")
@@ -61,8 +72,8 @@ shinyUI <- fluidPage(
                   height: 20px;
                   margin: 2px;
                   border: 1px solid rgba(0, 0, 0, .2);}")
-      , inlineCSS(".green {background: green;}")
-      , inlineCSS(".red {background:red;}")
+      , inlineCSS(".green {background: #06AB27}")
+      , inlineCSS(".red {background: #C90404}")
       , inlineCSS(".grey {background:lightgrey;}"),
       #tags$style(".btn.disabled {background-color: red;}"),
      # inlineCSS('.btn{color: blue; background-color: #35e51d}'),
@@ -79,10 +90,11 @@ shinyUI <- fluidPage(
       navbarPage(
                  
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
-                 
+        position = "fixed-top",
                   id = "navPage",
-                  #theme = shinytheme("cerulean")
-                  
+
+                  inverse = TRUE,
+
                   absolutePanel(
                     id  = "#AbsolutePanel",
                     top = 0, right = 50, width = "500px",height = "50px",
@@ -109,6 +121,7 @@ shinyUI <- fluidPage(
                               source(file.path("ui", "ui_FAQ.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_BugReport.R"),  local = TRUE)$value
                   )
+
     ) ## end navbarPage
   )  ## end div for main content 2
     ) ## end div for main content 1

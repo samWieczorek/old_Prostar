@@ -38,19 +38,22 @@ plan(multiprocess)
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 
+base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
 
-
-base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
+#base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")
 URL_links <- paste0(base_URL, "links.md")
-URL_ProstarPresentation <- paste0(base_URL, "prostarPresentation.md")
+URL_ProstarPresentation <- paste0(base_URL, "presentation.md")
 URL_formerReleases <-paste0(base_URL, "formerReleases.md")
 URL_versionNotes <- paste0(base_URL, "versionNotes.md")
+
+
 
 ## gestion des couleurs
 
 grey <- "#FFFFFF"
-
+orangeProstar <- "#E97D5E"
+greenProstar <- "#25949A"
 # 
 # unsuspendAll <- function(session = getDefaultReactiveDomain()) {
 #   observe({
@@ -657,6 +660,10 @@ bsButtonRight <- function(...) {
 }
 
 actionBtnClass <- "btn-primary"
+
+PrevNextBtnClass <- "btn-info"
+optionsBtnClass <- "info"
+
 
 # Call this function with all the regular navbarPage() parameters, plus a text parameter,
 # if you want to add text to the navbar

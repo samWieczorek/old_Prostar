@@ -85,21 +85,35 @@ GetCurrentDatasetName <- reactive({
 
 getDataForExprs <- function(obj){
   #rv$current$obj
+
+  # 
+  # test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
+  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  # if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+  #  test.table <- cbind(test.table, 
+  #                       Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+  #  print(paste0("tutu:",head(test.table)))
+  #  
+  # } else {
+  #   test.table <- cbind(test.table, 
+  #                       as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+  #   print(paste0("tata:",head(test.table)))
+  #   }
+  # return(test.table)
+  
+
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
-  print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
   if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
    test.table <- cbind(test.table, 
                         Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
-   print(paste0("tutu:",head(test.table)))
    
   } else {
     test.table <- cbind(test.table, 
                         as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
-    print(paste0("tata:",head(test.table)))
     }
   return(test.table)
-  
+
 }
 
 
@@ -224,7 +238,8 @@ data <- eventReactive(rv$current$obj, {
 callModule(modulePopover,"modulePopover_dataset", 
            data = reactive(list(title = p(if(is.null(rv$current.obj.name)) "No dataset" else paste0(rv$current.obj.name)),
 
-                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.")))
+                                content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.",
+                                color = 'white')))
 
 
 observeEvent(input$navbar,{
@@ -262,8 +277,8 @@ output$datasetAbsPanel <- renderUI({
     req(rv$current.obj.name)
      div(
          div(
-             style="display:inline-block; vertical-align: middle;"
-             ,modulePopoverUI("modulePopover_dataset")
+             style="display:inline-block; vertical-align: middle;",
+             modulePopoverUI("modulePopover_dataset")
              ),
          div(
              style="display:inline-block; vertical-align: middle;",
@@ -456,13 +471,22 @@ ClearMemory <- function(){
   #rv$UI_fileSourced = NULL
   #rv$SRV_fileSourced = NULL
   
+
+  ##variables for navigation
+  rv$pageConvert = 1
+  rv$pageFiltering = 1
+  rv$pageProtImput = 1
+  rv$pageAggreg = 1
+  rv$pageDiffAna = 1
+  rv$pageGO = 1
+
   
   ########
   ### Settings
   ########
   rv$current.comp = NULL
-  rv$colorsVolcanoplot = list(In="orange", Out='lightgrey')
-  rv$colorsTypeMV = list(MEC='orange', POV='lightblue')
+  rv$colorsVolcanoplot = list(In=greenProstar, Out='lightgrey')
+  rv$colorsTypeMV = list(MEC=orangeProstar, POV='lightblue')
   rv$typeOfPalette = 'predefined'
   rv$whichGroup2Color = 'Condition'
   rv$PCA_axes = c(1,2)
@@ -484,6 +508,8 @@ ClearMemory <- function(){
     rv$deleted.stringBased.fData = NULL
     rv$deleted.stringBased = NULL
 
+    
+    rv$pi0 = NULL
     # variable to keep memory of previous datasets before 
     # transformation of the data
     rv$dataset = list()
@@ -660,6 +686,14 @@ rv <- reactiveValues(
   UI_TabsList = NULL,
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,
+  
+  pageConvert = 1,
+  pageFiltering = 1,
+  pageProtImput = 1,
+  pageAggreg = 1,
+  pageDiffAna = 1,
+  pageGO = 1,
+  
   # variable to handle the current object that will be showed
     current.comp = NULL,
     current.obj = NULL,
@@ -669,6 +703,7 @@ rv <- reactiveValues(
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
 
+  pi0 = NULL,
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
   PCA_axes = c(1,2),
@@ -679,8 +714,9 @@ rv <- reactiveValues(
   init.distance = "euclidean",
    outfile = NULL,
   tableVersions = NULL,
-  colorsVolcanoplot = list(In="orange", Out='lightgrey'),
-  colorsTypeMV = list(MEC='orange', POV='lightblue'),
+  
+  colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey'),
+  colorsTypeMV = list(MEC=orangeProstar, POV='lightblue'),
     # variable to keep memory of previous datasets before 
     # transformation of the data
     dataset = list(),
@@ -947,7 +983,9 @@ Get_ParamValue <- function(pp, key){
 
 
 
-getPackagesVersions <- function(type="all"){
+getPackagesVersions <- reactive({
+  
+  type <- "all"
   outOfDate <- "(Out of date)"
   dev <- "(Devel)"
   
@@ -1033,6 +1071,31 @@ getPackagesVersions <- function(type="all"){
          )
   print(df)
   
-  return(df)
+  df
+  
+
+#}
+
+})
+
+
+
+
+buildTable <- function(text, color){
+  paste0("     ", text, "     ")
+  rows.color <- rows.text <- list()
+  rows.text <- list()
+  for( i in 1:length( color ) ) {
+    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
+    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
+  }
+  
+  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 10px;padding-top: 0px;",
+                            tags$tr( rows.color ),
+                            tags$tr( rows.text )
+  )
+  return(html.table)
   
 }
+
+

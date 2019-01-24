@@ -1,9 +1,83 @@
 callModule(missingValuesPlots,"MVPlots_filtering")
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
-callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title="Keep vals",
+callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
+
+
+##--------------------------------------------------------------
+##                    Gestion du slideshow
+##--------------------------------------------------------------
+output$filteringDone <- renderUI({
+  #input$datasets
+  if( length(grep("Filtered", input$datasets))==0) {return()}
+  
+ # shinyjs::hide('prevBtnFiltering')
+ # shinyjs::hide('nextBtnFiltering')
+  
+  tags$p(style="font-size: 24;",
+         tags$b("The filtering has been processed."))
+  
+  
+})
+
+output$checkFilteringPanel <- renderUI({
+  
+  #rv$pageFiltering
+  color <- rep("lightgrey",NUM_PAGES_FILTERING)
+  
+  ##Step 1
+  if (rv$pageFiltering >= 1){
+    res <- rv$mvFiltering_Done
+    ifelse(res, color[1] <- "green", color[1] <- orangeProstar)
+  }
+  
+  ##Step 2: Choose data ID
+  
+  if (rv$pageFiltering >= 2){
+    res <- rv$stringBasedFiltering_Done
+    ifelse(res, color[2] <- "green", color[2] <- orangeProstar)
+    
+  } 
+  
+  ## Step 3: Choose quantitative data
+  if (rv$pageFiltering == 3){
+    res <-   length(grep("Filtered", input$datasets))==1
+    ifelse(res, color[3] <- "green", color[3] <- "red")
+  }
+  
+  txt <- c("MV filtering", "String-based filtering", "Validate")
+  buildTable(txt, color)
+})
+
+
+
+NUM_PAGES_FILTERING <- 3
+
+observe({
+  toggleState(id = "prevBtnFiltering", condition = rv$pageFiltering > 1)
+  toggleState(id = "nextBtnFiltering", condition = rv$pageFiltering < NUM_PAGES_FILTERING)
+  hide(selector = ".page")
+  # show(paste0("step", rv$pageFiltering))
+})
+
+navPageFiltering <- function(direction) {
+  rv$pageFiltering <- rv$pageFiltering + direction
+  
+  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+}
+
+observeEvent(input$prevBtnFiltering, navPageFiltering(-1))
+observeEvent(input$nextBtnFiltering, navPageFiltering(1))
+
+
+##------------------------------------------------------------------
+##------------------ Fin de gestion du slideshow -------------------
+##------------------------------------------------------------------
+
 output$mv_Filtering <- renderUI({
+  #if (rv$pageFiltering != 1){return(NULL)}
   req(rv$current.obj)
   
   tagList(
@@ -12,15 +86,16 @@ output$mv_Filtering <- renderUI({
                   selectInput("ChooseFilters","Type",  
                               choices = gFiltersList, 
                               selected=rv$widgets$filtering$ChooseFilters,
-                              width='150px')
+                              width='200px')
         ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
+        tags$div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                   uiOutput("seuilNADelete")
         ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+        tags$div( style="display:inline-block; vertical-align: middle;",
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         )
       ),
+      tags$hr(),
     tags$div(style="margin-bottom:200px;",
              tagList(
                missingValuesPlotsUI("MVPlots_filtering"),
@@ -36,6 +111,7 @@ output$mv_Filtering <- renderUI({
 
 
 output$stringBased_Filtering <- renderUI({
+  #if (rv$pageFiltering != 2){return(NULL)}
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
   
@@ -59,13 +135,19 @@ output$stringBased_Filtering <- renderUI({
       )
     ),
     tags$hr(),
-    DT::dataTableOutput("FilterSummaryData")
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                DT::dataTableOutput("FilterSummaryData")
+      )
+    )
+    
   )
 })
 
 
 
 output$valid_Filtering <- renderUI({
+ # if (rv$pageFiltering != 3){return()}
   req(rv$current.obj)
   
   tagList(
@@ -78,10 +160,10 @@ output$valid_Filtering <- renderUI({
       column(width=3,uiOutput("legendForExprsData2")),
       column(width=3,actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass))
       ),
-         tags$hr(),
-         DT::dataTableOutput("VizualizeFilteredData"),
-         uiOutput("helpTextMV")
-         )
+    tags$hr(),
+    DT::dataTableOutput("VizualizeFilteredData"),
+    uiOutput("helpTextMV")
+   )
 })
 
 
@@ -144,19 +226,38 @@ output$FilterSummaryData <- DT::renderDataTable({
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
+  if (nrow(rv$widgets$filtering$DT_filterSummary) == 0){
     df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
     rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary ,df)
   }
   
+  # DT::datatable(rv$widgets$filtering$DT_filterSummary,
+  #               extensions = c('Scroller', 'Buttons'),
+  #               rownames = FALSE,
+  #               options=list(dom='Brt',
+  #                            initComplete = initComplete(),
+  #                            deferRender = TRUE,
+  #                            bLengthChange = FALSE,
+  #                            # scrollX = 200,
+  #                            # scrollY = 600,
+  #                            # scroller = TRUE,
+  #                            columnDefs = list(list(width='150px',targets= c(1)),
+  #                                              list(width='50px',targets= c(2:4)))
+  #                            
+  #               ))
+  
+  
   DT::datatable(rv$widgets$filtering$DT_filterSummary,extensions = 'Scroller',
                 options=list(initComplete = initComplete(),
+                             dom = 'Brtip',
                              deferRender = TRUE,
                              bLengthChange = FALSE,
                              scrollX = 200,
                              scrollY = 600,
                              scroller = TRUE
                 ))
+  
+  
 })
 
 
@@ -234,8 +335,10 @@ output$VizualizeFilteredData <- DT::renderDataTable({
   if (!is.null(data)){
     
     if(input$ChooseTabAfterFiltering =="quantiData"){
-      dt <- datatable( data,extensions = 'Scroller',
-                       options = list(initComplete = initComplete(),
+      dt <- datatable( data,
+                       extensions = c('Scroller', 'Buttons'),
+                       options = list(dom = 'Brtip',
+                                      initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -244,7 +347,8 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                                       scroller = TRUE,
                                       ordering=FALSE,
                                       server = TRUE,
-                                      columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE))
+                                      columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
+                                                        list(width='150px',targets= "_all"))
                        )) %>%
         formatStyle(
           colnames(data)[1:(ncol(data)/2)],
@@ -280,7 +384,8 @@ output$seuilNADelete <- renderUI({
   choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
-    selectInput("seuilNA", "", 
+    
+    selectInput("seuilNA", NULL,
                 choices = choix,
                 selected = input$seuilNA,
                 width='150px'))
@@ -416,9 +521,10 @@ output$ObserverMVFilteringDone <- renderUI({
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
   if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
-    
+
         l.params <- build_ParamsList_Filtering()
     
+
     
     rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
