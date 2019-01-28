@@ -1,0 +1,19 @@
+# Aggregation 
+
+Parameters used for the aggregation step :
+
+* Method of aggregation : `r params$listAggregation$agregMethod`
+* Protein ID : `r params$listAggregation$proteinId`
+* Include shared peptides : `r params$listAggregation$withSharedPeptides`
+* n for top n : `r params$listAggregation$topN`
+
+
+Statistics about the protein graph
+
+
+```{r tab_agregStats,out.width = "50%", echo=FALSE}
+library(knitr)
+kable(params$listAggregation$df)
+```
+
+
