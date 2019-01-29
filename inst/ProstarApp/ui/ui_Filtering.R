@@ -16,7 +16,9 @@ tabPanel("Filter data",
          hr(),
          uiOutput("mv_Filtering"),
          uiOutput("stringBased_Filtering"),
-         uiOutput("valid_Filtering")
+         uiOutput("valid_Filtering"),
+         
+         moduleProcessUI("moduleProcess_Filtering")
 
 )
 

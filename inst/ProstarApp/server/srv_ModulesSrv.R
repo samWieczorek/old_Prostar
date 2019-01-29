@@ -1,4 +1,8 @@
 
+
+
+
+
 #################### MODULES DEFINITION #################################
 module_Not_a_numeric <- function(input, output, session, n){
   
@@ -20,7 +24,7 @@ moduleDesignExample <- function(input, output, session, n){
     
     if (n == 2){
                 df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
-                     Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
+                     Condition = c(rep("A", 4), rep("B", 4), rep("C", 6)),
                      Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
                      Tech.Rep = c(1:14),
                      stringsAsFactors = FALSE)
@@ -340,8 +344,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   
   output$Infos <- renderDataTable({ 
-    
-
     data <- GetExprsClickedProtein()
     
     dt <- datatable( data,

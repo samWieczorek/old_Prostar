@@ -36,6 +36,7 @@ plan(multiprocess)
 
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
+source(file.path(".", "moduleProcessUI.R"),  local = TRUE)$value
 
 
 base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
