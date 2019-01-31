@@ -109,16 +109,12 @@ output$mv_Filtering <- renderUI({
         ),
         tags$div( style="display:inline-block; vertical-align: middle;",
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
-        )
-      ),
-      tags$hr(),
-    tags$div(style="margin-bottom:200px;",
-             tagList(
-               missingValuesPlotsUI("MVPlots_filtering"),
-             uiOutput("ObserverMVFilteringDone")
-            )
-    )
-    
+        ),
+      hr(),
+      missingValuesPlotsUI("MVPlots_filtering"),
+      uiOutput("ObserverMVFilteringDone")
+      )
+ 
     )
   
 })
@@ -151,7 +147,7 @@ output$stringBased_Filtering <- renderUI({
                 p(""),actionButton("actionButtonFilter", "Perform", class = actionBtnClass)
       )
     ),
-    tags$hr(),
+    hr(),
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
                 DT::dataTableOutput("FilterSummaryData")

@@ -3,8 +3,7 @@ moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   ns <- session$ns
   current <- reactiveVal(1)
   nbSteps <- length(params()$name)
-  print(nbSteps)
-  print(params())
+  
   ##--------------------------------------------------------------
   ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
@@ -12,7 +11,7 @@ moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   output$checkPanel <- renderUI({
     req(current())
     color <- rep("lightgrey",nbSteps)
-    
+
     for (i in 1:nbSteps){
       ##Step 1
       if (current() >= i){
@@ -29,7 +28,7 @@ moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   observe({
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
-    hide(selector = ".page")
+    #hide(selector = ".page")
   })
   
   ##--------------------------------------------------------------
@@ -56,30 +55,25 @@ moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   
   
   output$screens <- renderUI({
-      tagList(
-        div(id = ns("titi1"), ll.UI()[[1]]),
-        shinyjs::hidden(div(id = ns("titi2"), ll.UI()[[2]])),
-        shinyjs::hidden(div(id = ns("titi3"), ll.UI()[[3]]))
-      )
-    
-    
-    
+      ll <- NULL
+        for (i in 1:nbSteps){
+          if (i == 1) {
+            ll[[i]] <- div(id = ns(paste0("screen",i)), ll.UI()[[i]])
+            } else {
+              ll[[i]] <- shinyjs::hidden(div(id = ns(paste0("screen",i)), ll.UI()[[i]]))
+            }
+        }
+      
+  tagList(ll)
   })
   
   
-  observe({
-    shinyjs::toggle(id = "titi1", condition = current() == 1)
-    shinyjs::toggle(id = "titi2", condition = current() == 2)
-    shinyjs::toggle(id = "titi3", condition = current() == 3)
-  })
+  observeEvent(current(),{
+    for (i in 1:nbSteps){
+      shinyjs::toggle(id = paste0("screen", i), condition = current() == i)
+    }
+   })
   
-  
-  # observe({
-  #   shinyjs::toggle(id = ll.UI()[[1]], condition = current() == 1)
-  #   shinyjs::toggle(id = ll.UI()[[2]], condition = current() == 2)
-  #   shinyjs::toggle(id = ll.UI()[[3]], condition = current() == 3)
-  # })
-  
-}
+ }
 
 

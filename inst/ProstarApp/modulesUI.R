@@ -73,9 +73,9 @@ moduleDetQuantImpValuesUI <- function(id){
 missingValuesPlotsUI <- function(id) {
     ns <- NS(id)
     fluidRow(
-        column(width = 4, highchartOutput(ns("histo_MV"))%>% withSpinner(type=spinnerType), height="600px"),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))%>% withSpinner(type=spinnerType)),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions"))%>% withSpinner(type=spinnerType))
+        column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
     )
     
 }
