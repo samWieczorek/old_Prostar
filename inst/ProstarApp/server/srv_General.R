@@ -483,6 +483,13 @@ ClearMemory <- function(){
   rv$pageDiffAna = 1
   rv$pageGO = 1
 
+  rv$stringBasedFiltering_Done = FALSE
+  rv$mvFiltering_Done = FALSE 
+  rv$currentPage_Filtering = 1
+
+  rv$module_Filtering = list(name = c("MV filtering", "String-based filtering", "Validate"),
+                             isMandatory = c(FALSE, FALSE, TRUE),
+                             isDone =  c(FALSE, FALSE, FALSE))
   
   ########
   ### Settings
@@ -639,8 +646,7 @@ ClearMemory <- function(){
                               History="", 
                               stringsAsFactors=F)
     rv$GOWarningMessage = NULL
-    rv$stringBasedFiltering_Done = FALSE
-    rv$mvFiltering_Done = FALSE
+    
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,
@@ -696,6 +702,24 @@ rv <- reactiveValues(
   pageAggreg = 1,
   pageDiffAna = 1,
   pageGO = 1,
+  
+  currentPage_Filtering = 1,
+  stepsStatus_Filtering = list(step1 = FALSE,
+                                  step2 = FALSE,
+                                  step3 = FALSE),
+  
+  stepsMandatory_Filtering = list(step1 = FALSE,
+                               step2 = FALSE,
+                               step3 = TRUE),
+  
+  module_Filtering = list(name = c("MV filtering", "String-based filtering", "Validate"),
+                             isMandatory = c(FALSE, FALSE, TRUE),
+                             isDone =  c(FALSE, FALSE, FALSE)),
+  
+  stringBasedFiltering_Done = FALSE,
+  mvFiltering_Done = FALSE,
+  
+  
   
   # variable to handle the current object that will be showed
     current.comp = NULL,
@@ -858,9 +882,7 @@ rv <- reactiveValues(
     iDat = NULL,
     tempDatasetImputation = NULL,
     MECIndex = NULL,
-    stringBasedFiltering_Done = FALSE,
-    mvFiltering_Done = FALSE,
-    nbPOVimputed = 0,
+     nbPOVimputed = 0,
     nbMVimputed = 0,
   imputePlotsSteps = list(step0 = NULL,
                             step1 = NULL,

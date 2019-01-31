@@ -3,7 +3,8 @@
 moduleProcessUI <- function(id){
   ns <- NS(id)
   
-  tags$div(tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+  tagList(
+    tags$div(tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
                      actionButton(ns("prevBtn"), "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%')),
            tags$div( style="align: center;display:inline-block; vertical-align: top;",
                      uiOutput(ns("checkPanel" ))),
@@ -12,5 +13,9 @@ moduleProcessUI <- function(id){
            
            tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
                      uiOutput(ns("Done")))
+  ),
+  hr(),
+  uiOutput(ns("screens"))
+  
   )
 }

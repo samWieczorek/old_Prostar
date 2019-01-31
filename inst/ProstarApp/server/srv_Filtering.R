@@ -4,81 +4,96 @@ callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tag
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
 callModule(moduleProcess, "moduleProcess_Filtering", 
-           nbPage = reactive({NUM_PAGES_FILTERING}), 
-           currentPage = reactive({1}),
-           txt = reactive({c("MV filtering", "String-based filtering", "Validate")}))
+           params = reactive({rv$module_Filtering}),
+           final_msg = reactive({"The filtering has been processed."}),
+           ll.UI = reactive({
+             list(uiOutput("mv_Filtering"),
+                  uiOutput("stringBased_Filtering"),
+                  uiOutput("valid_Filtering"))
+             
+             # list(
+             #   div(id = "titi1", uiOutput("mv_Filtering")),
+             #   shinyjs::hidden(div(id = "titi2", uiOutput("stringBased_Filtering"))),
+             #   shinyjs::hidden(div(id = "titi3", uiOutput("valid_Filtering")))
+             # )
+           
+             
+             })
+           
+           )
 
 ##--------------------------------------------------------------
 ## Gestion du slideshow
 ##--------------------------------------------------------------
-output$filteringDone <- renderUI({
-  #input$datasets
-  if( length(grep("Filtered", input$datasets))==0) {return()}
-  
- # shinyjs::hide('prevBtnFiltering')
- # shinyjs::hide('nextBtnFiltering')
-  
-  tags$p(style="font-size: 24;",tags$b("The filtering has been processed."))
-  
-  
-})
-
-output$checkFilteringPanel <- renderUI({
- # input$datasets
-  #rv$pageFiltering
-  color <- rep("lightgrey",NUM_PAGES_FILTERING)
-  
-  ##Step 1
-  if (rv$pageFiltering >= 1){
-    res <- rv$mvFiltering_Done
-    ifelse(res, color[1] <- "green", color[1] <- orangeProstar)
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageFiltering >= 2){
-    res <- rv$stringBasedFiltering_Done
-    ifelse(res, color[2] <- "green", color[2] <- orangeProstar)
-    
-  } 
-  
-  ## Step 3: Choose quantitative data
-  if (rv$pageFiltering == 3){
-    res <-   length(grep("Filtered", input$datasets))==1
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-  }
-  
-  txt <- c("MV filtering", "String-based filtering", "Validate")
-  buildTable(txt, color)
-})
-
-
-
-NUM_PAGES_FILTERING <- 3
-
-observe({
-  toggleState(id = "prevBtnFiltering", condition = rv$pageFiltering > 1)
-  toggleState(id = "nextBtnFiltering", condition = rv$pageFiltering < NUM_PAGES_FILTERING)
-  hide(selector = ".page")
-  # show(paste0("step", rv$pageFiltering))
-})
-
-navPageFiltering <- function(direction) {
-  rv$pageFiltering <- rv$pageFiltering + direction
-  
-  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
-}
-
-observeEvent(input$prevBtnFiltering, navPageFiltering(-1))
-observeEvent(input$nextBtnFiltering, navPageFiltering(1))
+# output$filteringDone <- renderUI({
+#   #input$datasets
+#   if( length(grep("Filtered", input$datasets))==0) {return()}
+#   
+#  # shinyjs::hide('prevBtnFiltering')
+#  # shinyjs::hide('nextBtnFiltering')
+#   
+#   tags$p(style="font-size: 24;",tags$b("The filtering has been processed."))
+#   
+#   
+# })
+# 
+# output$checkFilteringPanel <- renderUI({
+#  # input$datasets
+#   #rv$pageFiltering
+#   color <- rep("lightgrey",NUM_PAGES_FILTERING)
+#   
+#   ##Step 1
+#   if (rv$pageFiltering >= 1){
+#     res <- rv$mvFiltering_Done
+#     ifelse(res, color[1] <- "green", color[1] <- orangeProstar)
+#   }
+#   
+#   ##Step 2: Choose data ID
+#   
+#   if (rv$pageFiltering >= 2){
+#     res <- rv$stringBasedFiltering_Done
+#     ifelse(res, color[2] <- "green", color[2] <- orangeProstar)
+#     
+#   } 
+#   
+#   ## Step 3: Choose quantitative data
+#   if (rv$pageFiltering == 3){
+#     res <-   length(grep("Filtered", input$datasets))==1
+#     ifelse(res, color[3] <- "green", color[3] <- "red")
+#   }
+#   
+#   txt <- c("MV filtering", "String-based filtering", "Validate")
+#   buildTable(txt, color)
+# })
+# 
+# 
+# 
+# NUM_PAGES_FILTERING <- 3
+# 
+# observe({
+#   toggleState(id = "prevBtnFiltering", condition = rv$pageFiltering > 1)
+#   toggleState(id = "nextBtnFiltering", condition = rv$pageFiltering < NUM_PAGES_FILTERING)
+#   hide(selector = ".page")
+#   # show(paste0("step", rv$pageFiltering))
+# })
+# 
+# navPageFiltering <- function(direction) {
+#   rv$pageFiltering <- rv$pageFiltering + direction
+#   
+#   updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+#   updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+# }
+# 
+# observeEvent(input$prevBtnFiltering, navPageFiltering(-1))
+# observeEvent(input$nextBtnFiltering, navPageFiltering(1))
 
 
 ##---------------------------------------------------------------
 ##------------------------------------------------------------------
 
 output$mv_Filtering <- renderUI({
-  if (rv$pageFiltering != 1){return(NULL)}
+  #if (rv$pageFiltering != 1){return(NULL)}
+  
   req(rv$current.obj)
   
   tagList(
@@ -112,7 +127,8 @@ output$mv_Filtering <- renderUI({
 
 
 output$stringBased_Filtering <- renderUI({
-  if (rv$pageFiltering != 2){return(NULL)}
+  #if (rv$pageFiltering != 2){return(NULL)}
+  
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
   
@@ -148,7 +164,7 @@ output$stringBased_Filtering <- renderUI({
 
 
 output$valid_Filtering <- renderUI({
-  if (rv$pageFiltering != 3){return()}
+  #if (rv$pageFiltering != 3){return()}
   
   
   req(rv$current.obj)
@@ -198,6 +214,7 @@ observeEvent(input$actionButtonFilter,{
   }                          
   rv$current.obj <- res[["obj"]]
   rv$stringBasedFiltering_Done = TRUE
+  rv$stepsStatus_Filtering$step2 = TRUE
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
@@ -453,6 +470,7 @@ observeEvent(input$perform.filtering.MV,{
                               GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
         rv$mvFiltering_Done <- TRUE
+        rv$stepsStatus_Filtering$step1 <-TRUE
         
       }
     }
@@ -522,6 +540,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
     rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
     
     rv$dataset[[name]] <- rv$current.obj
+    rv$stepsStatus_Filtering$step3 <- TRUE
     
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}

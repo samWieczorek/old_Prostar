@@ -1,78 +1,84 @@
-moduleProcess <- function(input, output, session, nbPage, currentPage, txt){
+moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   
   ns <- session$ns
   current <- reactiveVal(1)
+  nbSteps <- length(params()$name)
+  print(nbSteps)
+  print(params())
   ##--------------------------------------------------------------
-  ## Gestion du slideshow
+  ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
-  
   
   output$checkPanel <- renderUI({
     req(current())
-    # input$datasets
-    #rv$pageFiltering
-    color <- rep("lightgrey",nbPage())
+    color <- rep("lightgrey",nbSteps)
     
-    ##Step 1
-    if (current() >= 1){
-      res <- rv$mvFiltering_Done
-      ifelse(res, color[1] <- "green", color[1] <- orangeProstar)
-    }
-    
-    ##Step 2: Choose data ID
-    
-    if (current() >= 2){
-      res <- rv$stringBasedFiltering_Done
-      ifelse(res, color[2] <- "green", color[2] <- orangeProstar)
-      
-    } 
-    
-    ## Step 3: Choose quantitative data
-    if (current() == 3){
-      res <- length(grep("Filtered", input$datasets))==1
-      ifelse(res, color[3] <- "green", color[3] <- "red")
-    }
-    
-    buildTable(txt(), color)
+    for (i in 1:nbSteps){
+      ##Step 1
+      if (current() >= i){
+       res <- params()$isDone[i]
+        ifelse(params()$isMandatory[i], col <- "red", col <- orangeProstar)
+        ifelse(res, color[i] <- "green", color[i] <- col)
+        }
+      }
+
+    buildTable(params()$name, color)
   })
   
-  
-  
-  
-  
+
   observe({
     toggleState(id = "prevBtn", condition = current() > 1)
-    toggleState(id = "nextBtn", condition = current() < nbPage())
+    toggleState(id = "nextBtn", condition = current() < nbSteps)
     hide(selector = ".page")
-    # show(paste0("step", rv$pageFiltering))
   })
+  
+  ##--------------------------------------------------------------
+  ## Navigation dans le slideshow
+  ##--------------------------------------------------------------
   
   navPage <- function(direction) {
     newValue <- current() + direction 
-    current(newValue)  
-   
+    current(newValue)
     
-    #updateSelectInput(session, "ChooseFilters", selected = ns("input$ChooseFilters"))
-    #updateSelectInput(session, "seuilNA", selected = ns("input$seuilNA"))
-  }
+   }
   
-  observeEvent(input$prevBtn,{print("toto"); navPage(-1)})
-  observeEvent(input$nextBtn,{print("titi"); navPage(1)})
+  observeEvent(input$prevBtn,{navPage(-1)})
+  observeEvent(input$nextBtn,{navPage(1)})
   
   
   output$Done <- renderUI({
-    #input$datasets
-    if( length(grep("Filtered", input$datasets))==0) {return()}
+    if (params()$isDone[nbSteps] == TRUE) {
+      tags$p(style="font-size: 24;",tags$b(final_msg()))
+      # shinyjs::hide('prevBtnFiltering')
+      # shinyjs::hide('nextBtnFiltering')
+    }
+   })
+  
+  
+  output$screens <- renderUI({
+      tagList(
+        div(id = ns("titi1"), ll.UI()[[1]]),
+        shinyjs::hidden(div(id = ns("titi2"), ll.UI()[[2]])),
+        shinyjs::hidden(div(id = ns("titi3"), ll.UI()[[3]]))
+      )
     
-    # shinyjs::hide('prevBtnFiltering')
-    # shinyjs::hide('nextBtnFiltering')
-    
-    tags$p(style="font-size: 24;",tags$b("The filtering has been processed."))
     
     
   })
   
   
+  observe({
+    shinyjs::toggle(id = "titi1", condition = current() == 1)
+    shinyjs::toggle(id = "titi2", condition = current() == 2)
+    shinyjs::toggle(id = "titi3", condition = current() == 3)
+  })
+  
+  
+  # observe({
+  #   shinyjs::toggle(id = ll.UI()[[1]], condition = current() == 1)
+  #   shinyjs::toggle(id = ll.UI()[[2]], condition = current() == 2)
+  #   shinyjs::toggle(id = ll.UI()[[3]], condition = current() == 3)
+  # })
   
 }
 
