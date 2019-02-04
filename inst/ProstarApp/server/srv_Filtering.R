@@ -4,23 +4,8 @@ callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tag
                                                                         content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
 callModule(moduleProcess, "moduleProcess_Filtering", 
-           params = reactive({rv$module_Filtering}),
-           final_msg = reactive({"The filtering has been processed."}),
-           ll.UI = reactive({
-             list(uiOutput("mv_Filtering"),
-                  uiOutput("stringBased_Filtering"),
-                  uiOutput("valid_Filtering"))
-             
-             # list(
-             #   div(id = "titi1", uiOutput("mv_Filtering")),
-             #   shinyjs::hidden(div(id = "titi2", uiOutput("stringBased_Filtering"))),
-             #   shinyjs::hidden(div(id = "titi3", uiOutput("valid_Filtering")))
-             # )
-           
-             
-             })
-           
-           )
+           isDone = reactive({rv$moduleFilteringDone}), 
+           pages = reactive({rv$moduleFiltering}))
 
 ##--------------------------------------------------------------
 ## Gestion du slideshow
@@ -119,6 +104,8 @@ output$mv_Filtering <- renderUI({
   
 })
 
+observeEvent(input$ChooseFilters, {rv$widgets$filtering$ChooseFilters <- input$ChooseFilters})
+
 
 
 
@@ -209,8 +196,8 @@ observeEvent(input$actionButtonFilter,{
     nbDeleted <-  0
   }                          
   rv$current.obj <- res[["obj"]]
-  rv$stringBasedFiltering_Done = TRUE
-  rv$stepsStatus_Filtering$step2 = TRUE
+  
+  rv$moduleFilteringDone[2] <- TRUE
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
@@ -263,16 +250,16 @@ output$FilterSummaryData <- DT::renderDataTable({
                 ))
 })
 
-
-observe({
-  input$datasets
-  if (length(grep("Filtered", input$datasets))==0 && rv$ValidFilteringClicked){
-    rv$ValidFilteringClicked <- FALSE
-    df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
-    rv$widgets$filtering$DT_filterSummary <- df
-  }
-  
-})
+# 
+# observe({
+#   input$datasets
+#   if (length(grep("Filtered", input$datasets))==0 && rv$ValidFilteringClicked){
+#     rv$ValidFilteringClicked <- FALSE
+#     df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+#     rv$widgets$filtering$DT_filterSummary <- df
+#   }
+#   
+# })
 
 
 getDataForMVFiltered <- reactive({
@@ -465,8 +452,8 @@ observeEvent(input$perform.filtering.MV,{
                               keepThat,
                               GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
         
-        rv$mvFiltering_Done <- TRUE
-        rv$stepsStatus_Filtering$step1 <-TRUE
+
+        rv$moduleFilteringDone[1] <- TRUE
         
       }
     }
@@ -488,11 +475,11 @@ disableActionButton <- function(id,session) {
 
 #-----------------------------------------------
 output$ObserverStringBasedFilteringDone <- renderUI({
-  req(rv$current.obj)
-  rv$stringBasedFiltering_Done
+  #req(rv$current.obj)
+  #rv$modules$Filtering$isDone[2]
 
   isolate({
-    if (!rv$stringBasedFiltering_Done) 
+    if (!rv$modules$Filtering$isDone[2]) 
     {return(NULL)  }
     else {
       h3("String-based filtering done")
@@ -502,14 +489,14 @@ output$ObserverStringBasedFilteringDone <- renderUI({
 })
 
 output$ObserverMVFilteringDone <- renderUI({
-  req(rv$current.obj)
-  rv$MVFiltering_Done
+  #req(rv$current.obj)
+  #rv$modules$Filtering$isDone[1]
   
   isolate({
     
     n <- 0
     if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-    if (!rv$mvFiltering_Done) 
+    if (!rv$moduleFilteringDone[1]) 
     {return(NULL)  }
     else {
       h3(paste0("MV filtering done. ",n, " lines were deleted."))
@@ -524,26 +511,29 @@ output$ObserverMVFilteringDone <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
-  if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
+  
+  isolate({
+    if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
 
         l.params <- build_ParamsList_Filtering()
     
 
     
-    rv$ValidFilteringClicked <- TRUE
+    #rv$ValidFilteringClicked <- TRUE
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     name <- paste0("Filtered", ".", rv$typeOfDataset)
     rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
-    
     rv$dataset[[name]] <- rv$current.obj
-    rv$stepsStatus_Filtering$step3 <- TRUE
+    
+    rv$moduleFilteringDone[3] <- TRUE
     
     if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
       ComputeAdjacencyMatrices()}
     updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-    updateSelectInput(session, "seuilNA", selected= input$seuilNA)
+    #updateSelectInput(session, "seuilNA", selected= input$seuilNA)
   }
   
+  })
   
 })
 

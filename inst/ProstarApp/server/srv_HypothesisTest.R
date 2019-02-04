@@ -4,7 +4,12 @@ callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
 observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seuilLogFC})
 
 
-output$testPanel <- renderUI({
+
+callModule(moduleProcess, "moduleProcess_HypothesisTest", 
+           isDone = reactive({rv$moduleHypothesisTestDone}), 
+           pages = reactive({rv$moduleHypothesisTest}))
+
+output$screenHypoTest1 <- renderUI({
   
    # req(rv$current.obj)
     isolate({
@@ -129,7 +134,7 @@ isolate({
   rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   
   rv$dataset[[name]] <- rv$current.obj
-  
+  rv$moduleHypothesisTestDone[1] <- TRUE
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   BuildNavbarPage()

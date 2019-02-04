@@ -1,61 +1,10 @@
 callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}))
 
+callModule(moduleProcess, "moduleProcess_Aggregation", 
+           isDone = reactive({rv$moduleAggregationDone}), 
+           pages = reactive({rv$moduleAggregation}))
 
 
-
-
-NUM_PAGES_AGGREG <- 2
-
-
-output$checkAggregPanel <- renderUI({
-  rv$pageAggreg
-  color <- rep("lightgrey",NUM_PAGES_AGGREG)
-  
-  ##Step 1
-  if (rv$pageAggreg >= 1){
-    res <- !is.null(rv$temp.aggregate)
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageAggreg >= 2){
-    res <- length(grep("Aggregated",input$datasets))
-    ifelse(res, color[2] <- "green", color[2] <- "red")
-    
-  } 
-  
-  txt <- c("Aggregation", "Validation")
-  buildTable(txt, color)
-})
-
-
-observe({
-  toggleState(id = "prevBtnAggreg", condition = rv$pageAggreg > 1)
-  toggleState(id = "nextBtnAggreg", condition = rv$pageAggreg < NUM_PAGES_AGGREG)
-  hide(selector = ".page")
-})
-
-navPageAggreg <- function(direction) {
-  rv$pageAggreg <- rv$pageAggreg + direction
-}
-
-observeEvent(input$prevBtnAggreg, navPageAggreg(-1))
-observeEvent(input$nextBtnAggreg, navPageAggreg(1))
-
-
-
-
-
-
-
-# output$Aggreg_Aggreg <- renderUI({
-#   splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-#               uiOutput("AggregationSideBar_Step1"),
-#               tagList(uiOutput("AggregationWellPanel_Step1")
-#               )
-#   )
-# })
 
 
 callModule(modulePopover,"modulePopover_includeShared", 
@@ -68,9 +17,7 @@ callModule(modulePopover,"modulePopover_includeShared",
 
 
 
-output$Aggreg_Aggreg <- renderUI({
-  if (rv$pageAggreg != 1){return()}
-  
+output$screenAggregation1 <- renderUI({
   
   tagList(
     uiOutput("warningAgregationMethod"),
@@ -98,7 +45,8 @@ output$Aggreg_Aggreg <- renderUI({
                                      selected=rv$widgets$aggregation$operator))
       ),
     actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
-   
+    uiOutput("ObserverAggregationDone"),
+    
     tags$hr(),
     tags$div(
        tags$div( style="display:inline-block; vertical-align: top;",
@@ -116,8 +64,7 @@ output$Aggreg_Aggreg <- renderUI({
 
 
 
-output$Aggreg_Valid <- renderUI({
-  if (rv$pageAggreg != 2){return()}
+output$screenAggregation2 <- renderUI({
   tagList(
     uiOutput(outputId = "progressSaveAggregation"),
     busyIndicator(WaitMsgCalc,wait = 0),
@@ -230,7 +177,7 @@ observeEvent(input$valid.aggregation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
     
     rv$dataset[[name]] <- rv$current.obj
-    
+    rv$moduleAggregationDone[2] <- TRUE
     #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}
@@ -238,11 +185,6 @@ observeEvent(input$valid.aggregation,{
     #updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
     updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
     BuildNavbarPage()
-    
-    rv$pageAggreg <- 2
-    shinyjs::hide('prevBtnConvert')
-    shinyjs::hide('nextBtnConvert')
-    
     
   })
   
@@ -326,7 +268,8 @@ observeEvent(input$perform.aggregation,{
   
   isolate({
       rv$temp.aggregate <- RunAggregation()
-
+      rv$moduleAggregationDone[1] <- TRUE
+      
   })
 })
 

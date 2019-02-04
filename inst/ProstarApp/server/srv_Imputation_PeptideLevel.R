@@ -11,12 +11,27 @@ callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT",
 callModule(modulePopover,"modulePopover_HelpImputationPeptide", 
            data = reactive(list(title = HTML("<strong>Algorithm</strong>"),
                                 content= HTML(paste0("<ul><li><strong>imp4p [Ref. 7]</strong> a proteomic-specific multiple imputation method that operates on peptide-level datasets and which proposes to impute each missing value according to its nature (left-censored  or random). To tune the number of iterations, let us keep in mind that, the more iterations, the more accurate the results, yet the more time-consuming the computation.</li> <li><strong>Dummy censored:</strong> each missing value is supposed to be a censored value and is replaced by the XXX quantile of the corresponding sample abundance distribution <ul><li><strong>KNN </strong>see [Other ref. 2].</li><li><strong>MLE </strong>Imputation with the maximum likelihood estimate of the expected intensity (see the norm R package).</li></ul></ul>")))))
+
+
+callModule(moduleProcess, "moduleProcess_PepImputation", 
+           isDone = reactive({rv$modulePepImputationDone}), 
+           pages = reactive({rv$modulePepImputation}))
+
+
+
+
+
+
+
 ##########
 #####  UI for the PEPTIDE LEVEL Imputation process
 ##########
-output$peptideLevelImputationPanel <- renderUI({
+output$screenPepImputation <- renderUI({
   #req(rv$current.obj)
-  isolate({
+ # isolate({
+  
+  
+  
     nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
     
     if (nbEmptyLines > 0) {
@@ -72,7 +87,7 @@ output$peptideLevelImputationPanel <- renderUI({
                )
       
     }
-  })
+  #})
   })
 
 
@@ -270,6 +285,7 @@ observeEvent(input$peptideLevel_ValidImputation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"peptideImputation",l.params)
     
     rv$dataset[[name]] <- rv$current.obj
+    rv$modulePepImputationDone[1] <- TRUE
     
     updateSelectInput(session, "datasets",choices = names(rv$dataset), selected = name)
   })

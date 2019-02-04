@@ -14,75 +14,16 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
            reactive({input$MEC_detQuant_factor}))
 
 
+callModule(moduleProcess, "moduleProcess_ProtImputation", 
+           isDone = reactive({rv$moduleProtImputationDone}), 
+           pages = reactive({rv$moduleProtImputation}))
 
 
 
 
 
-##--------------------------------------------------------------
-## Gestion du slideshow
-##--------------------------------------------------------------
-
-
-
-
-output$checkProtImputPanel <- renderUI({
-  rv$pageProtImput
-  color <- rep("lightgrey",NUM_PAGES_PROT_IMPUT)
-  
-  ##Step 1
-  if (rv$pageProtImput >= 1){
-    res <- rv$impute_Step >= 1
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageProtImput >= 2){
-    res <- rv$impute_Step >= 2
-    ifelse(res, color[2] <- "green", color[2] <- "red")
-    
-  } 
-  
-  ## Step 3: Choose quantitative data
-  if (rv$pageProtImput >= 3){
-    res <- length(grep("Imputed",input$datasets)) ==1
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    
-  }
-  
-  txt <- c("POV imputation", "MEC imputation", "Save imputation")
-  buildTable(txt, color)
-})
-
-NUM_PAGES_PROT_IMPUT <- 3
-
-observe({
-  toggleState(id = "prevBtnProtImput", condition = rv$pageProtImput > 1)
-  toggleState(id = "nextBtnProtImput", condition = rv$pageProtImput < NUM_PAGES_PROT_IMPUT)
-  hide(selector = ".page")
-  show(paste0("step", rv$pageProtImput))
-})
-
-navPageProtImput <- function(direction) {
-  rv$pageProtImput <- rv$pageProtImput + direction
-}
-
-observeEvent(input$prevBtnProtImput, navPageProtImput(-1))
-observeEvent(input$nextBtnProtImput, navPageProtImput(1))
-
-##---------------------------------------------------------------
-##------------------------------------------------------------------
-
-
-
-
-
-
-
-output$POV_imputation <- renderUI({
-  if (rv$pageProtImput != 1){return()}
-  
+output$screenProtImput1 <- renderUI({
+ 
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
@@ -108,8 +49,7 @@ output$POV_imputation <- renderUI({
 
 
 
-output$MEC_imputation <- renderUI({
-  if (rv$pageProtImput != 2){return()}
+output$screenProtImput2 <- renderUI({
   
  
   tagList(
@@ -137,9 +77,8 @@ output$MEC_imputation <- renderUI({
 
 
 
-output$Validate_ProtImput <- renderUI({
-  if (rv$pageProtImput != 3){return()}
-
+output$screenProtImput3 <- renderUI({
+  
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
              actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
@@ -322,7 +261,7 @@ observeEvent(input$perform.imputationClassical.button,{
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
-    
+    rv$moduleProtImputationDone[1] <- TRUE
     shinyjs::enable("perform.imputationMEC.button")
     shinyjs::enable("ValidImputation")
     
@@ -357,9 +296,10 @@ observeEvent(input$perform.imputationMEC.button,{
            }
     )
     
-    incProgress(1, detail = 'Finalize MEC impuutation')
+    incProgress(1, detail = 'Finalize MEC imputation')
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
+    rv$moduleProtImputationDone[2] <- TRUE
     })
      })
 })
@@ -398,6 +338,7 @@ observeEvent(input$ValidImputation,{
     # updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = input$MEC_fixedValue)
     
     rv$ValidImputationClicked <- TRUE
+    rv$moduleProtImputationDone[3] <- TRUE
    })
 })
 

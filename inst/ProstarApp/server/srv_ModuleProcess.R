@@ -1,34 +1,36 @@
-moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
-  
+moduleProcess <- function(input, output, session, isDone, pages){
   ns <- session$ns
-  current <- reactiveVal(1)
-  nbSteps <- length(params()$name)
   
+  current <- reactiveVal(1)
+   nbSteps <- length(pages()$stepsNames)
+  print(nbSteps)
   ##--------------------------------------------------------------
   ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
   
   output$checkPanel <- renderUI({
-    req(current())
     color <- rep("lightgrey",nbSteps)
+    colorForCursor <- rep("white",nbSteps)
+    
 
-    for (i in 1:nbSteps){
+      for (i in 1:nbSteps){
       ##Step 1
-      if (current() >= i){
-       res <- params()$isDone[i]
-        ifelse(params()$isMandatory[i], col <- "red", col <- orangeProstar)
-        ifelse(res, color[i] <- "green", color[i] <- col)
+      #if (current() >= i){
+        status <- isDone()[i]
+        col <- ifelse(pages()$isMandatory[i], "red", orangeProstar)
+        ifelse(status, color[i] <- "green", color[i] <- col)
         }
-      }
 
-    buildTable(params()$name, color)
+    colorForCursor[current()] <- "black"
+    buildTable(pages()$stepsNames, color,colorForCursor)
+
   })
   
 
   observe({
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
-    #hide(selector = ".page")
+    hide(selector = ".page")
   })
   
   ##--------------------------------------------------------------
@@ -36,39 +38,37 @@ moduleProcess <- function(input, output, session, params, final_msg, ll.UI){
   ##--------------------------------------------------------------
   
   navPage <- function(direction) {
-    newValue <- current() + direction 
-    current(newValue)
-    
+   newValue <- current() + direction 
+   current(newValue)
    }
   
   observeEvent(input$prevBtn,{navPage(-1)})
   observeEvent(input$nextBtn,{navPage(1)})
   
   
-  output$Done <- renderUI({
-    if (params()$isDone[nbSteps] == TRUE) {
-      tags$p(style="font-size: 24;",tags$b(final_msg()))
-      # shinyjs::hide('prevBtnFiltering')
-      # shinyjs::hide('nextBtnFiltering')
-    }
-   })
-  
   
   output$screens <- renderUI({
+    isolate({
       ll <- NULL
+       #isolate({
+         
         for (i in 1:nbSteps){
           if (i == 1) {
-            ll[[i]] <- div(id = ns(paste0("screen",i)), ll.UI()[[i]])
+            ll[[i]] <- div(id = ns(paste0("screen",i)), pages()$ll.UI[[i]])
             } else {
-              ll[[i]] <- shinyjs::hidden(div(id = ns(paste0("screen",i)), ll.UI()[[i]]))
+              ll[[i]] <- shinyjs::hidden(div(id = ns(paste0("screen",i)), pages()$ll.UI[[i]]))
             }
         }
       
+   
   tagList(ll)
+       })
+
   })
   
   
   observeEvent(current(),{
+    
     for (i in 1:nbSteps){
       shinyjs::toggle(id = paste0("screen", i), condition = current() == i)
     }
