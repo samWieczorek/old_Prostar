@@ -5,11 +5,11 @@ moduleProcessUI <- function(id){
   
   tagList(
     tags$div(tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
-                     actionButton(ns("prevBtn"), "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%')),
+                     shinyjs::hidden(actionButton(ns("prevBtn"), "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%'))),
            tags$div( style="align: center;display:inline-block; vertical-align: top;",
                      uiOutput(ns("checkPanel" ))),
            tags$div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
-                     actionButton(ns("nextBtn"), ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%'))
+                     shinyjs::hidden(actionButton(ns("nextBtn"), ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%')))
 
   ),
   hr(),

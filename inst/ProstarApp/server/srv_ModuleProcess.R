@@ -28,6 +28,9 @@ moduleProcess <- function(input, output, session, isDone, pages){
   
 
   observe({
+    toggle(id = "prevBtn", condition = (nbSteps >1))
+    toggle(id = "nextBtn", condition = (nbSteps >1) )
+    
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
     hide(selector = ".page")

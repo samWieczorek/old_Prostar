@@ -15,7 +15,9 @@ callModule(modulePopover,"modulePopover_normQuanti",
                                 content="lower limit/noise (quantile = 0.15), median (quantile = 0.5). Min value=0, max value=1")))
 
 
-callModule(moduleProcess, "moduleProcess_Normalization", isDone = reactive({rv$moduleNormalizationDone}), pages = reactive({rv$moduleNormalization}))
+callModule(moduleProcess, "moduleProcess_Normalization", 
+           isDone = reactive({rvModProcess$moduleNormalizationDone}), 
+           pages = reactive({rvModProcess$moduleNormalization}))
 
 
 
@@ -204,7 +206,7 @@ observeEvent(input$valid.normalization,{
       rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
       rv$dataset[[name]] <- rv$current.obj
       
-      rv$moduleNormalizationDone[1] <- TRUE
+      rvModProcess$moduleNormalizationDone[1] <- TRUE
       
       updateSelectInput(session, "datasets", 
                         #paste("Dataset versions of",rv$current.obj.name, sep=" "),

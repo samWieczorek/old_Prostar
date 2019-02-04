@@ -14,8 +14,8 @@ callModule(modulePopover,"modulePopover_HelpImputationPeptide",
 
 
 callModule(moduleProcess, "moduleProcess_PepImputation", 
-           isDone = reactive({rv$modulePepImputationDone}), 
-           pages = reactive({rv$modulePepImputation}))
+           isDone = reactive({rvModProcess$modulePepImputationDone}), 
+           pages = reactive({rvModProcess$modulePepImputation}))
 
 
 
@@ -285,7 +285,7 @@ observeEvent(input$peptideLevel_ValidImputation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"peptideImputation",l.params)
     
     rv$dataset[[name]] <- rv$current.obj
-    rv$modulePepImputationDone[1] <- TRUE
+    rvModProcess$modulePepImputationDone[1] <- TRUE
     
     updateSelectInput(session, "datasets",choices = names(rv$dataset), selected = name)
   })

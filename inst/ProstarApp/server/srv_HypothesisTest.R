@@ -6,8 +6,8 @@ observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seui
 
 
 callModule(moduleProcess, "moduleProcess_HypothesisTest", 
-           isDone = reactive({rv$moduleHypothesisTestDone}), 
-           pages = reactive({rv$moduleHypothesisTest}))
+           isDone = reactive({rvModProcess$moduleHypothesisTestDone}), 
+           pages = reactive({rvModProcess$moduleHypothesisTest}))
 
 output$screenHypoTest1 <- renderUI({
   
@@ -134,7 +134,7 @@ isolate({
   rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   
   rv$dataset[[name]] <- rv$current.obj
-  rv$moduleHypothesisTestDone[1] <- TRUE
+  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   BuildNavbarPage()

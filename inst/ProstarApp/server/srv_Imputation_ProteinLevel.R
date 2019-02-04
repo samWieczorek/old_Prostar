@@ -15,8 +15,8 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
 
 
 callModule(moduleProcess, "moduleProcess_ProtImputation", 
-           isDone = reactive({rv$moduleProtImputationDone}), 
-           pages = reactive({rv$moduleProtImputation}))
+           isDone = reactive({rvModProcess$moduleProtImputationDone}), 
+           pages = reactive({rvModProcess$moduleProtImputation}))
 
 
 
@@ -261,7 +261,7 @@ observeEvent(input$perform.imputationClassical.button,{
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
-    rv$moduleProtImputationDone[1] <- TRUE
+    rvModProcess$moduleProtImputationDone[1] <- TRUE
     shinyjs::enable("perform.imputationMEC.button")
     shinyjs::enable("ValidImputation")
     
@@ -299,7 +299,7 @@ observeEvent(input$perform.imputationMEC.button,{
     incProgress(1, detail = 'Finalize MEC imputation')
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
-    rv$moduleProtImputationDone[2] <- TRUE
+    rvModProcess$moduleProtImputationDone[2] <- TRUE
     })
      })
 })
@@ -338,7 +338,7 @@ observeEvent(input$ValidImputation,{
     # updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = input$MEC_fixedValue)
     
     rv$ValidImputationClicked <- TRUE
-    rv$moduleProtImputationDone[3] <- TRUE
+    rvModProcess$moduleProtImputationDone[3] <- TRUE
    })
 })
 

@@ -22,8 +22,8 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 
 
 callModule(moduleProcess, "moduleProcess_Convert", 
-           isDone = reactive({rv$moduleConvertDone}), 
-           pages = reactive({rv$moduleConvert}))
+           isDone = reactive({rvModProcess$moduleConvertDone}), 
+           pages = reactive({rvModProcess$moduleConvert}))
 
 
 
@@ -150,7 +150,7 @@ output$warningNonUniqueID <- renderUI({
     if (input$idBox =="Auto ID") {
       text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
 
-      rv$moduleConvertDone[2] <- rv$moduleConvertDone[2] && TRUE
+      rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] && TRUE
     }
     else {
       t <- (length(as.data.frame(rv$tab1)[, input$idBox])
@@ -160,11 +160,11 @@ output$warningNonUniqueID <- renderUI({
         text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
-        rv$moduleConvertDone[2] <- FALSE
+        rvModProcess$moduleConvertDone[2] <- FALSE
       }
       else {
         text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-        rv$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
+        rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
       }
     }
     HTML(text)
@@ -176,8 +176,8 @@ observeEvent(req(input$typeOfData,input$convert_proteinId),{
   print(input$convert_proteinId)
   if (input$typeOfData == "peptide") {
     if (input$convert_proteinId == "")
-        { rv$moduleConvertDone[2] <- FALSE}
-        else {rv$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
+        { rvModProcess$moduleConvertDone[2] <- FALSE}
+        else {rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
         }
   }
 })
@@ -332,14 +332,14 @@ output$conversionDone <- renderUI({
   h4("The conversion is done. Your dataset has been automatically loaded 
        in memory. Now, you can switch to the Descriptive statistics panel to 
        vizualize your data.")
-  rv$moduleConvertDone[5] <- TRUE
+  rvModProcess$moduleConvertDone[5] <- TRUE
   
 })
 
 
 
 observeEvent(input$file1, {
-  rv$moduleConvertDone[1] <- TRUE
+  rvModProcess$moduleConvertDone[1] <- TRUE
 })
 
 
@@ -405,7 +405,7 @@ output$eData <- renderUI({
 
 
 observeEvent(input$eData.box,{
-  rv$moduleConvertDone[3] <- TRUE
+  rvModProcess$moduleConvertDone[3] <- TRUE
 })
 
 

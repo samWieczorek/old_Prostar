@@ -1,8 +1,8 @@
 callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}))
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
-           isDone = reactive({rv$moduleAggregationDone}), 
-           pages = reactive({rv$moduleAggregation}))
+           isDone = reactive({rvModProcess$moduleAggregationDone}), 
+           pages = reactive({rvModProcess$moduleAggregation}))
 
 
 
@@ -177,7 +177,7 @@ observeEvent(input$valid.aggregation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
     
     rv$dataset[[name]] <- rv$current.obj
-    rv$moduleAggregationDone[2] <- TRUE
+    rvModProcess$moduleAggregationDone[2] <- TRUE
     #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}
@@ -268,7 +268,7 @@ observeEvent(input$perform.aggregation,{
   
   isolate({
       rv$temp.aggregate <- RunAggregation()
-      rv$moduleAggregationDone[1] <- TRUE
+      rvModProcess$moduleAggregationDone[1] <- TRUE
       
   })
 })
