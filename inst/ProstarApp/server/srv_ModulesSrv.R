@@ -428,11 +428,11 @@ missingValuesPlots <- function(input, output, session) {
       req(rv$current.obj)
       rv$PlotParams$paletteConditions
       tmp <- NULL
-      isolate({
+      #isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot1")
         tmp <- wrapper.mvHisto_HC(rv$current.obj,palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
-        })
+      #  })
       tmp
     })
     

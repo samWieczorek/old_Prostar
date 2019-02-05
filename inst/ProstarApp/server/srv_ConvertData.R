@@ -144,14 +144,44 @@ output$Convert_Convert <- renderUI({
   )
 })
 
+
+
+observe({
+  req(input$idBox)
+  req(rv$tab1)
+  
+  print("dans observe")
+test1 <- test2 <- FALSE
+  
+  test1 <- (input$typeOfData == "peptide") && !(input$convert_proteinId == "")
+ 
+  
+  if (input$idBox =="Auto ID") {
+    test2 <- TRUE
+  }
+  else {
+    test2 <- (length(as.data.frame(rv$tab1)[, input$idBox])
+          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+    
+  }
+   
+  print(test1)
+  print(test2)
+  rvModProcess$moduleConvertDone[2] <- test1 && test2
+  
+ 
+})
+
+
+
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
     req(rv$tab1)
-    if (input$idBox =="Auto ID") {
+    
+    isolate({
+      if (input$idBox =="Auto ID") {
       text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-
-      rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] && TRUE
-    }
+ }
     else {
       t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -160,27 +190,17 @@ output$warningNonUniqueID <- renderUI({
         text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
-        rvModProcess$moduleConvertDone[2] <- FALSE
-      }
+         }
       else {
         text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-        rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
-      }
+        }
     }
     HTML(text)
+    
+    })
 })
 
 
-observeEvent(req(input$typeOfData,input$convert_proteinId),{
-  print(input$typeOfData)
-  print(input$convert_proteinId)
-  if (input$typeOfData == "peptide") {
-    if (input$convert_proteinId == "")
-        { rvModProcess$moduleConvertDone[2] <- FALSE}
-        else {rvModProcess$moduleConvertDone[2] <- rv$moduleConvertDone[2] || TRUE
-        }
-  }
-})
 
 
 output$convertChooseProteinID_UI <- renderUI({
@@ -326,20 +346,19 @@ observeEvent(c(input$file1,input$XLSsheets),{
 
 
 output$conversionDone <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) { return(NULL)}
+  req(rv$current.obj)
   
   h4("The conversion is done. Your dataset has been automatically loaded 
        in memory. Now, you can switch to the Descriptive statistics panel to 
        vizualize your data.")
-  rvModProcess$moduleConvertDone[5] <- TRUE
+  
   
 })
 
 
 
-observeEvent(input$file1, {
-  rvModProcess$moduleConvertDone[1] <- TRUE
+observe({
+  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
 })
 
 
@@ -404,10 +423,14 @@ output$eData <- renderUI({
 
 
 
-observeEvent(input$eData.box,{
-  rvModProcess$moduleConvertDone[3] <- TRUE
+observe({
+  rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
 })
 
+
+observe({
+  rvModProcess$moduleConvertDone[4] <- !is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid)
+})
 
 
 output$checkIdentificationTab <- renderUI({
@@ -637,7 +660,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 loadObjectInMemoryFromConverter()
                 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
-                rv$pageConvert <- 5
+                rvModProcess$moduleConvertDone[5] <- TRUE
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){

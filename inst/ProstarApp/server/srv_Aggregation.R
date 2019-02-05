@@ -73,6 +73,13 @@ output$screenAggregation2 <- renderUI({
 })
 
 
+output$screenAggregation3 <- renderUI({
+  tagList(
+    actionButton("valid.aggregation","Save aggregation", class = actionBtnClass)
+  )
+})
+
+
 observeEvent(input$AggregationConsider,{
   shinyjs::toggle('nTopn', condition=input$AggregationConsider=='onlyN')
 })
@@ -177,7 +184,7 @@ observeEvent(input$valid.aggregation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
     
     rv$dataset[[name]] <- rv$current.obj
-    rvModProcess$moduleAggregationDone[2] <- TRUE
+    rvModProcess$moduleAggregationDone[3] <- TRUE
     #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}
@@ -313,7 +320,7 @@ output$Aggregation_Step2 <- renderUI({
   
   req(rv$current.obj)
   
-  if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
+  #if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
     choices <- colnames(Biobase::fData(rv$current.obj))
     names(choices) <- colnames(Biobase::fData(rv$current.obj))
     tagList(
@@ -333,18 +340,17 @@ output$Aggregation_Step2 <- renderUI({
                       size = 10,
                       selectize = FALSE)
         )
-      ) ,
-      actionButton("valid.aggregation","Save aggregation", sclass = actionBtnClass)
-    )
-    
-  } else {
-    tagList(
-      h4("The peptide dataset has been aggregated into a protein dataset."),
-      tags$div(style="align: center;",
-               moduleStaticDataTableUI("overview_Aggregation")
       )
     )
-  }
+    
+  # } else {
+  #   tagList(
+  #     h4("The peptide dataset has been aggregated into a protein dataset."),
+  #     tags$div(style="align: center;",
+  #              moduleStaticDataTableUI("overview_Aggregation")
+  #     )
+  #   )
+  # }
   
 })
 

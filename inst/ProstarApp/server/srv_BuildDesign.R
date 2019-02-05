@@ -308,7 +308,7 @@ output$checkDesign <- renderUI({
           shinyjs::enable("createMSnsetButton")
           img <- "images/Ok.png"
           txt <- "Correct design"
-          rvModProcess$moduleConvertDone[4] <- TRUE
+         # rvModProcess$moduleConvertDone[4] <- TRUE
         }else {
           img <- "images/Problem.png"
           txt <- "Invalid design"}

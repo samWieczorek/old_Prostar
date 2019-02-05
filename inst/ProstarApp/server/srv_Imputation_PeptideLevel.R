@@ -26,7 +26,7 @@ callModule(moduleProcess, "moduleProcess_PepImputation",
 ##########
 #####  UI for the PEPTIDE LEVEL Imputation process
 ##########
-output$screenPepImputation <- renderUI({
+output$screenPepImputation1 <- renderUI({
   #req(rv$current.obj)
  # isolate({
   
@@ -67,9 +67,7 @@ output$screenPepImputation <- renderUI({
                 ),
                 tags$div(
                   tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                           actionButton("peptideLevel_perform.imputation.button", "Perform imputation", class = actionBtnClass)),
-                  tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                           actionButton("peptideLevel_ValidImputation", "Save imputation", class = actionBtnClass))
+                           actionButton("peptideLevel_perform.imputation.button", "Perform imputation", class = actionBtnClass))
                 ),
               br(), br(), br(),
                uiOutput("warningImputationMethod"),
@@ -89,6 +87,14 @@ output$screenPepImputation <- renderUI({
     }
   #})
   })
+
+
+
+output$screenPepImputation2 <- renderUI({
+  
+  tagList(
+    actionButton("peptideLevel_ValidImputation", "Save imputation", class = actionBtnClass))
+})
 
 
 
@@ -263,7 +269,7 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
   
   nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
   rv$nbMVimputed <- nbMVAfter - nbMVBefore
-  
+  rvModProcess$modulePepImputationDone[1] <- TRUE
   
 })
 
@@ -285,7 +291,7 @@ observeEvent(input$peptideLevel_ValidImputation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"peptideImputation",l.params)
     
     rv$dataset[[name]] <- rv$current.obj
-    rvModProcess$modulePepImputationDone[1] <- TRUE
+    rvModProcess$modulePepImputationDone[2] <- TRUE
     
     updateSelectInput(session, "datasets",choices = names(rv$dataset), selected = name)
   })

@@ -22,7 +22,7 @@ callModule(moduleProcess, "moduleProcess_Normalization",
 
 
 ############ SCREEN NORMALIZATION  #########
-output$screenNormalization <- renderUI({
+output$screenNormalization1 <- renderUI({
   isolate({
     tagList(
       div(
@@ -49,8 +49,7 @@ output$screenNormalization <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-          hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px")),
-          hidden(actionButton("valid.normalization","Save normalization", class = actionBtnClass, width="170px"))
+          hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px"))
         )
       ),
       uiOutput("helpForNormalizationMethods"),
@@ -64,6 +63,18 @@ output$screenNormalization <- renderUI({
   })
   
 })
+
+
+
+
+output$screenNormalization2 <- renderUI({
+  
+  tagList(
+    actionButton("valid.normalization","Save normalization", class = actionBtnClass, width="170px")
+  )
+  
+})
+
 
 
 output$helpForNormalizationMethods <- renderUI({
@@ -189,7 +200,7 @@ observeEvent(input$perform.normalization,{
            }
     )
   })
-  
+  rvModProcess$moduleNormalizationDone[1] <- TRUE
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })
 
@@ -206,7 +217,7 @@ observeEvent(input$valid.normalization,{
       rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
       rv$dataset[[name]] <- rv$current.obj
       
-      rvModProcess$moduleNormalizationDone[1] <- TRUE
+      rvModProcess$moduleNormalizationDone[2] <- TRUE
       
       updateSelectInput(session, "datasets", 
                         #paste("Dataset versions of",rv$current.obj.name, sep=" "),

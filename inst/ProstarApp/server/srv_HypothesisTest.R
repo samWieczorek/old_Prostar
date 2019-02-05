@@ -42,11 +42,9 @@ output$screenHypoTest1 <- renderUI({
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),
                   module_Not_a_numericUI("test_seuillogFC")
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
-                  uiOutput("btn_valid")
         )
-      ),
+        )
+      ,
       tags$hr(),
       highchartOutput("FoldChangePlot", height="100%") %>% withSpinner(type=spinnerType)
     )
@@ -54,6 +52,15 @@ output$screenHypoTest1 <- renderUI({
   }
     })
 })
+
+
+output$screenHypoTest2 <- renderUI({
+  tagList(
+    uiOutput("btn_valid")
+  )
+})
+
+
 
 output$btn_valid <- renderUI({
   cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")

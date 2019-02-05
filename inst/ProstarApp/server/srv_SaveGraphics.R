@@ -185,7 +185,7 @@ createPNG_densityplot <- function(obj,params=NULL,basename = NULL){
 
 
 createPNG_CVDistr <- function(obj,params=NULL,basename = NULL){
-  if (is.null(basename)||is.null(obj)){return(NULL)}
+  req(c(basename,obj))
   
   pngfile <- paste0(basename, ".png")
   
