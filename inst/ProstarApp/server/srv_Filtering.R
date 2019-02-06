@@ -13,19 +13,25 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 
 resetModuleFiltering <- reactive({  
-  print("toto2")
+  ## update widgets values (reactive values)
   rv$widgetsfiltering$ChooseFilters <- "None"
   rv$widgetsfiltering$seuilNA <- 0
-  rv$widgetsfiltering$DT_filterSummary <- data.frame(Filtre=NULL, 
+  rv$deleted.stringBased <- NULL
+  rv$deleted.mvLines <- NULL
+  rv$widgets$filtering$DT_filterSummary <- data.frame(Filtre=NULL,
                                                    Prefix=NULL,
-                                                   nbDeleted=NULL, 
-                                                   Total=NULL, 
+                                                   nbDeleted=NULL,
+                                                   Total=NULL,
                                                    stringsAsFactors=F)
   
   
+  ## update widgets in UI
   updateSelectInput(session, "ChooseFilters", selected = rv$widgetsfiltering$ChooseFilters)
   updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
   
+  
+  rvModProcess$moduleFilteringDone = c(FALSE, 4)
+  ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
   })
@@ -145,7 +151,7 @@ output$screenFiltering4 <- renderUI({
 
 
 
-
+## symbolic filtering event
 observeEvent(input$actionButtonFilter,{
   rv$current.obj
   temp <- rv$current.obj
@@ -170,13 +176,14 @@ observeEvent(input$actionButtonFilter,{
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
 
-  #colnames(rv$widgets$filtering$DT_filterSummary) <- c("Filter", "Prefix", "nbDeleted", "Total")
-  
 })
 
 
 
 output$FilterSummaryData <- DT::renderDataTable({
+  rv$widgets$filtering$DT_filterSummary
+  
+  print(rv$widgets$filtering$DT_filterSummary)
   if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
     df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
     rv$widgets$filtering$DT_filterSummary <- df

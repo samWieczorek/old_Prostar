@@ -2,13 +2,14 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
   ns <- session$ns
   
   current <- reactiveVal(1)
-  nbSteps <- length(pages()$stepsNames)
+   nbSteps <- length(pages()$stepsNames)
   
    
    ##--------------------------------------------------------------
   ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
   
+   observeEvent(input$rstBtn,{rstFunc()})
    
   output$checkPanel <- renderUI({
     color <- rep("lightgrey",nbSteps)
@@ -29,9 +30,6 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
   })
   
 
-   observeEvent(input$rstBtn,{rstFunc()})
-   
-   
   observe({
     toggle(id = "prevBtn", condition = (nbSteps >1))
     toggle(id = "nextBtn", condition = (nbSteps >1) )
