@@ -14,21 +14,16 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 resetModuleFiltering <- reactive({  
   ## update widgets values (reactive values)
-  rv$widgetsfiltering$ChooseFilters <- "None"
+  resetWidgets("Filtering")
+  
   rv$widgetsfiltering$seuilNA <- 0
   rv$deleted.stringBased <- NULL
   rv$deleted.mvLines <- NULL
-  rv$widgets$filtering$DT_filterSummary <- data.frame(Filtre=NULL,
-                                                   Prefix=NULL,
-                                                   nbDeleted=NULL,
-                                                   Total=NULL,
-                                                   stringsAsFactors=F)
-  
+
   
   ## update widgets in UI
   updateSelectInput(session, "ChooseFilters", selected = rv$widgetsfiltering$ChooseFilters)
   updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
-  
   
   rvModProcess$moduleFilteringDone = c(FALSE, 4)
   ##update dataset to put the previous one
@@ -40,18 +35,20 @@ resetModuleFiltering <- reactive({
 output$screenFiltering1 <- renderUI({
   req(rv$current.obj)
   #rv$widgets$filtering$ChooseFilters
-  tagList(
-      tags$div(
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+  #tagList(
+   div(
+      id = "tata",
+     # tags$div(
+        div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
                   selectInput("ChooseFilters","Type",  
                               choices = gFiltersList, 
                               selected=rv$widgets$filtering$ChooseFilters,
                               width='200px')
         ),
-        tags$div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
+        div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                   uiOutput("seuilNADelete")
         ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
+        div( style="display:inline-block; vertical-align: middle;",
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         ),
       hr(),
@@ -59,7 +56,7 @@ output$screenFiltering1 <- renderUI({
       uiOutput("ObserverMVFilteringDone")
       )
  
-    )
+    #)
   
 })
 

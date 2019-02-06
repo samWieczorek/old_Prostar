@@ -7,7 +7,29 @@ observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seui
 
 callModule(moduleProcess, "moduleProcess_HypothesisTest", 
            isDone = reactive({rvModProcess$moduleHypothesisTestDone}), 
-           pages = reactive({rvModProcess$moduleHypothesisTest}))
+           pages = reactive({rvModProcess$moduleHypothesisTest}),
+           rstFunc = resetModuleHypothesisTest)
+
+
+resetModuleHypothesisTest <- reactive({  
+  ## update widgets values (reactive values)
+  resetWidgets("HypothesisTest")
+    
+  ## update widgets in UI
+  updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
+  updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
+  updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
+  updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
+    
+  rvModProcess$moduleHypothesisTestDone = c(FALSE, 2)
+  ##update dataset to put the previous one
+  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  
+})
+
+
+
+observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
 
 output$screenHypoTest1 <- renderUI({
   
@@ -34,7 +56,7 @@ output$screenHypoTest1 <- renderUI({
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   hidden( radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"),
-                                       selected=input$ttest_options,
+                                       selected=rv$widgets$hypothesisTest$ttest_options,
                                        width='150px'))
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",

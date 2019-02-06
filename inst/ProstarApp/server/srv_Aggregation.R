@@ -2,7 +2,8 @@ callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({Ge
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 
-           pages = reactive({rvModProcess$moduleAggregation}))
+           pages = reactive({rvModProcess$moduleAggregation}),
+           rstFunc = resetModuleAggregation)
 
 
 
@@ -14,6 +15,29 @@ callModule(modulePopover,"modulePopover_includeShared",
                                 )
                            )
            )
+
+
+
+
+resetModuleAggregation <- reactive({  
+  ## update widgets values (reactive values)
+  resetWidgets("Aggregation")
+  
+  
+  
+  ## update widgets in UI
+  updateSelectInput(session, "proteinId", selected = rv$widgets$aggregation$proteinId)
+  updateRadioButtons(session, "radioBtn_includeShared", selected = rv$widgets$aggregation$includeSharedPeptides)
+  updateRadioButtons(session, "AggregationConsider", selected = rv$widgets$aggregation$considerPeptides)
+  updateNumericInput(session, "nTopn", value=rv$widgets$aggregation$topN)
+  updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
+  
+  
+  rvModProcess$moduleAggregationDone = c(FALSE, 3)
+  ##update dataset to put the previous one
+  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  
+})
 
 
 
@@ -402,11 +426,16 @@ output$columnsForProteinDataset <- renderUI({
 
 
 ######################################################### 
+observeEvent(input$proteinId,{
+  rv$widgets$aggregation$proteinId <- input$proteinId
+})
+
 
 output$chooseProteinId <- renderUI({
   if (!is.null(rv$current.obj@experimentData@other$proteinId)) {return(NULL)}
   
   selectInput("proteinId", 
               "Choose the protein ID",
-              choices = c("None",colnames(Biobase::fData(rv$current.obj))))
+              choices = c("None",colnames(Biobase::fData(rv$current.obj))),
+              selected = rv$widgets$aggregation$proteinId)
 })

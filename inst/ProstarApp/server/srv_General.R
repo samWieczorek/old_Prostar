@@ -468,16 +468,77 @@ createPNGFromWidget <- function(tempplot, pattern){
                    zoom = zoomWebshot)
 }
 
+
+resetWidgets <- function(moduleName, obj){
+  
+  switch (moduleName,
+          Aggregation ={rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
+                                           operator = "Mean",
+                                           considerPeptides = 'allPeptides',
+                                           proteinId = "None",
+                                           topN = 3)},
+          Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
+                                                    seuilNA = 0,
+                                                    DT_filterSummary = data.frame(Filtre=NULL, 
+                                                           Prefix=NULL,
+                                                           nbDeleted=NULL, 
+                                                           Total=NULL, 
+                                                           stringsAsFactors=F))},
+          Normalization ={rv$widgets$normalization <- list(method = "None",
+                                             type = "None",
+                                             varReduction = FALSE,
+                                             quantile = 0.15,
+                                             spanLOESS = 0.7)},
+          PepImputation ={rv$widgets$peptideImput <- list( pepLevel_algorithm = "None",
+                                               pepLevel_basicAlgorithm = "None",
+                                               pepLevel_detQuantile = 2.5,
+                                               pepLevel_detQuant_factor = 1,
+                                               pepLevel_imp4p_nbiter = 10,
+                                               pepLevel_imp4p_withLapala = FALSE,
+                                               pepLevel_imp4p_qmin = 2.5,
+                                               pepLevel_imp4pLAPALA_distrib = "beta",
+                                               pepLevel_KNN_n = 10)},
+          ProtImputation ={rv$widgets$proteinImput <- list(POV_algorithm = "None",
+                                               POV_detQuant_quantile = 2.5,
+                                               POV_detQuant_factor = 1,
+                                               POV_KNN_n = 10,
+                                               MEC_algorithm = "None",
+                                               MEC_detQuant_quantile = 2.5,
+                                               MEC_detQuant_factor = 1,
+                                               MEC_fixedValue= 0)},
+          HypothesisTest ={rv$widgets$hypothesisTest = list(design = "None",
+                                                 method = "None",
+                                                 ttest_options = "Student",
+                                                 th_logFC = 0,
+                                                 listNomsComparaison = NULL)},
+          Convert ={},
+          AnaDiff = {rv$widgets$anaDiff <- list(Comparison = "None",
+                                    Condition1 = "",
+                                    Condition2 = "",
+                                    swapVolcano = FALSE,
+                                    filterType = "None",
+                                    filter_th_NA = 0,
+                                    calibMethod = 'None',
+                                    numValCalibMethod = 0,
+                                    th_pval = 0,
+                                    FDR = 0,
+                                    NbSelected = 0)}
+          )
+}
+
+
+
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
   resetRVModProcess()
-  #rv$UI_TabsList = NULL
-  #rv$UI_fileSourced = NULL
-  #rv$SRV_fileSourced = NULL
-  
-
-  
-  
+  resetWidgets("Aggregation")
+  resetWidgets("Normalization")
+  resetWidgets("Filtering")
+  resetWidgets("PepImputation")
+  resetWidgets("ProtImputation")
+  resetWidgets("HypothesisTest")
+  resetWidgets("Convert")
+  resetWidgets("AnaDiff")
   ########
   ### Settings
   ########
@@ -517,59 +578,7 @@ ClearMemory <- function(){
                              stringsAsFactors=F)
     rv$tableVersions = NULL
     rv$listLogFC = list()
-    rv$widgets = list(
-                      filtering = list(ChooseFilters = "None",
-                                       seuilNA = 0,
-                                       DT_filterSummary = data.frame(Filtre=NULL, 
-                                                                     Prefix=NULL,
-                                                                     nbDeleted=NULL, 
-                                                                     Total=NULL, 
-                                                                     stringsAsFactors=F)),
-                      normalization=list(method = "None",
-                                         type = "None",
-                                         varReduction = FALSE,
-                                         quantile = 0.15,
-                                         spanLOESS = 0.7),
-                      aggregation = list(includeSharedPeptides = "Yes2",
-                                         operator = "Mean",
-                                         considerPeptides = 'allPeptides',
-                                         proteinId = "None",
-                                         topN = 3),
-                      hypothesisTest = list(design = "None",
-                                            method = "None",
-                                            ttest_options = "Student",
-                                            th_logFC = 0,
-                                            listNomsComparaison = NULL),
-                      peptideImput = list( pepLevel_algorithm = "None",
-                                           pepLevel_basicAlgorithm = "None",
-                                           pepLevel_detQuantile = 2.5,
-                                           pepLevel_detQuant_factor = 1,
-                                           pepLevel_imp4p_nbiter = 10,
-                                           pepLevel_imp4p_withLapala = FALSE,
-                                           pepLevel_imp4p_qmin = 2.5,
-                                           pepLevel_imp4pLAPALA_distrib = "beta",
-                                           pepLevel_KNN_n = 10),
-                      
-                      proteinImput = list(POV_algorithm = "None",
-                                          POV_detQuant_quantile = 2.5,
-                                          POV_detQuant_factor = 1,
-                                          POV_KNN_n = 10,
-                                          MEC_algorithm = "None",
-                                          MEC_detQuant_quantile = 2.5,
-                                          MEC_detQuant_factor = 1,
-                                          MEC_fixedValue= 0),
-                      anaDiff = list(Comparison = "None",
-                                     Condition1 = "",
-                                     Condition2 = "",
-                                     swapVolcano = FALSE,
-                                    filterType = "None",
-                                    filter_th_NA = 0,
-                                    calibMethod = 'None',
-                                    numValCalibMethod = 0,
-                                    th_pval = 0,
-                                    FDR = 0,
-                                    NbSelected = 0)
-                      )
+    
     rv$tab1 = NULL
     rv$dirname = ""
     rv$dirnameforlink = ""

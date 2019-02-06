@@ -23,9 +23,27 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 
 callModule(moduleProcess, "moduleProcess_Convert", 
            isDone = reactive({rvModProcess$moduleConvertDone}), 
-           pages = reactive({rvModProcess$moduleConvert}))
+           pages = reactive({rvModProcess$moduleConvert}),
+           rstFunc = resetModuleConvert)
 
 
+resetModuleConvert<- reactive({  
+  ## update widgets values (reactive values)
+  resetWidgets("Convert")
+    
+  ## update widgets in UI
+  updateCheckboxInput(session,"selectIdent", value = FALSE)
+  updateSelectInput(session,"convert_proteinId",selected = character(0))
+  updateSelectInput(session,"idBox", selected = "Auto ID")
+  updateRadioButtons(session, "typeOfData", selected="peptide")
+  updateRadioButtons(session, "checkDataLogged", selected="no")
+  updateCheckboxInput(session,"replaceAllZeros", value= TRUE)
+  
+  
+  
+  rvModProcess$moduleConvertDone = c(FALSE, 5)
+ 
+})
 
 
 
@@ -149,9 +167,7 @@ output$Convert_Convert <- renderUI({
 observe({
   req(input$idBox)
   req(rv$tab1)
-  
-  print("dans observe")
-test1 <- test2 <- FALSE
+  test1 <- test2 <- FALSE
   
   test1 <- (input$typeOfData == "peptide") && !(input$convert_proteinId == "")
  
@@ -162,14 +178,9 @@ test1 <- test2 <- FALSE
   else {
     test2 <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-    
   }
    
-  print(test1)
-  print(test2)
   rvModProcess$moduleConvertDone[2] <- test1 && test2
-  
- 
 })
 
 
@@ -212,9 +223,7 @@ output$convertChooseProteinID_UI <- renderUI({
   names(.choices) <- c("",colnames(rv$tab1))
   tagList(
     modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId", 
-              "",
-              choices =  .choices , selected = character(0))
+    selectInput("convert_proteinId","",choices =  .choices , selected = character(0))
   )
 })
 
