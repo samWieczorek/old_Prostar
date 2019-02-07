@@ -41,7 +41,7 @@ resetModuleConvert<- reactive({
   
   
   
-  rvModProcess$moduleConvertDone = c(FALSE, 5)
+  rvModProcess$moduleConvertDone = rep(FALSE, 5)
  
 })
 

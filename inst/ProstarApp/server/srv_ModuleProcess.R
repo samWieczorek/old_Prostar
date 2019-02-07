@@ -15,8 +15,6 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
     
 
       for (i in 1:nbSteps){
-      ##Step 1
-      #if (current() >= i){
         status <- isDone()[i]
         col <- ifelse(pages()$isMandatory[i], "red", orangeProstar)
         ifelse(status, color[i] <- "green", color[i] <- col)
@@ -34,8 +32,7 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
      })
    
   observe({
-    print(isDone())
-    toggle(id = "prevBtn", condition = (nbSteps >1))
+     toggle(id = "prevBtn", condition = (nbSteps >1))
     toggle(id = "nextBtn", condition = (nbSteps >1) )
     
     toggle(id = "rstBtn", condition = !(isDone()[nbSteps])) 

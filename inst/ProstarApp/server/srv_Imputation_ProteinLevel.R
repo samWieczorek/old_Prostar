@@ -36,13 +36,47 @@ resetModuleProtImputation <- reactive({
   
   
   
-  rvModProcess$moduleProtImputationDone = c(FALSE, 3)
+  rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
+
+########
+observeEvent(input$POV_missing.value.algorithm, {
+  rv$widgets$proteinImput$POV_algorithm <- input$POV_missing.value.algorithm
+})
+
+observeEvent(input$MEC_missing.value.algorithm, {
+  rv$widgets$proteinImput$MEC_algorithm <- input$MEC_missing.value.algorithm
+})
+
+observeEvent(input$POV_detQuant_quantile, {
+  rv$widgets$proteinImput$POV_detQuant_quantile <- input$POV_detQuant_quantile
+})
+
+observeEvent(input$POV_detQuant_factor, {
+  rv$widgets$proteinImput$POV_detQuant_factor <- input$POV_detQuant_factor
+})
+
+observeEvent(input$KNN_nbNeighbors, {
+  rv$widgets$proteinImput$POV_KNN_n <- input$KNN_nbNeighbors
+})
+
+observeEvent(input$MEC_detQuant_quantile, {
+  rv$widgets$proteinImput$MEC_detQuant_quantile <- input$MEC_detQuant_quantile
+})
+
+observeEvent(input$MEC_fixedValue, {
+  rv$widgets$proteinImput$MEC_detQuant_factor <- input$MEC_fixedValue
+})
+
+observeEvent(input$MEC_detQuant_factor, {
+  rv$widgets$proteinImput$MEC_fixedValue <- input$MEC_detQuant_factor
+})
+#########
 
 
 
@@ -161,11 +195,11 @@ output$sidebar_imputation_step1 <- renderUI({
   
   algo <- imputationAlgorithmsProteins_POV
   
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
-                selectInput("POV_missing.value.algorithm","Algorithm for POV",
-                choices = algo, 
-                selected=rv$widgets$proteinImput$POV_algorithm, 
-                width='150px')
+  tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+            selectInput("POV_missing.value.algorithm","Algorithm for POV",
+                        choices = algo, 
+                        selected=rv$widgets$proteinImput$POV_algorithm, 
+                        width='150px')
   )
   
   })
@@ -350,18 +384,7 @@ observeEvent(input$ValidImputation,{
                       choices = names(rv$dataset),
                       selected = name)
     
-    
-    # updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
-    # updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
-    # updateNumericInput(session,"POV_detQuant_factor", "Factor", value = input$POV_detQuant_factor)
-    # updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
-    # 
-    # updateSelectInput(session,"MEC_missing.value.algorithm",  selected = input$MEC_missing.value.algorithm)
-    # updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
-    # updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
-    # updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = input$MEC_fixedValue)
-    
-    rv$ValidImputationClicked <- TRUE
+       rv$ValidImputationClicked <- TRUE
     rvModProcess$moduleProtImputationDone[3] <- TRUE
    })
 })

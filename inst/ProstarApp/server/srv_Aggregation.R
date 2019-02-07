@@ -37,6 +37,9 @@ resetModuleAggregation <- reactive({
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
+  ## reset temp object
+  rv$temp.aggregate <- NULL
+  
 })
 
 
@@ -64,9 +67,8 @@ output$screenAggregation1 <- renderUI({
                 numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
       
       tags$div( style="display:inline-block; vertical-align: top;",
-                radioButtons("AggregationOperator", "Operator", 
-                                     choices=c("Mean"="Mean"), 
-                                     selected=rv$widgets$aggregation$operator))
+                uiOutput("operatorChoice")
+                )
       ),
     actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
     uiOutput("ObserverAggregationDone"),
@@ -86,7 +88,19 @@ output$screenAggregation1 <- renderUI({
 
 })
 
-
+output$operatorChoice <- renderUI({
+  input$radioBtn_includeShared
+  
+  choice <- NULL
+  if (input$radioBtn_includeShared %in% c("No", "Yes1")){
+  choice <- c("Mean"="Mean","Sum"="Sum")
+  } else {choice <- c("Mean"="Mean")}
+  choice
+  
+  radioButtons("AggregationOperator", "Operator", 
+               choices=choice, 
+               selected=rv$widgets$aggregation$operator)
+})
 
 output$screenAggregation2 <- renderUI({
   tagList(
@@ -125,7 +139,13 @@ RunAggregation <- reactive({
   input$AggregationConsider
   input$nTopn
     
-   require(foreach)
+  withProgress(message = '',detail = '', value = 0, {
+    incProgress(0.2, detail = 'loading foreach package')
+    
+    
+    require(foreach)
+    incProgress(0.5, detail = 'Aggregation in progress')
+    
     obj.prot <- NULL
     if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides
@@ -133,7 +153,7 @@ RunAggregation <- reactive({
           if (input$AggregationConsider == 'allPeptides') {
               obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
           } else {
-            obj.prot <- aggregate.topn(X, rv$current.obj, n=as.numeric(input$nTopn), input$AggregationOperator)
+            obj.prot <- aggregateTopn(rv$current.obj, X,input$AggregationOperator, n=as.numeric(input$nTopn))
           }
       } else {
         if (input$AggregationConsider == 'allPeptides') {
@@ -147,10 +167,10 @@ RunAggregation <- reactive({
       if (input$AggregationConsider == 'allPeptides') {
         obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(obj.pep=rv$current.obj,X=X))
       } else {
-        obj.prot <- aggregateTopn(rv$current.obj, X,n=input$nTopn, input$AggregationOperator)
+        obj.prot <- aggregateTopn(rv$current.obj, X, input$AggregationOperator,n=as.numeric(input$nTopn))
       }
     }
-        
+  } )
     return(obj.prot)
 
 })
@@ -161,30 +181,22 @@ RunAggregation <- reactive({
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.aggregation,{ 
-  # input$nbPeptides
-  #input$filterProtAfterAgregation
-  #input$aggregationMethod
-  #input$columnsForProteinDataset.box
+  
   req(rv$matAdj)
   req(rv$temp.aggregate)
   
   isolate({
-    X <- NULL
+    withProgress(message = '',detail = '', value = 0, {
+      
+      X <- NULL
     if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides}
     else { X <- rv$matAdj$matWithUniquePeptides}
     
    
-    # updateSelectInput(session, "proteinId",selected = input$proteinId)
-    # updateRadioButtons(session, "AggregationOperator",selected = input$AggregationOperator)
-    # updateRadioButtons(session, "AggregationConsider",selected = input$AggregationConsider)
-    # updateSelectInput(session, "nTopn",selected = input$nTopn)
-    # updateRadioButtons(session,"radioBtn_includeShared",input$radioBtn_includeShared)
-    
-    
-    #total <- 60
-    #delta <- round(total / length(input$columnsForProteinDataset.box))
-    #cpt <- 10
+    total <- 60
+    delta <- round(total / length(input$columnsForProteinDataset.box))
+    cpt <- 10
     for(c in input$columnsForProteinDataset.box){
       newCol <- BuildColumnToProteinDataset(
         Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate)))
@@ -192,12 +204,12 @@ observeEvent(input$valid.aggregation,{
       Biobase::fData(rv$temp.aggregate) <- 
         data.frame(Biobase::fData(rv$temp.aggregate), newCol)
       colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
-      #cpt <- cpt + delta
-      #updatePB(session,inputId="pb_SaveAggregation",value=cpt,text_value=paste(cpt," %", sep=""), striped = TRUE, active=TRUE)
+      cpt <- cpt + delta
+      incProgress(cpt/100, detail = paste0('Processing column ', c))
     }
     
     rv$current.obj <- rv$temp.aggregate
-    #rv$temp.aggregate <- NULL
+    
     rv$current.obj@experimentData@other$Prostar_Version <- 
       installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
     rv$current.obj@experimentData@other$DAPAR_Version <- 
@@ -213,10 +225,10 @@ observeEvent(input$valid.aggregation,{
     #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
     #}
     
-    #updateNavbarPage (session, "navPage", selected = "Descriptive statistics")
     updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
     BuildNavbarPage()
     
+    })
   })
   
   
@@ -297,11 +309,11 @@ output$aggregationPlotUnique <- renderPlot({
 ###------------ Perform aggregation--------------------
 observeEvent(input$perform.aggregation,{
   
-  isolate({
+  #isolate({
       rv$temp.aggregate <- RunAggregation()
       rvModProcess$moduleAggregationDone[1] <- TRUE
       
-  })
+  #})
 })
 
 

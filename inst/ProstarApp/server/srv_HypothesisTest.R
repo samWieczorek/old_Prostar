@@ -21,7 +21,7 @@ resetModuleHypothesisTest <- reactive({
   updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
   updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
     
-  rvModProcess$moduleHypothesisTestDone = c(FALSE, 2)
+  rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
@@ -136,6 +136,8 @@ isolate({
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
+  
+  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
   rv$res_AllPairwiseComparisons
 })
 })
@@ -163,7 +165,7 @@ isolate({
   rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   
   rv$dataset[[name]] <- rv$current.obj
-  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+  rvModProcess$moduleHypothesisTestDone[2] <- TRUE
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   BuildNavbarPage()
