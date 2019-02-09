@@ -584,17 +584,16 @@ output$warningCreateMSnset <- renderUI({
 
 
 #######################################
-observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
-    # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
-    #{return(NULL)}
-    
+observeEvent(input$createMSnsetButton,{
+     if(!is.null(rv$current.obj)){return(NULL)}
+    print("In observeEvent(input$createMSnsetButton")
     colNamesForOriginofValues <- NULL
     if (isTRUE(input$selectIdent)) {
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
         if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
     } 
     
-    isolate({
+    #isolate({
         result = tryCatch(
             {
                 ext <- GetExtension(input$file1$name)
@@ -692,7 +691,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         
         
         
-    })
+    #})
 })
 
 

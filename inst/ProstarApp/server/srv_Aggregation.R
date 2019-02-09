@@ -48,39 +48,39 @@ output$screenAggregation1 <- renderUI({
   
   tagList(
     uiOutput("warningAgregationMethod"),
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top;",
+    div(
+      div( style="display:inline-block; vertical-align: top;",
                        uiOutput("chooseProteinId")),
-      tags$div( style="display:inline-block; vertical-align: top;",       
+      div( style="display:inline-block; vertical-align: top;",       
                         modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL, choices=
                                c("No" = "No",
                                  "as protein specific"= "Yes1" ,
                                  "redistribution" = "Yes2" ),
                              selected=rv$widgets$aggregation$includeSharedPeptides)),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+      div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
               radioButtons("AggregationConsider", "Consider", 
                                      choices=c('all peptides'="allPeptides", 
                                                "N most abundant"="onlyN"), 
                                      selected=rv$widgets$aggregation$considerPeptides)),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
+      div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
                 numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
       
-      tags$div( style="display:inline-block; vertical-align: top;",
+      div( style="display:inline-block; vertical-align: top;",
                 uiOutput("operatorChoice")
                 )
       ),
     actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
     uiOutput("ObserverAggregationDone"),
     
-    tags$hr(),
-    tags$div(
-       tags$div( style="display:inline-block; vertical-align: top;",
+    hr(),
+    div(
+       div( style="display:inline-block; vertical-align: top;",
                  uiOutput("specificPeptideBarplot")),
-       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
+       div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
                  uiOutput("allPeptideBarplot")),
-      tags$div( style="display:inline-block; vertical-align: top;",
-    DT::dataTableOutput("aggregationStats2"))
+      div( style="display:inline-block; vertical-align: top;",
+                DT::dataTableOutput("aggregationStats"))
     )
    
   )
@@ -250,28 +250,29 @@ output$ObserverAggregationDone <- renderUI({
 
 
 
-observeEvent(req(input$proteinId),{
+# observeEvent(req(input$proteinId),{
+# 
+#   if (input$proteinId == "None"){return(NULL)}
+#   rv$proteinId <- input$proteinId
+#   rv$matAdj <- ComputeAdjacencyMatrices()
+#   })
 
-  if (input$proteinId == "None"){return(NULL)}
-  rv$proteinId <-input$proteinId
-  rv$matAdj <- ComputeAdjacencyMatrices()
-  })
 
 
-
-output$aggregationStats2 <- DT::renderDataTable ({
+output$aggregationStats <- DT::renderDataTable ({
   #req(input$proteinId)
-  req(rv$current.obj)
+  #req(rv$current.obj)
+  #print("toto")
+  #print(rv$widgets$aggregation$proteinId)
   req(rv$matAdj)
-  if (!is.null(input$proteinId) && input$proteinId == "None") {return(NULL)}
+  if (is.null(rv$widgets$aggregation$proteinId) || rv$widgets$aggregation$proteinId == "None") {return(NULL)}
   
-  res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
-                          rv$matAdj$matWithSharedPeptides)
-  
-  rv$AggregProtStats$nb <- c(nrow(rv$matAdj$matWithSharedPeptides),
-                             nrow(rv$matAdj$matWithUniquePeptides),
-                             nrow(rv$matAdj$matWithSharedPeptides)-nrow(rv$matAdj$matWithUniquePeptides),
-                             ncol(rv$matAdj$matWithSharedPeptides),
+  res <- getProteinsStats(rv$matAdj$matWithSharedPeptides)
+  #print(res)
+  rv$AggregProtStats$nb <- c(res$nbPeptides,
+                             res$nbSpecificPeptides,
+                             res$nbSharedPeptides,
+                             res$nbProt,
                              length(res$protOnlyUniquePep),
                              length(res$protOnlySharedPep),
                              length(res$protMixPep))
@@ -438,10 +439,15 @@ output$columnsForProteinDataset <- renderUI({
 
 
 ######################################################### 
-observeEvent(input$proteinId,{
+# observe(rv$proteinId,{
+#   rv$widgets$aggregation$proteinId <- rv$proteinId
+# })
+
+observeEvent(req(input$proteinId),{
+  rv$proteinId <- input$proteinId
+  rv$matAdj <- ComputeAdjacencyMatrices()
   rv$widgets$aggregation$proteinId <- input$proteinId
 })
-
 
 output$chooseProteinId <- renderUI({
   if (!is.null(rv$current.obj@experimentData@other$proteinId)) {return(NULL)}
