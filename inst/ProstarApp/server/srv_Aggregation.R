@@ -175,13 +175,12 @@ output$aggregationStats <- renderDataTable ({
   req(rv$matAdj)
   if (input$proteinId == "None") {return(NULL)}
   
-  res <- getProteinsStats(rv$matAdj$matWithUniquePeptides, 
-                          rv$matAdj$matWithSharedPeptides)
-  
-  rv$AggregProtStats$nb <- c(nrow(rv$matAdj$matWithSharedPeptides),
-                             nrow(rv$matAdj$matWithUniquePeptides),
-                             nrow(rv$matAdj$matWithSharedPeptides)-nrow(rv$matAdj$matWithUniquePeptides),
-                             ncol(rv$matAdj$matWithSharedPeptides),
+  res <- getProteinsStats(rv$matAdj$matWithSharedPeptides)
+  #print(res)
+  rv$AggregProtStats$nb <- c(res$nbPeptides,
+                             res$nbSpecificPeptides,
+                             res$nbSharedPeptides,
+                             res$nbProt,
                              length(res$protOnlyUniquePep),
                              length(res$protOnlySharedPep),
                              length(res$protMixPep))
