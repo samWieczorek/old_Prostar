@@ -93,9 +93,8 @@ output$Aggreg_Aggreg <- renderUI({
                 numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
       
       tags$div( style="display:inline-block; vertical-align: top;",
-                radioButtons("AggregationOperator", "Operator", 
-                                     choices=c("Mean"="Mean"), 
-                                     selected=rv$widgets$aggregation$operator))
+                uiOutput("operatorChoice")
+                )
       ),
     actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
     uiOutput("ObserverAggregationDone"),
@@ -116,6 +115,19 @@ output$Aggreg_Aggreg <- renderUI({
 })
 
 
+output$operatorChoice <- renderUI({
+  input$radioBtn_includeShared
+  
+  choice <- NULL
+  if (input$radioBtn_includeShared %in% c("No", "Yes1")){
+    choice <- c("Mean"="Mean","Sum"="Sum")
+  } else {choice <- c("Mean"="Mean")}
+  choice
+  
+  radioButtons("AggregationOperator", "Operator", 
+               choices=choice, 
+               selected=rv$widgets$aggregation$operator)
+})
 
 output$Aggreg_Valid <- renderUI({
   #if (rv$pageAggreg != 2){return()}
@@ -163,7 +175,7 @@ RunAggregation <- reactive({
             obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
            } else {
             incProgress(1/ntotal, detail = 'aggregate.topn')
-            obj.prot <- aggregate.topn(X, rv$current.obj, n=as.numeric(input$nTopn), input$AggregationOperator)
+             obj.prot <- aggregateTopn(rv$current.obj, X,input$AggregationOperator, n=as.numeric(input$nTopn))
           }
       } else {
         incProgress(1/ntotal, detail = 'aggregateIterParallel')
@@ -181,7 +193,7 @@ RunAggregation <- reactive({
         obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(obj.pep=rv$current.obj,X=X))
       } else {
         incProgress(1/ntotal, detail = 'aggregateTopn')
-        obj.prot <- aggregateTopn(rv$current.obj, X,n=input$nTopn, input$AggregationOperator)
+        obj.prot <- aggregateTopn(rv$current.obj, X, input$AggregationOperator,n=as.numeric(input$nTopn))
       }
     }
        
