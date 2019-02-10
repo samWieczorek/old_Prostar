@@ -34,6 +34,25 @@ observeEvent(input$radioBtn_includeShared, {
   #updateRadioButtons(session,"AggregationOperator", choices=ch, selected=input$AggregationOperator)
 })
 
+
+
+
+output$operatorChoice <- renderUI({
+  input$radioBtn_includeShared
+  
+  choice <- NULL
+  if (input$radioBtn_includeShared %in% c("No", "Yes1")){
+    choice <- c("Mean"="Mean","Sum"="Sum")
+  } else {choice <- c("Mean"="Mean")}
+  choice
+  
+  radioButtons("AggregationOperator", "Operator", 
+               choices=choice, 
+               selected=rv$widgets$aggregation$operator)
+})
+
+
+
 ########################################################
 RunAggregation <- reactive({
     req(rv$matAdj)
@@ -50,7 +69,7 @@ RunAggregation <- reactive({
           if (input$AggregationConsider == 'allPeptides') {
               obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list( obj.pep=rv$current.obj,X=X))
           } else {
-            obj.prot <- aggregate.topn(X, rv$current.obj, n=as.numeric(input$nTopn), input$AggregationOperator)
+            obj.prot <- aggregateTopn(rv$current.obj, X,input$AggregationOperator, n=as.numeric(input$nTopn))
           }
       } else {
         if (input$AggregationConsider == 'allPeptides') {
@@ -64,7 +83,7 @@ RunAggregation <- reactive({
       if (input$AggregationConsider == 'allPeptides') {
         obj.prot <- do.call(paste0('aggregate',input$AggregationOperator),list(obj.pep=rv$current.obj,X=X))
       } else {
-        obj.prot <- aggregateTopn(rv$current.obj, X,n=input$nTopn, input$AggregationOperator)
+        obj.prot <- aggregateTopn(rv$current.obj, X, input$AggregationOperator,n=as.numeric(input$nTopn))
       }
     }
         

@@ -19,9 +19,7 @@ tabPanel("Aggregation",
                                                                    "only the N most abundant ones"="onlyN"), 
                                                          selected=rv$widgets$aggregation$considerPeptides),
                                             
-                                            radioButtons("AggregationOperator", "Operator", 
-                                                         choices=c("Mean"="Mean"), 
-                                                         selected=rv$widgets$aggregation$operator),
+                                            uiOutput('operatorChoice'),
                                             numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px'),
                                               actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass)
                                            
