@@ -21,7 +21,7 @@ callModule(moduleProcess, "moduleProcess_ProtImputation",
 
 resetModuleProtImputation <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("ProtImputation")
+  resetModuleProcess("ProtImputation")
     
   ## update widgets in UI
   updateSelectInput(session,"POV_missing.value.algorithm",selected=rv$widgets$proteinImput$POV_algorithm)

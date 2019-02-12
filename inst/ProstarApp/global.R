@@ -54,49 +54,6 @@ URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
 grey <- "#FFFFFF"
 orangeProstar <- "#E97D5E"
-# 
-# unsuspendAll <- function(session = getDefaultReactiveDomain()) {
-#   observe({
-#     # pattern <- "^output_(.*?)_hidden$"
-#     # 
-#     # ids <- names(session$clientData) %>%
-#     #   grep(pattern, ., value = TRUE) %>%
-#     #   sub(pattern, "\\1", .)
-#     # for (id in ids) {
-#     #   print(id)
-#     #   outputOptions(session$output, id, suspendWhenHidden = FALSE)
-#     # }
-#     
-#     outputOptions(session$output, "boxPlot_DS-BoxPlot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "boxPlot_Norm-BoxPlot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "calibrationPlot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "calibrationPlotAll", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "densityPlot_DS-Densityplot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "densityPlot_Norm-Densityplot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "MVPlots_DS-histo_MV", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "MVPlots_DS-histo_MV_per_lines_per_conditions", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "volcano_Step1-volcanoPlot", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "volcano_Step2-volcanoPlot", suspendWhenHidden = FALSE)
-# 
-#     outputOptions(session$output, "mvImputationPlots_MV-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "mvImputationPlots_MEC-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "mvImputationPlots_Valid-plot_viewNAbyMean", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "mvImputationPlots_MV-plot_showImageNA", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "mvImputationPlots_MEC-plot_showImageNA", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "mvImputationPlots_Valid-plot_showImageNA", suspendWhenHidden = FALSE)
-#     
-#     
-#     outputOptions(session$output, "corrMatrix", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "viewDistCV", suspendWhenHidden = FALSE)
-#     outputOptions(session$output, "viewViolinPlot_DS", suspendWhenHidden = FALSE)
-#     
-#     
-#     
-#   })
-# }
-
-
 
 # Declaration of global variables
 

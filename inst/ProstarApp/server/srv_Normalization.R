@@ -27,7 +27,7 @@ callModule(moduleProcess, "moduleProcess_Normalization",
 
 resetModuleNormalization <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("Normalization")
+  resetModuleProcess("Normalization")
   
   
   ## update widgets in UI

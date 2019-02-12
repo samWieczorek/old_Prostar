@@ -14,7 +14,7 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 resetModuleFiltering <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("Filtering")
+  resetModuleProcess("Filtering")
   
   rv$widgetsfiltering$seuilNA <- 0
   rv$deleted.stringBased <- NULL
@@ -22,10 +22,10 @@ resetModuleFiltering <- reactive({
 
   
   ## update widgets in UI
-  updateSelectInput(session, "ChooseFilters", selected = rv$widgetsfiltering$ChooseFilters)
+  updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
   updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
   
-  rvModProcess$moduleFilteringDone = c(FALSE, 4)
+  rvModProcess$moduleFilteringDone = rep(FALSE, 4)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   

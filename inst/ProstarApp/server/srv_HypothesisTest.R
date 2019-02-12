@@ -13,7 +13,7 @@ callModule(moduleProcess, "moduleProcess_HypothesisTest",
 
 resetModuleHypothesisTest <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("HypothesisTest")
+  resetModuleProcess("HypothesisTest")
     
   ## update widgets in UI
   updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)

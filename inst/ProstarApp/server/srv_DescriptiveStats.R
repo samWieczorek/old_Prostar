@@ -1,7 +1,7 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 callModule(moduleDensityplot, "densityPlot_DS")
-callModule(missingValuesPlots, "MVPlots_DS")
+callModule(missingValuesPlots, "MVPlots-DS")
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 

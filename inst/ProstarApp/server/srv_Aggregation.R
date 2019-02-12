@@ -21,7 +21,7 @@ callModule(modulePopover,"modulePopover_includeShared",
 
 resetModuleAggregation <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("Aggregation")
+  resetModuleProcess("Aggregation")
   
   
   
@@ -33,7 +33,7 @@ resetModuleAggregation <- reactive({
   updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
   
   
-  rvModProcess$moduleAggregationDone = c(FALSE, 3)
+  rvModProcess$moduleAggregationDone = rep(FALSE, 3)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   

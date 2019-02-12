@@ -21,7 +21,7 @@ callModule(moduleProcess, "moduleProcess_PepImputation",
 
 resetModulePepImputation <- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("PepImputation")
+  resetModuleProcess("PepImputation")
     
   ## update widgets in UI
   updateSelectInput(session,"peptideLevel_missing.value.algorithm", selected = rv$widgets$peptideImput$pepLevel_algorithm)

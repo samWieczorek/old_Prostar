@@ -29,7 +29,7 @@ callModule(moduleProcess, "moduleProcess_Convert",
 
 resetModuleConvert<- reactive({  
   ## update widgets values (reactive values)
-  resetWidgets("Convert")
+  resetModuleProcess("Convert")
     
   ## update widgets in UI
   updateCheckboxInput(session,"selectIdent", value = FALSE)
