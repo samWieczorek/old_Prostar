@@ -17,12 +17,7 @@ tabPanel("Demo data",
          #checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
          
          hr(),
-         uiOutput("infoAboutDemoDataset"),
-         tags$div(
-           tags$div( style="display:inline-block; vertical-align: top;",
-                     moduleStaticDataTableUI("overview_DemoMode")
-           )
-         )
+         uiOutput("infoAboutDemoDataset")
  
 
 )

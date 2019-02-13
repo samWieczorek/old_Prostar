@@ -1,7 +1,5 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
-#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
 
@@ -412,14 +410,7 @@ observeEvent(input$showpvalTable, {
 
     
     
-output$diffAna_Summary <- renderUI({     
 
-  if (as.character(input$selectComparison) == "None"){return(NULL)}
- tagList(
-   moduleStaticDataTableUI("params_AnaDiff")
-   )
-})
-      
 
 
 output$anaDiff_selectedItems <- renderDT({
@@ -465,18 +456,17 @@ observeEvent(input$showpvalTable, {
   print("show : anaDiff_selectedItems")
   shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))})
 
-    
-    
+  
+
 output$diffAna_Summary <- renderUI({     
-  #if (rv$pageDiffAna != 4){return()}
+  callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
   
   if (as.character(input$selectComparison) == "None"){return(NULL)}
- tagList(
-   moduleStaticDataTableUI("params_AnaDiff")
-   
-         )
+  tagList(
+    moduleStaticDataTableUI("params_AnaDiff")
+    
+  )
 })
-      
 
 
 

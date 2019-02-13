@@ -1,24 +1,129 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 callModule(moduleDensityplot, "densityPlot_DS")
-callModule(missingValuesPlots, "MVPlots_DS")
+callModule(missingValuesPlots, "MVPlotsDS")
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
 
 callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
-# outs <- outputOptions(output)
-# print(names(outs))
-# outputOptions(output, 'densityPlot_DS-Densityplot', suspendWhenHidden = FALSE)
-# outputOptions(output, 'boxPlot_DS-BoxPlot', suspendWhenHidden = FALSE)
+output$plotsMissingV <- renderUI({
+  tagList(
+    helpText("These barplots display the distribution of missing values in the dataset."),
+    missingValuesPlotsUI("MVPlotsDS")
+  )
+})
 
 
-# lapply(names(outs), function(name) {
-#   outputOptions(output, name, suspendWhenHidden = FALSE)
-# })
 
+output$IntensityStatsPlots <- renderUI({
+  
+  tagList(
+    tags$br(),tags$br(),
+    tags$div(
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               tags$p("Plot options")
+      ),
+      
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               
+               tags$div(
+                 tags$div(style="display:inline-block; vertical-align: top;",
+                          shinyWidgets::dropdownButton(
+                            tags$div(
+                              tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       selectInput("whichGroup2Color","Color lines",
+                                                   choices=list("By condition" = "Condition","By replicate" = "Replicate"),
+                                                   selected=GetWhichGroup2Color(), width='150px')
+                              ),
+                              tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       uiOutput("ChooseLegendForSamples")
+                              )
+                            ),
+                            tooltip="Plots parameters",
+                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                          )
+                 )
+               )
+               
+      )
+    )
+  ,
+  uiOutput("densityBoxPlots")
+  )
+})
+
+
+output$plotsCorM <- renderUI({
+  
+  tagList(
+    tags$br(),tags$br(),
+    tags$div(
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               tags$p("Plot options")
+      ),
+      
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               
+               tags$div(
+                 tags$div(style="display:inline-block; vertical-align: top;",
+                          shinyWidgets::dropdownButton(
+                            tags$div(
+                              tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       sliderInput("expGradientRate",
+                                                   "Tune to modify the color gradient",
+                                                   min = 0,max = 1,value = defaultGradientRate,step=0.01),
+                                       tooltip="Plots parameters",
+                                       style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                       
+                              )
+                            ),
+                            tooltip="Plots parameters",
+                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                          ))
+               )
+               
+      )
+    ),
+  highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+)
+})
+
+
+output$pcaPlots <- renderUI({
+  tagList(
+    fluidRow(
+    column(width=6,  plotOutput("pcaPlotVar")),
+    column(width=6,  plotOutput("pcaPlotInd"))
+    ),
+    fluidRow(
+      column(width=6,  highchartOutput("pcaPlotEigen")),
+      column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+    )
+  )
+})
+
+
+output$showOverviewDS <- renderUI({
+  print('in output$showOverviewDS <- renderUI')
+  callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
+  moduleStaticDataTableUI("overview_DS")
+})
+
+
+output$densityBoxPlots <- renderUI({
+  
+  fluidRow(
+    column(width=6,moduleDensityplotUI("densityPlot_DS")),
+    column(width=6, moduleBoxplotUI("boxPlot_DS"))
+  )
+})
+
+output$distCVPlot <- renderUI({
+  highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
+  
+})
 
 observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
 observeEvent(input$varScale_PCA,{
