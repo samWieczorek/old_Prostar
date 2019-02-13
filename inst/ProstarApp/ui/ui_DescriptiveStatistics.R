@@ -18,7 +18,7 @@ tabPanel("Descriptive statistics",
                          
                          helpText("These barplots display the distribution of missing values in the dataset."),
                          #missingValuesPlotsUI("MVPlots_DS") 
-                         missingValuesPlotsUI("MVPlots-DS") 
+                         missingValuesPlotsUI("MVPlots_DS") 
                      ),
                      
                      #-------------------------------------------------------------
