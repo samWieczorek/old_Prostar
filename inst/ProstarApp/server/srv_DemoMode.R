@@ -1,6 +1,36 @@
 callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
 
 
+
+output$demomodeUI <- renderUI({
+  tagList(
+    tags$div(
+    tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              uiOutput("chooseDataset")
+    ),
+    
+    tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              p(""),
+              actionButton("loadDemoDataset", "Load demo dataset",class = actionBtnClass)
+    ),
+    tags$div( style="display:inline-block; vertical-align: middle;",
+              p(""),
+              uiOutput("linktoDemoPdf")
+    )
+  ),
+  
+  hr(),
+  
+  fluidRow(
+    column(width=6,moduleStaticDataTableUI("overview_DemoMode")),
+    column(width=6,uiOutput("infoAboutDemoDataset"))
+    
+  )
+  )
+})
+
+
+
 output$chooseDataset <- renderUI({
   
   if(require("DAPARdata", lib.loc=DAPARdata.loc)){

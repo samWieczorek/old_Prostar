@@ -130,7 +130,7 @@ moduleStaticDataTableUI <- function(id) {
     ns <- NS(id)
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
-                withSpinner(dataTableOutput(ns("StaticDataTable")))
+                dataTableOutput(ns("StaticDataTable"))
       )
     )
     

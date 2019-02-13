@@ -424,15 +424,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
 missingValuesPlots <- function(input, output, session) {
     
     output$histo_MV <- renderHighchart({
-        #histo_MV()
-      req(rv$current.obj)
+       req(rv$current.obj)
       rv$PlotParams$paletteConditions
       tmp <- NULL
-      isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot1")
         tmp <- wrapper.mvHisto_HC(rv$current.obj,palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
-        })
+
       tmp
     })
     
@@ -599,7 +597,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='t') {
     
   
-  proxy = dataTableProxy(session$ns('StaticDataTable'), session)
+  proxy = dataTableProxy('StaticDataTable', session)
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 

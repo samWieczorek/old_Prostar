@@ -9,15 +9,90 @@ callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetO
 callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
-# outs <- outputOptions(output)
-# print(names(outs))
-# outputOptions(output, 'densityPlot_DS-Densityplot', suspendWhenHidden = FALSE)
-# outputOptions(output, 'boxPlot_DS-BoxPlot', suspendWhenHidden = FALSE)
 
 
-# lapply(names(outs), function(name) {
-#   outputOptions(output, name, suspendWhenHidden = FALSE)
-# })
+output$pcaPlots <- renderUI({
+  tagList(
+    uiOutput("WarningNA_PCA"),
+    uiOutput("pcaOptions"),
+    
+    fluidRow(
+      column(width=6,  plotOutput("pcaPlotVar")),
+      column(width=6,  plotOutput("pcaPlotInd"))
+    ),
+    fluidRow(
+      column(width=6,  highchartOutput("pcaPlotEigen")),
+      column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+    )
+  )
+  
+  
+})
+
+
+output$distCVPlot <- renderUI({
+  
+  tagList(
+helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
+                                of the protein/peptides."),
+  helpText("For better visualization, it is possible to zoom in by click-and-drag."),
+  highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
+)
+})
+
+output$plotsCorM <- renderUI({
+  
+  
+  splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
+              wellPanel(id = "sidebar_Corrmatrix",
+                        sliderInput("expGradientRate",
+                                    "Tune to modify the color gradient",
+                                    min = 0,max = 1,value = defaultGradientRate,step=0.01)
+              ),
+              tagList(
+                highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+              )
+  )
+  
+})
+
+output$plotsMissingV <- renderUI({
+  tagList(
+    helpText("These barplots display the distribution of missing values in the dataset."),
+  missingValuesPlotsUI("MVPlots_DS") 
+  )
+})
+
+output$showOverviewDS <- renderUI({
+  tagList(
+    br(),
+    moduleStaticDataTableUI("overview_DS")
+  )
+})
+
+output$IntensityStatsPlots <- renderUI({
+  
+  tagList(
+    tags$div(
+      
+      tags$div(style="display:inline-block; vertical-align: top;",
+               selectInput("whichGroup2Color",
+                           "Color lines",
+                           choices=list("By condition" = "Condition",
+                                        "By replicate" = "Replicate"),
+                           selected=GetWhichGroup2Color(), width='150px')
+      ),
+      tags$div(style="display:inline-block; vertical-align: top;",
+               uiOutput("ChooseLegendForSamples")
+      )
+    ),
+  fluidRow(
+    column(width=6,moduleDensityplotUI("densityPlot_DS")),
+    column(width=6, moduleBoxplotUI("boxPlot_DS"))
+  )
+  )
+})
+
 
 
 observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
