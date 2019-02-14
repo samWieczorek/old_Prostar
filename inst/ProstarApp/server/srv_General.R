@@ -33,48 +33,6 @@ GetCurrentDatasetName <- reactive({
   name
 })
 
-# activatePopover <- function(){
-#     txt_histo_M <- paste0("<p>Test",
-#                           "test</p><p>Explanation .</p>")
-#     
-#     txt_histo_MV_per_lines <- paste0("<p>Test",
-#                                      "test</p><p>Explanation .</p>")
-#     
-#     
-#     txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
-#                                                     "test</p><p>Explanation .</p>")
-#     
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV", "Info", 
-#                content = txt_histo_M, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
-#                content = txt_histo_MV_per_lines, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
-#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-#     
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
-#                content = txt_histo_M, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
-#                content = txt_histo_MV_per_lines, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
-#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-#     
-#     
-# }
-
-
-# 
-# callModule(modulePopover,"modulePopover_toto", data = reactive(paste0(data(), 
-#                                                                       a("tidy data paper", 
-#                                                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
-#                                                                         target="_blank"))))
-
-
 
 
 
