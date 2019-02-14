@@ -66,7 +66,14 @@ output$infoAboutDemoDataset <- renderUI({
       tags$p("As your dataset contains lines with no values, you 
              should remove them with the filter tool
              prior to proceed to the analysis of the data.")
-    }
+    },
+    
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top;",
+                moduleStaticDataTableUI("overview_DemoMode")
+      )
+    )
+    
     
       )
     })

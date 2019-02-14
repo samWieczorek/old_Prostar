@@ -33,75 +33,12 @@ GetCurrentDatasetName <- reactive({
   name
 })
 
-# activatePopover <- function(){
-#     txt_histo_M <- paste0("<p>Test",
-#                           "test</p><p>Explanation .</p>")
-#     
-#     txt_histo_MV_per_lines <- paste0("<p>Test",
-#                                      "test</p><p>Explanation .</p>")
-#     
-#     
-#     txt_histo_MV_per_lines_per_conditions <- paste0("<p>Test",
-#                                                     "test</p><p>Explanation .</p>")
-#     
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV", "Info", 
-#                content = txt_histo_M, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV_per_lines", "Info", 
-#                content = txt_histo_MV_per_lines, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_DS-histo_MV_per_lines_per_conditions", "Info", 
-#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-#     
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV", "Info", 
-#                content = txt_histo_M, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines", "Info", 
-#                content = txt_histo_MV_per_lines, trigger = 'click')
-#     
-#     addPopover(session, "MVPlots_filtering-histo_MV_per_lines_per_conditions", "Info", 
-#                content = txt_histo_MV_per_lines_per_conditions, trigger = 'click')
-#     
-#     
-# }
-
-
-# 
-# callModule(modulePopover,"modulePopover_toto", data = reactive(paste0(data(), 
-#                                                                       a("tidy data paper", 
-#                                                                         href = "http://vita.had.co.nz/papers/tidy-data.pdf",
-#                                                                         target="_blank"))))
-
-
-
-
-
-
 
 
 
 
 getDataForExprs <- function(obj){
-  #rv$current$obj
-
-  # 
-  # test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
-  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
-  # if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
-  #  test.table <- cbind(test.table, 
-  #                       Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
-  #  print(paste0("tutu:",head(test.table)))
-  #  
-  # } else {
-  #   test.table <- cbind(test.table, 
-  #                       as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
-  #   print(paste0("tata:",head(test.table)))
-  #   }
-  # return(test.table)
-  
-
+ 
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
   print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
@@ -1075,8 +1012,9 @@ getPackagesVersions <- reactive({
   dev <- "(Devel)"
   
   biocRelease <- NULL
+  DAPARdata.version <- NULL
   tryCatch({
-    biocRelease <-available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
+    biocRelease <- available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
     require(XML)
     html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
     DAPARdata.version <- as.character(html[[3]][2][1,])
