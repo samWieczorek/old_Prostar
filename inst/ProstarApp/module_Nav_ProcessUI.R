@@ -1,6 +1,6 @@
 
-###### Module de gestion des interfaces pour les data Process   ######
-moduleProcessUI <- function(id){
+###### Module de navigation dans les interfaces pour les data Process   ######
+module_Nav_ProcessUI <- function(id){
   ns <- NS(id)
   
   tagList(

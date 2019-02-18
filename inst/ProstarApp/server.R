@@ -9,26 +9,6 @@ enableJIT(3)
 
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
-# initialize data with colnames
-df <- data.frame(matrix(c("0","0"), 1, 2))
-colnames(df) <- c("Input1", "Input2")
-
-onStart = function() {
-  cat("Doing application setup\n")
-  
-  onStop(function() {
-    cat("Doing application cleanup\n")
-    graphics.off()
-    unlink(sessionID, recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), "*", sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), "*html", sep="/"))
-    unlink(paste(tempdir(), "*log", sep="/"))
-    unlink("www/*pdf")
-  })
-}
-
 
 
 
@@ -38,36 +18,7 @@ shinyServer(function(input, output, session) {
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
-   
-    #Set up writing
-    logfilename <- tempfile(fileext=".log")
-    con <- file(logfilename,open="wt")
-    if(!interactive()){
-      sink(con, append=TRUE)
-      sink(con, append=TRUE, type="message")
-    }
-
-    print(tempdir())
     
-   # unsuspendAll(session)
-       
-    serverAdmin <- FALSE
-    if (isTRUE(serverAdmin)){
-        hname <- System$getHostname()
-        
-        clientdataText <- observe({
-            rv$IP_Client = session$clientData$url_hostname
-        })
-        
-        #verbose <- TRUE
-        sessionLogFile <- paste("www/sessionLogs_", gsub("\\.", "_", rv$IP_Client), "_", sessionID, ".txt",sep="")
-        if (!interactive()) sink(sessionLogFile, type = "output")
-    }
-    # Simulate work being done for 1 second
-    #Sys.sleep(1)
-
-    # Hide the loading message when the rest of the server function has executed
-  
     env <- environment()
     source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
     source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
