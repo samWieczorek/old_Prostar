@@ -461,16 +461,15 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session) {
+missingValuesPlots <- function(input, output, session, data) {
     
     output$histo_MV <- renderHighchart({
-        #histo_MV()
-      req(rv$current.obj)
+     data()
       rv$PlotParams$paletteConditions
       tmp <- NULL
       #isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot1")
-        tmp <- wrapper.mvHisto_HC(rv$current.obj,palette=rv$PlotParams$paletteConditions)
+        tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
       #  })
       tmp
@@ -479,13 +478,12 @@ missingValuesPlots <- function(input, output, session) {
     
     
     output$histo_MV_per_lines <- renderHighchart({
-        #histo_MV_per_lines()
-      req(rv$current.obj)
+        data()
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
        tmp <- 
-         wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+         wrapper.mvPerLinesHisto_HC(data(), 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
        #future(createPNGFromWidget(tmp,pattern))
       })
@@ -495,12 +493,11 @@ missingValuesPlots <- function(input, output, session) {
     
     
     output$histo_MV_per_lines_per_conditions <- renderHighchart({
-        #histo_MV_per_lines_per_conditions()
-      req(rv$current.obj)
+        data()
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
-        tmp <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+        tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
                                                       c(2:length(colnames(Biobase::pData(rv$current.obj))))
                                                       ,palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))

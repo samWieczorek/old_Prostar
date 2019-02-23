@@ -413,29 +413,7 @@ resetModuleProcess <- function(moduleName, obj){
                                                               screenStep3 = uiOutput("screenAggregation3")))
           rvModProcess$moduleAggregationDone =  rep(FALSE,3)
           },
-          Filtering ={
-            rv$deleted.mvLines <- NULL
-            rv$deleted.stringBased.exprsData <- NULL
-            rv$deleted.stringBased <- NULL
-            rv$deleted.stringBased.fData <- NULL
-            rv$deleted.stringBased <- NULL
-            rv$widgets$filtering <- list(ChooseFilters = "None",
-                                                    seuilNA = 0,
-                                                    DT_filterSummary = data.frame(Filtre=NULL, 
-                                                           Prefix=NULL,
-                                                           nbDeleted=NULL, 
-                                                           Total=NULL, 
-                                                           stringsAsFactors=F))
-            
-            rvModProcess$moduleFiltering = list(name = "Filtering",
-                                                stepsNames = c("MV filtering", "String-based filtering", "Summary", "Save"),
-                                                isMandatory = c(FALSE, FALSE, FALSE, TRUE),
-                                                ll.UI = list( uiOutput("screenFiltering1"),
-                                                              uiOutput("screenFiltering2"),
-                                                              uiOutput("screenFiltering3"),
-                                                              uiOutput("screenFiltering4")))
-            rvModProcess$moduleFilteringDone = rep(FALSE, 4)
-          },
+          
           Normalization ={rv$widgets$normalization <- list(method = "None",
                                              type = "None",
                                              varReduction = FALSE,
@@ -766,13 +744,6 @@ rv <- reactiveValues(
     #                  conditionsChecked=NULL,
     #                  designSaved=FALSE),
   widgets = list(
-                 filtering = list(ChooseFilters = "None",
-                                  seuilNA = 0,
-                                  DT_filterSummary = data.frame(Filtre=NULL, 
-                                                                Prefix=NULL,
-                                                                nbDeleted=NULL, 
-                                                                Total=NULL, 
-                                                                stringsAsFactors=F)),
                   normalization=list(method = "None",
                                       type = "None",
                                       varReduction = FALSE,

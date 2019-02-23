@@ -88,7 +88,6 @@ shinyUI <- fluidPage(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
       navbarPage(
-                 
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
         position = "fixed-top",
                   id = "navPage",
