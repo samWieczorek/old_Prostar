@@ -294,12 +294,14 @@ ComputeAdjacencyMatrices <- reactive({
 ###-------------------------------------
 
 Compute_PCA_nbDimensions <- reactive({
-  nmax <- 12 # ncp should not be greater than... 
-  # pour info, ncp = nombre de composantes ou de dimensions dans les résultats de l'ACP
+  # ncp should not be greater than...
+  nmax <- 12  
+  # pour info, ncp = nombre de composantes ou de dimensions dans les resultats de l'ACP
   
   y <- exprs(rv$current.obj)
   nprot <- dim(y)[1]
-  n <- dim(y)[2] # If too big, take the number of conditions.
+  # If too big, take the number of conditions.
+  n <- dim(y)[2] 
   
   if (n > nmax){
     n <- length(unique(Biobase::pData(rv$current.obj)$Condition))

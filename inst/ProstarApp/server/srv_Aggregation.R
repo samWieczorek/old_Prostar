@@ -198,6 +198,9 @@ RunAggregation <- reactive({
     }
        
   }) 
+  
+  obj.prot@experimentData@other$Prostar_Version <- installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
+  obj.prot@experimentData@other$DAPAR_Version <- installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
     return(obj.prot)
 
 })
@@ -276,15 +279,6 @@ observeEvent(input$valid.aggregation,{
 
 
 
-#-----------------------------------------------
-output$ObserverAggregationDone <- renderUI({
-  req(rv$temp.aggregate)
-  req(input$perform.aggregation)
-  #isolate({
-     h3("Aggregation done")
-
-  #})
-})
 
 
 
@@ -352,6 +346,17 @@ observeEvent(input$perform.aggregation,{
       rv$temp.aggregate <- RunAggregation()
       print("End aggregation")
 
+  #})
+})
+
+
+#-----------------------------------------------
+output$ObserverAggregationDone <- renderUI({
+  req(rv$temp.aggregate)
+  req(input$perform.aggregation)
+  #isolate({
+  h3("Aggregation done")
+  
   #})
 })
 

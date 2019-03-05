@@ -1,7 +1,7 @@
-
 rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2) 
+options(encoding="UTF-8")
 
 
 require(compiler)
@@ -34,10 +34,11 @@ onStart = function() {
 
 shinyServer(function(input, output, session) {
   Sys.setlocale("LC_ALL","English")
-  #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
+  #Sys.setlocale("LC_ALL", 'en_GB.utf8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
+  
    
     #Set up writing
     logfilename <- tempfile(fileext=".log")
