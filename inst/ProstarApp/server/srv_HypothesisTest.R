@@ -1,7 +1,7 @@
 callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
 
 
-observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seuilLogFC})
+observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
 
 
 

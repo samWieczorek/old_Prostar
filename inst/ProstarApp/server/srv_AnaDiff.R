@@ -222,7 +222,7 @@ output$screenAnaDiff2 <- renderUI({
                                                 value = 0, min=0, max=1, step=0.05, width='200px'))
                  ),
                  tags$div( style="display:inline-block; vertical-align: middle;",
-                            numericInput("nBinsHistpval", "n bins", min=1, value=80, width=('100px')))
+                            textInput("nBinsHistpval", "n bins", value=80, width='80px'))
                  
                ),
                tags$hr(),
@@ -568,7 +568,7 @@ histPValue <- reactive({
     t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
-    histPValue_HC(t,bins=input$nBinsHistpval, pi0=rv$pi0)
+    histPValue_HC(t,bins=as.numeric(input$nBinsHistpval), pi0=rv$pi0)
 })
 
 output$histPValue <- renderHighchart({
