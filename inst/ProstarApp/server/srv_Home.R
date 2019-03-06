@@ -52,7 +52,7 @@ output$versionsText <- renderUI({
 output$NoteForNewVersion <- renderUI({
   
   df <- getPackagesVersions()
-  #if (sum(df$NeedsUpdate) == TRUE) {
+  if (sum(df$NeedsUpdate) == TRUE) {
   tags$div(
     style="font-size: 16px",
     tags$div( style="display:inline-block; vertical-align: top;",
@@ -63,7 +63,7 @@ output$NoteForNewVersion <- renderUI({
     )
   )
 
- # }
+  }
 })
 
 observeEvent(input$goToReleasesNotes, {

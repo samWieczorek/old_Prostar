@@ -27,7 +27,7 @@ output$infoForNewVersions <- renderUI({
   
   df <- getPackagesVersions()$NeedsUpdate
   
-  #if (sum(df)==FALSE){return(NULL)}
+  if (sum(df)==FALSE){return(NULL)}
 
     tagList(
       p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
