@@ -46,6 +46,30 @@ output$versionsText <- renderUI({
 })
 
 
+
+output$NoteForNewVersion <- renderUI({
+  
+  df <- getPackagesVersions()
+  if (sum(df$NeedsUpdate) == TRUE) {
+  tags$div(
+    style="font-size: 16px",
+    tags$div( style="display:inline-block; vertical-align: top;",
+              p(style="color: red",'Newer versions of Prostar and/or DAPAR packages have been released. For more information, please go to the page ')
+    ),
+    tags$div( style="display:inline-block; vertical-align: top;",
+              actionLink('goToReleasesNotes', "'Check for updates'",style="background-color: white, color: blue")
+    )
+  )
+  
+   }
+})
+
+observeEvent(input$goToReleasesNotes, {
+  updateTabsetPanel(session, 'navPage', "checkForUpdatesTab")
+})
+
+
+
 # #-------------------------------------------------------------------
 # output$descriptionText <- renderUI({
 #   
