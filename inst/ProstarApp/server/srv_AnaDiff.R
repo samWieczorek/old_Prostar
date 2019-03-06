@@ -296,7 +296,7 @@ output$diffAna_pvalCalib <- renderUI({
                                                 value = 0, min=0, max=1, step=0.05, width='200px'))
                  ),
                  tags$div( style="display:inline-block; vertical-align: middle;",
-                            numericInput("nBinsHistpval", "n bins", min=1, value=80, width=('100px')))
+                            textInput("nBinsHistpval", "n bins", value=80, width='50px'))
                  
                ),
                tags$hr(),
@@ -593,7 +593,7 @@ Get_FDR <- reactive({
   rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
                               rv$resAnaDiff[["P_Value"]],
                               as.numeric(Get_seuilPVal()), 
-                              rv$widgets$hypothesisTest$th_logFC, 
+                              as.numeric(rv$widgets$hypothesisTest$th_logFC), 
                               m)
   as.numeric(rv$widgets$anaDiff$FDR)
 })
@@ -629,12 +629,12 @@ histPValue <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
     
     
-    histPValue_HC(t,bins=input$nBinsHistpval, pi0=rv$pi0)
+    histPValue_HC(t,bins=as.numeric(input$nBinsHistpval), pi0=rv$pi0)
     
     
 })
@@ -691,7 +691,7 @@ calibrationPlot <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
     
@@ -786,7 +786,7 @@ calibrationPlotAll <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){
         t <- t[-toDelete]
@@ -858,7 +858,7 @@ print(input$downloadAnaDiff)
   
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
-  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
+  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))
   
   if (input$downloadAnaDiff == "All"){
     selectedItems <- 1:nrow(rv$current.obj)

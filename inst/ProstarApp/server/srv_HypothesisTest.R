@@ -1,7 +1,7 @@
 callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
 
 
-observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- input$seuilLogFC})
+observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
 
 
 output$testPanel <- renderUI({
@@ -67,7 +67,8 @@ observeEvent(input$diffAnaMethod,{
 output$FoldChangePlot <- renderHighchart({
   #req(rv$res_AllPairwiseComparisons)
   rv$PlotParams$paletteConditions
-  
+  print(input$seuilLogFC)
+  print(as.numeric(input$seuilLogFC))
   data <- ComputeComparisons()
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFC))
   rv$tempplot$logFCDistr
