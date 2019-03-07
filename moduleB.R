@@ -47,11 +47,20 @@ moduleB <- function(input, output, session, dataIn, screen.id){
     print(rv$obj)
     
   })
+  
+  
   observeEvent(input$btn_send, {
+
+    print("Action on input$btn_send")
+    print(input$btn_send)
     rv$res <- rv$obj
     print(paste0(rv$obj, "__", rv$res))
   })
   
+  # test <- eventReactive(input$btn_send,{
+  #   rv$obj
+  # })
+  # 
   return(reactive({rv$res}))
   #return(reactive(list(name=rv$name,res=rv$res)))
 }

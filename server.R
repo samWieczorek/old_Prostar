@@ -11,19 +11,33 @@ server <- function(input, output, session){
   
   pipeline_pep <- reactiveValues(
     original = 10,
-    A_processed = reactive({NULL}),
-    B_processed = reactive({NULL}),
-    C_processed = reactive({NULL})
+    A_processed = NULL,
+    B_processed = NULL,
+    C_processed = NULL
   )
   
   
   rv <- reactiveValues(
     obj = 10,
     current.obj = 10,
-    returnVal = NULL)
+    returnVal = NULL,
+    
+    screenA.id = 1,
+    screenB.id = 1,
+    screenC.id = 1)
   
   
+  processA  <- callModule(module=moduleA, 'processA', 
+                                          dataIn=reactive({rv$current.obj}),
+                                          screen.id = reactive({rv$screenA.id}))
   
+  processB  <- callModule(module=moduleB, 'processB', 
+                                          dataIn=reactive({rv$current.obj}),
+                                          screen.id = reactive({rv$screenB.id}))
+  
+  processC <- callModule(module=moduleC, 'processC', 
+                                          dataIn=reactive({rv$current.obj}),
+                                          screen.id = reactive({rv$screenC.id}))
   
   
 
@@ -32,37 +46,33 @@ server <- function(input, output, session){
     print(paste0("Event on navPage : ", input$navPage))
     screen.id <- 1
     switch(input$navPage,
+           
            ProcessA=
              {
                print("Select Menu Process A")
-               if (!is.null(pipeline_pep$A_processed())) {
-                 screen.id <- 2
+               if (!is.null(pipeline_pep$A_processed)) {
+                 rv$screenA.id <- 2
                }
-              pipeline_pep$A_processed  <- callModule(module=moduleA, 'processA', 
-                                                       dataIn=reactive({rv$current.obj}),
-                                                       screen.id = reactive({screen.id}))
-               print("END OF Select Menu Process A")
+              print("END OF Select Menu Process A")
                },
+           
+           
            ProcessB=
              {
                print("Select Menu Process B")
-               if (!is.null(pipeline_pep$A_processed())) {
-                 screen.id <- 2
+               if (!is.null(pipeline_pep$B_processed)) {
+                 rv$screenB.id <- 2
                }
-               pipeline_pep$B_processed  <- callModule(module=moduleB, 'processB', 
-                                                       dataIn=reactive({rv$current.obj}),
-                                                       screen.id = reactive({screen.id}))
-               print("END OF Select Menu Process B")
+                print("END OF Select Menu Process B")
                },
+           
+           
            ProcessC=
                 {
                   print("Select Menu Process C")
-                  if (!is.null(pipeline_pep$A_processed())) {
-                    screen.id <- 2
+                  if (!is.null(pipeline_pep$C_processed)) {
+                    rv$screenC.id <- 2
                   }
-                  pipeline_pep$C_processed  <- callModule(module=moduleC, 'processC', 
-                                                          dataIn=reactive({rv$current.obj}),
-                                                          screen.id = reactive({screen.id}))
                   print("END OF Menu Process C")
                 }
            )
@@ -83,7 +93,7 @@ server <- function(input, output, session){
   observeEvent(input$rst_process, {
     print("In reset process event")
     #pipeline_pep$A_processed <- Delete()
-    pipeline_pep$B_processed <- reactive({NULL})
+    #pipeline_pep$B_processed <- reactive({NULL})
     #pipeline_pep$C_processed <- NULL
   })
   
@@ -97,23 +107,27 @@ server <- function(input, output, session){
   
   
   
-  observeEvent(pipeline_pep$A_processed(), {
-    print('maj :  pipeline_pep$A_processed <- rv$obj')
-    rv$current.obj <- pipeline_pep$A_processed()
-    pipeline_pep$B_processed <- reactive({NULL})
-    pipeline_pep$C_processed <- reactive({NULL})
+  observeEvent(processA(), {
+    print('### EVENT ON : pipeline_pep$A_processed <- rv$obj')
+    rv$current.obj <- processA()
+    pipeline_pep$A_processed <- processA()
+    
+    pipeline_pep$B_processed <- NULL
+    pipeline_pep$C_processed <- NULL
     
   })
 
-  observeEvent(pipeline_pep$B_processed(), {
-    print('maj :  pipeline_pep$B_processed <- rv$obj')
-    rv$current.obj <- pipeline_pep$B_processed()
-    pipeline_pep$C_processed <- reactive({NULL})
+  observeEvent(processB(), {
+    print('### EVENT ON : pipeline_pep$B_processed <- rv$obj')
+    rv$current.obj <- processB()
+    pipeline_pep$B_processed <- processB()
+    pipeline_pep$C_processed <- NULL
   })
 
-  observeEvent(pipeline_pep$C_processed(), {
-    print('maj :  pipeline_pep$C_processed <- rv$obj')
-    rv$current.obj <- pipeline_pep$C_processed()
+  observeEvent(processC(), {
+    print('### EVENT ON : pipeline_pep$C_processed <- rv$obj')
+    rv$current.obj <- processC()
+    pipeline_pep$C_processed <- processC()
   })
   
   # observeEvent(rv$b(), {
@@ -140,10 +154,10 @@ server <- function(input, output, session){
       p(paste0('rv$current.obj()= ',rv$current.obj)),
       p(paste0('rv$returnVal()$name = ',rv$returnVal)),
       #p(paste0('rv$returnVal()$res = ',rv$returnVal()$res))
-      p(paste0('pipeline_pep$original()= ',pipeline_pep$original)),
-      p(paste0('pipeline_pep$A_processed= ',pipeline_pep$A_processed())),
-      p(paste0('pipeline_pep$B_processed()= ',pipeline_pep$B_processed())),
-      p(paste0('pipeline_pep$C_processed()= ',pipeline_pep$C_processed()))
+      p(paste0('pipeline_pep$original= ',pipeline_pep$original)),
+      p(paste0('pipeline_pep$A_processed= ',pipeline_pep$A_processed)),
+      p(paste0('pipeline_pep$B_processed= ',pipeline_pep$B_processed)),
+      p(paste0('pipeline_pep$C_processed= ',pipeline_pep$C_processed))
     )
   
   })
