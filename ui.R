@@ -23,11 +23,15 @@ ui <- fluidPage(
         top = '30%',
         left = '25%',
         width = "50%",
-        height = "150px",
+        height = "300px",
         draggable = TRUE,
         fixed = TRUE,
         tagList(
-          uiOutput("summary")
+          fluidRow(
+            column(4,uiOutput("chooseDataset")),
+            column(8,uiOutput("summary"))
+          )
+
         )
       )
       
