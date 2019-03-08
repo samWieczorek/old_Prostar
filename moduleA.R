@@ -3,25 +3,23 @@
 moduleA <- function(input, output, session, dataIn, screen.id){
   ns <- session$ns
   
-  
-  observeEvent(dataIn(), {
-    print(paste0("In module A, observeEvent(dataIn() : ",dataIn()))
-    rv$obj <- dataIn()
-  })
-  
-  
   rv <- reactiveValues(
     obj = NULL,
     res = NULL, 
     name ="moduleA")
   
   
+  
+  
+  observeEvent(dataIn(), {
+    rv$obj <- dataIn()
+  })
+  
+  
+ 
   output$screen1 <- renderUI({
     tagList(
-      h4(paste0('screen.id() =', screen.id())),
-      h4(paste0('dataIn() =', dataIn())),
-      h4(paste0('rv$obj =', rv$obj)),
-      h4(paste0('rv$res =', rv$res)),
+      h4("Screen 1 du module A"),
       actionButton(ns('btn'), "Perform (Add 1)")
     )
   })
@@ -30,12 +28,19 @@ moduleA <- function(input, output, session, dataIn, screen.id){
 
   output$screen2 <- renderUI({
     tagList(
-      h4('screen2'),
+      h4('Screen2 du module A'),
+      p(paste0('screen.id() = ', screen.id())),
+      p(paste0('dataIn() = ', dataIn())),
+      p(paste0('rv$obj = ', rv$obj)),
+      p(paste0('rv$res = ', rv$res)),
+      br(),
+      
       actionButton(ns('btn_send'), "Save")
     )
   })
   
   
+ 
   observeEvent(input$btn,{
     rv$obj <- rv$obj +1
     })

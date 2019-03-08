@@ -4,34 +4,31 @@ source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 ui <- fluidPage(
   tagList(
-    actionButton("rst_process", "reset process"),
     navbarPage(
-      title = 'test',
+      position = "fixed-top",
+      #itle = 'Home',
       id="navPage",
-      navbarMenu("Process",
-                 tabPanel("ProcessA",moduleAUI('processA')),
-                 tabPanel("ProcessB",moduleBUI('processB')),
-                 tabPanel("ProcessC",moduleCUI('processC'))
-      )
+      "",
+      
+      
+      tabPanel("Plots",
+                modulePlotsUI('showPlots'))
     ),
+    
     div(
-      id = "loading_page",
+      id = "summary",
       absolutePanel(
-        id  = "AbsolutePanel",
+        id  = "AbsolutePanel2",
         class = "panel panel-default",
         style= "text-align: center; background-color: lightgrey;",
         top = '30%',
         left = '25%',
-        width = "50%",
-        height = "300px",
+        width = "200px",
+        height = "150px",
         draggable = TRUE,
         fixed = TRUE,
         tagList(
-          fluidRow(
-            column(4,uiOutput("chooseDataset")),
-            column(8,uiOutput("summary"))
-          )
-
+          uiOutput("summary")
         )
       )
       
