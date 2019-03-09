@@ -7,7 +7,7 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   rv <- reactiveValues(
     current.obj = NULL,
-    returnVal = NULL,
+    #returnVal = NULL,
     
     dataset = list(
                     original = NULL,
@@ -34,11 +34,8 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   ## Initialisation of the module
   observeEvent(dataIn(),{
-    
     rv$dataset$original <- dataIn()
     rv$current.obj <- dataIn()
-    print("New dataIn() value")
-    print(paste0("the current tab is : ",navPage()))
     })
   
   GetScreenId <- reactive({
@@ -92,11 +89,11 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     print('### EVENT ON : rv$dataset$A_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessA()
     rv$dataset$A_processed <- rv$process$ProcessA()
-    rv$returnVal <- rv$current.obj
+    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessA')
     
     updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-    
+    printStatus()
     
   })
   
@@ -105,11 +102,11 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     print('### EVENT ON : rv$dataset$B_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessB()
     rv$dataset$B_processed <- rv$process$ProcessB()
-    rv$returnVal <- rv$current.obj
+    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessB')
     
     updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-    
+    printStatus()
   })
   
   
@@ -119,28 +116,24 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     print('### EVENT ON : rv$dataset$C_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessC()
     rv$dataset$C_processed <- rv$process$ProcessC()
-    rv$returnVal <- rv$current.obj
+    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessC')
     
     updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-    
+    printStatus()
   })
   
   
   
   
-  output$summary <- renderUI({
-    
-    tagList(
-      p(paste0('rv$dataset$original= ',rv$dataset$original)),
-      p(paste0('rv$dataset$A_processed= ',rv$dataset$A_processed)),
-      p(paste0('rv$dataset$B_processed= ',rv$dataset$B_processed)),
-      p(paste0('rv$dataset$C_processed= ',rv$dataset$C_processed))
-    )
-    
-  })
+  printStatus <- function(){
+      print(paste0('rv$dataset$original= ',rv$dataset$original))
+    print(paste0('rv$dataset$A_processed= ',rv$dataset$A_processed))
+    print(paste0('rv$dataset$B_processed= ',rv$dataset$B_processed))
+    print(paste0('rv$dataset$C_processed= ',rv$dataset$C_processed))
+  }
+ 
   
   
-  
-  return(reactive({rv$returnVal}))
+  return(reactive({rv$current.obj}))
 }
