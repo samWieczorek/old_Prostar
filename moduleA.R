@@ -9,8 +9,6 @@ moduleA <- function(input, output, session, dataIn, screen.id){
     name ="moduleA")
   
   
-  
-  
   observeEvent(dataIn(), {
     rv$obj <- dataIn()
   })

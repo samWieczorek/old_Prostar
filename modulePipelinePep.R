@@ -6,6 +6,9 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   
   rv <- reactiveValues(
+    current.obj = NULL,
+    returnVal = NULL,
+    
     dataset = list(
                     original = NULL,
                     A_processed = NULL,
@@ -25,19 +28,17 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
                   ProcessC =callModule(module=moduleC, 'pep_processC', 
                            dataIn=reactive({rv$current.obj}),
                            screen.id = reactive({GetScreenId()}))
-                ),
-    current.obj = NULL,
-    returnVal = 3
+                )
   )
   
   
-  
-  observe({
-    dataIn()
+  ## Initialisation of the module
+  observeEvent(dataIn(),{
+    
     rv$dataset$original <- dataIn()
     rv$current.obj <- dataIn()
     print("New dataIn() value")
-    print(navPage())
+    print(paste0("the current tab is : ",navPage()))
     })
   
   GetScreenId <- reactive({
@@ -103,9 +104,8 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     rv$dataset
     print('### EVENT ON : rv$dataset$B_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessB()
-    
     rv$dataset$B_processed <- rv$process$ProcessB()
-    
+    rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessB')
     
     updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
@@ -118,9 +118,8 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     rv$dataset
     print('### EVENT ON : rv$dataset$C_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessC()
-    
     rv$dataset$C_processed <- rv$process$ProcessC()
-    
+    rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessC')
     
     updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
