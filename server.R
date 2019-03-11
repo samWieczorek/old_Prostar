@@ -28,35 +28,32 @@ server <- function(input, output, session){
   
  
   rvtmp <- reactiveValues(
-    init.obj = 10,
-    current.obj = list(name='test', data=list(test=3)),
-    page = NULL
-  )
-  
+    init.obj = 10)
   rv <- reactiveValues(
-    dataset = list(
-      original = NULL,
-      pipeline.pep = NULL,
-      pipeline.prot = NULL,
-      pipeline.p2p = NULL
-    ),
+    page = NULL,
+    indice = NULL,
+    current.obj = list(original=1,
+                       A_processed = NULL,
+                       B_processed = NULL,
+                       C_processed = NULL
+                  ),
+    dataset = NULL,
     
-    pipeline = list(
-      processNull = NULL,
-      returnValPeptide = callModule(module = modulePipelinePep, 'test', 
-                                    dataIn = reactive({rvtmp$current.obj}), 
-                                    navPage=reactive({input$navPage})),
-      returnValProtein  = NULL,
-      returnValP2p = NULL
-    )
+    pipeline = callModule(module = modulePipelinePep, 'test', 
+                                    dataIn = reactive({rv$current.obj}), 
+                                    navPage=reactive({input$navPage}),
+                                    indice = reactive({GetIndex()}))
+
   )
     
   
   
- callModule(module = modulePlots, 'showPlots', dataIn=reactive({rvtmp$current.obj}))
+ callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.obj}))
  
  
  
+  
+  
   observeEvent(input$selectPipeline,{
     print('EVENT ON : observeEvent(input$selectPipeline')
     
@@ -64,46 +61,46 @@ server <- function(input, output, session){
            Peptide= insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Home", position="after"),
            Protein = insertTab(inputId = "navPage",modulePipelineProtUI('testProt'), target="Home", position="after"),
            P2p = insertTab(inputId = "navPage",modulePipelineP2pUI('testP2p'), target="Home", position="after")
-)
+    )
   })
   
-  
-  observeEvent(rv$pipeline$returnValPeptide(), {
+  observeEvent(rv$pipeline(), {
     rv$dataset
-    print('### EVENT ON : rv$pipeline$returnValPeptide()')
-   # rvtmp$current.dataset <- rv$pipeline$returnValPeptide()
-    rv$dataset$pipeline.pep <- rv$pipeline$returnValPeptide()
-    print("new value from rv$pipeline$returnValPeptide()")
-    print(rv$dataset$pipeline.pep)
-    # updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-   })
-  
-  #  observeEvent(rv$pipeline$returnValProtein(), {
-  #    rv$dataset
-  #    print('### EVENT ON : rv$pipeline$returnValProtein()')
-  # #   rvtmp$current.obj <- rv$pipeline$returnValProtein()
-  #    rv$dataset$pipeline.prot <- rv$pipeline$returnValProtein()
-  #    print("new value from rv$pipeline$returnValProtein()")
-  #    
-  #    print(rv$pipeline$returnValProtein)
-  # #   # updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-  #  })
-   
-  #  observeEvent(rv$pipeline$returnValP2p(), {
-  #    rv$dataset
-  #    print('### EVENT ON : rv$pipeline$returnValP2p')
-  # #   rvtmp$current.obj <- rv$pipeline$returnValP2p()
-  #    rv$dataset$pipeline.p2p <- rv$pipeline$returnValP2p()
-  #    print("new value from rv$pipeline$returnValP2p()")
-  #    print(rv$pipeline$returnValP2p)
-  # #   # updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
-  #  })
+    print('### EVENT ON : rv$pipeline()')
+    rv$dataset <- rv$pipeline()$dataset
+    rv$indice <- rv$pipeline()$indice
+    updateSelectInput(session, "currentDataset", choices = names(rv$dataset[!sapply(rv$dataset,is.null)]),
+                      selected = names(rv$dataset)[rv$indice])
+    
+    GetIndex()
+    })
   
   
+
+  output$summary <- renderUI({
+   print(str(rv$pipeline()))
+    tagList(
+      h3('General summary'),
+      p(paste0('rv$indice =',rvtmp$indice)),
+      p(paste0('rv$current.obj= ',rv$current.obj)),
+      p(paste0('rv$pipeline() = ',rv$pipeline()))
+    )
+  
+  })
+  
+
+  GetIndex <- eventReactive(input$currentDataset,{
+    print("IN GetIndex <- eventReactive(input$currentDataset")
+    print(input$currentDataset)
+    print(str(rv$dataset))
+    id <- which(names(rv$dataset[!sapply(rv$dataset,is.null)])==input$currentDataset)
+    print(paste0("New value of id : ", id))
+    id
+  })
   
   output$chooseDataset <- renderUI({
-    
-    req(rvtmp$current.obj)
+
+    req(rv$current.obj)
     div(
       div(
         style="display:inline-block; vertical-align: middle;",
@@ -111,26 +108,12 @@ server <- function(input, output, session){
       ),
       div(
         style="display:inline-block; vertical-align: middle;",
-        selectInput('currentDataset', '', 
-                    choices =  c("None"="None",names(unlist(rvtmp$current.obj$data))),
-                    selected= rvtmp$current.obj$name,
+        selectInput('currentDataset', '',
+                    choices =  c("None"="None",names(rv$dataset[!sapply(rv$dataset,is.null)])),
                     width='150px')
       )
     )
-    
-    
   })
-  
-  
-  
-  
-  output$summary <- renderUI({
-   
-    tagList(
-      h3('General summary of prototype :'),
-      p(paste0('rv$current.obj()= ',rvtmp$current.obj$name)),
-      p(unlist(rvtmp$current.obj$data))
-      )
-  
-  })
-}
+
+
+   }

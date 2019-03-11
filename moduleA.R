@@ -8,7 +8,7 @@ moduleA <- function(input, output, session, dataIn, screen.id){
     res = NULL, 
     name ="moduleA")
   
-  ##Initialisation of the pipeline
+  
   observeEvent(dataIn(), {
     rv$obj <- dataIn()
   })

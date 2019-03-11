@@ -1,19 +1,14 @@
 
 
 
-modulePipelinePep <- function(input, output, session, dataIn, navPage){
+modulePipelinePep <- function(input, output, session, dataIn, navPage, indice){
   ns <- session$ns
   
   
   rv <- reactiveValues(
     current.obj = NULL,
-    current.obj.name = NULL,
-    dataset = list(
-                    original = NULL,
-                    A_processed = NULL,
-                    B_processed = NULL,
-                    C_processed = NULL
-                  ),
+    indice = NULL,
+    dataset = NULL,
     
     process = list(
                   processNull = NULL,
@@ -33,25 +28,56 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   ## Initialisation of the module
   observeEvent(dataIn(),{
-    rv$dataset$original <- dataIn()
-    rv$current.obj <- dataIn()
-    rv$current.obj.name <- 'Original'
+    if (!is.null(dataIn())) {
+      rv$dataset <- dataIn()
+      rv$current.obj <- dataIn()[[1]]
+    }
     })
+  
+
+
+  observeEvent(req(indice()),{
+
+    print(paste0("New indice value from server :", indice()))
+    rv$indice <- indice()
+    rv$current.obj <- rv$dataset[[rv$indice]]
+
+  })
+
   
   GetScreenId <- reactive({
     navPage()
-    rv$current.obj
+    req(rv$current.obj)
     
     screen <- NULL
-    
     m <-  which(names(rv$process)==navPage())
-    n <-  which(unlist(lapply(rv$dataset$data, function(x) length(which(x==rv$current.obj))))==1)
+    n <-  which(unlist(lapply(rv$dataset, function(x) length(which(x==rv$current.obj))))==1)
     
     if (m >= n) { screen <- 'Initial screen'}
     else {screen <- 'Final screen'}
     print(paste0("in GetScreenId(), n = ", n, ", m = ", m, ". screen = ", screen))
     screen
   })
+  
+  
+  output$chooseDataset <- renderUI({
+    req(rv$dataset)
+    div(
+      div(
+        style="display:inline-block; vertical-align: middle;",
+        p("Current dataset")
+      ),
+      div(
+        style="display:inline-block; vertical-align: middle;",
+        selectInput('currentDataset', '', 
+                    choices =  names(unlist(rv$dataset)),
+                    width='150px')
+      )
+    )
+    
+    
+  })
+  
   
   
   DeleteDatasetsAfter <- function(txt){
@@ -65,28 +91,23 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   observeEvent(rv$process$ProcessA(), {
     rv$dataset
-    print('### EVENT ON : rv$process$ProcessA()')
+    print('### EVENT ON : rv$dataset$A_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessA()
-    rv$current.obj.name <- 'A_processed'
+    rv$indice <- 2
     rv$dataset$A_processed <- rv$process$ProcessA()
-    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessA')
     
-    updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
     printStatus()
-    
   })
   
   observeEvent(rv$process$ProcessB(), {
     rv$dataset
-    print('### EVENT ON : rv$process$ProcessB()')
+    print('### EVENT ON : rv$dataset$B_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessB()
-    rv$current.obj.name <- 'B_processed'
+    rv$indice <- 3
     rv$dataset$B_processed <- rv$process$ProcessB()
-    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessB')
     
-    updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
     printStatus()
   })
   
@@ -94,14 +115,12 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   observeEvent(rv$process$ProcessC(), {
     rv$dataset
-    print('### EVENT ON : rv$process$ProcessC()')
+    print('### EVENT ON : rv$dataset$C_processed <- rv$obj')
     rv$current.obj <- rv$process$ProcessC()
-    rv$current.obj.name <- 'C_processed'
+    rv$indice <- 4
     rv$dataset$C_processed <- rv$process$ProcessC()
-    #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessC')
     
-    updateSelectInput(session,  'currentDataset', selected =  dplyr::last(names(unlist(rv$dataset))))
     printStatus()
   })
   
@@ -109,12 +128,16 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   
   printStatus <- function(){
-    print("Summary of pipeline Peptide - rv$dataset:")
-    print(paste0("Current obj name :", rv$current.obj.name))
-    print(rv$dataset)
+    print("PrintStatus of module peptide")
+    print(paste0('rv$indice= ',rv$indice))
+    print(paste0('rv$current.obj= ',rv$current.obj))
+    print(paste0('rv$dataset$original= ',rv$dataset$original))
+    print(paste0('rv$dataset$A_processed= ',rv$dataset$A_processed))
+    print(paste0('rv$dataset$B_processed= ',rv$dataset$B_processed))
+    print(paste0('rv$dataset$C_processed= ',rv$dataset$C_processed))
   }
  
   
-  return(reactive({list(name=rv$current.obj.name,data=rv$dataset)}))
-  #return(reactive({rv$current.obj}))
+  return(reactive({list(indice=rv$indice,dataset=rv$dataset)}))
+  #return(reactive({rv$dataset}))
 }
