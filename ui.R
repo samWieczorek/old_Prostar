@@ -6,11 +6,19 @@ ui <- fluidPage(
   tagList(
     navbarPage(
       position = "fixed-top",
-      #itle = 'Home',
       id="navPage",
-      "",
-      
-      
+      absolutePanel(
+        id  = "#AbsolutePanel",
+        top = 0, right = 50, width = "500px",height = "50px",
+        draggable = FALSE,fixed = FALSE,
+        cursor = "default"
+        ,uiOutput("chooseDataset" )
+      ),
+      tabPanel("Home",
+               br(),br(),br(),br(),
+               selectInput("selectPipeline", "Select pipeline",
+                          choices=c("None"="","Peptide"="Peptide", "Protein"="Protein", "P2p" = "P2p"),
+                          selected=character(0))),
       tabPanel("Plots",
                 modulePlotsUI('showPlots'))
     ),

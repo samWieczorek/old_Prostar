@@ -7,8 +7,7 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   rv <- reactiveValues(
     current.obj = NULL,
-    #returnVal = NULL,
-    
+    current.obj.name = NULL,
     dataset = list(
                     original = NULL,
                     A_processed = NULL,
@@ -36,6 +35,7 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   observeEvent(dataIn(),{
     rv$dataset$original <- dataIn()
     rv$current.obj <- dataIn()
+    rv$current.obj.name <- 'Original'
     })
   
   GetScreenId <- reactive({
@@ -45,34 +45,13 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
     screen <- NULL
     
     m <-  which(names(rv$process)==navPage())
-    n <-  which(unlist(lapply(rv$dataset, function(x) length(which(x==rv$current.obj))))==1)
+    n <-  which(unlist(lapply(rv$dataset$data, function(x) length(which(x==rv$current.obj))))==1)
     
     if (m >= n) { screen <- 'Initial screen'}
     else {screen <- 'Final screen'}
     print(paste0("in GetScreenId(), n = ", n, ", m = ", m, ". screen = ", screen))
     screen
   })
-  
-  
-  output$chooseDataset <- renderUI({
-    
-    req(rv$dataset)
-    div(
-      div(
-        style="display:inline-block; vertical-align: middle;",
-        p("Current dataset")
-      ),
-      div(
-        style="display:inline-block; vertical-align: middle;",
-        selectInput('currentDataset', '', 
-                    choices =  names(unlist(rv$dataset)),
-                    width='150px')
-      )
-    )
-    
-    
-  })
-  
   
   
   DeleteDatasetsAfter <- function(txt){
@@ -86,8 +65,9 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   observeEvent(rv$process$ProcessA(), {
     rv$dataset
-    print('### EVENT ON : rv$dataset$A_processed <- rv$obj')
+    print('### EVENT ON : rv$process$ProcessA()')
     rv$current.obj <- rv$process$ProcessA()
+    rv$current.obj.name <- 'A_processed'
     rv$dataset$A_processed <- rv$process$ProcessA()
     #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessA')
@@ -99,8 +79,9 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   observeEvent(rv$process$ProcessB(), {
     rv$dataset
-    print('### EVENT ON : rv$dataset$B_processed <- rv$obj')
+    print('### EVENT ON : rv$process$ProcessB()')
     rv$current.obj <- rv$process$ProcessB()
+    rv$current.obj.name <- 'B_processed'
     rv$dataset$B_processed <- rv$process$ProcessB()
     #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessB')
@@ -113,8 +94,9 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   observeEvent(rv$process$ProcessC(), {
     rv$dataset
-    print('### EVENT ON : rv$dataset$C_processed <- rv$obj')
+    print('### EVENT ON : rv$process$ProcessC()')
     rv$current.obj <- rv$process$ProcessC()
+    rv$current.obj.name <- 'C_processed'
     rv$dataset$C_processed <- rv$process$ProcessC()
     #rv$returnVal <- rv$current.obj
     DeleteDatasetsAfter('ProcessC')
@@ -127,13 +109,12 @@ modulePipelinePep <- function(input, output, session, dataIn, navPage){
   
   
   printStatus <- function(){
-      print(paste0('rv$dataset$original= ',rv$dataset$original))
-    print(paste0('rv$dataset$A_processed= ',rv$dataset$A_processed))
-    print(paste0('rv$dataset$B_processed= ',rv$dataset$B_processed))
-    print(paste0('rv$dataset$C_processed= ',rv$dataset$C_processed))
+    print("Summary of pipeline Peptide - rv$dataset:")
+    print(paste0("Current obj name :", rv$current.obj.name))
+    print(rv$dataset)
   }
  
   
-  
-  return(reactive({rv$current.obj}))
+  return(reactive({list(name=rv$current.obj.name,data=rv$dataset)}))
+  #return(reactive({rv$current.obj}))
 }
