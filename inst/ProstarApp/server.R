@@ -30,7 +30,21 @@ onStart = function() {
 }
 
 
-
+installSass <- function(){
+  
+  if(require("sass")){
+    print("package sass is loaded correctly")
+  } else {
+    print("trying to install sass from CRAN")
+    install.packages("sass")
+    if(require(sass)){
+      print("sass installed and loaded")
+    } else {
+      print("trying to install the dev version of sass from github")
+      devtools::install_github("rstudio/sass")
+    }
+  }
+}
 
 shinyServer(function(input, output, session) {
   Sys.setlocale("LC_ALL","English")

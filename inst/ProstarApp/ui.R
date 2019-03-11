@@ -2,7 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(shinyjqui)
-library(sass)
+#library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 
@@ -17,8 +17,11 @@ shinyUI <- fluidPage(
   
   shinyjs::useShinyjs(),
   includeCSS("www/progressBar/progressBar.css"),
-  tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
-                            sass_options(output_style = "expanded")))),
+  if (require(sass))
+    {
+    tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                            sass_options(output_style = "expanded"))))},
+  
   titlePanel("", windowTitle = "Prostar"),
   
   ###### DIV LOADING PAGE  #######
