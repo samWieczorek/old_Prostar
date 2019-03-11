@@ -1,5 +1,7 @@
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
+source(file.path(".", "moduleDataManagerUI.R"),  local = TRUE)$value
+
 ######
 
 ui <- fluidPage(
@@ -21,6 +23,7 @@ ui <- fluidPage(
                selectInput("selectPipeline", "Select pipeline",
                            choices=c("None"="","Peptide"="Peptide", "Protein"="Protein", "P2p" = "P2p"),
                            selected=character(0))),
+      moduleDataManagerUI('datamanager'),
       tabPanel("Plots",
                 modulePlotsUI('showPlots'))
     ),

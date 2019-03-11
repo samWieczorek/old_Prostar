@@ -19,6 +19,9 @@ server <- function(input, output, session){
   source(file.path(".", "moduleD.R"),  local = TRUE)$value
   source(file.path(".", "modulePlots.R"),  local = TRUE)$value
   
+  source(file.path(".", "moduleDataManager.R"),  local = TRUE)$value
+  
+  
   source(file.path(".", "modulePipelinePepUI.R"),  local = TRUE)$value
   source(file.path(".", "modulePipelinePep.R"),  local = TRUE)$value
   source(file.path(".", "modulePipelineProtUI.R"),  local = TRUE)$value
@@ -50,17 +53,16 @@ server <- function(input, output, session){
   
  callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.obj}))
  
+ obj <- callModule(module = moduleDataManager, 'datamanager')
  
  
-  
-  
   observeEvent(input$selectPipeline,{
     print('EVENT ON : observeEvent(input$selectPipeline')
     
     switch(input$selectPipeline,
-           Peptide= insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Home", position="after"),
-           Protein = insertTab(inputId = "navPage",modulePipelineProtUI('testProt'), target="Home", position="after"),
-           P2p = insertTab(inputId = "navPage",modulePipelineP2pUI('testP2p'), target="Home", position="after")
+           Peptide= insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Data manager", position="after"),
+           Protein = insertTab(inputId = "navPage",modulePipelineProtUI('testProt'), target="Data manager", position="after"),
+           P2p = insertTab(inputId = "navPage",modulePipelineP2pUI('testP2p'), target="Data manager", position="after")
     )
   })
   
