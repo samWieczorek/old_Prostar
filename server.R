@@ -30,79 +30,88 @@ server <- function(input, output, session){
   source(file.path(".", "modulePipelineP2p.R"),  local = TRUE)$value
   
  
-  rvtmp <- reactiveValues(
-    init.obj = 10)
   rv <- reactiveValues(
-    page = NULL,
-    indice = NULL,
-    current.obj = list(original=1,
-                       A_processed = NULL,
-                       B_processed = NULL,
-                       C_processed = NULL
-                  ),
-    dataset = NULL,
     
-    pipeline = callModule(module = modulePipelinePep, 'test', 
-                                    dataIn = reactive({rv$current.obj}), 
-                                    navPage=reactive({input$navPage}),
-                                    indice = reactive({GetIndex()}))
-
+    # name of the current dataset in the widget chooseDataset
+   
+    # current working data from current pipeline
+    current.pipeline.data = NULL,
+    
+    
+    #current indice (rank of current dataset in pipeline)
+    indice = 1,
+    init.obj = NULL,
+    
+    #model for the structure of dataset for peptide pipeline
+    
+     pipeline.pep = callModule(module = modulePipelinePep, 'test', 
+                                     initData = reactive({rv$init.obj}), 
+                                     navPage =reactive({input$navPage}),
+                                     indice = reactive({rv$indice}))
+    
   )
     
-  
-  
- callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.obj}))
- 
  obj <- callModule(module = moduleDataManager, 'datamanager')
+  
+ callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.pipeline.data}))
  
- 
-  observeEvent(input$selectPipeline,{
-    print('EVENT ON : observeEvent(input$selectPipeline')
-    
-    switch(input$selectPipeline,
-           Peptide= insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Data manager", position="after"),
-           Protein = insertTab(inputId = "navPage",modulePipelineProtUI('testProt'), target="Data manager", position="after"),
-           P2p = insertTab(inputId = "navPage",modulePipelineP2pUI('testP2p'), target="Data manager", position="after")
-    )
+
+ observeEvent(obj(),{
+    print('EVENT ON : obj()')
+    print(paste0("Obj() = ", obj()))
+    rv$init.obj <- list(original=obj(),
+                        A_processed = NULL,
+                        B_processed = NULL,
+                        C_processed = NULL
+                        )
+    rv$indice <- 1
+    insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Data manager", position="after")
+
   })
   
-  observeEvent(rv$pipeline(), {
-    rv$dataset
-    print('### EVENT ON : rv$pipeline()')
-    rv$dataset <- rv$pipeline()$dataset
-    rv$indice <- rv$pipeline()$indice
-    updateSelectInput(session, "currentDataset", choices = names(rv$dataset[!sapply(rv$dataset,is.null)]),
-                      selected = names(rv$dataset)[rv$indice])
+  
+  observeEvent(input$currentDataset,{
+    print("observeEvent(input$currentDataset,")
+
+    print(str(rv$current.pipeline.data))
+    rv$indice <- which(names(rv$current.pipeline.data[!sapply(rv$current.pipeline.data,is.null)])==input$currentDataset)
+    print(paste0("New value of indice : ", rv$indice))
+    #rv$indice
+  })
+
+
+  
+ 
+ observe({
+   rv$indice
+   print(paste0("Watch rv$indice = ", rv$indice))
+ })
+ 
+ 
+  observeEvent(rv$pipeline.pep(),{
     
-    GetIndex()
+    print('### EVENT ON : rv$pipeline.pep()')
+    rv$current.pipeline.data <- rv$pipeline.pep()$data
+    rv$current.pipeline.indice <- rv$pipeline.pep()$indice
+    print(paste0("current.pipeline.indice :",rv$current.pipeline.indice))
+    print(rv$current.pipeline.data)
+    updateSelectInput(session, "currentDataset", 
+                      choices = names(rv$current.pipeline.data[!sapply(rv$current.pipeline.data,is.null)]),
+                      selected = names(rv$current.pipeline.data)[rv$current.pipeline.indice])
+    
+    #GetIndex()
     })
   
-  
-
-  output$summary <- renderUI({
-   print(str(rv$pipeline()))
-    tagList(
-      h3('General summary'),
-      p(paste0('rv$indice =',rvtmp$indice)),
-      p(paste0('rv$current.obj= ',rv$current.obj)),
-      p(paste0('rv$pipeline() = ',rv$pipeline()))
-    )
-  
-  })
-  
-
-  GetIndex <- eventReactive(input$currentDataset,{
-    print("IN GetIndex <- eventReactive(input$currentDataset")
-    print(input$currentDataset)
-    print(str(rv$dataset))
-    id <- which(names(rv$dataset[!sapply(rv$dataset,is.null)])==input$currentDataset)
-    print(paste0("New value of id : ", id))
-    id
-  })
+ 
+GetNonNullNames <- reactive({
+  rv$current.pipeline.data
+  n <-names(rv$current.pipeline.data[!sapply(rv$current.pipeline.data,is.null)])
+  n
+})
   
   output$chooseDataset <- renderUI({
 
-    req(rv$current.obj)
+    req(rv$current.pipeline.data)
     div(
       div(
         style="display:inline-block; vertical-align: middle;",
@@ -111,7 +120,7 @@ server <- function(input, output, session){
       div(
         style="display:inline-block; vertical-align: middle;",
         selectInput('currentDataset', '',
-                    choices =  c("None"="None",names(rv$dataset[!sapply(rv$dataset,is.null)])),
+                    choices =  c("None"="None",GetNonNullNames()),
                     width='150px')
       )
     )
