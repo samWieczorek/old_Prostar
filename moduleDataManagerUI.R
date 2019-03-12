@@ -3,7 +3,7 @@ moduleDataManagerUI <- function(id){
   
   navbarMenu("Data manager" ,
              tabPanel("Open MSnset",
-                      br(),br(),br(),br(),selectInput("selectPipeline", "Select pipeline",
+                      br(),br(),br(),br(),selectInput(ns("selectPipeline"), "Select pipeline",
                                   choices=c("None"="","Peptide"="Peptide", "Protein"="Protein", "P2p" = "P2p"),
                                   selected=character(0)),
                       uiOutput(ns("openMSnset")),

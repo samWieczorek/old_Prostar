@@ -17,8 +17,8 @@ server <- function(input, output, session){
   source(file.path(".", "moduleB.R"),  local = TRUE)$value
   source(file.path(".", "moduleC.R"),  local = TRUE)$value
   source(file.path(".", "moduleD.R"),  local = TRUE)$value
+  source(file.path(".", "modulePlotsUI.R"),  local = TRUE)$value
   source(file.path(".", "modulePlots.R"),  local = TRUE)$value
-  
   source(file.path(".", "moduleDataManager.R"),  local = TRUE)$value
   
   
@@ -56,16 +56,28 @@ server <- function(input, output, session){
  callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.pipeline.data}))
  
 
- observeEvent(obj(),{
+ observeEvent(req(obj()$initialData),{
     print('EVENT ON : obj()')
-    print(paste0("Obj() = ", obj()))
-    rv$init.obj <- list(original=obj(),
+    print(paste0("Obj() = ", obj()$initialData))
+    print(paste0("pipeline = ", obj()$pipeline))
+    rv$init.obj <- list(original=obj()$initialData,
                         A_processed = NULL,
                         B_processed = NULL,
                         C_processed = NULL
                         )
     rv$indice <- 1
-    insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Data manager", position="after")
+    
+    switch(obj()$pipeline,
+           Peptide= {
+             insertTab(inputId = "navPage",modulePipelinePepUI('test'), target="Data manager", position="after")
+           },
+           Protein = {
+             insertTab(inputId = "navPage",modulePipelineProtUI('testprot'), target="Data manager", position="after")
+           },
+           P2p = {
+             insertTab(inputId = "navPage",modulePipelineP2pUI('testp2p'), target="Data manager", position="after")
+           }
+    )
 
   })
   
@@ -112,13 +124,15 @@ GetNonNullNames <- reactive({
   output$chooseDataset <- renderUI({
 
     req(rv$current.pipeline.data)
-    div(
+    tagList(
+      tags$head(tags$style(HTML('.selectize-form {
+                             margin-bottom: 0px; margin-top: 0px;}'))),
       div(
-        style="display:inline-block; vertical-align: middle;",
+        style="display:inline-block; vertical-align: center;",
         p("Current dataset")
       ),
       div(
-        style="display:inline-block; vertical-align: middle;",
+        style="display:inline-block; vertical-align: center;margin-bottom:0px",
         selectInput('currentDataset', '',
                     choices =  c("None"="None",GetNonNullNames()),
                     width='150px')

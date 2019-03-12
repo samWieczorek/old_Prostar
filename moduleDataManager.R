@@ -3,13 +3,15 @@ moduleDataManager <- function(input, output, session){
   
   
   rav <- reactiveValues(
-    current.obj = NULL)
+    current.obj = NULL,
+    current.pipeline = NULL)
   
   
   
   
   observeEvent(input$loadDataset,{
     rav$current.obj <- input$n
+    rav$current.pipeline <- input$selectPipeline
   })
   
   output$openMSnset <- renderUI({
@@ -20,7 +22,9 @@ moduleDataManager <- function(input, output, session){
   })
   
   
-  return(reactive({rav$current.obj}))
+  return(reactive({list(pipeline = rav$current.pipeline,
+                        initialData = rav$current.obj)
+    }))
   
 }
     

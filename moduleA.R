@@ -3,6 +3,7 @@
 moduleA <- function(input, output, session, dataIn, screen.id){
   ns <- session$ns
   
+  
   rv <- reactiveValues(
     obj = NULL,
     res = NULL, 
