@@ -13,23 +13,23 @@ library(shinyBS)
 server <- function(input, output, session){
   
   source(file.path(".", "modules/modulesUI.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleA.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleB.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleC.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleD.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePlotsUI.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleDataManager.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleExport.R"),  local = TRUE)$value
-  source(file.path(".", "modules/moduleExportUI.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/peptide/moduleA.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/peptide/moduleB.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/peptide/moduleC.R"),  local = TRUE)$value
+
+  source(file.path(".", "modules/Plots/modulePlotsUI.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/DataManager/moduleDataManager.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Export/moduleExportUI.R"),  local = TRUE)$value
   
   
-  source(file.path(".", "modules/modulePipelinePepUI.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipelinePep.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipelineProtUI.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipelineProt.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipelineP2pUI.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipelineP2p.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelinePepUI.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelinePep.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelineProtUI.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelineProt.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelineP2pUI.R"),  local = TRUE)$value
+  source(file.path(".", "modules/pipelines/modulePipelineP2p.R"),  local = TRUE)$value
   
  
   rv <- reactiveValues(
@@ -55,8 +55,13 @@ server <- function(input, output, session){
     
  obj <- callModule(module = moduleDataManager, 'datamanager')
   
- callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.pipeline.data}), llPlots=reactive({1:6}))
+ callModule(module = modulePlots, 'showPlots', dataIn=reactive({rv$current.pipeline.data[[rv$indice]]}), llPlots=reactive({1:6}))
  
+ 
+ output$plots <- renderUI({
+   req(obj()$pipeline)
+   modulePlotsUI('showPlots')
+ })
 
  observeEvent(req(obj()$initialData),{
     print('EVENT ON : obj()')

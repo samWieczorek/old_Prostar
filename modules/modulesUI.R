@@ -12,8 +12,7 @@ moduleAUI <- function(id){
     uiOutput(ns("screen1")),
     hr(),
     uiOutput(ns("screen2"))
-    
-  )
+    )
 }
 
 

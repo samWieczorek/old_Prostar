@@ -12,6 +12,7 @@ moduleA <- function(input, output, session, dataIn, screen.id){
   
   observeEvent(dataIn(), {
     rv$obj <- dataIn()
+    
   })
   
   

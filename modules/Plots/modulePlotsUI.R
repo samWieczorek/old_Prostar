@@ -13,10 +13,10 @@ modulePlotsUI <- function(id){
     cursor = "default",
     tags$head(tags$style(".modal-dialog{ width:100%}")),
     tags$head(tags$style(".modal-body{ min-height:50%}")),
-    actionButton('plotBtn', 'Plots', "data-toggle"='collapse', "data-target"='#plotDiv', 
-                 style='color: white;background-color: blue'),
+    actionButton(ns('plotBtn'), 'Plots', "data-toggle"='collapse', "data-target"=paste0('#',ns('plotDiv')), 
+                 style='color: white;background-color: lightgrey'),
     tags$div(
-      id = 'plotDiv',  
+      id = ns('plotDiv'),  
       class="collapse", 
       style='background-color: white',
       uiOutput(ns('vignettes'))

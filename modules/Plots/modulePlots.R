@@ -8,7 +8,8 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   
   
   output$vignettes <- renderUI({
-    
+    print(llPlots())
+    print(paste0("Current boj in modulepLots : ", dataIn()))
     ll <- list(NULL)
     for (i in 1:length(llPlots())) {
       n <- llPlots()[i]
