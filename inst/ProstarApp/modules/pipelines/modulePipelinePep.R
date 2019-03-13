@@ -72,6 +72,8 @@ modulePipelinePep <- function(input, output, session, initData, navPage, indice)
     screen <- NULL
     m <-  which(names(rv$process)==navPage())
     n <-  which(unlist(lapply(rv$dataset, function(x) length(which(x==rv$current.obj))))==1)
+    ## test if the navPage is one of a process one
+    if (length(m) ==0 || length(n) ==0) {return(NULL)}
     
     if (m >= n) { screen <- 'Initial screen'}
     else {screen <- 'Final screen'}

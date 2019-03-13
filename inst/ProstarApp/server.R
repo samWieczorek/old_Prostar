@@ -1,3 +1,29 @@
+rm(list=ls())
+options(shiny.maxRequestSize=300*1024^2) 
+
+require(compiler)
+enableJIT(3)
+
+
+
+
+onStart = function() {
+  cat("Doing application setup\n")
+  
+  onStop(function() {
+    cat("Doing application cleanup\n")
+    graphics.off()
+    unlink(sessionID, recursive = TRUE)
+    unlink(paste(tempdir(), "*", sep="/"),recursive = TRUE)
+  })
+}
+
+
+sourceFiles <- function(){
+  
+}
+
+
 library(shinyBS)
 
 #' Title
@@ -12,9 +38,12 @@ library(shinyBS)
 #' @examples
 server <- function(input, output, session){
   
+  sourceFiles()
   source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
   
   source(file.path(".", "modules/DataManager/moduleDataManager.R"),  local = TRUE)$value
+  source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
   
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
   
@@ -22,7 +51,10 @@ server <- function(input, output, session){
   source(file.path(".", "modules/pipelines/modulePipelineProt.R"),  local = TRUE)$value
   source(file.path(".", "modules/pipelines/modulePipelineP2p.R"),  local = TRUE)$value
   
- 
+  
+  loadLibraries()
+  
+  
   rv <- reactiveValues(
     
     # name of the current dataset in the widget chooseDataset
@@ -55,6 +87,18 @@ server <- function(input, output, session){
             dataIn=reactive({rv$current.pipeline.data[[rv$indice]]}), 
             llPlots=reactive({1:6}))
  
+ callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
+ callModule(moduleInsertMarkdown, "links_MD",URL_links)
+ callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
+ 
+ #Set up writing file for log
+ logfilename <- tempfile(fileext=".log")
+ print(logfilename)
+ con <- file(logfilename,open="wt")
+ if(!interactive()){
+   sink(con, append=TRUE)
+   sink(con, append=TRUE, type="message")
+ }
  
  output$plots <- renderUI({
    req(obj()$pipeline)
@@ -94,6 +138,7 @@ server <- function(input, output, session){
 
   })
   
+ 
   
   observeEvent(input$currentDataset,{
     print("observeEvent(input$currentDataset,")
@@ -138,19 +183,11 @@ GetNonNullNames <- reactive({
 
     req(rv$current.pipeline.data)
     tagList(
-      #,
-      #div(
-      #   div(
-      #   style="display:inline-block; vertical-align: center;",
-      #   p("Current dataset")
-      # ),
       div(
-        
         style="display:inline-block; vertical-align: center; margin:0px",
         selectInput('currentDataset', '',
                     choices =  c("None"="None",GetNonNullNames()),
                     width='150px')
-      #)
       )
     )
   })
