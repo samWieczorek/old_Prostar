@@ -21,15 +21,13 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   
   output$plotModule <- renderUI({
     req(dataIn())
- #   print(paste0("str(dataIn()) = ", str(dataIn())))
-    isolate({
-      tagList(
+  
       absolutePanel(
-        id  = "#AbsolutePanel",
+        id  = "#AbsolutePanelPlots",
         class = "panel panel-default",
-        style= "text-align: center; color: grey; border-width:0px",
+        style= "text-align: center; color: grey; border-width:0px;",
         top = 150, right = 50, width = "70px",height = "450px",
-        draggable = TRUE,fixed = FALSE,
+        draggable = TRUE,fixed = TRUE,
         cursor = "default",
         tags$head(tags$style(".modal-dialog{ width:100%}")),
         tags$head(tags$style(".modal-body{ min-height:50%}")),
@@ -41,9 +39,8 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
           style='background-color: white',
           uiOutput(ns('vignettes'))
           )
-    ))
-      
-    })
+    )
+
   })
   
   

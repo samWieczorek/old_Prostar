@@ -1,7 +1,7 @@
-source(file.path(".", "modules/pipelines/protein/moduleD.R"),  local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleE.R"),  local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleF.R"),  local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleG.R"),  local = TRUE)$value
+source(file.path(".", "modules/pipelines/protein/moduleD.R"), local = TRUE)$value
+source(file.path(".", "modules/pipelines/protein/moduleE.R"), local = TRUE)$value
+source(file.path(".", "modules/pipelines/protein/moduleF.R"), local = TRUE)$value
+source(file.path(".", "modules/pipelines/protein/moduleG.R"), local = TRUE)$value
 
 
 
@@ -43,11 +43,11 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
                              dataIn=reactive({rv$current.obj}),
                              screen.id = reactive({GetScreenId()})),
       
-      ProcessF =callModule(module=moduleF, 'prot_processF', 
+      ProcessF = callModule(module=moduleF, 'prot_processF', 
                            dataIn=reactive({rv$current.obj}),
                            screen.id = reactive({GetScreenId()})),
       
-      ProcessG =callModule(module=moduleG, 'prot_processG', 
+      ProcessG = callModule(module=moduleG, 'prot_processG', 
                            dataIn=reactive({rv$current.obj}),
                            screen.id = reactive({GetScreenId()}))
     )
@@ -59,12 +59,13 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
   
   ## Initialisation of the module
   observeEvent(initData(), {
+    print("In module pipeline protein, observeEvent(initData()")
+    print(initData())
+    
     rv$dataset <- initData()
     rv$current.obj <- initData()[[indice()]]
     
-    print("In module pipeline protein, observeEvent(initData()")
-    print(initData())
-  })
+    })
   
   
   
@@ -112,6 +113,7 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
     rv$indice <- 2
     rv$dataset$D_processed <- rv$process$ProcessD()
     DeleteDatasetsAfter('ProcessD')
+    #rv$dataset <- DeleteDatasetsAfterTest('ProcessD', rv$process, rv$dataset)
     
     printStatus()
   })
@@ -121,7 +123,8 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
     rv$current.obj <- rv$process$ProcessE()
     rv$indice <- 3
     rv$dataset$E_processed <- rv$process$ProcessE()
-    DeleteDatasetsAfter('ProcessE')
+    #DeleteDatasetsAfter('ProcessE')
+    rv$dataset <- DeleteDatasetsAfterTest('ProcessE', rv$process, rv$dataset)
     
     printStatus()
   })
@@ -133,7 +136,8 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
     rv$current.obj <- rv$process$ProcessF()
     rv$indice <- 4
     rv$dataset$F_processed <- rv$process$ProcessF()
-    DeleteDatasetsAfter('ProcessF')
+    #DeleteDatasetsAfter('ProcessF')
+    rv$dataset <- DeleteDatasetsAfterTest('ProcessF', rv$process, rv$dataset)
     
     printStatus()
   })
@@ -144,24 +148,24 @@ modulePipelineProt <- function(input, output, session, initData, navPage, indice
     rv$current.obj <- rv$process$ProcessG()
     rv$indice <- 4
     rv$dataset$G_processed <- rv$process$ProcessG()
-    DeleteDatasetsAfter('ProcessG')
+    #DeleteDatasetsAfter('ProcessG')
+    rv$dataset <- DeleteDatasetsAfterTest('ProcessG', rv$process, rv$dataset)
     
     printStatus()
   })
   
   printStatus <- function(){
-    print("PrintStatus of module peptide")
+    print("PrintStatus of module ")
     print(paste0('initData() = ',initData()))
     print(paste0('rv$indice= ',rv$indice))
     print(paste0('rv$current.obj= ',rv$current.obj))
-    print(paste0('rv$dataset$original= ',rv$dataset$original))
-    print(paste0('rv$dataset$D_processed= ',rv$dataset$D_processed))
-    print(paste0('rv$dataset$E_processed= ',rv$dataset$E_processed))
-    print(paste0('rv$dataset$F_processed= ',rv$dataset$F_processed))
-    print(paste0('rv$dataset$G_processed= ',rv$dataset$G_processed))
+    print(paste0('rv$datasetl= ',rv$dataset))
   }
   
   
-  return(reactive({list(indice=rv$indice,dataset=rv$dataset)}))
+  
+  return(reactive({list(name='protein',
+                        indice=rv$indice,
+                        dataset=rv$dataset)}))
   #return(reactive({rv$dataset}))
 }

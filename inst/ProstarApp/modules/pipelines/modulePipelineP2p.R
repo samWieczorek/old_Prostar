@@ -95,7 +95,8 @@ modulePipelineP2p <- function(input, output, session, initData, navPage, indice)
     rv$current.obj <- rv$process$ProcessH()
     rv$indice <- 2
     rv$dataset$H_processed <- rv$process$ProcessH()
-    DeleteDatasetsAfter('ProcessH')
+    #DeleteDatasetsAfter('ProcessH')
+    rv$dataset <- DeleteDatasetsAfterTest('ProcessH', rv$process, rv$dataset)
     
     printStatus()
   })
@@ -105,22 +106,23 @@ modulePipelineP2p <- function(input, output, session, initData, navPage, indice)
     rv$current.obj <- rv$process$ProcessI()
     rv$indice <- 3
     rv$dataset$I_processed <- rv$process$ProcessI()
-    DeleteDatasetsAfter('ProcessI')
+    #DeleteDatasetsAfter('ProcessI')
+    rv$dataset <- DeleteDatasetsAfterTest('ProcessI', rv$process, rv$dataset)
     
     printStatus()
   })
   
-  
-  
   printStatus <- function(){
-    print("PrintStatus of module p2p")
+    print("PrintStatus of module ")
     print(paste0('initData() = ',initData()))
     print(paste0('rv$indice= ',rv$indice))
     print(paste0('rv$current.obj= ',rv$current.obj))
-    print(paste0('rv$dataset$ ',rv$dataset))
+    print(paste0('rv$datasetl= ',rv$dataset))
   }
   
   
-  return(reactive({list(indice=rv$indice,dataset=rv$dataset)}))
+  return(reactive({list(name = 'p2p',
+                        indice=rv$indice,
+                        dataset=rv$dataset)}))
   #return(reactive({rv$dataset}))
 }

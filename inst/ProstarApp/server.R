@@ -156,13 +156,13 @@ server <- function(input, output, session){
            
            
            P2p = {
-             # rv$init.obj <- list(original=obj()$initialData,
-             #                     H_processed = NULL,
-             #                     I_processed = NULL
-             #                      )
-             # rv$current.pipeline <- rv$pipeline.p2p()
-             # RemoveAllPipelineTabs()
-             # insertTab(inputId = "navPage",modulePipelineP2pUI('testp2p'), target="Data manager", position="after")
+             rv$init.obj <- list(original=obj()$initialData,
+                                 H_processed = NULL,
+                                 I_processed = NULL
+                                  )
+             rv$current.pipeline <- rv$pipeline.p2p()
+             RemoveAllPipelineTabs()
+             insertTab(inputId = "navPage",modulePipelineP2pUI('testp2p'), target="Data manager", position="after")
            }
     )
 
@@ -183,45 +183,67 @@ server <- function(input, output, session){
 
  
   observeEvent(rv$pipeline.pep(),{
-    
-    print('### EVENT ON : rv$pipeline.pep')
+    req(rv$current.pipeline)
+   if (rv$current.pipeline$name != 'peptide'){return(NULL)}
+      print('### EVENT ON : rv$pipeline.pep')
     rv$current.pipeline <- rv$pipeline.pep()
     rv$current.pipeline.data <- rv$pipeline.pep()$dataset
     rv$current.pipeline.indice <- rv$pipeline.pep()$indice
+    print("new value for rv$current.pipeline")
+    print(rv$current.pipeline)
+    
   })
   
   
-  # observeEvent(rv$pipeline.prot(),{
-  # 
-  #   print('### EVENT ON : rv$pipeline.prot')
-  #   rv$current.pipeline <- rv$pipeline.prot()
-  #   rv$current.pipeline.data <- rv$pipeline.prot()$dataset
-  #   rv$current.pipeline.indice <- rv$pipeline.prot()$indice
-  # })
-  # 
-  # 
-  # observeEvent(rv$pipeline.p2p(),{
-  # 
-  #   print('### EVENT ON : rv$pipeline.p2p')
-  #   rv$current.pipeline <- rv$pipeline.p2p()
-  #   rv$current.pipeline.data <- rv$pipeline.p2p()$dataset
-  #   rv$current.pipeline.indice <- rv$pipeline.p2p()$indice
-  # })
+  observeEvent(rv$pipeline.prot(),{
+    req(rv$current.pipeline)
+    if (rv$current.pipeline$name != 'protein'){return(NULL)}
+    print('### EVENT ON : rv$pipeline.prot')
+    rv$current.pipeline <- rv$pipeline.prot()
+    rv$current.pipeline.data <- rv$pipeline.prot()$dataset
+    rv$current.pipeline.indice <- rv$pipeline.prot()$indice
+    print("new value for rv$current.pipeline")
+    print(rv$current.pipeline)
+  })
+
+
+  observeEvent(rv$pipeline.p2p(),{
+    req(rv$current.pipeline)
+    if (rv$current.pipeline$name != 'p2p'){return(NULL)}
+    print('### EVENT ON : rv$pipeline.p2p')
+    rv$current.pipeline <- rv$pipeline.p2p()
+    rv$current.pipeline.data <- rv$pipeline.p2p()$dataset
+    rv$current.pipeline.indice <- rv$pipeline.p2p()$indice
+    print("new value for rv$current.pipeline")
+    print(rv$current.pipeline)
+  })
 
   
   
   output$chooseDataset <- renderUI({
 
-    rv$current.pipeline.data
-    rv$current.pipeline.indice
+    req(rv$current.pipeline.data)
+    req(rv$current.pipeline.indice)
+    absolutePanel(
+      id  = "#AbsolutePanel",
+      top = -10, right = 50, width = "500px",height = "50px",
+      draggable = FALSE,fixed = TRUE,
+      cursor = "default",
     tagList(
       div(
+        div(
+          style="display:inline-block; vertical-align: center; margin:0px",
+          p('Current dataset')
+        ),
+        div(
         style="display:inline-block; vertical-align: center; margin:0px",
         selectInput('currentDataset', '',
                     choices = names(rv$current.pipeline.data[!sapply(rv$current.pipeline.data,is.null)]),
                     selected = names(rv$current.pipeline.data)[rv$current.pipeline.indice],
                     width='150px')
+        )
       )
+    )
     )
   })
 
