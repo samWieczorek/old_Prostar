@@ -14,12 +14,20 @@ source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 ui <- fluidPage(
   
   tagList(
-    uiOutput("plots"),
+    modulePlotsUI('showPlots'),
+    
     
     navbarPage(
       position = "fixed-top",
       #itle = 'Home',
       id="navPage",
+      absolutePanel(
+        id  = "#AbsolutePanel",
+        top = 0, right = 50, width = "500px",height = "50px",
+        draggable = FALSE,fixed = FALSE,
+        cursor = "default"
+        ,uiOutput("chooseDataset")
+      ),
       tabPanel("Home"),
       moduleDataManagerUI('datamanager'),
       navbarMenu("Help",
@@ -34,14 +42,7 @@ ui <- fluidPage(
                  tabPanel("Bug report",
                           br(),br(),br(),br(),br(),br(),
                           moduleBugReportUI('bugreport'))
-      ),
-      tabPanel(value='testChooseDataset',
-               div(
-                 id='.test',
-                 uiOutput("chooseDataset" )
-               )
+      )
       )
     )
-  )
-
 )
