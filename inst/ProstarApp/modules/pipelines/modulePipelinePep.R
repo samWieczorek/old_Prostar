@@ -1,6 +1,6 @@
-source(file.path(".", "modules/pipelines/peptide/moduleA.R"),  local = TRUE)$value
-source(file.path(".", "modules/pipelines/peptide/moduleB.R"),  local = TRUE)$value
-source(file.path(".", "modules/pipelines/peptide/moduleC.R"),  local = TRUE)$value
+source(file.path(".", "modules/pipelines/peptide/moduleA.R"), local = TRUE)$value
+source(file.path(".", "modules/pipelines/peptide/moduleB.R"), local = TRUE)$value
+source(file.path(".", "modules/pipelines/peptide/moduleC.R"), local = TRUE)$value
 
 
 modulePipelinePepUI <- function(id){
@@ -47,11 +47,11 @@ modulePipelinePep <- function(input, output, session, initData, navPage, indice)
   
   ## Initialisation of the module
   observeEvent(initData(), {
-      rv$dataset <- initData()
-      rv$current.obj <- initData()[[indice()]]
-    
     print("In module pipeline, observeEvent(initData()")
     print(initData())
+    rv$dataset <- initData()
+      rv$current.obj <- initData()[[indice()]]
+    
     })
   
 
