@@ -19,10 +19,6 @@ onStart = function() {
 }
 
 
-sourceFiles <- function(){
-  
-}
-
 
 library(shinyBS)
 
@@ -38,7 +34,6 @@ library(shinyBS)
 #' @examples
 server <- function(input, output, session){
   
-  sourceFiles()
   source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
   source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
   
@@ -47,52 +42,26 @@ server <- function(input, output, session){
   
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
   
-  # source(file.path(".", "modules/pipelines/modulePipelinePep.R"),  local = TRUE)$value
-  # source(file.path(".", "modules/pipelines/modulePipelineProt.R"),  local = TRUE)$value
-  # source(file.path(".", "modules/pipelines/modulePipelineP2p.R"),  local = TRUE)$value
-   source(file.path(".", "modules/pipelines/moduleGenericPipeline.R"),  local = TRUE)$value
+  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
+  source(file.path(".", "watchProcess.R"),  local = TRUE)$value
+  
   
   
   loadLibraries()
   
   
-  rv <- reactiveValues(
-    
-    # name of the current dataset in the widget chooseDataset
-   
-    # current working data from current pipeline
-    current.pipeline.data = NULL,
-    current.pipeline.indice = NULL,
-    current.pipeline = NULL,
-    ll.process = c('original'),
-    #current indice (rank of current dataset in pipeline)
-    indice = 1,
-    init.obj = NULL,
-    
-    #model for the structure of dataset for peptide pipeline
-    
-    pipeline.gen = callModule(module = moduleGenericPipeline, 'pepe', 
-                              initData = reactive({rv$init.obj}), 
-                              navPage =reactive({input$navPage}),
-                              indice = reactive({rv$current.pipeline.indice}),
-                              ll.process = reactive({rv$ll.process}))
-     
-  )
-    
+  
  #####
  ## Launch modules
   obj <- callModule(module = moduleDataManager, 'datamanager')
   
- observeEvent(req(rv$current.pipeline.data,rv$current.pipeline.indice), {
+ observeEvent(req(pipeline$current.dataset, pipeline$current.indice), {
    callModule(module = modulePlots, 'showPlots', 
-              dataIn=reactive({rv$current.pipeline.data[[rv$current.pipeline.indice]]}), 
+              dataIn=reactive({pipeline$current.dataset[[pipeline$current.indice]]}), 
               llPlots=reactive({1:6}))
  })
  
- callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
- callModule(moduleInsertMarkdown, "links_MD",URL_links)
- callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
- 
+  
  
  
  #Set up writing file for log
@@ -104,68 +73,42 @@ server <- function(input, output, session){
    sink(con, append=TRUE, type="message")
  }
  
-
+ callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
+ callModule(moduleInsertMarkdown, "links_MD",URL_links)
+ callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
  
- RemoveAllPipelineTabs <- function(){
-   removeTab(inputId = "navPage", target = "Pipeline peptide")
-   removeTab(inputId = "navPage", target = "Pipeline protein")
-   removeTab(inputId = "navPage", target = "Pipeline p2p")
- }
  
- ## New value for obj
- observeEvent(req(obj()$initialData),{
-    print('EVENT ON : obj()')
-    print(paste0("Obj() = ", obj()$initialData))
-    print(paste0("pipeline = ", obj()$pipeline))
-    
-    rv$current.pipeline.indice <- 1
-    
-    ## which processes will be part of the pipeline
-    rv$ll.process <- c('original','processA','processB','processC')
-    rv$init.obj <- NULL
-    rv$init.obj[rv$ll.process] <- list(NULL)
-    rv$init.obj[['original']] <- obj()$initialData
-    
-    
-    rv$current.pipeline <- rv$pipeline.gen()
-    RemoveAllPipelineTabs()
-    insertTab(inputId = "navPage",moduleGenericPipelineUI('pepe'), target="Data manager", position="after")
-    
-
-  })
-  
+ 
+ 
+ observe({
+   pipeline$current.dataset
+   print("##### pipeline$current.dataset  ####")
+   print(pipeline$current.dataset)
+ })
+ 
+ 
+ 
+ 
+ 
  
   
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
-    n <- which(names(rv$current.pipeline.data)==input$currentDataset)
+    n <- which(names(pipeline$current.dataset)==input$currentDataset)
     if (length(n)==0){
-      rv$current.pipeline.indice <- 1
+      pipeline$current.indice <- 1
     } else {
-      rv$current.pipeline.indice <- n
+      pipeline$current.indice <- n
     }
   })
 
 
- 
- observeEvent(rv$pipeline.gen(),{
-   req(rv$current.pipeline)
-   if (rv$current.pipeline$name != 'peptide'){return(NULL)}
-   print('### EVENT ON : rv$pipeline.gen')
-   rv$current.pipeline <- rv$pipeline.gen()
-   rv$current.pipeline.data <- rv$pipeline.gen()$dataset
-   rv$current.pipeline.indice <- rv$pipeline.gen()$indice
-   print("new value for rv$current.pipeline")
-   print(rv$current.pipeline)
-   
- })
- 
   
   
   output$chooseDataset <- renderUI({
 
-    req(rv$current.pipeline.data)
-    req(rv$current.pipeline.indice)
+    req(pipeline$current.dataset)
+    req(pipeline$current.indice)
     absolutePanel(
       id  = "#AbsolutePanel",
       top = -10, right = 50, width = "500px",height = "50px",
@@ -180,8 +123,8 @@ server <- function(input, output, session){
         div(
         style="display:inline-block; vertical-align: center; margin:0px",
         selectInput('currentDataset', '',
-                    choices = names(rv$current.pipeline.data[!sapply(rv$current.pipeline.data,is.null)]),
-                    selected = names(rv$current.pipeline.data)[rv$current.pipeline.indice],
+                    choices = names(pipeline$current.dataset[!sapply(pipeline$current.dataset,is.null)]),
+                    selected = names(pipeline$current.dataset)[pipeline$current.indice],
                     width='150px')
         )
       )
@@ -189,5 +132,25 @@ server <- function(input, output, session){
     )
   })
 
+  
+  
+
+
+  observeEvent(req(pipeline$current.indice),{
+
+    print(paste0("Change of current dataset in pipeline :", pipeline$current.indice))
+    pipeline$current.obj <- pipeline$current.dataset[[pipeline$current.indice]]
+
+  })
+
+
+  
+
+
+  
+  
+  
+  
+  
 
    }

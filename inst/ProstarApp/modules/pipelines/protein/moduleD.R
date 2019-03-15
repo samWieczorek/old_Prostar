@@ -18,7 +18,6 @@ moduleD <- function(input, output, session, dataIn, screen.id){
   rv <- reactiveValues(
     obj = NULL,
     res = NULL,
-    a = 20,
     name = "moduleD"
   )
   

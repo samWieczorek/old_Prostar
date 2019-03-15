@@ -2,6 +2,9 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 
+peptide.def <- c('original','moduleA','moduleB','moduleC')
+protein.def <- c('original','moduleD','moduleE','moduleF','moduleG')
+p2p.def <- c('original','moduleH','moduleI')
 
 
 loadLibraries <- function(){
