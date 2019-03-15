@@ -25,7 +25,7 @@ moduleA <- function(input, output, session, dataIn, screen.id){
   rv <- reactiveValues(
     obj = NULL,
     res = NULL, 
-    name ="moduleA")
+    name ="processA")
   
   
   observeEvent(dataIn(), {

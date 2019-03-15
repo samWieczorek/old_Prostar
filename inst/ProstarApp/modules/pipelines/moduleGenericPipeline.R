@@ -11,32 +11,75 @@ moduleGenericPipelineUI <- function(id){
              tabPanel("ProcessB",moduleBUI(ns('processB'))),
              tabPanel("ProcessC",moduleCUI(ns('processC')))
              )
-
 }
 
 
 
-moduleGenericPipeline <- function(input, output, session, initData, navPage, indice){
+moduleGenericPipeline <- function(input, output, session, initData, navPage, indice, ll.process){
   ns <- session$ns
   
-  
- 
   rv <- reactiveValues(
     current.obj = NULL,
     indice = NULL,
-    dataset = list(original=NULL,
-                   A_processed = NULL,
-                   B_processed = NULL,
-                   C_processed = NULL),
-    ProcessX = callModule(module=moduleA, 'processA', 
-                           dataIn=reactive({4}),
-                           screen.id = reactive({'Final screen'}))
-   )
+    dataset = NULL
+    )
   
  
   
+  # observeEvent(req(ll.process()),{
+  #   
+  #   for (i in ll.process())
+  #     {
+  #     if (i != 'original') {
+  #     source(file.path(".", paste0("modules/pipelines/",i,".R")), local = TRUE)$value
+  #     }
+  #   }
+  # })
   
   
+  
+  WatchProcessA <- callModule(module=moduleA, 'processA', 
+                         dataIn=reactive({rv$current.obj}),
+                         screen.id = reactive({GetScreenId()}))
+  
+  observeEvent(WatchProcessA(),{
+    print(paste0('observeEvent(ProcessA() : ', WatchProcessA()))
+    rv$current.obj <- WatchProcessA()
+    rv$indice <- which(ll.process() == 'processA')
+    rv$dataset$processA <- WatchProcessA()
+    #DeleteDatasetsAfter('ProcessA')
+    # rv$dataset <- DeleteDatasetsAfterTest('ProcessA', rv$process, rv$dataset)
+    printStatus()
+  })
+  
+  
+  WatchProcessB <- callModule(module=moduleB, 'processB', 
+                         dataIn=reactive({rv$current.obj}),
+                         screen.id = reactive({GetScreenId()}))
+  
+  observeEvent(WatchProcessB(),{
+    print(paste0('observeEvent(ProcessB() : ', WatchProcessB()))
+    rv$current.obj <- WatchProcessB()
+    rv$indice <- which(ll.process() == 'processB')
+    rv$dataset$processB <- WatchProcessB()
+    #DeleteDatasetsAfter('ProcessB')
+    # rv$dataset <- DeleteDatasetsAfterTest('ProcessB', rv$process, rv$dataset)
+    printStatus()
+  })
+  
+  WatchProcessC <- callModule(module=moduleC, 'processC', 
+                         dataIn=reactive({rv$current.obj}),
+                         screen.id = reactive({GetScreenId()}))
+  
+  observeEvent(WatchProcessC(),{
+    print(paste0('observeEvent(ProcessA() : ', WatchProcessC()))
+    rv$current.obj <- WatchProcessC()
+    rv$indice <- which(ll.process() == 'processA')
+    rv$dataset$processC <- WatchProcessC()
+    #DeleteDatasetsAfter('ProcessC')
+    # rv$dataset <- DeleteDatasetsAfterTest('ProcessC', rv$process, rv$dataset)
+    printStatus()
+  })
   
   
   ## Initialisation of the module
@@ -55,82 +98,44 @@ moduleGenericPipeline <- function(input, output, session, initData, navPage, ind
   
   
   
-  # observeEvent(req(indice()),{
-  #   
-  #   print(paste0("Change of current dataset in pipeline :", indice()))
-  #   rv$indice <- indice()
-  #   rv$current.obj <- rv$dataset[[rv$indice]]
-  #   
-  # })
+  observeEvent(req(indice()),{
+
+    print(paste0("Change of current dataset in pipeline :", indice()))
+    rv$indice <- indice()
+    rv$current.obj <- rv$dataset[[rv$indice]]
+
+  })
   
   
-  # GetScreenId <- reactive({
-  #   navPage()
-  #   req(rv$current.obj)
-  #   
-  #   screen <- NULL
-  #   m <-  which(names(rv$process)==navPage())
-  #   n <-  which(unlist(lapply(rv$dataset, function(x) length(which(x==rv$current.obj))))==1)
-  #   ## test if the navPage is one of a process one
-  #   if (length(m) ==0 || length(n) ==0) {return(NULL)}
-  #   
-  #   if (m >= n) { screen <- 'Initial screen'}
-  #   else {screen <- 'Final screen'}
-  #   print(paste0("in GetScreenId(), n = ", n, ", m = ", m, ". screen = ", screen))
-  #   screen
-  # })
+  GetScreenId <- reactive({
+    navPage()
+    req(rv$current.obj)
+
+    screen <- NULL
+    m <-  which(names(rv$process)==navPage())
+    n <-  which(unlist(lapply(rv$dataset, function(x) length(which(x==rv$current.obj))))==1)
+    ## test if the navPage is one of a process one
+    if (length(m) ==0 || length(n) ==0) {return(NULL)}
+
+    if (m >= n) { screen <- 'Initial screen'}
+    else {screen <- 'Final screen'}
+    print(paste0("in GetScreenId(), n = ", n, ", m = ", m, ". screen = ", screen))
+    screen
+  })
   
   
   
-  # DeleteDatasetsAfter <- function(txt){
-  #   indice <- which(names(rv$process) == txt)
-  #   if (indice < length(names(rv$process))) {
-  #     for (i in (indice+1):length(names(rv$process))){
-  #       rv$dataset[i] <- list(NULL)
-  #     }
-  #   }
-  # }
-  # 
+  DeleteDatasetsAfter <- function(txt){
+    indice <- which(names(rv$process) == txt)
+    if (indice < length(names(rv$process))) {
+      for (i in (indice+1):length(names(rv$process))){
+        rv$dataset[i] <- list(NULL)
+      }
+    }
+  }
+
   
-  # observeEvent(rv$ProcessX,{
-  #   print(paste0('toto', ProcessX()))
-  # })
-  # observe({
-  #   ProcessX()
-  #   print('### EVENT ON : ProcessX()')
-  #   print(ProcessX())
-  #   #   rv$current.obj <- rv$process$ProcessA()
-  #   # rv$indice <- 2
-  #   # rv$dataset$A_processed <- rv$process$ProcessA
-  #   # #DeleteDatasetsAfter('ProcessA')
-  #   # rv$dataset <- DeleteDatasetsAfterTest('ProcessA', rv$process, rv$dataset)
-  #   # 
-  #   # printStatus()
-  # })
-  
-  # observeEvent(rv$process$ProcessB(), {
-  #   print('### EVENT ON : rv$dataset$B_processed <- rv$obj')
-  #   rv$current.obj <- rv$process$ProcessB()
-  #   rv$indice <- 3
-  #   rv$dataset$B_processed <- rv$process$ProcessB()
-  #   #DeleteDatasetsAfter('ProcessB')
-  #   rv$dataset <- DeleteDatasetsAfterTest('ProcessB', rv$process, rv$dataset)
-  #   
-  #   printStatus()
-  # })
-  # 
-  
-  
-  # observeEvent(rv$process$ProcessC(), {
-  #   print('### EVENT ON : rv$dataset$C_processed <- rv$obj')
-  #   rv$current.obj <- rv$process$ProcessC()
-  #   rv$indice <- 4
-  #   rv$dataset$C_processed <- rv$process$ProcessC()
-  #   #DeleteDatasetsAfter('ProcessC')
-  #   rv$dataset <- DeleteDatasetsAfterTest('ProcessC', rv$process, rv$dataset)
-  #   
-  #   printStatus()
-  # })
+   
   
   
   printStatus <- function(){
