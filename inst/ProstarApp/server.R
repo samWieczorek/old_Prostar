@@ -43,7 +43,7 @@ server <- function(input, output, session){
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
   
   source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
-  source(file.path(".", "watchProcess.R"),  local = TRUE)$value
+  #source(file.path(".", "watchProcess.R"),  local = TRUE)$value
   
   
   
@@ -80,20 +80,17 @@ server <- function(input, output, session){
  
  
  
- observe({
-   pipeline$current.dataset
-   print("##### pipeline$current.dataset  ####")
-   print(pipeline$current.dataset)
- })
- 
- 
- 
- 
- 
+ # observe({
+ #   pipeline$current.dataset
+ #   print("##### pipeline$current.dataset  ####")
+ #   print(pipeline$current.dataset)
+ # })
+ # 
  
   
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
+   print('!!!!! Manual change of current dataset')
     n <- which(names(pipeline$current.dataset)==input$currentDataset)
     if (length(n)==0){
       pipeline$current.indice <- 1

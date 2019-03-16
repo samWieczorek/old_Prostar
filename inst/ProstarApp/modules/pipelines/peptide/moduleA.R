@@ -72,6 +72,5 @@ moduleA <- function(input, output, session, dataIn, screen.id){
     print(paste0("save module A : ",rv$obj, "__", rv$res))
   })
   
-  #return(reactive(list(name=rv$name,res=rv$res)))
   return(reactive({rv$res}))
 }

@@ -25,27 +25,30 @@ pipeline <- reactiveValues(
 
 ## Initialization of the pipeline
 observeEvent(req(obj()$initialData),{
-  print('EVENT ON : obj()')
-  print(paste0("Obj() = ", obj()$initialData))
-  print(paste0("pipeline = ", obj()$pipeline))
-  
   
   switch(obj()$pipeline,
+         
          Peptide={
-           BuildPipelinePeptide()
+           BuildPipelineMenu("Pipeline peptide", peptide.def)
            pipeline$ll.process <- peptide.def
-           codeFile <- createWatchCode(peptide.def[2:4])
+           codeFile <- createWatchCode(peptide.def)
            source(file.path(".", codeFile),  local = TRUE)$value
            
            },
          Protein = {
-           BuildPipelineProtein()
+           BuildPipelineMenu("Pipeline protein", protein.def)
+           
            pipeline$ll.process <- protein.def
-           },
+           codeFile <- createWatchCode(protein.def)
+           source(file.path(".", codeFile),  local = TRUE)$value
+         },
          P2p = {
-           BuildPipelineP2p()
+           BuildPipelineMenu("Pipeline p2p", p2p.def)
+           
            pipeline$ll.process <- p2p.def
-           }
+           codeFile <- createWatchCode(p2p.def)
+           source(file.path(".", codeFile),  local = TRUE)$value
+         }
   )
   
   pipeline$current.indice <- 1
@@ -54,8 +57,8 @@ observeEvent(req(obj()$initialData),{
   ## which processes will be part of the pipeline
   
   pipeline$init.obj <- NULL
-  pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   pipeline$init.obj[['original']] <- obj()$initialData
+  pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   pipeline$current.dataset <- pipeline$init.obj
   pipeline$current.obj <- pipeline$init.obj[['original']]
   
@@ -65,40 +68,23 @@ observeEvent(req(obj()$initialData),{
 
 
 
-BuildPipelinePeptide <- function(){
+BuildPipelineMenu <- function(name, def){
+  
   RemoveAllPipelineTabs()
+  tabs <-lapply(1:length(def), function(i) {
+    tabPanel(
+      title=def[i], 
+      do.call(paste0(def[i],'UI'), list(def[i]))
+    )
+  })
   insertTab(inputId = "navPage",
-            navbarMenu("Pipeline peptide" ,
-                       tabPanel("ProcessA",moduleAUI(peptide.def[2])),
-                       tabPanel("ProcessB",moduleBUI(peptide.def[3])),
-                       tabPanel("ProcessC",moduleCUI(peptide.def[4]))),
+            do.call(navbarMenu, c(name ,tabs)),
             target="Data manager",
             position="after")
 }
 
 
-BuildPipelineProtein <- function(){
-  RemoveAllPipelineTabs()
-  insertTab(inputId = "navPage",
-            navbarMenu("Pipeline protein" ,
-                       tabPanel("ProcessD",moduleDUI('processD')),
-                       tabPanel("ProcessE",moduleEUI('processE')),
-                       tabPanel("ProcessF",moduleFUI('processF')),
-                       tabPanel("ProcessG",moduleGUI('processG'))),
-            target="Data manager",
-            position="after")
-}
 
-
-BuildPipelineP2p <- function(){
-  RemoveAllPipelineTabs()
-  insertTab(inputId = "navPage",
-            navbarMenu("Pipeline p2p" ,
-                       tabPanel("ProcessH",moduleHUI('processH')),
-                       tabPanel("ProcessI",moduleIUI('processI'))),
-            target="Data manager",
-            position="after")
-}
 
 
 
@@ -114,7 +100,7 @@ GetScreenId <- reactive({
   req(pipeline$current.obj)
   
   screen <- NULL
-  m <-  which(pipeline$ll.process==input$navPage)
+  m <-  which(names(pipeline$current.dataset)==input$navPage)
   n <-  which(unlist(lapply(pipeline$current.dataset, function(x) length(which(x==pipeline$current.obj))))==1)
   ## test if the navPage is one of a process one
   if (length(m) ==0 || length(n) ==0) {return(NULL)}
@@ -128,9 +114,10 @@ GetScreenId <- reactive({
 
 
 DeleteDatasetsAfter <- function(txt){
-  indice <- which(pipeline$ll.process == txt)
-  if (indice < length(pipeline$ll.process)) {
-    for (i in (indice+1):length(pipeline$ll.process)){
+  names <- names(pipeline$current.dataset)
+  indice <- which(names == txt)
+  if (indice < length(names)) {
+    for (i in (indice+1):length(names)){
       pipeline$current.dataset[i] <- list(NULL)
     }
   }
@@ -140,13 +127,15 @@ DeleteDatasetsAfter <- function(txt){
 
 
 printStatus <- function(){
-  print("PrintStatus of module ")
-  print(paste0("ll.process() = ", pipeline$ll.process))
-  print(paste0('init.obj = ',pipeline$init.obj))
+  print("##### PrintStatus of module #####")
+  print("ll.process() = ")
+  print(pipeline$ll.process)
+  print('init.obj = ')
+  print(pipeline$init.obj)
   print(paste0('pipeline$indice= ',pipeline$current.indice))
   print(paste0('pipeline$current.obj= ',pipeline$current.obj))
-  print('pipeline$datasetl= ')
-  print(pipeline$dataset)
+  print('pipeline$current.dataset= ')
+  print(pipeline$current.dataset)
   #print(paste0('ProcessX = ',ProcessX()))
 }
 
@@ -154,7 +143,8 @@ printStatus <- function(){
 
 
 ##################
-
+# This function is used to generate source code files qui creent 
+# les observateurs pour les modules de process
 ##################
 createWatchCode <- function(process){
   #tempfile(fileext=".R")
@@ -168,10 +158,11 @@ createWatchCode <- function(process){
                               screen.id = reactive({GetScreenId()}))")
   writeLines(txt, con)
   
-  txt <- paste0("observeEvent(Watch",p,"(),{
+  txt <- paste0(
+    "observeEvent(Watch",p,"(),{
     print(paste0('observeEvent(",p,"() : ', Watch",p,"()))
     pipeline$current.obj <- Watch",p,"()
-    pipeline$current.indice <- which(pipeline$ll.process == '",p,"')
+    pipeline$current.indice <- 1 + which(pipeline$ll.process == '",p,"')
     pipeline$current.dataset$",p," <- Watch",p,"()
     DeleteDatasetsAfter('",p,"')
     printStatus()

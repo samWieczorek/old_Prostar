@@ -2,9 +2,16 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 
-peptide.def <- c('original','moduleA','moduleB','moduleC')
-protein.def <- c('original','moduleD','moduleE','moduleF','moduleG')
-p2p.def <- c('original','moduleH','moduleI')
+
+#######
+## Definition des noms des modules qui composent les pipelines
+## Ces noms doivent etre strictement identiques aux noms des modules
+## dans les fichiers source sans quoi, Prostar ne pourra pas les trouver
+## TODO : faire une gestion d'erreur en cas d'absence d'un module
+######
+peptide.def <- c('moduleA','moduleB','moduleC')
+protein.def <- c('moduleD','moduleE','moduleF','moduleG')
+p2p.def <- c('moduleH','moduleI')
 
 
 loadLibraries <- function(){
