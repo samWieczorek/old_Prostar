@@ -21,16 +21,15 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   
   output$plotModule <- renderUI({
     req(dataIn())
-  
+    
       absolutePanel(
         id  = "#AbsolutePanelPlots",
-        class = "panel panel-default",
         style= "text-align: center; color: grey; border-width:0px;",
         top = 150, right = 50, width = "70px",height = "450px",
         draggable = TRUE,fixed = TRUE,
         cursor = "default",
-        tags$head(tags$style(".modal-dialog{ width:100%}")),
-        tags$head(tags$style(".modal-body{ min-height:50%}")),
+       # tags$head(tags$style(".modal-dialog{ width:100%}")),
+        #tags$head(tags$style(".modal-body{ min-height:50%}")),
         actionButton(ns('plotBtn'), 'Plots', "data-toggle"='collapse', "data-target"=paste0('#',ns('plotDiv')), 
                    style='color: white;background-color: lightgrey'),
         tags$div(
@@ -48,7 +47,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   output$vignettes <- renderUI({
     req(dataIn())
     print(llPlots())
-    print(paste0("Current boj in modulepLots : ", dataIn()))
+    print(paste0("Current obj in modulepLots : ", dataIn()))
     ll <- list(NULL)
     for (i in 1:length(llPlots())) {
       n <- llPlots()[i]
@@ -73,6 +72,16 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   data3 <- reactive({hist(rnorm(100), main = "Data 3")})
   
  
+  output$plot7small <- renderImage({
+    # When input$n is 1, filename is ./images/image1.jpeg
+    filename <- normalizePath(file.path('./images','desc_tab.png'))
+    
+    # Return a list containing the filename
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
   output$plot3small <- renderImage({
     # When input$n is 1, filename is ./images/image1.jpeg
     filename <- normalizePath(file.path('./images','desc_boxplot.png'))

@@ -1,3 +1,4 @@
+
 moduleCUI <- function(id){
   ns <- NS(id)
   tagList(
@@ -58,7 +59,7 @@ moduleC <- function(input, output, session, dataIn, screen.id){
   
   observeEvent(input$btn_send, {
     rv$res <- rv$obj
-    print(paste0("save module A : ",rv$obj, "__", rv$res))
+    print(paste0("save module C : ",rv$obj, "__", rv$res))
   })
   
   return(reactive({rv$res}))

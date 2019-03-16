@@ -1,12 +1,12 @@
 
 ######
-moduleAUI <- function(id){
+moduleBUI <- function(id){
   ns <- NS(id)
   tagList(
     br(), br(),
     
-    h3("Module A"),
-    actionButton(ns("rst_btn"), "Reset mod A"),
+    h3("Module B"),
+    actionButton(ns("rst_btn"), "Reset mod B"),
     hr(),
     uiOutput(ns("screen1")),
     hr(),
@@ -18,14 +18,14 @@ moduleAUI <- function(id){
 
 
 
-moduleA <- function(input, output, session, dataIn, screen.id){
+moduleB <- function(input, output, session, dataIn, screen.id){
   ns <- session$ns
   
   
   rv <- reactiveValues(
     obj = NULL,
     res = NULL, 
-    name ="processA")
+    name ="processB")
   
   
   observeEvent(dataIn(), {
@@ -34,19 +34,19 @@ moduleA <- function(input, output, session, dataIn, screen.id){
   })
   
   
- 
+  
   output$screen1 <- renderUI({
     tagList(
-      h4("Screen 1 du module A"),
-      actionButton(ns('btn'), "Perform (Add 1)")
+      h4("Screen 1 du module B"),
+      actionButton(ns('btn'), "Perform (Multiply by 2)")
     )
   })
   
   
-
+  
   output$screen2 <- renderUI({
     tagList(
-      h4('Screen2 du module A'),
+      h4('Screen2 du module B'),
       p(paste0('screen.id() = ', screen.id())),
       p(paste0('dataIn() = ', dataIn())),
       p(paste0('rv$obj = ', rv$obj)),
@@ -58,10 +58,10 @@ moduleA <- function(input, output, session, dataIn, screen.id){
   })
   
   
- 
+  
   observeEvent(input$btn,{
-    rv$obj <- rv$obj +1
-    })
+    rv$obj <- 2 * rv$obj
+  })
   
   observeEvent(input$rst_btn,{
     rv$obj <- dataIn()
@@ -69,8 +69,7 @@ moduleA <- function(input, output, session, dataIn, screen.id){
   
   observeEvent(input$btn_send, {
     rv$res <- rv$obj
-    print(paste0("save module A : ",rv$obj, "__", rv$res))
-  })
+    })
   
   return(reactive({rv$res}))
 }

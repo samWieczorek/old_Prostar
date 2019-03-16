@@ -1,14 +1,15 @@
-source(file.path(".", "modules/pipelines/peptide/moduleA.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/peptide/moduleB.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/peptide/moduleC.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleA.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleC.R"), local = TRUE)$value
 
-source(file.path(".", "modules/pipelines/protein/moduleD.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleE.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleF.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/protein/moduleG.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleD.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleE.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleF.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 
-source(file.path(".", "modules/pipelines/p2p/moduleH.R"), local = TRUE)$value
-source(file.path(".", "modules/pipelines/p2p/moduleI.R"), local = TRUE)$value
+source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
+source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
+
 
 
 pipeline <- reactiveValues(
@@ -29,23 +30,30 @@ observeEvent(req(obj()$initialData),{
   switch(obj()$pipeline,
          
          Peptide={
-           BuildPipelineMenu("Pipeline peptide", peptide.def)
+           # Load UI code for modules
+           #LoadModulesUI(path2peptideModules, peptide.def)
            pipeline$ll.process <- peptide.def
+           
+           BuildPipelineMenu("Pipeline peptide", peptide.def)
+           
+           # Build and load server code for modules
            codeFile <- createWatchCode(peptide.def)
            source(file.path(".", codeFile),  local = TRUE)$value
            
            },
          Protein = {
+           pipeline$ll.process <- protein.def
+           #LoadModulesUI(path2proteinModules, protein.def)
            BuildPipelineMenu("Pipeline protein", protein.def)
            
-           pipeline$ll.process <- protein.def
            codeFile <- createWatchCode(protein.def)
            source(file.path(".", codeFile),  local = TRUE)$value
          },
          P2p = {
+           pipeline$ll.process <- p2p.def
+           #LoadModulesUI(path2p2pModules, p2p.def)
            BuildPipelineMenu("Pipeline p2p", p2p.def)
            
-           pipeline$ll.process <- p2p.def
            codeFile <- createWatchCode(p2p.def)
            source(file.path(".", codeFile),  local = TRUE)$value
          }
@@ -67,6 +75,14 @@ observeEvent(req(obj()$initialData),{
 })
 
 
+LoadModulesUI <- function(path, ll.modules){
+  
+  lapply(ll.modules, function(i) {
+    UIfile <- paste0(path, i, ".R")
+    print(UIfile)
+    source(file.path(".", UIfile), local = environment())
+    })
+}
 
 BuildPipelineMenu <- function(name, def){
   

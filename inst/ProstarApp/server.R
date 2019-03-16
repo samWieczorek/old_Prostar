@@ -33,7 +33,7 @@ library(shinyBS)
 #'
 #' @examples
 server <- function(input, output, session){
-  
+  env <- environment()
   source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
   source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
   
@@ -49,8 +49,11 @@ server <- function(input, output, session){
   
   loadLibraries()
   
-  
-  
+
+ # LoadModulesUI()
+
+  # 
+  print("apres avoir charge les UI")
  #####
  ## Launch modules
   obj <- callModule(module = moduleDataManager, 'datamanager')
@@ -147,7 +150,9 @@ server <- function(input, output, session){
   
   
   
+  shinyjs::hide(id = "loading_page", anim = FALSE)
   
+  shinyjs::show("main_content", anim = TRUE, animType = "fade")
   
 
    }
