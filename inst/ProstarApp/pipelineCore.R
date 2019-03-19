@@ -10,24 +10,61 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
+source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
 
 
 pipeline <- reactiveValues(
   # current working data from current pipeline
-  current.obj = NULL,
+  type = NULL,
   current.indice = 1,
-  current.dataset = NULL,
   ll.process = c('original'),
-  init.obj = NULL   
+  
+  # object returned by demode, openmode and convertmode
+  init.obj = NULL,
+  #object that is used for modules in pipeline
+  current.obj = NULL
+  
 )
 
 
 
+obj.demomode <- callModule(module=moduleDemoMode, 'demoMode')
+#obj.convertmode <- callModule(module=moduleConvertMode, 'convertMode')
+#obj.openmode <- callModule(module=moduleOpenMode, 'openMode')
+
+
+GetCurrentMSnSet <- reactive({
+  pipeline$current.indice
+  pipeline$current.obj
+  pipeline$current.obj$datasets[[pipeline$current.indice]]
+})
+
+observe({
+  GetCurrentMSnSet()
+  
+  callModule(module = modulePlots, 'showPlots', 
+             dataIn=reactive({GetCurrentMSnSet()}), 
+             llPlots=reactive({1:6}))
+  print("---- new value for pipeline$current.msnset ----")
+})
+
+
+
+
+observeEvent(obj.demomode(),{ 
+  print("update for rv$current.obj")
+  rv$current.obj <- obj.demomode()  })
+
+
+
+
+#observeEvent(obj.convertmode(),{rv$obj <- obj.convertmode()})
+#observeEvent(obj.openmode(),{rv$obj <- obj.openmode()})
 
 ## Initialization of the pipeline
-observeEvent(req(obj()$initialData),{
-  
-  switch(obj()$pipeline,
+observeEvent(req(rv$current.obj),{
+  print(paste0("IN observeEvent(req(obj()$initialData : ", rv$current.obj$pipeline))
+  switch(rv$current.obj$pipeline,
          
          Peptide={
            # Load UI code for modules
@@ -60,19 +97,28 @@ observeEvent(req(obj()$initialData),{
   )
   
   pipeline$current.indice <- 1
-  
+  pipeline$current.obj <- rv$current.obj
   
   ## which processes will be part of the pipeline
-  
-  pipeline$init.obj <- NULL
-  pipeline$init.obj[['original']] <- obj()$initialData
+  pipeline$init.obj <- list(NULL)
+  pipeline$init.obj[['original']] <- rv$current.obj$datasets$original
   pipeline$init.obj[pipeline$ll.process] <- list(NULL)
-  pipeline$current.dataset <- pipeline$init.obj
-  pipeline$current.obj <- pipeline$init.obj[['original']]
-  
-  
-  
+  #pipeline$current.dataset <- pipeline$init.obj
+  #pipeline$current.obj <- pipeline$init.obj[['original']]
 })
+
+
+observeEvent(GetCurrentMSnSet(),{
+  
+  
+  print("callModule showPlots")
+  print(dim(GetCurrentMSnSet()))
+  callModule(module = modulePlots, 'showPlots', 
+             dataIn=reactive({GetCurrentMSnSet()}), 
+             llPlots=reactive({1:6}))
+})
+
+
 
 
 LoadModulesUI <- function(path, ll.modules){
@@ -116,8 +162,8 @@ GetScreenId <- reactive({
   req(pipeline$current.obj)
   
   screen <- NULL
-  m <-  which(names(pipeline$current.dataset)==input$navPage)
-  n <-  which(unlist(lapply(pipeline$current.dataset, function(x) length(which(x==pipeline$current.obj))))==1)
+  m <-  which(names(pipeline$current.obj$datasets)==input$navPage)
+  n <-  which(unlist(lapply(GetCurrentMSnSet(), function(x) length(which(x==pipeline$current.obj$datasets))))==1)
   ## test if the navPage is one of a process one
   if (length(m) ==0 || length(n) ==0) {return(NULL)}
   
@@ -130,11 +176,11 @@ GetScreenId <- reactive({
 
 
 DeleteDatasetsAfter <- function(txt){
-  names <- names(pipeline$current.dataset)
+  names <- names(pipeline$current.obj$datasets)
   indice <- which(names == txt)
   if (indice < length(names)) {
     for (i in (indice+1):length(names)){
-      pipeline$current.dataset[i] <- list(NULL)
+      pipeline$current.obj$datasets[i] <- list(NULL)
     }
   }
 }

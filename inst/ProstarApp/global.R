@@ -1,6 +1,7 @@
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
+source(file.path(".", "commonFunc.R"),  local = TRUE)$value
 
 
 #######
@@ -88,7 +89,34 @@ actionBtnClass <- "btn-primary"
 
 
 ######
-### Miscelllaneous functtions
+### Miscelllaneous functions
+
+
+#' busyIndicator
+busyIndicator <- function(text = "Calculation in progress..",
+                          img = "images/ajax-loader.gif", wait=1000) {
+  tagList(
+    singleton(tags$head(
+      tags$link(rel="stylesheet",
+                type="text/css",href="busyIndicator/busyIndicator.css")
+    ))
+    ,div(class="busy-indicator",p(text),img(src=img))
+    ,tags$script(sprintf(
+      "	setInterval(function(){
+      if ($('html').hasClass('shiny-busy')) {
+      setTimeout(function() {
+      if ($('html').hasClass('shiny-busy')) {
+      $('div.busy-indicator').show()
+      }
+      }, %d)
+      } else {
+      $('div.busy-indicator').hide()
+      }
+},100)
+      ",wait)
+    )
+  )
+  }
 
 
 # Call this function with all the regular navbarPage() parameters, plus a text parameter,
@@ -112,3 +140,6 @@ navbarPageWithInputs <- function(..., inputs) {
 }
 
 
+
+
+def.progress.loadDataset <- c('Clear memory', 'Load dataset', 'Configure object', 'load in memory')

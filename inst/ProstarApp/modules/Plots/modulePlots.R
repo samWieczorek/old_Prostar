@@ -25,13 +25,14 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
       absolutePanel(
         id  = "#AbsolutePanelPlots",
         style= "text-align: center; color: grey; border-width:0px;",
-        top = 150, right = 50, width = "70px",height = "450px",
+        top = 350, right = 50, width = "70px",height = "450px",
         draggable = TRUE,fixed = TRUE,
         cursor = "default",
        # tags$head(tags$style(".modal-dialog{ width:100%}")),
         #tags$head(tags$style(".modal-body{ min-height:50%}")),
         actionButton(ns('plotBtn'), 'Plots', "data-toggle"='collapse', "data-target"=paste0('#',ns('plotDiv')), 
-                   style='color: white;background-color: lightgrey'),
+                   style='color: white;background-color: lightgrey',
+                   class = actionBtnClass),
         tags$div(
           id = ns('plotDiv'),  
           class="collapse", 
@@ -47,7 +48,6 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   output$vignettes <- renderUI({
     req(dataIn())
     print(llPlots())
-    print(paste0("Current obj in modulepLots : ", dataIn()))
     ll <- list(NULL)
     for (i in 1:length(llPlots())) {
       n <- llPlots()[i]

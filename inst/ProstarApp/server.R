@@ -37,33 +37,25 @@ server <- function(input, output, session){
   source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
   source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
   
-  source(file.path(".", "modules/DataManager/moduleDataManager.R"),  local = TRUE)$value
   source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
   
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
-  
   source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
-  #source(file.path(".", "watchProcess.R"),  local = TRUE)$value
-  
-  
   
   loadLibraries()
   
-
- # LoadModulesUI()
-
-  # 
-  print("apres avoir charge les UI")
+  
+  rv <- reactiveValues(
+    obj = NULL
+  )
+  
+  
  #####
  ## Launch modules
-  obj <- callModule(module = moduleDataManager, 'datamanager')
+  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
   
- observeEvent(req(pipeline$current.dataset, pipeline$current.indice), {
-   callModule(module = modulePlots, 'showPlots', 
-              dataIn=reactive({pipeline$current.dataset[[pipeline$current.indice]]}), 
-              llPlots=reactive({1:6}))
- })
- 
+  
+  
   
  
  
@@ -94,7 +86,7 @@ server <- function(input, output, session){
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
    print('!!!!! Manual change of current dataset')
-    n <- which(names(pipeline$current.dataset)==input$currentDataset)
+    n <- which(names(pipeline$current.datasets)==input$currentDataset)
     if (length(n)==0){
       pipeline$current.indice <- 1
     } else {
@@ -103,11 +95,9 @@ server <- function(input, output, session){
   })
 
 
-  
-  
   output$chooseDataset <- renderUI({
 
-    req(pipeline$current.dataset)
+    req(pipeline$current.obj$datasets)
     req(pipeline$current.indice)
     absolutePanel(
       id  = "#AbsolutePanel",
@@ -117,14 +107,14 @@ server <- function(input, output, session){
     tagList(
       div(
         div(
-          style="display:inline-block; vertical-align: center; margin:0px",
-          p('Current dataset')
+          style="display:inline-block; vertical-align: middle; margin:0px",
+          p('Current dataset', style='color: white')
         ),
         div(
-        style="display:inline-block; vertical-align: center; margin:0px",
+        style="display:inline-block; vertical-align: middle; margin:0px",
         selectInput('currentDataset', '',
-                    choices = names(pipeline$current.dataset[!sapply(pipeline$current.dataset,is.null)]),
-                    selected = names(pipeline$current.dataset)[pipeline$current.indice],
+                    choices = names(pipeline$current.obj$datasets[!sapply(pipeline$current.obj$datasets,is.null)]),
+                    selected = names(pipeline$current.obj$datasets)[pipeline$current.indice],
                     width='150px')
         )
       )
@@ -136,12 +126,12 @@ server <- function(input, output, session){
   
 
 
-  observeEvent(req(pipeline$current.indice),{
-
-    print(paste0("Change of current dataset in pipeline :", pipeline$current.indice))
-    pipeline$current.obj <- pipeline$current.dataset[[pipeline$current.indice]]
-
-  })
+  # observeEvent(req(pipeline$current.indice),{
+  # 
+  #   print(paste0("Change of current dataset in pipeline :", pipeline$current.indice))
+  #   pipeline$current.msnset <- pipeline$current.datasets[[pipeline$current.indice]]
+  # 
+  # })
 
 
   
