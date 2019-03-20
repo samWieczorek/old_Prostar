@@ -1,4 +1,5 @@
-source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
+source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
+
 
 
 moduleDemoModeUI  <- function(id){
@@ -39,9 +40,12 @@ moduleDemoModeUI  <- function(id){
 
 
 
-
 moduleDemoMode  <- function(input, output, session){
   ns <- session$ns
+  
+ 
+  callModule(moduleStaticDataTable,"overview_DemoMode", 
+             table2show=reactive({GetDatasetOverview2(rv$current.obj$datasets[[1]])}))
   
   
   rv <- reactiveValues(
@@ -97,9 +101,6 @@ moduleDemoMode  <- function(input, output, session){
     
     data <- rv$current.obj$datasets[[1]]
     print(data)
-    
-    callModule(moduleStaticDataTable,"overview_DemoMode", 
-               table2show=reactive({GetDatasetOverview2(data)}))
     
     
     isolate({ NA.count <- length(which(is.na(Biobase::exprs(data))))

@@ -18,6 +18,10 @@ path2peptideModules <- 'modules/process/peptide/'
 path2proteinModules <- 'modules/process/protein/'
 path2p2pModules <- 'modules/process/p2p/'
 
+
+#5lstDescPlots <- c("intensity", "mv")
+lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
+
 loadLibraries <- function(){
   library(shinyAce)
   library(shinyWidgets)
@@ -32,7 +36,20 @@ loadLibraries <- function(){
   library(R.utils)
   library(rhandsontable)
   library(data.table)
+  library(shinyjqui)
 }
+
+
+
+defaultGradientRate <- 0.9
+actionBtnClass <- "btn-primary"
+
+PrevNextBtnClass <- "btn-info"
+optionsBtnClass <- "info"
+plotWidth <- "800px"
+plotHeight <- "600px"
+spinnerType <- 4
+
 
 SetCustomCSS <- function(){
   inlineCSS(".body { font-size:14px;}")
@@ -78,8 +95,6 @@ URL_links <- paste0(base_URL, "links.md")
 URL_ProstarPresentation <- paste0(base_URL, "presentation.md")
 URL_formerReleases <-paste0(base_URL, "formerReleases.md")
 URL_versionNotes <- paste0(base_URL, "versionNotes.md")
-
-actionBtnClass <- "btn-primary"
 
 
 

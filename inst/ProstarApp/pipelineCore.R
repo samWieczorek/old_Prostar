@@ -10,8 +10,6 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
-source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
-
 
 pipeline <- reactiveValues(
   # current working data from current pipeline
@@ -39,13 +37,23 @@ GetCurrentMSnSet <- reactive({
   pipeline$current.obj$datasets[[pipeline$current.indice]]
 })
 
-observe({
-  GetCurrentMSnSet()
+# observe({
+#   GetCurrentMSnSet()
+#   
+#   callModule(module = modulePlots, 'showPlots', 
+#              dataIn=reactive({GetCurrentMSnSet()}), 
+#              llPlots=reactive({lstDescPlots}))
+#   print("---- new value for pipeline$current.msnset ----")
+# })
+
+observeEvent(GetCurrentMSnSet(),{
   
+  
+  print("callModule showPlots")
+  print(dim(GetCurrentMSnSet()))
   callModule(module = modulePlots, 'showPlots', 
              dataIn=reactive({GetCurrentMSnSet()}), 
-             llPlots=reactive({1:6}))
-  print("---- new value for pipeline$current.msnset ----")
+             llPlots=reactive({lstDescPlots}))
 })
 
 
@@ -107,16 +115,6 @@ observeEvent(req(rv$current.obj),{
   #pipeline$current.obj <- pipeline$init.obj[['original']]
 })
 
-
-observeEvent(GetCurrentMSnSet(),{
-  
-  
-  print("callModule showPlots")
-  print(dim(GetCurrentMSnSet()))
-  callModule(module = modulePlots, 'showPlots', 
-             dataIn=reactive({GetCurrentMSnSet()}), 
-             llPlots=reactive({1:6}))
-})
 
 
 
