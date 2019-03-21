@@ -47,7 +47,7 @@ URL_ProstarPresentation <- paste0(base_URL, "presentation.md")
 URL_formerReleases <-paste0(base_URL, "formerReleases.md")
 URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
-
+lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
 
 ## gestion des couleurs
 

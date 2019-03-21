@@ -4,6 +4,7 @@ library(shinyjs)
 library(shinyjqui)
 #library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
+source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 
 
 theme = shinytheme("cerulean")
@@ -90,6 +91,7 @@ shinyUI <- fluidPage(
       div(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
+      tagList( modulePlotsUI('showPlots')),
       navbarPage(
                  
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
