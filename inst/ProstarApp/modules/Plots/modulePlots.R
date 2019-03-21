@@ -85,7 +85,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
            pca = 
              ll[[n]] <- shinyBS::bsModal("modalpca", "PCA", ns("plotpcasmall"), size = "large",uiOutput(ns("plotpcalarge"))),
            varDist = 
-             ll[[n]] <- shinyBS::bsModal("modalvarDist", "Variance distribution", ns("plotvarDistsmall"), size = "large",plotOutput(ns("plotvarDistlarge"))),
+             ll[[n]] <- shinyBS::bsModal("modalvarDist", "Variance distribution", ns("plotvarDistsmall"), size = "large",uiOutput(ns("plotvarDistlarge"))),
            corrMatrix=
              ll[[n]] <- shinyBS::bsModal("modalcorrMatrix", "Correlation matrix", ns("plotcorrMatrixsmall"), size = "large", uiOutput(ns("plotcorrMatrixlarge"))),
            heatmap = 
