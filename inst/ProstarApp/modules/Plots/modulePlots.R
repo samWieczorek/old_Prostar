@@ -14,8 +14,18 @@ modulePlotsUI <- function(id){
 modulePlots <- function(input, output, session, dataIn, llPlots){
   ns <- session$ns
   
+  
+  source(file.path(".", "modules/Plots/corrMatrixPlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Plots/mvPlots.R"),  local = TRUE)$value
+   source(file.path(".", "modules/Plots/varDistPlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Plots/pcaPlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Plots/intdistribPlots.R"),  local = TRUE)$value
+  source(file.path(".", "modules/Plots/heatmapPlots.R"),  local = TRUE)$value
+  
   .width <- 50
   .height <- 50
+  
+  
   
   
   output$plotModule <- renderUI({
@@ -73,15 +83,15 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
            intensity=
              ll[[n]] <- shinyBS::bsModal("modalintensity", "Intensities distribution", ns("plotintensitysmall"), size = "large",plotOutput(ns("plotintensitylarge"))),
            pca = 
-             ll[[n]] <- shinyBS::bsModal("modalpca", "PCA", ns("plotpcasmall"), size = "large",plotOutput(ns("plotpcalarge"))),
+             ll[[n]] <- shinyBS::bsModal("modalpca", "PCA", ns("plotpcasmall"), size = "large",uiOutput(ns("plotpcalarge"))),
            varDist = 
              ll[[n]] <- shinyBS::bsModal("modalvarDist", "Variance distribution", ns("plotvarDistsmall"), size = "large",plotOutput(ns("plotvarDistlarge"))),
            corrMatrix=
              ll[[n]] <- shinyBS::bsModal("modalcorrMatrix", "Correlation matrix", ns("plotcorrMatrixsmall"), size = "large", uiOutput(ns("plotcorrMatrixlarge"))),
            heatmap = 
-             ll[[n]] <- shinyBS::bsModal("modalheatmap", "Heatmap", ns("plotheatmapsmall"), size = "large",plotOutput(ns("plotheatmaplarge"))),
+             ll[[n]] <- shinyBS::bsModal("modalheatmap", "Heatmap", ns("plotheatmapsmall"), size = "large",uiOutput(ns("plotheatmaplarge"))),
            mv = 
-             ll[[n]] <- shinyBS::bsModal(ns("modalmv"), "Missing values statistics", ns("plotmvsmall"), size = "large",plotOutput(ns("plo.mvlarge")))
+             ll[[n]] <- shinyBS::bsModal(ns("modalmv"), "Missing values statistics", ns("plotmvsmall"), size = "large",uiOutput(ns("plotmvlarge")))
            )
     }
     
@@ -107,50 +117,11 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
          height = .height)
   }, deleteFile = FALSE)
   
-  output$plotintensitysmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_intdistrib.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
-
-
-  output$plotcorrMatrixsmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_corrmatrix.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
   
-  output$plotmvsmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_mv.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
+
   
  
-  output$plotheatmapsmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_heatmap.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
-
-  
-  output$plotpcasmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_pca.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
-  
-  output$plotvarDistsmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_varDist.jpg'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
+ 
   
   
   
@@ -161,86 +132,12 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
     boxplot(iris, main = "Data 2")
   })
 
-  output$plotintensitylarge <- renderPlot({
-    hist(rnorm(8), main = "Data 1")
-   })
+ 
   
+ 
   
-  output$plotmvlarge <- renderPlot({
-    hist(rnorm(100), main = "Data 3")
-  })
-  
-  
-  output$plotheatmaplarge <- renderPlot({
-    boxplot(iris, main = "Plot 4 large")
-  })
-  
-  output$plotpcalarge <- renderPlot({
-    hist(rnorm(8), main = "Plot 5 large")
-  })
-  
-  
-  output$plotvarDistlarge <- renderPlot({
-    hist(rnorm(100), main = "Plot 6 large")
-  })
-  
-  
-  output$plotcorrMatrixlarge <- renderUI({
-      tagList(
-        tags$br(),tags$br(),
-        tags$div(
-          tags$div(style="display:inline-block; vertical-align: middle;",
-                   tags$p("Plot options")
-          ),
-          
-          tags$div(style="display:inline-block; vertical-align: middle;",
-                   
-                   tags$div(
-                     tags$div(style="display:inline-block; vertical-align: top;",
-                              shinyWidgets::dropdownButton(
-                                tags$div(
-                                  tags$div(style="display:inline-block; vertical-align: bottom;",
-                                           sliderInput(ns("expGradientRate"),
-                                                       "Tune to modify the color gradient",
-                                                       min = 0,max = 1,value = defaultGradientRate,step=0.01),
-                                           tooltip="Plots parameters",
-                                           style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                                           
-                                  )
-                                ),
-                                tooltip="Plots parameters",
-                                style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                              ))
-                   )
-                   
-          )
-        ),
-        highchartOutput(ns("corrMatrix"),width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
-      )
-    })
-
 
   
-  corrMatrix <- reactive({
-    
-    req(dataIn())
-    input$expGradientRate
-    
-    gradient <- NULL
-    if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-    else{
-      gradient <- input$expGradientRate}
-    isolate({
-      rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn(),gradient)
-      rv$tempplot$corrMatrix
-    })
-    
-  })
-  
-  
-  output$corrMatrix <- renderHighchart({
-    corrMatrix()
-  }) 
   
 
   return(NULL)

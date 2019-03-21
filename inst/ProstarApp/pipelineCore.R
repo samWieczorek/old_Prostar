@@ -61,7 +61,9 @@ observeEvent(GetCurrentMSnSet(),{
 
 observeEvent(obj.demomode(),{ 
   print("update for rv$current.obj")
-  rv$current.obj <- obj.demomode()  })
+  rv$current.obj <- obj.demomode()  
+  print(rv$current.obj)
+  })
 
 
 
@@ -72,6 +74,7 @@ observeEvent(obj.demomode(),{
 ## Initialization of the pipeline
 observeEvent(req(rv$current.obj),{
   print(paste0("IN observeEvent(req(obj()$initialData : ", rv$current.obj$pipeline))
+  
   switch(rv$current.obj$pipeline,
          
          Peptide={

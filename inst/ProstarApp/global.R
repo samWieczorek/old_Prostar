@@ -50,6 +50,22 @@ plotWidth <- "800px"
 plotHeight <- "600px"
 spinnerType <- 4
 
+limitHeatmap <- 20000
+G_heatmapDistance_Choices <- list("Euclidean" ="euclidean",
+                                  "Manhattan"="manhattan",
+                                  "Maximum" = "maximum",
+                                  "Canberra" = "canberra",
+                                  "Binary" = "binary",
+                                  "Minkowski" = "minkowski")
+
+G_heatmapLinkage_Choices <- list("Complete" = "complete",
+                                 "Average"="average",
+                                 "Ward.D"="ward.D",
+                                 "Ward.D2"="ward.D2",
+                                 "Single" = "single",
+                                 "Centroid" = "centroid",
+                                 "Mcquitty" = "mcquitty",
+                                 "Median" = "median")
 
 SetCustomCSS <- function(){
   inlineCSS(".body { font-size:14px;}")

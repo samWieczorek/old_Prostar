@@ -146,7 +146,7 @@ moduleDemoMode  <- function(input, output, session){
       utils::data(list = input$demoDataset)
       print(input$demoDataset)
       data <- get(input$demoDataset)
-      
+      print("#################################")
       print(paste0("class(data)[1] : ", class(data)[1]))
       if((class(data)[1] == "MSnSet") && !is.list(data)){
         
