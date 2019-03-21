@@ -10,6 +10,7 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
+source(file.path(".", "modules/DataManager/moduleDemoMode.R"), local = TRUE)$value
 
 pipeline <- reactiveValues(
   # current working data from current pipeline

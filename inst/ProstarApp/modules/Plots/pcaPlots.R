@@ -1,4 +1,4 @@
-#source(file.path(".", "modules/Plots/modulePCAPlots.R"),  local = TRUE)$value
+source(file.path(".", "modules/Plots/modulePCAPlots.R"),  local = TRUE)$value
 
 output$plotpcasmall <- renderImage({
   filename <- normalizePath(file.path('./images','desc_pca.png'))
@@ -12,5 +12,5 @@ output$plotpcasmall <- renderImage({
 callModule(module=pcaPlots, 'pcaPlots', data=reactive({dataIn()}))
 
 output$plotpcalarge <- renderUI({
- # modulepcaPlotsUI('pcaPlots')
+  pcaPlotsUI(ns('pcaPlots'))
 })

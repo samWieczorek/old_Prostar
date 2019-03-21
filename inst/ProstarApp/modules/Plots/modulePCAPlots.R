@@ -3,16 +3,16 @@ pcaPlotsUI <- function(id) {
   
   
   tagList(
-    uiOutput("WarningNA_PCA"),
-    uiOutput("pcaOptions"),
+    uiOutput(ns("WarningNA_PCA")),
+    uiOutput(ns("pcaOptions")),
     
     fluidRow(
-      column(width=6,  plotOutput("pcaPlotVar")),
-      column(width=6,  plotOutput("pcaPlotInd"))
+      column(width=6,  plotOutput(ns("pcaPlotVar"))),
+      column(width=6,  plotOutput(ns("pcaPlotInd")))
     ),
     fluidRow(
-      column(width=6,  highchartOutput("pcaPlotEigen")),
-      column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+      column(width=6,  highchartOutput(ns("pcaPlotEigen"))),
+      column(width=6,  moduleStaticDataTableUI(ns("PCAvarCoord")))
     )
   )
 }
@@ -106,14 +106,14 @@ pcaPlots <- function(input, output, session, data) {
           
           
           tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                    numericInput('pca.axe1', "Dimension 1", min=1, max=Compute_PCA_nbDimensions(),value=1,width='100px')
+                    numericInput(ns('pca.axe1'), "Dimension 1", min=1, max=Compute_PCA_nbDimensions(),value=1,width='100px')
           ),
           tags$div( style="display:inline-block; vertical-align: middle;",
-                    numericInput('pca.axe2', "Dimension 2", min=1, max=Compute_PCA_nbDimensions(),value=2,width='100px')
+                    numericInput(ns('pca.axe2'), "Dimension 2", min=1, max=Compute_PCA_nbDimensions(),value=2,width='100px')
           ),
           
           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                    checkboxInput('varScale_PCA', "Variance scaling", value=rv.pca$PCA_varScale))
+                    checkboxInput(ns('varScale_PCA'), "Variance scaling", value=rv.pca$PCA_varScale))
         )
         
       }
