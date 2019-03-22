@@ -8,7 +8,9 @@ tabPanel("Filter data",
                      uiOutput("mv_Filtering")),
            tabPanel( "2 - String based filtering",
                      uiOutput("stringBased_Filtering")),
-           tabPanel( "3 - Visualize filtered data and validate",
+           tabPanel( "3 - Numerical filtering",
+                     uiOutput("numerical_Filtering")),
+           tabPanel( "4 - Visualize filtered data and validate",
                      uiOutput("valid_Filtering")
            )
          )

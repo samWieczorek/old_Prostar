@@ -314,7 +314,8 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames = TRUE,
+                             extensions = c('Scroller', 'Buttons','FixedColumns'),
                         options=list(initComplete = initComplete(),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
@@ -326,6 +327,7 @@ output$viewfData <- DT::renderDataTable({
                                     scrollY = 200,
                                     scroller = TRUE,
                                     columns.searchable=F,
+                                    fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -333,7 +335,8 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames = TRUE,
+                             extensions = c('Scroller', 'Buttons','FixedColumns'),
                              options=list(initComplete = initComplete(),
                                  dom='Bfrtip',
                                  pageLength=DT_pagelength,
@@ -345,6 +348,7 @@ output$viewfData <- DT::renderDataTable({
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
+                            fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2))))))
     }

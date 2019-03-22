@@ -115,13 +115,13 @@ output$stringBased_Filtering <- renderUI({
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
-    choice <- c("None", colnames(fData(rv$current.obj)))
-  } else {
-    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
-    choice <- c("None", colnames(fData(rv$current.obj))[-index])
-  }
-  
+  # if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
+  #   choice <- c("None", colnames(fData(rv$current.obj)))
+  # } else {
+  #   index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+  #   choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  # }
+  choice <- c("None", colnames(fData(rv$current.obj)))
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
@@ -145,6 +145,55 @@ output$stringBased_Filtering <- renderUI({
 })
 
 
+##---------------------------------------------------
+output$numerical_Filtering <- renderUI({
+  #if (rv$pageFiltering != 2){return(NULL)}
+  req(rv$current.obj)
+  #req(rv$widgets$filtering$DT_numfilterSummary)
+  
+  # if (nrow(rv$widgets$filtering$DT_numfilterSummary) <= 1) {
+  #   choice <- c("None", colnames(fData(rv$current.obj)))
+  # } else {
+  #   index <- match(rv$widgets$filtering$DT_numfilterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+  #   choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  # }
+  
+  ll <- lapply(fData(rv$current.obj), function(x){is.numeric(x)})
+  choice <- c("None", colnames(fData(rv$current.obj))[which(ll == TRUE)])
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                selectInput("numericFilter_cname", "Column name", choices = choice)
+      ),
+      
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                selectInput("numericFilter_operator", "Operator", 
+                            choices = c('None' = '',
+                                        '==' = '==',
+                                        '<=' = '<=',
+                                        '<' = '<',
+                                        '=>' = '=>',
+                                        '>' = '>',
+                                        '!=' = '!='), width='100px')
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                numericInput("numericFilter_value", "Value", value = "", width='100px')
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                p(""),actionButton("btn_numFilter", "Perform", class = actionBtnClass)
+      )
+    ),
+    tags$hr(),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                DT::dataTableOutput("numericalFilterSummaryData")
+      )
+    )
+    
+  )
+})
+
 
 output$valid_Filtering <- renderUI({
  # if (rv$pageFiltering != 3){return()}
@@ -155,7 +204,9 @@ output$valid_Filtering <- renderUI({
       column(width=3,radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
                  choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))),
       column(width=3,radioButtons("ChooseViewAfterFiltering",   "Type of filtered data", 
-                  choices= list("Deleted on missing values" = "MissingValues","Deleted string based" = "StringBased"),
+                  choices= list("Deleted on missing values" = "MissingValues",
+                                "Deleted string based" = "StringBased",
+                                "Deleted numeric filter" = "Numerical"),
                   selected=character(0))),
       column(width=3,uiOutput("legendForExprsData2")),
       column(width=3,actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass))
@@ -168,14 +219,69 @@ output$valid_Filtering <- renderUI({
 
 
 
+## ----------------------------------------------
+# Perform numerical filtering
+observeEvent(input$btn_numFilter,{
+  rv$current.obj
+  temp <- rv$current.obj
+  
+  if (input$numericFilter_cname=="None"){return()}
+  
+  cname <- input$numericFilter_cname
+  tagValue <- input$numericFilter_value
+  
+  
+  res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
+  nbDeleted <- 0
+  
+  if (!is.null(res[["deleted"]])){
+    rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, res[["deleted"]])
+    nbDeleted <-  nrow(res[["deleted"]])
+  } else {
+    nbDeleted <-  0
+  }                          
+  rv$current.obj <- res[["obj"]]
+  rv$numericalFiltering_Done = TRUE
+  
+  df <- data.frame(Filter=cname, 
+                   Condition=paste0(input$numericFilter_operator,' ',tagValue), 
+                   nbDeleted=nbDeleted, 
+                   Total=nrow(rv$current.obj))
+  print(df)
+  rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary , df)
+  
+})
+
+
+
+### ------------------------------------------------------------
+output$numericalFilterSummaryData <- DT::renderDataTable({
+  req(rv$current.obj)
+  req(rv$widgets$filtering$DT_numfilterSummary)
+  
+  if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
+    df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+    rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
+  }
+  
+  
+  DT::datatable(rv$widgets$filtering$DT_numfilterSummary,extensions = 'Scroller',
+                options=list(initComplete = initComplete(),
+                             dom = 'Brtip',
+                             deferRender = TRUE,
+                             bLengthChange = FALSE,
+                             scrollX = 200,
+                             scrollY = 600,
+                             scroller = TRUE
+                ))
+})
 
 
 
 
 
-
-
-
+##--------------------------------------------------
+## Perform string-based filtering
 observeEvent(input$actionButtonFilter,{
   rv$current.obj
   temp <- rv$current.obj
@@ -204,22 +310,6 @@ observeEvent(input$actionButtonFilter,{
 })
 
 
-output$SymbolicFilterOptions <- renderUI({
-  req(rv$current.obj)
-  req(rv$widgets$filtering$DT_filterSummary)
-  
-  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
-    choice <- c("None", colnames(fData(rv$current.obj)))
-  } else {
-    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
-    choice <- c("None", colnames(fData(rv$current.obj))[-index])
-  }
-  tagList(
-    selectInput("symFilter_cname", "Column name", choices = choice),
-    textInput("symFilter_tagName", "Prefix", value = ""),
-    actionButton("actionButtonFilter", "Perform", class = actionBtnClass)
-  )
-})
 
 
 output$FilterSummaryData <- DT::renderDataTable({
@@ -231,21 +321,6 @@ output$FilterSummaryData <- DT::renderDataTable({
     rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary ,df)
   }
   
-  # DT::datatable(rv$widgets$filtering$DT_filterSummary,
-  #               extensions = c('Scroller', 'Buttons'),
-  #               rownames = FALSE,
-  #               options=list(dom='Brt',
-  #                            initComplete = initComplete(),
-  #                            deferRender = TRUE,
-  #                            bLengthChange = FALSE,
-  #                            # scrollX = 200,
-  #                            # scrollY = 600,
-  #                            # scroller = TRUE,
-  #                            columnDefs = list(list(width='150px',targets= c(1)),
-  #                                              list(width='50px',targets= c(2:4)))
-  #                            
-  #               ))
-  
   
   DT::datatable(rv$widgets$filtering$DT_filterSummary,extensions = 'Scroller',
                 options=list(initComplete = initComplete(),
@@ -256,8 +331,6 @@ output$FilterSummaryData <- DT::renderDataTable({
                              scrollY = 600,
                              scroller = TRUE
                 ))
-  
-  
 })
 
 
@@ -267,6 +340,10 @@ observe({
     rv$ValidFilteringClicked <- FALSE
     df <- data.frame(Filter=NA, Prefix=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
     rv$widgets$filtering$DT_filterSummary <- df
+    
+    df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj))
+    rv$widgets$filtering$DT_numfilterSummary <- df
+    
   }
   
 })
@@ -275,7 +352,6 @@ observe({
 getDataForMVFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.mvLines
-  
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=rv$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
   
@@ -288,10 +364,17 @@ getDataForMVFiltered <- reactive({
 getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
-  
-  
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
   table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
+  
+  table
+})
+
+getDataForNumericalFiltered <- reactive({
+  req(rv$settings_nDigits)
+  rv$deleted.numeric
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
+  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
   
   table
 })
@@ -330,7 +413,13 @@ output$VizualizeFilteredData <- DT::renderDataTable({
            quantiData =  data <- getDataForMVStringFiltered(),
            metaData = data <- Biobase::fData(rv$deleted.stringBased)
     )
-  } 
+  } else if ((input$ChooseViewAfterFiltering == "Numerical") && !is.null(rv$deleted.numeric)) {
+    
+    switch(input$ChooseTabAfterFiltering,
+           quantiData =  data <- getDataForNumericalFiltered(),
+           metaData = data <- Biobase::fData(rv$deleted.numeric)
+    )
+  }
   
   if (!is.null(data)){
     
@@ -395,49 +484,7 @@ output$seuilNADelete <- renderUI({
 
 
 
-# 
-# #########################################################
-# UpdateFilterWidgets <- function(){
-#   
-#   isolate({
-#     rv$current.obj
-#     if (length(rv$current.obj@processingData@processing) > 0){
-#       
-#       val <- match (gReplaceAllZeros ,rv$current.obj@processingData@processing)
-#       updateCheckboxInput(session, "replaceAllZeros",value=val)
-#       
-#       val <- match (gLogTransform,rv$current.obj@processingData@processing)
-#       #updateCheckboxInput(session,"log2transform",value=val)
-#       
-#       r <- grep(pattern = gFilterTextPrefix, 
-#                 rv$current.obj@processingData@processing, 
-#                 fixed=TRUE, value=FALSE)
-#       if ( length(r) > 0)
-#       { 
-#         listMots <- unlist(strsplit(
-#           rv$current.obj@processingData@processing[r], split=" "))
-#         updateNumericInput(session, inputId = "seuilNA", value =input$seuilNA)
-#         updateRadioButtons(session, inputId = "ChooseFilters", selected = listMots[3])
-#       }
-#       else
-#       { 
-#         updateRadioButtons(session,
-#                            inputId = "ChooseFilters", 
-#                            selected = gFilterNone)
-#       }
-#     }
-#     else{
-#       updateCheckboxInput(session, "replaceAllZeros",value=F)
-#       updateRadioButtons(session,
-#                          inputId = "ChooseFilters", 
-#                          selected = gFilterNone)
-#     }
-#     updateSelectInput(session,"typeImputation",selected= c("None")) 
-#     updateSelectInput(session, "normalization.family",selected = c("None"))
-#   })
-# }
-
-
+#
 
 
 
@@ -497,6 +544,22 @@ output$ObserverStringBasedFilteringDone <- renderUI({
   })
 })
 
+#-----------------------------------------------
+output$ObserverNumericalFilteringDone <- renderUI({
+  req(rv$current.obj)
+  rv$numericalFiltering_Done
+  
+  isolate({
+    if (!rv$numericalFiltering_Done) 
+    {return(NULL)  }
+    else {
+      h3("Numerical filtering done")
+    }
+    
+  })
+})
+
+
 output$ObserverMVFilteringDone <- renderUI({
   req(rv$current.obj)
   rv$MVFiltering_Done
@@ -520,7 +583,8 @@ output$ObserverMVFilteringDone <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   req(rv$current.obj)
-  if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)){
+  if((input$ChooseFilters != gFilterNone) || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
+     || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
 
         l.params <- build_ParamsList_Filtering()
     
@@ -547,12 +611,12 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
 #########################################################
 ##' Show the widget for filters
 ##' @author Samuel Wieczorek
-output$choixFiltres <- renderUI({
-  req(input$file)
-  rv$current.obj
-  radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
-  
-})
+# output$choixFiltres <- renderUI({
+#   req(input$file)
+#   rv$current.obj
+#   radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
+#   
+# })
 
 
 

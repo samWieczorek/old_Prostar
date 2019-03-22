@@ -211,10 +211,6 @@ RunAggregation <- reactive({
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.aggregation,{ 
-  # input$nbPeptides
-  #input$filterProtAfterAgregation
-  #input$aggregationMethod
-  #input$columnsForProteinDataset.box
   req(rv$matAdj)
   req(rv$temp.aggregate)
   
@@ -223,14 +219,6 @@ observeEvent(input$valid.aggregation,{
     if(input$radioBtn_includeShared %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides}
     else { X <- rv$matAdj$matWithUniquePeptides}
-    
-   
-    # updateSelectInput(session, "proteinId",selected = input$proteinId)
-    # updateRadioButtons(session, "AggregationOperator",selected = input$AggregationOperator)
-    # updateRadioButtons(session, "AggregationConsider",selected = input$AggregationConsider)
-    # updateSelectInput(session, "nTopn",selected = input$nTopn)
-    # updateRadioButtons(session,"radioBtn_includeShared",input$radioBtn_includeShared)
-    
     
     #total <- 60
     #delta <- round(total / length(input$columnsForProteinDataset.box))
@@ -396,6 +384,10 @@ callModule(modulePopover,"modulePopover_colsForAggreg",
 
 
 
+
+## -----------------------------------------------
+## Second screen of aggregation tool
+## -----------------------------------------------
 output$Aggregation_Step2 <- renderUI({
   
   req(rv$current.obj)

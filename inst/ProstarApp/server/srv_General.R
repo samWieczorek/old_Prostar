@@ -446,7 +446,9 @@ ClearMemory <- function(){
     rv$deleted.stringBased.exprsData = NULL
     rv$deleted.stringBased = NULL
     rv$deleted.stringBased.fData = NULL
-    rv$deleted.stringBased = NULL
+    rv$deleted.numeric.exprsData = NULL
+    rv$deleted.numeric = NULL
+    rv$deleted.numeric.fData = NULL
 
     
     rv$pi0 = NULL
@@ -467,7 +469,12 @@ ClearMemory <- function(){
                                                                      Prefix=NULL,
                                                                      nbDeleted=NULL, 
                                                                      Total=NULL, 
-                                                                     stringsAsFactors=F)),
+                                                                     stringsAsFactors=F),
+                                       DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                                       Condition=NULL,
+                                                                       nbDeleted=NULL, 
+                                                                       Total=NULL, 
+                                                                       stringsAsFactors=F)),
                       normalization=list(method = "None",
                                          type = "None",
                                          varReduction = FALSE,
@@ -577,6 +584,7 @@ ClearMemory <- function(){
                               stringsAsFactors=F)
     rv$GOWarningMessage = NULL
     rv$stringBasedFiltering_Done = FALSE
+    rv$numericalFiltering_Done = FALSE
     rv$mvFiltering_Done = FALSE
     rv$iDat = NULL
     rv$imputePlotsSteps = list(step0 = NULL,
@@ -642,6 +650,9 @@ rv <- reactiveValues(
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
+    deleted.numeric.exprsData = NULL,
+    deleted.numeric.fData = NULL,
+    deleted.numeric = NULL,
 
   pi0 = NULL,
   typeOfPalette = 'predefined',
@@ -684,11 +695,16 @@ rv <- reactiveValues(
   widgets = list(
                  filtering = list(ChooseFilters = "None",
                                   seuilNA = 0,
-                                  DT_filterSummary = data.frame(Filtre=NULL, 
+                                  DT_filterSummary = data.frame(Filter=NULL, 
                                                                 Prefix=NULL,
                                                                 nbDeleted=NULL, 
                                                                 Total=NULL, 
-                                                                stringsAsFactors=F)),
+                                                                stringsAsFactors=F),
+                                  DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                                   Condition=NULL,
+                                                                   nbDeleted=NULL, 
+                                                                   Total=NULL, 
+                                                                   stringsAsFactors=F)),
                   normalization=list(method = "None",
                                       type = "None",
                                       varReduction = FALSE,

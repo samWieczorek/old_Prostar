@@ -43,6 +43,7 @@ pcaPlots <- function(input, output, session, data) {
   })
   
   observeEvent(data(), {
+    print(paste0("scale = ",rv.pca$PCA_varScale))
     rv.pca$res.pca <- wrapper.pca(data(), rv.pca$PCA_varScale, ncp=Compute_PCA_nbDimensions())
   })
   
@@ -60,7 +61,6 @@ pcaPlots <- function(input, output, session, data) {
     if (n > nmax){
       n <- length(unique(Biobase::pData(data())$Condition))
     }
-    
     
     ncp <- min(n, nmax)
     ncp
