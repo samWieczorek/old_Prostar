@@ -91,15 +91,6 @@ shinyServer(function(input, output, session) {
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
     source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
     
-    source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
-    
-    
-    observeEvent(rv$current.obj,{
-      print("callModule showPlots")
-      callModule(module = modulePlots, 'showPlots', 
-                 dataIn=reactive({rv$current.obj}), 
-                 llPlots=reactive({lstDescPlots}))
-    })
     
    # outputOptions(output, 'settings_nDigits', suspendWhenHidden=FALSE)
     

@@ -19,19 +19,13 @@ build_ParamsList_PepImputation <- reactive({
 #------------------------------------------------------------------------
 build_ParamsList_Filtering <- reactive({
   if (nrow(rv$widgets$filtering$DT_filterSummary) <=1) {
-    df.string <- NULL
+    df <- NULL
   } else {
-    df.string <- rv$widgets$filtering$DT_filterSummary}
-  
-  if (nrow(rv$widgets$filtering$DT_numfilterSummary) <=1) {
-    df.numeric <- NULL
-  } else {
-    df.numeric <- rv$widgets$filtering$DT_numfilterSummary}
+    df <- rv$widgets$filtering$DT_filterSummary}
   
   l.params <- list(mvFilterType = input$ChooseFilters,
                    mvThNA = as.numeric(input$seuilNA), 
-                   stringFilter.df = df.string,
-                   numericFilter.df = df.numeric)
+                   stringFilter.df = df)
   
   l.params
 })

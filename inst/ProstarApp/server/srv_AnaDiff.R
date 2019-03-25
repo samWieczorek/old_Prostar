@@ -605,14 +605,8 @@ output$showFDR <- renderUI({
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
              signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")")
-      
-      ### ajouter warning
-      print(paste0("GetSelectedItems() =", length(which(GetSelectedItems()$isDifferential == TRUE))))
-      
-      
     } else {
       tags$p(style="font-size: 25px;","FDR = NA") 
-      
     }
   )
   

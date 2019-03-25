@@ -1,10 +1,11 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-
+callModule(moduleDensityplot, "densityPlot_DS")
 callModule(missingValuesPlots, "MVPlotsDS")
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleDensityplot, "densityPlot_DS")
 
+
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
 output$plotsMissingV <- renderUI({
@@ -314,8 +315,7 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             rownames = TRUE,
-                             extensions = c('Scroller', 'Buttons','FixedColumns'),
+                             extensions = c('Scroller', 'Buttons'),
                         options=list(initComplete = initComplete(),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
@@ -327,7 +327,6 @@ output$viewfData <- DT::renderDataTable({
                                     scrollY = 200,
                                     scroller = TRUE,
                                     columns.searchable=F,
-                                    fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -335,8 +334,7 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             rownames = TRUE,
-                             extensions = c('Scroller', 'Buttons','FixedColumns'),
+                             extensions = c('Scroller', 'Buttons'),
                              options=list(initComplete = initComplete(),
                                  dom='Bfrtip',
                                  pageLength=DT_pagelength,
@@ -348,7 +346,6 @@ output$viewfData <- DT::renderDataTable({
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
-                            fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2))))))
     }
@@ -510,7 +507,21 @@ output$table <- DT::renderDataTable({
 
 # options for boxplot
 # #------------------------------------------------------
+output$ChooseLegendForSamples <- renderUI({
+    req(rv$current.obj)
 
+  .names <- colnames(Biobase::pData(rv$current.obj))
+ 
+
+    checkboxGroupInput("legendForSamples",
+                       label = "Choose data to show in legend",
+                       choices = .names,
+                       selected=.names[2])
+})
+
+observeEvent(input$legendForSamples, {
+  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(rv$current.obj)[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
+})
 
 
 addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info", 
