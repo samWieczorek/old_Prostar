@@ -1,12 +1,11 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-callModule(moduleDensityplot, "densityPlot_DS")
+
 callModule(missingValuesPlots, "MVPlots_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
 # outs <- outputOptions(output)
@@ -350,7 +349,8 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames = TRUE,
+                             extensions = c('Scroller', 'Buttons','FixedColumns'),
                         options=list(initComplete = initComplete(),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
@@ -362,6 +362,7 @@ output$viewfData <- DT::renderDataTable({
                                     scrollY = 200,
                                     scroller = TRUE,
                                     columns.searchable=F,
+                                    fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -369,7 +370,8 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames=TRUE,
+                             extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                              options=list(initComplete = initComplete(),
                                  dom='Bfrtip',
                                  pageLength=DT_pagelength,
@@ -381,6 +383,7 @@ output$viewfData <- DT::renderDataTable({
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
+                            fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2))))))
     }

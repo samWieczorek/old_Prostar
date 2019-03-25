@@ -1,7 +1,21 @@
 rvModProcess <- reactiveValues(
   
+  moduleFiltering = list(name = "Filtering",
+                             stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Save"),
+                             isMandatory = rep(FALSE,5),
+                             ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
+                                           screenStep2 = uiOutput("screenFiltering2"),
+                                           screenStep3 = uiOutput("screenFiltering3"),
+                                           screenStep4 = uiOutput("screenFiltering4"),
+                                           screenStep5 = uiOutput("screenFiltering5")),
+                             rstFunc = reactive({resetModuleFiltering()})),
+  moduleNormalizationDone =  rep(FALSE,5),
+  
+  
+  
+  
   moduleNormalization = list(name = "Normalization",
-                             stepsNames = c("Normalization", "Validate"),
+                             stepsNames = c("Normalization", "Save"),
                              isMandatory = rep(FALSE,2),
                              ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                            screenStep2 = uiOutput("screenNormalization2")),

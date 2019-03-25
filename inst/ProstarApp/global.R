@@ -644,5 +644,5 @@ navbarPageWithInputs <- function(..., inputs) {
 
 
 
-
+lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
 

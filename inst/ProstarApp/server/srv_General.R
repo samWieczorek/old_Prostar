@@ -293,12 +293,14 @@ ComputeAdjacencyMatrices <- reactive({
 ###-------------------------------------
 
 Compute_PCA_nbDimensions <- reactive({
-  nmax <- 12 # ncp should not be greater than... 
-  # pour info, ncp = nombre de composantes ou de dimensions dans les résultats de l'ACP
+  # ncp should not be greater than...
+  nmax <- 12  
+  # pour info, ncp = nombre de composantes ou de dimensions dans les r?sultats de l'ACP
   
   y <- exprs(rv$current.obj)
   nprot <- dim(y)[1]
-  n <- dim(y)[2] # If too big, take the number of conditions.
+  # If too big, take the number of conditions.
+  n <- dim(y)[2] 
   
   if (n > nmax){
     n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
@@ -400,35 +402,61 @@ createPNGFromWidget <- function(tempplot, pattern){
 resetModuleProcess <- function(moduleName, obj){
   
   switch (moduleName,
+          Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
+                                                         seuilNA = 0,
+                                                         DT_filterSummary = data.frame(Filter=NULL, 
+                                                                                       Prefix=NULL,
+                                                                                       nbDeleted=NULL, 
+                                                                                       Total=NULL, 
+                                                                                       stringsAsFactors=F),
+                                                         DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                                                          Condition=NULL,
+                                                                                          nbDeleted=NULL, 
+                                                                                          Total=NULL, 
+                                                                                          stringsAsFactors=F)
+                                                         )
+
+          rvModProcess$moduleFiltering = list(name = "Filtering",
+                                                  stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
+                                                  isMandatory = rep(FALSE,5),
+                                                  ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
+                                                                screenStep2 = uiOutput("screenFiltering2"),
+                                                                screenStep3 = uiOutput("screenFiltering3"),
+                                                                screenStep4 = uiOutput("screenFiltering4"),
+                                                                screenStep5 = uiOutput("screenFiltering5")))
+          rvModProcess$moduleFilteringDone =  rep(FALSE,5)
+          },
+          
+          
           Aggregation ={rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
                                            operator = "Mean",
                                            considerPeptides = 'allPeptides',
                                            proteinId = "None",
                                            topN = 3)
-          rvModProcess$moduleAggregation = list(name = "Aggregation",
+                        rvModProcess$moduleAggregation = list(name = "Aggregation",
                                                 stepsNames = c("Aggregation 1", "Aggregation 2", "Save"),
                                                 isMandatory = rep(TRUE, 3),
                                                 ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
                                                               screenStep2 = uiOutput("screenAggregation2"),
                                                               screenStep3 = uiOutput("screenAggregation3")))
-          rvModProcess$moduleAggregationDone =  rep(FALSE,3)
-          },
+                        rvModProcess$moduleAggregationDone =  rep(FALSE,3)
+                        },
           
           Normalization ={rv$widgets$normalization <- list(method = "None",
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
                                              spanLOESS = 0.7)
-          rv$normalizationFamily <- NULL
-          rv$normalizationMethod <- NULL 
+                            rv$normalizationFamily <- NULL
+                            rv$normalizationMethod <- NULL 
           
-          rvModProcess$moduleNormalization = list(name = "Normalization",
+                          rvModProcess$moduleNormalization = list(name = "Normalization",
                                                   stepsNames = c("Normalization", "Validate"),
                                                   isMandatory = rep(FALSE,2),
                                                   ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                                                 screenStep2 = uiOutput("screenNormalization2")))
-          rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
-          },
+                        rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+                        },
           
           
           
@@ -577,7 +605,13 @@ ClearMemory <- function(){
   ######## 
     rv$current.obj = NULL
     rv$current.obj.name = NULL
-    
+    rv$deleted.mvLines = NULL
+    rv$deleted.stringBased.exprsData = NULL
+    rv$deleted.stringBased.fData = NULL
+    rv$deleted.stringBased = NULL
+    rv$deleted.numeric.exprsData = NULL
+    rv$deleted.numeric = NULL
+    rv$deleted.numeric.fData = NULL
     
     rv$listLogFC <- list()
     
@@ -704,6 +738,9 @@ rv <- reactiveValues(
     deleted.stringBased.exprsData = NULL,
     deleted.stringBased.fData = NULL,
     deleted.stringBased = NULL,
+    deleted.numeric.exprsData = NULL,
+    deleted.numeric = NULL,
+    deleted.numeric.fData = NULL,
 
   pi0 = NULL,
   typeOfPalette = 'predefined',
@@ -744,12 +781,25 @@ rv <- reactiveValues(
     #                  conditionsChecked=NULL,
     #                  designSaved=FALSE),
   widgets = list(
-                  normalization=list(method = "None",
+                  filtering = list(ChooseFilters = "None",
+                                    seuilNA = 0,
+                                    DT_filterSummary = data.frame(Filter=NULL, 
+                                                                  Prefix=NULL,
+                                                                  nbDeleted=NULL, 
+                                                                  Total=NULL, 
+                                                                  stringsAsFactors=F),
+                                    DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                                     Condition=NULL,
+                                                                     nbDeleted=NULL, 
+                                                                     Total=NULL, 
+                                                                    stringsAsFactors=F)
+                                   ),
+  normalization=list(method = "None",
                                       type = "None",
                                       varReduction = FALSE,
                                       quantile = 0.15,
                                       spanLOESS = 0.7),
-                aggregation = list(includeSharedPeptides = "Yes2",
+   aggregation = list(includeSharedPeptides = "Yes2",
                                     operator = "Mean",
                                     considerPeptides = 'allPeptides',
                                     proteinId = "None",

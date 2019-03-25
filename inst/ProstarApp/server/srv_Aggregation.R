@@ -352,7 +352,9 @@ callModule(modulePopover,"modulePopover_colsForAggreg",
                                 content= "Select the columns of the meta-data (related to proteins) that have to be recorded in the new protein dataset (e.g. the columns which contains the protein ID if you wish to perform a GO analysis.)")))
 
 
-
+## -----------------------------------------------
+## Second screen of aggregation tool
+## -----------------------------------------------
 output$Aggregation_Step2 <- renderUI({
   
   req(rv$current.obj)
