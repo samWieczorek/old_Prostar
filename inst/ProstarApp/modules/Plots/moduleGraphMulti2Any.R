@@ -1,14 +1,13 @@
+library(visNetwork)
+
 moduleGraphMulti2AnyUI <- function(id) {
   ns <- NS(id)
   
   tagList(
     uiOutput(ns("CCTooltip_UI")),
-    
     highchartOutput(ns("jiji")),
-    highchartOutput(ns("graph"))
-    #moduleStaticDataTableUI(ns("MultiAnyDT"))
-    
-    #uiOutput('CC_Multi_Multi')
+    visNetworkOutput(ns("visNet_CC")),
+    dataTableOutput(ns('CC_Multi_Multi'))
   )
   
 }
@@ -20,15 +19,39 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
   
   
   
-  output$graph <- renderHighchart({
+  # output$graph <- renderHighchart({
+  #   GetClickedPoint()
+  #   print(paste0("GetClickedPoint() = ", GetClickedPoint()))
+  #   display.CC(cc()[[GetClickedPoint()]], rv$matAdj$matWithSharedPeptides)
+  #   
+  # })
+  
+  observeEvent(input$click,{
     GetClickedPoint()
-    print(paste0("GetClickedPoint() = ", GetClickedPoint()))
-    display.CC(cc()[[GetClickedPoint()]], rv$matAdj$matWithSharedPeptides)
+    cc()
     
+    tt <- cc()[[GetClickedPoint()]]
+    lst <- c(tt$peptides, tt$proteins)
+    print(paste0("Node ID clicked : ", input$click))
+    print(paste0("Entity ID clicked : ", lst[input$click]))
+    print(exprs(rv$current.obj)[lst[input$click],])
+    print(fData(rv$current.obj)[lst[input$click],])
   })
   
-  
-  
+  output$visNet_CC <- renderVisNetwork({
+    GetClickedPoint()
+    
+    #print(paste0("GetClickedPoint() = ", GetClickedPoint()))
+    #print(cc()[[GetClickedPoint()]])
+    display.CC.visNet(cc()[[GetClickedPoint()]], rv$matAdj$matWithSharedPeptides) %>%
+      visEvents(click = paste0("function(nodes){
+                Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
+                ;}")
+      )
+    
+    
+   
+  })
   
   
   output$jiji <- renderHighchart({
@@ -70,7 +93,7 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
     
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     print(paste0("this.index = ", this.index))
-    this.index
+    this.index+1
   })
   
   
@@ -85,6 +108,41 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
                   multiple = TRUE, selectize=FALSE,width='200px', size=5)
     )
   })
+  
+  
+  
+  
+  
+  
+  output$CC_Multi_Multi <- renderDataTable({
+   cc()
+    
+    df <- do.call(rbind,lapply(cc(),function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    df <- cbind(df,id = 1:nrow(df))
+    df <- df[c('id', 'proteins', 'nPep', 'peptides')]
+    
+    dat <- DT::datatable(df,
+                         rownames=FALSE,
+                         extensions = c('Scroller', 'Buttons', 'FixedColumns'),
+                         options=list(initComplete = initComplete(),
+                                      dom='Bfrtip',
+                                      pageLength=DT_pagelength,
+                                      deferRender = TRUE,
+                                      bLengthChange = FALSE,
+                                      scrollX = 200,
+                                      scrollY = 600,
+                                      scroller = TRUE,
+                                      orderClasses = TRUE,
+                                      autoWidth=FALSE,
+                                      columns.searchable=F,
+                                      fixedColumns = list(leftColumns = 1),
+                                      columnDefs = list(list(columns.width=c("60px"),
+                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+    
+    return(dat)
+  })
+  
+  
   
   
   # output$quantiDT <- renderUI({

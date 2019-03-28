@@ -4,10 +4,13 @@ tabPanel("Graph",
            id = "graphsPanel",
            tabPanel("CC one prot",
                     tagList(
-                      h3('test'),
-                      dataTableOutput("OneOneDT"),
-                      dataTableOutput("OneMultiDT")
-                      )
+                       bsCollapse(id = "collapseCCInfos", 
+                                  open = "",
+                                  multiple = TRUE,
+                                  bsCollapsePanel("One - One CC", DT::dataTableOutput("OneOneDT"),style = "info"),
+                                  bsCollapsePanel("One - Multi CC", DT::dataTableOutput("OneMultiDT"), style = "primary")
+                    )
+                    )
                     ),
            tabPanel("CC multi prot",
                     moduleGraphMulti2AnyUI("CC_Multi_Any")

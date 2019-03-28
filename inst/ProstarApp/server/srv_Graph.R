@@ -1,5 +1,5 @@
-callModule(moduleStaticDataTable,"OneOneDT", table2show=reactive({BuildOne2OneTab()}))
-callModule(moduleStaticDataTable,"OneMultiDT", table2show=reactive({BuildOne2MultiTab()}))
+#callModule(moduleStaticDataTable,"OneOneDT", table2show=reactive({BuildOne2OneTab()}))
+#callModule(moduleStaticDataTable,"OneMultiDT", table2show=reactive({BuildOne2MultiTab()}))
 
 callModule(module = moduleGraphMulti2Any, "CC_Multi_Any", 
            cc=reactive({rv$CC$allPep[Get_CC_Multi2Any()]}),
@@ -51,8 +51,7 @@ Get_CC_Multi2Any <- reactive({
 
 BuildOne2OneTab <- reactive({
   rv$CC$allPep
-  table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-  table <- table[c('proteins', 'nPep', 'peptides')]
+  table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
   print(paste0("In BuildOne2OneTab:  ", nrow(table)))
   table
 })
