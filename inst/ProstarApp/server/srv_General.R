@@ -41,16 +41,16 @@ getDataForExprs <- function(obj){
  
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
-  print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+ # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
   if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
    test.table <- cbind(test.table, 
                         Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
-   print(paste0("tutu:",head(test.table)))
+  # print(paste0("tutu:",head(test.table)))
    
   } else {
     test.table <- cbind(test.table, 
                         as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
-    print(paste0("tata:",head(test.table)))
+    #print(paste0("tata:",head(test.table)))
     }
   return(test.table)
 
@@ -242,7 +242,8 @@ session$onSessionEnded(function() {
     
     #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
     #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
-                  
+    rm(rv$current.obj, rv$matAdj) 
+    gc()
     cat("Session stopped. Temporary files cleaned up\n")
   
     

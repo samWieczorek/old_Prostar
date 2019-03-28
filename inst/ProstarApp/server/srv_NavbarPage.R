@@ -102,7 +102,7 @@ rv$current.obj
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
                             ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,source(file.path("ui", "ui_Graph.R"),  local = TRUE)$value
+                            ,moduleCCUI('CC_Multi_Any')
                             ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
                  ),
                  target = "Help",
@@ -123,7 +123,7 @@ rv$current.obj
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
                             ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,source(file.path("ui", "ui_Graph.R"),  local = TRUE)$value
+                            ,moduleCCUI('CC_Multi_Any')
                             ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
                             ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
                  ),

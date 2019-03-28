@@ -1,30 +1,51 @@
 library(visNetwork)
 
-moduleGraphMulti2AnyUI <- function(id) {
+moduleCCUI <- function(id) {
   ns <- NS(id)
-  
-  tagList(
-    uiOutput(ns("CCTooltip_UI")),
-    highchartOutput(ns("jiji")),
-    visNetworkOutput(ns("visNet_CC")),
-    dataTableOutput(ns('CC_Multi_Multi'))
+  tabPanel("Graph",
+           value = "graphTab",
+           tabsetPanel(
+             id = "graphsPanel",
+             tabPanel("CC one prot",
+                      tagList(
+                        bsCollapse(id = "collapseCCInfos", 
+                                   open = "",
+                                   multiple = TRUE,
+                                   bsCollapsePanel("One - One CC", 
+                                                   fluidRow(
+                                                     column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
+                                                     column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
+                                                     ),style = "info"),
+                                   bsCollapsePanel("One - Multi CC", 
+                                                   fluidRow(
+                                                     column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
+                                                     column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
+                                                   ), style = "primary")
+                        )
+                      )
+             ),
+             tabPanel("CC multi prot",
+                      tagList(
+                        #uiOutput(ns("CCTooltip_UI")),
+                        fluidRow(
+                          column(width=4, highchartOutput(ns("jiji"))),
+                          column(width=8, visNetworkOutput(ns("visNet_CC")))
+                        ),
+                        dataTableOutput(ns('CCMultiMulti'))
+                      )
+             )
+           )
   )
+  
+  
   
 }
 
 
-moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
+moduleCC <- function(input, output, session,cc){
   
   ns <- session$ns
   
-  
-  
-  # output$graph <- renderHighchart({
-  #   GetClickedPoint()
-  #   print(paste0("GetClickedPoint() = ", GetClickedPoint()))
-  #   display.CC(cc()[[GetClickedPoint()]], rv$matAdj$matWithSharedPeptides)
-  #   
-  # })
   
   observeEvent(input$click,{
     GetClickedPoint()
@@ -38,12 +59,29 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
     print(fData(rv$current.obj)[lst[input$click],])
   })
   
+  
+  
+  
   output$visNet_CC <- renderVisNetwork({
-    GetClickedPoint()
+   
+    #GetClickedPoint()
+    req(input$CCMultiMulti_rows_selected)
     
+    local <-   cc()[Get_CC_Multi2Any()]
+    print("###############################")
+    print(length(local))
+    print("######### local ###############")
+    print(local)
+    print(input$CCMultiMulti_rows_selected)
+    print("######### input$CCMultiMulti_row_selected ###############")
+    indice <- input$CCMultiMulti_rows_selected
+    print(indice)
+    print("######### local[indice] ###############")
+    
+    print(local[indice])
     #print(paste0("GetClickedPoint() = ", GetClickedPoint()))
     #print(cc()[[GetClickedPoint()]])
-    display.CC.visNet(cc()[[GetClickedPoint()]], rv$matAdj$matWithSharedPeptides) %>%
+    display.CC.visNet(local[[indice]], rv$matAdj$matWithSharedPeptides) %>%
       visEvents(click = paste0("function(nodes){
                 Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
                 ;}")
@@ -55,7 +93,7 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
   
   
   output$jiji <- renderHighchart({
-    tooltip()
+    tooltip <- NULL
     
    isolate({
      n.prot <- unlist(lapply(cc(), function(x){length(x$proteins)}))
@@ -64,8 +102,8 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
                      y = jitter(n.prot),
                      index = 1:length(cc()))
         
-        if (!is.null( tooltip())){
-          df <- cbind(df,fData(rv$current.obj)[ tooltip()])
+        if (!is.null( tooltip)){
+          df <- cbind(df,fData(rv$current.obj)[ tooltip])
         }
 
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -114,16 +152,16 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
   
   
   
-  output$CC_Multi_Multi <- renderDataTable({
-   cc()
-    
-    df <- do.call(rbind,lapply(cc(),function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+  output$CCMultiMulti <- renderDataTable({
+    Get_CC_Multi2Any()
+    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
     df <- cbind(df,id = 1:nrow(df))
     df <- df[c('id', 'proteins', 'nPep', 'peptides')]
     
     dat <- DT::datatable(df,
+                         selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons', 'FixedColumns'),
+                         extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
                                       dom='Bfrtip',
                                       pageLength=DT_pagelength,
@@ -135,13 +173,190 @@ moduleGraphMulti2Any <- function(input, output, session,cc, tooltip=NULL){
                                       orderClasses = TRUE,
                                       autoWidth=FALSE,
                                       columns.searchable=F,
-                                      fixedColumns = list(leftColumns = 1),
                                       columnDefs = list(list(columns.width=c("60px"),
                                                              columnDefs.targets=c(list(0),list(1),list(2))))))
     
     return(dat)
   })
   
+  
+  
+  
+  
+  
+  
+  
+  Get_CC_One2One <- reactive({
+    rv$CC$allPep
+    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    ll.prot.one2one <- intersect(which(ll.prot == 1),which(ll.pept == 1))
+    print(paste0("In Get_CC_One2One:  ", length(ll.prot.one2one)))
+    ll.prot.one2one
+  })
+  
+  Get_CC_One2multi <- reactive({
+    rv$CC$allPep
+    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    ll.prot.one2multi <- intersect(which(ll.prot == 1),which(ll.pept > 1))
+    print(paste0("In Get_CC_One2multi:  ", length(ll.prot.one2multi)))
+    ll.prot.one2multi
+  })
+  
+  Get_CC_Multi2Any <- reactive({
+    rv$CC$allPep
+    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    ll.prot.multi2any <- which(ll.prot > 1)
+    print(paste0("In Get_CC_Multi2Any:  ", length(ll.prot.multi2any)))
+    ll.prot.multi2any
+  })
+  
+  
+  
+  BuildOne2OneTab <- reactive({
+    rv$CC$allPep
+    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
+    print(paste0("In BuildOne2OneTab:  ", nrow(table)))
+    table
+  })
+  
+  BuildOne2MultiTab <- reactive({
+    rv$CC$allPep
+    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    table <- table[c('proteins', 'nPep', 'peptides')]
+    print(paste0("In BuildOne2MultiTab:  ", nrow(table)))
+    table
+  })
+  
+  
+  BuildMulti2AnyTab <- reactive({
+    rv$CC$allPep
+    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    table <- table[c('proteins', 'nPep', 'peptides')]
+    
+    print(paste0("In BuildMulti2AnyTab:  ", nrow(table)))
+    table
+  })
+  
+  
+  
+  
+  
+  output$OneMultiDT <- renderDataTable({
+    req(rv$CC$allPep)
+    
+    dat <- DT::datatable(BuildOne2MultiTab(),
+                         selection = 'single',
+                         rownames=FALSE,
+                         extensions = c('Scroller', 'Buttons'),
+                         options=list(initComplete = initComplete(),
+                                      dom='Bfrtip',
+                                      pageLength=DT_pagelength,
+                                      deferRender = TRUE,
+                                      bLengthChange = FALSE,
+                                      scrollX = 200,
+                                      scrollY = 600,
+                                      scroller = TRUE,
+                                      orderClasses = TRUE,
+                                      autoWidth=FALSE,
+                                      columns.searchable=F,
+                                      columnDefs = list(list(columns.width=c("60px"),
+                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+    
+    return(dat)
+  })
+  
+  
+  
+  output$OneMultiDTDetailed <- renderDataTable({
+    req(input$OneMultiDT_rows_selected)
+    
+    line <- input$OneMultiDT_rows_selected
+    
+    ind <- 1:ncol(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj)
+    pepLine <- 1 + as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
+    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    dt <- datatable( data,
+                     extensions = c('Scroller', 'Buttons'),
+                     options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
+                                    blengthChange = FALSE,
+                                    displayLength = 10,
+                                    ordering=FALSE,
+                                    header=FALSE,
+                                    server = FALSE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                     )) %>%
+      formatStyle(
+        colnames(data)[1:(ncol(data)/2)],
+        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+    
+    dt
+  })
+  
+  
+  
+  
+  output$OneOneDT <- renderDataTable({
+    req(rv$CC$allPep)
+    
+    dat <- DT::datatable(BuildOne2OneTab(),
+                         selection = 'single',
+                         rownames=FALSE,
+                         extensions = c('Scroller', 'Buttons'),
+                         options=list(initComplete = initComplete(),
+                                      dom='Bfrtip',
+                                      pageLength=DT_pagelength,
+                                      deferRender = TRUE,
+                                      bLengthChange = FALSE,
+                                      scrollX = 200,
+                                      scrollY = 600,
+                                      scroller = TRUE,
+                                      orderClasses = TRUE,
+                                      autoWidth=FALSE,
+                                      columns.searchable=F,
+                                      columnDefs = list(list(columns.width=c("60px"),
+                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+    
+    return(dat)
+  })
+  
+  
+  
+  output$OneOneDTDetailed <- renderDataTable({
+    req(rv$CC$allPep)
+    req(input$OneOneDT_rows_selected)
+    
+    line <- input$OneOneDT_rows_selected
+    
+    print(paste0('Line selected = ', line))
+    
+    ind <- 1:ncol(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj)
+    pepLine <- 1 + as.numeric(BuildOne2OneTab()[line,2])
+    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    dt <- datatable( data,
+                     extensions = c('Scroller', 'Buttons'),
+                     options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
+                                    blengthChange = FALSE,
+                                    displayLength = 10,
+                                    ordering=FALSE,
+                                    header=FALSE,
+                                    server = FALSE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                     )) %>%
+      formatStyle(
+        colnames(data)[1:(ncol(data)/2)],
+        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+    
+    dt
+  })
   
   
   

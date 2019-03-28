@@ -80,7 +80,7 @@ shinyServer(function(input, output, session) {
     
     
     source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
-    source(file.path(".", "modules/Plots/moduleGraphMulti2Any.R"),  local = TRUE)$value
+    source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
     
     
     observeEvent(rv$current.obj,{
@@ -142,7 +142,7 @@ shinyServer(function(input, output, session) {
                    },
                graphTab = 
                {
-                 source(file.path("server", "srv_Graph.R"),  local = TRUE)$value
+                 callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
                },
                
                GOAnalysisTab = 
