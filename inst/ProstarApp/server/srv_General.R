@@ -287,7 +287,14 @@ ComputeAdjacencyMatrices <- reactive({
   rv$matAdj
 })
 
-
+ComputeConnexComposants <- reactive({
+  req(rv$matAdj)
+  print(dim(rv$matAdj$matWithSharedPeptides))
+  rv$CC <- list(allPep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithSharedPeptides)),
+                onlyUniquePep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithUniquePeptides)))
+  
+  rv$CC
+})
 
 
 ###-------------------------------------
@@ -341,7 +348,10 @@ loadObjectInMemoryFromConverter <- function(){
   
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
+    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ 
+      ComputeAdjacencyMatrices()
+      ComputeConnexComposants()
+      }
     
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     
@@ -634,6 +644,7 @@ ClearMemory <- function(){
     rv$proteinId = NULL
     rv$commandLog =  "" 
     rv$matAdj = NULL
+    rv$CC = NULL
     rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
     rv$res_AllPairwiseComparisons = data.frame()
     rv$indexNA = NULL
@@ -870,6 +881,7 @@ rv <- reactiveValues(
     normalizationFamily = NULL,
     normalizationMethod = NULL, 
     matAdj = NULL,
+    CC = NULL,
     resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
     res_AllPairwiseComparisons = data.frame(),
     progressImputation = 0,

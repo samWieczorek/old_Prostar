@@ -552,7 +552,9 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       rvModProcess$moduleNormalizationDone[5] <- TRUE
     
       if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-        ComputeAdjacencyMatrices()}
+        ComputeAdjacencyMatrices()
+        ComputeConnexComposants()
+      }
       updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
       }
   

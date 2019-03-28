@@ -80,6 +80,7 @@ shinyServer(function(input, output, session) {
     
     
     source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+    source(file.path(".", "modules/Plots/moduleGraphMulti2Any.R"),  local = TRUE)$value
     
     
     observeEvent(rv$current.obj,{
@@ -139,6 +140,10 @@ shinyServer(function(input, output, session) {
                  {
                    source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
                    },
+               graphTab = 
+               {
+                 source(file.path("server", "srv_Graph.R"),  local = TRUE)$value
+               },
                
                GOAnalysisTab = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,

@@ -133,29 +133,7 @@ GetPairwiseCompChoice <- reactive({
   ll
 })
 
-output$screenAnaDiff1 <- renderUI({
-  
-  tagList(
-    tags$div(
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              #uiOutput("newComparisonUI")
-              selectInput("selectComparison","Select comparison",
-                          choices = c("None"="None",GetPairwiseCompChoice()),
-                          selected = rv$widgets$anaDiff$Comparison,
-                          width='200px'),
-              checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              uiOutput("pushPValUI")),
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              uiOutput("AnaDiff_seuilNADelete")),
 
-    tags$div( style="display:inline-block; vertical-align: top;",
-              uiOutput("volcanoTooltip_UI"))
-  ),
-  tags$hr(),
-  moduleVolcanoplotUI("volcano_Step1")
-  )
-})
 
 
 
@@ -206,6 +184,30 @@ output$anaDiffPanel <- renderUI({
   
 })
 
+
+output$screenAnaDiff1 <- renderUI({
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                #uiOutput("newComparisonUI")
+                selectInput("selectComparison","Select comparison",
+                            choices = c("None"="None",GetPairwiseCompChoice()),
+                            selected = rv$widgets$anaDiff$Comparison,
+                            width='200px'),
+                checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                uiOutput("pushPValUI")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                uiOutput("AnaDiff_seuilNADelete")),
+      
+      tags$div( style="display:inline-block; vertical-align: top;",
+                uiOutput("volcanoTooltip_UI"))
+    ),
+    tags$hr(),
+    moduleVolcanoplotUI("volcano_Step1")
+  )
+})
 
 
 output$screenAnaDiff2 <- renderUI({

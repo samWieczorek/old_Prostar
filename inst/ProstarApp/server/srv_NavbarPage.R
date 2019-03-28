@@ -84,43 +84,70 @@ rv$current.obj
     }
     )
     }
-     
-     
-     
-     if (("DataMiningTab" %in% rv$UI_TabsList)){
-       removeTab(inputId = "navPage", target = "Data mining")
-     }
    
-       dataset.name <- last(names(rv$dataset))
-       prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
-       
-       if ((is.null(rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design) 
-            && is.null(rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design) ) || 
-           (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
-           rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None")) {
-     insertTab(inputId = "navPage",
+   
+   if (("DataMiningTab" %in% rv$UI_TabsList)){
+     removeTab(inputId = "navPage", target = "Data mining")
+   }
+   
+   dataset.name <- last(names(rv$dataset))
+   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
+   
+   if ((is.null(rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design) 
+        && is.null(rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design) ) || 
+       (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
+        rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None")) {
+     
+     if (rv$typeOfDataset == "peptide"){
+       insertTab(inputId = "navPage",
+                 navbarMenu("Data mining" 
+                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_Graph.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                 ),
+                 target = "Help",
+                 position="before")
+     } else {
+       insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
                             ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
                             ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
                  ),
                  target = "Help",
                  position="before")
-         
-         isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "DataMiningTab")})
-       } else {
-         insertTab(inputId = "navPage",
-                   navbarMenu("Data mining" 
-                              ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                              ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
-                              ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
-                   ),
-                   target = "Help",
-                   position="before")
-         isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "DataMiningTab")})
      }
-
-     #}
- })
+     isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "DataMiningTab")})
+     
+   } else {
+     if (rv$typeOfDataset == "peptide"){
+       insertTab(inputId = "navPage",
+                 navbarMenu("Data mining" 
+                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_Graph.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                 ),
+                 target = "Help",
+                 position="before")
+     } else {
+       insertTab(inputId = "navPage",
+                 navbarMenu("Data mining" 
+                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                 ),
+                 target = "Help",
+                 position="before")
+     }
+     isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "DataMiningTab")})
+   }
+   
+   
+   
+   
+   
+   #}
+})
 
 
 

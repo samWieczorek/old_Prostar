@@ -448,6 +448,7 @@ output$columnsForProteinDataset <- renderUI({
 observeEvent(req(input$proteinId),{
   rv$proteinId <- input$proteinId
   rv$matAdj <- ComputeAdjacencyMatrices()
+  ComputeConnexComposants()
   rv$widgets$aggregation$proteinId <- input$proteinId
 })
 
