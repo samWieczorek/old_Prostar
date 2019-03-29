@@ -100,9 +100,10 @@ shinyServer(function(input, output, session) {
     observeEvent(input$distance,{rv$PlotParams$heatmap.linkage <- input$linkage})
     
     
+    
      observe({
         req(input$navPage)
-       
+       shinyjs::toggle('tete', condition=(input$navPage != 'graphTab'))
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
                openMSnsetTab = {
@@ -142,7 +143,9 @@ shinyServer(function(input, output, session) {
                    },
                graphTab = 
                {
+               
                  callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
+                 
                },
                
                GOAnalysisTab = 

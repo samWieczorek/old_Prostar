@@ -27,11 +27,12 @@ moduleCCUI <- function(id) {
              tabPanel("CC multi prot",
                       tagList(
                         #uiOutput(ns("CCTooltip_UI")),
+                        # highchartOutput(ns("jiji")))
                         fluidRow(
-                          column(width=4, highchartOutput(ns("jiji"))),
-                          column(width=8, visNetworkOutput(ns("visNet_CC")))
+                          column(width=6,dataTableOutput(ns('CCMultiMulti'), height='200px')),
+                          column(width=6, visNetworkOutput(ns("visNet_CC"), height='600px'))
                         ),
-                        dataTableOutput(ns('CCMultiMulti'))
+                        dataTableOutput(ns('CCMultiMultiDetailed'))
                       )
              )
            )
@@ -46,20 +47,33 @@ moduleCC <- function(input, output, session,cc){
   
   ns <- session$ns
   
+  # 
+  # rv <- reactiveValues(
+  #   indiceInCC = NULL
+  # )
+  # 
   
   observeEvent(input$click,{
-    GetClickedPoint()
+    #GetClickedPoint()
     cc()
-    
-    tt <- cc()[[GetClickedPoint()]]
-    lst <- c(tt$peptides, tt$proteins)
     print(paste0("Node ID clicked : ", input$click))
-    print(paste0("Entity ID clicked : ", lst[input$click]))
-    print(exprs(rv$current.obj)[lst[input$click],])
+    
+    #tt <- cc()[[GetClickedPoint()]]
+    #lst <- c(tt$peptides, tt$proteins)
+    #print(paste0("Entity ID clicked : ", lst[input$click]))
+    #print(exprs(rv$current.obj)[lst[input$click],])
     print(fData(rv$current.obj)[lst[input$click],])
   })
   
   
+  GetClickedPoint <- reactive({
+    req(rv$current.obj)
+    req(input$eventPointClicked)
+    
+    this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
+    print(paste0("this.index = ", this.index))
+    this.index+1
+  })
   
   
   output$visNet_CC <- renderVisNetwork({
@@ -68,24 +82,16 @@ moduleCC <- function(input, output, session,cc){
     req(input$CCMultiMulti_rows_selected)
     
     local <-   cc()[Get_CC_Multi2Any()]
-    print("###############################")
-    print(length(local))
-    print("######### local ###############")
-    print(local)
-    print(input$CCMultiMulti_rows_selected)
     print("######### input$CCMultiMulti_row_selected ###############")
     indice <- input$CCMultiMulti_rows_selected
     print(indice)
-    print("######### local[indice] ###############")
     
-    print(local[indice])
-    #print(paste0("GetClickedPoint() = ", GetClickedPoint()))
-    #print(cc()[[GetClickedPoint()]])
     display.CC.visNet(local[[indice]], rv$matAdj$matWithSharedPeptides) %>%
-      visEvents(click = paste0("function(nodes){
+    visEvents(click = paste0("function(nodes){
                 Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
                 ;}")
-      )
+      ) %>% 
+      visOptions(highlightNearest = list(enabled = TRUE, hover = TRUE))
     
     
    
@@ -118,21 +124,12 @@ moduleCC <- function(input, output, session,cc){
           rv$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
 
       })
-
-      rv$tempplot$plotCC
+     rv$tempplot$plotCC
 
   })
   
   
   
-  GetClickedPoint <- reactive({
-    req(rv$current.obj)
-    req(input$eventPointClicked)
-    
-    this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
-    print(paste0("this.index = ", this.index))
-    this.index+1
-  })
   
   
   output$CCTooltip_UI <- renderUI({
@@ -147,16 +144,17 @@ moduleCC <- function(input, output, session,cc){
     )
   })
   
-  
-  
-  
-  
+
   
   output$CCMultiMulti <- renderDataTable({
     Get_CC_Multi2Any()
-    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                               function(x){
+                                 data.frame(rbind(x),
+                                            nPep = length(x$peptides),
+                                            nProt = length(x$proteins))}))
     df <- cbind(df,id = 1:nrow(df))
-    df <- df[c('id', 'proteins', 'nPep', 'peptides')]
+    df <- df[c('id', 'nProt', 'nPep', 'proteins', 'peptides')]
     
     dat <- DT::datatable(df,
                          selection = 'single',
@@ -164,14 +162,14 @@ moduleCC <- function(input, output, session,cc){
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
                                       dom='Bfrtip',
-                                      pageLength=DT_pagelength,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
-                                      scrollX = 200,
-                                      scrollY = 600,
+                                      scrollX = 400,
+                                      scrollY = 400,
+                                      displayLength = 10,
                                       scroller = TRUE,
                                       orderClasses = TRUE,
-                                      autoWidth=FALSE,
+                                      autoWidth=TRUE,
                                       columns.searchable=F,
                                       columnDefs = list(list(columns.width=c("60px"),
                                                              columnDefs.targets=c(list(0),list(1),list(2))))))
@@ -180,6 +178,39 @@ moduleCC <- function(input, output, session,cc){
   })
   
   
+  
+  output$CCMultiMultiDetailed <- renderDataTable({
+    Get_CC_Multi2Any()
+    req(input$CCMultiMulti_rows_selected)
+    
+    line <- input$CCMultiMulti_rows_selected
+    
+    ind <- 1:ncol(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj)
+    pepLine <- 1 + as.numeric(unlist(BuildMulti2AnyTab()[line,"peptides"]))
+    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    
+    dt <- datatable( data,
+                     extensions = c('Scroller', 'Buttons'),
+                     options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
+                                    blengthChange = FALSE,
+                                    ordering=FALSE,
+                                    scrollX = 400,
+                                    scrollY = 400,
+                                    displayLength = 10,
+                                    scroller = TRUE,
+                                    header=FALSE,
+                                    server = FALSE,
+                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                     )) %>%
+      formatStyle(
+        colnames(data)[1:(ncol(data)/2)],
+        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+    
+    dt
+  })
   
   
   
@@ -253,11 +284,11 @@ moduleCC <- function(input, output, session,cc){
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
                                       dom='Bfrtip',
-                                      pageLength=DT_pagelength,
                                       deferRender = TRUE,
-                                      bLengthChange = FALSE,
-                                      scrollX = 200,
-                                      scrollY = 600,
+                                      bLengthChange = TRUE,
+                                      displayLength = 10,
+                                      scrollX = 400,
+                                      scrollY = 400,
                                       scroller = TRUE,
                                       orderClasses = TRUE,
                                       autoWidth=FALSE,
@@ -283,6 +314,7 @@ moduleCC <- function(input, output, session,cc){
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
+                                    pageLength = 10,
                                     blengthChange = FALSE,
                                     displayLength = 10,
                                     ordering=FALSE,
@@ -310,11 +342,10 @@ moduleCC <- function(input, output, session,cc){
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
                                       dom='Bfrtip',
-                                      pageLength=DT_pagelength,
-                                      deferRender = TRUE,
+                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
-                                      scrollX = 200,
-                                      scrollY = 600,
+                                      scrollX = 400,
+                                      scrollY = 200,
                                       scroller = TRUE,
                                       orderClasses = TRUE,
                                       autoWidth=FALSE,
@@ -344,6 +375,7 @@ moduleCC <- function(input, output, session,cc){
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
                                     blengthChange = FALSE,
+                                    pageLength = 10,
                                     displayLength = 10,
                                     ordering=FALSE,
                                     header=FALSE,
