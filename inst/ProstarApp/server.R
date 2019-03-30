@@ -103,7 +103,7 @@ shinyServer(function(input, output, session) {
     
      observe({
         req(input$navPage)
-       shinyjs::toggle('tete', condition=(input$navPage != 'graphTab'))
+       shinyjs::toggle('tete', condition=!(input$navPage %in% c('graphTab', 'bugReportTab', 'checkForUpdatesTab', 'faqTab')))
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
                openMSnsetTab = {
