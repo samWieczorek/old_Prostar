@@ -2,7 +2,7 @@
 rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2) 
-
+#options(shiny.fullstacktrace=TRUE)
 
 require(compiler)
 enableJIT(3)

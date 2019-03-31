@@ -37,7 +37,9 @@ moduleCCUI <- function(id) {
                             highchartOutput(ns("jiji")),
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
                             )),
-                          column(width=6, visNetworkOutput(ns("visNet_CC"), height='600px'))
+                          column(width=6, tagList(
+                            actionButton(ns("rstSelection"), "Reset selection"),
+                            visNetworkOutput(ns("visNet_CC"), height='600px')))
                         ),
                         uiOutput(ns('CCDetailed'))
                       )
@@ -51,11 +53,6 @@ moduleCC <- function(input, output, session,cc){
   
   ns <- session$ns
   
-  # 
-  # rv <- reactiveValues(
-  #   indiceInCC = NULL
-  # )
-  # 
   rvCC <- reactiveValues(
     ## selected CC in global CC list (tab or plot)
     selectedCC = NULL,
@@ -78,21 +75,31 @@ moduleCC <- function(input, output, session,cc){
   })
   
   
+  # select a point in the grpah
   observeEvent(input$click,{
     rvCC$selectedNode <- input$click
+    print(paste0("new value for selectedNode :", rvCC$selectedNode))
     
   })
   
   
+  observeEvent(input$visNet_CC_selected,{
+    #rvCC$selectedNode <- input$click
+    print(paste0("new value for visNet_selected :", input$visNet_CC_selected))
+    
+  })
+  # Get the id of selected neighbors in the graph
   observeEvent(input$visNet_CC_highlight_color_id,{
     rvCC$selectedNeighbors <- input$visNet_CC_highlight_color_id
+    print(paste0("new value for rvCC$selectedNeighbor :", rvCC$selectedNeighbors))
   })
   
   
-  
+  # select a CC in the summary table
   observeEvent(input$CCMultiMulti_rows_selected, {
     rvCC$selectedCC <- input$CCMultiMulti_rows_selected
   })
+  
   
   observeEvent(req(input$eventPointClicked), {
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
@@ -101,11 +108,6 @@ moduleCC <- function(input, output, session,cc){
   })
   
 
-observe({
-  rvCC$selectedCC
-  print(paste0("new value for rvCC$selectedCC : ",rvCC$selectedCC))
-  })
-  
 output$visNet_CC <- renderVisNetwork({
     req(rvCC$selectedCC)
     local <-   cc()[Get_CC_Multi2Any()]
@@ -115,6 +117,7 @@ output$visNet_CC <- renderVisNetwork({
     display.CC.visNet(rvCC$selectedCCgraph) %>%
     visEvents(click = paste0("function(nodes){
                 Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
+                Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
                 ;}")
       ) %>%
       visOptions(highlightNearest = TRUE )
@@ -202,53 +205,68 @@ output$visNet_CC <- renderVisNetwork({
   })
   
   
-  
-  
-  
-  
-  
-  output$CCDetailed <- renderUI({
-    req(rvCC$selectedNeighbors)
+ 
+ observeEvent(c(rvCC$selectedNeighbors,input$node_selected), {
     req(rvCC$selectedCCgraph)
     req(rvCC$selectedCC)
+    input$node_selected
+    
     
     local <-   cc()[Get_CC_Multi2Any()]
     rvCC$selectedNeighbors
     
     nodes <- rvCC$selectedCCgraph$nodes
-    sharedPepIndices <- intersect(rvCC$selectedNeighbors, 
+    
+    print("liste des voisins")
+    print(rvCC$selectedNeighbors)
+    
+    print(paste0('nb nodes selected = ', input$node_selected))
+    
+    if(!is.null(input$node_selected) && (input$node_selected == 1)){ 
+      
+      sharedPepIndices <- intersect(rvCC$selectedNeighbors, 
                                   which(nodes[,'group'] == "shared.peptide"))
     specPepIndices <- intersect(rvCC$selectedNeighbors, 
                                 which(nodes[,'group'] == "spec.peptide"))
     protIndices <- intersect(rvCC$selectedNeighbors,
                                  which(nodes[,'group'] == "protein"))
     
-    
+    } else {
+      sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
+      specPepIndices <- which(nodes[,'group'] == "spec.peptide")
+      protIndices <- which(nodes[,'group'] == "protein")
+    }
     rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
     rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
     rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
     
-    #dataTableOutput(ns('CCMultiMultiDetailed'))
-    tagList(
+})
+
+    
+     output$CCDetailed <- renderUI({
+       req(rvCC$detailedselectedNode)
+      tagList(
       dataTableOutput(ns('CCDetailedProt')),
       dataTableOutput(ns('CCDetailedSpecPep')),
       dataTableOutput(ns('CCDetailedSharedPep'))
-    )
-  })
-  
+      )
+       
+     })
+ 
   output$CCDetailedProt<- renderDataTable({
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
     print("output$CCDetailedProt<- renderDataTable(")
     print(rvCC$detailedselectedNode$protLabels)
-    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels),
-                     other = rep(NA,length(rvCC$detailedselectedNode$protLabels)))
-                       
+    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
+                     #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
+                     )
+     print(str(df))                  
     dt <- datatable( df,
-                     extensions = c('Scroller', 'Buttons'),
+                     extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Bfrtip',
+                                    dom='Brt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
@@ -256,9 +274,7 @@ output$visNet_CC <- renderVisNetwork({
                                     displayLength = 10,
                                     scroller = TRUE,
                                     header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
-                     )) 
+                                    server = FALSE)) 
     dt
   })
   
@@ -277,9 +293,9 @@ output$visNet_CC <- renderVisNetwork({
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
     
     dt <- datatable( data,
-                     extensions = c('Scroller', 'Buttons'),
+                     extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Bfrtip',
+                                    dom='Brt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
@@ -307,16 +323,15 @@ output$visNet_CC <- renderVisNetwork({
     rvCC$detailedselectedNode
     if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
     
-    
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
     pepLine <-  1 + rvCC$detailedselectedNode$specPepLabels
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
     
     dt <- datatable( data,
-                     extensions = c('Scroller', 'Buttons'),
+                     extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Bfrtip',
+                                    dom='Brt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
