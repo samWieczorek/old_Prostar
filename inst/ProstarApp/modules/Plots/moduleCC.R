@@ -78,24 +78,19 @@ moduleCC <- function(input, output, session,cc){
   })
   
   
+  
+  
+  
   # select a point in the grpah
   observeEvent(input$click,{
     rvCC$selectedNode <- input$click
-    print(paste0("new value for selectedNode :", rvCC$selectedNode))
-    
-  })
+    })
   
-  
-  observeEvent(input$visNet_CC_selected,{
-    #rvCC$selectedNode <- input$click
-    print(paste0("new value for visNet_selected :", input$visNet_CC_selected))
-    
-  })
+
   # Get the id of selected neighbors in the graph
   observeEvent(input$visNet_CC_highlight_color_id,{
     rvCC$selectedNeighbors <- input$visNet_CC_highlight_color_id
-    print(paste0("new value for rvCC$selectedNeighbor :", rvCC$selectedNeighbors))
-  })
+    })
   
   
   # select a CC in the summary table
@@ -103,7 +98,7 @@ moduleCC <- function(input, output, session,cc){
     rvCC$selectedCC <- input$CCMultiMulti_rows_selected
   })
   
-  
+  # select a CC in the jitter plot
   observeEvent(req(input$eventPointClicked), {
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.index+1
@@ -158,22 +153,6 @@ output$visNet_CC <- renderVisNetwork({
 
   })
   
-  
-  
-  
-  
-  output$CCTooltip_UI <- renderUI({
-    req(rv$current.obj)
-    if(rv$typeOfDataset != 'peptide'){return(NULL)}
-    tagList(
-      #modulePopoverUI("modulePopover_volcanoTooltip"),
-      selectInput(ns("CCtooltipInfo"),
-                  label = NULL,
-                  choices = colnames(fData(rv$current.obj)),
-                  multiple = TRUE, selectize=FALSE,width='200px', size=5)
-    )
-  })
-  
 
   
   output$CCMultiMulti <- renderDataTable({
@@ -209,30 +188,17 @@ output$visNet_CC <- renderVisNetwork({
   
   
  
- observeEvent(c(rvCC$selectedNeighbors,input$node_selected), {
-    req(rvCC$selectedCCgraph)
-    req(rvCC$selectedCC)
-    input$node_selected
-    
+ observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
     
     local <-   cc()[Get_CC_Multi2Any()]
     rvCC$selectedNeighbors
     
     nodes <- rvCC$selectedCCgraph$nodes
     
-    print("liste des voisins")
-    print(rvCC$selectedNeighbors)
-    
-    print(paste0('nb nodes selected = ', input$node_selected))
-    
-    if(!is.null(input$node_selected) && (input$node_selected == 1)){ 
-      
-      sharedPepIndices <- intersect(rvCC$selectedNeighbors, 
-                                  which(nodes[,'group'] == "shared.peptide"))
-    specPepIndices <- intersect(rvCC$selectedNeighbors, 
-                                which(nodes[,'group'] == "spec.peptide"))
-    protIndices <- intersect(rvCC$selectedNeighbors,
-                                 which(nodes[,'group'] == "protein"))
+    if(!is.null(input$node_selected) && input$node_selected == 1){ 
+      sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
+      specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
+      protIndices <- intersect(rvCC$selectedNeighbors,which(nodes[,'group'] == "protein"))
     
     } else {
       sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
@@ -245,9 +211,11 @@ output$visNet_CC <- renderVisNetwork({
     
 })
 
-    
+
 output$CCDetailed <- renderUI({
    req(rvCC$detailedselectedNode)
+   req(rvCC$selectedCC)
+   
    tagList(
       h4("Proteins"),
       dataTableOutput(ns('CCDetailedProt')),
@@ -259,6 +227,7 @@ output$CCDetailed <- renderUI({
 })
  
   output$CCDetailedProt<- renderDataTable({
+    req(rvCC$selectedCC)
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
@@ -296,8 +265,13 @@ output$CCDetailed <- renderUI({
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
-    pepLine <- 1 + rvCC$detailedselectedNode$sharedPepLabels
-    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    print("rvCC$detailedselectedNode$sharedPepLabels")
+    print(rvCC$detailedselectedNode$sharedPepLabels)
+    
+    print(data)
+    pepLine <- rvCC$detailedselectedNode$sharedPepLabels
+    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
       {
@@ -340,8 +314,9 @@ output$CCDetailed <- renderUI({
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
-    pepLine <-  1 + rvCC$detailedselectedNode$specPepLabels
-    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    pepLine <-  rvCC$detailedselectedNode$specPepLabels
+    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
@@ -471,8 +446,11 @@ output$CCDetailed <- renderUI({
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
-    pepLine <- 1 + as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
-    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    pepLine <- as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
+    
+    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    
+    data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
@@ -542,8 +520,9 @@ output$CCDetailed <- renderUI({
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
-    pepLine <- 1 + as.numeric(BuildOne2OneTab()[line,2])
-    data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    pepLine <- as.numeric(BuildOne2OneTab()[line,2])
+    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     
     if(!is.null(input$pepInfo))
