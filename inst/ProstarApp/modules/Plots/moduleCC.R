@@ -6,6 +6,10 @@ moduleCCUI <- function(id) {
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
+             tabPanel("Settings",
+                      selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(rv$current.obj)),
+                                  multiple=TRUE)
+             ),
              tabPanel("CC one prot",
                       tagList(
                         bsCollapse(id = "collapseCCInfos", 
@@ -38,7 +42,6 @@ moduleCCUI <- function(id) {
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
                             )),
                           column(width=6, tagList(
-                            actionButton(ns("rstSelection"), "Reset selection"),
                             visNetworkOutput(ns("visNet_CC"), height='600px')))
                         ),
                         uiOutput(ns('CCDetailed'))
@@ -243,21 +246,23 @@ output$visNet_CC <- renderVisNetwork({
 })
 
     
-     output$CCDetailed <- renderUI({
-       req(rvCC$detailedselectedNode)
-      tagList(
+output$CCDetailed <- renderUI({
+   req(rvCC$detailedselectedNode)
+   tagList(
+      h4("Proteins"),
       dataTableOutput(ns('CCDetailedProt')),
+      h4("Specific peptides"),
       dataTableOutput(ns('CCDetailedSpecPep')),
+      h4("Shared peptides"),
       dataTableOutput(ns('CCDetailedSharedPep'))
-      )
-       
-     })
+    )
+})
  
   output$CCDetailedProt<- renderDataTable({
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
-    print("output$CCDetailedProt<- renderDataTable(")
+   # print("output$CCDetailedProt<- renderDataTable(")
     print(rvCC$detailedselectedNode$protLabels)
     df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
                      #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
@@ -266,7 +271,7 @@ output$visNet_CC <- renderVisNetwork({
     dt <- datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Brt',
+                                    dom='rt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
@@ -284,6 +289,8 @@ output$visNet_CC <- renderVisNetwork({
   
   output$CCDetailedSharedPep <- renderDataTable({
     rvCC$detailedselectedNode
+    input$pepInfo
+    
     if(is.null((rvCC$detailedselectedNode$sharedPepLabels))){return(NULL)}
     
     
@@ -292,23 +299,30 @@ output$visNet_CC <- renderVisNetwork({
     pepLine <- 1 + rvCC$detailedselectedNode$sharedPepLabels
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
     
+    if(!is.null(input$pepInfo))
+      {
+      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
+    }
+    
+    offset <- length(input$pepInfo)
     dt <- datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Brt',
+                                    dom='rt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
-                                    scrollY = 100,
+                                    scrollY = 150,
                                     displayLength = 10,
                                     scroller = TRUE,
                                     header=FALSE,
                                     server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        colnames(data)[1:((ncol(data)-offset)/2)],
+        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
     
     dt
@@ -321,6 +335,7 @@ output$visNet_CC <- renderVisNetwork({
   #####-----------
   output$CCDetailedSpecPep <- renderDataTable({
     rvCC$detailedselectedNode
+    input$pepInfo
     if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
     
     ind <- 1:ncol(rv$current.obj)
@@ -328,10 +343,19 @@ output$visNet_CC <- renderVisNetwork({
     pepLine <-  1 + rvCC$detailedselectedNode$specPepLabels
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
     
+    if(!is.null(input$pepInfo))
+    {
+      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
+    }
+    
+    offset <- length(input$pepInfo)
+    
+    
     dt <- datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='Brt',
+                                    dom='rt',
                                     blengthChange = FALSE,
                                     ordering=FALSE,
                                     scrollX = 400,
@@ -340,11 +364,11 @@ output$visNet_CC <- renderVisNetwork({
                                     scroller = TRUE,
                                     header=FALSE,
                                     server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        colnames(data)[1:((ncol(data)-offset)/2)],
+        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
     
     dt
@@ -440,6 +464,7 @@ output$visNet_CC <- renderVisNetwork({
   
   
   output$OneMultiDTDetailed <- renderDataTable({
+    input$pepInfo
     req(input$OneMultiDT_rows_selected)
     
     line <- input$OneMultiDT_rows_selected
@@ -448,6 +473,16 @@ output$visNet_CC <- renderVisNetwork({
     data <- getDataForExprs(rv$current.obj)
     pepLine <- 1 + as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    
+    if(!is.null(input$pepInfo))
+    {
+      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
+    }
+    
+    offset <- length(input$pepInfo)
+    
+    
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -458,11 +493,11 @@ output$visNet_CC <- renderVisNetwork({
                                     ordering=FALSE,
                                     header=FALSE,
                                     server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        colnames(data)[1:((ncol(data)-offset)/2)],
+        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
     
     dt
@@ -499,6 +534,7 @@ output$visNet_CC <- renderVisNetwork({
   output$OneOneDTDetailed <- renderDataTable({
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
+    input$pepInfo
     
     line <- input$OneOneDT_rows_selected
     
@@ -508,6 +544,18 @@ output$visNet_CC <- renderVisNetwork({
     data <- getDataForExprs(rv$current.obj)
     pepLine <- 1 + as.numeric(BuildOne2OneTab()[line,2])
     data <- data[pepLine,c(ind, (ind + ncol(data)/2))]
+    
+    
+    if(!is.null(input$pepInfo))
+    {
+      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
+    }
+    
+    offset <- length(input$pepInfo)
+    
+    
+    
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -518,11 +566,11 @@ output$visNet_CC <- renderVisNetwork({
                                     ordering=FALSE,
                                     header=FALSE,
                                     server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):(ncol(data))],
+        colnames(data)[1:((ncol(data)-offset)/2)],
+        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
     
     dt
