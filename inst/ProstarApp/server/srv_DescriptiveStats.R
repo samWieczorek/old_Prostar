@@ -20,6 +20,7 @@ callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetO
 
 
 observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
+
 observeEvent(input$varScale_PCA,{
   rv$PCA_varScale <- input$varScale_PCA
   rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())

@@ -409,7 +409,6 @@ output$VizualizeFilteredData <- DT::renderDataTable({
   rv$deleted.stringBased
   rv$deleted.numeric
   
-  print("IN output$VizualizeFilteredData <- DT::renderDataTable")
   data <- NULL
   if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
   {
@@ -557,7 +556,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       }
       updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
       }
-  
+    rvModProcess$moduleFilteringDone[5] <- TRUE
   })
   
 })
