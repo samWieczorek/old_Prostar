@@ -232,11 +232,9 @@ output$CCDetailed <- renderUI({
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
    # print("output$CCDetailedProt<- renderDataTable(")
-    print(rvCC$detailedselectedNode$protLabels)
     df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
                      #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
                      )
-     print(str(df))                  
     dt <- datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
@@ -265,10 +263,6 @@ output$CCDetailed <- renderUI({
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
-    print("rvCC$detailedselectedNode$sharedPepLabels")
-    print(rvCC$detailedselectedNode$sharedPepLabels)
-    
-    print(data)
     pepLine <- rvCC$detailedselectedNode$sharedPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
@@ -359,7 +353,6 @@ output$CCDetailed <- renderUI({
     ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
     ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
     ll.prot.one2one <- intersect(which(ll.prot == 1),which(ll.pept == 1))
-    print(paste0("In Get_CC_One2One:  ", length(ll.prot.one2one)))
     ll.prot.one2one
   })
   
@@ -368,7 +361,6 @@ output$CCDetailed <- renderUI({
     ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
     ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
     ll.prot.one2multi <- intersect(which(ll.prot == 1),which(ll.pept > 1))
-    print(paste0("In Get_CC_One2multi:  ", length(ll.prot.one2multi)))
     ll.prot.one2multi
   })
   
@@ -377,7 +369,6 @@ output$CCDetailed <- renderUI({
     ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
     ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
     ll.prot.multi2any <- which(ll.prot > 1)
-    print(paste0("In Get_CC_Multi2Any:  ", length(ll.prot.multi2any)))
     ll.prot.multi2any
   })
   
@@ -386,7 +377,6 @@ output$CCDetailed <- renderUI({
   BuildOne2OneTab <- reactive({
     rv$CC$allPep
     table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
-    print(paste0("In BuildOne2OneTab:  ", nrow(table)))
     table
   })
   
@@ -394,7 +384,6 @@ output$CCDetailed <- renderUI({
     rv$CC$allPep
     table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
     table <- table[c('proteins', 'nPep', 'peptides')]
-    print(paste0("In BuildOne2MultiTab:  ", nrow(table)))
     table
   })
   
@@ -404,7 +393,6 @@ output$CCDetailed <- renderUI({
     table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
     table <- table[c('proteins', 'nPep', 'peptides')]
     
-    print(paste0("In BuildMulti2AnyTab:  ", nrow(table)))
     table
   })
   
@@ -516,14 +504,11 @@ output$CCDetailed <- renderUI({
     
     line <- input$OneOneDT_rows_selected
     
-    print(paste0('Line selected = ', line))
-    
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj)
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
-    
     
     if(!is.null(input$pepInfo))
     {
@@ -532,9 +517,7 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
-    
-    
-    
+
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
