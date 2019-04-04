@@ -115,13 +115,13 @@ output$stringBased_Filtering <- renderUI({
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
   
-  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
-    choice <- c("None", colnames(fData(rv$current.obj)))
-  } else {
-    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
-    choice <- c("None", colnames(fData(rv$current.obj))[-index])
-  }
-  
+  # if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
+  #   choice <- c("None", colnames(fData(rv$current.obj)))
+  # } else {
+  #   index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+  #   choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  # }
+  choice <- c("None", colnames(fData(rv$current.obj)))
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
@@ -207,13 +207,14 @@ observeEvent(input$actionButtonFilter,{
 output$SymbolicFilterOptions <- renderUI({
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_filterSummary)
-  
-  if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
-    choice <- c("None", colnames(fData(rv$current.obj)))
-  } else {
-    index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
-    choice <- c("None", colnames(fData(rv$current.obj))[-index])
-  }
+  # 
+  # if (nrow(rv$widgets$filtering$DT_filterSummary) <= 1) {
+  #   choice <- c("None", colnames(fData(rv$current.obj)))
+  # } else {
+  #   index <- match(rv$widgets$filtering$DT_filterSummary[-1,"Filter"], colnames(fData(rv$current.obj)))
+  #   choice <- c("None", colnames(fData(rv$current.obj))[-index])
+  # }
+  choice <- c("None", colnames(fData(rv$current.obj)))
   tagList(
     selectInput("symFilter_cname", "Column name", choices = choice),
     textInput("symFilter_tagName", "Prefix", value = ""),
