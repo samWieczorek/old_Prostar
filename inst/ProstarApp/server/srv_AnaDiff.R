@@ -310,7 +310,6 @@ output$anaDiff_selectedItems <- renderDT({
 
 
 output$downloadSelectedItems <- downloadHandler(
-  #input$chooseDatasetToExportToMSnset,
   filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
   content = function(file) {
     print(paste0("file to write=", file))
