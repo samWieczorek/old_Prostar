@@ -600,7 +600,9 @@ Get_FDR <- reactive({
 
 output$showFDR <- renderUI({
   req(rv$current.obj)
+  nb <- length(which(GetSelectedItems()$isDifferential==1))
   
+  print(nb)
   tagList(
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
@@ -840,21 +842,6 @@ GetSelectedItems <- reactive({
   req(rv$resAnaDiff)
   input$downloadAnaDiff
 print(input$downloadAnaDiff)
-  # t <- NULL
-  # upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
-  # upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
-  # 
-  # if (input$downloadAnaDiff == "All"){
-  #   selectedItems <- 1:nrow(rv$current.obj)
-  #   significant <- rep(0, nrow(rv$current.obj))
-  #   significant[intersect(upItems1, upItems2)] <- 1
-  # } else {
-  #   selectedItems <- intersect(upItems1, upItems2)
-  #   significant <- rep(1, length(selectedItems))
-  # }
-  # 
-  # 
-
   
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
