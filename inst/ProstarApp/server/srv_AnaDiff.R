@@ -534,9 +534,12 @@ Get_FDR <- reactive({
 })
 
 
-
 output$showFDR <- renderUI({
   req(rv$current.obj)
+  nb <- length(which(GetSelectedItems()$isDifferential==1))
+  th <- Get_FDR() * nb
+  print(th)
+  
   
   tagList(
     if (!is.infinite(Get_FDR())){
@@ -544,11 +547,18 @@ output$showFDR <- renderUI({
              signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")")
     } else {
       tags$p(style="font-size: 25px;","FDR = NA") 
-    }
+    },
+    
+    if (th < 1){
+      tags$p(style="color: red","Warning: With such a dataset size (xxx selected prot ), 
+              an FDR of xxx% should be cautiously interpreted as strictly less than one protein 
+             or peptides (seuil) is expected to be a false discovery")
+    } 
   )
   
   
 })
+
 
 
 
