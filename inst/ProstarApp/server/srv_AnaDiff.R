@@ -550,9 +550,10 @@ output$showFDR <- renderUI({
     },
     
     if (th < 1){
-      tags$p(style="color: red","Warning: With such a dataset size (xxx selected prot ), 
-              an FDR of xxx% should be cautiously interpreted as strictly less than one protein 
-             or peptides (seuil) is expected to be a false discovery")
+      txt <- paste0("Warning: With such a dataset size (", nb, " selected ", rv$typeOfDataset, "(s)), 
+              an FDR of ", round(100*Get_FDR(), digits=2), "%  should be cautiously interpreted as strictly less than one ",
+                    rv$typeOfDataset," is expected to be a false discovery.")
+      tags$p(style="color: red",txt)
     } 
   )
   

@@ -2,7 +2,7 @@ library(visNetwork)
 
 moduleCCUI <- function(id) {
   ns <- NS(id)
-  tabPanel("Graph",
+  tabPanel("Peptide explorer",
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
