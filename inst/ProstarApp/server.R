@@ -40,7 +40,8 @@ server <- function(input, output, session){
   source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
   
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
-  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
+  source(file.path(".", "modules/modulePopover.R"),  local = TRUE)$value
+  source(file.path(".", "commonFunc.R"),  local = TRUE)$value
   
   loadLibraries()
   

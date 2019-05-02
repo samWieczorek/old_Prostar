@@ -10,7 +10,8 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
-source(file.path(".", "modules/DataManager/moduleDemoMode.R"), local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
+
 
 pipeline <- reactiveValues(
   # current working data from current pipeline
@@ -27,9 +28,7 @@ pipeline <- reactiveValues(
 
 
 
-obj.demomode <- callModule(module=moduleDemoMode, 'demoMode')
-#obj.convertmode <- callModule(module=moduleConvertMode, 'convertMode')
-#obj.openmode <- callModule(module=moduleOpenMode, 'openMode')
+obj.demomode <- callModule(module=moduleDemoMode, 'demoMode', selectedPanel = reactive({input$navPage}))
 
 
 GetCurrentMSnSet <- reactive({
@@ -47,9 +46,9 @@ GetCurrentMSnSet <- reactive({
 #   print("---- new value for pipeline$current.msnset ----")
 # })
 
+
+
 observeEvent(GetCurrentMSnSet(),{
-  
-  
   print("callModule showPlots")
   print(dim(GetCurrentMSnSet()))
   callModule(module = modulePlots, 'showPlots', 
@@ -60,23 +59,18 @@ observeEvent(GetCurrentMSnSet(),{
 
 
 
-observeEvent(obj.demomode(),{ 
-  print("update for rv$current.obj")
-  rv$current.obj <- obj.demomode()  
-  print(rv$current.obj)
-  })
+# observeEvent(obj.demomode(),{ 
+#   print("update for rv$current.obj")
+#   rv$current.obj <- obj.demomode()  
+#   print(rv$current.obj)
+#   })
 
-
-
-
-#observeEvent(obj.convertmode(),{rv$obj <- obj.convertmode()})
-#observeEvent(obj.openmode(),{rv$obj <- obj.openmode()})
 
 ## Initialization of the pipeline
-observeEvent(req(rv$current.obj),{
-  print(paste0("IN observeEvent(req(obj()$initialData : ", rv$current.obj$pipeline))
+observeEvent(req(obj.demomode()),{
+  print(paste0("IN observeEvent(req(obj()$initialData : ", obj.demomode()$pipeline))
   
-  switch(rv$current.obj$pipeline,
+  switch(obj.demomode()$pipeline,
          
          Peptide={
            # Load UI code for modules
@@ -109,11 +103,11 @@ observeEvent(req(rv$current.obj),{
   )
   
   pipeline$current.indice <- 1
-  pipeline$current.obj <- rv$current.obj
+  pipeline$current.obj <- obj.demomode()
   
   ## which processes will be part of the pipeline
   pipeline$init.obj <- list(NULL)
-  pipeline$init.obj[['original']] <- rv$current.obj$datasets$original
+  pipeline$init.obj[['original']] <- obj.demomode()$datasets$original
   pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   #pipeline$current.dataset <- pipeline$init.obj
   #pipeline$current.obj <- pipeline$init.obj[['original']]

@@ -20,18 +20,29 @@ moduleAUI <- function(id){
 moduleA <- function(input, output, session, dataIn, screen.id){
   ns <- session$ns
   
-  
+  #################################################################
+  ## Mandatory code
   rv <- reactiveValues(
     obj = NULL,
     res = NULL, 
     name ="processA")
   
   
+  ## Initialization of the module
   observeEvent(dataIn(), {
     rv$obj <- dataIn()
-    
   })
   
+  
+  observeEvent(input$btn_send, {
+    rv$res <- rv$obj
+    print(paste0("save module A : ",rv$obj, "__", rv$res))
+  })
+  
+  return(reactive({rv$res}))
+  
+  
+  #########################################################################
   
  
   output$screen1 <- renderUI({
@@ -66,10 +77,5 @@ moduleA <- function(input, output, session, dataIn, screen.id){
     rv$obj <- dataIn()
   })
   
-  observeEvent(input$btn_send, {
-    rv$res <- rv$obj
-    print(paste0("save module A : ",rv$obj, "__", rv$res))
-  })
   
-  return(reactive({rv$res}))
 }

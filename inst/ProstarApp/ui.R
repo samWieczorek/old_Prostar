@@ -5,7 +5,7 @@ library(sass)
 
 
 
-source(file.path(".", "modules/DataManager/moduleDemoMode.R"),  local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleOpenDataset.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
@@ -65,18 +65,16 @@ ui <- fluidPage(
           
           tabPanel("Home"),
           tagList( modulePlotsUI('showPlots')),
-          navbarMenu("Data manager" ,
-                     tabPanel("Open MSnset",
-                              selectInput("selectPipeline", "Select pipeline",
-                                          choices=c("None"="","Peptide"="Peptide", "Protein"="Protein", "P2p" = "P2p"),
-                                          selected=character(0)),
-                              uiOutput("openMSnset"),
-                              actionButton('loadDataset', "Load dataset")),
-                     tabPanel("Convert"),
-                     tabPanel("Demo data", 
-                              br(),br(),br(),br(),
-                              moduleDemoModeUI("demoMode"))
-          ),
+          moduleDemoModeUI("demoMode"),
+          # navbarMenu("Data manager" ,
+          #            tabPanel("Open MSnset",
+          #                     br(),br(),br(),br(),
+          #                     moduleDemoModeUI("openMSnset")),
+          #            tabPanel("Convert"),
+          #            tabPanel("Demo data", 
+          #                     br(),br(),br(),br(),
+          #                     moduleDemoModeUI("demoMode"))
+          # ),
           navbarMenu("Help",
                  tabPanel("Useful links",
                           moduleInsertMarkdownUI('links_MD')

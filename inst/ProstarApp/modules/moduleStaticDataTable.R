@@ -12,18 +12,22 @@ moduleStaticDataTableUI <- function(id) {
 
 
 ### server ###
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns=NULL, showRownames=FALSE, dom='Bt') {
+moduleStaticDataTable <- function(input, output, session,
+                                  table2show,
+                                  withBtns=NULL,
+                                  showRownames=FALSE,
+                                  dom='Bt') {
   ns <- session$ns
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
   
   output$StaticDataTable <- renderDT({
+    req(table2show())
     print("IN StaticDataTable")
     print(table2show())
-    req(table2show())
     if (length(table2show())==0){return(NULL)}
-    
+    print("continue")
     isolate({
       DT::datatable(table2show(), 
                     extensions = c('Scroller', 'Buttons'),
