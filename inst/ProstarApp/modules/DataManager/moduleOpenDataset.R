@@ -89,15 +89,19 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   callModule(moduleStaticDataTable,"overview_OpenMode", 
              table2show=reactive({GetDatasetOverview2(rv.demomode$current.obj$datasets[[1]])}))
   
-  callModule(moduleStaticDataTable,"overview_ConvertMode", 
-             table2show=reactive({GetDatasetOverview2(rv.demomode$current.obj$datasets[[1]])}))
+ # callModule(moduleStaticDataTable,"overview_ConvertMode", 
+  #           table2show=reactive({GetDatasetOverview2(rv.demomode$current.obj$datasets[[1]])}))
   
   
   rv.demomode$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
   
   
-  
-  
+  observe({
+    req(rv.demomode$tmp.convert())
+
+    rv.demomode$current.obj <- rv.demomode$tmp.convert()
+  })
+
 
   
   

@@ -42,8 +42,20 @@ server <- function(input, output, session){
   source(file.path(".", "modules/Export/moduleExport.R"),  local = TRUE)$value
   source(file.path(".", "modules/modulePopover.R"),  local = TRUE)$value
   source(file.path(".", "commonFunc.R"),  local = TRUE)$value
+  source(file.path(".", "srv_Settings.R"),  local = TRUE)$value
   
   loadLibraries()
+  
+  rv.PlotParams <- reactiveValues(
+    legDS = NULL,
+    corrMatrixGradient = defaultGradientRate,
+    legDS_Violinplot = NULL,
+    heatmap.linkage = 'complete',
+    heatmap.distance = "euclidean",
+    paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+    legendForSamples = NULL
+    )
+
   
   
   rv <- reactiveValues(

@@ -14,6 +14,7 @@ moduleConvertDataUI <- function(id){
 
 moduleConvertData <- function(input, output, session){
   ns <- session$ns
+  source(file.path(".", "srv_BuildDesign.R"),  local = TRUE)$value
   
   callModule(modulePopover,"modulePopover_convertChooseDatafile", 
              data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
@@ -49,8 +50,8 @@ moduleConvertData <- function(input, output, session){
                ll.UI = list( screenStep1 = uiOutput(ns("Convert_SelectFile")),
                              screenStep2 = uiOutput(ns("Convert_DataId")),
                              screenStep3 = uiOutput(ns("Convert_ExpFeatData")),
-                             screenStep2 = uiOutput(ns("Convert_BuildDesign")),
-                             screenStep3 = uiOutput(ns("Convert_Convert"))
+                             screenStep4 = uiOutput(ns("Convert_BuildDesign")),
+                             screenStep5 = uiOutput(ns("Convert_Convert"))
                ),
                rstFunc = reactive({resetModuleConvert()}))
   )
@@ -109,6 +110,7 @@ resetModuleConvert<- reactive({
 
 
 #################################
+### Screen 1
 output$Convert_SelectFile <- renderUI({
   tagList(br(), br(),
           fluidRow(
@@ -125,7 +127,8 @@ output$Convert_SelectFile <- renderUI({
   )
 })
 
-
+#################################
+### Screen 1
 output$Convert_DataId <- renderUI({
   
   tagList(
@@ -152,14 +155,14 @@ output$Convert_ExpFeatData <- renderUI({
   
   tagList(
     fluidRow(
-      column(width=4,checkboxInput(ns("selectIdent", 
+      column(width=4,checkboxInput(ns("selectIdent"), 
                                    "Select columns for identification method", 
-                                   value = FALSE))),
+                                   value = FALSE)),
       column(width=4,uiOutput(ns("checkIdentificationTab")))
     ),
     fluidRow(
-      column(width=4,uiOutput(ns("eData",width = "400px"))),
-      column(width=8,DT::dataTableOutput(ns("x1", width='500px')))),
+      column(width=4,uiOutput(ns("eData"),width = "400px")),
+      column(width=8,DT::dataTableOutput(ns("x1"), width='500px'))),
     tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                      Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
 })"))
@@ -283,8 +286,8 @@ output$convertChooseProteinID_UI <- renderUI({
   .choices <- c("",colnames(rv.convert$tab1))
   names(.choices) <- c("",colnames(rv.convert$tab1))
   tagList(
-    modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId","",choices =  .choices , selected = character(0))
+    modulePopoverUI(ns("modulePopover_convertProteinID")),
+    selectInput(ns("convert_proteinId"),"",choices =  .choices , selected = character(0))
   )
 })
 
@@ -499,7 +502,7 @@ observe({
 
 
 observe({
-  rvNavProcess$Done[4] <- !is.null(rv.convert$designChecked$valid) && isTRUE(rv.convert$designChecked$valid)
+  rvNavProcess$Done[4] <- !is.null(rv.buildDesign$designChecked$valid) && isTRUE(rv.buildDesign$designChecked$valid)
 })
 
 
@@ -658,26 +661,16 @@ observeEvent(input$createMSnsetButton,{
   result = tryCatch(
     {
       ext <- GetExtension(input$file2Convert$name)
-      txtTab <-  paste("tab1 <- read.csv(\"", input$file2Convert$name,
-                       "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-      txtXls <-  paste("tab1 <- read.xlsx(",input$file2Convert$name,
-                       ",sheet=", input$XLSsheets,")",sep="")
-      switch(ext,
-             txt = writeToCommandLogFile(txtTab),
-             csv = writeToCommandLogFile(txtTab),
-             tsv = writeToCommandLogFile(txtTab),
-             xls= writeToCommandLogFile(txtXls),
-             xlsx = writeToCommandLogFile(txtXls)
-      )
+     
       
       input$filenameToCreate
       rv.convert$tab1
       
       tmp.eData.box <- input$eData.box
       indexForEData <- match(tmp.eData.box, colnames(rv.convert$tab1))
-      if (!is.null(rv.convert$newOrder)){
-        tmp.eData.box <- tmp.eData.box[rv.convert$newOrder]
-        indexForEData <- indexForEData[rv.convert$newOrder]
+      if (!is.null(rv.buildDesign$newOrder)){
+        tmp.eData.box <- tmp.eData.box[rv.buildDesign$newOrder]
+        indexForEData <- indexForEData[rv.buildDesign$newOrder]
       }
       
       indexForFData <- seq(1,ncol(rv.convert$tab1))[-indexForEData]
@@ -726,11 +719,16 @@ observeEvent(input$createMSnsetButton,{
       
       l.params <- list(filename = input$filenameToCreate)
       
-      loadObjectInMemoryFromConverter()
+      #loadObjectInMemoryFromConverter()
       
       updateTabsetPanel(session, "tabImport", selected = "Convert")
+      rv.convert$res <- list(datasets = list(original=rv.convert$obj),
+                                      name.dataset = rv.convert$obj.name, 
+                                      pipeline = input$typeOfData)
+     
       
-      rv.convert$res <- rv.convert$obj
+      
+       
       
       rvNavProcess$Done[5] <- TRUE
     }
