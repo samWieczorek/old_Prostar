@@ -212,6 +212,31 @@ SetCustomCSS <- function(){
 
 
 Group2Color <- reactive({
-  print(paste0("rv$settings()$whichGroup2Color = ", rv$settings()$whichGroup2Color))
-  rv$settings()$whichGroup2Color
+  print(paste0("rv$settings()$whichGroup2Color = ", rv.prostar$settings()$whichGroup2Color))
+  rv.prostar$settings()$whichGroup2Color
 })
+
+
+
+
+
+getDataForExprs <- function(obj){
+  
+  
+  test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv.prostar$settings()$nDigits))
+  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+    test.table <- cbind(test.table, 
+                        Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+    # print(paste0("tutu:",head(test.table)))
+    
+  } else {
+    test.table <- cbind(test.table, 
+                        as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+    #print(paste0("tata:",head(test.table)))
+  }
+  return(test.table)
+  
+}
+
+

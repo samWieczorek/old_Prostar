@@ -61,7 +61,7 @@ server <- function(input, output, session){
 
   
   
-  rv <- reactiveValues(
+  rv.prostar <- reactiveValues(
     obj = NULL,
     settings = NULL
   )
@@ -79,7 +79,7 @@ server <- function(input, output, session){
  callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
  callModule(moduleInsertMarkdown, "links_MD",URL_links)
  callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
- rv$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
+ rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
  
 
  # observe({

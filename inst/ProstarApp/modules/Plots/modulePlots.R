@@ -16,7 +16,6 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   
   source(file.path(".", "modules/Plots/moduleBoxplot.R"), local = TRUE)$value
   source(file.path(".", "modules/Plots/moduleDensityPlot.R"), local = TRUE)$value
-  source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
   
   source(file.path(".", "modules/Plots/corrMatrixPlots.R"), local = TRUE)$value
   source(file.path(".", "modules/Plots/mvPlots.R"), local = TRUE)$value

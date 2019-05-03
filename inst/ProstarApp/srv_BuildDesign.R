@@ -20,7 +20,7 @@ observeEvent(input$linkToFaq1, {
 
 color_renderer <- reactive({
   conds <- rv.buildDesign$hot$Condition
-  pal <- rv$settings()$examplePalette
+  pal <- rv.prostar$settings()$examplePalette
   
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"

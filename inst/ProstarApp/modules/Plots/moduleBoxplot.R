@@ -35,7 +35,7 @@ moduleBoxplot <- function(input, output, session) {
     tmp <- NULL
     isolate({
       pattern <- paste0(GetCurrentObjName(),".boxplot")
-      tmp <- DAPAR::boxPlotD_HC(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv$settings()$examplePalette)
+      tmp <- DAPAR::boxPlotD_HC(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -48,11 +48,11 @@ moduleBoxplot <- function(input, output, session) {
     
     req(GetCurrentMSnSet())
     rv$PlotParams$legendForSamples
-    rv$settings()$examplePalette
+    rv.prostar$settings()$examplePalette
     tmp <- NULL
     isolate({
       pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv$settings()$examplePalette)
+      tmp <- DAPAR::violinPlotD(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

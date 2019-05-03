@@ -54,17 +54,17 @@ observeEvent(GetCurrentMSnSet(),{
   callModule(module = modulePlots, 'showPlots', 
              dataIn=reactive({GetCurrentMSnSet()}), 
              llPlots=reactive({lstDescPlots}),
-             settings = reactive({rv$settings}))
+             settings = reactive({rv.prostar$settings}))
 })
 
 
 
 
-# observeEvent(obj.demomode(),{ 
-#   print("update for rv$current.obj")
-#   rv$current.obj <- obj.demomode()  
-#   print(rv$current.obj)
-#   })
+ observe({
+   rv.prostar$settings 
+   print("NEW rv.prostar$settings")
+print(rv.prostar$settings)
+   })
 
 
 ## Initialization of the pipeline

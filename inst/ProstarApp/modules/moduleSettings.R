@@ -189,11 +189,19 @@ observeEvent(input$whichGroup2Color,{
   rv.settings$whichGroup2Color <- input$whichGroup2Color
 })
 
+observeEvent(GetExamplePalette(), {
+  rv.settings$examplePalette <- GetExamplePalette()
+  
+  print("new rv.settings$examplePalette")
+  print(rv.settings$examplePalette)
+})
 
 ############
 GetExamplePalette <- reactive({
+  rv.settings$choosePalette
   rv.settings$whichGroup2Color
   req(dataIn())
+  GetTest()
   rv.settings$typeOfPalette
   #req(input$typeOfPalette)
   pal <- rep('#000000', length(Biobase::pData(dataIn())$Condition))
@@ -296,9 +304,6 @@ output$customPaletteUI <- renderUI({
 
 
  
- observeEvent(c(rv.settings$choosePalette,rv.settings$typeOfPalette,dataIn(),GetTest(), rv.settings$whichGroup2Color), {
-   rv.settings$examplePalette = GetExamplePalette()
-   })
 
 observeEvent(input$colMEC, {rv.settings$colorsTypeMV$MEC <- input$colMEC})
 observeEvent(input$colPOV, { rv.settings$colorsTypeMV$POV <- input$colPOV})

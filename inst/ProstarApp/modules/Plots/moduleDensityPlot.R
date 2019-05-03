@@ -17,7 +17,7 @@ moduleDensityplot <- function(input, output, session) {
   
   output$Densityplot <- renderHighchart({
     req(GetCurrentMSnSet())
-    rv$settings()$examplePalette
+    rv.prostar$settings()$examplePalette
     rv$PlotParams$legendForSamples
     tmp <- NULL
     isolate({
@@ -26,7 +26,7 @@ moduleDensityplot <- function(input, output, session) {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
         tmp <- DAPAR::densityPlotD_HC(GetCurrentMSnSet(), 
                                       rv$PlotParams$legendForSamples,
-                                      rv$settings()$examplePalette)
+                                      rv.prostar$settings()$examplePalette)
         # future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })
     })

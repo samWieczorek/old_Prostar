@@ -24,12 +24,12 @@ output$plotvarDistlarge <- renderUI({
 viewDistCV <- reactive({
   
   req(dataIn())
-  rv$settings()$examplePalette
+  rv.prostar$settings()$examplePalette
   
   isolate({
-    rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), rv$settings()$examplePalette)
+    rv.prostar$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), rv.prostar$settings()$examplePalette)
     })
-  rv$tempplot$varDist
+  rv.prostar$tempplot$varDist
   
   
 })

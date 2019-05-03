@@ -13,14 +13,13 @@ MSnSetExplorerUI <- function(id) {
 MSnSetExplorer <- function(input, output, session, data) {
   ns <- session$ns
   
-  callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
+  #callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS", colorsTypeMV = reactive({rv.prostar$settings()$colorsTypeMV}))
   
   
   output$DS_sidebarPanel_tab <- renderUI({
-    req(rv$typeOfDataset)
-    
+    typeOfDataset <- data()@experimentData@other$typeOfData
     .choices<- NULL
-    switch(rv$typeOfDataset,
+    switch(typeOfDataset,
            protein = {
              .choices <- list( "Quantitative data" = "tabExprs",
                                "Proteins metadata" = "tabfData",
@@ -57,14 +56,28 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   
   
-  callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
+  #callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
   
   output$legendForExprsData <- renderUI({
     req(input$DS_TabsChoice)
     
     if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-    moduleLegendColoredExprsUI("ExprsColorLegend_DS",rv$colorsTypeMV)
     
+    tagList(
+      tags$p(tags$b("Legend of colors")),
+      
+      fluidRow(
+        column(width=2, HTML(paste0("<div style=\"width:50px;height:20px;border:0px solid #000; background-color: ",
+                                    rv.prostar$settings()$colorsTypeMV$POV,";\"></div>")) ),
+        column(width=10, tags$p("Partially Observed Value"))
+      ),
+      
+      fluidRow(
+        column(width=2,HTML(paste0("<div style=\"width:50px;height:20px;border:0px solid #000; background-color: ",
+                                   rv.prostar$settings()$colorsTypeMV$MEC,";\"></div>"))),
+        column(width=10, tags$p("Missing in Entire Condition"))
+      )
+    )
   })
   
   
@@ -73,7 +86,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   #----------------------------------------------
   output$tabToShow <- renderUI({
     req(input$DS_TabsChoice)
-    req(GetCurrentMSnSet())
+    req(data())
     print(paste0('input$DS_TabsChoice', input$DS_TabsChoice))
     switch(input$DS_TabsChoice,
            None = {return(NULL)},
@@ -89,10 +102,10 @@ MSnSetExplorer <- function(input, output, session, data) {
   ##' show pData of the MSnset object
   ##' @author Samuel Wieczorek
   output$viewpData <- DT::renderDataTable({
-    req(GetCurrentMSnSet())
+    req(data())
     
-    data <- as.data.frame(Biobase::pData(GetCurrentMSnSet()))
-    pal <- unique(rv$settings()$examplePalette)
+    data <- as.data.frame(Biobase::pData(data()))
+    pal <- unique(rv.prostar$settings()$examplePalette)
     dt <- DT::datatable(  data,
                           extensions = c('Scroller', 'Buttons'),
                           rownames=  FALSE,
@@ -122,11 +135,11 @@ MSnSetExplorer <- function(input, output, session, data) {
   ##' show fData of the MSnset object in a table
   ##' @author Samuel Wieczorek
   output$viewfData <- DT::renderDataTable({
-    req(GetCurrentMSnSet())
+    req(data())
     
     
-    if ('Significant' %in% colnames(Biobase::fData(GetCurrentMSnSet()))){
-      dat <- DT::datatable(as.data.frame(Biobase::fData(GetCurrentMSnSet())),
+    if ('Significant' %in% colnames(Biobase::fData(data()))){
+      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -147,7 +160,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
     } else {
-      dat <- DT::datatable(as.data.frame(Biobase::fData(GetCurrentMSnSet())),
+      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -179,8 +192,8 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   #################
   output$table <- DT::renderDataTable({
-    req(GetCurrentMSnSet())
-    df <- getDataForExprs(GetCurrentMSnSet())
+    req(data())
+    df <- getDataForExprs(data())
     print(head(df))
     dt <- datatable( df,
                      rownames=TRUE,
@@ -201,7 +214,7 @@ MSnSetExplorer <- function(input, output, session, data) {
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)),
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)),
         backgroundSize = '98% 48%',
         backgroundRepeat = 'no-repeat',
         backgroundPosition = 'center'
