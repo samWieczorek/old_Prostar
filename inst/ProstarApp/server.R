@@ -34,6 +34,8 @@ library(shinyBS)
 #' @examples
 server <- function(input, output, session){
   env <- environment()
+  #####
+  ## Launch modules
   source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleBugReport.R"), local = TRUE)$value
   
@@ -43,6 +45,7 @@ server <- function(input, output, session){
   source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
   source(file.path(".", "commonFunc.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleSettings.R"), local = TRUE)$value
+  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
   
   loadLibraries()
   
@@ -59,18 +62,10 @@ server <- function(input, output, session){
   
   
   rv <- reactiveValues(
-    obj = NULL
+    obj = NULL,
+    settings = NULL
   )
   
-  
- #####
- ## Launch modules
-  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
-  
-  
-  
-  
- 
  
  #Set up writing file for log
  logfilename <- tempfile(fileext=".log")
@@ -84,7 +79,7 @@ server <- function(input, output, session){
  callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
  callModule(moduleInsertMarkdown, "links_MD",URL_links)
  callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
+ rv$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
  
  
  

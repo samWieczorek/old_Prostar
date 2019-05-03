@@ -3,7 +3,8 @@
 
 moduleSettingsUI  <- function(id){
   ns <- NS(id)
-  
+  tagList(
+    br(), br(), br(), br(),
   tabPanel(title="Global settings",
            value="GlobalSettingsTab",
            # selectInput("settings_InteractivePlots",
@@ -31,12 +32,12 @@ moduleSettingsUI  <- function(id){
                                   selectInput(ns("resoPNGplots"), "Resolution", choices = c(150), width='100px'))
                       )),
              tabPanel("Colors",
-                      div(id = ns('showInfoColorOptions'), tags$p("Color customization is available after data loading only.")),
+                      div(id = 'showInfoColorOptions', tags$p("Color customization is available after data loading only.")),
                       hidden(uiOutput(ns("defineColorsUI")))
              )
            )
   )
-  
+  )
   
 }
 
@@ -68,7 +69,7 @@ observe({
 
 
 output$settings_nDigits_UI <- renderUI({
-  numericInput("settings_nDigits", "", value=rv.settings$nDigits, min=0, width="100px")
+  numericInput(ns("settings_nDigits"), "", value=rv.settings$nDigits, min=0, width="100px")
 })
 
 observeEvent(input$settings_nDigits,{ rv.settings$nDigits <- input$settings_nDigits })
@@ -108,14 +109,14 @@ output$defineColorsUI <- renderUI({
   bsCollapse(id = "collapseExample", open = "",
              bsCollapsePanel("Colors for conditions", uiOutput("defineColorsForConditionsUI"), style = "primary"),
              bsCollapsePanel("Colors for missing values", tagList(
-               colourpicker::colourInput("colMEC", "Select colour for MEC", orangeProstar,showColour = "background"),
-               colourpicker::colourInput("colPOV", "Select colour for POV", "lightblue", showColour = "background")
+               colourpicker::colourInput(ns("colMEC"), "Select colour for MEC", orangeProstar,showColour = "background"),
+               colourpicker::colourInput(ns("colPOV"), "Select colour for POV", "lightblue", showColour = "background")
              ), style = "primary"),
              bsCollapsePanel("Colors for volcanoplots", 
-                             colourpicker::colourInput("colVolcanoIn", "Select colour for selected entities", 
+                             colourpicker::colourInput(ns("colVolcanoIn"), "Select colour for selected entities", 
                                                        rv.settings$colorsVolcanoplot$In,
                                                        showColour = "background"),
-                             colourpicker::colourInput("colVolcanoOut", "Select colour for filtered out entities", rv.settings$colorsVolcanoplot$Out, showColour = "background"), 
+                             colourpicker::colourInput(ns("colVolcanoOut"), "Select colour for filtered out entities", rv.settings$colorsVolcanoplot$Out, showColour = "background"), 
                              style = "primary"),
              bsCollapsePanel("logFC distribution", "todo", style = "primary")
              
@@ -322,6 +323,6 @@ output$displayPalette <- renderHighchart({
     hc_xAxis(categories = 1:nbConds, title = list(text = ""))
 })
 
-return(rv.settings)
+return(reactive({rv.settings}))
 
 }

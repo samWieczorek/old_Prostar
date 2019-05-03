@@ -53,7 +53,8 @@ observeEvent(GetCurrentMSnSet(),{
   print(dim(GetCurrentMSnSet()))
   callModule(module = modulePlots, 'showPlots', 
              dataIn=reactive({GetCurrentMSnSet()}), 
-             llPlots=reactive({lstDescPlots}))
+             llPlots=reactive({lstDescPlots}),
+             settings = reactive({rv$settings}))
 })
 
 

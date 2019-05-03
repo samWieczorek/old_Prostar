@@ -11,7 +11,7 @@ modulePlotsUI <- function(id){
 
 ####-----------------------------------------------------------####
 
-modulePlots <- function(input, output, session, dataIn, llPlots){
+modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   ns <- session$ns
   
   
