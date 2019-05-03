@@ -153,45 +153,6 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   
   
-  # output$updateDesign <- renderUI({
-  #  # rv.demomode$current.obj$datasets[[1]]
-  #   
-  #   if(!NeedsUpdate()){return(NULL)}
-  #   
-  #   source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
-  #   tagList(
-  #     fluidRow(
-  #       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
-  #       column(width=6,uiOutput("updateDesign_UI_checkConditions")  )
-  #     ),
-  #     fluidRow(
-  #       column(width=6,uiOutput("updateDesign_UI_hierarchicalExp")),
-  #       column(width=6,uiOutput("updateDesign_checkDesign") )
-  #     ),
-  #     uiOutput(ns("updateDesign_SaveDesign")),
-  #     uiOutput(ns("designUpdated")),
-  #     
-  #     hr(),
-  #     tags$div(
-  #       
-  #       tags$div(style="display:inline-block; vertical-align: top;",
-  #                uiOutput(ns("viewNewDesign"),width="100%")
-  #       ),
-  #       tags$div(style="display:inline-block; vertical-align: top;",
-  #                shinyjs::hidden(
-  #                  div(id = "updateDesign_exLevels",uiOutput(ns("updateDesign_designExamples"))))
-  #       )
-  #       
-  #     )
-  #     
-  #   )
-  # })
-  # 
-  
-  
- 
-  
-  
   output$infoAboutMSnset <- renderUI({
     req(rv.demomode$current.obj$datasets[[1]])
     
@@ -287,10 +248,10 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
         }
         })
   
+  
+  
   ##-- Open a MSnset File --------------------------------------------
   observeEvent(input$file,ignoreInit =TRUE,{ 
-    
-    
     nSteps <- length(def.progress.openMSnset)
     print(paste0("nSteps = ", nSteps))
     withProgress(message = '',detail = '', value = 0, {
@@ -321,7 +282,6 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       incProgress(1/nSteps, detail = def.progress.openMSnset[2])
       l.params <- list(filename = input$file$name)
       
-      #retroCompatibility()
       incProgress(1/nSteps, detail = def.progress.openMSnset[3])
       
       #loadObjectInMemoryFromConverter()
@@ -336,47 +296,7 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   
   ####### Common functions
-  
-  # output$infoAboutDemoDataset <- renderUI({
-  #   req(rv.demomode$current.obj$datasets[[1]])
-  #   
-  #   #print(str(rv$current.obj))
-  #   data <- rv.demomode$current.obj$datasets[[1]]
-  #   #print(str(data))
-  #   
-  #   
-  #   isolate({ NA.count <- length(which(is.na(Biobase::exprs(data))))
-  #   
-  #   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(data))), 1, all))
-  #   
-  #   tagList(
-  #     h3("Info"),
-  #     # if (rv$typeOfDataset == "protein"){
-  #     #   p("Note: the aggregation tool
-  #     #          has been disabled because the dataset contains 
-  #     #          protein quantitative data.")
-  #     # },
-  #     
-  #     if (NA.count > 0){
-  #       p("As your dataset contains missing values, you should 
-  #              impute them prior to proceed to the differential analysis.")
-  #     },
-  #     if (nb.empty.lines > 0){
-  #       p("As your dataset contains lines with no values, you 
-  #              should remove them with the filter tool
-  #              prior to proceed to the analysis of the data.")
-  #     }
-  #     
-  #       
-  # 
-  #       )
-  #     })
-  #   
-  #   
-  #     })
-  # 
-  
-  
+ 
   observeEvent(input$loadDemoDataset, {
       
    nSteps <- length(def.progress.loadDataset)
@@ -392,15 +312,11 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       print(paste0("class(data)[1] : ", class(data)[1]))
       if((class(data)[1] == "MSnSet") && !is.list(data)){
         
-        
         rv.demomode$current.obj <- list(datasets = list(original=data),
-                               name.dataset = input$demoDataset, 
-                               pipeline = "Peptide")
-      
-        print("cas 1")
+                                        name.dataset = input$demoDataset, 
+                                        pipeline = data@experimentData@other$typeOfData)
       } else {
         rv.demomode$current.obj <- data
-        print("cas 2")
       }
       
       incProgress(1/nSteps, detail = def.progress.loadDataset[2])
@@ -418,6 +334,8 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
 
 
 loadObjectInMemory <- function(obj){
+  
+  obj <- GetCurrentMSnSet()
   
   # print(rv$current.obj)
   # req(rv$current.obj)

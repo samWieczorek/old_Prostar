@@ -74,19 +74,6 @@ moduleConvertData <- function(input, output, session){
     res = NULL, 
     name = "processConvert")
   
-  
-  # observeEvent(dataIn(), {
-  #   rv.convert$obj <- dataIn()
-  #   
-  # })
-  
-  observeEvent(input$btn_send, {
-    rv.convert$res <- rv.convert$obj
-    print(paste0("save module A : ",rv.convert$obj, "__", rv.convert$res))
-  })
-  
- 
-
 ################################################
   
   
@@ -650,8 +637,8 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-  if(!is.null(rv.convert$obj)){return(NULL)}
-  print("In observeEvent(input$createMSnsetButton")
+  req(rv.convert$obj)
+  
   colNamesForOriginofValues <- NULL
   if (isTRUE(input$selectIdent)) {
     colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
@@ -711,10 +698,12 @@ observeEvent(input$createMSnsetButton,{
                           proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
                           versions
       )
-      #ClearUI()
-      #ClearMemory()
-      rv.convert$obj <- tmp
       
+      
+      ClearConvertUI()
+      #ClearMemory()
+      
+      rv.convert$obj <- tmp
       rv.convert$obj.name <- input$filenameToCreate
       rv.convert$indexNA <- which(is.na(exprs(rv.convert$obj)))
       
@@ -724,8 +713,8 @@ observeEvent(input$createMSnsetButton,{
       
       updateTabsetPanel(session, "tabImport", selected = "Convert")
       rv.convert$res <- list(datasets = list(original=rv.convert$obj),
-                                      name.dataset = rv.convert$obj.name, 
-                                      pipeline = input$typeOfData)
+                             name.dataset = rv.convert$obj.name, 
+                             pipeline = input$typeOfData)
      
       
       
@@ -763,7 +752,7 @@ observeEvent(input$createMSnsetButton,{
 
 
 ###-------------------------------------------------------------------
-ClearUI <- reactive({
+ClearConvertUI <- reactive({
   
   updateSelectInput(session, 
                     "datasets",  
@@ -783,11 +772,6 @@ ClearUI <- reactive({
                      selected = gFilterNone)
   
 })
-
-
-
-
-
 
 return(reactive({rv.convert$res}))
 

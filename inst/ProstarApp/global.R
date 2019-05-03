@@ -67,25 +67,6 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Mcquitty" = "mcquitty",
                                  "Median" = "median")
 
-SetCustomCSS <- function(){
-  inlineCSS(".body { font-size:14px;}")
-  tags$head(includeCSS("www/css/arrow.css"))
-  tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>"))
-  tags$head(tags$style(".modal-dialog{ width:200px}"))
-  tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}")))
-  includeCSS("www/css/prostar.css")
-  #,includeCSS("www/css/fontawesome.css")
-  inlineCSS(".body { font-size:14px;}")
-  inlineCSS(".rect {float: left;
-            width: 100px;
-            height: 20px;
-            margin: 2px;
-            border: 1px solid rgba(0, 0, 0, .2);}")
-  inlineCSS(".green {background: #06AB27}")
-  inlineCSS(".red {background: #C90404}")
-  inlineCSS(".grey {background:lightgrey;}")
-  inlineCSS(".modal-backdrop {z-index: 1000}")
-}
 
 library(shinycssloaders)
 library(shinythemes)
@@ -119,59 +100,8 @@ URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
 
 
-######
-### Miscelllaneous functions
 
-
-#' busyIndicator
-busyIndicator <- function(text = "Calculation in progress..",
-                          img = "images/ajax-loader.gif", wait=1000) {
-  tagList(
-    singleton(tags$head(
-      tags$link(rel="stylesheet",
-                type="text/css",href="busyIndicator/busyIndicator.css")
-    ))
-    ,div(class="busy-indicator",p(text),img(src=img))
-    ,tags$script(sprintf(
-      "	setInterval(function(){
-      if ($('html').hasClass('shiny-busy')) {
-      setTimeout(function() {
-      if ($('html').hasClass('shiny-busy')) {
-      $('div.busy-indicator').show()
-      }
-      }, %d)
-      } else {
-      $('div.busy-indicator').hide()
-      }
-},100)
-      ",wait)
-    )
-  )
-  }
-
-
-# Call this function with all the regular navbarPage() parameters, plus a text parameter,
-# if you want to add text to the navbar
-navbarPageWithText <- function(..., text) {
-  navbar <- navbarPage(...)
-  textEl <- tags$p(class = "navbar-text", text)
-  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]], textEl)
-  navbar
-}
-
-# Call this function with an input (such as `textInput("text", NULL, "Search")`) if you
-# want to add an input to the navbar
-navbarPageWithInputs <- function(..., inputs) {
-  navbar <- navbarPage(...)
-  form <- tags$form(class = "navbar-form", inputs)
-  navbar[[3]][[1]]$children[[1]] <- htmltools::tagAppendChild(
-    navbar[[3]][[1]]$children[[1]], form)
-  navbar
-}
-
-
-
+G_noneStr <- "None"
 
 def.progress.loadDataset <- c('Clear memory', 'Load dataset', 'Configure object', 'Load in memory')
 def.progress.openMSnset <- c('Step 1', 'Step 2', 'Step 3', 'Step 4')

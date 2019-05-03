@@ -9,6 +9,7 @@ moduleDesignExampleUI <- function(id){
 
 
 moduleDesignExample <- function(input, output, session, n){
+  ns <- session$ns
   
   
   output$nlevelsExample <- renderRHandsontable({

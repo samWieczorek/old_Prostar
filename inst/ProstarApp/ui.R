@@ -9,6 +9,7 @@ source(file.path(".", "modules/DataManager/moduleOpenDataset.R"),  local = TRUE)
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
+source(file.path(".", "modules/moduleSettings.R"),  local = TRUE)$value
 
 ######
 
@@ -62,8 +63,21 @@ ui <- fluidPage(
           #itle = 'Home',
           id="navPage",
           inverse = TRUE,
-          
-          tabPanel("Home"),
+          "",
+          navbarMenu("Prostar",
+                     tabPanel("Home"
+                              #source(file.path("ui", "ui_Home.R"),  local = TRUE)$value)
+                              ),
+                     tabPanel("Settings",
+                              moduleSettingsUI("modSettings")
+                     ),
+                     tabPanel("Release notes"
+                              #source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value)
+                     ),
+                     tabPanel("Check for updates"
+                              #source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value)
+                     )
+          ),
           tagList( modulePlotsUI('showPlots')),
           moduleDemoModeUI("demoMode"),
           # navbarMenu("Data manager" ,
