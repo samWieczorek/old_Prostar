@@ -1,7 +1,6 @@
 source(file.path(".", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$value
 
-callModule(missingValuesPlots, "MVPlots_DS", data = reactive({dataIn()}), 
-           paletteConds = reactive({RColorBrewer::brewer.pal(8,"Dark2")}))
+callModule(missingValuesPlots, "MVPlots_DS", data = reactive({dataIn()}))
 
 output$plotmvsmall <- renderImage({
   filename <- normalizePath(file.path('./images','desc_mv.png'))

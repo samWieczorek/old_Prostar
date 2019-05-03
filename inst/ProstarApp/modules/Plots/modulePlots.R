@@ -14,19 +14,23 @@ modulePlotsUI <- function(id){
 modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   ns <- session$ns
   
+  source(file.path(".", "modules/Plots/moduleBoxplot.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/moduleDensityPlot.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
   
-  source(file.path(".", "modules/Plots/corrMatrixPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/mvPlots.R"),  local = TRUE)$value
-   source(file.path(".", "modules/Plots/varDistPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/pcaPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/intdistribPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/heatmapPlots.R"),  local = TRUE)$value
-  
+  source(file.path(".", "modules/Plots/corrMatrixPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/mvPlots.R"), local = TRUE)$value
+   source(file.path(".", "modules/Plots/varDistPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/pcaPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/intdistribPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/heatmapPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/msnsetExplorerPlots.R"), local = TRUE)$value
+   
   .width <- 50
   .height <- 50
   
   
-  
+  jqui_draggable("#modalintensity .modal-content")
   
   output$plotModule <- renderUI({
     req(dataIn())
@@ -38,7 +42,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
         top = 350, right = 50, width = "70px",height = paste0(as.character(panelheight), "px"),
         draggable = TRUE,fixed = TRUE,
         cursor = "default",
-        tags$head(tags$style(".modal-dialog{ width:100%}")),
+        tags$head(tags$style(".modal-dialog{ width:95%}")),
         tags$head(tags$style(".modal-body{ min-height:50%}")),
         actionButton(ns('plotBtn'), 'Plots', "data-toggle"='collapse', "data-target"=paste0('#',ns('plotDiv')), 
                    style='color: white;background-color: lightgrey',
@@ -79,9 +83,9 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
       n <- i + length(llPlots())
       switch(llPlots()[i],
            quantiTable=
-             ll[[n]] <- shinyBS::bsModal("modalquantiTable", "Data explorer", ns("plotquantiTablesmall"), size = "large",plotOutput(ns("plotquantiTablelarge"))),
+             ll[[n]] <- shinyBS::bsModal("modalquantiTable", "Data explorer", ns("plotquantiTablesmall"), size = "large",uiOutput(ns("plotquantiTablelarge"))),
            intensity=
-             ll[[n]] <- shinyBS::bsModal("modalintensity", "Intensities distribution", ns("plotintensitysmall"), size = "large",plotOutput(ns("plotintensitylarge"))),
+             ll[[n]] <- shinyBS::bsModal("modalintensity", "Intensities distribution", ns("plotintensitysmall"), size = "large",uiOutput(ns("plotintensitylarge"))),
            pca = 
              ll[[n]] <- shinyBS::bsModal("modalpca", "PCA", ns("plotpcasmall"), size = "large",uiOutput(ns("plotpcalarge"))),
            varDist = 
@@ -110,35 +114,5 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   })
   
   
-  output$plotquantiTablesmall <- renderImage({
-    filename <- normalizePath(file.path('./images','desc_quantiData.png'))
-    list(src = filename,
-         width = .width,
-         height = .height)
-  }, deleteFile = FALSE)
-  
-  
-
-  
- 
- 
-  
-  
-  
-  ###### definition of large plots
-  
-  
-  output$plotquantiTablelarge <- renderPlot({
-    boxplot(iris, main = "Data 2")
-  })
-
- 
-  
- 
-  
-
-  
-  
-
   return(NULL)
 }

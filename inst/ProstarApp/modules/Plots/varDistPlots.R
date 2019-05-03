@@ -24,10 +24,10 @@ output$plotvarDistlarge <- renderUI({
 viewDistCV <- reactive({
   
   req(dataIn())
-  #rv$PlotParams$paletteConditions
+  rv$settings()$examplePalette
   
   isolate({
-    rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(),RColorBrewer::brewer.pal(6,"Dark2"))
+    rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), rv$settings()$examplePalette)
     })
   rv$tempplot$varDist
   

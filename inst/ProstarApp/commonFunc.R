@@ -204,6 +204,14 @@ SetCustomCSS <- function(){
   inlineCSS(".red {background: #C90404}")
   inlineCSS(".grey {background:lightgrey;}")
   inlineCSS(".modal-backdrop {z-index: 1000}")
+  
+  ## to position correctly the UI under the navbarmenu
+  tags$head(tags$style(type="text/css", "body {padding-top: 70px;}"))
   }
 
 
+
+Group2Color <- reactive({
+  print(paste0("rv$settings()$whichGroup2Color = ", rv$settings()$whichGroup2Color))
+  rv$settings()$whichGroup2Color
+})

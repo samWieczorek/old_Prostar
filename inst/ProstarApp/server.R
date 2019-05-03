@@ -55,7 +55,7 @@ server <- function(input, output, session){
     legDS_Violinplot = NULL,
     heatmap.linkage = 'complete',
     heatmap.distance = "euclidean",
-    paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+    #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
     legendForSamples = NULL
     )
 
@@ -81,9 +81,7 @@ server <- function(input, output, session){
  callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
  rv$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
  
- 
- 
- 
+
  # observe({
  #   pipeline$current.dataset
  #   print("##### pipeline$current.dataset  ####")

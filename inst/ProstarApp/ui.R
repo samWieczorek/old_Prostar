@@ -97,7 +97,6 @@ ui <- fluidPage(
                           moduleInsertMarkdownUI("FAQ_MD")
                  ),
                  tabPanel("Bug report",
-                          br(),br(),br(),br(),br(),br(),
                           moduleBugReportUI('bugreport'))
               ),
           inputs=uiOutput("chooseDataset")

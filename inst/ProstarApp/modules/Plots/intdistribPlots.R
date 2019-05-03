@@ -6,8 +6,11 @@ output$plotintensitysmall <- renderImage({
 }, deleteFile = FALSE)
 
 
+callModule(moduleBoxplot, ns("boxPlot"))
+callModule(moduleDensityplot, ns("densityPlot"))
 
-output$plotintensitylarge <- renderPlot({
+
+output$plotintensitylarge <- renderUI({
   tagList(
     tags$br(),tags$br(),
     tags$div(
@@ -22,14 +25,14 @@ output$plotintensitylarge <- renderPlot({
                           shinyWidgets::dropdownButton(
                             tags$div(
                               tags$div(style="display:inline-block; vertical-align: bottom;",
-                                       selectInput("whichGroup2Color",
+                                       selectInput(ns("whichGroup2Color"),
                                                    "Color lines",
                                                    choices=list("By condition" = "Condition",
                                                                 "By replicate" = "Replicate"),
-                                                   selected=GetWhichGroup2Color(), width='150px')
+                                                   selected= Group2Color(), width='150px')
                               ),
                               tags$div(style="display:inline-block; vertical-align: bottom;",
-                                       uiOutput("ChooseLegendForSamples")
+                                       uiOutput(ns("ChooseLegendForSamples"))
                               )
                             ),
                             tooltip="Plots parameters",
@@ -40,9 +43,26 @@ output$plotintensitylarge <- renderPlot({
     
     
     fluidRow(
-      column(width=6,moduleDensityplotUI("densityPlot_DS")),
-      column(width=6, moduleBoxplotUI("boxPlot_DS"))
+      column(width=6,moduleDensityplotUI(ns("densityPlot"))),
+      column(width=6, moduleBoxplotUI(ns("boxPlot")))
     )
   )
   
+})
+
+
+
+
+output$ChooseLegendForSamples <- renderUI({
+  req(GetCurrentMSnSet())
+  
+  .names <- colnames(Biobase::pData(GetCurrentMSnSet()))
+  checkboxGroupInput(ns("legendForSamples"),
+                     label = "Choose data to show in legend",
+                     choices = .names,
+                     selected=.names[2])
+})
+
+observeEvent(input$legendForSamples, {
+  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(GetCurrentMSnSet())[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
 })

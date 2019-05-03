@@ -52,7 +52,7 @@ output$fileReaderText <- renderText({
 
 
 output$BugReport_output <- renderUI({
-  rv$current.obj
+  GetCurrentMSnSet()
   
   mail <- unlist(strsplit(maintainer("Prostar"), "<"))[2]
   mail <- unlist(strsplit(mail, ">"))[1]

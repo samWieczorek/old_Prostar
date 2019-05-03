@@ -3,8 +3,6 @@
 moduleIUI <- function(id){
   ns <- NS(id)
   tagList(
-    br(), br(),
-    
     h3("Module I"),
     actionButton(ns("rst_btn"), "Reset mod I"),
     hr(),

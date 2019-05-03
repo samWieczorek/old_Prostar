@@ -67,7 +67,7 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Mcquitty" = "mcquitty",
                                  "Median" = "median")
 
-
+library(rhandsontable)
 library(shinycssloaders)
 library(shinythemes)
 library(rclipboard)

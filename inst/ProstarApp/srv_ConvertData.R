@@ -51,7 +51,7 @@ resetModuleConvert<- reactive({
 
 #################################
 output$Convert_SelectFile <- renderUI({
-  tagList(br(), br(),
+  tagList(
           fluidRow(
             column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
             column(width = 10, fileInput("file1", "", 
@@ -70,8 +70,6 @@ output$Convert_SelectFile <- renderUI({
 output$Convert_DataId <- renderUI({
   
   tagList(
-    
-    br(), br(),
     #uiOutput("helpTextDataID"),
     
     tags$div(
@@ -152,8 +150,6 @@ output$Convert_BuildDesign <- renderUI({
 
 output$Convert_Convert <- renderUI({
   tagList(
-    br(), br(),
-    
     uiOutput("convertFinalStep"),
     moduleStaticDataTableUI("overview_convertData"),
     uiOutput("conversionDone")
@@ -354,7 +350,7 @@ observeEvent(c(input$file1,input$XLSsheets),{
 
 
 output$conversionDone <- renderUI({
-  req(rv$current.obj)
+  req(GetCurrentMSnSet())
   
   h4("The conversion is done. Your dataset has been automatically loaded 
      in memory. Now, you can switch to the Descriptive statistics panel to 
@@ -584,7 +580,7 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-  if(!is.null(rv$current.obj)){return(NULL)}
+  if(!is.null(GetCurrentMSnSet())){return(NULL)}
   print("In observeEvent(input$createMSnsetButton")
   colNamesForOriginofValues <- NULL
   if (isTRUE(input$selectIdent)) {
@@ -657,7 +653,7 @@ observeEvent(input$createMSnsetButton,{
       )
       ClearUI()
       ClearMemory()
-      rv$current.obj <- tmp
+      GetCurrentMSnSet() <- tmp
       
       rv$current.obj.name <- input$filenameToCreate
       rv$indexNA <- which(is.na(exprs(rv$current.obj)))

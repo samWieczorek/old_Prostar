@@ -3,7 +3,6 @@ source(file.path(".", "modules/moduleNavigation.R"),  local = TRUE)$value
 moduleConvertDataUI <- function(id){
   ns <- NS(id)
   tagList(
-    br(), br(),
     moduleNavigationUI(ns("moduleProcess_Convert"))
   )
 }
@@ -100,7 +99,7 @@ resetModuleConvert<- reactive({
 #################################
 ### Screen 1
 output$Convert_SelectFile <- renderUI({
-  tagList(br(), br(),
+  tagList(
           fluidRow(
             column(width=2, modulePopoverUI(ns("modulePopover_convertChooseDatafile"))),
             column(width = 10, fileInput(ns("file2Convert"), "", 
@@ -120,8 +119,6 @@ output$Convert_SelectFile <- renderUI({
 output$Convert_DataId <- renderUI({
   
   tagList(
-    
-    br(), br(),
     #uiOutput("helpTextDataID"),
     
     tags$div(
@@ -202,8 +199,6 @@ output$Convert_BuildDesign <- renderUI({
 
 output$Convert_Convert <- renderUI({
   tagList(
-    br(), br(),
-    
     uiOutput(ns("convertFinalStep")),
     moduleStaticDataTableUI(ns("overview_convertData")),
     uiOutput(ns("conversionDone"))

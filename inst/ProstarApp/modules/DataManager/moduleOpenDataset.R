@@ -16,7 +16,6 @@ moduleDemoModeUI  <- function(id){
   
   navbarMenu("Data manager" ,
              tabPanel("Open MSnset",
-                      br(),br(),br(),br(),
                       tagList(
                         fileInput(ns("file"), "Open a MSnset file", multiple = FALSE),
                         #uiOutput(ns("updateDesign")),
@@ -32,7 +31,6 @@ moduleDemoModeUI  <- function(id){
                       moduleConvertDataUI(ns("moduleProcess_Convert"))
                 ),
              tabPanel("Demo data", 
-                      br(),br(),br(),br(),
                       tagList(
                         tags$div(
                           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
