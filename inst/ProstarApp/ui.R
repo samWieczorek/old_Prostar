@@ -10,6 +10,7 @@ source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
 source(file.path(".", "modules/moduleSettings.R"),  local = TRUE)$value
+source(file.path(".", "modules/moduleHomepage.R"),  local = TRUE)$value
 
 ######
 
@@ -65,9 +66,8 @@ ui <- fluidPage(
           inverse = TRUE,
           "",
           navbarMenu("Prostar",
-                     tabPanel("Home"
-                              #source(file.path("ui", "ui_Home.R"),  local = TRUE)$value)
-                              ),
+                     tabPanel("Home",
+                              moduleHomepageUI("homepage")),
                      tabPanel("Settings",
                               moduleSettingsUI("modSettings")
                      ),
