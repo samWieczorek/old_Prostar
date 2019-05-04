@@ -11,6 +11,7 @@ source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
 source(file.path(".", "modules/moduleSettings.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleHomepage.R"),  local = TRUE)$value
+source(file.path(".", "modules/moduleReleaseNotes.R"),  local = TRUE)$value
 
 ######
 
@@ -71,7 +72,8 @@ ui <- fluidPage(
                      tabPanel("Settings",
                               moduleSettingsUI("modSettings")
                      ),
-                     tabPanel("Release notes"
+                     tabPanel("Release notes",
+                              moduleReleaseNotesUI("modReleaseNotes")
                               #source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value)
                      ),
                      tabPanel("Check for updates"

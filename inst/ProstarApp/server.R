@@ -39,6 +39,7 @@ server <- function(input, output, session){
   source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleBugReport.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleHomepage.R"),  local = TRUE)$value
+  source(file.path(".", "modules/moduleReleaseNotes.R"),  local = TRUE)$value
   
   source(file.path(".", "modules/moduleInsertMarkdown.R"), local = TRUE)$value
   
@@ -70,7 +71,7 @@ server <- function(input, output, session){
  callModule(moduleInsertMarkdown, "FAQ_MD",URL_FAQ)
  rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
  callModule(moduleHomepage, "homepage")
- 
+ callModule(moduleReleaseNotes, "modReleaseNotes")
 
  # observe({
  #   pipeline$current.dataset
