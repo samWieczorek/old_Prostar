@@ -49,19 +49,7 @@ server <- function(input, output, session){
   
   loadLibraries()
   
-  rv.PlotParams <- reactiveValues(
-    legDS = NULL,
-    corrMatrixGradient = defaultGradientRate,
-    legDS_Violinplot = NULL,
-    heatmap.linkage = 'complete',
-    heatmap.distance = "euclidean",
-    #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
-    legendForSamples = NULL
-    )
-
-  
-  
-  rv.prostar <- reactiveValues(
+    rv.prostar <- reactiveValues(
     obj = NULL,
     settings = NULL
   )

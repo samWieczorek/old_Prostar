@@ -33,6 +33,11 @@ moduleSettingsUI  <- function(id){
              tabPanel("Colors",
                       div(id = 'showInfoColorOptions', tags$p("Color customization is available after data loading only.")),
                       hidden(uiOutput(ns("defineColorsUI")))
+             ),
+             tabPanel("Plots",
+                      sliderInput(ns("defaultGradientRate"),
+                                  "Default color gradient for correlation matrix",
+                                  min = 0,max = 1,value = defaultGradientRate,step=0.01)
              )
            )
   )
@@ -53,7 +58,17 @@ rv.settings <- reactiveValues(
   choosePalette = 'Dark2',
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
-  examplePalette = NULL
+  examplePalette = NULL,
+  
+  
+  legDS = NULL,
+  corrMatrixGradient = defaultGradientRate,
+  legDS_Violinplot = NULL,
+  heatmap.linkage = 'complete',
+  heatmap.distance = "euclidean",
+  #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+  legendForSamples = NULL
+  
 )
 
 observeEvent(dataIn(), {

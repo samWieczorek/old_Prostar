@@ -66,5 +66,5 @@ output$ChooseLegendForSamples <- renderUI({
 })
 
 observeEvent(input$legendForSamples, {
-  rv.PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(dataIn()$obj())[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
+  rv.settings$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(dataIn()$obj())[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
 })

@@ -11,7 +11,6 @@ output$plotcorrMatrixsmall <- renderImage({
 
 output$plotcorrMatrixlarge <- renderUI({
   tagList(
-    tags$br(),tags$br(),
     tags$div(
       tags$div(style="display:inline-block; vertical-align: middle;",
                tags$p("Plot options")
@@ -47,18 +46,19 @@ output$plotcorrMatrixlarge <- renderUI({
 
 corrMatrix <- reactive({
   
-  req(dataIn()$obj())
+  req(dataIn())
   input$expGradientRate
   
   gradient <- NULL
-  if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
+  if (is.null(input$expGradientRate)){gradient <- rv.settings()$corrMatrixGradient}
   else{
     gradient <- input$expGradientRate}
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn()$obj,gradient)
-    rv$tempplot$corrMatrix
+    pattern <- paste0(dataIn()$name,".densityplot")
+    tmp <- wrapper.corrMatrixD_HC(dataIn()$obj,gradient)
+    
   })
-  
+  tmp
 })
 
 

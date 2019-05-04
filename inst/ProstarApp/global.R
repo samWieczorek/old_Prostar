@@ -102,6 +102,21 @@ URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
 
 G_noneStr <- "None"
+G_heatmapDistance_Choices <- list("Euclidean" ="euclidean",
+                                  "Manhattan"="manhattan",
+                                  "Maximum" = "maximum",
+                                  "Canberra" = "canberra",
+                                  "Binary" = "binary",
+                                  "Minkowski" = "minkowski")
+
+G_heatmapLinkage_Choices <- list("Complete" = "complete",
+                                 "Average"="average",
+                                 "Ward.D"="ward.D",
+                                 "Ward.D2"="ward.D2",
+                                 "Single" = "single",
+                                 "Centroid" = "centroid",
+                                 "Mcquitty" = "mcquitty",
+                                 "Median" = "median")
 
 def.progress.loadDataset <- c('Clear memory', 'Load dataset', 'Configure object', 'Load in memory')
 def.progress.openMSnset <- c('Step 1', 'Step 2', 'Step 3', 'Step 4')

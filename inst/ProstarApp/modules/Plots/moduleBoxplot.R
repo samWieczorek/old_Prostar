@@ -32,13 +32,13 @@ moduleBoxplot <- function(input, output, session, dataIn) {
   output$BoxPlot <- renderHighchart({
     req(dataIn()$obj)
     #rv$PlotParams$paletteConditions
-    rv.PlotParams$legendForSamples
+    rv.settings$legendForSamples
     name <- dataIn()$name
     tmp <- NULL
     print("rererererere")
     isolate({
       pattern <- paste0(name,".boxplot")
-      tmp <- DAPAR::boxPlotD_HC(dataIn()$obj, rv.PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
+      tmp <- DAPAR::boxPlotD_HC(dataIn()$obj, rv.settings$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -50,12 +50,12 @@ moduleBoxplot <- function(input, output, session, dataIn) {
   output$viewViolinPlot <- renderPlot({
     
     req(dataIn())
-    rv.PlotParams$legendForSamples
+    rv.settings$legendForSamples
     rv.prostar$settings()$examplePalette
     tmp <- NULL
     isolate({
       pattern <- paste0(dataIn()$name,".violinplot")
-      tmp <- DAPAR::violinPlotD(dataIn()$obj, rv.PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
+      tmp <- DAPAR::violinPlotD(dataIn()$obj, rv.settings$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

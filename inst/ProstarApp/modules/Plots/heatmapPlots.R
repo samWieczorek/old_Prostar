@@ -49,7 +49,7 @@ output$plotheatmaplarge <- renderUI({
 
 output$DS_PlotHeatmap <- renderUI({
   req(dataIn())
-  if (nrow(dataIn()) > limitHeatmap){
+  if (nrow(dataIn()$obj) > limitHeatmap){
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
@@ -61,16 +61,16 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 # 
-# observeEvent(input$distance,{rv.PlotParams$heatmap.distance <- input$distance})
-# observeEvent(input$linkage,{rv.PlotParams$heatmap.linkage <- input$linkage})
+# observeEvent(input$distance,{rv.settings$heatmap.distance <- input$distance})
+# observeEvent(input$linkage,{rv.settings$heatmap.linkage <- input$linkage})
 
 heatmap <- reactive({
   
-  req(dataIn()$obj())
+  req(dataIn()$obj)
   input$linkage
   input$distance
   
-  isolate({  wrapper.heatmapD(dataIn()$obj(),
+  isolate({  wrapper.heatmapD(dataIn()$obj,
                               input$distance, 
                               input$linkage,
                               TRUE)
