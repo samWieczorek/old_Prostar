@@ -10,14 +10,14 @@ MSnSetExplorerUI <- function(id) {
 
 
 #------------------------------------------------------------
-MSnSetExplorer <- function(input, output, session, data) {
+MSnSetExplorer <- function(input, output, session, dataIn) {
   ns <- session$ns
   
   #callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS", colorsTypeMV = reactive({rv.prostar$settings()$colorsTypeMV}))
   
   
   output$DS_sidebarPanel_tab <- renderUI({
-    typeOfDataset <- data()@experimentData@other$typeOfData
+    typeOfDataset <- dataIn()$obj@experimentData@other$typeOfData
     .choices<- NULL
     switch(typeOfDataset,
            protein = {
@@ -86,7 +86,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   #----------------------------------------------
   output$tabToShow <- renderUI({
     req(input$DS_TabsChoice)
-    req(data())
+    req(dataIn()$obj)
     print(paste0('input$DS_TabsChoice', input$DS_TabsChoice))
     switch(input$DS_TabsChoice,
            None = {return(NULL)},
@@ -102,9 +102,9 @@ MSnSetExplorer <- function(input, output, session, data) {
   ##' show pData of the MSnset object
   ##' @author Samuel Wieczorek
   output$viewpData <- DT::renderDataTable({
-    req(data())
+    req(dataIn()$obj)
     
-    data <- as.data.frame(Biobase::pData(data()))
+    data <- as.data.frame(Biobase::pData(dataIn()$obj))
     pal <- unique(rv.prostar$settings()$examplePalette)
     dt <- DT::datatable(  data,
                           extensions = c('Scroller', 'Buttons'),
@@ -135,11 +135,11 @@ MSnSetExplorer <- function(input, output, session, data) {
   ##' show fData of the MSnset object in a table
   ##' @author Samuel Wieczorek
   output$viewfData <- DT::renderDataTable({
-    req(data())
+    req(dataIn()$obj)
     
     
-    if ('Significant' %in% colnames(Biobase::fData(data()))){
-      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
+    if ('Significant' %in% colnames(Biobase::fData(dataIn()$obj))){
+      dat <- DT::datatable(as.data.frame(Biobase::fData(dataIn()$obj)),
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -160,7 +160,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
     } else {
-      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
+      dat <- DT::datatable(as.data.frame(Biobase::fData(dataIn()$obj)),
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -192,8 +192,8 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   #################
   output$table <- DT::renderDataTable({
-    req(data())
-    df <- getDataForExprs(data())
+    req(dataIn()$obj)
+    df <- getDataForExprs(dataIn()$obj)
     print(head(df))
     dt <- datatable( df,
                      rownames=TRUE,

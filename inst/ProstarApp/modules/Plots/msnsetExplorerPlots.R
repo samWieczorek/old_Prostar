@@ -12,7 +12,7 @@ output$plotquantiTablesmall <- renderImage({
 
 
 callModule(module=MSnSetExplorer, 'msnsetExplorer',
-           data = reactive({GetCurrentMSnSet()}))
+           data = reactive({dataIn()}))
 
 output$plotquantiTablelarge <- renderUI({
   MSnSetExplorerUI(ns('msnsetExplorer'))

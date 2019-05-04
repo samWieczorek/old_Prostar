@@ -21,7 +21,7 @@ pcaPlotsUI <- function(id) {
 
 
 #------------------------------------------------------------
-pcaPlots <- function(input, output, session, data) {
+pcaPlots <- function(input, output, session, dataIn) {
   ns <- session$ns
   
   rv.pca <- reactiveValues(
@@ -33,11 +33,11 @@ pcaPlots <- function(input, output, session, data) {
   callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv.pca$res.pca)) round(rv.pca$res.pca$var$coord, digits=7)}), showRownames=TRUE)
   
   output$pcaOptions <- renderUI({
-    req(data())
+    req(dataIn()$obj)
     
     tagList(
       
-      if (length(which(is.na(Biobase::exprs(data())))) > 0)
+      if (length(which(is.na(Biobase::exprs(dataIn()$obj)))) > 0)
       {
         tags$p("Warning: As your dataset contains missing values, the PCA cannot be computed.
                Please impute them first.")
@@ -70,11 +70,11 @@ pcaPlots <- function(input, output, session, data) {
   
   observeEvent(input$varScale_PCA,{
     rv.pca$PCA_varScale <- input$varScale_PCA
-    rv.pca$res.pca <- wrapper.pca(data(), rv.pca$PCA_varScale, ncp=Compute_PCA_dim())
+    rv.pca$res.pca <- wrapper.pca(dataIn()$obj, rv.pca$PCA_varScale, ncp=Compute_PCA_dim())
   })
   
-  observeEvent(data(), {
-    rv.pca$res.pca <- wrapper.pca(data(), rv.pca$PCA_varScale, ncp=Compute_PCA_dim())
+  observeEvent(dataIn()$obj, {
+    rv.pca$res.pca <- wrapper.pca(dataIn()$obj, rv.pca$PCA_varScale, ncp=Compute_PCA_dim())
   })
   
   
@@ -84,7 +84,7 @@ pcaPlots <- function(input, output, session, data) {
     nmax <- 12 # ncp should not be greater than... 
     # pour info, ncp = nombre de composantes ou de dimensions dans les r?sultats de l'ACP
     
-    y <- exprs(data())
+    y <- exprs(dataIn()$obj)
     nprot <- dim(y)[1]
     n <- dim(y)[2] # If too big, take the number of conditions.
     

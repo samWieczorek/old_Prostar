@@ -61,16 +61,16 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 # 
-# observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
-# observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
+# observeEvent(input$distance,{rv.PlotParams$heatmap.distance <- input$distance})
+# observeEvent(input$linkage,{rv.PlotParams$heatmap.linkage <- input$linkage})
 
 heatmap <- reactive({
   
-  req(dataIn())
+  req(dataIn()$obj())
   input$linkage
   input$distance
   
-  isolate({  wrapper.heatmapD(dataIn(),
+  isolate({  wrapper.heatmapD(dataIn()$obj(),
                               input$distance, 
                               input$linkage,
                               TRUE)

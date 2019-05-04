@@ -31,6 +31,10 @@ pipeline <- reactiveValues(
 obj.demomode <- callModule(module=moduleDemoMode, 'demoMode', selectedPanel = reactive({input$navPage}))
 
 
+GetCurrentProcess <- reactive({
+  "tutu"
+})
+
 GetCurrentMSnSet <- reactive({
   pipeline$current.indice
   pipeline$current.obj
@@ -51,12 +55,20 @@ GetCurrentMSnSet <- reactive({
 observeEvent(GetCurrentMSnSet(),{
   print("callModule showPlots")
   print(dim(GetCurrentMSnSet()))
-  callModule(module = modulePlots, 'showPlots', 
-             dataIn=reactive({GetCurrentMSnSet()}), 
+  
+    callModule(module = modulePlots, 'showPlots', 
+             dataIn=reactive({list(obj = GetCurrentMSnSet(),
+                                   currentProcess = GetCurrentProcess())}), 
              llPlots=reactive({lstDescPlots}),
              settings = reactive({rv.prostar$settings}))
 })
 
+
+
+
+GetCurrentObjName <- reactive({
+  "tutu"
+  })
 
 
 

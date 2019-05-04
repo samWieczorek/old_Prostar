@@ -358,7 +358,7 @@ loadObjectInMemory <- function(obj){
   # if (is.null(rv$current.obj$MSnset@experimentData@other$RawPValues ))
   #   rv$current.obj$MSnset@experimentData@other$RawPValues <- FALSE
   # 
-  # rv$PlotParams$paletteConditions <- GetExamplePalette()
+  # rv.PlotParams$paletteConditions <- GetExamplePalette()
   # 
   # if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
   # 

@@ -6,13 +6,14 @@ output$plotintensitysmall <- renderImage({
 }, deleteFile = FALSE)
 
 
-callModule(moduleBoxplot, ns("boxPlot"))
-callModule(moduleDensityplot, ns("densityPlot"))
+callModule(moduleBoxplot, "boxPlot", dataIn = reactive({dataIn()}))
+callModule(moduleDensityplot, "densityPlot", dataIn = reactive({dataIn()}))
 
 
 output$plotintensitylarge <- renderUI({
+  
+  print("IN output$plotintensitylarge <- renderUI")
   tagList(
-    tags$br(),tags$br(),
     tags$div(
       tags$div(style="display:inline-block; vertical-align: middle;",
                tags$p("Plot options")
@@ -43,10 +44,11 @@ output$plotintensitylarge <- renderUI({
     
     
     fluidRow(
-      column(width=6,moduleDensityplotUI(ns("densityPlot"))),
+      column(width=6, moduleDensityplotUI(ns("densityPlot"))),
       column(width=6, moduleBoxplotUI(ns("boxPlot")))
     )
   )
+  
   
 })
 
@@ -54,9 +56,9 @@ output$plotintensitylarge <- renderUI({
 
 
 output$ChooseLegendForSamples <- renderUI({
-  req(GetCurrentMSnSet())
-  
-  .names <- colnames(Biobase::pData(GetCurrentMSnSet()))
+  #req(data())
+  print("IN output$ChooseLegendForSamples <- renderUI")
+  .names <- colnames(Biobase::pData(dataIn()$obj()))
   checkboxGroupInput(ns("legendForSamples"),
                      label = "Choose data to show in legend",
                      choices = .names,
@@ -64,5 +66,5 @@ output$ChooseLegendForSamples <- renderUI({
 })
 
 observeEvent(input$legendForSamples, {
-  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(GetCurrentMSnSet())[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
+  rv.PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(dataIn()$obj())[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
 })

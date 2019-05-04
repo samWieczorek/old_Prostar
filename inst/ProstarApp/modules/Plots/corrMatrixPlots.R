@@ -47,7 +47,7 @@ output$plotcorrMatrixlarge <- renderUI({
 
 corrMatrix <- reactive({
   
-  req(dataIn())
+  req(dataIn()$obj())
   input$expGradientRate
   
   gradient <- NULL
@@ -55,7 +55,7 @@ corrMatrix <- reactive({
   else{
     gradient <- input$expGradientRate}
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn(),gradient)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn()$obj,gradient)
     rv$tempplot$corrMatrix
   })
   

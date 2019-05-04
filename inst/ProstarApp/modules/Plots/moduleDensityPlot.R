@@ -3,29 +3,26 @@
 
 moduleDensityplotUI <- function(id) {
   ns <- NS(id)
-  
-  
-  highchartOutput(ns("Densityplot")) %>% withSpinner(type=spinnerType)
-  
-  
+  highchartOutput(ns("Densityplot"))
 }
 
 #------------------------------------------------------------
-moduleDensityplot <- function(input, output, session) {
-  
+moduleDensityplot <- function(input, output, session, dataIn) {
+  ns <- session$ns
   #outputOptions(output, 'Densityplot', suspendWhenHidden=FALSE)
   
   output$Densityplot <- renderHighchart({
-    req(GetCurrentMSnSet())
+    req(dataIn())
     rv.prostar$settings()$examplePalette
-    rv$PlotParams$legendForSamples
+    rv.PlotParams$legendForSamples
+    print("IN : moduleDensityplot ")
     tmp <- NULL
     isolate({
       
       withProgress(message = 'Making plot', value = 100, {
-        pattern <- paste0(GetCurrentObjName(),".densityplot")
-        tmp <- DAPAR::densityPlotD_HC(GetCurrentMSnSet(), 
-                                      rv$PlotParams$legendForSamples,
+        pattern <- paste0(dataIn()$name,".densityplot")
+        tmp <- DAPAR::densityPlotD_HC(dataIn()$obj, 
+                                      rv.PlotParams$legendForSamples,
                                       rv.prostar$settings()$examplePalette)
         # future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })

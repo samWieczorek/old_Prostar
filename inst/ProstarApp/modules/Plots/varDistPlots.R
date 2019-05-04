@@ -27,7 +27,7 @@ viewDistCV <- reactive({
   rv.prostar$settings()$examplePalette
   
   isolate({
-    rv.prostar$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), rv.prostar$settings()$examplePalette)
+    rv.prostar$tempplot$varDist <- wrapper.CVDistD_HC(dataIn()$obj, rv.prostar$settings()$examplePalette)
     })
   rv.prostar$tempplot$varDist
   

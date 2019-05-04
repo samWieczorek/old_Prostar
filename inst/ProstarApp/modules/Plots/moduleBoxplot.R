@@ -11,7 +11,9 @@ moduleBoxplotUI <- function(id) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session) {
+moduleBoxplot <- function(input, output, session, dataIn) {
+  ns <- session$ns
+  
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -28,14 +30,15 @@ moduleBoxplot <- function(input, output, session) {
   
   
   output$BoxPlot <- renderHighchart({
-    req(GetCurrentMSnSet())
-    rv$current.obj.name
+    req(dataIn()$obj)
     #rv$PlotParams$paletteConditions
-    rv$PlotParams$legendForSamples
+    rv.PlotParams$legendForSamples
+    name <- dataIn()$name
     tmp <- NULL
+    print("rererererere")
     isolate({
-      pattern <- paste0(GetCurrentObjName(),".boxplot")
-      tmp <- DAPAR::boxPlotD_HC(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
+      pattern <- paste0(name,".boxplot")
+      tmp <- DAPAR::boxPlotD_HC(dataIn()$obj, rv.PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -46,13 +49,13 @@ moduleBoxplot <- function(input, output, session) {
   
   output$viewViolinPlot <- renderPlot({
     
-    req(GetCurrentMSnSet())
-    rv$PlotParams$legendForSamples
+    req(dataIn())
+    rv.PlotParams$legendForSamples
     rv.prostar$settings()$examplePalette
     tmp <- NULL
     isolate({
-      pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(GetCurrentMSnSet(), rv$PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
+      pattern <- paste0(dataIn()$name,".violinplot")
+      tmp <- DAPAR::violinPlotD(dataIn()$obj, rv.PlotParams$legendForSamples, palette=rv.prostar$settings()$examplePalette)
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

@@ -14,6 +14,7 @@ modulePlotsUI <- function(id){
 modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   ns <- session$ns
   
+ 
   source(file.path(".", "modules/Plots/moduleBoxplot.R"), local = TRUE)$value
   source(file.path(".", "modules/Plots/moduleDensityPlot.R"), local = TRUE)$value
   
@@ -32,7 +33,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   jqui_draggable("#modalintensity .modal-content")
   
   output$plotModule <- renderUI({
-    req(dataIn())
+    req(dataIn()$obj)
     
     panelheight = 60*length(llPlots())
       absolutePanel(
