@@ -1,0 +1,86 @@
+---
+title: "ProStaR analysis report"
+output:
+  pdf_document: default
+  html_document: default
+always_allow_html: yes
+---
+
+
+``` {r setup, include=FALSE}
+knitr::opts_chunk$set(cache=FALSE)
+```
+
+# Versions
+
+```{r DT_versions,out.width = "150%", echo=FALSE}
+
+library(DT)
+DT::datatable(getPackagesVersions('installed'), 
+                          escape = FALSE,
+                          rownames = FALSE,
+                          option=list(
+                                dom = 't',
+                                server = FALSE,
+                                autoWidth=TRUE,
+                          ordering = FALSE
+              )
+            )
+
+
+```
+
+
+
+# Summary for data processing
+
+
+```{r DT_summary_dataProcessing,out.width = "150%", echo=FALSE}
+library(DT)
+df <- BuildParamDataProcessingDT()
+
+if (!is.null(df)){
+  library(DT)
+DT::datatable(df, 
+                          escape = FALSE,
+                          rownames = FALSE,
+                          option=list(
+                                dom = 't',
+                                server = FALSE,
+                                autoWidth=TRUE,
+                          ordering = FALSE
+              )
+            )
+
+
+}
+
+```
+
+
+# Summary for data mining
+
+
+```{r DT_summary_dataMining,out.width = "150%", echo=FALSE}
+library(DT)
+df <- BuildParamDataMiningDT()
+
+if (!is.null(df)){
+library(DT)
+DT::datatable(df, 
+                          escape = FALSE,
+                          rownames = FALSE,
+                          option=list(
+                                dom = 't',
+                                server = FALSE,
+                                autoWidth=TRUE,
+                          ordering = FALSE
+              )
+            )
+
+
+
+}
+
+```
+
