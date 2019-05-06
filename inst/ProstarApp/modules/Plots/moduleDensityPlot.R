@@ -13,8 +13,9 @@ moduleDensityplot <- function(input, output, session, dataIn) {
   
   output$Densityplot <- renderHighchart({
     req(dataIn())
+    settings <- rv.prostar$settings()
     rv.prostar$settings()$examplePalette
-    rv.settings$legendForSamples
+    rv.prostar$settings()$legendForSamples
     print("IN : moduleDensityplot ")
     tmp <- NULL
     isolate({
@@ -22,7 +23,7 @@ moduleDensityplot <- function(input, output, session, dataIn) {
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(dataIn()$name,".densityplot")
         tmp <- DAPAR::densityPlotD_HC(dataIn()$obj, 
-                                      rv.settings$legendForSamples,
+                                      rv.prostar$settings()$legendForSamples,
                                       rv.prostar$settings()$examplePalette)
         # future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })

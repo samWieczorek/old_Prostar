@@ -11,6 +11,7 @@ source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
+source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 
 
 pipeline <- reactiveValues(
@@ -124,6 +125,8 @@ observeEvent(req(obj.demomode()),{
   pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   #pipeline$current.dataset <- pipeline$init.obj
   #pipeline$current.obj <- pipeline$init.obj[['original']]
+  
+  BuildDataminingMenu("Data mining")
 })
 
 
@@ -164,6 +167,28 @@ RemoveAllPipelineTabs <- function(){
   removeTab(inputId = "navPage", target = "Pipeline protein")
   removeTab(inputId = "navPage", target = "Pipeline p2p")
 }
+
+
+RemoveAllDatamingTabs <- reactive({})
+
+BuildDataminingMenu <- function(name){
+  
+  RemoveAllPipelineTabs()
+  
+  callModule(moduleDescriptiveStats, "moduleDescrStats", 
+                                  dataIn=reactive({list(obj = GetCurrentMSnSet(),
+                                                        currentProcess = GetCurrentProcess())}))
+  tabs <- list(
+    moduleDescriptiveStatsUI('moduleDescrStats')
+  )
+  
+  insertTab(inputId = "navPage",
+            do.call(navbarMenu, c(name ,tabs)),
+            target="Data manager",
+            position="after")
+}
+
+
 
 
 GetScreenId <- reactive({

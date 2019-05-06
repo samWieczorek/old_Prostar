@@ -82,15 +82,6 @@ ui <- fluidPage(
           ),
           tagList( modulePlotsUI('showPlots')),
           moduleDemoModeUI("demoMode"),
-          # navbarMenu("Data manager" ,
-          #            tabPanel("Open MSnset",
-          #                     br(),br(),br(),br(),
-          #                     moduleDemoModeUI("openMSnset")),
-          #            tabPanel("Convert"),
-          #            tabPanel("Demo data", 
-          #                     br(),br(),br(),br(),
-          #                     moduleDemoModeUI("demoMode"))
-          # ),
           navbarMenu("Help",
                  tabPanel("Useful links",
                           moduleInsertMarkdownUI('links_MD')

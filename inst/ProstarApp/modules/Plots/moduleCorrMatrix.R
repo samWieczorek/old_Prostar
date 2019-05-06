@@ -1,15 +1,8 @@
 
 
-output$plotcorrMatrixsmall <- renderImage({
-  filename <- normalizePath(file.path('./images','desc_corrmatrix.png'))
-  list(src = filename,
-       width = .width,
-       height = .height)
-}, deleteFile = FALSE)
 
-
-
-output$plotcorrMatrixlarge <- renderUI({
+moduleCorrMatrixUI <- function(id) {
+  ns <- NS(id)
   tagList(
     tags$div(
       tags$div(style="display:inline-block; vertical-align: middle;",
@@ -38,30 +31,35 @@ output$plotcorrMatrixlarge <- renderUI({
                
       )
     ),
-    highchartOutput(ns("corrMatrix"),width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+    highchartOutput(ns("corrMatrix"),width = plotWidth,height = plotHeight) 
   )
-})
+}
 
-
-
-corrMatrix <- reactive({
+#------------------------------------------------------------
+moduleCorrMatrix <- function(input, output, session, dataIn) {
+  ns <- session$ns
   
-  req(dataIn())
-  input$expGradientRate
   
-  gradient <- NULL
-  if (is.null(input$expGradientRate)){gradient <- rv.settings()$corrMatrixGradient}
-  else{
-    gradient <- input$expGradientRate}
-  isolate({
-    pattern <- paste0(dataIn()$name,".densityplot")
-    tmp <- wrapper.corrMatrixD_HC(dataIn()$obj,gradient)
+  corrMatrix <- reactive({
     
+    req(dataIn())
+    input$expGradientRate
+    
+    gradient <- NULL
+    if (is.null(input$expGradientRate)){gradient <- rv.prostar$settings()$corrMatrixGradient}
+    else{
+      gradient <- input$expGradientRate}
+    isolate({
+      pattern <- paste0(dataIn()$name,".corrMatrix")
+      tmp <- wrapper.corrMatrixD_HC(dataIn()$obj,gradient)
+      
+    })
+    tmp
   })
-  tmp
-})
-
-
-output$corrMatrix <- renderHighchart({
-  corrMatrix()
-}) 
+  
+  
+  output$corrMatrix <- renderHighchart({
+    corrMatrix()
+  }) 
+  
+}

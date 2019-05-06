@@ -1,4 +1,4 @@
-pcaPlotsUI <- function(id) {
+modulePCAUI <- function(id) {
   ns <- NS(id)
   
   
@@ -21,7 +21,7 @@ pcaPlotsUI <- function(id) {
 
 
 #------------------------------------------------------------
-pcaPlots <- function(input, output, session, dataIn) {
+modulePCA <- function(input, output, session, dataIn) {
   ns <- session$ns
   
   rv.pca <- reactiveValues(
