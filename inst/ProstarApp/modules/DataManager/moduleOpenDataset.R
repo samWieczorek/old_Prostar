@@ -312,7 +312,10 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
         
         rv.demomode$current.obj <- list(datasets = list(original=data),
                                         name.dataset = input$demoDataset, 
-                                        pipeline = data@experimentData@other$typeOfData)
+                                        pipeline = data@experimentData@other$typeOfData,
+                                        ConnexComp = NULL,
+                                        AdjacencyMat = NULL,
+                                        indexNA = NULL)
       } else {
         rv.demomode$current.obj <- data
       }
@@ -321,32 +324,40 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       l.params <- list(filename = input$demoDataset)
       incProgress(1/nSteps, detail = def.progress.loadDataset[3])
         
-      loadObjectInMemory()
+      #loadObjectInMemory()
       incProgress(1/nSteps, detail = def.progress.loadDataset[4])
-      })
-      
-   
+      ConfigureDataset()
+   })
    rv.demomode$res <- rv.demomode$current.obj
     
   })
 
 
-loadObjectInMemory <- function(obj){
   
-  obj <- GetCurrentMSnSet()
+  ConfigureDataset <- reactive({
+    
+    rv.demomode$current.obj$datasets$original
+    
+    
+    data <- rv.demomode$current.obj$datasets$original
+    if (is.null(data@experimentData@other$typeOfData)) {
+      data@experimentData@other$typeOfData <- ""
+    }
+    
+    rv.demomode$current.obj$indexNA <- which(is.na(data))
+    rv.demomode$current.obj$datasets$original <- DAPAR::addOriginOfValue(data)
+    
+     colnames(fData(rv.demomode$current.obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
+     names(rv.demomode$current.obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
+     
+     
+    #rv.demomode$current.obj$ConnexComp <- ComputeConnexComposants()
+  })
   
-  # print(rv$current.obj)
-  # req(rv$current.obj)
-  # #rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-  # rv$proteinId <- rv$current.obj@experimentData@other$proteinId
-  # if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
-  # rv$current.obj$indexNA <- which(is.na(rv$current.obj$MSnset))
-  # rv$current.obj$MSnset <- DAPAR::addOriginOfValue(rv$current.obj$MSnset)
-  # 
-  # colnames(fData(rv$current.obj$MSnset)) <- gsub(".", "_", colnames(fData(rv$current.obj$MSnset)), fixed=TRUE)
-  # names(rv$current.obj$MSnset@experimentData@other) 
-  #             <- gsub(".", "_", names(rv$current.obj$MSnset@experimentData@other), fixed=TRUE)
-  # 
+  
+
+ 
+  
   
   #If there are already pVal values, then do no compute them 
   # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
@@ -360,7 +371,7 @@ loadObjectInMemory <- function(obj){
   # 
   # rv.settings$paletteConditions <- GetExamplePalette()
   # 
-  # if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
+  # 
   # 
   # rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
   # 
@@ -382,7 +393,7 @@ loadObjectInMemory <- function(obj){
   
   #return(obj)
   
-}
+
   
 
 

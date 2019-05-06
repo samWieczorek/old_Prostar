@@ -341,3 +341,56 @@ getPackagesVersions <- reactive({
 })
 
 
+
+
+
+
+
+
+ComputeAdjacencyMatrices <- function(obj){
+  
+  if (obj@experimentData@other$typeOfData != 'peptide') {return (NULL)}
+  req(obj@experimentData@other$proteinId)
+  
+  pId <- obj@experimentData@other$proteinId
+  matAdj <- NULL
+  matSharedPeptides <- BuildAdjacencyMatrix(obj, pId, FALSE)
+  matUniquePeptides <- BuildAdjacencyMatrix(obj, pId, TRUE)
+  matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
+  
+  return(matAdj)
+}
+
+ComputeConnexComposants <- reactive({
+  req(GetAdjacencyMatrix())
+  CC <- NULL
+  CC <- list(allPep = get.pep.prot.cc(as.matrix(GetAdjacencyMatrix()$matWithSharedPeptides)),
+                onlyUniquePep = get.pep.prot.cc(as.matrix(GetAdjacencyMatrix()$matWithUniquePeptides)))
+  
+  CC
+})
+
+
+###-------------------------------------
+
+Compute_PCA_nbDimensions <- reactive({
+  # ncp should not be greater than...
+  nmax <- 12  
+  # pour info, ncp = nombre de composantes ou de dimensions dans les r?sultats de l'ACP
+  
+  y <- exprs(rv$current.obj)
+  nprot <- dim(y)[1]
+  # If too big, take the number of conditions.
+  n <- dim(y)[2] 
+  
+  if (n > nmax){
+    n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  }
+  
+  
+  ncp <- min(n, nmax)
+  ncp
+})
+
+
+

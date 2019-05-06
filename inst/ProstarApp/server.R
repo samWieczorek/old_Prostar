@@ -52,8 +52,8 @@ server <- function(input, output, session){
   loadLibraries()
   
     rv.prostar <- reactiveValues(
-    obj = NULL,
-    settings = NULL
+      obj = NULL,
+      settings = NULL
   )
   
  

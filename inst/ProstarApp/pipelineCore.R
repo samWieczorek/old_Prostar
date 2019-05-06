@@ -12,6 +12,7 @@ source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
+source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
 
 
 pipeline <- reactiveValues(
@@ -23,7 +24,8 @@ pipeline <- reactiveValues(
   # object returned by demode, openmode and convertmode
   init.obj = NULL,
   #object that is used for modules in pipeline
-  current.obj = NULL
+  current.obj = NULL,
+  tempplot = NULL
   
 )
 
@@ -41,6 +43,10 @@ GetCurrentMSnSet <- reactive({
   pipeline$current.obj
   pipeline$current.obj$datasets[[pipeline$current.indice]]
 })
+
+GetAdjacencyMatrix <- reactive({  pipeline$current.obj$AdjacencyMat })
+
+GetConnexComposant <- reactive({ pipeline$current.obj$ConnexComp })
 
 # observe({
 #   GetCurrentMSnSet()
@@ -83,7 +89,7 @@ print(rv.prostar$settings)
 ## Initialization of the pipeline
 observeEvent(req(obj.demomode()),{
   print(paste0("IN observeEvent(req(obj()$initialData : ", obj.demomode()$pipeline))
-  
+  #print(str(obj.demomode()))
   switch(obj.demomode()$pipeline,
          
          Peptide={
@@ -126,6 +132,9 @@ observeEvent(req(obj.demomode()),{
   #pipeline$current.dataset <- pipeline$init.obj
   #pipeline$current.obj <- pipeline$init.obj[['original']]
   
+  pipeline$current.obj$AdjacencyMat <- ComputeAdjacencyMatrices(GetCurrentMSnSet())
+  pipeline$current.obj$ConnexComp <- ComputeConnexComposants()
+
   BuildDataminingMenu("Data mining")
 })
 
@@ -169,7 +178,7 @@ RemoveAllPipelineTabs <- function(){
 }
 
 
-RemoveAllDatamingTabs <- reactive({})
+RemoveAllDatamingTabs <- reactive({removeTab(inputId = "navPage", target = "Data mining")})
 
 BuildDataminingMenu <- function(name){
   
@@ -178,8 +187,17 @@ BuildDataminingMenu <- function(name){
   callModule(moduleDescriptiveStats, "moduleDescrStats", 
                                   dataIn=reactive({list(obj = GetCurrentMSnSet(),
                                                         currentProcess = GetCurrentProcess())}))
-  tabs <- list(
-    moduleDescriptiveStatsUI('moduleDescrStats')
+  
+  callModule(module = moduleCC, "CC_Multi_Any", 
+             cc = reactive({pipeline$current.obj$ConnexComp$allPep}),
+             matAdj = reactive({pipeline$current.obj$AdjacencyMat$matWithSharedPeptides}), 
+             dataIn = reactive({GetCurrentMSnSet()})
+             )
+                                   
+                                   
+    tabs <- list(
+    moduleDescriptiveStatsUI('moduleDescrStats'),
+    moduleCCUI('CC_Multi_Any')
   )
   
   insertTab(inputId = "navPage",
