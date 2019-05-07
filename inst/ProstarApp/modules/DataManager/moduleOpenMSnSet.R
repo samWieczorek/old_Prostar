@@ -26,7 +26,7 @@ moduleOpenMSnSet  <- function(input, output, session){
   
   rv.openmode <- reactiveValues(
     current.obj = NULL,
-    res = NULL,
+    dataOut = NULL,
     name ="openmode",
     current.obj.name =NULL,
     indexNA = NULL

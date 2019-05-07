@@ -35,7 +35,7 @@ moduleConvertData <- function(input, output, session){
                                   content="Select the columns that are quantitation values by clicking in the field below.")))
   
    callModule(moduleStaticDataTable,"overview_convertData", 
-             table2show=reactive({GetDatasetOverview2(rv.convert$res$datasets[[1]])}))
+             table2show=reactive({GetDatasetOverview2(rv.convert$dataOut$datasets[[1]])}))
   
   
   
@@ -70,7 +70,7 @@ moduleConvertData <- function(input, output, session){
   rv.convert <- reactiveValues(
     tab1 = NULL,
     obj =  NULL,
-    res = NULL, 
+    dataOut = NULL, 
     name = "processConvert")
   
 ################################################
@@ -707,7 +707,7 @@ observeEvent(input$createMSnsetButton,{
       #loadObjectInMemoryFromConverter()
       
       updateTabsetPanel(session, "tabImport", selected = "Convert")
-      rv.convert$res <- list(datasets = list(original=rv.convert$obj),
+      rv.convert$dataOut <- list(datasets = list(original=rv.convert$obj),
                              name.dataset = rv.convert$obj.name, 
                              pipeline = input$typeOfData)
      
@@ -768,7 +768,7 @@ ClearConvertUI <- reactive({
   
 })
 
-return(reactive({rv.convert$res}))
+return(reactive({rv.convert$dataOut}))
 
 }
 

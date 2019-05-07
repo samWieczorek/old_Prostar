@@ -81,7 +81,7 @@ ui <- fluidPage(
                      )
           ),
           tagList( modulePlotsUI('showPlots')),
-          moduleDemoModeUI("demoMode"),
+          moduleOpenDatasetUI("openDataset"),
           navbarMenu("Help",
                  tabPanel("Useful links",
                           moduleInsertMarkdownUI('links_MD')

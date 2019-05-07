@@ -1,3 +1,4 @@
+source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleA.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleC.R"), local = TRUE)$value
@@ -13,6 +14,8 @@ source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
+
+
 
 
 pipeline <- reactiveValues(
@@ -31,7 +34,7 @@ pipeline <- reactiveValues(
 
 
 
-obj.demomode <- callModule(module=moduleDemoMode, 'demoMode', selectedPanel = reactive({input$navPage}))
+obj.openDataset <- callModule(module=moduleOpenDataset, 'openDataset', selectedPanel = reactive({input$navPage}))
 
 
 GetCurrentProcess <- reactive({
@@ -87,12 +90,12 @@ print(rv.prostar$settings)
 
 
 ## Initialization of the pipeline
-observeEvent(req(obj.demomode()),{
-  print(paste0("IN observeEvent(req(obj()$initialData : ", obj.demomode()$pipeline))
+observeEvent(req(obj.openDataset()),{
+  print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()$pipeline))
   #print(str(obj.demomode()))
-  switch(obj.demomode()$pipeline,
+  switch(obj.openDataset()$pipeline,
          
-         Peptide={
+         peptide={
            # Load UI code for modules
            #LoadModulesUI(path2peptideModules, peptide.def)
            pipeline$ll.process <- peptide.def
@@ -100,8 +103,10 @@ observeEvent(req(obj.demomode()),{
            BuildPipelineMenu("Pipeline peptide", peptide.def)
            
            # Build and load server code for modules
-           codeFile <- createWatchCode(peptide.def)
-           source(file.path(".", codeFile),  local = TRUE)$value
+           #codeFile <- createWatchCode(peptide.def)
+           for (i in peptide.def) {
+             source(file.path("WatchProcess",paste0("watchPeptide", i, '.R')),  local = TRUE)$value
+           }
            
            },
          Protein = {
@@ -123,11 +128,11 @@ observeEvent(req(obj.demomode()),{
   )
   
   pipeline$current.indice <- 1
-  pipeline$current.obj <- obj.demomode()
+  pipeline$current.obj <- obj.openDataset()
   
   ## which processes will be part of the pipeline
   pipeline$init.obj <- list(NULL)
-  pipeline$init.obj[['original']] <- obj.demomode()$datasets$original
+  pipeline$init.obj[['original']] <- obj.openDataset()$datasets$original
   pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   #pipeline$current.dataset <- pipeline$init.obj
   #pipeline$current.obj <- pipeline$init.obj[['original']]
@@ -151,7 +156,13 @@ LoadModulesUI <- function(path, ll.modules){
     })
 }
 
+
+### Construction des menus de pipeline de manière dynamtique
+### en fonction des process à intégrer
+###
 BuildPipelineMenu <- function(name, def){
+  print("IN Build Pipeline Menu")
+  
   
   RemoveAllPipelineTabs()
   tabs <-lapply(1:length(def), function(i) {
@@ -162,8 +173,8 @@ BuildPipelineMenu <- function(name, def){
   })
   insertTab(inputId = "navPage",
             do.call(navbarMenu, c(name ,tabs)),
-            target="Data manager",
-            position="after")
+            target="Help",
+            position="before")
 }
 
 
@@ -180,9 +191,15 @@ RemoveAllPipelineTabs <- function(){
 
 RemoveAllDatamingTabs <- reactive({removeTab(inputId = "navPage", target = "Data mining")})
 
+
+
+####
+### Construit le menu pour le datamining. Menu cosntruit en dur car pas nécessaire de la faire de 
+## manière dynamique
+###
 BuildDataminingMenu <- function(name){
   
-  RemoveAllPipelineTabs()
+  RemoveAllDatamingTabs()
   
   callModule(moduleDescriptiveStats, "moduleDescrStats", 
                                   dataIn=reactive({list(obj = GetCurrentMSnSet(),

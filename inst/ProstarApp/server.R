@@ -34,6 +34,10 @@ library(shinyBS)
 #' @examples
 server <- function(input, output, session){
   env <- environment()
+  
+  source(file.path(".", "pipelineDefinition.R"), local = TRUE)$value
+  
+  
   #####
   ## Launch modules
   source(file.path(".", "modules/Plots/modulePlots.R"), local = TRUE)$value

@@ -3,7 +3,7 @@ source(file.path(".", "modules/DataManager/moduleConvertData.R"),  local = TRUE)
 
 
 
-moduleDemoModeUI  <- function(id){
+moduleOpenDatasetUI  <- function(id){
   ns <- NS(id)
  
   # tagList(
@@ -60,22 +60,22 @@ moduleDemoModeUI  <- function(id){
 
 
 
-moduleDemoMode  <- function(input, output, session, selectedPanel){
+moduleOpenDataset  <- function(input, output, session, selectedPanel){
   ns <- session$ns
   
-  rv.demomode <- reactiveValues(
+  rv.opendataset <- reactiveValues(
     tmp.convert = NULL,
     current.obj = NULL,
-    res = NULL,
-    name ="demomode",
+    dataOut = NULL,
+    name ="opendataset",
     current.obj.name =NULL,
     indexNA = NULL
   )
   
   # observeEvent(selectedPanel(),{
   #   
-  #   print("Reset of reactive values : rv.demomode")
-  #   #rv.demomode$current.obj <- NULL
+  #   print("Reset of reactive values : rv.opendataset")
+  #   #rv.opendataset$current.obj <- NULL
   # 
   #   
   # })
@@ -83,19 +83,19 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   # 
   
   callModule(moduleStaticDataTable,"overview_DemoMode", 
-             table2show=reactive({GetDatasetOverview2(rv.demomode$current.obj$datasets[[1]])}))
+             table2show=reactive({GetDatasetOverview2(rv.opendataset$current.obj$datasets[[1]])}))
   callModule(moduleStaticDataTable,"overview_OpenMode", 
-             table2show=reactive({GetDatasetOverview2(rv.demomode$current.obj$datasets[[1]])}))
+             table2show=reactive({GetDatasetOverview2(rv.opendataset$current.obj$datasets[[1]])}))
   
  
   
-  rv.demomode$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
+  rv.opendataset$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
   
   
   observe({
-    req(rv.demomode$tmp.convert())
+    req(rv.opendataset$tmp.convert())
 
-    rv.demomode$res <- rv.demomode$tmp.convert()
+    rv.opendataset$dataOut <- rv.opendataset$tmp.convert()
   })
 
 
@@ -152,10 +152,10 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   
   output$infoAboutMSnset <- renderUI({
-    req(rv.demomode$current.obj$datasets[[1]])
+    req(rv.opendataset$current.obj$datasets[[1]])
     
     #print(str(rv$current.obj))
-    data <- rv.demomode$current.obj$datasets[[1]]
+    data <- rv.opendataset$current.obj$datasets[[1]]
     #print(str(data))
     typeOfDataset <- data@experimentData@other$typeOfData
     
@@ -201,10 +201,10 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   
   output$infoAboutMSnsetOpen <- renderUI({
-    req(rv.demomode$current.obj$datasets[[1]])
+    req(rv.opendataset$current.obj$datasets[[1]])
     
     #print(str(rv$current.obj))
-    data <- rv.demomode$current.obj$datasets[[1]]
+    data <- rv.opendataset$current.obj$datasets[[1]]
     #print(str(data))
     typeOfDataset <- data@experimentData@other$typeOfData
     
@@ -266,13 +266,13 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
         if (!is.list(data)){
         
         
-        rv.demomode$current.obj <- list(datasets = list(original=data),
+        rv.opendataset$current.obj <- list(datasets = list(original=data),
                                         name.dataset = input$file$name, 
                                         pipeline = "Peptide")
         print("cas 1")
         
          } else {
-          rv.demomode$current.obj <- data
+          rv.opendataset$current.obj <- data
           print("cas 2")
         }
         
@@ -287,7 +287,7 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       incProgress(1/nSteps, detail = def.progress.openMSnset[4])
     })
     
-    rv.demomode$res <- rv.demomode$current.obj
+    rv.opendataset$dataOut <- rv.opendataset$current.obj
     
   })
   
@@ -310,14 +310,14 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       print(paste0("class(data)[1] : ", class(data)[1]))
       if((class(data)[1] == "MSnSet") && !is.list(data)){
         
-        rv.demomode$current.obj <- list(datasets = list(original=data),
+        rv.opendataset$current.obj <- list(datasets = list(original=data),
                                         name.dataset = input$demoDataset, 
                                         pipeline = data@experimentData@other$typeOfData,
                                         ConnexComp = NULL,
                                         AdjacencyMat = NULL,
                                         indexNA = NULL)
       } else {
-        rv.demomode$current.obj <- data
+        rv.opendataset$current.obj <- data
       }
       
       incProgress(1/nSteps, detail = def.progress.loadDataset[2])
@@ -328,7 +328,7 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
       incProgress(1/nSteps, detail = def.progress.loadDataset[4])
       ConfigureDataset()
    })
-   rv.demomode$res <- rv.demomode$current.obj
+   rv.opendataset$dataOut <- rv.opendataset$current.obj
     
   })
 
@@ -336,22 +336,22 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   ConfigureDataset <- reactive({
     
-    rv.demomode$current.obj$datasets$original
+    rv.opendataset$current.obj$datasets$original
     
     
-    data <- rv.demomode$current.obj$datasets$original
+    data <- rv.opendataset$current.obj$datasets$original
     if (is.null(data@experimentData@other$typeOfData)) {
       data@experimentData@other$typeOfData <- ""
     }
     
-    rv.demomode$current.obj$indexNA <- which(is.na(data))
-    rv.demomode$current.obj$datasets$original <- DAPAR::addOriginOfValue(data)
+    rv.opendataset$current.obj$indexNA <- which(is.na(data))
+    rv.opendataset$current.obj$datasets$original <- DAPAR::addOriginOfValue(data)
     
-     colnames(fData(rv.demomode$current.obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
-     names(rv.demomode$current.obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
+     colnames(fData(rv.opendataset$current.obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
+     names(rv.opendataset$current.obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
      
      
-    #rv.demomode$current.obj$ConnexComp <- ComputeConnexComposants()
+    #rv.opendataset$current.obj$ConnexComp <- ComputeConnexComposants()
   })
   
   
@@ -446,12 +446,12 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   ########################################################### 
   NeedsUpdate <- reactive({
-    req(rv.demomode$current.obj$datasets[[1]])
+    req(rv.opendataset$current.obj$datasets[[1]])
     
-    PROSTAR.version <- rv.demomode$current.obj$datasets[[1]]@experimentData@other$Prostar_Version
+    PROSTAR.version <- rv.opendataset$current.obj$datasets[[1]]@experimentData@other$Prostar_Version
     
     if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
-        && (DAPAR::check.design(Biobase::pData(rv.demomode$current.obj$datasets[[1]]))$valid))
+        && (DAPAR::check.design(Biobase::pData(rv.opendataset$current.obj$datasets[[1]]))$valid))
     {return (FALSE)}
     
     else {
@@ -462,8 +462,9 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
   
   ######################################################  
   retroCompatibility <- reactive({
-    req(rv.demomode$current.obj$datasets[[1]])
-    data <- rv.demomode$current.obj$datasets[[1]]
+    req(rv.opendataset$current.obj$datasets[[1]])
+    data <- rv.opendataset$current.obj$datasets[[1]]
+    
     if ("FC" %in% colnames(Biobase::fData(data))){
       idx <- which(colnames(Biobase::fData(data)) == "FC")
       names(Biobase::fData(data))[idx] <-"logFC"
@@ -482,7 +483,7 @@ moduleDemoMode  <- function(input, output, session, selectedPanel){
 
 
 
-return(reactive({rv.demomode$res}))
+return(reactive({rv.opendataset$dataOut}))
 }
 
 
