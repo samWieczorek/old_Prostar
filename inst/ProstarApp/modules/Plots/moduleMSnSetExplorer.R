@@ -56,28 +56,16 @@ MSnSetExplorer <- function(input, output, session, dataIn) {
   
   
   
-  #callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
+  callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
   
   output$legendForExprsData <- renderUI({
     req(input$DS_TabsChoice)
     
     if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
     
-    tagList(
-      tags$p(tags$b("Legend of colors")),
-      
-      fluidRow(
-        column(width=2, HTML(paste0("<div style=\"width:50px;height:20px;border:0px solid #000; background-color: ",
-                                    rv.prostar$settings()$colorsTypeMV$POV,";\"></div>")) ),
-        column(width=10, tags$p("Partially Observed Value"))
-      ),
-      
-      fluidRow(
-        column(width=2,HTML(paste0("<div style=\"width:50px;height:20px;border:0px solid #000; background-color: ",
-                                   rv.prostar$settings()$colorsTypeMV$MEC,";\"></div>"))),
-        column(width=10, tags$p("Missing in Entire Condition"))
-      )
-    )
+    moduleLegendColoredExprsUI("FilterColorLegend_DS", settings()$colorsTypeMV)
+    
+    
   })
   
   

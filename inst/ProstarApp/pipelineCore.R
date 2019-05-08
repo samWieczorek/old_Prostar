@@ -1,3 +1,6 @@
+source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
+
+
 source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleA.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
@@ -104,7 +107,10 @@ observeEvent(req(obj.openDataset()),{
            
            # Build and load server code for modules
            #codeFile <- createWatchCode(peptide.def)
+           
+           
            for (i in peptide.def) {
+             print(paste0('source file :', "watchPeptide", i, '.R'))
              source(file.path("WatchProcess",paste0("watchPeptide", i, '.R')),  local = TRUE)$value
            }
            

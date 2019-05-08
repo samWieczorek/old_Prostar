@@ -293,9 +293,6 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     if (input$ChooseFilters == gFilterNone){
       #rv.filtering$obj <- rv$dataset[[input$datasets]]
     } else {
-      print(rv.filtering$obj)
-      print(input$ChooseFilters)
-      print(as.integer(input$seuilNA))
       
       keepThat <- mvFilterGetIndices(rv.filtering$obj,
                                      input$ChooseFilters,
@@ -443,7 +440,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   
   
   getDataForNumericalFiltered <- reactive({
-    req(settings()$nDigits)
+    req(settings())
     rv.filtering$deleted$numeric
     table <- as.data.frame(round(Biobase::exprs(rv.filtering$deleted$numeric),digits=settings()$nDigits))
     table <- cbind(table, Biobase::fData(rv.filtering$deleted$numeric)[,rv.filtering$deleted$numeric@experimentData@other$OriginOfValues])
@@ -454,9 +451,9 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   
   
   getDataForMVFiltered <- reactive({
-    req(settings()$nDigits)
+    req(settings())
     rv.filtering$deleted$mvLines
-    
+    print(settings())
     table <- as.data.frame(round(Biobase::exprs(rv.filtering$deleted$mvLines),digits=settings()$nDigits))
     table <- cbind(table, Biobase::fData(rv.filtering$deleted$mvLines)[,rv.filtering$deleted$mvLines@experimentData@other$OriginOfValues])
     
@@ -464,11 +461,12 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   })
   
   
-  
+  callModule(moduleLegendColoredExprs, "ExprsColorLegend_Filtering")
   
   getDataForMVStringFiltered <- reactive({
-    req(settings()$nDigits)
+    req(settings())
     rv.filtering$deleted$stringBased
+    
     table <- as.data.frame(round(Biobase::exprs(rv.filtering$deleted$stringBased),digits=settings()$nDigits))
     table <- cbind(table, Biobase::fData(rv.filtering$deleted$stringBased)[,rv.filtering$deleted$stringBased@experimentData@other$OriginOfValues])
     
@@ -480,7 +478,8 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     req(input$ChooseTabAfterFiltering)
     
     if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-    moduleLegendColoredExprsUI("FilterColorLegend_DS", settings()$colorsTypeMV)
+    
+    moduleLegendColoredExprsUI("ExprsColorLegend_Filtering", settings()$colorsTypeMV)
     
   })
   

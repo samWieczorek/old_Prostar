@@ -10,7 +10,7 @@ WatchmoduleFiltering <- callModule(module=moduleFiltering,'moduleFiltering',
                                                          AdjacencyMat = pipeline$AdjacencyMat,
                                                          ConnexComp = pipeline$ConnexComp)}),
                                    screen.id = reactive({GetScreenId()}),
-                                   settings = reactive({rv.prostar$settings}))
+                                   settings = reactive({rv.prostar$settings()}))
 
 
 
