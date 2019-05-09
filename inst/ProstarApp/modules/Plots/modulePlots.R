@@ -14,8 +14,6 @@ modulePlotsUI <- function(id){
 modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   ns <- session$ns
   
- 
- 
   source(file.path(".", "modules/Plots/moduleCorrMatrix.R"), local = TRUE)$value
   source(file.path(".", "modules/Plots/moduleHeatmap.R"), local = TRUE)$value
   source(file.path(".", "modules/Plots/modulePCAPlots.R"), local = TRUE)$value

@@ -27,6 +27,9 @@ Plusieurs groupes de fonctionnalites existent:
 
 Ces fonctionnalites sont generalement représentees par des menus deroulants
 
+## Variables
+
+Certaines variables globales sont utilisées par Prostar en general et pas specialement pour un module. Il s'agit notamment de la variable 'settings'
 
 # Pipelines
 
@@ -35,11 +38,34 @@ Les pipelines ne sont pas des modules mais une variable reactive composee d'un c
 la variable dataset qui ets une liste contenant autant d'elements que contient le pipeline
 La variable current.ind qui est l'indice dans 'dataset' de l'objet courant (celui sur lequel l'utilisateur travaille)
 
+
+Pipeline peptide
+
+
+Cette variable contient la variable current.obj qui est le lieu de stockage
+des donnees du pipeline. Les autres variables, directement accessibles sous pipeline$ sont des variables de travail
+
+
+```
+list(datasets,
+AdjacencyMat,
+ConnexComp)
+
+```
+
+
+
 # Architecture d'un module de process
 
 Un module de process doit avoir une entre et une sortie, instanciees par des variables reactives (dataIn et dataOut).
 Chaque module a ses propres variables reactives, de ce fait il est tres indépendant du reste du logiciel.
 La variable reactive porte le nom du module prefixé par 'rv.'. PAr exemple, pour le module Filtering, la variable s'appelle rv.Filtering. Dans cette liste, on trouve toutes les variables 'globales' nécessaires au fonctionnement du module.
+
+
+## fonctionnment d'un pipeline
+
+Les fonctions sont stockees dans le fichier pipelineCore.R et servent à gerer les flux des donnees entre les pipelines ainsi que l agestion de la liste de l'objet courant
+
 
 ## Paramètres d'entrée
 

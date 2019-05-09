@@ -17,6 +17,7 @@ moduleFilteringUI <- function(id){
 moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=NULL){
   ns <- session$ns
   
+  def.progress.saveFiltering <- c("Build Parameters list", "Save Parameters list", "Compte adjacency matrix", "Compute connex composants", "Save new dataset")
   
   ###### definition of RV for navigation process
   rvNavProcess <- reactiveValues(
@@ -51,7 +52,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     
     ## return result of the module
     dataOut = NULL, 
-    name = "processConvert",
+    name = "processFiltering",
     
     
     deleted = list(stringBased = NULL,
@@ -94,14 +95,22 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     
   })
   
-  ################# END of definitino part   #############################
-  #######################################################################
   
   ### initialisation de la variable globale du process
   observe({
     dataIn()
     rv.filtering$obj <- dataIn()
-    })
+  })
+  
+  
+  ################# END of definitino part   #############################
+  #######################################################################
+  
+  
+  
+  
+  
+ 
   
   
   
@@ -276,7 +285,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     rvNavProcess$Done[2] <- TRUE
     
     df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv.filtering$obj))
-    rv.filtering$widgets$filtering$DT_filterSummary <- rbind(rv.filtering$widgets$filtering$DT_filterSummary , df)
+    rv.filtering$widgets$DT_filterSummary <- rbind(rv.filtering$widgets$DT_filterSummary , df)
   })
   
   
@@ -335,7 +344,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
                      Condition=paste0(input$numericFilter_operator,' ',tagValue), 
                      nbDeleted=nbDeleted, 
                      Total=nrow(rv.filtering$obj))
-    rv.filtering$widgets$filtering$DT_numfilterSummary <- rbind(rv.filtering$widgets$filtering$DT_numfilterSummary, df)
+    rv.filtering$widgets$DT_numfilterSummary <- rbind(rv.filtering$widgets$DT_numfilterSummary, df)
     
   })
   
@@ -344,14 +353,14 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   ### ------------------------------------------------------------
   output$numericalFilterSummaryData <- DT::renderDataTable({
     req(rv.filtering$obj)
-    req(rv.filtering$widgets$filtering$DT_numfilterSummary)
+    req(rv.filtering$widgets$DT_numfilterSummary)
     
-    if (nrow(rv.filtering$widgets$filtering$DT_numfilterSummary) == 0){
+    if (nrow(rv.filtering$widgets$DT_numfilterSummary) == 0){
       df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv.filtering$obj), stringsAsFactors = FALSE)
-      rv.filtering$widgets$filtering$DT_numfilterSummary <- rbind(rv.filtering$widgets$filtering$DT_numfilterSummary ,df)
+      rv.filtering$widgets$DT_numfilterSummary <- rbind(rv.filtering$widgets$DT_numfilterSummary ,df)
     }
     
-    DT::datatable(rv.filtering$widgets$filtering$DT_numfilterSummary,
+    DT::datatable(rv.filtering$widgets$DT_numfilterSummary,
                   extensions = c('Scroller', 'Buttons'),
                   rownames = FALSE,
                   options=list(initComplete = initComplete(),
@@ -364,15 +373,15 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   
   output$FilterSummaryData <- DT::renderDataTable({
     req(rv.filtering$obj)
-    req(rv.filtering$widgets$filtering$DT_filterSummary)
+    req(rv.filtering$widgets$DT_filterSummary)
     
-    if (nrow(rv.filtering$widgets$filtering$DT_filterSummary )==0){
+    if (nrow(rv.filtering$widgets$DT_filterSummary )==0){
       df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv.filtering$obj), stringsAsFactors = FALSE)
-      rv.filtering$widgets$filtering$DT_filterSummary <- rbind(rv.filtering$widgets$filtering$DT_filterSummary ,df)
+      rv.filtering$widgets$DT_filterSummary <- rbind(rv.filtering$widgets$DT_filterSummary ,df)
     }
     
     
-    DT::datatable(rv.filtering$widgets$filtering$DT_filterSummary,
+    DT::datatable(rv.filtering$widgets$DT_filterSummary,
                   extensions = c('Scroller', 'Buttons'),
                   rownames = FALSE,
                   options=list(dom='Brt',
@@ -613,30 +622,45 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
     
     isolate({
+      nSteps <- length(def.progress.saveFiltering)
+      print(paste0("nSteps = ", nSteps))
+      withProgress(message = '',detail = '', value = 0, {
+        
+        incProgress(1/nSteps, detail = def.progress.saveFiltering[1])
+        
+        
       if((input$ChooseFilters != gFilterNone) 
-         || (nrow(rv.filtering$widgets$filtering$DT_filterSummary )>1)
-         || (nrow(rv.filtering$widgets$filtering$DT_numfilterSummary )>1)){
+         || (nrow(rv.filtering$widgets$DT_filterSummary )>1)
+         || (nrow(rv.filtering$widgets$DT_numfilterSummary )>1)){
         l.params <- build_ParamsList_Filtering()
+        
+        incProgress(1/nSteps, detail = def.progress.saveFiltering[2])
         
         typeOfDataset <- rv.filtering$obj@experimentData@other$typeOfData
         name <- paste0("Filtered", ".", typeOfDataset)
         rv.filtering$obj <- saveParameters(rv.filtering$obj,name,"Filtering",l.params)
         
         mat <- cc <- NULL
-        if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          mat <- ComputeAdjacencyMatrices()
-          cc <- ComputeConnexComposants()
-        }
+        incProgress(1/nSteps, detail = def.progress.saveFiltering[3])
+        mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
         
+        incProgress(1/nSteps, detail = def.progress.saveFiltering[4])
+        cc <- ComputeConnexComposants(mat)
+
+        incProgress(1/nSteps, detail = def.progress.saveFiltering[5])
+        
+        ## mise a jour de la variable de retour du module
         rv.filtering$dataOut <- list(obj = rv.filtering$obj,
                                       AdjacencyMat = mat,
-                                    ConnexComp = cc
+                                      ConnexComp = cc
         )
-        
-        updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+
       }
       rvNavProcess$Done[5] <- TRUE
+      })
     })
+      
+
     
   })
   
@@ -644,16 +668,16 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   
   
   build_ParamsList_Filtering <- reactive({
-    if (nrow(rv$widgets$filtering$DT_filterSummary) <=1) {
+    if (nrow(rv.filtering$widgets$DT_filterSummary) <=1) {
       df.string <- NULL
     } else {
-      df.string <- rv$widgets$filtering$DT_filterSummary
+      df.string <- rv.filtering$widgets$DT_filterSummary
     }
     
-    if (nrow(rv$widgets$filtering$DT_numfilterSummary) <=1) {
+    if (nrow(rv.filtering$widgets$DT_numfilterSummary) <=1) {
       df.numeric <- NULL
     } else {
-      df.numeric <- rv$widgets$filtering$DT_numfilterSummary}
+      df.numeric <- rv.filtering$widgets$DT_numfilterSummary}
     
     l.params <- list(mvFilterType = input$ChooseFilters,
                      mvThNA = as.numeric(input$seuilNA), 
@@ -680,13 +704,10 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     helpText("After checking the data, validate the filters.")
   })
   
-  # 
-  # 
-  # return(reactive({dataOut}))
-  # 
-  # }
-  
-  
+
+
+  return(reactive({rv.filtering$dataOut}))
+
 }
 
 

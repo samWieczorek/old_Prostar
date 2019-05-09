@@ -88,7 +88,7 @@ server <- function(input, output, session){
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
    print('!!!!! Manual change of current dataset')
-    n <- which(names(pipeline$current.datasets)==input$currentDataset)
+    n <- which(names(pipeline$current.obj$datasets)==input$currentDataset)
     if (length(n)==0){
       pipeline$current.indice <- 1
     } else {
@@ -101,6 +101,8 @@ server <- function(input, output, session){
 
     req(pipeline$current.obj$datasets)
     req(pipeline$current.indice)
+    print("IN output$chooseDataset <- renderUI")
+    print(paste0("value for current.indice : ", pipeline$current.indice))
     absolutePanel(
       id  = "#AbsolutePanel",
       top = -10, right = 50, width = "500px",height = "50px",

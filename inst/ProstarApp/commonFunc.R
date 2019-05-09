@@ -361,14 +361,14 @@ ComputeAdjacencyMatrices <- function(obj){
   return(matAdj)
 }
 
-ComputeConnexComposants <- reactive({
-  req(GetAdjacencyMatrix())
+ComputeConnexComposants <- function(X){
+  req(X)
   CC <- NULL
-  CC <- list(allPep = get.pep.prot.cc(as.matrix(GetAdjacencyMatrix()$matWithSharedPeptides)),
-                onlyUniquePep = get.pep.prot.cc(as.matrix(GetAdjacencyMatrix()$matWithUniquePeptides)))
+  CC <- list(allPep = get.pep.prot.cc(as.matrix(X$matWithSharedPeptides)),
+                onlyUniquePep = get.pep.prot.cc(as.matrix(X$matWithUniquePeptides)))
   
   CC
-})
+}
 
 
 ###-------------------------------------

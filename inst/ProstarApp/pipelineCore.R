@@ -2,7 +2,7 @@ source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)
 
 
 source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/moduleA.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleC.R"), local = TRUE)$value
 
@@ -13,7 +13,6 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
-
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
@@ -28,7 +27,6 @@ pipeline <- reactiveValues(
   ll.process = c('original'),
   
   # object returned by demode, openmode and convertmode
-  init.obj = NULL,
   #object that is used for modules in pipeline
   current.obj = NULL,
   tempplot = NULL
@@ -44,32 +42,15 @@ GetCurrentProcess <- reactive({
   "tutu"
 })
 
-GetCurrentMSnSet <- reactive({
-  pipeline$current.indice
-  pipeline$current.obj
-  pipeline$current.obj$datasets[[pipeline$current.indice]]
-})
+GetCurrentMSnSet <- reactive({pipeline$current.obj$datasets[[pipeline$current.indice]]})
 
 GetAdjacencyMatrix <- reactive({  pipeline$current.obj$AdjacencyMat })
 
 GetConnexComposant <- reactive({ pipeline$current.obj$ConnexComp })
 
-# observe({
-#   GetCurrentMSnSet()
-#   
-#   callModule(module = modulePlots, 'showPlots', 
-#              dataIn=reactive({GetCurrentMSnSet()}), 
-#              llPlots=reactive({lstDescPlots}))
-#   print("---- new value for pipeline$current.msnset ----")
-# })
-
-
 
 observeEvent(GetCurrentMSnSet(),{
-  print("callModule showPlots")
-  print(dim(GetCurrentMSnSet()))
-  
-    callModule(module = modulePlots, 'showPlots', 
+  callModule(module = modulePlots, 'showPlots', 
              dataIn=reactive({list(obj = GetCurrentMSnSet(),
                                    currentProcess = GetCurrentProcess())}), 
              llPlots=reactive({lstDescPlots}),
@@ -78,18 +59,9 @@ observeEvent(GetCurrentMSnSet(),{
 
 
 
-
 GetCurrentObjName <- reactive({
   "tutu"
   })
-
-
-
- observe({
-   rv.prostar$settings 
-   print("NEW rv.prostar$settings")
-print(rv.prostar$settings)
-   })
 
 
 ## Initialization of the pipeline
@@ -135,16 +107,16 @@ observeEvent(req(obj.openDataset()),{
   
   pipeline$current.indice <- 1
   pipeline$current.obj <- obj.openDataset()
-  
+  pipeline$current.obj[pipeline$ll.process] <- list(NULL)
   ## which processes will be part of the pipeline
-  pipeline$init.obj <- list(NULL)
-  pipeline$init.obj[['original']] <- obj.openDataset()$datasets$original
-  pipeline$init.obj[pipeline$ll.process] <- list(NULL)
+  #pipeline$init.obj <- list(NULL)
+  #pipeline$init.obj[['original']] <- obj.openDataset()$datasets$original
+  #pipeline$init.obj[pipeline$ll.process] <- list(NULL)
   #pipeline$current.dataset <- pipeline$init.obj
   #pipeline$current.obj <- pipeline$init.obj[['original']]
   
   pipeline$current.obj$AdjacencyMat <- ComputeAdjacencyMatrices(GetCurrentMSnSet())
-  pipeline$current.obj$ConnexComp <- ComputeConnexComposants()
+  pipeline$current.obj$ConnexComp <- ComputeConnexComposants(pipeline$current.obj$AdjacencyMat)
 
   BuildDataminingMenu("Data mining")
 })
@@ -260,21 +232,6 @@ DeleteDatasetsAfter <- function(txt){
   }
 }
 
-
-
-
-printStatus <- function(){
-  print("##### PrintStatus of module #####")
-  print("ll.process() = ")
-  print(pipeline$ll.process)
-  print('init.obj = ')
-  print(pipeline$init.obj)
-  print(paste0('pipeline$indice= ',pipeline$current.indice))
-  print(paste0('pipeline$current.obj= ',pipeline$current.obj))
-  print('pipeline$current.dataset= ')
-  print(pipeline$current.dataset)
-  #print(paste0('ProcessX = ',ProcessX()))
-}
 
 
 
