@@ -58,3 +58,11 @@ install.packages("BiocManager")
 ```
 
 
+
+# Module de navigation
+Ce module est particulier dans le sens où il ne prend en parametre d'entree qu'une liste d'interfaces graphiques et n'a pas de valeur de sortie.
+Il est appelé dans la partie UI des module de process qui en ont besoin
+
+
+# Parametre des process
+Ils sont concatenes sous forme de liste dans la partie de sauvegarde du dataset et sont enregistres dans le slot experimentData@other$l.params des MSnSet

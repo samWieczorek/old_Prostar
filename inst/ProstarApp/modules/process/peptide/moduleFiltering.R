@@ -48,8 +48,6 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   rv.filtering <- reactiveValues(
     ## temporary current data in module
     obj =  NULL,
-    AdjacencyMat = NULL,
-    ConnexComp = NULL,
     
     ## return result of the module
     dataOut = NULL, 
@@ -102,10 +100,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   ### initialisation de la variable globale du process
   observe({
     dataIn()
-    rv.filtering$obj <- dataIn()$current.obj
-    rv.filtering$AdjacencyMat <- dataIn()$AdjacencyMat
-    rv.filtering$ConnexComp <- dataIn()$ConnexComp
-    
+    rv.filtering$obj <- dataIn()
     })
   
   
@@ -172,7 +167,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
              textInput(ns("symFilter_tagName"), "Prefix", value = "", width='50px')
         ),
         div( style="display:inline-block; vertical-align: middle;",
-             p(""),actionButton(ns("actionButtonFilter"), "Perform", class = actionBtnClass)
+             p(""),actionButton(ns("btn_StringBasedFilter"), "Perform", class = actionBtnClass)
         )
       ),
       hr(),
@@ -260,10 +255,11 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   ##  ---------------------------------------------------------
   ## perform symbolic filter
   ## ----------------------------------------------------------
-  observeEvent(input$actionButtonFilter,{
+  observeEvent(input$btn_StringBasedFilter,{
     req(input$symFilter_cname)
     temp <- rv.filtering$obj
     
+    print(input$symFilter_cname)
     if (input$symFilter_cname=="None"){return()}
     cname <- input$symFilter_cname
     tagName <- input$symFilter_tagName
@@ -355,20 +351,15 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
       rv.filtering$widgets$filtering$DT_numfilterSummary <- rbind(rv.filtering$widgets$filtering$DT_numfilterSummary ,df)
     }
     
-    
     DT::datatable(rv.filtering$widgets$filtering$DT_numfilterSummary,
                   extensions = c('Scroller', 'Buttons'),
                   rownames = FALSE,
-                  
                   options=list(initComplete = initComplete(),
                                dom = 'Brt',
                                deferRender = TRUE,
                                bLengthChange = FALSE
                   ))
   })
-  
-  
-  
   
   
   output$FilterSummaryData <- DT::renderDataTable({
@@ -627,21 +618,49 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
          || (nrow(rv.filtering$widgets$filtering$DT_numfilterSummary )>1)){
         l.params <- build_ParamsList_Filtering()
         
-        rv$typeOfDataset <- rv.filtering$obj@experimentData@other$typeOfData
-        name <- paste0("Filtered", ".", rv$typeOfDataset)
+        typeOfDataset <- rv.filtering$obj@experimentData@other$typeOfData
+        name <- paste0("Filtered", ".", typeOfDataset)
         rv.filtering$obj <- saveParameters(rv.filtering$obj,name,"Filtering",l.params)
-        rv$dataset[[name]] <- rv.filtering$obj
-        dataOut<- rv.filtering$obj
         
+        mat <- cc <- NULL
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          ComputeAdjacencyMatrices()
-          ComputeConnexComposants()
+          mat <- ComputeAdjacencyMatrices()
+          cc <- ComputeConnexComposants()
         }
+        
+        rv.filtering$dataOut <- list(obj = rv.filtering$obj,
+                                      AdjacencyMat = mat,
+                                    ConnexComp = cc
+        )
+        
         updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
       }
       rvNavProcess$Done[5] <- TRUE
     })
     
+  })
+  
+  
+  
+  
+  build_ParamsList_Filtering <- reactive({
+    if (nrow(rv$widgets$filtering$DT_filterSummary) <=1) {
+      df.string <- NULL
+    } else {
+      df.string <- rv$widgets$filtering$DT_filterSummary
+    }
+    
+    if (nrow(rv$widgets$filtering$DT_numfilterSummary) <=1) {
+      df.numeric <- NULL
+    } else {
+      df.numeric <- rv$widgets$filtering$DT_numfilterSummary}
+    
+    l.params <- list(mvFilterType = input$ChooseFilters,
+                     mvThNA = as.numeric(input$seuilNA), 
+                     stringFilter.df = df.string,
+                     numericFilter.df = df.numeric)
+    
+    l.params
   })
   
   

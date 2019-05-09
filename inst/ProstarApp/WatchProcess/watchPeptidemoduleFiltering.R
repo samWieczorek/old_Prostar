@@ -6,11 +6,10 @@
 ### connexes, on les donne en parametre du module
 ####################
 WatchmoduleFiltering <- callModule(module=moduleFiltering,'moduleFiltering',  
-                                   dataIn=reactive({list(current.obj = GetCurrentMSnSet(),
-                                                         AdjacencyMat = pipeline$AdjacencyMat,
-                                                         ConnexComp = pipeline$ConnexComp)}),
+                                   dataIn=reactive({current.obj = GetCurrentMSnSet()}),
                                    screen.id = reactive({GetScreenId()}),
                                    settings = reactive({rv.prostar$settings()}))
+
 
 
 
