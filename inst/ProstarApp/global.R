@@ -105,4 +105,3 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Median" = "median")
 
 def.progress.loadDataset <- c('Clear memory', 'Load dataset', 'Configure object', 'Load in memory')
-def.progress.openMSnset <- c('Step 1', 'Step 2', 'Step 3', 'Step 4')

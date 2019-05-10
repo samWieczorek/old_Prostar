@@ -54,6 +54,20 @@ ConnexComp)
 ```
 
 
+Le dataset utilisé est maintenant une liste de MSnSet, chacun correspondant à un process
+du pipeline. le format est le suivant :
+```
+obj <- list(
+          datasets = list(original=NULL,
+                          filtering = NULL,
+                          normalization =NULL,
+                          ...),
+          name.dataset = NULL, 
+          pipeline = "Peptide"
+          )
+
+```
+
 
 # Architecture d'un module de process
 

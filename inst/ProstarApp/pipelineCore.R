@@ -1,3 +1,6 @@
+source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
+
+
 source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
 
 
@@ -28,6 +31,7 @@ pipeline <- reactiveValues(
   
   # object returned by demode, openmode and convertmode
   #object that is used for modules in pipeline
+  class.test = NULL,
   current.obj = NULL,
   tempplot = NULL
   

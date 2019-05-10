@@ -1,5 +1,7 @@
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleConvertData.R"),  local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
 
 
 
@@ -16,42 +18,15 @@ moduleOpenDatasetUI  <- function(id){
   
   navbarMenu("Data manager" ,
              tabPanel("Open MSnset",
-                      tagList(
-                        fileInput(ns("file"), "Open a MSnset file", multiple = FALSE),
-                        #uiOutput(ns("updateDesign")),
-                        
-                        uiOutput(ns("infoAboutMSnsetOpen")),
-                        div( style="display:inline-block; vertical-align: top;",
-                             moduleStaticDataTableUI(ns("overview_OpenMode"))
-                        )
-                        
-                      )),
+                      moduleOpenMSnSetUI(ns("moduleOpenMSnSet"))
+                      ),
              tabPanel("Convert",
                       value = "convertTab",
                       moduleConvertDataUI(ns("moduleProcess_Convert"))
                 ),
              tabPanel("Demo data", 
-                      tagList(
-                        tags$div(
-                          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                                    uiOutput(ns("chooseDemoDataset"))
-                          ),
-                          
-                          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                                    p(""),
-                                    actionButton(ns("loadDemoDataset"), "Load demo dataset",class = actionBtnClass)
-                          ),
-                          tags$div( style="display:inline-block; vertical-align: middle;",
-                                    p(""),
-                                    uiOutput(ns("linktoDemoPdf"))
-                          )
-                        ),
-                        
-                        uiOutput(ns("infoAboutMSnset")),
-                        div( style="display:inline-block; vertical-align: top;",
-                             moduleStaticDataTableUI(ns("overview_DemoMode"))
-                        )
-                      ))
+                      moduleOpenDemoDatasetUI(ns("moduleOpenDemoDataset"))
+                      )
   )
 
 
@@ -65,297 +40,77 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   
   rv.opendataset <- reactiveValues(
     tmp.convert = NULL,
-    current.obj = NULL,
-    dataOut = NULL,
-    name ="opendataset",
-    current.obj.name =NULL,
-    indexNA = NULL
+    tmp.demo = NULL,
+    tmp.file = NULL,
+    dataOut = NULL
   )
   
-  # observeEvent(selectedPanel(),{
-  #   
-  #   print("Reset of reactive values : rv.opendataset")
-  #   #rv.opendataset$current.obj <- NULL
-  # 
-  #   
-  # })
-  # 
-  # 
-  
-  callModule(moduleStaticDataTable,"overview_DemoMode", 
-             table2show=reactive({GetDatasetOverview2(rv.opendataset$current.obj$datasets[[1]])}))
-  callModule(moduleStaticDataTable,"overview_OpenMode", 
-             table2show=reactive({GetDatasetOverview2(rv.opendataset$current.obj$datasets[[1]])}))
-  
- 
   
   rv.opendataset$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
+  rv.opendataset$tmp.demo <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset')
+  #rv.opendataset$tmp.file <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
   
+  
+  # observe({
+  #   req(rv.opendataset$tmp.file())
+  #   rv.opendataset$tmp.file() <- ConfigureDataset(rv.opendataset$tmp.file())
+  #   rv.opendataset$dataOut <- rv.opendataset$tmp.file()
+  # })
   
   observe({
     req(rv.opendataset$tmp.convert())
-
+    rv.opendataset$tmp.convert() <- ConfigureDataset(rv.opendataset$tmp.convert())
     rv.opendataset$dataOut <- rv.opendataset$tmp.convert()
   })
 
+  
+  observe({
+    req(rv.opendataset$tmp.demo())
+    rv.opendataset$tmp.demo() <- ConfigureDataset(rv.opendataset$tmp.demo())
+    rv.opendataset$dataOut <- rv.opendataset$tmp.demo()
+  })
+  
+  
 
-  
-  
-  ### function for demo mode
-  output$chooseDemoDataset <- renderUI({
-    
-    if(require("DAPARdata", lib.loc=DAPARdata.loc)){
-      print("DAPARdata is loaded correctly")
-      selectInput(ns("demoDataset"),
-                  "Demo dataset",
-                  choices = utils::data(package="DAPARdata")$results[,"Item"],
-                  width='200px')
-    } else {
-      print("Trying to install DAPARdata")
-      BiocManager::install("DAPARdata")
-      if(require(DAPARdata)){
-        print("DAPARdata installed and loaded")
-        selectInput("demoDataset",
-                    "Demo dataset",
-                    choices = utils::data(package='DAPARdata')$results[,"Item"],
-                    width='200px'   )
-      } else {
-        stop("Could not install the package DAPARdata")
-      }
-    }
-    
-    
-  })
-  
-  
-  
-  
-  output$linktoDemoPdf <- renderUI({
-    req(input$demoDataset)
-    
-    file<- paste(system.file(package = "DAPARdata"),"/doc/",
-                 input$demoDataset,".pdf", sep="")
-    cmd <- paste("cp ",file," www/.", sep="")
-    system(cmd)
-    filename <-paste0(input$demoDataset,".pdf", sep="")
-    p("Dataset documentation ",a(href=filename, target='_blank', "(pdf)"))
-    
-  })
-  
-  
-  
-  
-  
-  
-  ###### specific for file open
-  
-  
-  
-  output$infoAboutMSnset <- renderUI({
-    req(rv.opendataset$current.obj$datasets[[1]])
-    
-    #print(str(rv$current.obj))
-    data <- rv.opendataset$current.obj$datasets[[1]]
-    #print(str(data))
-    typeOfDataset <- data@experimentData@other$typeOfData
-    
-    retroCompatibility()
-    if (NeedsUpdate())
-    {    
-      tags$div(
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 tags$img(src = "images/Problem.png", height=25)),
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
-                      software functionalities. Please update the design below"))
-                 )
-    } else{
-      
-      NA.count <- length(which(is.na(Biobase::exprs(data))))
-      nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(data))), 1, all))
-      tagList(
-        tags$h3("Info"),
-        if (typeOfDataset == "protein"){
-          tags$p("Note: the aggregation tool
-                 has been disabled because the dataset contains 
-                 protein quantitative data.")
-        },
-        
-        if (NA.count > 0){
-          tags$p("As your dataset contains missing values, you should 
-                 impute them prior to proceed",br()," 
-                 to the differential analysis.")
-        },
-        if (nb.empty.lines > 0){
-          tags$p("As your dataset contains lines with no values, you 
-                 should remove them with the filter",br()," tool
-                 prior to proceed to the analysis of the data.")
-        }
-        
-          )
-      
-        }
-        })
-  
-  
-  
-  
-  output$infoAboutMSnsetOpen <- renderUI({
-    req(rv.opendataset$current.obj$datasets[[1]])
-    
-    #print(str(rv$current.obj))
-    data <- rv.opendataset$current.obj$datasets[[1]]
-    #print(str(data))
-    typeOfDataset <- data@experimentData@other$typeOfData
-    
-    retroCompatibility()
-    if (NeedsUpdate())
-    {    
-      tags$div(
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 tags$img(src = "images/Problem.png", height=25)),
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
-                      software functionalities. Please update the design below"))
-                 )
-    } else{
-      
-      NA.count <- length(which(is.na(Biobase::exprs(data))))
-      nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(data))), 1, all))
-      tagList(
-        tags$h3("Info"),
-        if (typeOfDataset == "protein"){
-          tags$p("Note: the aggregation tool
-                 has been disabled because the dataset contains 
-                 protein quantitative data.")
-        },
-        
-        if (NA.count > 0){
-          tags$p("As your dataset contains missing values, you should 
-                 impute them prior to proceed",br()," 
-                 to the differential analysis.")
-        },
-        if (nb.empty.lines > 0){
-          tags$p("As your dataset contains lines with no values, you 
-                 should remove them with the filter",br()," tool
-                 prior to proceed to the analysis of the data.")
-        }
-        
-          )
-      
-        }
-        })
-  
-  
-  
-  ##-- Open a MSnset File --------------------------------------------
-  observeEvent(input$file,ignoreInit =TRUE,{ 
-    nSteps <- length(def.progress.openMSnset)
-    print(paste0("nSteps = ", nSteps))
-    withProgress(message = '',detail = '', value = 0, {
-      
-      incProgress(1/nSteps, detail = def.progress.openMSnset[1])
-      #ClearMemory()
-      #ClearUI()
-      data <- readRDS(input$file$datapath)
-      if(class(data)[1] != "MSnSet") {
-        shinyjs::info("Warning : this file is not a MSnset file ! 
-                      Please choose another one.")
-        return(NULL)
-      } else {
-        if (!is.list(data)){
-        
-        
-        rv.opendataset$current.obj <- list(datasets = list(original=data),
-                                        name.dataset = input$file$name, 
-                                        pipeline = "Peptide")
-        print("cas 1")
-        
-         } else {
-          rv.opendataset$current.obj <- data
-          print("cas 2")
-        }
-        
-      }
-      incProgress(1/nSteps, detail = def.progress.openMSnset[2])
-      l.params <- list(filename = input$file$name)
-      
-      incProgress(1/nSteps, detail = def.progress.openMSnset[3])
-      
-      #loadObjectInMemoryFromConverter()
-      loadObjectInMemory()
-      incProgress(1/nSteps, detail = def.progress.openMSnset[4])
-    })
-    
-    rv.opendataset$dataOut <- rv.opendataset$current.obj
-    
-  })
-  
-  
-  
+ 
   ####### Common functions
  
-  observeEvent(input$loadDemoDataset, {
-      
-   nSteps <- length(def.progress.loadDataset)
-   print(paste0("nSteps = ", nSteps))
-   withProgress(message = '',detail = '', value = 0, {
-      #ClearMemory()
-      #ClearUI()
-      incProgress(1/nSteps, detail = def.progress.loadDataset[1])
-      utils::data(list = input$demoDataset)
-      print(input$demoDataset)
-      data <- get(input$demoDataset)
-      print("#################################")
-      print(paste0("class(data)[1] : ", class(data)[1]))
-      if((class(data)[1] == "MSnSet") && !is.list(data)){
-        
-        rv.opendataset$current.obj <- list(datasets = list(original=data),
-                                        name.dataset = input$demoDataset, 
-                                        pipeline = data@experimentData@other$typeOfData,
-                                        ConnexComp = NULL,
-                                        AdjacencyMat = NULL,
-                                        indexNA = NULL)
-      } else {
-        rv.opendataset$current.obj <- data
-      }
-      
-      incProgress(1/nSteps, detail = def.progress.loadDataset[2])
-      l.params <- list(filename = input$demoDataset)
-      incProgress(1/nSteps, detail = def.progress.loadDataset[3])
-        
-      #loadObjectInMemory()
-      incProgress(1/nSteps, detail = def.progress.loadDataset[4])
-      ConfigureDataset()
-   })
-   rv.opendataset$dataOut <- rv.opendataset$current.obj
-    
-  })
-
-
-  
-  ConfigureDataset <- reactive({
-    
-    rv.opendataset$current.obj$datasets$original
-    
-    
-    data <- rv.opendataset$current.obj$datasets$original
+  ConfigureDataset <- function(obj){
+   
+    data <- obj$datasets$original
     if (is.null(data@experimentData@other$typeOfData)) {
       data@experimentData@other$typeOfData <- ""
     }
     
-    rv.opendataset$current.obj$indexNA <- which(is.na(data))
-    rv.opendataset$current.obj$datasets$original <- DAPAR::addOriginOfValue(data)
+    obj$indexNA <- which(is.na(data))
+    obj$datasets$original <- DAPAR::addOriginOfValue(data)
     
-     colnames(fData(rv.opendataset$current.obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
-     names(rv.opendataset$current.obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
+     colnames(fData(obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
+     names(obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
      
      
     #rv.opendataset$current.obj$ConnexComp <- ComputeConnexComposants()
+     
+     return(obj)
+  }
+  
+  
+  ########################################################### 
+  NeedsUpdate <- reactive({
+    req(rv.opendataset$current.obj$datasets[[1]])
+    
+    PROSTAR.version <- rv.opendataset$current.obj$datasets[[1]]@experimentData@other$Prostar_Version
+    
+    if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
+        && (DAPAR::check.design(Biobase::pData(rv.opendataset$current.obj$datasets[[1]]))$valid))
+    {return (FALSE)}
+    
+    else {
+      return(TRUE)
+    }
   })
   
   
-
  
   
   
@@ -444,44 +199,7 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
 # rv$current.obj <- addOriginOfValue(rv$current.obj)
   
   
-  ########################################################### 
-  NeedsUpdate <- reactive({
-    req(rv.opendataset$current.obj$datasets[[1]])
-    
-    PROSTAR.version <- rv.opendataset$current.obj$datasets[[1]]@experimentData@other$Prostar_Version
-    
-    if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
-        && (DAPAR::check.design(Biobase::pData(rv.opendataset$current.obj$datasets[[1]]))$valid))
-    {return (FALSE)}
-    
-    else {
-      return(TRUE)
-    }
-  })
-  
-  
-  ######################################################  
-  retroCompatibility <- reactive({
-    req(rv.opendataset$current.obj$datasets[[1]])
-    data <- rv.opendataset$current.obj$datasets[[1]]
-    
-    if ("FC" %in% colnames(Biobase::fData(data))){
-      idx <- which(colnames(Biobase::fData(data)) == "FC")
-      names(Biobase::fData(data))[idx] <-"logFC"
-    }
-    
-    if ("Experiment" %in% colnames(Biobase::pData(data))){
-      idx <- which(colnames(Biobase::pData(data)) == "Experiment")
-      names(Biobase::pData(data))[idx] <-"Sample.name"
-    }
-    
-    if ("Label" %in% colnames(Biobase::pData(data))){
-      idx <- which(colnames(Biobase::pData(data)) == "Label")
-      names(Biobase::pData(data))[idx] <-"Condition"
-    }
-  })
-
-
+ 
 
 return(reactive({rv.opendataset$dataOut}))
 }
