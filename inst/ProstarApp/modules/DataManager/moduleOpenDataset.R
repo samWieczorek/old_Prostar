@@ -2,6 +2,7 @@ source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleConvertData.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
 
 
@@ -48,67 +49,31 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   
   rv.opendataset$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
   rv.opendataset$tmp.demo <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset')
-  #rv.opendataset$tmp.file <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
+  rv.opendataset$tmp.file <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
   
   
-  # observe({
-  #   req(rv.opendataset$tmp.file())
-  #   rv.opendataset$tmp.file() <- ConfigureDataset(rv.opendataset$tmp.file())
-  #   rv.opendataset$dataOut <- rv.opendataset$tmp.file()
-  # })
+  observe({
+    req(rv.opendataset$tmp.file())
+    rv.opendataset$dataOut <- rv.opendataset$tmp.file()
+  })
   
   observe({
     req(rv.opendataset$tmp.convert())
-    rv.opendataset$tmp.convert() <- ConfigureDataset(rv.opendataset$tmp.convert())
     rv.opendataset$dataOut <- rv.opendataset$tmp.convert()
   })
 
   
   observe({
     req(rv.opendataset$tmp.demo())
-    rv.opendataset$tmp.demo() <- ConfigureDataset(rv.opendataset$tmp.demo())
     rv.opendataset$dataOut <- rv.opendataset$tmp.demo()
+    print("demo dataset loaded")
   })
   
   
 
  
-  ####### Common functions
- 
-  ConfigureDataset <- function(obj){
-   
-    data <- obj$datasets$original
-    if (is.null(data@experimentData@other$typeOfData)) {
-      data@experimentData@other$typeOfData <- ""
-    }
-    
-    obj$indexNA <- which(is.na(data))
-    obj$datasets$original <- DAPAR::addOriginOfValue(data)
-    
-     colnames(fData(obj$datasets$original)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
-     names(obj$datasets$original@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
-     
-     
-    #rv.opendataset$current.obj$ConnexComp <- ComputeConnexComposants()
-     
-     return(obj)
-  }
   
   
-  ########################################################### 
-  NeedsUpdate <- reactive({
-    req(rv.opendataset$current.obj$datasets[[1]])
-    
-    PROSTAR.version <- rv.opendataset$current.obj$datasets[[1]]@experimentData@other$Prostar_Version
-    
-    if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
-        && (DAPAR::check.design(Biobase::pData(rv.opendataset$current.obj$datasets[[1]]))$valid))
-    {return (FALSE)}
-    
-    else {
-      return(TRUE)
-    }
-  })
   
   
  

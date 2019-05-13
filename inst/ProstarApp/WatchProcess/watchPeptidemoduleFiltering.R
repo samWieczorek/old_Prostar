@@ -14,13 +14,13 @@ WatchmoduleFiltering <- callModule(module=moduleFiltering,'moduleFiltering',
 
 
 observeEvent(WatchmoduleFiltering(),{
-  pipeline$current.obj$datasets$moduleFiltering <- WatchmoduleFiltering()$obj
-  pipeline$current.obj$AdjacencyMat <- WatchmoduleFiltering()$AdjacencyMat
-  pipeline$current.obj$ConnexComp <- WatchmoduleFiltering()$ConnexComp
+  pipeline$current.obj@datasets$moduleFiltering <- WatchmoduleFiltering()$obj
+  pipeline$current.obj@AdjacencyMat <- WatchmoduleFiltering()$AdjacencyMat
+  pipeline$current.obj@ConnexComp <- WatchmoduleFiltering()$ConnexComp
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- 1 + which(pipeline$ll.process == 'moduleFiltering')
+  pipeline$current.indice <- 1 + which(pipeline$current.obj@l.process == 'moduleFiltering')
   DeleteDatasetsAfter('moduleFiltering')
 })
 

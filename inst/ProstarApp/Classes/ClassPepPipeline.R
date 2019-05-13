@@ -2,11 +2,13 @@ source(file.path(".", "Classes/ClassGenericPipeline.R"), local = TRUE)$value
 
 pepPipeline <- setClass("pepPipeline",
                         representation = representation(
-                          AdjancencyMatrix = 'matrix',
+                          AdjancencyMat = 'list',
                           ConnexComp = 'list'),
+                        
                         prototype = prototype(
-                          AdjancencyMatrix = NULL,
-                          ConnexComp = NULL),
+                          AdjancencyMat = list(),
+                          ConnexComp = list()),
+                        
                         # Make a function that can test to see if the data is consistent.
                         # This is not called if you have an initialize function defined!
                         validity=function(object)
@@ -22,36 +24,36 @@ pepPipeline <- setClass("pepPipeline",
 
 
 # create a method to initialize the datasets list with the name of the processes
-setGeneric(name="setAdjacencyMatrix",
+setGeneric(name="setAdjacencyMat",
            def=function(theObject,X)
            {
-             standardGeneric("setAdjacencyMatrix")
+             standardGeneric("setAdjacencyMat")
            }
 )
 
-setMethod(f="setAdjacencyMatrix",
+setMethod(f="setAdjacencyMat",
           signature="pepPipeline",
           definition=function(theObject,X)
           {
-            theObject@AdjacencyMatrix <- X
+            theObject@AdjacencyMat <- X
             validObject(theObject)
             return(theObject)
           }
 )
 
 
-setGeneric(name="getAdjacencyMatrix",
+setGeneric(name="getAdjacencyMat",
            def=function(theObject)
            {
-             standardGeneric("getAdjacencyMatrix")
+             standardGeneric("getAdjacencyMat")
            }
 )
 
-setMethod(f="getAdjacencyMatrix",
+setMethod(f="getAdjacencyMat",
           signature="pepPipeline",
           definition=function(theObject)
           {
-            return(theObject@AdjacencyMatrix)
+            return(theObject@AdjacencyMat)
           }
 )
 

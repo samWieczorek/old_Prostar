@@ -2,16 +2,22 @@
 
 
 genericPipeline <- setClass("genericPipeline",
+                            
          representation = representation(
            datasets="list",
+           indexNA = "vector",
            name.dataset = "character",
            pipeline = "character",
            ll.process = "character"),
+         
+         
          prototype = prototype(
            datasets = list(),
+           indexNA = vector("list", 1),
            name.dataset = NA_character_,
            pipeline = NA_character_,
            ll.process = c()),
+         
          # Make a function that can test to see if the data is consistent.
          # This is not called if you have an initialize function defined!
          validity=function(object)
@@ -58,11 +64,29 @@ setMethod(f="setMSnSet",
           signature="genericPipeline",
           definition=function(theObject,name, obj)
           {
-            theObject@datasets[name] <- obj
+            theObject@datasets[[name]] <- obj
             validObject(theObject)
             return(theObject)
           }
 )
+
+setGeneric(name="setMSnSet",
+           def=function(theObject,indice, obj)
+           {
+             standardGeneric("setMSnSet")
+           }
+)
+
+setMethod(f="setMSnSet",
+          signature="genericPipeline",
+          definition=function(theObject,indice, obj)
+          {
+            theObject@datasets[[indice]] <- obj
+            validObject(theObject)
+            return(theObject)
+          }
+)
+
 
 
 
@@ -78,7 +102,8 @@ setMethod(f="getMSnSet",
           signature="genericPipeline",
           definition=function(theObject, indice)
           {
-            if (is.null(theObject)){return()}
+           
+          if (is.null(theObject)){return()}
             return(theObject@datasets[[indice]])
           }
 )
@@ -159,5 +184,38 @@ setMethod(f="getNameDataset",
 
 
 
+
+setGeneric(name="setIndexNA",
+           def=function(theObject,ind)
+           {
+             standardGeneric("setIndexNA")
+           }
+)
+
+setMethod(f="setIndexNA",
+          signature="genericPipeline",
+          definition=function(theObject,ind)
+          {
+            theObject@indexNA <- ind
+            validObject(theObject)
+            return(theObject)
+          }
+)
+
+# create a method to get the value of the location
+setGeneric(name="getIndexNA",
+           def=function(theObject)
+           {
+             standardGeneric("getIndexNA")
+           }
+)
+
+setMethod(f="getIndexNA",
+          signature="genericPipeline",
+          definition=function(theObject)
+          {
+            return(theObject@indexNA)
+          }
+)
 
 

@@ -88,7 +88,7 @@ server <- function(input, output, session){
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
    print('!!!!! Manual change of current dataset')
-    n <- which(names(pipeline$current.obj$datasets)==input$currentDataset)
+    n <- which(names(pipeline$current.obj@datasets)==input$currentDataset)
     if (length(n)==0){
       pipeline$current.indice <- 1
     } else {
@@ -99,7 +99,7 @@ server <- function(input, output, session){
 
   output$chooseDataset <- renderUI({
 
-    req(pipeline$current.obj$datasets)
+    req(pipeline$current.obj)
     req(pipeline$current.indice)
     print("IN output$chooseDataset <- renderUI")
     print(paste0("value for current.indice : ", pipeline$current.indice))
@@ -117,8 +117,8 @@ server <- function(input, output, session){
         div(
         style="display:inline-block; vertical-align: middle; margin:0px",
         selectInput('currentDataset', '',
-                    choices = names(pipeline$current.obj$datasets[!sapply(pipeline$current.obj$datasets,is.null)]),
-                    selected = names(pipeline$current.obj$datasets)[pipeline$current.indice],
+                    choices = names(pipeline$current.obj@datasets[!sapply(pipeline$current.obj@datasets,is.null)]),
+                    selected = names(pipeline$current.obj@datasets)[pipeline$current.indice],
                     width='150px')
         )
       )

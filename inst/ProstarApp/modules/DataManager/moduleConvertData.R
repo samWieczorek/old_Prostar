@@ -35,9 +35,16 @@ moduleConvertData <- function(input, output, session){
                                   content="Select the columns that are quantitation values by clicking in the field below.")))
   
    callModule(moduleStaticDataTable,"overview_convertData", 
-             table2show=reactive({GetDatasetOverview2(rv.convert$dataOut$datasets[[1]])}))
+             table2show=reactive({
+               req(rv.convert$dataOut)
+               GetDatasetOverview2(rv.convert$dataOut@datasets[[1]])
+               }))
   
-  
+   callModule(moduleInfoDataset, "infoAboutMSnset",
+              obj = reactive({
+                req(rv.convert$dataOut)
+                GetDatasetOverview2(rv.convert$dataOut@datasets[[1]])
+              }))
   
   
   
@@ -201,7 +208,8 @@ output$Convert_Convert <- renderUI({
   tagList(
     uiOutput(ns("convertFinalStep")),
     moduleStaticDataTableUI(ns("overview_convertData")),
-    uiOutput(ns("conversionDone"))
+    uiOutput(ns("conversionDone")),
+    moduleInfoDatasetUI(ns("infoAboutMSnset"))
     
   )
 })
@@ -371,7 +379,7 @@ observeEvent(c(input$file2Convert,input$XLSsheets),{
   else {
     # result = tryCatch(
     #   {
-    ClearUI()
+    #ClearUI()
    # ClearMemory()
     ext <- GetExtension(input$file2Convert$name)
     
@@ -632,7 +640,7 @@ output$warningCreateMSnset <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-  req(rv.convert$obj)
+  #req(rv.convert$obj)
   
   colNamesForOriginofValues <- NULL
   if (isTRUE(input$selectIdent)) {
@@ -694,26 +702,45 @@ observeEvent(input$createMSnsetButton,{
                           versions
       )
       
+      print('tmp created')
       
+      ll.process <- type <- NULL
+      switch(input$typeOfData,
+             peptide = {
+               rv.convert$obj <- pepPipeline()
+               ll.process <- peptide.def
+             },
+             protein = {
+               rv.convert$obj <- protPipeline()
+               ll.process <- protein.def
+               
+             }, 
+             p2p = {
+               rv.convert$obj <- p2pPipeline()
+               ll.process <- p2p.def
+               
+             }
+      )
+      
+      rv.convert$obj <- initialize(rv.convert$obj, 
+                                            ll.process, 
+                                            tmp,
+                                            input$filenameToCreate, 
+                                            input$typeOfData )
+      
+      
+      
+      print("New dataset converted")
+      print(rv.convert$obj)
       ClearConvertUI()
       #ClearMemory()
-      
-      rv.convert$obj <- tmp
-      rv.convert$obj.name <- input$filenameToCreate
-      rv.convert$indexNA <- which(is.na(exprs(rv.convert$obj)))
       
       l.params <- list(filename = input$filenameToCreate)
       
       #loadObjectInMemoryFromConverter()
       
       updateTabsetPanel(session, "tabImport", selected = "Convert")
-      rv.convert$dataOut <- list(datasets = list(original=rv.convert$obj),
-                             name.dataset = rv.convert$obj.name, 
-                             pipeline = input$typeOfData)
-     
-      
-      
-       
+      rv.convert$dataOut <- rv.convert$obj
       
       rvNavProcess$Done[5] <- TRUE
     }

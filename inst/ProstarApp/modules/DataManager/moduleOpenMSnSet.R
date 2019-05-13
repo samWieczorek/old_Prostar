@@ -1,4 +1,4 @@
-source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
+source(file.path(".", "modules/DataManager/funcs.R"),  local = TRUE)$value
 
 
 
@@ -8,7 +8,7 @@ moduleOpenMSnSetUI  <- function(id){
            value = "openMSnsetTab",
            tagList(
              fileInput(ns("file"), "Open a MSnset file", multiple = FALSE),
-             uiOutput(ns("infoAboutMSnsetOpen")),
+             moduleInfoDatasetUI(ns("infoAboutMSnset")),
              div( style="display:inline-block; vertical-align: top;",
                   moduleStaticDataTableUI(ns("overview_openMSnset"))
              )
@@ -25,8 +25,17 @@ moduleOpenMSnSet  <- function(input, output, session){
   
   
   callModule(moduleStaticDataTable,"overview_openMSnset", 
-             table2show=reactive({GetDatasetOverview2(GetMSnSet.Reactive())}))
+             table2show=reactive({
+               req(rv.openMSnSet$current.obj)
+               GetDatasetOverview2(rv.openMSnSet$current.obj@datasets[[1]])
+               }))
  
+  callModule(moduleInfoDataset, "infoAboutMSnset",
+             obj = reactive({
+               req(rv.openMSnSet$current.obj)
+               GetDatasetOverview2(rv.openMSnSet$current.obj@datasets[[1]])
+             }))
+  
   def.progress.openMSnset <- c('Step 1', 'Step 2', 'Step 3', 'Step 4')
   
   rv.openMSnSet <- reactiveValues(
@@ -34,66 +43,6 @@ moduleOpenMSnSet  <- function(input, output, session){
     dataOut = NULL
   )
   
-  
-  GetMSnSet.Reactive <- reactive({
-    req(rv.openMSnSet$current.obj)
-    
-    tmp <- NULL
-    if( class(rv.openMSnSet$current.obj)[1]=='MSnSet') {
-      tmp <- rv.openMSnSet$current.obj 
-    } else if ( class(rv.openMSnSet$current.obj)[1]=='genericPipeline') {
-      tmp <- getMSnSet(rv.openMSnSet$current.obj, 1)
-    }
-    tmp
-  })
-  
-  
-  
-  
-  output$infoAboutMSnsetOpen <- renderUI({
-    req(GetMSnSet.Reactive())
-    
-    data <- GetMSnSet.Reactive()
-    #print(str(data))
-    typeOfDataset <- data@experimentData@other$typeOfData
-    
-    retroCompatibility()
-    if (NeedsUpdate())
-    {    
-      tags$div(
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 tags$img(src = "images/Problem.png", height=25)),
-        tags$div(style="display:inline-block; vertical-align: top;",
-                 HTML("The dataset was created with a former version of ProStaR, which experimental design is not compliant with the current
-                      software functionalities. Please update the design below"))
-                 )
-    } else{
-      
-      NA.count <- length(which(is.na(Biobase::exprs(data))))
-      nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(data))), 1, all))
-      tagList(
-        tags$h3("Info"),
-        if (typeOfDataset == "protein"){
-          tags$p("Note: the aggregation tool
-                 has been disabled because the dataset contains 
-                 protein quantitative data.")
-        },
-        
-        if (NA.count > 0){
-          tags$p("As your dataset contains missing values, you should 
-                 impute them prior to proceed",br()," 
-                 to the differential analysis.")
-        },
-        if (nb.empty.lines > 0){
-          tags$p("As your dataset contains lines with no values, you 
-                 should remove them with the filter",br()," tool
-                 prior to proceed to the analysis of the data.")
-        }
-        
-          )
-      
-        }
-        })
   
   
   
@@ -109,15 +58,31 @@ moduleOpenMSnSet  <- function(input, output, session){
       data <- readRDS(input$file$datapath)
       
       
-      if(!(class(data)[1] %IN% c("pepPipeline", "protPipeline", "p2pPipeline"))) {
+      if(!(class(data)[1] %in% c("pepPipeline", "protPipeline", "p2pPipeline"))) {
         
         if (class(data)[1]=="MSnSet") {
           typeOfData <- data@experimentData@other$typeOfData
+          ll.process <- type <- NULL
           switch(typeOfData,
-                  peptide = rv.openMSnSet$current.obj <- pepPipeline(),
-                  protein = rv.openMSnSet$current.obj <- protPipeline(), 
-                  p2p = rv.openMSnSet$current.obj <- p2pPipeline()
-                 )
+                 peptide = {
+                   rv.openMSnSet$current.obj <- pepPipeline()
+                   ll.process <- peptide.def
+                   type <- 'peptide'
+                 },
+                 protein = {
+                   rv.openMSnSet$current.obj <- protPipeline()
+                   ll.process <- protein.def
+                   type <- 'protein'
+                   
+                 }, 
+                 p2p = {
+                   rv.openMSnSet$current.obj <- p2pPipeline()
+                   ll.process <- p2p.def
+                   type <- 'p2p'
+                   
+                 }
+          )
+          print(paste0("class of data : ", class(data)))
           rv.openMSnSet$current.obj <- initialize(rv.openMSnSet$current.obj, ll.process, data,input$file$name, type )
           
           
@@ -137,7 +102,8 @@ moduleOpenMSnSet  <- function(input, output, session){
       
       incProgress(1/nSteps, detail = def.progress.openMSnset[3])
       
-      loadObjectInMemory()
+      rv.openMSnSet$current.obj <- ConfigureData(rv.openMSnSet$current.obj)
+      
       incProgress(1/nSteps, detail = def.progress.openMSnset[4])
     })
     
@@ -145,5 +111,7 @@ moduleOpenMSnSet  <- function(input, output, session){
     
   })
   
+  
+  return(reactive({rv.openMSnSet$dataOut }))
   
 }
