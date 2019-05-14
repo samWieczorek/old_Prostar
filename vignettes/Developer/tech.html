@@ -352,22 +352,40 @@ text-align: justify}
 </div>
 <div id="pipelines" class="section level1">
 <h1>Pipelines</h1>
+<p>Les pipelines ne sont pas des modules mais une variable reactive composee d’un certain nombre de variable: la variable dataset qui ets une liste contenant autant d’elements que contient le pipeline La variable current.ind qui est l’indice dans ‘dataset’ de l’objet courant (celui sur lequel l’utilisateur travaille)</p>
+<p>Pipeline peptide</p>
+<pre><code>list(datasets,
+AdjacencyMat,
+ConnexComp)
+</code></pre>
 </div>
 <div id="architecture-dun-module-de-process" class="section level1">
 <h1>Architecture d’un module de process</h1>
 <p>Un module de process doit avoir une entre et une sortie, instanciees par des variables reactives (dataIn et dataOut). Chaque module a ses propres variables reactives, de ce fait il est tres indépendant du reste du logiciel. La variable reactive porte le nom du module prefixé par ‘rv.’. PAr exemple, pour le module Filtering, la variable s’appelle rv.Filtering. Dans cette liste, on trouve toutes les variables ‘globales’ nécessaires au fonctionnement du module.</p>
+<div id="fonctionnment-dun-pipeline" class="section level2">
+<h2>fonctionnment d’un pipeline</h2>
+<p>Les fonctions sont stockees dans le fichier pipelineCore.R et servent à gerer les flux des donnees entre les pipelines ainsi que l agestion de la liste de l’objet courant</p>
+</div>
 <div id="parametres-dentree" class="section level2">
 <h2>Paramètres d’entrée</h2>
 </div>
 <div id="nomenclature" class="section level2">
 <h2>Nomenclature</h2>
-<p>Les modules de process sont stockés dans le répertoire modules/process. Le code d’un module (ui et server) est dans un seul fichier qui ^porte le nom du module préfixé par ‘module’.</p>
+<p>Les modules de process sont stockés dans le répertoire modules/process. Le code d’un module (ui et server) est dans un seul fichier qui porte le nom du module préfixé par ‘module’. ceci est important car dans le fichier pipelineCore, les noms des menus et des modules sont crees dynamiquement.</p>
 </div>
 <div id="squelette-dun-module" class="section level2">
 <h2>Squelette d’un module</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">chooseCRANmirror</span>()
 <span class="kw">install.packages</span>(<span class="st">&quot;BiocManager&quot;</span>)</code></pre></div>
 </div>
+</div>
+<div id="module-de-navigation" class="section level1">
+<h1>Module de navigation</h1>
+<p>Ce module est particulier dans le sens où il ne prend en parametre d’entree qu’une liste d’interfaces graphiques et n’a pas de valeur de sortie. Il est appelé dans la partie UI des module de process qui en ont besoin</p>
+</div>
+<div id="parametre-des-process" class="section level1">
+<h1>Parametre des process</h1>
+<p>Ils sont concatenes sous forme de liste dans la partie de sauvegarde du dataset et sont enregistres dans le slot <a href="mailto:experimentData@other$l.params">experimentData@other$l.params</a> des MSnSet</p>
 </div>
 
 
