@@ -42,11 +42,15 @@ obj.openDataset <- callModule(module=moduleOpenDataset, 'openDataset', selectedP
 
 
 GetCurrentProcess <- reactive({
-  "tutu"
+  req(pipeline$current.obj)
+  pipeline$current.obj@ll.process[[pipeline$current.indice]]
 })
 
 GetCurrentMSnSet <- reactive({
   req(pipeline$current.obj)
+  print("str du Current MSnSet")
+  
+  print(str(pipeline$current.obj@datasets[[pipeline$current.indice]]))
   pipeline$current.obj@datasets[[pipeline$current.indice]]
   })
 
@@ -72,7 +76,8 @@ observeEvent(GetCurrentMSnSet(),{
 
 
 GetCurrentObjName <- reactive({
-  "tutu"
+  req(pipeline$current.obj)
+  pipeline$current.obj@name.dataset
   })
 
 
@@ -119,9 +124,7 @@ observeEvent(req(obj.openDataset()),{
   
   pipeline$current.indice <- 1
   pipeline$current.obj <- obj.openDataset()
-  #pipeline$current.obj@AdjacencyMat <- ComputeAdjacencyMatrices(GetCurrentMSnSet())
-  #pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)
-
+  
   BuildDataminingMenu("Data mining")
 })
 

@@ -26,14 +26,16 @@ moduleOpenMSnSet  <- function(input, output, session){
   
   callModule(moduleStaticDataTable,"overview_openMSnset", 
              table2show=reactive({
-               req(rv.openMSnSet$current.obj)
-               GetDatasetOverview2(rv.openMSnSet$current.obj@datasets[[1]])
+               req(rv.openMSnSet$dataOut)
+               GetDatasetOverview2(rv.openMSnSet$dataOut@datasets[[1]])
                }))
  
   callModule(moduleInfoDataset, "infoAboutMSnset",
              obj = reactive({
-               req(rv.openMSnSet$current.obj)
-               GetDatasetOverview2(rv.openMSnSet$current.obj@datasets[[1]])
+               req(rv.openMSnSet$dataOut)
+               print("test")
+               print(rv.openMSnSet$dataOut)
+               GetDatasetOverview2(rv.openMSnSet$dataOut@datasets[[1]])
              }))
   
   def.progress.openMSnset <- c('Step 1', 'Step 2', 'Step 3', 'Step 4')
@@ -83,7 +85,11 @@ moduleOpenMSnSet  <- function(input, output, session){
                  }
           )
           print(paste0("class of data : ", class(data)))
-          rv.openMSnSet$current.obj <- initialize(rv.openMSnSet$current.obj, ll.process, data,input$file$name, type )
+          rv.openMSnSet$current.obj <- initialize(rv.openMSnSet$current.obj, 
+                                                  c('original',ll.process), 
+                                                  data,
+                                                  input$file$name, 
+                                                  type )
           
           
         } else {
@@ -102,7 +108,7 @@ moduleOpenMSnSet  <- function(input, output, session){
       
       incProgress(1/nSteps, detail = def.progress.openMSnset[3])
       
-      rv.openMSnSet$current.obj <- ConfigureData(rv.openMSnSet$current.obj)
+      #rv.openMSnSet$current.obj <- ConfigureData(rv.openMSnSet$current.obj)
       
       incProgress(1/nSteps, detail = def.progress.openMSnset[4])
     })

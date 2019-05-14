@@ -349,7 +349,6 @@ getPackagesVersions <- reactive({
 
 ComputeAdjacencyMatrices <- function(obj){
   req(obj@experimentData@other$proteinId)
-  
   if (obj@experimentData@other$typeOfData != 'peptide') {return (NULL)}
   
   pId <- obj@experimentData@other$proteinId

@@ -723,7 +723,7 @@ observeEvent(input$createMSnsetButton,{
       )
       
       rv.convert$obj <- initialize(rv.convert$obj, 
-                                            ll.process, 
+                                   c('original',ll.process), 
                                             tmp,
                                             input$filenameToCreate, 
                                             input$typeOfData )

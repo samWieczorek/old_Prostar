@@ -640,12 +640,12 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
         name <- paste0("Filtered", ".", typeOfDataset)
         rv.filtering$obj <- saveParameters(rv.filtering$obj,name,"Filtering",l.params)
         
-        mat <- cc <- NULL
+        mat <- cc <- list()
         incProgress(1/nSteps, detail = def.progress.saveFiltering[3])
-        mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
+        #mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
         
         incProgress(1/nSteps, detail = def.progress.saveFiltering[4])
-        cc <- ComputeConnexComposants(mat)
+        #cc <- ComputeConnexComposants(mat)
 
         incProgress(1/nSteps, detail = def.progress.saveFiltering[5])
         

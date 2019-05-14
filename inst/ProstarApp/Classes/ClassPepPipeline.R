@@ -2,11 +2,11 @@ source(file.path(".", "Classes/ClassGenericPipeline.R"), local = TRUE)$value
 
 pepPipeline <- setClass("pepPipeline",
                         representation = representation(
-                          AdjancencyMat = 'list',
+                          AdjacencyMat = 'list',
                           ConnexComp = 'list'),
                         
                         prototype = prototype(
-                          AdjancencyMat = list(),
+                          AdjacencyMat = list(matrix(), matrix()),
                           ConnexComp = list()),
                         
                         # Make a function that can test to see if the data is consistent.

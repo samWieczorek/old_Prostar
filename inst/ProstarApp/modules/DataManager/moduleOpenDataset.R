@@ -43,6 +43,7 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
     tmp.convert = NULL,
     tmp.demo = NULL,
     tmp.file = NULL,
+    obj = NULL,
     dataOut = NULL
   )
   
@@ -54,24 +55,37 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   
   observe({
     req(rv.opendataset$tmp.file())
-    rv.opendataset$dataOut <- rv.opendataset$tmp.file()
+    rv.opendataset$obj <- rv.opendataset$tmp.file()
   })
   
   observe({
     req(rv.opendataset$tmp.convert())
-    rv.opendataset$dataOut <- rv.opendataset$tmp.convert()
+    rv.opendataset$obj <- rv.opendataset$tmp.convert()
   })
 
   
   observe({
     req(rv.opendataset$tmp.demo())
-    rv.opendataset$dataOut <- rv.opendataset$tmp.demo()
+    rv.opendataset$obj <- rv.opendataset$tmp.demo()
     print("demo dataset loaded")
   })
   
   
 
- 
+  observe({
+    req(rv.opendataset$obj)
+    print(">>>ConfigureData")
+    rv.opendataset$obj <- ConfigureData(rv.opendataset$obj)
+    print(">>> test si calcul de la matrice d'adjacence")
+    if (length(rv.opendataset$obj@AdjacencyMat)==0 && (rv.opendataset$obj@pipeline == 'peptide')){
+    print("Calcul de la matrice d'adjacence")
+      #rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])
+      #pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)
+    }
+    print("demo dataset loaded")
+    print(rv.opendataset$obj)
+    rv.opendataset$dataOut <- rv.opendataset$obj
+  })
   
   
   
