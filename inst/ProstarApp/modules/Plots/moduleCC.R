@@ -2,13 +2,12 @@ library(visNetwork)
 
 moduleCCUI <- function(id) {
   ns <- NS(id)
-  tabPanel("Peptide explorer",
+  tabPanel("Graph",
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
              tabPanel("Settings",
-                      selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(rv$current.obj)),
-                                  multiple=TRUE)
+                      uiOutput(ns("pepInfoUI"))
              ),
              tabPanel("CC one prot",
                       tagList(
@@ -52,11 +51,11 @@ moduleCCUI <- function(id) {
 }
 
 
-moduleCC <- function(input, output, session,cc){
+moduleCC <- function(input, output, session,cc, matAdj, dataIn){
   
   ns <- session$ns
   
-  rvCC <- reactiveValues(
+  rv.cc <- reactiveValues(
     ## selected CC in global CC list (tab or plot)
     selectedCC = NULL,
     
@@ -72,6 +71,14 @@ moduleCC <- function(input, output, session,cc){
   
   )
   
+  
+  
+  output$pepInfoUI <- renderUI({
+    dataIn()
+    selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(dataIn())),
+                multiple=TRUE)
+  })
+  
   observeEvent(req(input$searchCC), {
     shinyjs::toggle('jiji', condition = input$searchCC=='graphical')
     shinyjs::toggle('CCMultiMulti', condition = input$searchCC=='tabular')
@@ -83,36 +90,38 @@ moduleCC <- function(input, output, session,cc){
   
   # select a point in the grpah
   observeEvent(input$click,{
-    rvCC$selectedNode <- input$click
+    rv.cc$selectedNode <- input$click
     })
   
 
   # Get the id of selected neighbors in the graph
   observeEvent(input$visNet_CC_highlight_color_id,{
-    rvCC$selectedNeighbors <- input$visNet_CC_highlight_color_id
+    rv.cc$selectedNeighbors <- input$visNet_CC_highlight_color_id
     })
   
   
   # select a CC in the summary table
   observeEvent(input$CCMultiMulti_rows_selected, {
-    rvCC$selectedCC <- input$CCMultiMulti_rows_selected
+    rv.cc$selectedCC <- input$CCMultiMulti_rows_selected
   })
   
   # select a CC in the jitter plot
   observeEvent(req(input$eventPointClicked), {
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.index+1
-    rvCC$selectedCC <- this.index+1
+    rv.cc$selectedCC <- this.index+1
   })
   
 
 output$visNet_CC <- renderVisNetwork({
-    req(rvCC$selectedCC)
-    local <-   cc()[Get_CC_Multi2Any()]
+    req(rv.cc$selectedCC)
+    local <- cc()[Get_CC_Multi2Any()]
+    print(local[[rv.cc$selectedCC]])
     
-    rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
     
-    display.CC.visNet(rvCC$selectedCCgraph) %>%
+    rv.cc$selectedCCgraph <- buildGraph(local[[rv.cc$selectedCC]], matAdj())
+    
+    display.CC.visNet(rv.cc$selectedCCgraph) %>%
     visEvents(click = paste0("function(nodes){
                 Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
                 Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
@@ -134,7 +143,7 @@ output$visNet_CC <- renderVisNetwork({
                      index = 1:length(local))
         
         if (!is.null( tooltip)){
-          df <- cbind(df,fData(rv$current.obj)[ tooltip])
+          df <- cbind(df,fData(dataIn())[ tooltip])
         }
 
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -146,10 +155,10 @@ output$visNet_CC <- renderVisNetwork({
         clickFun <-
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
 
-          rv$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
+          pipeline$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
 
       })
-     rv$tempplot$plotCC
+   pipeline$tempplot$plotCC
 
   })
   
@@ -157,7 +166,7 @@ output$visNet_CC <- renderVisNetwork({
   
   output$CCMultiMulti <- renderDataTable({
     Get_CC_Multi2Any()
-    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+    df <- do.call(rbind,lapply(cc()[Get_CC_Multi2Any()],
                                function(x){
                                  data.frame(rbind(x),
                                             nPep = length(x$peptides),
@@ -188,33 +197,33 @@ output$visNet_CC <- renderVisNetwork({
   
   
  
- observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
+ observeEvent(c(rv.cc$selectedNeighbors,input$node_selected,rv.cc$selectedCCgraph), {
     
     local <-   cc()[Get_CC_Multi2Any()]
-    rvCC$selectedNeighbors
+    rv.cc$selectedNeighbors
     
-    nodes <- rvCC$selectedCCgraph$nodes
+    nodes <- rv.cc$selectedCCgraph$nodes
     
     if(!is.null(input$node_selected) && input$node_selected == 1){ 
-      sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
-      specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
-      protIndices <- intersect(rvCC$selectedNeighbors,which(nodes[,'group'] == "protein"))
+      sharedPepIndices <- intersect(rv.cc$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
+      specPepIndices <- intersect(rv.cc$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
+      protIndices <- intersect(rv.cc$selectedNeighbors,which(nodes[,'group'] == "protein"))
     
     } else {
       sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
       specPepIndices <- which(nodes[,'group'] == "spec.peptide")
       protIndices <- which(nodes[,'group'] == "protein")
     }
-    rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
-    rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
-    rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
+    rv.cc$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
+    rv.cc$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
+    rv.cc$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
     
 })
 
 
 output$CCDetailed <- renderUI({
-   req(rvCC$detailedselectedNode)
-   req(rvCC$selectedCC)
+   req(rv.cc$detailedselectedNode)
+   req(rv.cc$selectedCC)
    
    tagList(
       h4("Proteins"),
@@ -227,13 +236,13 @@ output$CCDetailed <- renderUI({
 })
  
   output$CCDetailedProt<- renderDataTable({
-    req(rvCC$selectedCC)
-    rvCC$detailedselectedNode
-    if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
+    req(rv.cc$selectedCC)
+    rv.cc$detailedselectedNode
+    if(is.null(rv.cc$detailedselectedNode$protLabels)){return(NULL)}
     
    # print("output$CCDetailedProt<- renderDataTable(")
-    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
-                     #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
+    df <- data.frame(proteinId = unlist(rv.cc$detailedselectedNode$protLabels)
+                     #other = rep(NA,length(rv.cc$detailedselectedNode$protLabels))
                      )
     dt <- datatable( df,
                      extensions = c('Scroller'),
@@ -255,21 +264,21 @@ output$CCDetailed <- renderUI({
   #######
   
   output$CCDetailedSharedPep <- renderDataTable({
-    rvCC$detailedselectedNode
+    rv.cc$detailedselectedNode
     input$pepInfo
     
-    if(is.null((rvCC$detailedselectedNode$sharedPepLabels))){return(NULL)}
+    if(is.null((rv.cc$detailedselectedNode$sharedPepLabels))){return(NULL)}
     
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
-    pepLine <- rvCC$detailedselectedNode$sharedPepLabels
+    ind <- 1:ncol(dataIn())
+    data <- getDataForExprs(dataIn())
+    pepLine <- rv.cc$detailedselectedNode$sharedPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
       {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -291,7 +300,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -302,19 +311,19 @@ output$CCDetailed <- renderUI({
   
   #####-----------
   output$CCDetailedSpecPep <- renderDataTable({
-    rvCC$detailedselectedNode
+    rv.cc$detailedselectedNode
     input$pepInfo
-    if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
+    if(is.null((rv.cc$detailedselectedNode$specPepLabels))){return(NULL)}
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
-    pepLine <-  rvCC$detailedselectedNode$specPepLabels
+    ind <- 1:ncol(dataIn())
+    data <- getDataForExprs(dataIn())
+    pepLine <-  rv.cc$detailedselectedNode$specPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -338,7 +347,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -349,25 +358,25 @@ output$CCDetailed <- renderUI({
   
   
   Get_CC_One2One <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    cc()
+    ll.prot <- lapply(cc(), function(x){length(x$proteins)})
+    ll.pept <- lapply(cc(), function(x){length(x$peptides)})
     ll.prot.one2one <- intersect(which(ll.prot == 1),which(ll.pept == 1))
     ll.prot.one2one
   })
   
   Get_CC_One2multi <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    cc()
+    ll.prot <- lapply(cc(), function(x){length(x$proteins)})
+    ll.pept <- lapply(cc(), function(x){length(x$peptides)})
     ll.prot.one2multi <- intersect(which(ll.prot == 1),which(ll.pept > 1))
     ll.prot.one2multi
   })
   
   Get_CC_Multi2Any <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    cc()
+    ll.prot <- lapply(cc(), function(x){length(x$proteins)})
+    ll.pept <- lapply(cc(), function(x){length(x$peptides)})
     ll.prot.multi2any <- which(ll.prot > 1)
     ll.prot.multi2any
   })
@@ -375,22 +384,22 @@ output$CCDetailed <- renderUI({
   
   
   BuildOne2OneTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
+    cc()
+    table <- do.call(rbind,lapply(cc()[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
     table
   })
   
   BuildOne2MultiTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    cc()
+    table <- do.call(rbind,lapply(cc()[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
     table <- table[c('proteins', 'nPep', 'peptides')]
     table
   })
   
   
   BuildMulti2AnyTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
+    cc()
+    table <- do.call(rbind,lapply(cc()[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
     table <- table[c('proteins', 'nPep', 'peptides')]
     
     table
@@ -401,7 +410,7 @@ output$CCDetailed <- renderUI({
   
   
   output$OneMultiDT <- renderDataTable({
-    req(rv$CC$allPep)
+    req(cc())
     
     dat <- DT::datatable(BuildOne2MultiTab(),
                          selection = 'single',
@@ -432,8 +441,8 @@ output$CCDetailed <- renderUI({
     
     line <- input$OneMultiDT_rows_selected
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    ind <- 1:ncol(dataIn())
+    data <- getDataForExprs(dataIn())
     pepLine <- as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
     
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
@@ -442,7 +451,7 @@ output$CCDetailed <- renderUI({
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -464,7 +473,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -473,7 +482,7 @@ output$CCDetailed <- renderUI({
   
   
   output$OneOneDT <- renderDataTable({
-    req(rv$CC$allPep)
+    req(cc())
     
     dat <- DT::datatable(BuildOne2OneTab(),
                          selection = 'single',
@@ -498,21 +507,21 @@ output$CCDetailed <- renderUI({
   
   
   output$OneOneDTDetailed <- renderDataTable({
-    req(rv$CC$allPep)
+    req(cc())
     req(input$OneOneDT_rows_selected)
     input$pepInfo
     
     line <- input$OneOneDT_rows_selected
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    ind <- 1:ncol(dataIn())
+    data <- getDataForExprs(dataIn())
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -533,7 +542,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })

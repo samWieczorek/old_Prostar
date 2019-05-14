@@ -11,18 +11,14 @@ modulePlotsUI <- function(id){
 
 ####-----------------------------------------------------------####
 
-modulePlots <- function(input, output, session, dataIn, llPlots){
+modulePlots <- function(input, output, session, dataIn, llPlots, settings){
   ns <- session$ns
   
-  
-  source(file.path(".", "modules/Plots/corrMatrixPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/mvPlots.R"),  local = TRUE)$value
-   source(file.path(".", "modules/Plots/varDistPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/pcaPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/intdistribPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/heatmapPlots.R"),  local = TRUE)$value
-  source(file.path(".", "modules/Plots/msnsetExplorerPlots.R"),  local = TRUE)$value
-  
+  source(file.path(".", "modules/Plots/moduleCorrMatrix.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/moduleHeatmap.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/modulePCAPlots.R"), local = TRUE)$value
+  source(file.path(".", "modules/Plots/moduleIntensityPlots.R"), local = TRUE)$value
+    
   .width <- 50
   .height <- 50
   
@@ -30,7 +26,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   jqui_draggable("#modalintensity .modal-content")
   
   output$plotModule <- renderUI({
-    req(dataIn())
+    req(dataIn()$obj)
     
     panelheight = 60*length(llPlots())
       absolutePanel(
@@ -111,5 +107,145 @@ modulePlots <- function(input, output, session, dataIn, llPlots){
   })
   
   
-  return(NULL)
+  
+  
+  
+  ################### Plot for correlation matrix
+  output$plotcorrMatrixsmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_corrmatrix.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  
+  
+  callModule(moduleCorrMatrix, "corrMatrixPlot_AbsPanel", dataIn = reactive({dataIn()}))
+  
+  output$plotcorrMatrixlarge <- renderUI({
+    moduleCorrMatrixUI(ns("corrMatrixPlot_AbsPanel"))
+    
+  })
+  
+  
+  
+  
+  
+  ##### Plots for missing values
+  source(file.path(".", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$value
+  
+  callModule(missingValuesPlots, "MVPlots_AbsPanel", data = reactive({dataIn()}))
+  
+  output$plotmvsmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_mv.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  
+  output$plotmvlarge <- renderUI({
+    tagList(
+      helpText("These barplots display the distribution of missing values in the dataset."),
+      missingValuesPlotsUI(ns("MVPlots_AbsPanel"))
+    )
+  })
+  
+  
+  
+  
+  ############# Plots for MSnSet explorer
+  source(file.path(".", "modules/Plots/moduleMSnSetExplorer.R"),  local = TRUE)$value
+  
+  
+  output$plotquantiTablesmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_quantiData.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  
+  
+  
+  callModule(module=MSnSetExplorer, 'msnsetExplorer',
+             data = reactive({dataIn()}))
+  
+  output$plotquantiTablelarge <- renderUI({
+    MSnSetExplorerUI(ns('msnsetExplorer'))
+  })
+  
+  
+  
+  
+  ##### Code for heatmap
+  callModule(moduleHeatmap, "heatmap_AbsPanel", data = reactive({dataIn()}))
+  
+  output$plotheatmapsmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_heatmap.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  output$plotheatmaplarge <- renderUI({
+    moduleHeatmapUI(ns('heatmap_AbsPanel'))
+  })
+  
+  
+  #### Code for PCA
+  output$plotpcasmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_pca.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  
+  
+  callModule(module=modulePCA, 'pcaPlots_AbsPanel', data=reactive({dataIn()}))
+  
+  output$plotpcalarge <- renderUI({
+    modulePCAUI(ns('pcaPlots_AbsPanel'))
+  })
+  
+  
+  
+  ################################################
+  #### Code for intensity plots
+  output$plotintensitysmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_intdistrib.png'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  callModule(module=moduleIntensityPlots, 'intensityPlots_AbsPanel', 
+             data=reactive({dataIn()}))
+  
+  output$plotintensitylarge <- renderUI({
+    moduleIntensityPlotsUI(ns("intensityPlots_AbsPanel"))
+  })
+  
+  
+  
+  ############ Module for variance distribution plots
+  source(file.path(".", "modules/Plots/moduleVarDistPlot.R"), local = TRUE)$value
+  callModule(moduleVarDistPlot, 'varDist_AbsPanel',
+             data=reactive({dataIn()}))
+  
+  output$plotvarDistsmall <- renderImage({
+    filename <- normalizePath(file.path('./images','desc_varDist.jpg'))
+    list(src = filename,
+         width = .width,
+         height = .height)
+  }, deleteFile = FALSE)
+  
+  
+  output$plotvarDistlarge <- renderUI({
+    moduleVarDistPlotUI(ns('varDist_AbsPanel'))
+  })
+  
+  
+return(NULL)
 }

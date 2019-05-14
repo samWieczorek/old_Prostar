@@ -1,0 +1,93 @@
+source(file.path(".", "Classes/ClassGenericPipeline.R"), local = TRUE)$value
+
+pepPipeline <- setClass("pepPipeline",
+                        representation = representation(
+                          AdjacencyMat = 'list',
+                          ConnexComp = 'list'),
+                        
+                        prototype = prototype(
+                          AdjacencyMat = list(matrix(), matrix()),
+                          ConnexComp = list()),
+                        
+                        # Make a function that can test to see if the data is consistent.
+                        # This is not called if you have an initialize function defined!
+                        validity=function(object)
+                        {
+                          #if(sum(object@velocity^2)>100.0) {
+                          #  return("The velocity level is out of bounds.")
+                          # }
+                          return(TRUE)
+                        },
+                        contains = 'genericPipeline'
+)
+
+
+
+# create a method to initialize the datasets list with the name of the processes
+setGeneric(name="setAdjacencyMat",
+           def=function(theObject,X)
+           {
+             standardGeneric("setAdjacencyMat")
+           }
+)
+
+setMethod(f="setAdjacencyMat",
+          signature="pepPipeline",
+          definition=function(theObject,X)
+          {
+            theObject@AdjacencyMat <- X
+            validObject(theObject)
+            return(theObject)
+          }
+)
+
+
+setGeneric(name="getAdjacencyMat",
+           def=function(theObject)
+           {
+             standardGeneric("getAdjacencyMat")
+           }
+)
+
+setMethod(f="getAdjacencyMat",
+          signature="pepPipeline",
+          definition=function(theObject)
+          {
+            return(theObject@AdjacencyMat)
+          }
+)
+
+
+
+setGeneric(name="setConnexComp",
+           def=function(theObject,cc)
+           {
+             standardGeneric("setConnexComp")
+           }
+)
+
+setMethod(f="setConnexComp",
+          signature="pepPipeline",
+          definition=function(theObject,cc)
+          {
+            theObject@ConnexComp <- cc
+            validObject(theObject)
+            return(theObject)
+          }
+)
+
+
+setGeneric(name="getConnexComp",
+           def=function(theObject)
+           {
+             standardGeneric("getConnexComp")
+           }
+)
+
+setMethod(f="getConnexComp",
+          signature="pepPipeline",
+          definition=function(theObject)
+          {
+            return(theObject@ConnexComp)
+          }
+)

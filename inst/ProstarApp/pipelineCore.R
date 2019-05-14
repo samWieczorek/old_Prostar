@@ -1,0 +1,280 @@
+source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
+
+
+source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
+
+
+source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleC.R"), local = TRUE)$value
+
+source(file.path(".", "modules/process/protein/moduleD.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleE.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleF.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
+
+source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
+source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
+source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
+source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
+source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
+
+
+
+
+pipeline <- reactiveValues(
+  # current working data from current pipeline
+  type = NULL,
+  current.indice = 1,
+  ll.process = c('original'),
+  
+  # object returned by demode, openmode and convertmode
+  #object that is used for modules in pipeline
+  current.obj = NULL,
+  tempplot = NULL
+  
+)
+
+
+
+obj.openDataset <- callModule(module=moduleOpenDataset, 'openDataset', selectedPanel = reactive({input$navPage}))
+
+
+GetCurrentProcess <- reactive({
+  req(pipeline$current.obj)
+  pipeline$current.obj@ll.process[[pipeline$current.indice]]
+})
+
+GetCurrentMSnSet <- reactive({
+  req(pipeline$current.obj)
+  print("str du Current MSnSet")
+  
+  print(str(pipeline$current.obj@datasets[[pipeline$current.indice]]))
+  pipeline$current.obj@datasets[[pipeline$current.indice]]
+  })
+
+GetAdjacencyMatrix <- reactive({
+  req(pipeline$current.obj)
+  getAdjacencyMatrix(pipeline$current.obj)
+  })
+
+GetConnexComposant <- reactive({ 
+  req(pipeline$current.obj)
+  getConnexComp(pipeline$current.obj)
+  })
+
+
+observeEvent(GetCurrentMSnSet(),{
+  callModule(module = modulePlots, 'showPlots', 
+             dataIn=reactive({list(obj = GetCurrentMSnSet(),
+                                   currentProcess = GetCurrentProcess())}), 
+             llPlots=reactive({lstDescPlots}),
+             settings = reactive({rv.prostar$settings}))
+})
+
+
+
+GetCurrentObjName <- reactive({
+  req(pipeline$current.obj)
+  pipeline$current.obj@name.dataset
+  })
+
+
+## Initialization of the pipeline
+observeEvent(req(obj.openDataset()),{
+  print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()@pipeline))
+  #print(str(obj.demomode()))
+  switch(obj.openDataset()@pipeline,
+         
+         peptide={
+           # Load UI code for modules
+           #LoadModulesUI(path2peptideModules, peptide.def)
+           #pipeline$current.obj@ll.process <- peptide.def
+           
+           BuildPipelineMenu("Pipeline peptide", peptide.def)
+           
+           # Build and load server code for modules
+           #codeFile <- createWatchCode(peptide.def)
+           
+           
+           for (i in peptide.def) {
+             print(paste0('source file :', "watchPeptide", i, '.R'))
+             source(file.path("WatchProcess",paste0("watchPeptide", i, '.R')),  local = TRUE)$value
+           }
+           
+           },
+         Protein = {
+           #pipeline$current.obj@ll.process <- protein.def
+           #LoadModulesUI(path2proteinModules, protein.def)
+           BuildPipelineMenu("Pipeline protein", protein.def)
+           
+           codeFile <- createWatchCode(protein.def)
+           source(file.path(".", codeFile),  local = TRUE)$value
+         },
+         P2p = {
+           #pipeline$current.obj@ll.process <- p2p.def
+           #LoadModulesUI(path2p2pModules, p2p.def)
+           BuildPipelineMenu("Pipeline p2p", p2p.def)
+           
+           codeFile <- createWatchCode(p2p.def)
+           source(file.path(".", codeFile),  local = TRUE)$value
+         }
+  )
+  
+  pipeline$current.indice <- 1
+  pipeline$current.obj <- obj.openDataset()
+  
+  BuildDataminingMenu("Data mining")
+})
+
+
+
+
+
+LoadModulesUI <- function(path, ll.modules){
+  
+  lapply(ll.modules, function(i) {
+    UIfile <- paste0(path, i, ".R")
+    print(UIfile)
+    source(file.path(".", UIfile), local = environment())
+    })
+}
+
+
+### Construction des menus de pipeline de manière dynamtique
+### en fonction des process à intégrer
+###
+BuildPipelineMenu <- function(name, def){
+  print("IN Build Pipeline Menu")
+  
+  
+  RemoveAllPipelineTabs()
+  tabs <-lapply(1:length(def), function(i) {
+    tabPanel(
+      title=def[i], 
+      do.call(paste0(def[i],'UI'), list(def[i]))
+    )
+  })
+  insertTab(inputId = "navPage",
+            do.call(navbarMenu, c(name ,tabs)),
+            target="Help",
+            position="before")
+}
+
+
+
+
+
+
+RemoveAllPipelineTabs <- function(){
+  removeTab(inputId = "navPage", target = "Pipeline peptide")
+  removeTab(inputId = "navPage", target = "Pipeline protein")
+  removeTab(inputId = "navPage", target = "Pipeline p2p")
+}
+
+
+RemoveAllDatamingTabs <- reactive({removeTab(inputId = "navPage", target = "Data mining")})
+
+
+
+####
+### Construit le menu pour le datamining. Menu cosntruit en dur car pas nécessaire de la faire de 
+## manière dynamique
+###
+BuildDataminingMenu <- function(name){
+  
+  RemoveAllDatamingTabs()
+  
+  callModule(moduleDescriptiveStats, "moduleDescrStats", 
+                                  dataIn=reactive({list(obj = GetCurrentMSnSet(),
+                                                        currentProcess = GetCurrentProcess())}))
+  
+  callModule(module = moduleCC, "CC_Multi_Any", 
+             cc = reactive({pipeline$current.obj@ConnexComp$allPep}),
+             matAdj = reactive({pipeline$current.obj@AdjacencyMat$matWithSharedPeptides}), 
+             dataIn = reactive({GetCurrentMSnSet()})
+             )
+                                   
+                                   
+    tabs <- list(
+    moduleDescriptiveStatsUI('moduleDescrStats'),
+    moduleCCUI('CC_Multi_Any')
+  )
+  
+  insertTab(inputId = "navPage",
+            do.call(navbarMenu, c(name ,tabs)),
+            target="Data manager",
+            position="after")
+}
+
+
+
+
+GetScreenId <- reactive({
+  input$navPage
+  req(pipeline$current.obj)
+  
+  screen <- NULL
+  m <-  which(names(pipeline$current.obj@datasets)==input$navPage)
+  n <-  which(unlist(lapply(GetCurrentMSnSet(), function(x) length(which(x==pipeline$current.obj@datasets))))==1)
+  ## test if the navPage is one of a process one
+  if (length(m) ==0 || length(n) ==0) {return(NULL)}
+  
+  if (m >= n) { screen <- 'Initial screen'}
+  else {screen <- 'Final screen'}
+  print(paste0("in GetScreenId(), n = ", n, ", m = ", m, ". screen = ", screen))
+  screen
+})
+
+
+
+DeleteDatasetsAfter <- function(txt){
+  names <- names(pipeline$current.obj@datasets)
+  indice <- which(names == txt)
+  if (indice < length(names)) {
+    for (i in (indice+1):length(names)){
+      pipeline$current.obj@datasets[i] <- list(NULL)
+    }
+  }
+}
+
+
+
+
+
+##################
+# This function is used to generate source code files qui creent 
+# les observateurs pour les modules de process
+##################
+# createWatchCode <- function(process){
+#   #tempfile(fileext=".R")
+#   filename <- 'watch.R'
+#   con <- file(filename,open="wt")
+#   
+#   
+#   for (p in process){
+#   txt <- paste0("Watch",p," <- callModule(module=",p,",'", p,"',  
+#                               dataIn=reactive({pipeline$current.obj}),
+#                               screen.id = reactive({GetScreenId()}))")
+#   writeLines(txt, con)
+#   
+#   txt <- paste0(
+#     "observeEvent(Watch",p,"(),{
+#     print(paste0('observeEvent(",p,"() : ', Watch",p,"()))
+#     pipeline$current.obj <- Watch",p,"()
+#     pipeline$current.indice <- 1 + which(pipeline$ll.process == '",p,"')
+#     pipeline$current.dataset$",p," <- Watch",p,"()
+#     DeleteDatasetsAfter('",p,"')
+#     printStatus()
+#   })")
+#   
+#   writeLines(txt, con)
+#   
+#   }
+#   
+#   close(con)
+#   
+#   return(filename)
+#   
+# }
