@@ -2,9 +2,9 @@
 library(shiny)
 library(shinyjs)
 library(shinyjqui)
-#library(sass)
+library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
-
+source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 
 theme = shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
@@ -17,11 +17,8 @@ shinyUI <- fluidPage(
   
   shinyjs::useShinyjs(),
   includeCSS("www/progressBar/progressBar.css"),
-  if (require(sass))
-    {
-    tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
-                            sass_options(output_style = "expanded"))))},
-  
+  tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                            sass_options(output_style = "expanded")))),
   titlePanel("", windowTitle = "Prostar"),
   
   ###### DIV LOADING PAGE  #######
@@ -56,7 +53,7 @@ shinyUI <- fluidPage(
 
       tags$head(includeCSS("www/css/arrow.css")),
       #tagList(tags$div(class="arrow")),
-      tags$p("VERSION CHANTIER BIS !!!", style='font-size: 30px; color: red;'),
+      tags$p("VERSION CHANTIER !!!", style='font-size: 30px; color: red;'),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
@@ -90,8 +87,8 @@ shinyUI <- fluidPage(
       div(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
+      tagList( shinyjs::hidden(div(id = 'tete',modulePlotsUI('showPlots')))),
       navbarPage(
-                 
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
         position = "fixed-top",
                   id = "navPage",

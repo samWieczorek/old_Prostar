@@ -1,4 +1,8 @@
 
+
+
+
+
 #################### MODULES DEFINITION #################################
 module_Not_a_numeric <- function(input, output, session, n){
   
@@ -20,7 +24,7 @@ moduleDesignExample <- function(input, output, session, n){
     
     if (n == 2){
                 df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
-                     Condition = c(rep( "A", 4), rep("B", 4), rep("C", 6)),
+                     Condition = c(rep("A", 4), rep("B", 4), rep("C", 6)),
                      Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
                      Tech.Rep = c(1:14),
                      stringsAsFactors = FALSE)
@@ -164,7 +168,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
       bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
                  bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
     } else {
-      bsCollapse(id = ns("collapseVolcanoInfos"), open = c("Protein","Specific peptides","Shared peptides") ,multiple = TRUE,
+      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
                bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
                bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
                bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
@@ -172,7 +176,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
   })
   
   
-  ##------------------------------------------------------------------------------
   output$nbSelectedItems <- renderUI({ 
     
     rv$widgets$anaDiff$th_pval
@@ -218,7 +221,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     })
   
   
-  
   GetSortingIndices <- reactive({
     req(comp())
     
@@ -243,13 +245,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     borders_index
   })
   
-  ##------------------------------------------------------------------------------
   
   output$sharedPeptidesInfos <- renderDataTable({
     #req(rv$current.obj)
     req(comp())
     #req(rv$matAdj)
-    
     
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
@@ -258,6 +258,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     
     prot <- GetExprsClickedProtein()
     prot.indice <- rownames(prot)
+    #print(prot.indice)
     
     data <- getDataForExprs(prev.dataset)
     data <- data[,c(ind, (ind + ncol(data)/2))]
@@ -292,8 +293,6 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     dt
   })
   
-  
-  ##------------------------------------------------------------------------------
   output$specificPeptidesInfos <- renderDataTable({
     #req(rv$current.obj)
     req(comp())
@@ -383,7 +382,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     borders_index <- GetBorderIndices()
     
     data <- GetExprsClickedProtein()
-   
+    
     print('################### Dans Infos  #################')
     print(colnames(data))
     
@@ -403,7 +402,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
         backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
-      
+    
     
     
     dt
@@ -418,40 +417,40 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     tooltip()
     swap()
     
-     
+    
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
-
+    
     isolate({
       
-        df <- data_frame(x=rv$resAnaDiff$logFC, 
-                         y = -log10(rv$resAnaDiff$P_Value),
-                         index = 1:nrow(fData(rv$current.obj)))
-        if (!is.null( tooltip())){
-          df <- cbind(df,fData(rv$current.obj)[ tooltip()])
-        }
-        
-        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-        if (ncol(df) > 3){
-          colnames(df)[4:ncol(df)] <- 
-            paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-        }
-        
-        clickFun <-   
-          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
-        
-        cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-        rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
-                                   threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
-                                   threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
-                                   conditions = cond,
-                                   clickFunction=clickFun,
-                                   rv$colorsVolcanoplot, swap())
-        
-        })
-
+      df <- data_frame(x=rv$resAnaDiff$logFC, 
+                       y = -log10(rv$resAnaDiff$P_Value),
+                       index = 1:nrow(fData(rv$current.obj)))
+      if (!is.null( tooltip())){
+        df <- cbind(df,fData(rv$current.obj)[ tooltip()])
+      }
+      
+      colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+      if (ncol(df) > 3){
+        colnames(df)[4:ncol(df)] <- 
+          paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+      }
+      
+      clickFun <-   
+        JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+      
+      cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+      rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
+                                                         threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
+                                                         threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
+                                                         conditions = cond,
+                                                         clickFunction=clickFun,
+                                                         rv$colorsVolcanoplot, swap())
+      
+    })
+    
     rv$tempplot$volcano
   })
   
@@ -462,15 +461,15 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session) {
+missingValuesPlots <- function(input, output, session, data) {
     
     output$histo_MV <- renderHighchart({
-      req(rv$current.obj)
+     data()
       rv$PlotParams$paletteConditions
       tmp <- NULL
       #isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot1")
-        tmp <- wrapper.mvHisto_HC(rv$current.obj,palette=rv$PlotParams$paletteConditions)
+        tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
       #  })
       tmp
@@ -479,13 +478,12 @@ missingValuesPlots <- function(input, output, session) {
     
     
     output$histo_MV_per_lines <- renderHighchart({
-        #histo_MV_per_lines()
-      req(rv$current.obj)
+        data()
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
        tmp <- 
-         wrapper.mvPerLinesHisto_HC(rv$current.obj, 
+         wrapper.mvPerLinesHisto_HC(data(), 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
        #future(createPNGFromWidget(tmp,pattern))
       })
@@ -495,12 +493,11 @@ missingValuesPlots <- function(input, output, session) {
     
     
     output$histo_MV_per_lines_per_conditions <- renderHighchart({
-        #histo_MV_per_lines_per_conditions()
-      req(rv$current.obj)
+        data()
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
-        tmp <- wrapper.mvPerLinesHistoPerCondition_HC(rv$current.obj, 
+        tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
                                                       c(2:length(colnames(Biobase::pData(rv$current.obj))))
                                                       ,palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
@@ -640,8 +637,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt') {
     
   
-  #proxy = dataTableProxy(session$ns('StaticDataTable'), session)
-  proxy = dataTableProxy('StaticDataTable', session)
+  proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 

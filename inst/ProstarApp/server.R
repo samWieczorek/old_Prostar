@@ -1,8 +1,8 @@
+
 rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2) 
-options(encoding="UTF-8")
-
+#options(shiny.fullstacktrace=TRUE)
 
 require(compiler)
 enableJIT(3)
@@ -30,29 +30,14 @@ onStart = function() {
 }
 
 
-installSass <- function(){
-  
-  if(require("sass")){
-    print("package sass is loaded correctly")
-  } else {
-    print("trying to install sass from CRAN")
-    install.packages("sass")
-    if(require(sass)){
-      print("sass installed and loaded")
-    } else {
-      print("trying to install the dev version of sass from github")
-      devtools::install_github("rstudio/sass")
-    }
-  }
-}
+
 
 shinyServer(function(input, output, session) {
   Sys.setlocale("LC_ALL","English")
-  #Sys.setlocale("LC_ALL", 'en_GB.utf8')
+  #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
-  
    
     #Set up writing
     logfilename <- tempfile(fileext=".log")
@@ -86,11 +71,24 @@ shinyServer(function(input, output, session) {
     env <- environment()
     source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
     source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
+    source(file.path("server", "srv_ModuleProcess.R"),  local = TRUE)$value
     source(file.path("server", "srv_General.R"), local = TRUE)$value
+    source(file.path("server", "srv_DefineRVmoduleProcess.R"), local = TRUE)$value
     source(file.path("server", "srv_Home.R"), local = TRUE)$value
     source(file.path("server", "srv_Settings.R"), local = TRUE)$value
     source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
     
+    
+    source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+    source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
+    
+    
+    observeEvent(rv$current.obj,{
+      print("callModule showPlots")
+      callModule(module = modulePlots, 'showPlots', 
+                 dataIn=reactive({rv$current.obj}), 
+                 llPlots=reactive({lstDescPlots}))
+    })
     
    # outputOptions(output, 'settings_nDigits', suspendWhenHidden=FALSE)
     
@@ -102,9 +100,10 @@ shinyServer(function(input, output, session) {
     observeEvent(input$distance,{rv$PlotParams$heatmap.linkage <- input$linkage})
     
     
+    
      observe({
         req(input$navPage)
-       
+       shinyjs::toggle('tete', condition=!(input$navPage %in% c('graphTab', 'bugReportTab', 'checkForUpdatesTab', 'faqTab')))
         switch(input$navPage,
                DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
                openMSnsetTab = {
@@ -142,6 +141,12 @@ shinyServer(function(input, output, session) {
                  {
                    source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
                    },
+               graphTab = 
+               {
+               
+                 callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
+                 
+               },
                
                GOAnalysisTab = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,

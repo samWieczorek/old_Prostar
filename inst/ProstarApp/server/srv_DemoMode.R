@@ -1,3 +1,4 @@
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
 
 
 output$chooseDataset <- renderUI({
@@ -40,14 +41,12 @@ output$linktoDemoPdf <- renderUI({
  })
 
 
-callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
 
 
 output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
-  #isolate({ 
-    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  isolate({ NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
   
@@ -68,15 +67,16 @@ output$infoAboutDemoDataset <- renderUI({
              should remove them with the filter tool
              prior to proceed to the analysis of the data.")
     },
-
+    
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top;",
                 moduleStaticDataTableUI("overview_DemoMode")
       )
     )
     
+    
       )
-    #})
+    })
   
   
     })

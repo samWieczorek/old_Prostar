@@ -21,93 +21,29 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 
 
 
+callModule(moduleProcess, "moduleProcess_Convert", 
+           isDone = reactive({rvModProcess$moduleConvertDone}), 
+           pages = reactive({rvModProcess$moduleConvert}),
+           rstFunc = resetModuleConvert)
 
-##--------------------------------------------------------------
-## Gestion du slideshow
-##--------------------------------------------------------------
 
-
-output$checkConvertPanel <- renderUI({
-  rv$tab1
-  rv$pageConvert
-  color <- rep("lightgrey",NUM_PAGES_CONVERT)
-  
-  ##Step 1
-  if (rv$pageConvert >= 1){
-    res <- !is.null(rv$tab1)
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageConvert >= 2){
-    res1 <- !is.null(input$idBox) && ((input$idBox == "Auto ID") || datasetID_Ok())
-    res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
+resetModuleConvert<- reactive({  
+  ## update widgets values (reactive values)
+  resetModuleProcess("Convert")
     
-    ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res1 && res2)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  } 
+  ## update widgets in UI
+  updateCheckboxInput(session,"selectIdent", value = FALSE)
+  updateSelectInput(session,"convert_proteinId",selected = character(0))
+  updateSelectInput(session,"idBox", selected = "Auto ID")
+  updateRadioButtons(session, "typeOfData", selected="peptide")
+  updateRadioButtons(session, "checkDataLogged", selected="no")
+  updateCheckboxInput(session,"replaceAllZeros", value= TRUE)
   
-  ## Step 3: Choose quantitative data
-  if (rv$pageConvert >= 3){
-    res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
-    
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
   
-  if (rv$pageConvert >= 4){
-    res <- isTRUE(rv$designChecked$valid)
-    ifelse(res, color[4] <- "green", color[4] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
   
-  if (rv$pageConvert >= 5){
-    res <- TRUE
-    ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
-  txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
-  buildTable(txt, color)
+  rvModProcess$moduleConvertDone = rep(FALSE, 5)
+ 
 })
-
-NUM_PAGES_CONVERT <- 5
-
-# observe({
-#   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-#  # toggleState(id = "nextBtnConvert", condition = rv$pageConvert < NUM_PAGES_CONVERT)
-#   hide(selector = ".page")
-# })
-
-navPageConvert <- function(direction) {
-  rv$pageConvert <- rv$pageConvert + direction
-}
-
-observeEvent(input$prevBtnConvert, navPageConvert(-1))
-observeEvent(input$nextBtnConvert, navPageConvert(1))
-
-##---------------------------------------------------------------
-##------------------------------------------------------------------
-
-
-
-
-
-
-
-
 
 
 
@@ -115,10 +51,7 @@ observeEvent(input$nextBtnConvert, navPageConvert(1))
 
 #################################
 output$Convert_SelectFile <- renderUI({
-  #if (rv$pageConvert != 1){return()}
-  
-  
-  tagList(br(), br(),
+   tagList(br(), br(),
           fluidRow(
             column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
             column(width = 10, fileInput("file1", "", 
@@ -135,7 +68,6 @@ output$Convert_SelectFile <- renderUI({
 
 
 output$Convert_DataId <- renderUI({
-  #if (rv$pageConvert != 2){return()}
   
   tagList(
     
@@ -158,7 +90,6 @@ tags$div(
 
 
 output$Convert_ExpFeatData <- renderUI({
-  #if (rv$pageConvert != 3){return()}
   
   tagList(
     fluidRow(
@@ -181,7 +112,6 @@ output$Convert_ExpFeatData <- renderUI({
 
 
 output$Convert_BuildDesign <- renderUI({
-  #if (rv$pageConvert != 4){return()}
   
   tagList(... = tagList(
     tags$p("If you do not know how to fill the experimental design, you can click
@@ -222,8 +152,6 @@ output$Convert_BuildDesign <- renderUI({
 
 
 output$Convert_Convert <- renderUI({
-  #if (rv$pageConvert != 5){return()}
-  
   tagList(
     br(), br(),
   
@@ -234,25 +162,56 @@ output$Convert_Convert <- renderUI({
   )
 })
 
+
+
+observe({
+  req(input$idBox)
+  req(rv$tab1)
+  test1 <- test2 <- FALSE
+  
+  test1 <- (input$typeOfData == "peptide") && !(input$convert_proteinId == "")
+ 
+  
+  if (input$idBox =="Auto ID") {
+    test2 <- TRUE
+  }
+  else {
+    test2 <- (length(as.data.frame(rv$tab1)[, input$idBox])
+          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  }
+   
+  rvModProcess$moduleConvertDone[2] <- test1 && test2
+})
+
+
+
 output$warningNonUniqueID <- renderUI({
     req(input$idBox)
     req(rv$tab1)
-    if (input$idBox =="Auto ID") {return(NULL)  }
     
-    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+    isolate({
+      if (input$idBox =="Auto ID") {
+      text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
+ }
+    else {
+      t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
     
-    if (!t){
+      if (!t){
         text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
-        
-    }
-    else {
+         }
+      else {
         text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
+        }
     }
     HTML(text)
+    
+    })
 })
+
+
 
 
 output$convertChooseProteinID_UI <- renderUI({
@@ -264,9 +223,7 @@ output$convertChooseProteinID_UI <- renderUI({
   names(.choices) <- c("",colnames(rv$tab1))
   tagList(
     modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId", 
-              "",
-              choices =  .choices , selected = character(0))
+    selectInput("convert_proteinId","",choices =  .choices , selected = character(0))
   )
 })
 
@@ -398,18 +355,20 @@ observeEvent(c(input$file1,input$XLSsheets),{
 
 
 output$conversionDone <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) { return(NULL)}
+  req(rv$current.obj)
   
   h4("The conversion is done. Your dataset has been automatically loaded 
        in memory. Now, you can switch to the Descriptive statistics panel to 
        vizualize your data.")
   
+  
 })
 
 
 
-
+observe({
+  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
+})
 
 
 
@@ -473,8 +432,14 @@ output$eData <- renderUI({
 
 
 
+observe({
+  rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
+})
 
 
+observe({
+  rvModProcess$moduleConvertDone[4] <- !is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid)
+})
 
 
 output$checkIdentificationTab <- renderUI({
@@ -619,17 +584,16 @@ output$warningCreateMSnset <- renderUI({
 
 
 #######################################
-observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
-    # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
-    #{return(NULL)}
-    
+observeEvent(input$createMSnsetButton,{
+     if(!is.null(rv$current.obj)){return(NULL)}
+    print("In observeEvent(input$createMSnsetButton")
     colNamesForOriginofValues <- NULL
     if (isTRUE(input$selectIdent)) {
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
         if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
     } 
     
-    isolate({
+    #isolate({
         result = tryCatch(
             {
                 ext <- GetExtension(input$file1$name)
@@ -704,7 +668,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                 loadObjectInMemoryFromConverter()
                 
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
-                rv$pageConvert <- 5
+                rvModProcess$moduleConvertDone[5] <- TRUE
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
@@ -727,7 +691,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         
         
         
-    })
+    #})
 })
 
 

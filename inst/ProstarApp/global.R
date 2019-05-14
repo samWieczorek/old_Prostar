@@ -36,6 +36,7 @@ plan(multiprocess)
 
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
+source(file.path(".", "moduleProcessUI.R"),  local = TRUE)$value
 
 
 base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
@@ -53,9 +54,6 @@ URL_versionNotes <- paste0(base_URL, "versionNotes.md")
 
 grey <- "#FFFFFF"
 orangeProstar <- "#E97D5E"
-greenProstar <- "#25949A"
-
-
 
 # Declaration of global variables
 
@@ -646,6 +644,5 @@ navbarPageWithInputs <- function(..., inputs) {
 
 
 
-
-
+lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
 

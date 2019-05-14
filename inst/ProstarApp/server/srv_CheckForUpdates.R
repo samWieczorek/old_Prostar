@@ -27,16 +27,17 @@ output$infoForNewVersions <- renderUI({
   
   df <- getPackagesVersions()$NeedsUpdate
   
-  if (sum(df)==FALSE){return(NULL)}
-
-    tagList(
-      p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
+  #if (sum(df)==FALSE){return(NULL)}
+  
+  tagList(
+    p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
          If you use the server or the stand-alone versions, please proceed via the Bioconductor. 
          If you use the Zero-install version, please download the latest zip file on our website ",
       tags$a("(www.prostar-proteomics.org)", href="http://www.prostar-proteomics.org", target="_blank")
-      )
     )
+  )
 })
+
 
 # 
 # observeEvent(input$updateProstar,{

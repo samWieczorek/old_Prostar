@@ -1,62 +1,38 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
-callModule(moduleDensityplot, "densityPlot_DS")
-callModule(missingValuesPlots, "MVPlotsDS")
+
+callModule(missingValuesPlots, "MVPlots_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
+callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
-output$plotsMissingV <- renderUI({
-  tagList(
-    helpText("These barplots display the distribution of missing values in the dataset."),
-    missingValuesPlotsUI("MVPlotsDS")
-  )
+# outs <- outputOptions(output)
+# print(names(outs))
+# outputOptions(output, 'densityPlot_DS-Densityplot', suspendWhenHidden = FALSE)
+# outputOptions(output, 'boxPlot_DS-BoxPlot', suspendWhenHidden = FALSE)
+
+
+# lapply(names(outs), function(name) {
+#   outputOptions(output, name, suspendWhenHidden = FALSE)
+# })
+
+
+observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
+
+observeEvent(input$varScale_PCA,{
+  rv$PCA_varScale <- input$varScale_PCA
+  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
 })
 
-
-
-output$IntensityStatsPlots <- renderUI({
-  
-  tagList(
-    tags$br(),tags$br(),
-    tags$div(
-      tags$div(style="display:inline-block; vertical-align: middle;",
-               tags$p("Plot options")
-      ),
-      
-      tags$div(style="display:inline-block; vertical-align: middle;",
-               
-               tags$div(
-                 tags$div(style="display:inline-block; vertical-align: top;",
-                          shinyWidgets::dropdownButton(
-                            tags$div(
-                              tags$div(style="display:inline-block; vertical-align: bottom;",
-                                       selectInput("whichGroup2Color","Color lines",
-                                                   choices=list("By condition" = "Condition","By replicate" = "Replicate"),
-                                                   selected=GetWhichGroup2Color(), width='150px')
-                              ),
-                              tags$div(style="display:inline-block; vertical-align: bottom;",
-                                       uiOutput("ChooseLegendForSamples")
-                              )
-                            ),
-                            tooltip="Plots parameters",
-                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
-                          )
-                 )
-               )
-               
-      )
-    )
-  ,
-  uiOutput("densityBoxPlots")
-  )
+observeEvent(rv$current.obj, {
+  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
 })
+
 
 
 output$plotsCorM <- renderUI({
-  
   tagList(
     tags$br(),tags$br(),
     tags$div(
@@ -87,15 +63,104 @@ output$plotsCorM <- renderUI({
       )
     ),
   highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
-)
+  )
 })
 
 
-output$pcaPlots <- renderUI({
+
+output$IntensityStatsPlots <- renderUI({
   tagList(
+    tags$br(),tags$br(),
+    tags$div(
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               tags$p("Plot options")
+      ),
+      
+      tags$div(style="display:inline-block; vertical-align: middle;",
+               
+               tags$div(
+                 tags$div(style="display:inline-block; vertical-align: top;",
+                          shinyWidgets::dropdownButton(
+                            tags$div(
+                              tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       selectInput("whichGroup2Color",
+                                                   "Color lines",
+                                                   choices=list("By condition" = "Condition",
+                                                                "By replicate" = "Replicate"),
+                                                   selected=GetWhichGroup2Color(), width='150px')
+                              ),
+                              tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       uiOutput("ChooseLegendForSamples")
+                              )
+                            ),
+                            tooltip="Plots parameters",
+                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                          )))
+               
+      )),
+  
+  
+  fluidRow(
+    column(width=6,moduleDensityplotUI("densityPlot_DS")),
+    column(width=6, moduleBoxplotUI("boxPlot_DS"))
+  )
+  )
+  
+})
+
+output$plotsMVHistograms <- renderUI({
+  tagList(
+    helpText("These barplots display the distribution of missing values in the dataset."),
+  missingValuesPlotsUI("MVPlots_DS")
+  )
+})
+
+
+
+output$plotsDistCV <- renderUI({
+  
+  tagList(
+    helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
+             of the protein/peptides."),
+    helpText("For better visualization, it is possible to zoom in by click-and-drag."),
+    highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
+    )
+})
+
+
+output$plotsHeatmap <- renderUI({
+  tagList(
+    div(
+      div(
+        style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+        selectInput("distance","Distance",
+                    choices = G_heatmapDistance_Choices, 
+                    selected = rv$PlotParams$heatmap.distance,
+                    width="150px")
+      ),
+      div(
+        style="display:inline-block; vertical-align: middle;",
+        selectInput("linkage","Linkage",
+                    choices=G_heatmapLinkage_Choices,
+                    selected=rv$PlotParams$heatmap.linkage,
+                    width="150px")
+      ),
+      
+      tags$hr(),
+      uiOutput("DS_PlotHeatmap")
+    )
+  )
+})
+
+
+output$plotsPCA <- renderUI({
+  tagList(
+    uiOutput("WarningNA_PCA"),
+    uiOutput("pcaOptions"),
+    
     fluidRow(
-    column(width=6,  plotOutput("pcaPlotVar")),
-    column(width=6,  plotOutput("pcaPlotInd"))
+      column(width=6,  plotOutput("pcaPlotVar")),
+      column(width=6,  plotOutput("pcaPlotInd"))
     ),
     fluidRow(
       column(width=6,  highchartOutput("pcaPlotEigen")),
@@ -104,36 +169,6 @@ output$pcaPlots <- renderUI({
   )
 })
 
-
-output$showOverviewDS <- renderUI({
-  print('in output$showOverviewDS <- renderUI')
-  callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
-  moduleStaticDataTableUI("overview_DS")
-})
-
-
-output$densityBoxPlots <- renderUI({
-  
-  fluidRow(
-    column(width=6,moduleDensityplotUI("densityPlot_DS")),
-    column(width=6, moduleBoxplotUI("boxPlot_DS"))
-  )
-})
-
-output$distCVPlot <- renderUI({
-  highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
-  
-})
-
-observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
-observeEvent(input$varScale_PCA,{
-  rv$PCA_varScale <- input$varScale_PCA
-  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
-})
-
-observeEvent(rv$current.obj, {
-  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
-})
 
 
 output$pcaPlotVar <- renderPlot({
@@ -315,7 +350,8 @@ output$viewfData <- DT::renderDataTable({
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames = TRUE,
+                             extensions = c('Scroller', 'Buttons','FixedColumns'),
                         options=list(initComplete = initComplete(),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
@@ -327,6 +363,7 @@ output$viewfData <- DT::renderDataTable({
                                     scrollY = 200,
                                     scroller = TRUE,
                                     columns.searchable=F,
+                                    fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                         columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
             formatStyle(columns = 'Significant',
@@ -334,7 +371,8 @@ output$viewfData <- DT::renderDataTable({
                         background = styleEqual(1, 'lightblue'))
     } else {
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                             extensions = c('Scroller', 'Buttons'),
+                             rownames=TRUE,
+                             extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                              options=list(initComplete = initComplete(),
                                  dom='Bfrtip',
                                  pageLength=DT_pagelength,
@@ -346,6 +384,7 @@ output$viewfData <- DT::renderDataTable({
                             orderClasses = TRUE,
                             autoWidth=FALSE,
                             columns.searchable=F,
+                            fixedColumns = list(leftColumns = 1),
                             columnDefs = list(list(columns.width=c("60px"),
                             columnDefs.targets=c(list(0),list(1),list(2))))))
     }
@@ -363,14 +402,8 @@ output$viewfData <- DT::renderDataTable({
 ##' @author Samuel Wieczorek
 output$viewExprsMissValues <- DT::renderDataTable({
     req(rv$current.obj)
-  
-  data <- as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-                              Biobase::exprs(rv$current.obj)))
-  ## build index for border-formatting
-  borders_index <- unlist(lapply(unique(colnames(data)), function(x){first(grep(x, colnames(data)))}))
-  
-  print(colnames(data))
-  dt <- DT::datatable(data,
+  dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
+                                Biobase::exprs(rv$current.obj))),
                       extensions = c('Scroller', 'Buttons'),
                       rownames = FALSE,
                       
@@ -389,8 +422,7 @@ output$viewExprsMissValues <- DT::renderDataTable({
             #columnDefs = list(list(columns.width=c("60px"),columnDefs.targets=c(list(0),list(1),list(2))))
             columnDefs = list(list(width='150px',targets= "_all"))
             )
-) %>%
-    formatStyle(borders_index, borderLeft = '3px solid #ddd')
+)
 })
 
 
@@ -469,11 +501,7 @@ output$DS_PlotHeatmap <- renderUI({
 output$table <- DT::renderDataTable({
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
-    conds <- pData(rv$current.obj)$Condition
-    print("head(df)")
     print(head(df))
-    borders_index <- unlist(lapply(unique(conds), function(x){first(grep(x, conds))}))
-    print(borders_index)
     dt <- datatable( df,
                      extensions = c('Scroller', 'Buttons'),
                     options = list(
@@ -495,8 +523,7 @@ output$table <- DT::renderDataTable({
            backgroundSize = '98% 48%',
            backgroundRepeat = 'no-repeat',
            backgroundPosition = 'center'
-       ) %>% 
-      formatStyle(borders_index, borderLeft = '3px solid #ddd')
+       )
     
     
     dt

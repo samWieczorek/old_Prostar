@@ -64,21 +64,12 @@ output$GOAnalysisMenu <- renderUI({
     req(rv$current.obj)
    isolate({
     
-    # tagList(
-    #   uiOutput("GO_setup"),
-    #   uiOutput("GO_classif"),
-    #   uiOutput("GO_enrich"),
-    #   uiOutput("GO_Summary")
-    # )
-     
-     tabsetPanel(
-       id = "tabsetPanel_GO",
-       tabPanel("GO Setup",uiOutput("GO_setup")),
-       tabPanel("GO Classification",uiOutput("GO_classif")),     
-       tabPanel("GO Enrichment",uiOutput("GO_enrich")),       
-       tabPanel("Parameter summary",uiOutput("GO_Summary"))
-     )
-                
+    tagList(
+      uiOutput("GO_setup"),
+      uiOutput("GO_classif"),
+      uiOutput("GO_enrich"),
+      uiOutput("GO_Summary")
+    )
     
   })
   
@@ -86,7 +77,7 @@ output$GOAnalysisMenu <- renderUI({
 
 
 output$GO_setup <- renderUI({
-  #if (rv$pageGO != 1){return()}
+  if (rv$pageGO != 1){return()}
   
   tagList(
     tags$div(
@@ -117,7 +108,7 @@ output$GO_setup <- renderUI({
 })
 
 output$GO_classif <- renderUI({
-  #if (rv$pageGO != 2){return()}
+  if (rv$pageGO != 2){return()}
   
   tagList(
   tags$div(
@@ -137,7 +128,7 @@ output$GO_classif <- renderUI({
 })
 
 output$GO_enrich <- renderUI({
-  #if (rv$pageGO != 3){return()}
+  if (rv$pageGO != 3){return()}
   
   tagList(
     tags$div(
@@ -160,7 +151,7 @@ output$GO_enrich <- renderUI({
 })
 
 output$GO_Summary <- renderUI({
- # if (rv$pageGO != 4){return()}
+  if (rv$pageGO != 4){return()}
   
   DT::dataTableOutput("GO_resumeParams")
 })

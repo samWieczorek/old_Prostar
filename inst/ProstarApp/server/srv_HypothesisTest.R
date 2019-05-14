@@ -4,7 +4,34 @@ callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
 observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
 
 
-output$testPanel <- renderUI({
+
+callModule(moduleProcess, "moduleProcess_HypothesisTest", 
+           isDone = reactive({rvModProcess$moduleHypothesisTestDone}), 
+           pages = reactive({rvModProcess$moduleHypothesisTest}),
+           rstFunc = resetModuleHypothesisTest)
+
+
+resetModuleHypothesisTest <- reactive({  
+  ## update widgets values (reactive values)
+  resetModuleProcess("HypothesisTest")
+    
+  ## update widgets in UI
+  updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
+  updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
+  updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
+  updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
+    
+  rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
+  ##update dataset to put the previous one
+  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  
+})
+
+
+
+observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
+
+output$screenHypoTest1 <- renderUI({
   
    # req(rv$current.obj)
     isolate({
@@ -29,7 +56,7 @@ output$testPanel <- renderUI({
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   hidden( radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"),
-                                       selected=input$ttest_options,
+                                       selected=rv$widgets$hypothesisTest$ttest_options,
                                        width='150px'))
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -37,11 +64,9 @@ output$testPanel <- renderUI({
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),
                   module_Not_a_numericUI("test_seuillogFC")
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle;",
-                  uiOutput("btn_valid")
         )
-      ),
+        )
+      ,
       tags$hr(),
       highchartOutput("FoldChangePlot", height="100%") %>% withSpinner(type=spinnerType)
     )
@@ -49,6 +74,15 @@ output$testPanel <- renderUI({
   }
     })
 })
+
+
+output$screenHypoTest2 <- renderUI({
+  tagList(
+    uiOutput("btn_valid")
+  )
+})
+
+
 
 output$btn_valid <- renderUI({
   cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")
@@ -67,8 +101,7 @@ observeEvent(input$diffAnaMethod,{
 output$FoldChangePlot <- renderHighchart({
   #req(rv$res_AllPairwiseComparisons)
   rv$PlotParams$paletteConditions
-  print(input$seuilLogFC)
-  print(as.numeric(input$seuilLogFC))
+  
   data <- ComputeComparisons()
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFC))
   rv$tempplot$logFCDistr
@@ -103,6 +136,8 @@ isolate({
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
+  
+  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
   rv$res_AllPairwiseComparisons
 })
 })
@@ -130,7 +165,7 @@ isolate({
   rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   
   rv$dataset[[name]] <- rv$current.obj
-  
+  rvModProcess$moduleHypothesisTestDone[2] <- TRUE
   
   updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   BuildNavbarPage()

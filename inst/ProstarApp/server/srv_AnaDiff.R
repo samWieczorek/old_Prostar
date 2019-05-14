@@ -1,27 +1,63 @@
 callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
 callModule(moduleVolcanoplot,"volcano_Step2",reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
+callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
+#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
+
+
+
+callModule(moduleProcess, "moduleProcess_AnaDiff", 
+           isDone = reactive({rvModProcess$moduleAnaDiffDone}), 
+           pages = reactive({rvModProcess$moduleAnaDiff}),
+           rstFunc = resetModuleAnaDiff)
+
+
+
+
+######
+resetModuleAnaDiff <- reactive({  
+  
+  ## update widgets values (reactive values)
+  resetModuleProcess("AnaDiff")
+  
+  #rv$widgetsfiltering$seuilNA <- 0
+  #rv$deleted.stringBased <- NULL
+  # rv$deleted.mvLines <- NULL
+  
+  
+  ## update widgets in UI
+  #if (!is.null(input$showpvalTable) )updateCheckboxInput(session, 'showpvalTable', value = FALSE)
+  updateSelectInput(session, "selectComparison", selected=rv$widgets$anaDiff$Comparison)
+  updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$filter_th_NA)
+  updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=rv$widgets$anaDiff$filterType)
+  updateSelectInput(session, "tooltipInfo", selected=character(0))
+  updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
+  updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
+  updateNumericInput(session,"nBinsHistpval",value=80)
+  updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
+  updateRadioButtons(session, "downloadAnaDiff", selected="All")
+  updateCheckboxInput(session, "swapVolcano", value = rv$widgets$anaDiff$swapVolcano)
+            
+  rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
+  
+  ##update dataset to put the previous one
+  #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  rv$resAnaDiff <- NULL
+  
+})
+#####
 
 
 observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(Get_seuilPVal())})
 observeEvent(input$calibrationMethod,{  rv$widgets$anaDiff$calibMethod <- input$calibrationMethod})
 
-#observeEvent(input$AnaDiff_seuilNA,{  rv$widgets$anaDiff$filter_th_NA <- input$AnaDiff_seuilNA})
-#observeEvent(input$AnaDiff_ChooseFilters,{ rv$widgets$anaDiff$filterType  <- input$AnaDiff_ChooseFilters})
 
-convertAnaDiff2DF <- reactive({
-  
-  df <- cbind(names(rv$widgets$anaDiff),
-              as.data.frame(unlist(rv$widgets$anaDiff)))
-  names(df) <- c("Parameter", "Value")
-  rownames(df) <- NULL
-  df
-})
 
 observeEvent(input$selectComparison, {
   
-  if (as.character(input$selectComparison)== "None"){
+  if (input$selectComparison== "None"){
     rv$resAnaDiff <- NULL
+  return(NULL)
   } else {
     index <- which(paste(as.character(input$selectComparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
     rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
@@ -32,15 +68,21 @@ observeEvent(input$selectComparison, {
     rv$widgets$anaDiff$Comparison <-input$selectComparison
     rv$widgets$anaDiff$Condition1 <- strsplit(as.character(input$selectComparison), "_vs_")[[1]][1]
     rv$widgets$anaDiff$Condition2 <- strsplit(as.character(input$selectComparison), "_vs_")[[1]][2]
-  }
+    rvModProcess$moduleAnaDiffDone[1] <- TRUE
+    }
+
+    
+
 })
 
 
 observeEvent(input$swapVolcano, {
-  if(!is.null(rv$resAnaDiff))
+  req(rv$resAnaDiff)
     rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
 
 })
+
+
 
 
 observeEvent(req(input$AnaDiff_ChooseFilters), {
@@ -48,61 +90,13 @@ observeEvent(req(input$AnaDiff_ChooseFilters), {
     updateSelectInput(session, "AnaDiff_seuilNA", selected = 0)}})
 
 
+
+
 observeEvent(req(input$calibrationMethod), {
   shinyjs::toggle("numericValCalibration", condition=input$calibrationMethod == "numeric value")
   })
 
 
-##--------------------------------------------------------
-##---------------------------------------------------------
-
-output$checkDiffAnaPanel <- renderUI({
-  rv$pageDiffAna
-  color <- rep("lightgrey",NUM_PAGES_DIFFANA)
-  
-  ##Step 1
-  if (rv$pageDiffAna >= 1){
-    res <- TRUE
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageDiffAna >= 2){
-    res <- TRUE
-    ifelse(res, color[2] <- "green", color[2] <- "red")
-    }
-  
-  ## Step 3: Choose quantitative data
-  if (rv$pageDiffAna >= 3){
-    res <- TRUE
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    }
-  
-  if (rv$pageDiffAna >= 4){
-    res <- TRUE
-    ifelse(res, color[4] <- "green", color[4] <- "red")
-  }
-  
-  
-  txt <- c("Pairwise comparisons", "p-values calibration", "FDR computation", "Valid")
-  buildTable(txt, color)
-})
-
-NUM_PAGES_DIFFANA <- 4
-
-observe({
-  toggleState(id = "prevBtnDiffAna", condition = rv$pageDiffAna > 1)
-  toggleState(id = "nextBtnDiffAna", condition = rv$pageDiffAna < NUM_PAGES_DIFFANA)
-  hide(selector = ".page")
-})
-
-navPageDiffAna <- function(direction) {
-  rv$pageDiffAna <- rv$pageDiffAna + direction
-}
-
-observeEvent(input$prevBtnDiffAna, navPageDiffAna(-1))
-observeEvent(input$nextBtnDiffAna, navPageDiffAna(1))
 
 ##--------------------------------------------------------
 ##---------------------------------------------------------
@@ -110,8 +104,7 @@ observeEvent(input$nextBtnDiffAna, navPageDiffAna(1))
 output$pushPValUI <- renderUI({
   req(input$selectComparison)
   if (input$selectComparison == "None"){return(NULL)}
-  #if (rv$typeOfDataset == "peptide") {return(NULL)}
- 
+  
   tagList(
     modulePopoverUI("modulePopover_pushPVal"),
     radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff),
@@ -134,34 +127,15 @@ output$volcanoTooltip_UI <- renderUI({
 })
 
 
-output$diffAna_pairwiseComp <- renderUI({
-  #if (rv$pageDiffAna != 1){return()}
-  
-  .choices <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
-  
-  tagList(
-    tags$div(
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              #uiOutput("newComparisonUI")
-              selectInput("selectComparison","Select comparison",
-                          choices = c("None"="",.choices),
-                          selected = rv$widgets$anaDiff$Comparison,
-                          width='200px'),
-              checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              uiOutput("pushPValUI")),
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-              uiOutput("AnaDiff_seuilNADelete")),
-              
-    tags$div( style="display:inline-block; vertical-align: top;",
-              uiOutput("volcanoTooltip_UI"))
-  ),
-  tags$hr(),
-  #moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType),
-  moduleVolcanoplotUI("volcano_Step1")
 
-  )
+GetPairwiseCompChoice <- reactive({
+  ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
+  ll
 })
+
+
+
+
 
 
 
@@ -174,8 +148,8 @@ convertAnaDiff2DF <- reactive({
   df
 })
 
+
 observeEvent(input$selectComparison, {
-  
   if (as.character(input$selectComparison)== "None"){
     rv$resAnaDiff <- NULL
   } else {
@@ -190,27 +164,13 @@ observeEvent(input$selectComparison, {
 })
 
 
-# observeEvent(input$swapVolcano, {
-#   if(!is.null(rv$resAnaDiff))
-#     rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
-# 
-# })
-# 
-
-observeEvent(req(input$AnaDiff_ChooseFilters), {
-  if (input$AnaDiff_ChooseFilters==gFilterNone) {
-    updateSelectInput(session, "AnaDiff_seuilNA", selected = 0)}})
 
 
-# observeEvent(req(input$calibrationMethod), {
-#   shinyjs::toggle("numericValCalibration", condition=input$calibrationMethod == "numeric value")
-#   })
 
 
 output$anaDiffPanel <- renderUI({
   req(rv$current.obj)
-   
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
   dataset.name <- last(names(rv$dataset))
   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
   if (NA.count > 0){
@@ -219,71 +179,39 @@ output$anaDiffPanel <- renderUI({
              rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
     } else {
-      isolate({
-
-        # tagList(
-        #   uiOutput("diffAna_pairwiseComp"),
-        #   uiOutput("diffAna_pvalCalib"),
-        #   uiOutput("diffAna_fdrCompute"),
-        #   uiOutput("diffAna_Summary")
-        #   )
-        
-
+      moduleProcessUI("moduleProcess_AnaDiff")
+    }
   
-      tabsetPanel(
-        id = "xxx",
-        tabPanel("1 - Pairwise comparison",value = "DiffAnalysis_PairewiseComparison",
-                 uiOutput("diffAna_pairwiseComp")),
-        tabPanel("2 - p-value calibration", value = "DiffAnalysis_Calibrate",
-                 uiOutput("diffAna_pvalCalib")),
-        tabPanel("3 - FDR",value = "DiffAnalysis_viewFDR",
-                 uiOutput("diffAna_fdrCompute")),
-        tabPanel("4 - Summary",value = "DiffAnalysis_ValidateAndSave",
-                 uiOutput("diffAna_Summary"))
-      ) # end tabsetPanel
-      })
-      }
 })
 
 
+output$screenAnaDiff1 <- renderUI({
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                #uiOutput("newComparisonUI")
+                selectInput("selectComparison","Select comparison",
+                            choices = c("None"="None",GetPairwiseCompChoice()),
+                            selected = rv$widgets$anaDiff$Comparison,
+                            width='200px'),
+                checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                uiOutput("pushPValUI")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+                uiOutput("AnaDiff_seuilNADelete")),
+      
+      tags$div( style="display:inline-block; vertical-align: top;",
+                uiOutput("volcanoTooltip_UI"))
+    ),
+    tags$hr(),
+    moduleVolcanoplotUI("volcano_Step1")
+  )
+})
 
 
-
-observeEvent(input$toggleSidebar, {shinyjs::toggle(id = "sidebar_diffAna_1")})
-
-# output$diffAna_pairwiseComp <- renderUI({
-# 
-#   if (rv$pageDiffAna != 1){return()}
-#   
-# 
-#   #req(rv$current.obj)
-#   isolate({
-#     tagList(
-#    # actionLink("toggleSidebar", "Hide/show options"),
-#   sidebarCustom(),
-#            splitLayout(cellWidths = c(widthLeftPanel, widthRightPanel),
-#       wellPanel(
-#                id = "sidebar_DiffAna2",
-#                height = "100%"
-#                #,uiOutput("newComparisonUI")
-#                ,uiOutput("diffAnalysis_PairwiseComp_SB")
-#                ,actionButton("AnaDiff_perform.filtering.MV", "Perform", class = actionBtnClass)
-#                 ),
-#    
-#    moduleVolcanoplotUI("volcano_Step1") %>% withSpinner(type=spinnerType)
-# 
-#            #)
-#   )
-#   )
-#   })
-
-#  })
-
-
-output$diffAna_pvalCalib <- renderUI({
-
- # if (rv$pageDiffAna != 2){return()}
-
+output$screenAnaDiff2 <- renderUI({
+  print("in output$screenAnaDiff2")
   req(as.character(input$selectComparison))
   
    tagList(
@@ -296,7 +224,7 @@ output$diffAna_pvalCalib <- renderUI({
                                                 value = 0, min=0, max=1, step=0.05, width='200px'))
                  ),
                  tags$div( style="display:inline-block; vertical-align: middle;",
-                            textInput("nBinsHistpval", "n bins", value=80, width='50px'))
+                            textInput("nBinsHistpval", "n bins", value=80, width='80px'))
                  
                ),
                tags$hr(),
@@ -321,12 +249,11 @@ callModule(modulePopover,"modulePopover_pValThreshold",
                                 content="Define the -log10(p_value) threshold")))
 
 
-output$diffAna_fdrCompute <- renderUI({
-
-  #if (rv$pageDiffAna != 3){return()}
-
+output$screenAnaDiff3 <- renderUI({
+  print("in output$screenAnaDiff3")
+  
   if(as.character(input$selectComparison) == "None"){return(NULL)}
-     
+ 
   isolate({
     tagList(
       tags$div(
@@ -350,7 +277,8 @@ output$diffAna_fdrCompute <- renderUI({
              tagList(
                htmlOutput("showFDR"),
                moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
-                #hidden(div(id = 'toto',
+               
+               #hidden(div(id = 'toto',
                 #.           moduleStaticDataTableUI("anaDiff_selectedItems")
                 #)
                 hidden(DTOutput("anaDiff_selectedItems"))
@@ -382,7 +310,6 @@ output$anaDiff_selectedItems <- renderDT({
 
 
 output$downloadSelectedItems <- downloadHandler(
-  #input$chooseDatasetToExportToMSnset,
   filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
   content = function(file) {
     print(paste0("file to write=", file))
@@ -406,11 +333,22 @@ output$downloadSelectedItems <- downloadHandler(
 
 observeEvent(input$showpvalTable, {
   print("show : anaDiff_selectedItems")
-  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))})
+  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))
+  })
+
+
 
     
-    
+output$diffAna_Summary <- renderUI({     
 
+  if (as.character(input$selectComparison) == "None"){return(NULL)}
+ 
+ tagList(
+   moduleStaticDataTableUI("params_AnaDiff")
+   )
+
+})
+      
 
 
 output$anaDiff_selectedItems <- renderDT({
@@ -452,21 +390,16 @@ output$downloadSelectedItems <- downloadHandler(
 
 
 
-observeEvent(input$showpvalTable, {
-  print("show : anaDiff_selectedItems")
-  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))})
-
-  
-
-output$diffAna_Summary <- renderUI({     
-  callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
-  
-  if (as.character(input$selectComparison) == "None"){return(NULL)}
-  tagList(
-    moduleStaticDataTableUI("params_AnaDiff")
     
-  )
+output$screenAnaDiff4 <- renderUI({     
+  print("in output$screenAnaDiff4")
+  if (as.character(input$selectComparison) == "None"){return(NULL)}
+ tagList(
+   moduleStaticDataTableUI("params_AnaDiff")
+   
+         )
 })
+      
 
 
 
@@ -544,15 +477,16 @@ if (as.character(input$AnaDiff_ChooseFilters) == gFilterNone){
   keepThat <- mvFilterGetIndices(datasetToAnalyze,
                                  as.character(input$AnaDiff_ChooseFilters),
                                  as.integer(input$AnaDiff_seuilNA))
-  if (!is.null(keepThat)){
-       rv$resAnaDiff$P_Value[-keepThat] <- 1
-       rv$resAnaDiff
+        if (!is.null(keepThat))
+            {
+            rv$resAnaDiff$P_Value[-keepThat] <- 1
+            rv$resAnaDiff
             
-       updateSelectInput(session, "AnaDiff_ChooseFilters", selected = as.character(input$AnaDiff_ChooseFilters))
-       updateSelectInput(session, "AnaDiff_seuilNA", selected = input$AnaDiff_seuilNA)
-       rv$widgets$anaDiff$filter_th_NA <- input$AnaDiff_seuilNA       
-       rv$widgets$anaDiff$filterType  <- as.character(input$AnaDiff_ChooseFilters)
-  }
+            updateSelectInput(session, "AnaDiff_ChooseFilters", selected = as.character(input$AnaDiff_ChooseFilters))
+            updateSelectInput(session, "AnaDiff_seuilNA", selected = input$AnaDiff_seuilNA)
+            rv$widgets$anaDiff$filter_th_NA <- input$AnaDiff_seuilNA       
+            rv$widgets$anaDiff$filterType  <- as.character(input$AnaDiff_ChooseFilters)        
+        }
     }
 })
 
@@ -593,27 +527,38 @@ Get_FDR <- reactive({
   rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
                               rv$resAnaDiff[["P_Value"]],
                               as.numeric(Get_seuilPVal()), 
-                              as.numeric(rv$widgets$hypothesisTest$th_logFC), 
+                              rv$widgets$hypothesisTest$th_logFC, 
                               m)
+  rvModProcess$moduleAnaDiffDone[3] <- TRUE
   as.numeric(rv$widgets$anaDiff$FDR)
 })
+
 
 output$showFDR <- renderUI({
   req(rv$current.obj)
   nb <- length(which(GetSelectedItems()$isDifferential==1))
+  th <- Get_FDR() * nb
+  print(th)
   
-  print(nb)
+  
   tagList(
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
              signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")")
     } else {
       tags$p(style="font-size: 25px;","FDR = NA") 
-    }
+    },
+    
+    if (th < 1){
+      tags$p(style="color: red","Warning: With such a dataset size (xxx selected prot ), 
+              an FDR of xxx% should be cautiously interpreted as strictly less than one protein 
+             or peptides (seuil) is expected to be a false discovery")
+    } 
   )
   
   
 })
+
 
 
 
@@ -631,14 +576,10 @@ histPValue <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
-    
-    
     histPValue_HC(t,bins=as.numeric(input$nBinsHistpval), pi0=rv$pi0)
-    
-    
 })
 
 output$histPValue <- renderHighchart({
@@ -693,7 +634,7 @@ calibrationPlot <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
     
@@ -720,7 +661,8 @@ calibrationPlot <- reactive({
                 ll <-catchToList(wrapperCalibrationPlot(t, input$calibrationMethod))
                 rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
             }
-        rv$pi0 <- ll$value$pi0            
+        rv$pi0 <- ll$value$pi0
+        rvModProcess$moduleAnaDiffDone[2] <- TRUE
         }
         , warning = function(w) {
             shinyjs::info(paste("Calibration plot",":",
@@ -788,7 +730,7 @@ calibrationPlotAll <- reactive({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))]
+    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){
         t <- t[-toDelete]
@@ -800,6 +742,7 @@ calibrationPlotAll <- reactive({
             l <-catchToList(wrapperCalibrationPlot(t, "ALL")  )
             rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:", 
                                                             l$warnings)]
+            rvModProcess$moduleAnaDiffDone[2] <- TRUE
         }
         , warning = function(w) {
             shinyjs::info(paste("Calibration Plot All methods",":",
@@ -841,11 +784,11 @@ output$equivLog10 <- renderText ({
 GetSelectedItems <- reactive({
   req(rv$resAnaDiff)
   input$downloadAnaDiff
-print(input$downloadAnaDiff)
+
   
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
-  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))
+  upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
   
   if (input$downloadAnaDiff == "All"){
     selectedItems <- 1:nrow(rv$current.obj)
@@ -856,9 +799,7 @@ print(input$downloadAnaDiff)
     significant <- rep(1, length(selectedItems))
   }
   
-  
-
-  t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+    t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
                   P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),
                   isDifferential = significant)

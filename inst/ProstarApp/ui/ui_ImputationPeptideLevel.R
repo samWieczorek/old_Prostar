@@ -1,4 +1,4 @@
-tabPanel("Imputation",
+tabPanel("Peptide imputation",
          value = "imputationPeptideLevelTabs",
-         uiOutput("peptideLevelImputationPanel")
+         moduleProcessUI("moduleProcess_PepImputation")
 )

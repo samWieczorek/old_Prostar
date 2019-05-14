@@ -1,4 +1,9 @@
 
+
+NUM_PAGES_FILTERING <- 3
+
+
+
 modulePopoverUI <- function(id){
     ns <- NS(id)
     uiOutput(ns("customPopover"))
@@ -68,9 +73,9 @@ moduleDetQuantImpValuesUI <- function(id){
 missingValuesPlotsUI <- function(id) {
     ns <- NS(id)
     fluidRow(
-        column(width = 4, highchartOutput(ns("histo_MV"))%>% withSpinner(type=spinnerType), height="600px"),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))%>% withSpinner(type=spinnerType)),
-        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions"))%>% withSpinner(type=spinnerType))
+        column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
     )
     
 }
@@ -134,7 +139,7 @@ moduleStaticDataTableUI <- function(id) {
     ns <- NS(id)
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
-                DT::dataTableOutput(outputId = ns("StaticDataTable"))
+                DT::dataTableOutput(ns("StaticDataTable"))
       )
     )
     

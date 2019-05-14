@@ -127,7 +127,8 @@ MSnSetExplorer <- function(input, output, session, data) {
     
     if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
       dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                           extensions = c('Scroller', 'Buttons'),
+                           rownames = TRUE,
+                           extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
                                         dom='Bfrtip',
                                         pageLength=DT_pagelength,
@@ -139,6 +140,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         scrollY = 200,
                                         scroller = TRUE,
                                         columns.searchable=F,
+                                        fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
                                                                columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
         formatStyle(columns = 'Significant',
@@ -146,7 +148,8 @@ MSnSetExplorer <- function(input, output, session, data) {
                     background = styleEqual(1, 'lightblue'))
     } else {
       dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                           extensions = c('Scroller', 'Buttons'),
+                           rownames = TRUE,
+                           extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
                                         dom='Bfrtip',
                                         pageLength=DT_pagelength,
@@ -158,6 +161,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         orderClasses = TRUE,
                                         autoWidth=FALSE,
                                         columns.searchable=F,
+                                        fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
                                                                columnDefs.targets=c(list(0),list(1),list(2))))))
     }
@@ -179,7 +183,8 @@ MSnSetExplorer <- function(input, output, session, data) {
     df <- getDataForExprs(rv$current.obj)
     print(head(df))
     dt <- datatable( df,
-                     extensions = c('Scroller', 'Buttons'),
+                     rownames=TRUE,
+                     extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                      options = list(
                        dom = 'Bfrtip',
                        initComplete = initComplete(),
@@ -191,6 +196,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                        scroller = TRUE,
                        ordering=FALSE,
                        server = TRUE,
+                       fixedColumns = list(leftColumns = 1),
                        columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],

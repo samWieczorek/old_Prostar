@@ -14,10 +14,9 @@ tabPanel("Demo data",
                      uiOutput("linktoDemoPdf")
            )
          ),
-         #checkboxInput("showDemoDatasetPDF", "Show PDF documentation", value=FALSE),
          
          hr(),
          uiOutput("infoAboutDemoDataset")
- 
+         
 
 )

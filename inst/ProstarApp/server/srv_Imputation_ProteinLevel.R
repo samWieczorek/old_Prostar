@@ -14,105 +14,74 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
            reactive({input$MEC_detQuant_factor}))
 
 
+callModule(moduleProcess, "moduleProcess_ProtImputation", 
+           isDone = reactive({rvModProcess$moduleProtImputationDone}), 
+           pages = reactive({rvModProcess$moduleProtImputation}),
+           rstFunc = resetModuleProtImputation)
 
-
-
-
-
-##--------------------------------------------------------------
-## Gestion du slideshow
-##--------------------------------------------------------------
-
-
-
-
-output$checkProtImputPanel <- renderUI({
-  rv$pageProtImput
-  color <- rep("lightgrey",NUM_PAGES_PROT_IMPUT)
-  
-  ##Step 1
-  if (rv$pageProtImput >= 1){
-    res <- rv$impute_Step >= 1
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageProtImput >= 2){
-    res <- rv$impute_Step >= 2
-    ifelse(res, color[2] <- "green", color[2] <- "red")
+resetModuleProtImputation <- reactive({  
+  ## update widgets values (reactive values)
+  resetModuleProcess("ProtImputation")
     
-  } 
+  ## update widgets in UI
+  updateSelectInput(session,"POV_missing.value.algorithm",selected=rv$widgets$proteinImput$POV_algorithm)
+  updateSelectInput(session,"MEC_missing.value.algorithm", selected=rv$widgets$proteinImput$MEC_algorithm)
+  updateNumericInput(session,"POV_detQuant_quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
+  updateNumericInput(session,"POV_detQuant_factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
+  updateNumericInput(session,"KNN_nbNeighbors", value = rv$widgets$proteinImput$POV_KNN_n)
+  updateNumericInput(session, "MEC_detQuant_quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
+  updateNumericInput(session, "MEC_detQuant_factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
+  updateNumericInput(session, "MEC_fixedValue", value = rv$widgets$proteinImput$MEC_fixedValue)
   
-  ## Step 3: Choose quantitative data
-  if (rv$pageProtImput >= 3){
-    res <- length(grep("Imputed",input$datasets)) ==1
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    
-  }
   
-  txt <- c("POV imputation", "MEC imputation", "Save imputation")
-  buildTable(txt, color)
-})
-
-NUM_PAGES_PROT_IMPUT <- 3
-
-observe({
-  toggleState(id = "prevBtnProtImput", condition = rv$pageProtImput > 1)
-  toggleState(id = "nextBtnProtImput", condition = rv$pageProtImput < NUM_PAGES_PROT_IMPUT)
-  hide(selector = ".page")
-  show(paste0("step", rv$pageProtImput))
-})
-
-navPageProtImput <- function(direction) {
-  rv$pageProtImput <- rv$pageProtImput + direction
-}
-
-observeEvent(input$prevBtnProtImput, navPageProtImput(-1))
-observeEvent(input$nextBtnProtImput, navPageProtImput(1))
-
-##---------------------------------------------------------------
-##------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-##########
-#####  UI for the PROTEIN LEVEL Imputation process
-##########
-output$proteinLevelImputationPanel <- renderUI({
-  isolate({
-    tabsetPanel(
-      id = "Imputation_tabSetPanel",
-      
-      tabPanel("1 - Partially Observed Values",
-               value = "Classical_MV",
-               uiOutput("POV_imputation")
-      ),
-      tabPanel("2 - Missing on the Entire Condition",
-               value = "MEC_MV",
-               uiOutput("MEC_imputation")
-      ),
-      tabPanel("3 - Validate & save",
-               value = "Imputation_ValidateAndSave",
-               uiOutput("Validate_ProtImput")
-      ) # end tabPanel(title = "4 - Validate and Save",
-    )
-  })
+  
+  
+  rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
+  
+  ##update dataset to put the previous one
+  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
 
+########
+observeEvent(input$POV_missing.value.algorithm, {
+  rv$widgets$proteinImput$POV_algorithm <- input$POV_missing.value.algorithm
+})
+
+observeEvent(input$MEC_missing.value.algorithm, {
+  rv$widgets$proteinImput$MEC_algorithm <- input$MEC_missing.value.algorithm
+})
+
+observeEvent(input$POV_detQuant_quantile, {
+  rv$widgets$proteinImput$POV_detQuant_quantile <- input$POV_detQuant_quantile
+})
+
+observeEvent(input$POV_detQuant_factor, {
+  rv$widgets$proteinImput$POV_detQuant_factor <- input$POV_detQuant_factor
+})
+
+observeEvent(input$KNN_nbNeighbors, {
+  rv$widgets$proteinImput$POV_KNN_n <- input$KNN_nbNeighbors
+})
+
+observeEvent(input$MEC_detQuant_quantile, {
+  rv$widgets$proteinImput$MEC_detQuant_quantile <- input$MEC_detQuant_quantile
+})
+
+observeEvent(input$MEC_fixedValue, {
+  rv$widgets$proteinImput$MEC_detQuant_factor <- input$MEC_fixedValue
+})
+
+observeEvent(input$MEC_detQuant_factor, {
+  rv$widgets$proteinImput$MEC_fixedValue <- input$MEC_detQuant_factor
+})
+#########
 
 
-output$POV_imputation <- renderUI({
-  #if (rv$pageProtImput != 1){return()}
-  
+
+output$screenProtImput1 <- renderUI({
+ 
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
@@ -138,8 +107,7 @@ output$POV_imputation <- renderUI({
 
 
 
-output$MEC_imputation <- renderUI({
- # if (rv$pageProtImput != 2){return()}
+output$screenProtImput2 <- renderUI({
   
  
   tagList(
@@ -167,9 +135,8 @@ output$MEC_imputation <- renderUI({
 
 
 
-output$Validate_ProtImput <- renderUI({
- # if (rv$pageProtImput != 3){return()}
-
+output$screenProtImput3 <- renderUI({
+  
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
              actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
@@ -228,11 +195,11 @@ output$sidebar_imputation_step1 <- renderUI({
   
   algo <- imputationAlgorithmsProteins_POV
   
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
-                selectInput("POV_missing.value.algorithm","Algorithm for POV",
-                choices = algo, 
-                selected=rv$widgets$proteinImput$POV_algorithm, 
-                width='150px')
+  tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+            selectInput("POV_missing.value.algorithm","Algorithm for POV",
+                        choices = algo, 
+                        selected=rv$widgets$proteinImput$POV_algorithm, 
+                        width='150px')
   )
   
   })
@@ -352,7 +319,7 @@ observeEvent(input$perform.imputationClassical.button,{
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
-    
+    rvModProcess$moduleProtImputationDone[1] <- TRUE
     shinyjs::enable("perform.imputationMEC.button")
     shinyjs::enable("ValidImputation")
     
@@ -387,9 +354,10 @@ observeEvent(input$perform.imputationMEC.button,{
            }
     )
     
-    incProgress(1, detail = 'Finalize MEC impuutation')
+    incProgress(1, detail = 'Finalize MEC imputation')
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
+    rvModProcess$moduleProtImputationDone[2] <- TRUE
     })
      })
 })
@@ -416,18 +384,8 @@ observeEvent(input$ValidImputation,{
                       choices = names(rv$dataset),
                       selected = name)
     
-    
-    # updateSelectInput(session, "POV_missing.value.algorithm",  selected = input$POV_missing.value.algorithm)
-    # updateNumericInput(session,"POV_detQuant_quantile", "Quantile", value = input$POV_detQuant_quantile)
-    # updateNumericInput(session,"POV_detQuant_factor", "Factor", value = input$POV_detQuant_factor)
-    # updateNumericInput(session,"KNN_nbNeighbors",  value = input$KNN_nbNeighbors)
-    # 
-    # updateSelectInput(session,"MEC_missing.value.algorithm",  selected = input$MEC_missing.value.algorithm)
-    # updateNumericInput(session,"MEC_detQuant_quantile", "Quantile", value = input$MEC_detQuant_quantile)
-    # updateNumericInput(session,"MEC_detQuant_factor", "Factor", value = input$MEC_detQuant_factor)
-    # updateNumericInput(session,"MEC_fixedValue", "Fixed value", value = input$MEC_fixedValue)
-    
-    rv$ValidImputationClicked <- TRUE
+       rv$ValidImputationClicked <- TRUE
+    rvModProcess$moduleProtImputationDone[3] <- TRUE
    })
 })
 
