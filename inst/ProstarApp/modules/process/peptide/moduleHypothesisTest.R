@@ -218,7 +218,7 @@ moduleHypothesisTest <- function(input, output, session, dataIn, screen.id, sett
                                                                         Contrast=input$anaDiff_Design,
                                                                         type=input$ttest_options)
              })
-      rv.hypothesisTest$widgets$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
+      rv.hypothesisTest$widgets$listNomsComparaison <- colnames(rv.hypothesisTest$res_AllPairwiseComparisons$logFC)
       
       
       rvNavProcess$Done[1] <- TRUE
