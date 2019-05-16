@@ -6,8 +6,8 @@ source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)
 
 source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/moduleB.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/moduleC.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/modulePepImputation.R"), local = TRUE)$value
+source(file.path(".", "modules/process/peptide/moduleHypothesisTest.R"), local = TRUE)$value
 
 source(file.path(".", "modules/process/protein/moduleD.R"), local = TRUE)$value
 source(file.path(".", "modules/process/protein/moduleE.R"), local = TRUE)$value
@@ -230,7 +230,10 @@ GetScreenId <- reactive({
 
 
 DeleteDatasetsAfter <- function(txt){
+  print("IN DeleteDatasetsAfter")
   names <- names(pipeline$current.obj@datasets)
+  print(str(pipeline$current.obj@datasets))
+  print(names)
   indice <- which(names == txt)
   if (indice < length(names)) {
     for (i in (indice+1):length(names)){

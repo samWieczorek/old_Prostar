@@ -12,7 +12,7 @@ moduleNormalizationUI <- function(id){
   )
 }
 
-moduleNormalization <- function(input, output, session, dataIn, screen.id, settings=NULL, previousData=NULL){
+moduleNormalization <- function(input, output, session, dataIn, screen.id, settings=NULL){
   ns <- session$ns
   
   ##### definition of RV for navigation process
@@ -62,15 +62,15 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
   
   resetModuleNormalization <- reactive({  
     ## update widgets values (reactive values)
-    resetModuleProcess("Normalization")
-    rv.normalization$widgets = list(method = "None",
-                                    type = "None",
-                                    varReduction = FALSE,
-                                    quantile = 0.15,
-                                    spanLOESS = 0.7,
-                                    normalizationFamily = NULL,
-                                    normalizationMethod = NULL 
-    )
+    #resetModuleProcess("Normalization")
+    
+    rv.normalization$widgets$method <- "None"
+    rv.normalization$widgets$type = "None"
+    rv.normalization$widgets$varReduction = FALSE
+    rv.normalization$widgets$quantile = 0.15
+    rv.normalization$widgets$spanLOESS = 0.7
+    rv.normalization$widgets$normalizationFamily = NULL
+    rv.normalization$widgets$normalizationMethod = NULL 
     
     ## update widgets in UI
     #updateSelectInput(session, "normalization.method", selected = rv.normalization$widgets$method)
