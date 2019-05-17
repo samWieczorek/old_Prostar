@@ -52,14 +52,24 @@ server <- function(input, output, session){
   source(file.path(".", "commonFunc.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleSettings.R"), local = TRUE)$value
   source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
+  source(file.path(".", "modules/modulePipeline.R"),  local = TRUE)$value
+  
+  
+  source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
+  source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
+  
+ 
+  
   
   loadLibraries()
   
     rv.prostar <- reactiveValues(
       obj = NULL,
       settings = NULL
-  )
+      )
   
+   
+    
  
  #Set up writing file for log
  logfilename <- tempfile(fileext=".log")
@@ -77,13 +87,6 @@ server <- function(input, output, session){
  callModule(moduleHomepage, "homepage")
  callModule(moduleReleaseNotes, "modReleaseNotes")
 
- # observe({
- #   pipeline$current.dataset
- #   print("##### pipeline$current.dataset  ####")
- #   print(pipeline$current.dataset)
- # })
- # 
- 
   
   ## manual change of current dataset
  observeEvent(input$currentDataset,{
@@ -127,19 +130,6 @@ server <- function(input, output, session){
   })
 
   
-  
-
-
-  # observeEvent(req(pipeline$current.indice),{
-  # 
-  #   print(paste0("Change of current dataset in pipeline :", pipeline$current.indice))
-  #   pipeline$current.msnset <- pipeline$current.datasets[[pipeline$current.indice]]
-  # 
-  # })
-
-
-  
-
 
   
   

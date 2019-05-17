@@ -44,12 +44,11 @@ moduleInfoDataset <-function(input, output, session, obj){
         
         if (NA.count > 0){
           tags$p("As your dataset contains missing values, you should 
-                 impute them prior to proceed",br()," 
-                 to the differential analysis.")
+                 impute them prior to proceed to the differential analysis.")
         },
         if (nb.empty.lines > 0){
           tags$p("As your dataset contains lines with no values, you 
-                 should remove them with the filter",br()," tool
+                 should remove them with the filter tool
                  prior to proceed to the analysis of the data.")
         }
         
