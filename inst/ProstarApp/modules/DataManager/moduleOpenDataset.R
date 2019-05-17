@@ -9,14 +9,6 @@ source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)
 moduleOpenDatasetUI  <- function(id){
   ns <- NS(id)
  
-  # tagList(
-  #   uiOutput(ns('openUI'))
-  # )
-  # 
-  
-   
-  
-  
   navbarMenu("Data manager" ,
              tabPanel("Open MSnset",
                       moduleOpenMSnSetUI(ns("moduleOpenMSnSet"))
@@ -28,7 +20,7 @@ moduleOpenDatasetUI  <- function(id){
              tabPanel("Demo data", 
                       moduleOpenDemoDatasetUI(ns("moduleOpenDemoDataset"))
                       )
-  )
+          )
 
 
 }
@@ -74,16 +66,11 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
 
   observe({
     req(rv.opendataset$obj)
-    print(">>>ConfigureData")
     rv.opendataset$obj <- ConfigureData(rv.opendataset$obj)
-    print(">>> test si calcul de la matrice d'adjacence")
     if (length(rv.opendataset$obj@AdjacencyMat)==0 && (rv.opendataset$obj@pipeline == 'peptide')){
-    print("Calcul de la matrice d'adjacence")
       #rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])
       #pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)
     }
-    print("demo dataset loaded")
-    print(rv.opendataset$obj)
     rv.opendataset$dataOut <- rv.opendataset$obj
   })
   

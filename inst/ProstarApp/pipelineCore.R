@@ -16,6 +16,7 @@ source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
 
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
+
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
@@ -48,9 +49,6 @@ GetCurrentProcess <- reactive({
 
 GetCurrentMSnSet <- reactive({
   req(pipeline$current.obj)
-  print("str du Current MSnSet")
-  
-  print(str(pipeline$current.obj@datasets[[pipeline$current.indice]]))
   pipeline$current.obj@datasets[[pipeline$current.indice]]
   })
 
@@ -109,16 +107,26 @@ observeEvent(req(obj.openDataset()),{
            #LoadModulesUI(path2proteinModules, protein.def)
            BuildPipelineMenu("Pipeline protein", protein.def)
            
-           codeFile <- createWatchCode(protein.def)
-           source(file.path(".", codeFile),  local = TRUE)$value
+           #codeFile <- createWatchCode(protein.def)
+           #source(file.path(".", codeFile),  local = TRUE)$value
+           
+           for (i in protein.def) {
+             print(paste0('source file :', "watchProtein", i, '.R'))
+             source(file.path("WatchProcess",paste0("watchProtein", i, '.R')),  local = TRUE)$value
+           }
          },
          P2p = {
            #pipeline$current.obj@ll.process <- p2p.def
            #LoadModulesUI(path2p2pModules, p2p.def)
            BuildPipelineMenu("Pipeline p2p", p2p.def)
            
-           codeFile <- createWatchCode(p2p.def)
-           source(file.path(".", codeFile),  local = TRUE)$value
+           #codeFile <- createWatchCode(p2p.def)
+           #source(file.path(".", codeFile),  local = TRUE)$value
+           
+           for (i in p2p.def) {
+             print(paste0('source file :', "watchP2p", i, '.R'))
+             source(file.path("WatchProcess",paste0("watchP2p", i, '.R')),  local = TRUE)$value
+           }
          }
   )
   
@@ -146,8 +154,6 @@ LoadModulesUI <- function(path, ll.modules){
 ### en fonction des process à intégrer
 ###
 BuildPipelineMenu <- function(name, def){
-  print("IN Build Pipeline Menu")
-  
   
   RemoveAllPipelineTabs()
   tabs <-lapply(1:length(def), function(i) {
@@ -230,10 +236,7 @@ GetScreenId <- reactive({
 
 
 DeleteDatasetsAfter <- function(txt){
-  print("IN DeleteDatasetsAfter")
   names <- names(pipeline$current.obj@datasets)
-  print(str(pipeline$current.obj@datasets))
-  print(names)
   indice <- which(names == txt)
   if (indice < length(names)) {
     for (i in (indice+1):length(names)){
