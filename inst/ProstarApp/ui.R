@@ -22,7 +22,6 @@ source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
-source(file.path(".", "modules/modulePipeline.R"),  local = TRUE)$value
 
 ######
 source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
@@ -116,22 +115,22 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
 ################################ header ####################################
 header <- dashboardHeader(
   title = "Prostar",
-  # Set height of dashboardHeader
+  titleWidth = 150,
   tags$li(class = "dropdown",
           tags$style(".main-header {max-height: 10px}"),
           tags$style(".main-header .logo {height: 40px;}"),
           tags$style(".sidebar-toggle {height: 30px; padding-top: 1px !important;}"),
-          tags$style(".navbar {min-height:10px !important}")
-  )
-  
+          tags$style(".navbar {min-height:10px !important}"),
+          uiOutput('header'))
 )
 
 
 ################################# sidebar ###################################
 sidebar <- dashboardSidebar(
-   sidebarMenu(
+  width = 150,
+  sidebarMenu(id = 'sidebar_left',
      menuItem("Home" , tabName = "prostar"),
-     menuItem("toto",
+     menuItem("Misc.",
               menuSubItem("Settings",tabName = "settings"),
               menuSubItem("Release notes",tabName = "releaseNotes"),
               menuSubItem("Check for updates",tabName = "checkUpdates")
@@ -155,9 +154,9 @@ body <- dashboardBody(
   tags$style(HTML(".main-sidebar {padding-top: 40px;}")),
   tags$head(tags$style(HTML('
                                 /* logo */
-                            /*.skin-blue .main-header .logo {
-                            background-color: #aabbaa;
-                            }*/
+                            .skin-blue .main-header .logo {
+
+                            }
                             
                             /* logo when hovered */
                             /*.skin-blue .main-header .logo:hover {
@@ -166,7 +165,8 @@ body <- dashboardBody(
                             
                             /* navbar (rest of the header) */
                             .skin-blue .main-header .navbar {
-                            background-color: #ffffff;
+                            background-color: lightgrey;
+                           
                             }
                             
                             /* main sidebar */
@@ -218,8 +218,7 @@ body <- dashboardBody(
     tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
     
     tabItem(tabName = "dataManager",
-            uiOutput('tutu'),
-            modulePeptidePipelineUI("test")
+            uiOutput('btn_launch')
             ),
 
     
@@ -229,9 +228,9 @@ body <- dashboardBody(
     tabItem(tabName = "checkUpdates"),
     
     
-    tabItem(tabName = "links", moduleInsertMarkdownUI('links_MD')),
-    tabItem(tabName = "FAQ", moduleInsertMarkdownUI("FAQ_MD")),
-    tabItem(tabName = "bugReport", moduleBugReportUI('bugreport'))
+    tabItem(tabName = "links", bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
+    tabItem(tabName = "FAQ",bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
+    tabItem(tabName = "bugReport", bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
   )
   
 )

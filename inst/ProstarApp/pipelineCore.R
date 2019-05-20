@@ -20,8 +20,7 @@ source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
-
-source(file.path(".", "modules/modulePipeline.R"),  local = TRUE)$value
+source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
 
 
 
@@ -34,15 +33,47 @@ pipeline <- reactiveValues(
   # object returned by demode, openmode and convertmode
   #object that is used for modules in pipeline
   current.obj = NULL,
-  tempplot = NULL
+  tempplot = NULL,
+  nav2 =NULL
   
 )
 
 
 
+###############################################################################
+
+rvNav <- reactiveValues(
+  Done = NULL,
+  def = list(name = NULL,
+             stepsNames = NULL,
+             isMandatory = NULL,
+             ll.UI = NULL
+             ),
+             rstFunc = reactive({resetNavPipeline()}),
+  params = list(height='40',
+                rectColors = c("lightgrey", "blue", "green"))
+)
+
+resetNavPipeline <- reactive({  
+  
+  rvNav$Done <- NULL
+  rvNav$def <- list(name = NULL,
+             stepsNames = NULL,
+             isMandatory = NULL,
+             ll.UI = NULL
+  )
+  
+})
+
+
+
+################################################################################
+
 obj.openDataset <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
 
-callModule(modulePeptidePipeline, 'test')
+
+
+
 GetCurrentProcess <- reactive({
   req(pipeline$current.obj)
   pipeline$current.obj@ll.process[[pipeline$current.indice]]
@@ -80,22 +111,22 @@ GetCurrentObjName <- reactive({
   })
 
 
+
+output$trtr <- renderUI({
+  tags$p('tyty')
+})
+
 ## Initialization of the pipeline
 observeEvent(req(obj.openDataset()),{
   print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()@pipeline))
   #print(str(obj.demomode()))
+  def <- name <- NULL
+  
   switch(obj.openDataset()@pipeline,
          
          peptide = {
-           # Load UI code for modules
-           #LoadModulesUI(path2peptideModules, peptide.def)
-           #pipeline$current.obj@ll.process <- peptide.def
-           
-           BuildPipelineMenu("Pipeline peptide", peptide.def)
-           
-           # Build and load server code for modules
-           #codeFile <- createWatchCode(peptide.def)
-           
+           def <- peptide.def
+           name <- "Peptide pipeline"
            
            for (i in peptide.def) {
              print(paste0('source file :', "watchPeptide", i, '.R'))
@@ -131,57 +162,38 @@ observeEvent(req(obj.openDataset()),{
          }
   )
   
+  # Load UI code for modules
+  rvNav$Done = rep(FALSE,length(def))
+  rvNav$def = list(name = name,
+                   stepsNames = def,
+                   isMandatory = rep(TRUE,length(def)),
+                   ll.UI = LoadModulesUI(def)
+  )
+  
   pipeline$current.indice <- 1
   pipeline$current.obj <- obj.openDataset()
   
-  BuildDataminingMenu("Data mining")
+  pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
+             isDone = reactive({rvNav$Done}),
+             pages = reactive({rvNav$def}),
+             rstFunc = resetNavPipeline,
+             params = reactive({rvNav$params}))
+  #BuildDataminingMenu("Data mining")
 })
 
 
 
 
 
-LoadModulesUI <- function(path, ll.modules){
-  
-  lapply(ll.modules, function(i) {
-    UIfile <- paste0(path, i, ".R")
-    print(UIfile)
-    source(file.path(".", UIfile), local = environment())
+LoadModulesUI <- function(ll.modules){
+  ll <- lapply(ll.modules, function(i) {
+    UIfunc <- paste0(i, "UI")
+    do.call(UIfunc, list(i))
     })
-}
-
-
-### Construction des menus de pipeline de manière dynamtique
-### en fonction des process à intégrer
-###
-BuildPipelineMenu <- function(name, def){
   
-  RemoveAllPipelineTabs()
-  tabs <-lapply(1:length(def), function(i) {
-    tabPanel(
-      title=def[i], 
-      do.call(paste0(def[i],'UI'), list(def[i]))
-    )
-  })
-  insertTab(inputId = "navPage",
-            do.call(navbarMenu, c(name ,tabs)),
-            target="Help",
-            position="before")
+  return(ll)
 }
 
-
-
-
-
-
-RemoveAllPipelineTabs <- function(){
-  removeTab(inputId = "navPage", target = "Pipeline peptide")
-  removeTab(inputId = "navPage", target = "Pipeline protein")
-  removeTab(inputId = "navPage", target = "Pipeline p2p")
-}
-
-
-RemoveAllDatamingTabs <- reactive({removeTab(inputId = "navPage", target = "Data mining")})
 
 
 
@@ -191,7 +203,6 @@ RemoveAllDatamingTabs <- reactive({removeTab(inputId = "navPage", target = "Data
 ###
 BuildDataminingMenu <- function(name){
   
-  RemoveAllDatamingTabs()
   
   callModule(moduleDescriptiveStats, "moduleDescrStats", 
                                   dataIn=reactive({list(obj = GetCurrentMSnSet(),
@@ -247,13 +258,27 @@ DeleteDatasetsAfter <- function(txt){
 }
 
 
-output$tutu <- renderUI({
+output$header <- renderUI({
+  req(obj.openDataset())
+  tagList(
+    pipeline$nav2()$bars,
+    uiOutput("chooseDataset")
+)
+ 
+})
+    
+    
+output$btn_launch <- renderUI({
   obj.openDataset()
   
-  if (!is.null(obj.openDataset())){return(NULL)}
+  if (!is.null(obj.openDataset())){
+    #moduleNavigationUI("moduleGeneral")
+    #tagList(
+      pipeline$nav2()$screens
+    #)
+  } else {
   moduleOpenDatasetUI("moduleOpenDataset")
-  
-  
+}
 })
 
 

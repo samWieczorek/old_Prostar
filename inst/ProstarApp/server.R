@@ -52,8 +52,7 @@ server <- function(input, output, session){
   source(file.path(".", "commonFunc.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleSettings.R"), local = TRUE)$value
   source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
-  source(file.path(".", "modules/modulePipeline.R"),  local = TRUE)$value
-  
+ 
   
   source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
   source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
@@ -129,9 +128,18 @@ server <- function(input, output, session){
     )
   })
 
-  
 
   
+  observeEvent(input$sidebar_left, {
+    print(input$sidebar_left)
+    switch(input$sidebar_left,
+           FAQ =  toggleModal(session, "modalFAQ"),
+           links = toggleModal(session, "modallinks"),
+           bugReport = toggleModal(session, "modalbugreport")
+
+    )
+  })
+
   
   
   shinyjs::hide(id = "loading_page", anim = FALSE)

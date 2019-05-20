@@ -17,7 +17,28 @@ moduleFilteringUI <- function(id){
 moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=NULL){
   ns <- session$ns
   
+  #Global variables
   def.progress.saveFiltering <- c("Build Parameters list", "Save Parameters list", "Compte adjacency matrix", "Compute connex composants", "Save new dataset")
+  gFiltersList <- c("None" = "None",
+                    "Empty lines" = "EmptyLines",
+                    "Whole matrix" = "wholeMatrix",
+                    "For every condition" = "allCond",
+                    "At least one condition" = "atLeastOneCond")
+  gFilterNone <- gFiltersList[["None"]]
+  gFilterEmptyLines <- gFiltersList[["Empty lines"]]
+  gFilterWholeMat <- gFiltersList[["Whole matrix"]]
+  gFilterAllCond <- gFiltersList[["For every condition"]]
+  gFilterOneCond <- gFiltersList[["At least one condition"]]
+  gFilterTextPrefix <- "Filtered with"
+  
+  GetFilterText <- function(type, seuil){
+    return (
+      paste(gFilterTextPrefix," ",type , " (threshold = ", seuil, " ).", sep=""))
+  }
+  
+  
+  
+  
   
   ###### definition of RV for navigation process
   rvNavProcess <- reactiveValues(
@@ -31,7 +52,9 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
                              screenStep4 = uiOutput(ns("screenFiltering4")),
                              screenStep5 = uiOutput(ns("screenFiltering5"))
                ),
-               rstFunc = reactive({resetModuleFiltering()}))
+               rstFunc = reactive({resetModuleFiltering()})),
+    params = list(height='20',
+                  rectColors = c("lightgrey", "red", "green"))
   )
   
   
@@ -41,7 +64,8 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     callModule(moduleNavigation, "moduleProcess_Filtering", 
                isDone = reactive({rvNavProcess$Done}), 
                pages = reactive({rvNavProcess$def}),
-               rstFunc = resetModuleFiltering)
+               rstFunc = resetModuleFiltering,
+               params = reactive({rvNavProcess$params}))
   })
   
   

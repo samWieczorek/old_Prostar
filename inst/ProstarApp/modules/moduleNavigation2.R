@@ -1,24 +1,8 @@
 
 ###### Module de gestion des interfaces pour les data Process   ######
-moduleNavigationUI <- function(id){
+moduleNavigation2UI <- function(id){
   ns <- NS(id)
   
-  tagList(
-    div(
-      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
-           shinyjs::hidden(actionButton(ns("rstBtn"), "reset", class = PrevNextBtnClass,style='padding:4px; font-size:80%'))),
-      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
-           shinyjs::hidden(actionButton(ns("prevBtn"), "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%'))),
-      div( style="align: center;display:inline-block; vertical-align: top;",
-           uiOutput(ns("checkPanel" ))),
-      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
-           shinyjs::hidden(actionButton(ns("nextBtn"), ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%')))
-      
-    ),
-    hr(),
-    uiOutput(ns("screens"))
-    
-  )
 }
 
 
@@ -27,7 +11,7 @@ moduleNavigationUI <- function(id){
 
 
 
-moduleNavigation <- function(input, output, session, isDone, pages, rstFunc, params){
+moduleNavigation2 <- function(input, output, session, isDone, pages, rstFunc, params){
   ns <- session$ns
   
   current <- reactiveVal(1)
@@ -65,17 +49,6 @@ moduleNavigation <- function(input, output, session, isDone, pages, rstFunc, par
     paste0("     ", text, "     ")
     rows.color <- rows.text <-  rows.cursor <- list()
     rows.text <- list()
-    # for( i in 1:length( color ) ) {
-    #   rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("color: white; background-color:", x,"; height: ",params$height,"px;" ),text[i] ))
-    #   rows.cursor[[i]] <-lapply( colorCurrentPos[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 5px;" ) ))
-    # }
-    # style <- paste0("width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 10px;padding-top: 0px;")
-    # html.table <-  tags$table(style = style,
-    #                           tags$tr( rows.color ),
-    #                           tags$tr( rows.cursor )
-    # )
-    
-    
     for( i in 1:length( color ) ) {
       rows.color[[i]] <- lapply( color[i], function( x ) tags$th(  style=paste0(" background-color:", x,"; height: ",params$height,"px;" ), text[i] ))
       rows.cursor[[i]] <-lapply( colorCurrentPos[i], function( x ) tags$td(  style=paste0("background-color:", x,"; height: 5px;" ) ))
@@ -83,14 +56,12 @@ moduleNavigation <- function(input, output, session, isDone, pages, rstFunc, par
     
     style <- paste0("width: 100%; text-align: center;border-collapse: separate; border-spacing: 10px 0;text-align: center; padding-top: 5px; cellpadding: 10px;")
     html.table <-  tags$table(style = style,
-                              tags$tr( style="color: white; padding-left: 5px; padding-right: 5px; ",
+                              tags$tr( style="color: white; padding-left: 5px; padding-right: 5px;",
                                        rows.color ),
                               tags$tr( style="padding-top: 0px; padding-left: 5px; padding-right: 5px;",
                                        rows.cursor )
     )
-    
-    
-    return(html.table)
+     return(html.table)
     
   }
   
@@ -125,8 +96,21 @@ moduleNavigation <- function(input, output, session, isDone, pages, rstFunc, par
   observeEvent(input$nextBtn,{navPage(1)})
   
   
+  bars <- reactive({
+    div(
+      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+           shinyjs::hidden(actionButton(ns("rstBtn"), "reset", class = PrevNextBtnClass,style='padding:4px; font-size:80%'))),
+      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+           shinyjs::hidden(actionButton(ns("prevBtn"), "<<", class = PrevNextBtnClass,style='padding:4px; font-size:80%'))),
+      div( style="align: center;display:inline-block; vertical-align: top;",
+           uiOutput(ns("checkPanel" ))),
+      div( style="align: center;display:inline-block; vertical-align: top; padding: 7px",
+           shinyjs::hidden(actionButton(ns("nextBtn"), ">>", class = PrevNextBtnClass, style='padding:4px; font-size:80%')))
+      
+    )
+  })
   
-  output$screens <- renderUI({
+  screens <- reactive({
     isolate({
       ll <- NULL
       #isolate({
@@ -153,6 +137,9 @@ moduleNavigation <- function(input, output, session, isDone, pages, rstFunc, par
     }
   })
   
+  
+  return(reactive(list(bars=bars(),
+                  screens=screens())))
 }
 
 

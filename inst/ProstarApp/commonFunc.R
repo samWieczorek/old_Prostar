@@ -84,24 +84,6 @@ shinyValue <- function(id,num) {
 
 
 
-buildTable <- function(text, color, colorCurrentPos){
-  paste0("     ", text, "     ")
-  rows.color <- rows.text <-  rows.cursor <- list()
-  rows.text <- list()
-  for( i in 1:length( color ) ) {
-    rows.color[[i]] <-lapply( color[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 20px;" ) ))
-    rows.cursor[[i]] <-lapply( colorCurrentPos[i], function( x ) tags$th(  style=paste0("background-color:", x,"; height: 5px;" ) ))
-    rows.text[[i]] <- lapply( text[i], function( x ) tags$td( x ) ) 
-  }
-  
-  html.table <-  tags$table(style = "width: 100%; text-align: center;border: 1;border-collapse: separate;border-spacing: 10px;padding-top: 0px;",
-                            tags$tr( rows.color ),
-                            tags$tr( rows.cursor ),
-                            tags$tr( rows.text )
-  )
-  return(html.table)
-  
-}
 
 
 
