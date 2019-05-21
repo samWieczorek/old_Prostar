@@ -113,23 +113,41 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
 
 
 ################################ header ####################################
-header <- dashboardHeader(
+header <- dashboardHeaderPlus(
+  fixed = TRUE,
   title = "Prostar",
   titleWidth = 150,
+  enable_rightsidebar = TRUE,
+  rightSidebarIcon = "gears",
   tags$li(class = "dropdown",
           tags$style(".main-header {max-height: 10px}"),
           tags$style(".main-header .logo {height: 40px;}"),
           tags$style(".sidebar-toggle {height: 30px; padding-top: 1px !important;}"),
-          tags$style(".navbar {min-height:10px !important}"),
-          uiOutput('header'))
+          tags$style(".navbar {min-height:10px !important}")
+  ),
+  left_menu = tagList(
+    uiOutput('header')
+  )
+
 )
 
+
+rightsidebar <- rightSidebar(
+  #background = "grey",
+  rightSidebarTabContent(
+    id = 1,
+    title = "Descr. stats",
+    icon = "desktop",
+    active = TRUE
+    #modulePlotsUI('showPlots')
+  )
+)
 
 ################################# sidebar ###################################
 sidebar <- dashboardSidebar(
   width = 150,
   sidebarMenu(id = 'sidebar_left',
-     menuItem("Home" , tabName = "prostar"),
+     menuItem("Home" , tabName = "prostar", selected = T),
      menuItem("Misc.",
               menuSubItem("Settings",tabName = "settings"),
               menuSubItem("Release notes",tabName = "releaseNotes"),
@@ -212,6 +230,8 @@ body <- dashboardBody(
   includeCSS("www/progressBar/progressBar.css"),
   tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
                             sass_options(output_style = "expanded")))),
+  tags$head(includeCSS("www/css/css-progress-wizard/css/progress-wizard.min.css")),
+  tags$head(includeCSS('http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css')),
   titlePanel("", windowTitle = "Prostar"),
   
   tabItems(
@@ -238,12 +258,13 @@ body <- dashboardBody(
 
 
 # Put them together into a dashboardPage
-ui <- dashboardPage(
+ui <- dashboardPagePlus(
   
   
   
   # skin = "black",
   header,
   sidebar,
-  body
+  body,
+  rightsidebar
 )

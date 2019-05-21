@@ -10,7 +10,10 @@ source(file.path(".", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$valu
 moduleFilteringUI <- function(id){
   ns <- NS(id)
   tagList(
-    moduleNavigationUI(ns("moduleProcess_Filtering"))
+    br(),br(),br(),uiOutput(ns('bars')),
+    hr(),
+    uiOutput(ns('screens'))
+    #moduleNavigationUI(ns("moduleProcess_Filtering"))
   )
 }
 
@@ -52,20 +55,18 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
                              screenStep4 = uiOutput(ns("screenFiltering4")),
                              screenStep5 = uiOutput(ns("screenFiltering5"))
                ),
-               rstFunc = reactive({resetModuleFiltering()})),
-    params = list(height='20',
-                  rectColors = c("lightgrey", "red", "green"))
+               rstFunc = reactive({resetModuleFiltering()}))
   )
   
   
   
   ### appel du module de navigation
   observe({
-    callModule(moduleNavigation, "moduleProcess_Filtering", 
+    rv.filtering$nav2 <- callModule(moduleNavigation2, "moduleProcess_Filtering", 
                isDone = reactive({rvNavProcess$Done}), 
                pages = reactive({rvNavProcess$def}),
                rstFunc = resetModuleFiltering,
-               params = reactive({rvNavProcess$params}))
+               type = reactive({'bubble'}))
   })
   
   
@@ -73,7 +74,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   rv.filtering <- reactiveValues(
     ## temporary current data in module
     obj =  NULL,
-    
+    nav2 = NULL,
     ## return result of the module
     dataOut = NULL, 
     name = "processFiltering",
@@ -126,6 +127,15 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     rv.filtering$obj <- dataIn()
   })
   
+  
+  output$bars <- renderUI({
+    rv.filtering$nav2()$bars
+  })
+  
+  
+  output$screens <- renderUI({
+    rv.filtering$nav2()$screens
+  })
   
   ################# END of definitino part   #############################
   #######################################################################

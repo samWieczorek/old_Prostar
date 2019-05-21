@@ -99,37 +99,6 @@ server <- function(input, output, session){
   })
 
 
-  output$chooseDataset <- renderUI({
-
-    req(pipeline$current.obj)
-    req(pipeline$current.indice)
-    print("IN output$chooseDataset <- renderUI")
-    print(paste0("value for current.indice : ", pipeline$current.indice))
-    absolutePanel(
-      id  = "#AbsolutePanel",
-      top = -10, right = 50, width = "500px",height = "50px",
-      draggable = FALSE,fixed = TRUE,
-      cursor = "default",
-    tagList(
-      div(
-        div(
-          style="display:inline-block; vertical-align: middle; margin:0px",
-          p('Current dataset', style='color: white')
-        ),
-        div(
-        style="display:inline-block; vertical-align: middle; margin:0px",
-        selectInput('currentDataset', '',
-                    choices = names(pipeline$current.obj@datasets[!sapply(pipeline$current.obj@datasets,is.null)]),
-                    selected = names(pipeline$current.obj@datasets)[pipeline$current.indice],
-                    width='150px')
-        )
-      )
-    )
-    )
-  })
-
-
-  
   observeEvent(input$sidebar_left, {
     print(input$sidebar_left)
     switch(input$sidebar_left,

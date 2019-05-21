@@ -11,11 +11,10 @@ moduleNavigation2UI <- function(id){
 
 
 
-moduleNavigation2 <- function(input, output, session, isDone, pages, rstFunc, params){
+moduleNavigation2 <- function(input, output, session, isDone, pages, rstFunc, type){
   ns <- session$ns
   
   current <- reactiveVal(1)
-  print(pages()$stepsNames)
   nbSteps <- length(pages()$stepsNames)
   
   ##--------------------------------------------------------------
@@ -24,48 +23,54 @@ moduleNavigation2 <- function(input, output, session, isDone, pages, rstFunc, pa
   
   
   output$checkPanel <- renderUI({
-    params()
+    status <- isDone()
+    #buildTable(pages()$stepsNames, color,colorForCursor, params())
+  
     
-    rectColors <- params()$rectColors
-    color <- rep(rectColors[1],nbSteps)
-    colorForCursor <- rep("white",nbSteps)
+    steps <- pages()$stepsNames
+    status[which(status==1)] <- 'completed'
+    status[current()] <- 'active'
+    status[which(status==0)] <- 'undone'
     
-    
-    for (i in 1:nbSteps){
-      status <- isDone()[i]
-      col <- ifelse(pages()$isMandatory[i], rectColors[2], orangeProstar)
-      ifelse(status, color[i] <- rectColors[3], color[i] <- col)
+    if (type() == 'bubble') {
+      txt <- "<ul class=\'progress-indicator\'>"
+    } else if (type() == 'rectangle'){
+      txt <- "<ul class=\'progress-indicator custom-complex\'>"
     }
     
-    colorForCursor[current()] <- "black"
-    print(color)
-    buildTable(pages()$stepsNames, color,colorForCursor, params())
+    for( i in 1:length(steps) ) {
+      txt <- paste0(txt, "<li class='",status[i], "'> <span class=\'bubble\'> </span>", steps[i], "</li>")
+    }
+    txt <- paste0(txt,"</ul>")
     
+    return(HTML(txt))
   })
   
+
   
-  
-  buildTable <- function(text, color, colorCurrentPos, params){
-    paste0("     ", text, "     ")
-    rows.color <- rows.text <-  rows.cursor <- list()
-    rows.text <- list()
-    for( i in 1:length( color ) ) {
-      rows.color[[i]] <- lapply( color[i], function( x ) tags$th(  style=paste0(" background-color:", x,"; height: ",params$height,"px;" ), text[i] ))
-      rows.cursor[[i]] <-lapply( colorCurrentPos[i], function( x ) tags$td(  style=paste0("background-color:", x,"; height: 5px;" ) ))
-    }
-    
-    style <- paste0("width: 100%; text-align: center;border-collapse: separate; border-spacing: 10px 0;text-align: center; padding-top: 5px; cellpadding: 10px;")
-    html.table <-  tags$table(style = style,
-                              tags$tr( style="color: white; padding-left: 5px; padding-right: 5px;",
-                                       rows.color ),
-                              tags$tr( style="padding-top: 0px; padding-left: 5px; padding-right: 5px;",
-                                       rows.cursor )
-    )
-     return(html.table)
-    
-  }
-  
-  
+  # buildTable <- function(text, color, colorCurrentPos, params){
+  #   paste0("     ", text, "     ")
+  #   rows.color <- rows.text <-  rows.cursor <- list()
+  #   rows.text <- list()
+  #   for( i in 1:length( color ) ) {
+  #     rows.color[[i]] <- lapply( color[i], function( x ) tags$th(  style=paste0("border-radius: 10px; background-color:", x,"; height: ",params$height,"px;" ), text[i] ))
+  #     #rows.cursor[[i]] <-lapply( colorCurrentPos[i], function( x ) tags$td(  style=paste0("background-color:", x,"; height: 5px;" ) ))
+  #   }
+  #   
+  #   style <- paste0("width: 100%; text-align: center;border-collapse: separate; border-spacing: 10px 0;text-align: center; padding-top: 5px; cellpadding: 10px;")
+  #   html.table <-  tags$table(style = style,
+  #                             tags$tr( style=" color: white; padding-left: 5px; padding-right: 5px;",
+  #                                      rows.color )
+  #                             #tags$tr( style="padding-top: 0px; padding-left: 5px; padding-right: 5px;",
+  #                             #         rows.cursor )
+  #   )
+  #   
+  #   print(html.table)
+  #    return(html.table)
+  #   
+  # }
+  # 
+  # 
   
   observeEvent(input$rstBtn,{
     current(1)

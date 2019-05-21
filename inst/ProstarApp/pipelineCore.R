@@ -49,9 +49,7 @@ rvNav <- reactiveValues(
              isMandatory = NULL,
              ll.UI = NULL
              ),
-             rstFunc = reactive({resetNavPipeline()}),
-  params = list(height='40',
-                rectColors = c("lightgrey", "blue", "green"))
+             rstFunc = reactive({resetNavPipeline()})
 )
 
 resetNavPipeline <- reactive({  
@@ -177,7 +175,7 @@ observeEvent(req(obj.openDataset()),{
              isDone = reactive({rvNav$Done}),
              pages = reactive({rvNav$def}),
              rstFunc = resetNavPipeline,
-             params = reactive({rvNav$params}))
+             type = reactive({'rectangle'}))
   #BuildDataminingMenu("Data mining")
 })
 
@@ -260,10 +258,29 @@ DeleteDatasetsAfter <- function(txt){
 
 output$header <- renderUI({
   req(obj.openDataset())
+  req(pipeline$current.obj)
+  req(pipeline$current.indice)
+  
+  
   tagList(
-    pipeline$nav2()$bars,
-    uiOutput("chooseDataset")
-)
+    div(
+      div(
+        style="display:inline-block; vertical-align: middle; margin:0px",
+        pipeline$nav2()$bars
+      ),
+      div(
+        style="display:inline-block; vertical-align: middle; margin:0px",
+        p('Current dataset', style='color: white')
+      ),
+      div(
+        style="display:inline-block; vertical-align: middle; margin:0px",
+        selectInput('currentDataset', '',
+                    choices = names(pipeline$current.obj@datasets[!sapply(pipeline$current.obj@datasets,is.null)]),
+                    selected = names(pipeline$current.obj@datasets)[pipeline$current.indice],
+                    width='150px')
+      )
+    )
+  )
  
 })
     
