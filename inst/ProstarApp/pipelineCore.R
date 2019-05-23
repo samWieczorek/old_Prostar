@@ -127,7 +127,6 @@ observeEvent(req(obj.openDataset()),{
            name <- "Peptide pipeline"
            
            for (i in peptide.def) {
-             print(paste0('source file :', "watchPeptide", i, '.R'))
              source(file.path("WatchProcess",paste0("watchPeptide", i, '.R')),  local = TRUE)$value
            }
            

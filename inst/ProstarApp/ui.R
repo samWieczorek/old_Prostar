@@ -1,6 +1,6 @@
 library(shiny)
 library(shinydashboard)
-
+library(shinydashboardPlus)
 library(shinyjs)
 library(shinyjqui)
 library(sass)

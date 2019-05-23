@@ -10,7 +10,8 @@ source(file.path(".", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$valu
 moduleFilteringUI <- function(id){
   ns <- NS(id)
   tagList(
-    br(),br(),br(),uiOutput(ns('bars')),
+    br(),br(),br(),
+    uiOutput(ns('bars')),
     hr(),
     uiOutput(ns('screens'))
     #moduleNavigationUI(ns("moduleProcess_Filtering"))
