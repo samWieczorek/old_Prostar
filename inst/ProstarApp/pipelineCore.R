@@ -56,10 +56,10 @@ resetNavPipeline <- reactive({
   
   rvNav$Done <- NULL
   rvNav$def <- list(name = NULL,
-             stepsNames = NULL,
-             isMandatory = NULL,
-             ll.UI = NULL
-  )
+                    stepsNames = NULL,
+                    isMandatory = NULL,
+                    ll.UI = NULL
+                  )
   
 })
 
@@ -110,58 +110,21 @@ GetCurrentObjName <- reactive({
 
 
 
-output$trtr <- renderUI({
-  tags$p('tyty')
-})
-
 ## Initialization of the pipeline
 observeEvent(req(obj.openDataset()),{
   print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()@pipeline))
   #print(str(obj.demomode()))
   def <- name <- NULL
-  
-  switch(obj.openDataset()@pipeline,
-         
-         peptide = {
-           def <- peptide.def
-           name <- "Peptide pipeline"
-           
-           for (i in peptide.def) {
-             source(file.path("WatchProcess",paste0("watchPeptide", i, '.R')),  local = TRUE)$value
-           }
-           
-           },
-         Protein = {
-           #pipeline$current.obj@ll.process <- protein.def
-           #LoadModulesUI(path2proteinModules, protein.def)
-           BuildPipelineMenu("Pipeline protein", protein.def)
-           
-           #codeFile <- createWatchCode(protein.def)
-           #source(file.path(".", codeFile),  local = TRUE)$value
-           
-           for (i in protein.def) {
-             print(paste0('source file :', "watchProtein", i, '.R'))
-             source(file.path("WatchProcess",paste0("watchProtein", i, '.R')),  local = TRUE)$value
-           }
-         },
-         P2p = {
-           #pipeline$current.obj@ll.process <- p2p.def
-           #LoadModulesUI(path2p2pModules, p2p.def)
-           BuildPipelineMenu("Pipeline p2p", p2p.def)
-           
-           #codeFile <- createWatchCode(p2p.def)
-           #source(file.path(".", codeFile),  local = TRUE)$value
-           
-           for (i in p2p.def) {
-             print(paste0('source file :', "watchP2p", i, '.R'))
-             source(file.path("WatchProcess",paste0("watchP2p", i, '.R')),  local = TRUE)$value
-           }
-         }
-  )
+  type.pipeline <- obj.openDataset()@pipeline
+  def <- pipeline.def[[type.pipeline]]
+  for (i in def) {
+        source(file.path("WatchProcess",paste0("watch_",type.pipeline, "_", i, '.R')),  local = TRUE)$value
+       }
+   
   
   # Load UI code for modules
   rvNav$Done = rep(FALSE,length(def))
-  rvNav$def = list(name = name,
+  rvNav$def = list(name = type.pipeline,
                    stepsNames = def,
                    isMandatory = rep(TRUE,length(def)),
                    ll.UI = LoadModulesUI(def)
@@ -171,10 +134,11 @@ observeEvent(req(obj.openDataset()),{
   pipeline$current.obj <- obj.openDataset()
   
   pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
-             isDone = reactive({rvNav$Done}),
-             pages = reactive({rvNav$def}),
-             rstFunc = resetNavPipeline,
-             type = reactive({'rectangle'}))
+                              isDone = reactive({rvNav$Done}),
+                              pages = reactive({rvNav$def}),
+                              rstFunc = resetNavPipeline,
+                              type = reactive({'rectangle'})
+                              )
   #BuildDataminingMenu("Data mining")
 })
 
@@ -276,7 +240,7 @@ output$header <- renderUI({
         selectInput('currentDataset', '',
                     choices = names(pipeline$current.obj@datasets[!sapply(pipeline$current.obj@datasets,is.null)]),
                     selected = names(pipeline$current.obj@datasets)[pipeline$current.indice],
-                    width='150px')
+                    width='200px')
       )
     )
   )

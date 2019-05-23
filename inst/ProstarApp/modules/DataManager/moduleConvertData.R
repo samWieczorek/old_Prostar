@@ -708,16 +708,16 @@ observeEvent(input$createMSnsetButton,{
       switch(input$typeOfData,
              peptide = {
                rv.convert$obj <- pepPipeline()
-               ll.process <- peptide.def
+               ll.process <- pipeline.def$peptide
              },
              protein = {
                rv.convert$obj <- protPipeline()
-               ll.process <- protein.def
+               ll.process <- pipeline.def$protein
                
              }, 
              p2p = {
                rv.convert$obj <- p2pPipeline()
-               ll.process <- p2p.def
+               ll.process <- pipeline.def$p2p
                
              }
       )

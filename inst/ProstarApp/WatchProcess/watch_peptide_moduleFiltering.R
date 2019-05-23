@@ -14,8 +14,7 @@ WatchmoduleFiltering <- callModule(module=moduleFiltering,'moduleFiltering',
 
 
 observeEvent(req(WatchmoduleFiltering()),{
-  print("######## observeEvent(req(WatchmoduleFiltering())  ########")
-  print(str(WatchmoduleFiltering()))
+  
   pipeline$current.obj@datasets$moduleFiltering <- WatchmoduleFiltering()$obj
   pipeline$current.obj@AdjacencyMat <- WatchmoduleFiltering()$AdjacencyMat
   pipeline$current.obj@ConnexComp <- WatchmoduleFiltering()$ConnexComp
@@ -23,8 +22,9 @@ observeEvent(req(WatchmoduleFiltering()),{
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
   pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleFiltering')
-  print(paste0("pipeline$current.indice = ", pipeline$current.indice))
   DeleteDatasetsAfter('moduleFiltering')
+  rvNav$Done[pipeline$current.indice-1] <- TRUE
+  
 })
 
 ######################################

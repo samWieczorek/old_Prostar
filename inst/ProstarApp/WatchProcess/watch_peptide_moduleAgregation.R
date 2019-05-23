@@ -20,6 +20,7 @@ observeEvent(req(WatchmoduleAgregation()),{
   pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleAgregation')
   
   DeleteDatasetsAfter('moduleAgregation')
+  rvNav$Done[pipeline$current.indice-1] <- TRUE
 })
 
 ######################################

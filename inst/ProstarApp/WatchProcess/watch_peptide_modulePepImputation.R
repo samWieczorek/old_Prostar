@@ -21,6 +21,7 @@ observeEvent(req(WatchmodulePepImputation()),{
   ## (fichier pipelineDefinition.R)
   pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'modulePepImputation')
   DeleteDatasetsAfter('modulePepImputation')
+  rvNav$Done[pipeline$current.indice-1] <- TRUE
 })
 
 ######################################

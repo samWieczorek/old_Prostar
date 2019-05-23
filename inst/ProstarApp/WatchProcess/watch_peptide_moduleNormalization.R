@@ -22,6 +22,7 @@ observeEvent(req(WatchmoduleNormalization()),{
   ## (fichier pipelineDefinition.R)
   pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleNormalization')
   DeleteDatasetsAfter('moduleNormalization')
+  rvNav$Done[pipeline$current.indice-1] <- TRUE
 })
 
 ######################################

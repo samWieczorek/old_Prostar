@@ -234,6 +234,7 @@ body <- dashboardBody(
   tags$head(includeCSS('http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css')),
   titlePanel("", windowTitle = "Prostar"),
   
+  modulePlotsUI('showPlots'),
   tabItems(
     tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
     

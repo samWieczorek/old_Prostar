@@ -100,18 +100,18 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
           switch(typeOfData,
                  peptide = {
                    rv.openDemo$current.obj <- pepPipeline()
-                   ll.process <- peptide.def
+                   ll.process <- pipeline.def$peptide
                    type <- 'peptide'
                    },
                  protein = {
                    rv.openDemo$current.obj <- protPipeline()
-                   ll.process <- protein.def
+                   ll.process <- pipeline.def$protein
                    type <- 'protein'
                    
                  }, 
                  p2p = {
                    rv.openDemo$current.obj <- p2pPipeline()
-                   ll.process <- p2p.def
+                   ll.process <- pipeline.def$p2p
                    type <- 'p2p'
                    
                  }

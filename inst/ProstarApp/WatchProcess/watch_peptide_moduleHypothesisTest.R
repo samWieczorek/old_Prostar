@@ -21,6 +21,7 @@ observeEvent(req(WatchmoduleHypothesisTest()),{
   pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleHypothesisTest')
   
   DeleteDatasetsAfter('moduleHypothesisTest')
+  rvNav$Done[pipeline$current.indice-1] <- TRUE
 })
 
 ######################################
