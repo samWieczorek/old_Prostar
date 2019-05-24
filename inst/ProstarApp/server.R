@@ -111,9 +111,8 @@ server <- function(input, output, session){
 
   
   
-  shinyjs::hide(id = "loading_page", anim = FALSE)
+  #shinyjs::hide(id = "loading_page", anim = FALSE)
   
-  shinyjs::show("main_content", anim = TRUE, animType = "fade")
+  #shinyjs::show("main_content", anim = TRUE, animType = "fade")
   
-
    }
