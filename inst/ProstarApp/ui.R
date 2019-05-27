@@ -73,6 +73,7 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
                          menuSubItem("Check for updates",tabName = "checkUpdates")
                         ),
                 menuItem("Data manager", tabName = "dataManager"),
+                menuItemOutput("menuItem_dataAnalysis"),
                 menuItem("Help" , tabname = "my_table",
                          menuSubItem("Useful links",tabName = "links"),
                          menuSubItem("FAQ",tabName = "FAQ"),
@@ -183,8 +184,13 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
               tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
     
               tabItem(tabName = "dataManager",
+                      moduleOpenDatasetUI("moduleOpenDataset"),
                     uiOutput('btn_launch')
                     ),
+              tabItem(tabName = "dataAnalysis",
+                      h3('data analysis'),
+                      uiOutput('UI_dataAnalysis')
+              ),
               tabItem(tabName = "settings", moduleSettingsUI("modSettings")),
     
               tabItem(tabName = "releaseNotes", moduleReleaseNotesUI("modReleaseNotes")),

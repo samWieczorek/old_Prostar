@@ -248,16 +248,37 @@ output$header <- renderUI({
 })
     
     
+
+output$UI_dataAnalysis <- renderUI({
+  obj.openDataset()
+  
+  if (!is.null(obj.openDataset()) && !is.null(pipeline$nav2())){
+   pipeline$nav2()$screens
+   }
+  
+})
+
+
+
+output$menuItem_dataAnalysis <- renderMenu({
+  if (!is.null(obj.openDataset()) && !is.null(pipeline$nav2())){
+    
+  menuItem("Data analysis", tabName = "dataAnalysis")
+  }
+})
+
+
 output$btn_launch <- renderUI({
   obj.openDataset()
   
   if (!is.null(obj.openDataset())){
-    #moduleNavigationUI("moduleGeneral")
-    #tagList(
-      pipeline$nav2()$screens
-    #)
+
+    updateTabItems(session, "sidebar_left", 'dataAnalysis')
+    
+    
+
   } else {
-  moduleOpenDatasetUI("moduleOpenDataset")
+  #moduleOpenDatasetUI("moduleOpenDataset")
 }
 })
 
