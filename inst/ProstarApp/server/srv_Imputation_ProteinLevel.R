@@ -111,7 +111,6 @@ output$proteinLevelImputationPanel <- renderUI({
 
 
 output$POV_imputation <- renderUI({
-  #if (rv$pageProtImput != 1){return()}
   
   tagList(
     tags$div(
@@ -139,9 +138,6 @@ output$POV_imputation <- renderUI({
 
 
 output$MEC_imputation <- renderUI({
- # if (rv$pageProtImput != 2){return()}
-  
- 
   tagList(
     uiOutput("warningMECImputation"),
     tags$div(
@@ -387,7 +383,7 @@ observeEvent(input$perform.imputationMEC.button,{
            }
     )
     
-    incProgress(1, detail = 'Finalize MEC impuutation')
+    incProgress(1, detail = 'Finalize MEC imputation')
     rv$impute_Step <- 2
     rv$imputePlotsSteps[["step2"]] <- rv$current.obj
     })
