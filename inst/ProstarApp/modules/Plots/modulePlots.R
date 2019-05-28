@@ -31,7 +31,7 @@ modulePlots <- function(input, output, session, dataIn, llPlots, settings){
     panelheight = 60*length(llPlots())
       absolutePanel(
         id  = "#AbsolutePanelPlots",
-        style= "text-align: center; color: grey; border-width:0px;",
+        style= "text-align: center; color: grey; border-width:0px; z-index: 10;",
         top = 350, right = 50, width = "70px",height = paste0(as.character(panelheight), "px"),
         draggable = TRUE,fixed = TRUE,
         cursor = "default",
