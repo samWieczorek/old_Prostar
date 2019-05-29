@@ -2,7 +2,7 @@ tabPanel("FAQ",
          value="faqTab",
         # htmlOutput("FAQ_output")
         # includeMarkdown("server/FAQ.md")
-        #uiOutput("test")
+        #uiOutput("testA")
         moduleInsertMarkdownUI("FAQ_MD")
         
           

@@ -672,7 +672,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
 
 
 moduleInsertMarkdown <- function(input, output, session,url){
-  
+   ns <- session$ns
   output$insertMD <- renderUI({
     print(url)
     tryCatch(
@@ -683,7 +683,7 @@ moduleInsertMarkdown <- function(input, output, session,url){
         tags$p("URL not found<br>",conditionMessage(w))
         #shinyjs::info(paste("URL not found",":",conditionMessage(w), sep=" "))
       }, error = function(e) {
-        shinyjs::info(paste("Error :","CreateMSnSet",":", conditionMessage(e), sep=" "))
+        shinyjs::info(paste("Error :","in moduleInsertMarkdown",":", conditionMessage(e), sep=" "))
       }, finally = {
         #cleanup-code 
       })

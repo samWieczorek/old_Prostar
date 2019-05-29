@@ -38,7 +38,7 @@ plan(multiprocess)
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 
 
-base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
+base_URL <- "http://www.prostar-proteomics.org/md/"
 
 #base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")

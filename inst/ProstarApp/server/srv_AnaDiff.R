@@ -839,23 +839,7 @@ output$equivLog10 <- renderText ({
 GetSelectedItems <- reactive({
   req(rv$resAnaDiff)
   input$downloadAnaDiff
-print(input$downloadAnaDiff)
-  # t <- NULL
-  # upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
-  # upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
-  # 
-  # if (input$downloadAnaDiff == "All"){
-  #   selectedItems <- 1:nrow(rv$current.obj)
-  #   significant <- rep(0, nrow(rv$current.obj))
-  #   significant[intersect(upItems1, upItems2)] <- 1
-  # } else {
-  #   selectedItems <- intersect(upItems1, upItems2)
-  #   significant <- rep(1, length(selectedItems))
-  # }
-  # 
-  # 
 
-  
   t <- NULL
   upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC))
@@ -873,7 +857,7 @@ print(input$downloadAnaDiff)
 
   t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
-                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),
+                  P_Value = rv$resAnaDiff$P_Value[selectedItems],
                   isDifferential = significant)
   tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems,input$tooltipInfo])
   names(tmp) <-input$tooltipInfo
