@@ -1,9 +1,18 @@
 require(imp4p)
 
 
-callModule(moduleMVPlots,"mvImputationPlots_MV", data=reactive(rv$imputePlotsSteps[["step0"]]))
-callModule(moduleMVPlots,"mvImputationPlots_MEC", data=reactive(rv$imputePlotsSteps[["step1"]]))
-callModule(moduleMVPlots,"mvImputationPlots_Valid", data=reactive(rv$imputePlotsSteps[["step2"]]))
+callModule(moduleMVPlots,"mvImputationPlots_MV", 
+           data=reactive(rv$imputePlotsSteps[["step0"]]),
+           title = reactive("POV distribution"),
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
+callModule(moduleMVPlots,"mvImputationPlots_MEC", 
+           data=reactive(rv$imputePlotsSteps[["step1"]]),
+           title = reactive("Distribution after POV imputation"),
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
+callModule(moduleMVPlots,"mvImputationPlots_Valid", 
+           data=reactive(rv$imputePlotsSteps[["step2"]]),
+           title = reactive("Distribution after POV and MEC imputation"),
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
            reactive({input$POV_detQuant_quantile}), 
