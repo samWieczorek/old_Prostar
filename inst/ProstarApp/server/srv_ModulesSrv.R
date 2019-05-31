@@ -461,7 +461,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data) {
+missingValuesPlots <- function(input, output, session, data, title, palette) {
     
     output$histo_MV <- renderHighchart({
      data()
@@ -469,7 +469,7 @@ missingValuesPlots <- function(input, output, session, data) {
       tmp <- NULL
       #isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot1")
-        tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
+        tmp <- wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
         #future(createPNGFromWidget(tmp,pattern))
       #  })
       tmp

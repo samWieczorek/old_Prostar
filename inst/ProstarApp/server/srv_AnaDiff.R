@@ -801,7 +801,7 @@ GetSelectedItems <- reactive({
   
     t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
-                  P_Value = round(rv$resAnaDiff$P_Value[selectedItems], digits=rv$settings_nDigits),
+                  P_Value = rv$resAnaDiff$P_Value[selectedItems],
                   isDifferential = significant)
   tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems,input$tooltipInfo])
   names(tmp) <-input$tooltipInfo
