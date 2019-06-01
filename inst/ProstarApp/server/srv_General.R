@@ -198,7 +198,11 @@ observeEvent( input$datasets,ignoreInit = TRUE,{
     isolate({
         if (!is.null(input$datasets)) {
             rv$current.obj <- rv$dataset[[input$datasets]]
-
+        
+        if (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData){
+          BuildNavbarPage()
+        }
+            
         if (!is.null( rv$current.obj))
             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
         }
