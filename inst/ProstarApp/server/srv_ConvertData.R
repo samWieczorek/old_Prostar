@@ -271,6 +271,8 @@ output$convertChooseProteinID_UI <- renderUI({
 })
 
 
+
+
 #########################################################
 output$id <- renderUI({
   req(rv$tab1)
