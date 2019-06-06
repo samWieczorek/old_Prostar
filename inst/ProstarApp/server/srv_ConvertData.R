@@ -80,9 +80,7 @@ tags$div(
             uiOutput("warningNonUniqueID")
   ),
   tags$div( style="display:inline-block; vertical-align: top;",
-            uiOutput("convertChooseProteinID_UI")
-  ),
-  tags$div( style="display:inline-block; vertical-align: top;",
+            uiOutput("convertChooseProteinID_UI"),
             uiOutput("previewProteinID_UI")
   )
 )
@@ -237,22 +235,21 @@ output$previewProteinID_UI <- renderUI({
   req(input$convert_proteinId)
   if (input$convert_proteinId == "") {return (NULL)}
   
-  verbatimTextOutput("previewProtID")
+  tagList(
+    p(style="color: black;", 'Preview'),
+    tableOutput("previewProtID")
+  )
   # tags$head(tags$style("#previewProtID{color:red; font-size:12px; font-style:italic; 
-  #                      overflow-y:scroll; max-height: 50px; background: ghostwhite;}"))
+  #                      overflow-y:scroll; width: 100px; max-height: 200px; background: ghostwhite;}"))
   
   })
 
 
 
-output$previewProtID <- renderText({
-  # req(rv$tab1)
-  # req(input$convert_proteinId)
-  # 
-  # print(head(rv$tab1[,input$convert_proteinId]))
-   rv$tab1[,input$convert_proteinId]
-  
-})
+output$previewProtID <- renderTable(
+  head(rv$tab1[,input$convert_proteinId]),
+ colnames = FALSE
+)
 
 
 #########################################################
