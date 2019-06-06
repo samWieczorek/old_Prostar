@@ -111,7 +111,10 @@ modulePepImputation <- function(input, output, session, dataIn, screen.id, setti
   
   
   ############## Call different secondary modules ####################
-  callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", data=reactive(rv.pepImputation$obj))
+  callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", 
+             data=reactive(rv.pepImputation$obj),
+             title = reactive("POV distribution"),
+             palette =reactive(unique(settings()$paletteConditions)))
   
   
   callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT",
