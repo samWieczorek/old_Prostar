@@ -81,6 +81,9 @@ tags$div(
   ),
   tags$div( style="display:inline-block; vertical-align: top;",
             uiOutput("convertChooseProteinID_UI")
+  ),
+  tags$div( style="display:inline-block; vertical-align: top;",
+            uiOutput("previewProteinID_UI")
   )
 )
 )
@@ -225,6 +228,30 @@ output$convertChooseProteinID_UI <- renderUI({
     modulePopoverUI("modulePopover_convertProteinID"),
     selectInput("convert_proteinId","",choices =  .choices , selected = character(0))
   )
+})
+
+
+
+output$previewProteinID_UI <- renderUI({
+  print(input$convert_proteinId)
+  req(input$convert_proteinId)
+  if (input$convert_proteinId == "") {return (NULL)}
+  
+  verbatimTextOutput("previewProtID")
+  # tags$head(tags$style("#previewProtID{color:red; font-size:12px; font-style:italic; 
+  #                      overflow-y:scroll; max-height: 50px; background: ghostwhite;}"))
+  
+  })
+
+
+
+output$previewProtID <- renderText({
+  # req(rv$tab1)
+  # req(input$convert_proteinId)
+  # 
+  # print(head(rv$tab1[,input$convert_proteinId]))
+   rv$tab1[,input$convert_proteinId]
+  
 })
 
 
