@@ -354,7 +354,8 @@ loadObjectInMemoryFromConverter <- function(){
   
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ 
+    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) 
+        && (rv$proteinId != "")){ 
       ComputeAdjacencyMatrices()
       ComputeConnexComposants()
       }
