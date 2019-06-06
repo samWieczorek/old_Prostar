@@ -346,7 +346,8 @@ loadObjectInMemoryFromConverter <- function(){
   
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){ ComputeAdjacencyMatrices()}
+    if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)
+        && (rv$proteinId != "")){ ComputeAdjacencyMatrices()}
     
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     
