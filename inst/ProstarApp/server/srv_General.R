@@ -928,6 +928,23 @@ Get_ParamValue <- function(pp, key){
 
 
 
+
+GetOnlineZipVersion <- function(){
+  
+  thepage <- readLines('http://prabig-prostar.univ-lyon1.fr/ProstarZeroInstall/')
+  substr(thepage[12], regexpr("Prostar_",thepage[12])[1], 2+regexpr("zip",thepage[12])[1])
+  
+  
+  thetable <- readHTMLTable('http://prabig-prostar.univ-lyon1.fr/ProstarZeroInstall/', stringsAsFactors=FALSE)
+  onlineZipVersion <- thetable[[1]]$Name[3]
+  
+  return(onlineZipVersion)
+}
+
+
+
+
+
 getPackagesVersions <- reactive({
   
   type <- "all"
