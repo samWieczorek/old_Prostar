@@ -682,6 +682,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                  DAPAR_Version = 
                                    installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 )
+                options(digits=15)
                 tmp <- createMSnset(rv$tab1, 
                                     metadata, 
                                     indexForEData, 
