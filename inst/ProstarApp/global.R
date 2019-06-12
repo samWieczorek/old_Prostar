@@ -95,7 +95,7 @@ source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 
 
 ## URLs for the .md files stored in the website github directory
-base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
+base_URL <- "https://samwieczorek.github.io/Prostar_website/md/"
 #base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")
 URL_links <- paste0(base_URL, "links.md")
