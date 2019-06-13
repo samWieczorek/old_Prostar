@@ -56,7 +56,7 @@ shinyUI <- fluidPage(
 
       tags$head(includeCSS("www/css/arrow.css")),
       #tagList(tags$div(class="arrow")),
-      tags$p("VERSION CHANTIER BIS !!!", style='font-size: 30px; color: red;'),
+      launchGA(),
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),

@@ -1,4 +1,16 @@
 
+
+
+launchGA <- function(){
+  print(paste0("In toto",system('hostname')))
+  if (system('hostname')=="prabig-prostar"){
+    tags$head(includeScript("www/google-analytics.js"))
+  } else {
+    #tags$head(includeScript("www/google-analytics-ProstarZeroInstall.js"))
+  }
+  
+}
+
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
@@ -9,6 +21,9 @@ library(DT)
 library(highcharter)
 library(shinyBS)
 library(shinyTree)
+
+
+
 loadLibraries <- function(){
   library(shinyAce)
   library(shinyWidgets)

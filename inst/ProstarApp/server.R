@@ -46,7 +46,12 @@ installSass <- function(){
   }
 }
 
+
+
+
+
 shinyServer(function(input, output, session) {
+
   Sys.setlocale("LC_ALL","English")
   #Sys.setlocale("LC_ALL", 'en_GB.utf8')
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
@@ -68,7 +73,7 @@ shinyServer(function(input, output, session) {
        
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
-        hname <- System$getHostname()
+        hname <- system$getHostname()
         
         clientdataText <- observe({
             rv$IP_Client = session$clientData$url_hostname
