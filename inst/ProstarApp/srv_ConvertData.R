@@ -127,7 +127,7 @@ output$Convert_BuildDesign <- renderUI({
     ),
   hr(),
   selectInput("convert_reorder", "Order by conditions ?",
-              choices=c(" "="None","No"="No", "Yes"="Yes"),
+              choices=c("No"="No", "Yes"="Yes"),
               width="100px"),
   tags$div(
     

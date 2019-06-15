@@ -1,9 +1,13 @@
 source(file.path(".", "modules/moduleNavigation.R"),  local = TRUE)$value
+source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
 
 moduleConvertDataUI <- function(id){
   ns <- NS(id)
   tagList(
-    moduleNavigationUI(ns("moduleProcess_Convert"))
+    br(),br(),br(),
+    uiOutput(ns('bars')),
+    hr(),
+    uiOutput(ns('screens'))
   )
 }
 
@@ -13,7 +17,8 @@ moduleConvertDataUI <- function(id){
 
 moduleConvertData <- function(input, output, session){
   ns <- session$ns
-  source(file.path(".", "srv_BuildDesign.R"),  local = TRUE)$value
+  #source(file.path(".", "srv_BuildDesign.R"),  local = TRUE)$value
+  source(file.path(".", "modules/DataManager/srv_BuildDesign.R"),  local = TRUE)$value
   
   callModule(modulePopover,"modulePopover_convertChooseDatafile", 
              data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
@@ -43,7 +48,7 @@ moduleConvertData <- function(input, output, session){
    callModule(moduleInfoDataset, "infoAboutMSnset",
               obj = reactive({
                 req(rv.convert$dataOut)
-                GetDatasetOverview2(rv.convert$dataOut@datasets[[1]])
+                rv.convert$dataOut@datasets[[1]]
               }))
   
   
@@ -66,10 +71,11 @@ moduleConvertData <- function(input, output, session){
  
   
   observe({
-        callModule(moduleNavigation, "moduleProcess_Convert", 
+        rv.convert$nav2 <- callModule(moduleNavigation2, "moduleProcess_Convert", 
                                isDone = reactive({rvNavProcess$Done}), 
                                pages = reactive({rvNavProcess$def}),
-                               rstFunc = resetModuleConvert)
+                               rstFunc = resetModuleConvert,
+                               type = reactive({'bubble'}))
       })
 
   
@@ -78,7 +84,8 @@ moduleConvertData <- function(input, output, session){
     tab1 = NULL,
     obj =  NULL,
     dataOut = NULL, 
-    name = "processConvert")
+    name = "processConvert",
+    nav2 = NULL)
   
 ################################################
   
@@ -101,7 +108,14 @@ resetModuleConvert<- reactive({
 
 
 
-
+  output$bars <- renderUI({
+    rv.convert$nav2()$bars
+  })
+  
+  
+  output$screens <- renderUI({
+    rv.convert$nav2()$screens
+  })
 
 #################################
 ### Screen 1
@@ -122,7 +136,7 @@ output$Convert_SelectFile <- renderUI({
 })
 
 #################################
-### Screen 1
+### Screen 2
 output$Convert_DataId <- renderUI({
   
   tagList(
@@ -142,7 +156,8 @@ output$Convert_DataId <- renderUI({
 
 
 
-
+#################################
+### Screen 3
 output$Convert_ExpFeatData <- renderUI({
   
   tagList(
@@ -164,7 +179,8 @@ output$Convert_ExpFeatData <- renderUI({
 
 
 
-
+#################################
+### Screen 4
 output$Convert_BuildDesign <- renderUI({
   
   tagList(
@@ -183,7 +199,7 @@ output$Convert_BuildDesign <- renderUI({
     ),
   hr(),
   selectInput(ns("convert_reorder"), "Order by conditions ?",
-              choices=c(" "="None","No"="No", "Yes"="Yes"),
+              choices=c("No"="No", "Yes"="Yes"),
               width="100px"),
   tags$div(
     
@@ -203,7 +219,8 @@ output$Convert_BuildDesign <- renderUI({
 
 
 
-
+#################################
+### Screen 5
 output$Convert_Convert <- renderUI({
   tagList(
     uiOutput(ns("convertFinalStep")),
@@ -305,9 +322,10 @@ output$ConvertOptions <- renderUI({
   
   tagList(
     radioButtons(ns("typeOfData"), 
-                 "Is it a peptide or protein dataset ?", 
-                 choices=c("peptide dataset" = "peptide", 
-                           "protein dataset" = "protein")
+                 "Choose the pipeline", 
+                 choices=c("peptide" = "peptide", 
+                           "protein" = "protein",
+                           "peptide to protein (p2p)" = "p2p")
     )
     
     ,radioButtons(ns("checkDataLogged"), 
@@ -340,8 +358,8 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
 
 
 output$helpTextDataID <- renderUI({
-  input$typeOfData
-  if (is.null(input$typeOfData)){return(NULL)}
+  req(input$typeOfData)
+
   t <- ""
   switch(input$typeOfData,
          protein = {t <- "proteins"},
@@ -361,7 +379,6 @@ readTextFile <- reactive({
   rv.convert$tab1 <- read.csv(input$file2Convert$datapath,  header=TRUE, sep="\t", as.is=T)
 })
 
-readXLSFile <- reactive({})
 
 ############ Read text file to be imported ######################
 observeEvent(c(input$file2Convert,input$XLSsheets),{
@@ -371,7 +388,7 @@ observeEvent(c(input$file2Convert,input$XLSsheets),{
        || (GetExtension(input$file2Convert$name) == "xlsx") )
       && is.null(input$XLSsheets)) {return(NULL)  }
   
-  authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
+  authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
   if( is.na(match(GetExtension(input$file2Convert$name), authorizedExts))) {
     shinyjs::info("Warning : this file is not a text nor an Excel file ! 
                   Please choose another one.")
@@ -638,6 +655,10 @@ output$warningCreateMSnset <- renderUI({
 
 
 
+
+
+
+
 #######################################
 observeEvent(input$createMSnsetButton,{
   #req(rv.convert$obj)
@@ -702,7 +723,6 @@ observeEvent(input$createMSnsetButton,{
                           versions
       )
       
-      print('tmp created')
       
       ll.process <- type <- NULL
       switch(input$typeOfData,
@@ -779,7 +799,7 @@ ClearConvertUI <- reactive({
   updateSelectInput(session, 
                     "datasets",  
                     choices = G_noneStr)
-  updateRadioButtons(session,"typeOfData",selected = typePeptide )
+  #updateRadioButtons(session,"typeOfData",selected = typePeptide )
   updateRadioButtons(session, "checkDataLogged", selected="no")
   
   updateSelectInput(session, "idBox", selected = NULL)

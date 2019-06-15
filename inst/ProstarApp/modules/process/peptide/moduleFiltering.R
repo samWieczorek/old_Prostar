@@ -677,7 +677,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
         
         mat <- cc <- list()
         incProgress(1/nSteps, detail = def.progress.saveFiltering[3])
-        #mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
+        mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
         
         incProgress(1/nSteps, detail = def.progress.saveFiltering[4])
         #cc <- ComputeConnexComposants(mat)

@@ -133,3 +133,42 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Median" = "median")
 
 def.progress.loadDataset <- c('Clear memory', 'Load dataset', 'Configure object', 'Load in memory')
+
+
+GetExtension <- function(name){
+  temp <- unlist(strsplit(name,'.', fixed=T))
+  return(last(temp))
+}
+
+
+#--------------------------------------------------------
+DeleteFileExtension <- function(name){
+  return(strsplit(name,'.', fixed=T)[[1]][1])}
+
+#--------------------------------------------------------
+GetExtension <- function(name){
+  temp <- unlist(strsplit(name,'.', fixed=T))
+  return(last(temp))
+}
+
+
+
+gFiltersList <- c("None" = "None",
+                  "Empty lines" = "EmptyLines",
+                  "Whole matrix" = "wholeMatrix",
+                  "For every condition" = "allCond",
+                  "At least one condition" = "atLeastOneCond")
+
+gFilterNone <- gFiltersList[["None"]]
+gFilterEmptyLines <- gFiltersList[["Empty lines"]]
+gFilterWholeMat <- gFiltersList[["Whole matrix"]]
+gFilterAllCond <- gFiltersList[["For every condition"]]
+gFilterOneCond <- gFiltersList[["At least one condition"]]
+
+# variables for filtering the data
+gReplaceAllZeros <- "replaceAllZeros"
+gLogTransform <- "Log2 tranformed data"
+gFilterTextPrefix <- "Filtered with"
+
+
+

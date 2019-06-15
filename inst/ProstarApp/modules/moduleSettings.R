@@ -58,7 +58,7 @@ rv.settings <- reactiveValues(
   choosePalette = 'Dark2',
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
-  examplePalette = NULL,
+  examplePalette = RColorBrewer::brewer.pal(8,"Dark2"),
   
   
   legDS = NULL,
@@ -196,6 +196,8 @@ GetTest <- reactive({
   temp
   
 })
+
+
 
 
 GetWhichGroup2Color <- reactive({rv.settings$whichGroup2Color})
