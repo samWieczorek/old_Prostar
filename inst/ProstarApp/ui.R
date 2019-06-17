@@ -194,7 +194,12 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
               tabItem(tabName = "settings", moduleSettingsUI("modSettings")),
     
               tabItem(tabName = "releaseNotes", moduleReleaseNotesUI("modReleaseNotes")),
-              tabItem(tabName = "checkUpdates"),
+              tabItem(tabName = "checkUpdates",
+                      uiOutput("baseVersions"),
+                      DT::dataTableOutput("tab_versions", width = '600px'),
+                      br(), br(),
+                      uiOutput("infoForNewVersions")
+                      ),
     
     
              tabItem(tabName = "links", bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),

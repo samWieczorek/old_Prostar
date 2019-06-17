@@ -112,8 +112,8 @@ GetCurrentObjName <- reactive({
 
 ## Initialization of the pipeline
 observeEvent(req(obj.openDataset()),{
+  
   print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()@pipeline))
-  #print(str(obj.demomode()))
   def <- name <- NULL
   type.pipeline <- obj.openDataset()@pipeline
   def <- pipeline.def[[type.pipeline]]
@@ -128,7 +128,7 @@ observeEvent(req(obj.openDataset()),{
                    stepsNames = def,
                    isMandatory = rep(TRUE,length(def)),
                    ll.UI = LoadModulesUI(def)
-  )
+                   )
   
   pipeline$current.indice <- 1
   pipeline$current.obj <- obj.openDataset()
@@ -261,9 +261,9 @@ output$UI_dataAnalysis <- renderUI({
 
 
 output$menuItem_dataAnalysis <- renderMenu({
+  
   if (!is.null(obj.openDataset()) && !is.null(pipeline$nav2())){
-    
-  menuItem("Data analysis", tabName = "dataAnalysis")
+    menuItem("Data analysis", tabName = "dataAnalysis")
   }
 })
 

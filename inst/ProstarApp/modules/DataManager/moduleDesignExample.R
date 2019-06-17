@@ -8,14 +8,14 @@ moduleDesignExampleUI <- function(id){
 
 
 
-moduleDesignExample <- function(input, output, session, n){
+moduleDesignExample <- function(input, output, session, n, n_rows){
   ns <- session$ns
   
   
   output$nlevelsExample <- renderRHandsontable({
     
     
-    if (n == 2){
+    if (n() == 2){
       df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
                        Condition = c(rep("A", 4), rep("B", 4), rep("C", 6)),
                        Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
@@ -39,7 +39,7 @@ moduleDesignExample <- function(input, output, session, n){
                            {td.style.background = 'lightgrey';}
     }")
 
-  } else if (n == 3){
+  } else if (n() == 3){
     df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
                      Condition = c(rep( "A", 8), rep("B", 8)),
                      Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
@@ -71,7 +71,7 @@ moduleDesignExample <- function(input, output, session, n){
 }
     
     rhandsontable::rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
-                                                                      maxRows=nrow(rv$hot))) %>%
+                                                                      maxRows=n_rows())) %>%
       rhandsontable::hot_rows(rowHeights = 30) %>%
       rhandsontable::hot_context_menu(allowRowEdit = FALSE, allowColEdit = FALSE,
                                       allowInsertRow = FALSE,allowInsertColumn = FALSE,

@@ -235,13 +235,13 @@ output$designExamples <- renderUI({
          twoLevelsDesign =  {
            tagList(
              h4("Example for a 2-levels design"),
-             moduleDesignExampleUI(ns("buildDesignExampleTwo"))
+             moduleDesignExampleUI("buildDesignExampleTwo")
            )
          },
          threeLevelsDesign =  {
            tagList(
              h4("Example for a 3-levels design"),
-             moduleDesignExampleUI(ns("buildDesignExampleThree"))
+             moduleDesignExampleUI("buildDesignExampleThree")
            )
          }
   )

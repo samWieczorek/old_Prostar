@@ -37,6 +37,7 @@ server <- function(input, output, session){
   
   source(file.path(".", "pipelineDefinition.R"), local = TRUE)$value
   
+  source(file.path(".", "srv_CheckForUpdates.R"),  local = TRUE)$value
   
   #####
   ## Launch modules
