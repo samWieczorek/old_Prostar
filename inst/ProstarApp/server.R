@@ -62,10 +62,11 @@ shinyServer(function(input, output, session) {
     #Set up writing
     logfilename <- tempfile(fileext=".log")
     con <- file(logfilename,open="wt")
-    if(!interactive()){
-      sink(con, append=TRUE)
+    #if(!interactive()){
+      #sink(con, append=TRUE)
       sink(con, append=TRUE, type="message")
-    }
+   # }
+    
 
     print(tempdir())
     

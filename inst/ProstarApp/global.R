@@ -16,7 +16,6 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 
 library(shinycssloaders)
 library(shinythemes)
-library(rclipboard)
 library(DT)
 library(highcharter)
 library(shinyBS)

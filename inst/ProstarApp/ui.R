@@ -52,8 +52,6 @@ shinyUI <- fluidPage(
     div(
       id = "main_content",
       
-      rclipboardSetup(),
-
       tags$head(includeCSS("www/css/arrow.css")),
       #tagList(tags$div(class="arrow")),
       launchGA(),
@@ -62,6 +60,11 @@ shinyUI <- fluidPage(
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
+      
+      
+      tags$style(HTML(".tab-content {padding-top: 40px; }")),
+      
+      
       # tags$head(tags$style(" table.dataTable thead th {
       #                      padding: 8px 10px !important;
       #                      }

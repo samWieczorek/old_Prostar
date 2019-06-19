@@ -1,22 +1,26 @@
 # Add clipboard buttons
-output$clip <- renderUI({
-  rclipButton("clipbtn", "Copy to clipboard", isolate({fileReaderData()}), icon("clipboard"))
-})
+# output$clip <- renderUI({
+#   rclipButton("clipbtn", "Copy to clipboard", fileReaderData(), icon("clipboard"))
+# })
 
 # Workaround for execution within RStudio
-observeEvent(input$clipbtn, clipr::write_clip(fileReaderData()))
+#observeEvent(input$clipbtn, clipr::write_clip(fileReaderData()))
 
 
 # ============================================================
 # This part of the code monitors the file for changes once per
 # 0.5 second (500 milliseconds).
-fileReaderData <- reactiveFileReader(500, session,logfilename, readLines)
+fileReaderData <- reactiveFileReader(500, session, logfilename, readLines)
+
+
 
 output$fileReaderText <- renderText({
   # Read the text, and make it a consistent number of lines so
   # that the output box doesn't grow in height.
   text <- fileReaderData()
+  text[is.na(text)] <- ""
   paste(text, collapse = '\n')
+  
 })
 
 
