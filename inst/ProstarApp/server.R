@@ -68,8 +68,7 @@ shinyServer(function(input, output, session) {
    # }
     
 
-    print(tempdir())
-    
+     
    # unsuspendAll(session)
        
     serverAdmin <- FALSE

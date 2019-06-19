@@ -32,8 +32,6 @@ output$BugReport_output <- renderUI({
   mail <- unlist(strsplit(mail, ">"))[1]
   
   tagList(
-    
-    
     a(actionButton(inputId = "email1", label = "Contact maintainer", 
                    icon = icon("envelope", lib = "font-awesome"), class = actionBtnClass),
       href=paste0("mailto:", mail,"?subject=[Prostar bug report]&body="))
