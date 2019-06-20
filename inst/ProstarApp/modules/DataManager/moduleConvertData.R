@@ -8,9 +8,8 @@ moduleConvertDataUI <- function(id){
     br(),br(),br(),
     uiOutput(ns('bars')),
     hr(),
-    uiOutput(ns('screens')),
-    uiOutput(ns("modalFAQ"))
-    # moduleInsertMarkdownUI('FAQ_MD2')
+    uiOutput(ns('screens'))
+
   )
 }
 
@@ -57,10 +56,11 @@ moduleConvertData <- function(input, output, session){
   
   
    
-   output$modalFAQ <- renderUI({
-     shinyBS::bsModal("modalLinkFAQ", "linkToFaq1", ns("linkToFaq1"), size = "large",h3('toto'))
-   })
-  
+   # output$modalFAQ <- renderUI({
+   #   print("modal cense apparaitre")
+   #   shinyBS::bsModal("modalLinkFAQ", "linkToFaq1", ns("linkToFaq1"), size = "large", h3('toto'))
+   # })
+   # 
   ###### definition of RV for navigation process
   rvNavProcess <- reactiveValues(
     Done = rep(FALSE,5),
@@ -197,6 +197,9 @@ output$Convert_BuildDesign <- renderUI({
            are checked or got to the ", 
            actionLink(ns("linkToFaq1"), "FAQ", style="background-color: white"), 
            " page."),
+    shinyBS::bsModal("modalLinkFAQ", "NULL", ns("linkToFaq1"), size = "large", moduleInsertMarkdownUI(ns('FAQ_MD2')),
+                     tags$head(tags$style("#window .modal-footer{display:none}
+                                             .modal-header{display:none}"))),
     fluidRow(
       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
       column(width=6,uiOutput(ns("UI_checkConditions"))  )
@@ -844,12 +847,6 @@ rv.buildDesign <- reactiveValues(
 
 
 
-observeEvent(input$linkToFaq1, {
-  print("Click on input$linkToFaq1")
-  #shinyBS::bsModal("modalLinkFAQ", "linkToFaq1", ns("linkToFaq1"), size = "large", moduleInsertMarkdownUI(ns('FAQ_MD2')))
-  moduleInsertMarkdownUI(ns('FAQ_MD2'))
-  #updateTabsetPanel(session, 'navPage', "faqTab")
-})
 
 
 
