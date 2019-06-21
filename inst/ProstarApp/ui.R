@@ -6,12 +6,12 @@ library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 
-theme = shinytheme("cerulean")
+theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- fluidPage(
   #theme = "css/ceruleanProstar.css",
-  theme = shinytheme("cerulean"),
+  theme = shinythemes::shinytheme("cerulean"),
   
   tagList(
   
@@ -49,16 +49,19 @@ shinyUI <- fluidPage(
     div(
       id = "main_content",
       
-      rclipboardSetup(),
+      #rclipboardSetup(),
 
       tags$head(includeCSS("www/css/arrow.css")),
       #tagList(tags$div(class="arrow")),
-      tags$p("VERSION CHANTIER !!!", style='font-size: 30px; color: red;'),
+      launchGA(),
+      
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
+      tags$style(HTML(".tab-content {padding-top: 40px; }")),
+      
       # tags$head(tags$style(" table.dataTable thead th {
       #                      padding: 8px 10px !important;
       #                      }

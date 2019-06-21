@@ -26,48 +26,25 @@ output$tab_versions <- DT::renderDataTable({
 output$infoForNewVersions <- renderUI({
   
   df <- getPackagesVersions()$NeedsUpdate
-  
-  #if (sum(df)==FALSE){return(NULL)}
-  
+   
   tagList(
     p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
-         If you use the server or the stand-alone versions, please proceed via the Bioconductor. 
-         If you use the Zero-install version, please download the latest zip file on our website ",
-      tags$a("(www.prostar-proteomics.org)", href="http://www.prostar-proteomics.org", target="_blank")
+         If you use the server or the stand-alone versions, please proceed via the Bioconductor."),
+
+      zipVersion <- substr(GetOnlineZipVersion(), 9, regexpr(".zip",GetOnlineZipVersion())[1] -1),
+      prostarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+      if (compareVersion(zipVersion,prostarVersion) == 1){
+          p(style="font-size: 16px", "If you use the Zero-install version, please download the latest zip file on our website ",
+            tags$a("(www.prostar-proteomics.org)", href="http://www.prostar-proteomics.org", target="_blank")
+          )
+      } else {
+        p(style="font-size: 16px", "If you use the Zero-install version, the new zip file (Prostar Zero Install) will be available soon on our website ",
+          tags$a("(www.prostar-proteomics.org)", href="http://www.prostar-proteomics.org", target="_blank")
+        )
+      }
     )
-  )
 })
 
-
-# 
-# observeEvent(input$updateProstar,{
-#   
-#   BiocManager::install("Prostar", update=TRUE, ask=FALSE)
-# })
-# 
-# 
-# 
-# output$update <- renderUI({
-#   
-#   # if(!file.exists(file.path(".", "prostar.conf"))){
-#   #   tags$p("Unable to find the file prostar.conf")
-#   #   return(NULL)
-#   # }
-#   # conf <- read.table("prostar.conf", header=FALSE)
-#   df <- getPackagesVersions()
-#   if (sum(df[,"NeedsUpdate"])==0) {return(NULL)}
-#   #if (!(conf[which(conf[1,]=="R-Portable"),2])) {return(NULL)}
-#   
-#   tagList(
-#     tags$p(class="body",
-#            "Some of the packages of Prostar needs to be updated (for bug fixing). You can update Prostar by clicking on the Update button.
-#            This will attempt to update packages from CRAN and/or Bioconductor repositories."),
-#     actionButton("updateProstar", "Update Prostar", class = actionBtnClass)
-#     )
-#   
-#   
-# })
-# 
 
 
 

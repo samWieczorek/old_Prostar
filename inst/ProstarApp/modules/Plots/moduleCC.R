@@ -12,15 +12,15 @@ moduleCCUI <- function(id) {
              ),
              tabPanel("CC one prot",
                       tagList(
-                        bsCollapse(id = "collapseCCInfos", 
+                        shinyBS::bsCollapse(id = "collapseCCInfos", 
                                    open = "",
                                    multiple = TRUE,
-                                   bsCollapsePanel("One - One CC", 
+                                   shinyBS::bsCollapsePanel("One - One CC", 
                                                    fluidRow(
                                                      column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
                                                      column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
                                                      ),style = "info"),
-                                   bsCollapsePanel("One - Multi CC", 
+                                   shinyBS::bsCollapsePanel("One - Multi CC", 
                                                    fluidRow(
                                                      column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
                                                      column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))

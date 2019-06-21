@@ -45,19 +45,19 @@ observe({
 output$defineColorsUI <- renderUI({
   
   
-  bsCollapse(id = "collapseExample", open = "",
-             bsCollapsePanel("Colors for conditions", uiOutput("defineColorsForConditionsUI"), style = "primary"),
-             bsCollapsePanel("Colors for missing values", tagList(
+  shinyBS::bsCollapse(id = "collapseExample", open = "",
+                      shinyBS::bsCollapsePanel("Colors for conditions", uiOutput("defineColorsForConditionsUI"), style = "primary"),
+                      shinyBS::bsCollapsePanel("Colors for missing values", tagList(
                colourpicker::colourInput("colMEC", "Select colour for MEC", orangeProstar,showColour = "background"),
                colourpicker::colourInput("colPOV", "Select colour for POV", "lightblue", showColour = "background")
              ), style = "primary"),
-             bsCollapsePanel("Colors for volcanoplots", 
+             shinyBS::bsCollapsePanel("Colors for volcanoplots", 
                              colourpicker::colourInput("colVolcanoIn", "Select colour for selected entities", 
                                                        rv$colorsVolcanoplot$In,
                                                        showColour = "background"),
                              colourpicker::colourInput("colVolcanoOut", "Select colour for filtered out entities", rv$colorsVolcanoplot$Out, showColour = "background"), 
                              style = "primary"),
-             bsCollapsePanel("logFC distribution", "todo", style = "primary")
+             shinyBS::bsCollapsePanel("logFC distribution", "todo", style = "primary")
              
   )
 

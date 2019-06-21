@@ -135,7 +135,7 @@ modulePopover <- function(input, output, session, data){
               } else {
                 tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
                 },
-                   bsPopover(id = ns("q1"), title = "",
+            shinyBS::bsPopover(id = ns("q1"), title = "",
                       content = data()$content,
                       placement = "right", 
                       trigger = "hover", 
@@ -165,13 +165,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     req(input$eventPointClicked)
     
     if (is.null(rv$matAdj)){
-      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
+      shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
+                          shinyBS::bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
     } else {
-      bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-               bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
-               bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
-               bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
+      shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
+                 shinyBS::bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
+                 shinyBS::bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
+                 shinyBS::bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
     }
   })
   
@@ -669,6 +669,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
 
 moduleInsertMarkdown <- function(input, output, session,url){
   
+  ns <- session$ns
   output$insertMD <- renderUI({
     print(url)
     tryCatch(
@@ -679,7 +680,7 @@ moduleInsertMarkdown <- function(input, output, session,url){
         tags$p("URL not found<br>",conditionMessage(w))
         #shinyjs::info(paste("URL not found",":",conditionMessage(w), sep=" "))
       }, error = function(e) {
-        shinyjs::info(paste("Error :","CreateMSnSet",":", conditionMessage(e), sep=" "))
+        shinyjs::info(paste("Error :","in moduleInsertMarkdown",":", conditionMessage(e), sep=" "))
       }, finally = {
         #cleanup-code 
       })

@@ -53,7 +53,7 @@ shinyServer(function(input, output, session) {
        
     serverAdmin <- FALSE
     if (isTRUE(serverAdmin)){
-        hname <- System$getHostname()
+        hname <- system$getHostname()
         
         clientdataText <- observe({
             rv$IP_Client = session$clientData$url_hostname
