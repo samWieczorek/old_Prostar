@@ -18,11 +18,11 @@ moduleStaticDataTable <- function(input, output, session,
                                   showRownames=FALSE,
                                   dom='Bt') {
   ns <- session$ns
-  proxy = dataTableProxy(session$ns('StaticDataTable'), session)
+  proxy = DT::dataTableProxy(session$ns('StaticDataTable'), session)
   
-  observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
+  observe({DT::replaceData(proxy, table2show(), resetPaging = FALSE)  })
   
-  output$StaticDataTable <- renderDT({
+  output$StaticDataTable <- DT::renderDT({
     req(table2show())
     print("IN StaticDataTable")
     print(table2show())

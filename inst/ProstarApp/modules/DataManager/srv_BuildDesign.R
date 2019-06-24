@@ -77,7 +77,7 @@ observeEvent(input$eData.box,{
 })
 
 #-------------------------------------------------------------
-output$hot <- renderRHandsontable({
+output$hot <- rhandsontable::renderRHandsontable({
   rv.buildDesign$hot
   input$chooseExpDesign
   

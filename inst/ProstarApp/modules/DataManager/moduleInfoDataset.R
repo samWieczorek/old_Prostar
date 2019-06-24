@@ -33,7 +33,7 @@ moduleInfoDataset <-function(input, output, session, obj){
     } else{
       
       NA.count <- length(which(is.na(Biobase::exprs(obj()))))
-      nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(obj()))), 1, all))
+      nb.empty.lines <- sum(apply(is.na(as.matrix(Biobase::exprs(obj()))), 1, all))
       tagList(
         tags$h3("Info"),
         if (typeOfDataset == "protein"){

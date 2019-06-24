@@ -362,7 +362,7 @@ Compute_PCA_nbDimensions <- reactive({
   nmax <- 12  
   # pour info, ncp = nombre de composantes ou de dimensions dans les r?sultats de l'ACP
   
-  y <- exprs(rv$current.obj)
+  y <- Biobase::exprs(rv$current.obj)
   nprot <- dim(y)[1]
   # If too big, take the number of conditions.
   n <- dim(y)[2] 
@@ -393,4 +393,14 @@ GetOnlineZipVersion <- function(){
 }
 
 
+
+
+launchGA <- function(){
+  if (system('hostname')=="prabig-prostar"){
+    tags$head(includeScript("www/google-analytics.js"))
+  } else {
+    #tags$head(includeScript("www/google-analytics-ProstarZeroInstall.js"))
+  }
+  
+}
 

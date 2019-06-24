@@ -13,7 +13,9 @@ source(file.path(".", "modules/process/common/moduleDetQuantImpValues.R"),  loca
 modulePepImputationUI <- function(id){
   ns <- NS(id)
   tagList(
-    moduleNavigationUI(ns("moduleProcess_PepImputation"))
+    uiOutput(ns('bars')),
+    hr(),
+    uiOutput(ns('screens'))
   )
 }
 
@@ -38,10 +40,11 @@ modulePepImputation <- function(input, output, session, dataIn, screen.id, setti
   
   ### appel du module de navigation
   observe({
-    callModule(moduleNavigation, "moduleProcess_PepImputation", 
+    rv.pepImputation$nav2 <- callModule(moduleNavigation2, "moduleProcess_PepImputation", 
                isDone = reactive({rvNavProcess$Done}), 
                pages = reactive({rvNavProcess$def}),
-               rstFunc = resetModulePepImputation)
+               rstFunc = resetModulePepImputation,
+               type = reactive({'bubble'}))
   })
   
   
@@ -49,7 +52,7 @@ modulePepImputation <- function(input, output, session, dataIn, screen.id, setti
   rv.pepImputation <- reactiveValues(
     ## temporary current data in module
     obj =  NULL,
-    
+    nav2 = NULL,
     ## return result of the module
     dataOut = NULL, 
     name = "processPepImputation",
@@ -100,6 +103,16 @@ modulePepImputation <- function(input, output, session, dataIn, screen.id, setti
   observe({
     dataIn()
     rv.pepImputation$obj <- dataIn()
+  })
+  
+  
+  output$bars <- renderUI({
+    rv.pepImputation$nav2()$bars
+  })
+  
+  
+  output$screens <- renderUI({
+    rv.pepImputation$nav2()$screens
   })
   
   

@@ -112,10 +112,10 @@ MSnSetExplorer <- function(input, output, session, dataIn) {
                                        #list(columns.width=c("60px"), columnDefs.targets= c(list(0),list(1),list(2))))
                                        columnDefs = list(list(width='60px',targets= "_all"))
                           )) %>%
-      formatStyle(
+      DT::formatStyle(
         columns = colnames(data)[1:2],
         valueColumns = colnames(data)[2],
-        backgroundColor = styleEqual(unique(data$Condition), pal)
+        backgroundColor = DT::styleEqual(unique(data$Condition), pal)
       )
     
   })
@@ -144,9 +144,9 @@ MSnSetExplorer <- function(input, output, session, dataIn) {
                                         fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
                                                                columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
-        formatStyle(columns = 'Significant',
+        DT::formatStyle(columns = 'Significant',
                     target = 'row',
-                    background = styleEqual(1, 'lightblue'))
+                    background = DT::styleEqual(1, 'lightblue'))
     } else {
       dat <- DT::datatable(as.data.frame(Biobase::fData(dataIn()$obj)),
                            rownames = TRUE,
@@ -199,10 +199,10 @@ MSnSetExplorer <- function(input, output, session, dataIn) {
                        server = TRUE,
                        fixedColumns = list(leftColumns = 1),
                        columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
-      formatStyle(
+      DT::formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)),
+        backgroundColor = DT::styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)),
         backgroundSize = '98% 48%',
         backgroundRepeat = 'no-repeat',
         backgroundPosition = 'center'

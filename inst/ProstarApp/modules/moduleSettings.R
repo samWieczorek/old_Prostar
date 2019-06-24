@@ -125,19 +125,19 @@ observe({
 output$defineColorsUI <- renderUI({
   
   
-  bsCollapse(id = "collapseExample", open = "",
-             bsCollapsePanel("Colors for conditions", uiOutput(ns("defineColorsForConditionsUI")), style = "primary"),
-             bsCollapsePanel("Colors for missing values", tagList(
+  shinyBS::bsCollapse(id = "collapseExample", open = "",
+                      shinyBS::bsCollapsePanel("Colors for conditions", uiOutput(ns("defineColorsForConditionsUI")), style = "primary"),
+             shinyBS::bsCollapsePanel("Colors for missing values", tagList(
                colourpicker::colourInput(ns("colMEC"), "Select colour for MEC", orangeProstar,showColour = "background"),
                colourpicker::colourInput(ns("colPOV"), "Select colour for POV", "lightblue", showColour = "background")
              ), style = "primary"),
-             bsCollapsePanel("Colors for volcanoplots", 
+             shinyBS::bsCollapsePanel("Colors for volcanoplots", 
                              colourpicker::colourInput(ns("colVolcanoIn"), "Select colour for selected entities", 
                                                        rv.settings$colorsVolcanoplot$In,
                                                        showColour = "background"),
                              colourpicker::colourInput(ns("colVolcanoOut"), "Select colour for filtered out entities", rv.settings$colorsVolcanoplot$Out, showColour = "background"), 
                              style = "primary"),
-             bsCollapsePanel("logFC distribution", "todo", style = "primary")
+             shinyBS::bsCollapsePanel("logFC distribution", "todo", style = "primary")
              
   )
   
@@ -180,12 +180,12 @@ GetTest <- reactive({
   temp <- NULL
   if (is.null(rv.settings$whichGroup2Color) || (rv.settings$whichGroup2Color=="Condition")){
     nbColors <- length(unique(Biobase::pData(dataIn())$Condition))
-    nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
+    nbColors <-  RColorBrewer::brewer.pal.info[listBrewerPalettes[1],]$mincolors
     nbColors <- max(nbColors,nbConds)
     palette <- NULL
     for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
     for (i in 1:ncol(Biobase::exprs(dataIn()))){
-      temp[i] <- palette[ which(pData(dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
+      temp[i] <- palette[ which(Biobase::pData(dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
     }
     
   } else if (rv.settings$whichGroup2Color=="Replicate"){
@@ -232,7 +232,7 @@ GetExamplePalette <- reactive({
              palette <- RColorBrewer::brewer.pal(nbColors,rv.settings$choosePalette)[1:nbConds]
              temp <- NULL
              for (i in 1:ncol(Biobase::exprs(dataIn()))){
-               temp[i] <- palette[ which(pData(dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
+               temp[i] <- palette[ which(Biobase::pData(dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
              }
              
            }  else if (rv.settings$whichGroup2Color == "Replicate"){
@@ -250,12 +250,12 @@ GetExamplePalette <- reactive({
            temp <- NULL
            if (is.null(rv.settings$whichGroup2Color) || (rv.settings$whichGroup2Color=="Condition")){
              nbColors <- length(unique(Biobase::pData(dataIn())$Condition))
-             nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
+             nbColors <-  RColorBrewer::brewer.pal.info[listBrewerPalettes[1],]$mincolors
              nbColors <- max(nbColors,nbConds)
              palette <- NULL
              for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
              for (i in 1:ncol(Biobase::exprs(dataIn()))){
-               temp[i] <- palette[ which(pData(dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
+               temp[i] <- palette[ which(pData(Biobase::dataIn())$Condition[i] == unique(Biobase::pData(dataIn())$Condition))]
              }
              
            } else if (rv.settings$whichGroup2Color=="Replicate"){

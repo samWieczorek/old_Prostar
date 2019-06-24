@@ -8,21 +8,38 @@ source(file.path(".", "commonFunc.R"),  local = TRUE)$value
 #5lstDescPlots <- c("intensity", "mv")
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
 
+
+
+#library(shinycssloaders)
+
+library(rclipboard)
+
+
+
+
 loadLibraries <- function(){
-  library(shinyAce)
-  library(shinyWidgets)
-  library(vioplot)
-  library(colourpicker)
+  #library(shinyBS)
+  #library(shinyTree)
+  #library(shinyWidgets)
+  #library(vioplot)
+ # library(colourpicker)
   library(gplots)
-  library(data.table)
-  library(MSnbase)
+  #library(data.table)
+  #library(MSnbase)
   library(tidyverse)
-  library(RColorBrewer)
+  #library(RColorBrewer)
   library(DAPAR, lib.loc = DAPAR.loc)
   library(R.utils)
-  library(rhandsontable)
-  library(data.table)
-  library(shinyjqui)
+  #library(rhandsontable)
+  #library(data.table)
+  #library(shinyjqui)
+  
+  #library(DT)
+  library(highcharter)
+  
+  library(future)
+  library(promises)
+  
 }
 
 
@@ -77,26 +94,13 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Mcquitty" = "mcquitty",
                                  "Median" = "median")
 
-library(rhandsontable)
-library(shinycssloaders)
-library(shinythemes)
-library(rclipboard)
-library(DT)
-library(highcharter)
-library(shinyBS)
-library(shinyTree)
-library(future)
-library(promises)
-plan(multiprocess) 
-
 
 source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 
 
 ## URLs for the .md files stored in the website github directory
-base_URL <- "https://samwieczorek.github.io/Prostar_website/md/"
-#base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
+base_URL <- "http://www.prostar-proteomics.org/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")
 URL_links <- paste0(base_URL, "links.md")
 URL_ProstarPresentation <- paste0(base_URL, "presentation.md")

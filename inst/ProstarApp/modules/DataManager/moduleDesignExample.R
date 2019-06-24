@@ -12,7 +12,7 @@ moduleDesignExample <- function(input, output, session, n, n_rows){
   ns <- session$ns
   
   
-  output$nlevelsExample <- renderRHandsontable({
+  output$nlevelsExample <- rhandsontable::renderRHandsontable({
     
     
     if (n() == 2){

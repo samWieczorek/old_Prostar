@@ -41,7 +41,7 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-      plotOutput(ns("heatmap"), width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+      plotOutput(ns("heatmap"), width = "900px", height = "600px") %>%  shinycssloaders::withSpinner(type=spinnerType)
       
     )
   }

@@ -155,7 +155,7 @@ moduleHypothesisTest <- function(input, output, session, dataIn, screen.id, sett
           )
           ,
           tags$hr(),
-          highchartOutput(ns("FoldChangePlot"), height="100%") %>% withSpinner(type=spinnerType)
+          highchartOutput(ns("FoldChangePlot"), height="100%") %>% shinycssloaders::withSpinner(type=spinnerType)
         )
         
       }

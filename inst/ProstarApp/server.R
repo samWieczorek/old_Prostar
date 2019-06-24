@@ -62,6 +62,7 @@ server <- function(input, output, session){
   
   
   loadLibraries()
+  plan(multiprocess)
   
     rv.prostar <- reactiveValues(
       obj = NULL,

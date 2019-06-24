@@ -6,6 +6,7 @@ moduleInsertMarkdownUI <- function(id){
 
 
 moduleInsertMarkdown <- function(input, output, session,url){
+  ns <- session$ns
   
   output$insertMD <- renderUI({
     tryCatch(

@@ -229,8 +229,8 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   output$screenFiltering3 <- renderUI({
     req(rv.filtering$obj)
     
-    ll <- lapply(fData(rv.filtering$obj), function(x){is.numeric(x)})
-    choice <- c("None", colnames(fData(rv.filtering$obj))[which(ll == TRUE)])
+    ll <- lapply(Biobase::fData(rv.filtering$obj), function(x){is.numeric(x)})
+    choice <- c("None", colnames(Biobase::fData(rv.filtering$obj))[which(ll == TRUE)])
     
     tagList(
       tags$div(
@@ -461,7 +461,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
   
   Get_symFilter_cname_choice <- reactive({
     
-    choice <- c("None", colnames(fData(rv.filtering$obj)))
+    choice <- c("None", colnames(Biobase::fData(rv.filtering$obj)))
     choice
   })
   
@@ -554,7 +554,7 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
     if (!is.null(data)){
       
       if(input$ChooseTabAfterFiltering =="quantiData"){
-        dt <- datatable( data,
+        dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
                          options = list(dom = 'Brtip',
                                         initComplete = initComplete(),
@@ -569,10 +569,10 @@ moduleFiltering <- function(input, output, session, dataIn, screen.id, settings=
                                         columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
                                                           list(width='150px',targets= "_all"))
                          )) %>%
-          formatStyle(
+          DT::formatStyle(
             colnames(data)[1:(ncol(data)/2)],
             colnames(data)[((ncol(data)/2)+1):ncol(data)],
-            backgroundColor = styleEqual(c("POV", "MEC"), c(settings()$colorsTypeMV$POV, settings()$colorsTypeMV$MEC))
+            backgroundColor = DT::styleEqual(c("POV", "MEC"), c(settings()$colorsTypeMV$POV, settings()$colorsTypeMV$MEC))
           )
       } else {
         dt <- datatable( data,extensions = 'Scroller',

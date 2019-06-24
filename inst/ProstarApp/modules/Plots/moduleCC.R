@@ -11,15 +11,15 @@ moduleCCUI <- function(id) {
              ),
              tabPanel("CC one prot",
                       tagList(
-                        bsCollapse(id = "collapseCCInfos", 
+                        shinyBS::bsCollapse(id = "collapseCCInfos", 
                                    open = "",
                                    multiple = TRUE,
-                                   bsCollapsePanel("One - One CC", 
+                                   shinyBS::bsCollapsePanel("One - One CC", 
                                                    fluidRow(
                                                      column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
                                                      column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
                                                      ),style = "info"),
-                                   bsCollapsePanel("One - Multi CC", 
+                                   shinyBS::bsCollapsePanel("One - Multi CC", 
                                                    fluidRow(
                                                      column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
                                                      column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
@@ -75,7 +75,7 @@ moduleCC <- function(input, output, session,cc, matAdj, dataIn){
   
   output$pepInfoUI <- renderUI({
     dataIn()
-    selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(dataIn())),
+    selectInput(ns('pepInfo'), "PepInfo", choices=colnames(Biobase::fData(dataIn())),
                 multiple=TRUE)
   })
   
@@ -143,7 +143,7 @@ output$visNet_CC <- renderVisNetwork({
                      index = 1:length(local))
         
         if (!is.null( tooltip)){
-          df <- cbind(df,fData(dataIn())[ tooltip])
+          df <- cbind(df,Biobase::fData(dataIn())[ tooltip])
         }
 
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -278,7 +278,7 @@ output$CCDetailed <- renderUI({
     
     if(!is.null(input$pepInfo))
       {
-      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
+      data <- cbind(data, Biobase::fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -297,10 +297,10 @@ output$CCDetailed <- renderUI({
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
-      formatStyle(
+      DT::formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
+        backgroundColor = DT::styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -323,7 +323,7 @@ output$CCDetailed <- renderUI({
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
+      data <- cbind(data, Biobase::fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -344,10 +344,10 @@ output$CCDetailed <- renderUI({
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
-      formatStyle(
+      DT::formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
+        backgroundColor = DT::styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -451,7 +451,7 @@ output$CCDetailed <- renderUI({
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
+      data <- cbind(data, Biobase::fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -470,10 +470,10 @@ output$CCDetailed <- renderUI({
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
-      formatStyle(
+      DT::formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
+        backgroundColor = DT::styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })
@@ -521,7 +521,7 @@ output$CCDetailed <- renderUI({
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(dataIn())[pepLine,input$pepInfo])
+      data <- cbind(data, Biobase::fData(dataIn())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -539,10 +539,10 @@ output$CCDetailed <- renderUI({
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
-      formatStyle(
+      DT::formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
+        backgroundColor = DT::styleEqual(c("POV", "MEC"), c(rv.prostar$settings()$colorsTypeMV$POV, rv.prostar$settings()$colorsTypeMV$MEC)))
     
     dt
   })

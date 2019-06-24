@@ -174,6 +174,8 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
                               sass_options(output_style = "expanded")))),
     tags$head(includeCSS("www/css/css-progress-wizard/css/progress-wizard.min.css")),
     tags$head(includeCSS('http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css')),
+    launchGA(),
+    
     titlePanel("", windowTitle = "Prostar"),
     
 
@@ -202,9 +204,9 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
                       ),
     
     
-             tabItem(tabName = "links", bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
-              tabItem(tabName = "FAQ",bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
-              tabItem(tabName = "bugReport", bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
+             tabItem(tabName = "links", shinyBS::bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
+              tabItem(tabName = "FAQ",shinyBS::bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
+              tabItem(tabName = "bugReport", shinyBS::bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
               )
             )
 

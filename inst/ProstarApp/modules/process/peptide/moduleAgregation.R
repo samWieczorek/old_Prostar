@@ -7,7 +7,9 @@ source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
 moduleAgregationUI <- function(id){
   ns <- NS(id)
   tagList(
-    moduleNavigationUI(ns("moduleProcess_Agregation"))
+    uiOutput(ns('bars')),
+    hr(),
+    uiOutput(ns('screens'))
   )
 }
 
@@ -31,10 +33,11 @@ moduleAgregation<- function(input, output, session, dataIn, screen.id, settings=
   
   ### appel du module de navigation
   observe({
-    callModule(moduleNavigation, "moduleProcess_Agregation", 
+    rv.agregation$nav2 <- callModule(moduleNavigation2, "moduleProcess_Agregation", 
                isDone = reactive({rvNavProcess$Done}), 
                pages = reactive({rvNavProcess$def}),
-               rstFunc = resetModuleAgregation)
+               rstFunc = resetModuleAgregation,
+               type = reactive({'bubble'}))
   })
   
   
@@ -42,7 +45,7 @@ moduleAgregation<- function(input, output, session, dataIn, screen.id, settings=
   rv.agregation <- reactiveValues(
     ## temporary current data in module
     obj =  NULL,
-    
+    na2 = NULL,
     ## return result of the module
     dataOut = NULL, 
     name = "processAgregation",
@@ -88,6 +91,15 @@ moduleAgregation<- function(input, output, session, dataIn, screen.id, settings=
     rv.agregation$obj <- dataIn()
   })
   
+  
+  output$bars <- renderUI({
+    rv.agregation$nav2()$bars
+  })
+  
+  
+  output$screens <- renderUI({
+    rv.agregation$nav2()$screens
+  })
   
   ################# END of definitino part   #############################
   #######################################################################
@@ -396,7 +408,7 @@ moduleAgregation<- function(input, output, session, dataIn, screen.id, settings=
     req(rv$matAdj)
     tagList(
       h4("Only specific peptides"),
-      plotOutput("aggregationPlotUnique", width="400px") %>% withSpinner(type=spinnerType)
+      plotOutput("aggregationPlotUnique", width="400px") %>% shinycssloaders::withSpinner(type=spinnerType)
     )
   })
   
@@ -404,7 +416,7 @@ moduleAgregation<- function(input, output, session, dataIn, screen.id, settings=
     req(rv$matAdj)
     tagList(
       h4("All (specific & shared) peptides"),
-      plotOutput("aggregationPlotShared", width="400px") %>% withSpinner(type=spinnerType)
+      plotOutput("aggregationPlotShared", width="400px") %>% shinycssloaders::withSpinner(type=spinnerType)
     )
   })
   

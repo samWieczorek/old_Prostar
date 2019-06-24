@@ -84,7 +84,7 @@ modulePCA <- function(input, output, session, dataIn) {
     nmax <- 12 # ncp should not be greater than... 
     # pour info, ncp = nombre de composantes ou de dimensions dans les r?sultats de l'ACP
     
-    y <- exprs(dataIn()$obj)
+    y <- Biobase::exprs(dataIn()$obj)
     nprot <- dim(y)[1]
     n <- dim(y)[2] # If too big, take the number of conditions.
     

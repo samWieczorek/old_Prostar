@@ -13,7 +13,7 @@ ConfigureData <- function(obj){
   
   obj <- setIndexNA(obj,which(is.na(data)))
   
-  colnames(fData(data)) <- gsub(".", "_", colnames(fData(data)), fixed=TRUE)
+  colnames(Biobase::fData(data)) <- gsub(".", "_", colnames(Biobase::fData(data)), fixed=TRUE)
   names(data@experimentData@other) <- gsub(".", "_", names(data@experimentData@other), fixed=TRUE)
   obj <- setMSnSet(obj, 1, data)
   

@@ -8,7 +8,10 @@ moduleNormalizationUI <- function(id){
   
   ns <- NS(id)
   tagList(
-    moduleNavigationUI(ns("moduleProcess_Normalization"))
+    uiOutput(ns('bars')),
+    hr(),
+    uiOutput(ns('screens'))
+    
   )
 }
 
@@ -31,10 +34,11 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
   
   ### appel du module de navigation
   observe({
-    callModule(moduleNavigation, "moduleProcess_Normalization", 
+    rv.normalization$nav2 <- callModule(moduleNavigation2, "moduleProcess_Normalization", 
                isDone = reactive({rvNavProcess$Done}), 
                pages = reactive({rvNavProcess$def}),
-               rstFunc = resetModuleNormalization)
+               rstFunc = resetModuleNormalization,
+               type = reactive({'bubble'}))
   })
   
   
@@ -44,7 +48,7 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
   rv.normalization <- reactiveValues(
     ## temporary current data in module
     obj =  NULL,
-    
+    nav2 = NULL,
     ## return result of the module
     dataOut = NULL, 
     name = "processNormalization",
@@ -90,7 +94,16 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
     rv.normalization$obj <- dataIn()$obj
   })
   
-  ################# END of customoized skeleton part   #############################
+  output$bars <- renderUI({
+    rv.normalization$nav2()$bars
+  })
+  
+  
+  output$screens <- renderUI({
+    rv.normalization$nav2()$screens
+  })
+  
+  ################# END of customized skeleton part   #############################
   #######################################################################
   
   callModule(moduleIntensityPlots,"intensityPlots_Norm", dataIn = reactive({list(obj = rv.normalization$obj,
@@ -149,7 +162,7 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
         tags$hr(),
         fluidRow(
           column(width=8, moduleIntensityPlotsUI(ns("intensityPlots_Norm"))),
-          column(width=4,plotOutput(ns("viewComparisonNorm_DS")) %>% withSpinner(type=spinnerType))
+          column(width=4,plotOutput(ns("viewComparisonNorm_DS")) %>% shinycssloaders::withSpinner(type=spinnerType))
         )
       )
     })
@@ -364,7 +377,7 @@ moduleNormalization <- function(input, output, session, dataIn, screen.id, setti
     if (is.null(settings()$whichGroup2Color)  || (settings()$whichGroup2Color == "Condition")){
       labelsNorm <- Biobase::pData(rv.normalization$obj)[,"Condition"]
     }else {
-      labelsNorm <- apply(pData(rv.normalization$obj), 1, function(x){paste0(x, collapse='_')})
+      labelsNorm <- apply(Biobase::pData(rv.normalization$obj), 1, function(x){paste0(x, collapse='_')})
       names(labelsNorm)<- NULL
       labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
     }

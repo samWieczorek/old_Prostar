@@ -591,7 +591,8 @@ quantiDataTable <- reactive({
 
 
 
-output$x1 <- renderDataTable(
+output$x1 <- renderDataTable({
+ dat <-  DT::datatable(
   quantiDataTable(),
   escape=FALSE,
   rownames = FALSE,
@@ -616,9 +617,9 @@ output$x1 <- renderDataTable(
     scroller = TRUE,
     ajax = list(url = dataTableAjax(session, quantiDataTable()))
     
-    )
-  
-  )
+    ))
+  return(dat)
+  })
 
 
 observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
@@ -705,7 +706,7 @@ observeEvent(input$createMSnsetButton,{
       }
       
       
-      metadata <- hot_to_r(input$hot)
+      metadata <- rhandsontable::hot_to_r(input$hot)
       logData <- (input$checkDataLogged == "no")
       
       
@@ -909,7 +910,7 @@ observeEvent(input$eData.box,{
 })
 
 #-------------------------------------------------------------
-output$hot <- renderRHandsontable({
+output$hot <- rhandsontable::renderRHandsontable({
   rv.buildDesign$hot
   input$chooseExpDesign
   
@@ -1125,7 +1126,7 @@ observeEvent(input$chooseExpDesign, {
 
 
 #------------------------------------------------------------------------------
-observeEvent(input$hot,{ rv.buildDesign$hot <-  hot_to_r(input$hot)})
+observeEvent(input$hot,{ rv.buildDesign$hot <-  rhandsontable::hot_to_r(input$hot)})
 
 
 

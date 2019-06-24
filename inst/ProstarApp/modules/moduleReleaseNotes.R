@@ -4,9 +4,9 @@ moduleReleaseNotesUI <- function(id)
   
   tabPanel("Release notes",
          value="ReleaseNotesTab",
-         bsCollapse(id = "collapseFormerReleases", open = "Current release",multiple = TRUE,
-                    bsCollapsePanel("Current release", moduleInsertMarkdownUI(ns("versionNotes_MD")),style = "info"),
-                    bsCollapsePanel("Former releases", moduleInsertMarkdownUI(ns("formerReleases_MD")),style = "info")),
+         shinyBS::bsCollapse(id = "collapseFormerReleases", open = "Current release",multiple = TRUE,
+                             shinyBS::bsCollapsePanel("Current release", moduleInsertMarkdownUI(ns("versionNotes_MD")),style = "info"),
+                             shinyBS::bsCollapsePanel("Former releases", moduleInsertMarkdownUI(ns("formerReleases_MD")),style = "info")),
          uiOutput(ns("warningDependanciesVersion")))
 
 

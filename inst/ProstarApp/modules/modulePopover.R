@@ -29,7 +29,7 @@ modulePopover <- function(input, output, session, data){
         } else {
           tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
         },
-        bsPopover(id = ns("q1"), title = "",
+        shinyBS::bsPopover(id = ns("q1"), title = "",
                   content = data()$content,
                   placement = "right", 
                   trigger = "hover", 
