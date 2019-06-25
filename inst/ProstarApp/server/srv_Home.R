@@ -49,12 +49,14 @@ output$versionsText <- renderUI({
 })
 
 
+
+
 output$NoteForNewVersion <- renderUI({
   
   df <- getPackagesVersions()
   if (sum(df$NeedsUpdate) == TRUE) {
   tags$div(
-    style="font-size: 16px",
+    style="font-size: 20px",
     tags$div( style="display:inline-block; vertical-align: top;",
               p(style="color: red",'Newer versions of Prostar and/or DAPAR packages have been released. For more information, please go to the page ')
     ),
