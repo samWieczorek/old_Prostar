@@ -70,9 +70,11 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   observeEvent(req(rv.opendataset$obj),{
     print("PASS dedans")
     rv.opendataset$obj <- ConfigureData(rv.opendataset$obj)
-    if (length(rv.opendataset$obj@AdjacencyMat)==0 && (rv.opendataset$obj@pipeline == 'peptide')){
+    if ( rv.opendataset$obj@pipeline == 'peptide') {
+      if (length(rv.opendataset$obj@AdjacencyMat)==0){
       rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])
       pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)
+      }
     }
     shinyjs::enable('btn_launch')
   })

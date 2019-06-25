@@ -140,13 +140,7 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
       l.params <- list(filename = input$demoDataset)
       incProgress(1/nSteps, detail = def.progress.loadDataset[3])
       
-      #loadObjectInMemory()
       incProgress(1/nSteps, detail = def.progress.loadDataset[4])
-      #tmp <- getMSnSet(rv.openDemo$current.obj, 1)
-      #print(paste0("reutrn of  getMSnSet : ", class(tmp)))
-      #rv.openDemo$current.obj <- ConfigureData(rv.openDemo$current.obj)
-      print("new demo dataset prepared")
-      #rv.openDemo$dataOut <- rv.openDemo$current.obj
       
     })
     rv.openDemo$dataOut <- rv.openDemo$current.obj

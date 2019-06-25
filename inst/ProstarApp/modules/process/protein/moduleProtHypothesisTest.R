@@ -5,7 +5,7 @@ source(file.path(".", "modules/moduleNotaNumeric.R"), local = TRUE)$value
 
 ############# Definition of the module   #########################
 
-moduleHypothesisTestUI <- function(id){
+moduleProtHypothesisTestUI <- function(id){
   ns <- NS(id)
   tagList(
     uiOutput(ns('bars')),
@@ -14,7 +14,7 @@ moduleHypothesisTestUI <- function(id){
   )
 }
 
-moduleHypothesisTest <- function(input, output, session, dataIn, screen.id, settings=NULL){
+moduleProtHypothesisTest <- function(input, output, session, dataIn, screen.id, settings=NULL){
   ns <- session$ns
   
   #def.progress.saveFiltering <- c("Build Parameters list", "Save Parameters list", "Compte adjacency matrix", "Compute connex composants", "Save new dataset")

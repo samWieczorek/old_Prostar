@@ -12,29 +12,29 @@ lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", 
 
 #library(shinycssloaders)
 
-library(rclipboard)
+#library(rclipboard)
 
 
+#library(shinyBS)
+#library(shinyTree)
+#library(shinyWidgets)
+#library(vioplot)
+# library(colourpicker)
+#library(data.table)
+#library(MSnbase)
+#library(rhandsontable)
+#library(data.table)
+#library(shinyjqui)
+#library(RColorBrewer)
+#library(DT)
 
 
 loadLibraries <- function(){
-  #library(shinyBS)
-  #library(shinyTree)
-  #library(shinyWidgets)
-  #library(vioplot)
- # library(colourpicker)
+  
   library(gplots)
-  #library(data.table)
-  #library(MSnbase)
   library(tidyverse)
-  #library(RColorBrewer)
   library(DAPAR, lib.loc = DAPAR.loc)
   library(R.utils)
-  #library(rhandsontable)
-  #library(data.table)
-  #library(shinyjqui)
-  
-  #library(DT)
   library(highcharter)
   
   library(future)
@@ -42,7 +42,53 @@ loadLibraries <- function(){
   
 }
 
+imputationAlgorithms <- c("None" = "None",
+                          "imp4p" = "imp4p",
+                          "Basic methods" = "BasicMethods")
 
+basicMethodsImputationAlgos <- c("None" = "None",
+                                 "Det. quantile" = "detQuantile",
+                                 "KNN" = "KNN",
+                                 "MLE" = "MLE"
+)
+
+imputationAlgorithmsPeptides_POV <- list("None" = "None",
+                                         "imp4p" = "imp4p",
+                                         "slsa" = "slsa",
+                                         "Det. quantile" = "detQuantile",
+                                         "KNN" = "KNN")
+
+imputationAlgorithmsProteins_POV <- list("None" = "None",
+                                         "slsa" = "slsa",
+                                         "Det quantile" = "detQuantile",
+                                         "KNN" = "KNN")
+
+imputationAlgorithmsPeptides_MEC<- list("None" = "None",
+                                        "Det quantile" = "detQuantile",
+                                        "Fixed value" = "fixedValue")
+
+imputationAlgorithmsProteins_MEC <- list("None" = "None",
+                                         "Det quantile" = "detQuantile",
+                                         "Fixed value" = "fixedValue")
+
+JSCSSTags <- function() 
+{ 
+  list(
+    tags$script(src="////code.highcharts.com/highcharts.js",type="text/javascript"),
+    
+    tags$script(src="js/jquery.js",type="text/javascript"),
+    tags$script(src="js/jquery.dataTables.js",type="text/javascript"),
+    tags$link(href='css/jquery.dataTables.css', rel="stylesheet", 
+              type="text/css"), 
+    tags$link(href='css/dataTables.tableTools.css', rel="stylesheet", 
+              type="text/css"), 
+    tags$script(src='js/dataTables.tableTools.js'),
+    tags$link(rel="stylesheet", type="text/css",href="css/style.css"),
+    tags$script(type="text/javascript", src = "busy.js")
+  )
+}
+WaitMsgPlot <- "Building plot. Please wait..."
+WaitMsgCalc <- "Calculation in progress"
 
 
 group2ColorByDefault <- "Condition"
@@ -176,3 +222,72 @@ gFilterTextPrefix <- "Filtered with"
 
 
 
+calibMethod_Choices <- c("Benjamini-Hochberg", 
+                         "st.boot", "st.spline", 
+                         "langaas","jiang", "histo", 
+                         "pounds", "abh","slim", 
+                         "numeric value")
+
+anaDiffMethod_Choices <- c("None"="None",
+                           "Limma"="Limma", 
+                           "t-tests"="ttests")
+
+
+G_noneStr <- "None"
+G_emptyStr <- ""
+G_heatmapDistance_Choices <- list("Euclidean" ="euclidean",
+                                  "Manhattan"="manhattan",
+                                  "Maximum" = "maximum",
+                                  "Canberra" = "canberra",
+                                  "Binary" = "binary",
+                                  "Minkowski" = "minkowski")
+
+G_heatmapLinkage_Choices <- list("Complete" = "complete",
+                                 "Average"="average",
+                                 "Ward.D"="ward.D",
+                                 "Ward.D2"="ward.D2",
+                                 "Single" = "single",
+                                 "Centroid" = "centroid",
+                                 "Mcquitty" = "mcquitty",
+                                 "Median" = "median")
+
+
+G_logFC_Column <- "logFC"
+
+
+G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",
+                              "Choose a file" = "extFile")
+
+G_ontology_Choices <- c("Molecular Function (MF)"="MF" , 
+                        "Biological Process (BP)" = "BP", 
+                        "Cellular Component (CC)" = "CC")
+
+G_universe_Choices <- c("Entire organism" = "Entire organism",
+                        "Entire dataset" = "Entire dataset",
+                        "Custom" = "Custom")
+
+G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
+
+G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
+
+G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "Custom ID" = "custom ID")
+G_exportFileFormat_Choices <- c( "MSnset","Excel", "zip")
+gFileFormatExport <- list(msnset = "MSnset",excel = "Excel", zip="zip")
+gFileExtension <- list(txt = ".txt",
+                       tsv = ".tsv",
+                       msnset = ".MSnset",
+                       excel = ".xlsx",
+                       zip = ".zip")
+
+
+bsButtonRight <- function(...) {
+  btn <- bsButton(...)
+  # Directly inject the style into the shiny element.
+  btn$attribs$style <- "float: right;"
+  btn
+}
+
+actionBtnClass <- "btn-primary"
+
+PrevNextBtnClass <- "btn-info"
+optionsBtnClass <- "info"

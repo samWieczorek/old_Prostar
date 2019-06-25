@@ -5,13 +5,13 @@
 ## TODO : faire une gestion d'erreur en cas d'absence d'un module
 ######
 peptide <- c('moduleFiltering', 'moduleNormalization', 'modulePepImputation', 'moduleHypothesisTest')
-protein <- c('moduleD','moduleE','moduleF','moduleG')
+protein <- c('moduleProtFiltering', 'moduleProtNormalization', 'moduleProtImputation')
 p2p <- c('moduleH','moduleI')
 
 
 pipeline.def <- list(
   peptide = c('moduleFiltering', 'moduleNormalization', 'modulePepImputation', 'moduleHypothesisTest'),
-  protein = c('moduleD','moduleE','moduleF','moduleG'),
+  protein = c('moduleProtFiltering', 'moduleProtNormalization', 'moduleProtImputation'),
   p2p = c('moduleH','moduleI')
   
 )

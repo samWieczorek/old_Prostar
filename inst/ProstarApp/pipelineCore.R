@@ -1,4 +1,5 @@
 source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
+source(file.path(".", "Classes/ClassProtPipeline.R"), local = TRUE)$value
 
 
 source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
@@ -9,10 +10,10 @@ source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = 
 source(file.path(".", "modules/process/peptide/modulePepImputation.R"), local = TRUE)$value
 source(file.path(".", "modules/process/peptide/moduleHypothesisTest.R"), local = TRUE)$value
 
-source(file.path(".", "modules/process/protein/moduleD.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleE.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleF.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleG.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleProtFiltering.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleProtNormalization.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleProtImputation.R"), local = TRUE)$value
+source(file.path(".", "modules/process/protein/moduleProtHypothesisTest.R"), local = TRUE)$value
 
 source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
 source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
