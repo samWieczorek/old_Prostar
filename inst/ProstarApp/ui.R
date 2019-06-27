@@ -180,7 +180,7 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
     
 
     
-           rclipboardSetup(),
+           #rclipboardSetup(),
            modulePlotsUI('showPlots'),
            tabItems(
               tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),

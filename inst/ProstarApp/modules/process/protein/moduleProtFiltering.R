@@ -22,7 +22,7 @@ moduleProtFiltering <- function(input, output, session, dataIn, screen.id, setti
   ns <- session$ns
   
   #Global variables
-  def.progress.saveFiltering <- c("Build Parameters list", "Save Parameters list", "Compte adjacency matrix", "Compute connex composants", "Save new dataset")
+  def.progress.saveFiltering <- c("Build Parameters list", "Save Parameters list", "Save new dataset")
   gFiltersList <- c("None" = "None",
                     "Empty lines" = "EmptyLines",
                     "Whole matrix" = "wholeMatrix",
@@ -675,20 +675,11 @@ moduleProtFiltering <- function(input, output, session, dataIn, screen.id, setti
         name <- paste0("Filtered", ".", typeOfDataset)
         rv.filtering$obj <- saveParameters(rv.filtering$obj,name,"Filtering",l.params)
         
-        mat <- cc <- list()
-        incProgress(1/nSteps, detail = def.progress.saveFiltering[3])
-        mat <- ComputeAdjacencyMatrices(rv.filtering$obj)
         
-        incProgress(1/nSteps, detail = def.progress.saveFiltering[4])
-        #cc <- ComputeConnexComposants(mat)
-
         incProgress(1/nSteps, detail = def.progress.saveFiltering[5])
         
         ## mise a jour de la variable de retour du module
-        rv.filtering$dataOut <- list(obj = rv.filtering$obj,
-                                      AdjacencyMat = mat,
-                                      ConnexComp = cc
-        )
+        rv.filtering$dataOut <- list(obj = rv.filtering$obj)
 
       }
       rvNavProcess$Done[5] <- TRUE

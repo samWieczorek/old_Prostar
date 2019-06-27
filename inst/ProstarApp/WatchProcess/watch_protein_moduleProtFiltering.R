@@ -16,8 +16,6 @@ WatchmoduleProtFiltering <- callModule(module=moduleProtFiltering,'moduleProtFil
 observeEvent(req(WatchmoduleProtFiltering()),{
   
   pipeline$current.obj@datasets$moduleProtFiltering <- WatchmoduleProtFiltering()$obj
-  pipeline$current.obj@AdjacencyMat <- WatchmoduleProtFiltering()$AdjacencyMat
-  pipeline$current.obj@ConnexComp <- WatchmoduleProtFiltering()$ConnexComp
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
