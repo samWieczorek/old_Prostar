@@ -287,9 +287,14 @@ ClearUI <- reactive({
 ComputeAdjacencyMatrices <- reactive({
   rv$matAdj <- NULL
   matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
+  print("mat adj 1 done")
   matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
+  print("mat adj 2 done")
+  
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   
+  print("dimensions matrice d'adjacence")
+  print(dim(rv$matAdj))
   rv$matAdj
 })
 
@@ -298,7 +303,7 @@ ComputeConnexComposants <- reactive({
   print(dim(rv$matAdj$matWithSharedPeptides))
   rv$CC <- list(allPep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithSharedPeptides)),
                 onlyUniquePep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithUniquePeptides)))
-  
+  print("end ComputeConnexComposants")
   rv$CC
 })
 

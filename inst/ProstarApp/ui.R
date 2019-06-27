@@ -90,7 +90,7 @@ shinyUI <- fluidPage(
       div(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
-      tagList( shinyjs::hidden(div(id = 'tete',modulePlotsUI('showPlots')))),
+      #tagList( shinyjs::hidden(div(id = 'tete',modulePlotsUI('showPlots')))),
       navbarPage(
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
         position = "fixed-top",

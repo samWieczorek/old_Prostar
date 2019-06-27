@@ -1,7 +1,10 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
-callModule(missingValuesPlots, "MVPlots_DS")
+callModule(missingValuesPlots, "MVPlots_DS", 
+           data=reactive({rv$current.obj}),
+           palette = reactive({rv$PlotParams$paletteConditions})
+)
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 

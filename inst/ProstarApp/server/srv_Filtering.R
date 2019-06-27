@@ -12,7 +12,10 @@ callModule(moduleProcess, "moduleProcess_Filtering",
            rstFunc = resetModuleFiltering)
 
 
-callModule(missingValuesPlots,"MVPlots_filtering", data=reactive({rv$current.obj}))
+callModule(missingValuesPlots,"MVPlots_filtering",
+           data=reactive({rv$current.obj}),
+           palette = reactive({unique(rv$PlotParams$paletteConditions)})
+           )
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                          content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))

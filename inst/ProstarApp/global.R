@@ -11,23 +11,24 @@ launchGA <- function(){
 
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
+library(highcharter)
+library(shinyBS)
+library(shinyTree)
 
 loadLibraries <- function(){
   
   
   library(shinycssloaders)
- # library(shinythemes)
+  library(shinythemes)
   #library(rclipboard)
   library(DT)
   library(highcharter)
-  #library(shinyBS)
-  #library(shinyTree)
-  
+ 
   
   library(shinyAce)
   library(shinyWidgets)
   library(vioplot)
-  #library(ggplot2)
+  library(ggplot2)
   library(colourpicker)
   library(gplots)
   #library(tidyr)
@@ -53,7 +54,7 @@ source(file.path(".", "modulesUI.R"),  local = TRUE)$value
 source(file.path(".", "moduleProcessUI.R"),  local = TRUE)$value
 
 
-base_URL <- "https://samwieczorek.github.io/samWieczorek/md/"
+base_URL <- "http://www.prostar-proteomics.org/md/"
 
 #base_URL <- "https://raw.githubusercontent.com/samWieczorek/Prostar/master/inst/ProstarApp/md/"
 URL_FAQ <- paste0(base_URL, "FAQ.md")

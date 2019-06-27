@@ -461,19 +461,19 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data, title, palette) {
+missingValuesPlots <- function(input, output, session, data, title=NULL, palette) {
     
-    output$histo_MV <- renderHighchart({
-     data()
-      rv$PlotParams$paletteConditions
-      tmp <- NULL
-      #isolate({
-        pattern <- paste0(GetCurrentObjName(),".MVplot1")
-        tmp <- wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
-        #future(createPNGFromWidget(tmp,pattern))
-      #  })
-      tmp
-    })
+  output$histo_MV <- renderHighchart({
+    data()
+    rv$PlotParams$paletteConditions
+    tmp <- NULL
+    #isolate({
+    pattern <- paste0(GetCurrentObjName(),".MVplot1")
+    tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
+    #future(createPNGFromWidget(tmp,pattern))
+    #  })
+    tmp
+  })
     
     
     
@@ -494,12 +494,13 @@ missingValuesPlots <- function(input, output, session, data, title, palette) {
     
     output$histo_MV_per_lines_per_conditions <- renderHighchart({
         data()
+      palette()
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
         tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
                                                       c(2:length(colnames(Biobase::pData(rv$current.obj))))
-                                                      ,palette=rv$PlotParams$paletteConditions)
+                                                      ,palette=palette())
         #future(createPNGFromWidget(tmp,pattern))
       })
       tmp
