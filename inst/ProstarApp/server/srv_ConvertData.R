@@ -680,6 +680,8 @@ observeEvent(input$createMSnsetButton,{
                                     proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
                                     versions
                 )
+                
+                print("Convert : after creating MSnset")
                 ClearUI()
                 ClearMemory()
                 rv$current.obj <- tmp
@@ -688,9 +690,9 @@ observeEvent(input$createMSnsetButton,{
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
                 
                 l.params <- list(filename = input$filenameToCreate)
-                 
+                print("Convert : before loadObjectInMemoryFromConverter")
                 loadObjectInMemoryFromConverter()
-                
+                print("Convert : after loadObjectInMemoryFromConverter")
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
                 rvModProcess$moduleConvertDone[5] <- TRUE
             }

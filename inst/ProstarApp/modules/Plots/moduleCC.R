@@ -258,7 +258,7 @@ output$CCDetailed <- renderUI({
     rvCC$detailedselectedNode
     input$pepInfo
     
-    if(is.null((rvCC$detailedselectedNode$sharedPepLabels))){return(NULL)}
+    req(rvCC$detailedselectedNode$sharedPepLabels)
     
     
     ind <- 1:ncol(rv$current.obj)

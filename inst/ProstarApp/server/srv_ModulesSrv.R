@@ -415,7 +415,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     rv$colorsVolcanoplot
     rv$resAnaDiff
     tooltip()
-    swap()
+    #swap()
     
     
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
@@ -447,7 +447,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
                                                          threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                          conditions = cond,
                                                          clickFunction=clickFun,
-                                                         rv$colorsVolcanoplot, swap())
+                                                         rv$colorsVolcanoplot)
       
     })
     
@@ -525,7 +525,7 @@ moduleDensityplot <- function(input, output, session) {
           tmp <- DAPAR::densityPlotD_HC(rv$current.obj, 
                                         rv$PlotParams$legendForSamples,
                                         rv$PlotParams$paletteConditions)
-         # future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
+          future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
         })
       })
       tmp
@@ -585,12 +585,11 @@ moduleBoxplot <- function(input, output, session) {
 
 
 
-moduleMVPlots <- function(input, output, session, data) {
+moduleMVPlots <- function(input, output, session, data, title, palette) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-
-    wrapper.hc_mvTypePlot2(data())
+    wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
   })
   
   output$plot_showImageNA <- renderPlot({

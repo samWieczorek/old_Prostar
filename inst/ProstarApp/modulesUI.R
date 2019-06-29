@@ -85,7 +85,7 @@ moduleDensityplotUI <- function(id) {
     ns <- NS(id)
     
   
-     highchartOutput(ns("Densityplot")) %>% withSpinner(type=spinnerType)
+     highchartOutput(ns("Densityplot"))
    
 
 }

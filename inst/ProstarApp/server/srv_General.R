@@ -247,7 +247,7 @@ session$onSessionEnded(function() {
     
     #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
     #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
-    rm(rv$current.obj, rv$matAdj) 
+    #rm(rv$current.obj, rv$matAdj) 
     gc()
     cat("Session stopped. Temporary files cleaned up\n")
   
@@ -294,15 +294,19 @@ ComputeAdjacencyMatrices <- reactive({
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   
   print("dimensions matrice d'adjacence")
-  print(dim(rv$matAdj))
+  print(dim(matSharedPeptides))
+  print(dim(matUniquePeptides))
   rv$matAdj
 })
 
 ComputeConnexComposants <- reactive({
   req(rv$matAdj)
   print(dim(rv$matAdj$matWithSharedPeptides))
-  rv$CC <- list(allPep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithSharedPeptides)),
-                onlyUniquePep = get.pep.prot.cc(as.matrix(rv$matAdj$matWithUniquePeptides)))
+  ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
+  ll2 <- get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
+    
+  rv$CC <- list(allPep = ll1,
+                onlyUniquePep = ll2)
   print("end ComputeConnexComposants")
   rv$CC
 })
@@ -361,9 +365,13 @@ loadObjectInMemoryFromConverter <- function(){
     
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) 
         && (rv$proteinId != "")){ 
+     print("begin compute adjacency matrix")
       ComputeAdjacencyMatrices()
+      print("End ComputeAdjacencyMatrices()")
+      print("begin ComputeConnexComposants")
       ComputeConnexComposants()
-      }
+      print("end ComputeConnexComposants()")
+    }
     
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     

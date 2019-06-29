@@ -1,7 +1,16 @@
-callModule(moduleVolcanoplot,"volcano_Step1", reactive({input$selectComparison}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
-callModule(moduleVolcanoplot,"volcano_Step2",reactive({as.character(input$selectComparison)}),reactive({input$tooltipInfo}), reactive({input$swapVolcano}))
+callModule(moduleVolcanoplot,"volcano_Step1", 
+           comp = reactive({as.character(input$selectComparison)}),
+           tooltip = reactive({input$tooltipInfo})
+           )
+
+callModule(moduleVolcanoplot,"volcano_Step2",
+           comp = reactive({as.character(input$selectComparison)}),
+           tooltip = reactive({input$tooltipInfo})
+           )
+
 callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
 #callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
+
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
 
@@ -314,10 +323,12 @@ output$downloadSelectedItems <- downloadHandler(
   content = function(file) {
     print(paste0("file to write=", file))
     DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
-    
+    hs1 <- createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
+                       border = "Bottom")
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
-    openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
+    openxlsx::writeData(wb,sheet = 1, as.character(input$selectComparison), colNames = TRUE,headerStyle = hs1)
+    openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
     ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
     
@@ -377,10 +388,12 @@ output$downloadSelectedItems <- downloadHandler(
   content = function(file) {
     print(paste0("file to write=", file))
     DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
-    
+    hs1 <- createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
+                       border = "Bottom")
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
-    openxlsx::writeData(wb,sheet = 1, GetSelectedItems(), colNames = TRUE)
+    openxlsx::writeData(wb,sheet = 1, as.character(input$selectComparison), colNames = TRUE,headerStyle = hs1)
+    openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
     ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
     openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col, rows = 1+ ll.DA.row, style = DA_Style)
@@ -537,7 +550,7 @@ Get_FDR <- reactive({
 output$showFDR <- renderUI({
   req(rv$current.obj)
   nb <- length(which(GetSelectedItems()$isDifferential==1))
-  th <- Get_FDR() * nb
+  th <- 100*Get_FDR() * nb
   print(th)
   
   
@@ -550,9 +563,9 @@ output$showFDR <- renderUI({
     },
     
     if (th < 1){
-      tags$p(style="color: red","Warning: With such a dataset size (xxx selected prot ), 
-              an FDR of xxx% should be cautiously interpreted as strictly less than one protein 
-             or peptides (seuil) is expected to be a false discovery")
+      tags$p(style="color: red",paste0("Warning: With such a dataset size (", nb ," selected prot ), an FDR of ",round(100*Get_FDR(), digits=2), "% should be cautiously interpreted as strictly less than one protein 
+             or peptides is expected to be a false discovery")
+      )
     } 
   )
   
