@@ -14,7 +14,7 @@ callModule(moduleProcess, "moduleProcess_Filtering",
 
 callModule(missingValuesPlots,"MVPlots_filtering",
            data=reactive({rv$current.obj}),
-           palette = reactive({unique(rv$PlotParams$paletteConditions)})
+           palette = reactive({rv$PlotParams$paletteConditions})
            )
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),

@@ -550,7 +550,7 @@ Get_FDR <- reactive({
 output$showFDR <- renderUI({
   req(rv$current.obj)
   nb <- length(which(GetSelectedItems()$isDifferential==1))
-  th <- 100*Get_FDR() * nb
+  th <- Get_FDR() * nb
   print(th)
   
   
@@ -563,8 +563,9 @@ output$showFDR <- renderUI({
     },
     
     if (th < 1){
-      tags$p(style="color: red",paste0("Warning: With such a dataset size (", nb ," selected prot ), an FDR of ",round(100*Get_FDR(), digits=2), "% should be cautiously interpreted as strictly less than one protein 
-             or peptides is expected to be a false discovery")
+      tags$p(style="color: red",paste0("Warning: With such a dataset size (", nb ," selected discoveries), an FDR of ",round(100*Get_FDR(), digits=2), "% should be cautiously interpreted as strictly less than one discovery (", 
+      round(th, digits=2), ") 
+             is expected to be false")
       )
     } 
   )

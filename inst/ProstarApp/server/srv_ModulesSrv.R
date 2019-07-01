@@ -156,7 +156,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
+moduleVolcanoplot <- function(input, output, session,comp, tooltip){
   
   ns <- session$ns
   
@@ -417,6 +417,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, swap){
     tooltip()
     #swap()
     
+    print(str(rv$resAnaDiff))
     
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
@@ -499,8 +500,7 @@ missingValuesPlots <- function(input, output, session, data, title=NULL, palette
       isolate({
         pattern <- paste0(GetCurrentObjName(),".MVplot2")
         tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                      c(2:length(colnames(Biobase::pData(rv$current.obj))))
-                                                      ,palette=palette())
+                                                      palette=palette())
         #future(createPNGFromWidget(tmp,pattern))
       })
       tmp

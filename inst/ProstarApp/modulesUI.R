@@ -9,10 +9,16 @@ modulePopoverUI <- function(id){
     uiOutput(ns("customPopover"))
 }
 
+
+
+
 module_Not_a_numericUI <- function(id){
   ns <- NS(id)
   uiOutput(ns("msg_not_numeric"))
 }
+
+
+
 
 moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
     ns <- NS(id)
@@ -40,6 +46,9 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
     )
 }
 
+
+
+
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
@@ -58,6 +67,9 @@ moduleVolcanoplotUI <- function(id){
 
 
 
+
+
+
 ########################################################
 ###### -------------------------------------------------
 ########################################################
@@ -69,6 +81,9 @@ moduleDetQuantImpValuesUI <- function(id){
   DT::dataTableOutput(ns("detQuantValues_DT"))
   )
 }
+
+
+
 
 missingValuesPlotsUI <- function(id) {
     ns <- NS(id)
@@ -83,11 +98,7 @@ missingValuesPlotsUI <- function(id) {
 
 moduleDensityplotUI <- function(id) {
     ns <- NS(id)
-    
-  
-     highchartOutput(ns("Densityplot"))
-   
-
+    highchartOutput(ns("Densityplot"))
 }
 
 
