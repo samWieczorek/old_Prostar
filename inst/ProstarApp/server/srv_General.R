@@ -343,6 +343,9 @@ loadObjectInMemoryFromConverter <- function(){
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
   if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
     
+  
+  withProgress(message = 'Loading memory',detail = '', value = 0, {
+    incProgress(0.5, detail = 'Miscellaneous updates')
   colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
   names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
   
@@ -353,7 +356,6 @@ loadObjectInMemoryFromConverter <- function(){
                               P_Value = Biobase::fData(rv$current.obj)$P_Value)
         rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
         #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
-        
     }
     
   if (is.null(rv$current.obj@experimentData@other$RawPValues ))
@@ -363,12 +365,13 @@ loadObjectInMemoryFromConverter <- function(){
   
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) 
-        && (rv$proteinId != "")){ 
+    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){ 
      print("begin compute adjacency matrix")
-      ComputeAdjacencyMatrices()
+        incProgress(0.6, detail = 'Compute Adjacency Matrices')  
+        ComputeAdjacencyMatrices()
       print("End ComputeAdjacencyMatrices()")
       print("begin ComputeConnexComposants")
+      incProgress(0.7, detail = 'Compute Connex Composants')  
       ComputeConnexComposants()
       print("end ComputeConnexComposants()")
     }
@@ -394,9 +397,12 @@ loadObjectInMemoryFromConverter <- function(){
                       #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
                       choices = names(rv$dataset),
                       selected = name)
+    
+    incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
     
+  })
 }
 
 #

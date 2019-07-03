@@ -66,7 +66,7 @@ observeEvent(rv$dataset, {
   for (i in 1:length(names(rv$dataset))){
     txt <-paste0('treeFor.',names(rv$dataset)[i])
     txt <- gsub(".", "_", txt, fixed=TRUE)
-    print(paste0("toggle:", txt))
+    print(paste0("toggle : ", txt))
     shinyjs::toggle(txt)
    }
  

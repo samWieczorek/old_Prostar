@@ -1,10 +1,10 @@
 # Add clipboard buttons
-output$clip <- renderUI({
-  rclipButton("clipbtn", "Copy to clipboard", isolate({fileReaderData()}), icon("clipboard"))
-})
+# output$clip <- renderUI({
+#   rclipButton("clipbtn", "Copy to clipboard", isolate({fileReaderData()}), icon("clipboard"))
+# })
 
 # Workaround for execution within RStudio
-observeEvent(input$clipbtn, clipr::write_clip(fileReaderData()))
+#observeEvent(input$clipbtn, clipr::write_clip(fileReaderData()))
 
 
 # ============================================================

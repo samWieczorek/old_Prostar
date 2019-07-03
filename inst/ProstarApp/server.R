@@ -1,7 +1,8 @@
 
 rm(list=ls())
 
-options(shiny.maxRequestSize=300*1024^2) 
+options(shiny.maxRequestSize=300*1024^2)
+options(encoding = "UTF-8")
 #options(shiny.fullstacktrace=TRUE)
 
 require(compiler)
@@ -33,8 +34,14 @@ onStart = function() {
 
 
 shinyServer(function(input, output, session) {
-  Sys.setlocale("LC_ALL","English")
+  #Sys.setlocale("LC_ALL","English")
   #Sys.setlocale("LC_ALL", 'en_GB.UTF-8')
+  #Sys.setlocale("LC_ALL", 'fr_FR.UTF-8')
+  #Sys.setenv(LANG = "fr")
+  print(Sys.getlocale())
+  
+  
+  
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
     
