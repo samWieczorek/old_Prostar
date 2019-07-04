@@ -27,7 +27,7 @@ rvModProcess <- reactiveValues(
   
   moduleAggregation = list(name = "Aggregation",
                            stepsNames = c("Aggregation 1", "Aggregation 2", "Save"),
-                           isMandatory = rep(TRUE, 3),
+                           isMandatory = c(TRUE, FALSE, TRUE),
                            ll.UI = list(screenStep1 = uiOutput("screenAggregation1"),
                                         screenStep2 = uiOutput("screenAggregation2"),
                                         screenStep3 = uiOutput("screenAggregation3")),
