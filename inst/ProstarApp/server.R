@@ -54,7 +54,17 @@ shinyServer(function(input, output, session) {
       sink(con, append=TRUE, type="message")
     }
 
-    print(tempdir())
+    message(tempdir())
+    
+    message(tempdir())
+    message(normalizePath(tempdir()))
+    message(getwd())
+    message("TEST=")
+    message(Sys.getenv('TEST'))
+    
+    message(Sys.getenv('TMP'))
+    message(Sys.getenv('TMPDIR'))
+    message(Sys.getenv('TEMP'))
     
    # unsuspendAll(session)
        
