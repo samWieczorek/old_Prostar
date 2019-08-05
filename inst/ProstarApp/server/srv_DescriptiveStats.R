@@ -9,6 +9,7 @@ callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
 
@@ -161,10 +162,9 @@ output$plotsPCA <- renderUI({
   tagList(
     uiOutput("WarningNA_PCA"),
     uiOutput("pcaOptions"),
-    
     fluidRow(
-      column(width=6,  plotOutput("pcaPlotVar")),
-      column(width=6,  plotOutput("pcaPlotInd"))
+      column(width=6,  imageOutput("pcaPlotVar", width='auto', height='auto')),
+      column(width=6,  imageOutput("pcaPlotInd", width='auto', height='auto'))
     ),
     fluidRow(
       column(width=6,  highchartOutput("pcaPlotEigen")),
@@ -175,21 +175,43 @@ output$plotsPCA <- renderUI({
 
 
 
-output$pcaPlotVar <- renderPlot({
-  req(rv$PCA_axes)
-  req(rv$res.pca)
-  
-  plotPCA_Var(rv$res.pca, rv$PCA_axes)
-  
-})
 
-output$pcaPlotInd <- renderPlot({
+output$pcaPlotInd <- renderImage({
+    #req(rv$PCA_axes)
+ # req(rv$res.pca)
+  
+  outfile <- tempfile(fileext='.png')
+  print(paste0("Outfile = ", outfile))
+  # Generate a png
+  png(outfile)
+  image <- DAPAR::plotPCA_Ind(rv$res.pca, rv$PCA_axes)
+  print(image)
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = FALSE)
+
+
+output$pcaPlotVar <- renderImage({
+  print("IN ####output$pcaPlotVar <- renderImage" )
+  
   req(rv$PCA_axes)
   req(rv$res.pca)
   
-  plotPCA_Ind(rv$res.pca, rv$PCA_axes)
+  outfile <- tempfile(fileext='.png')
+  # Generate a png
+  png(outfile)
+  image <- DAPAR::plotPCA_Var(rv$res.pca, rv$PCA_axes)
+  print(image)
+  dev.off()
   
-})
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = FALSE)
+
 
 
 output$pcaPlotEigen <- renderHighchart({
@@ -565,11 +587,20 @@ addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
 ##' Draw a heatmap of current data
 ##' 
 ##' @author Samuel Wieczorek
-output$heatmap <- renderPlot({
-    heatmap()
-})
-
-
+output$heatmap <- renderImage({
+  # A temp file to save the output. It will be deleted after renderImage
+  # sends it, because deleteFile=TRUE.
+  outfile <- tempfile(fileext='.png')
+  
+  # Generate a png
+  png(outfile, width=900, height=600)
+  heatmap()
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 ##' distribution of the variance in current.obj

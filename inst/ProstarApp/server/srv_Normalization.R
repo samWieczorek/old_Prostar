@@ -84,7 +84,7 @@ output$screenNormalization1 <- renderUI({
       fluidRow(
         column(width=4, moduleDensityplotUI("densityPlot_Norm")),
         column(width=4,moduleBoxplotUI("boxPlot_Norm")  %>% withSpinner(type=spinnerType)),
-        column(width=4,plotOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
+        column(width=4,imageOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
       )
     )
   })
@@ -372,8 +372,18 @@ viewComparisonNorm <- reactive({
 })
 
 #######################
-output$viewComparisonNorm_DS<- renderPlot({
+output$viewComparisonNorm_DS<- renderImage({
   
+  #req(rv$PCA_axes)
+  # req(rv$res.pca)
+  
+  outfile <- tempfile(fileext='.png')
+  # Generate a png
+  png(outfile)
   viewComparisonNorm()
-})
-
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = FALSE)

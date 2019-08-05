@@ -7,8 +7,8 @@ pcaPlotsUI <- function(id) {
     uiOutput(ns("pcaOptions")),
     
     fluidRow(
-      column(width=6,  plotOutput(ns("pcaPlotVar"))),
-      column(width=6,  plotOutput(ns("pcaPlotInd")))
+      column(width=6,  imageOutput(ns("pcaPlotVar"))),
+      column(width=6,  imageOutput(ns("pcaPlotInd")))
     ),
     fluidRow(
       column(width=6,  highchartOutput(ns("pcaPlotEigen"))),
@@ -98,20 +98,39 @@ pcaPlots <- function(input, output, session, data) {
   
   
   
-  
-  output$pcaPlotVar <- renderPlot({
+  output$pcaPlotVar <- renderImage({
+    print("pca_axes")
+    print(rv.pca$PCA_axes)
+    
     req(rv.pca$PCA_axes)
     req(rv.pca$res.pca)
+    outfile <- tempfile(fileext='.png')
+    
+    # Generate a png
+    png(outfile)
     plotPCA_Var(rv.pca$res.pca, rv.pca$PCA_axes)
-  })
+    dev.off()
+    
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = TRUE)
   
-  output$pcaPlotInd <- renderPlot({
+  output$pcaPlotInd <- renderImage({
     req(rv.pca$PCA_axes)
     req(rv.pca$res.pca)
     
-    plotPCA_Ind(rv.pca$res.pca, rv.pca$PCA_axes)
+    outfile <- tempfile(fileext='.png')
     
-  })
+    # Generate a png
+    png(outfile)
+    plotPCA_Ind(rv.pca$res.pca, rv.pca$PCA_axes)
+    dev.off()
+    
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = TRUE)
   
   
   output$pcaPlotEigen <- renderHighchart({

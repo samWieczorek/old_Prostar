@@ -110,7 +110,7 @@ moduleMVPlotsUI <- function(id) {
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                     highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                    plotOutput(ns("plot_showImageNA"), width='600px'))
+                    imageOutput(ns("plot_showImageNA"), width='600px'))
        )
       )
 }
@@ -140,7 +140,7 @@ moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
       highchartOutput(ns("BoxPlot")),
-      plotOutput(ns("viewViolinPlot")),
+      imageOutput(ns("viewViolinPlot")),
       selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
       )
 }

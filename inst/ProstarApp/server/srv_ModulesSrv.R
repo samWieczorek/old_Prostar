@@ -566,20 +566,32 @@ moduleBoxplot <- function(input, output, session) {
       tmp
     })
     
-    
-    output$viewViolinPlot <- renderPlot({
-      
+    output$viewViolinPlot<- renderImage({
       req(rv$current.obj)
       rv$PlotParams$legendForSamples
       rv$PlotParams$paletteConditions
       tmp <- NULL
+      
       isolate({
-        pattern <- paste0(GetCurrentObjName(),".violinplot")
-           tmp <- DAPAR::violinPlotD(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
-           #future(createPNGFromWidget(tmp,pattern))
+        
+        # A temp file to save the output. It will be deleted after renderImage
+      # sends it, because deleteFile=TRUE.
+      outfile <- tempfile(fileext='.png')
+      
+      # Generate a png
+     # png(outfile, width = 640, height = 480, units = "px")
+      png(outfile)
+      pattern <- paste0(GetCurrentObjName(),".violinplot")
+      tmp <- DAPAR::violinPlotD(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      #future(createPNGFromWidget(tmp,pattern))
+      dev.off()
       })
-      tmp
-      }) 
+      # Return a list
+      list(src = outfile,
+           alt = "This is alternate text")
+    }, deleteFile = TRUE)
+    
+ 
   
 }
 
@@ -592,12 +604,25 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
   })
   
-  output$plot_showImageNA <- renderPlot({
+
+  
+  output$plot_showImageNA <- renderImage({
+    
     req(data())
-    isolate({
+    
+    # A temp file to save the output. It will be deleted after renderImage
+    # sends it, because deleteFile=TRUE.
+    outfile <- tempfile(fileext='.png')
+    
+    # Generate a png
+    png(outfile)
       wrapper.mvImage(data())
-    })
-  })
+      dev.off()
+    
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = TRUE)
 }
 
 
