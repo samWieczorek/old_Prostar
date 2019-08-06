@@ -11,10 +11,23 @@ output$plotheatmapsmall <- renderImage({
 
 
 
-output$heatmap <- renderPlot({
-  heatmap()
-})
+# output$heatmap <- renderPlot({
+#   heatmap()
+# })
 
+output$heatmap <- renderImage({
+  
+  outfile <- tempfile(fileext='.png')
+  
+  # Generate a png
+  png(outfile, width=900, height=600)
+  heatmap()
+dev.off()
+
+# Return a list
+list(src = outfile,
+     alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 
@@ -53,7 +66,7 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-      plotOutput(ns("heatmap"), width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+      imageOutput(ns("heatmap"), width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
       
     )
   }

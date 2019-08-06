@@ -239,8 +239,8 @@ output$screenAnaDiff2 <- renderUI({
                tags$hr(),
                
                fluidRow(
-                 column(width=6,fluidRow(style = "height:800px;",plotOutput("calibrationPlotAll", height='800px') %>% withSpinner(type=spinnerType))),
-                 column(width=6,fluidRow(style = "height:400px;",plotOutput("calibrationPlot", height='400px') %>% withSpinner(type=spinnerType)),
+                 column(width=6,fluidRow(style = "height:800px;", imageOutput("calibrationPlotAll", height='800px') %>% withSpinner(type=spinnerType))),
+                 column(width=6,fluidRow(style = "height:400px;", imageOutput("calibrationPlot", height='400px') %>% withSpinner(type=spinnerType)),
                         fluidRow(style = "height:400px;",highchartOutput("histPValue"))
                   )
                )
@@ -691,10 +691,19 @@ calibrationPlot <- reactive({
     
 })
 
-output$calibrationPlot <- renderPlot({
-    calibrationPlot()
-})
-
+output$calibrationPlot <- renderImage({
+  
+  outfile <- tempfile(fileext='.png')
+  
+  # Generate a png
+  png(outfile, width=600, height=500)
+  calibrationPlot()
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 output$errMsgCalibrationPlot <- renderUI({
@@ -773,10 +782,19 @@ calibrationPlotAll <- reactive({
 
 
 #--------------------------------------------------
-output$calibrationPlotAll <- renderPlot({
-    calibrationPlotAll()
-})
-
+output$calibrationPlotAll <- renderImage({
+  
+  outfile <- tempfile(fileext='.png')
+  
+  # Generate a png
+  png(outfile, width=600, height=500)
+  calibrationPlotAll()
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 output$equivPVal <- renderUI ({

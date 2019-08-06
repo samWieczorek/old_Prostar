@@ -9,6 +9,7 @@ callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
+callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
 
 
 
@@ -163,8 +164,8 @@ output$plotsPCA <- renderUI({
     uiOutput("pcaOptions"),
     
     fluidRow(
-      column(width=6,  plotOutput("pcaPlotVar")),
-      column(width=6,  plotOutput("pcaPlotInd"))
+      column(width=6,  imageOutput("pcaPlotVar")),
+      column(width=6, imageOutput("pcaPlotInd"))
     ),
     fluidRow(
       column(width=6,  highchartOutput("pcaPlotEigen")),
@@ -174,22 +175,39 @@ output$plotsPCA <- renderUI({
 })
 
 
-
-output$pcaPlotVar <- renderPlot({
+output$pcaPlotInd <- renderImage({
   req(rv$PCA_axes)
   req(rv$res.pca)
   
-  plotPCA_Var(rv$res.pca, rv$PCA_axes)
+  outfile <- tempfile(fileext='.png')
+  # Generate a png
+  png(outfile)
+  image <- plotPCA_Ind(rv$res.pca, rv$PCA_axes)
+  print(image)
+  dev.off()
   
-})
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
-output$pcaPlotInd <- renderPlot({
+
+
+output$pcaPlotVar <- renderImage({
   req(rv$PCA_axes)
   req(rv$res.pca)
   
-  plotPCA_Ind(rv$res.pca, rv$PCA_axes)
+  outfile <- tempfile(fileext='.png')
+  # Generate a png
+  png(outfile)
+  image <- plotPCA_Var(rv$res.pca, rv$PCA_axes)
+  print(image)
+  dev.off()
   
-})
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 output$pcaPlotEigen <- renderHighchart({
@@ -493,7 +511,7 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-        plotOutput("heatmap", width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+        imageOutput("heatmap", width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
  
     )
   }
@@ -565,9 +583,20 @@ addPopover(session, "histo_missvalues_per_lines_per_conditions", "Info",
 ##' Draw a heatmap of current data
 ##' 
 ##' @author Samuel Wieczorek
-output$heatmap <- renderPlot({
-    heatmap()
-})
+output$heatmap <- renderImage({
+  # A temp file to save the output. It will be deleted after renderImage
+  # sends it, because deleteFile=TRUE.
+  outfile <- tempfile(fileext='.png')
+  
+  # Generate a png
+  png(outfile, width=900, height=600)
+  heatmap()
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
 
 
 
