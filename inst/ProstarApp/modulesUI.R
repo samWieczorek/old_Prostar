@@ -139,9 +139,24 @@ moduleDesignExampleUI <- function(id){
 moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
-      highchartOutput(ns("BoxPlot")),
-      imageOutput(ns("viewViolinPlot")),
-      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+      
+      br(), br(),
+      tags$div(
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 highchartOutput(ns("BoxPlot")),
+                 imageOutput(ns("viewViolinPlot"))
+        ),
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+        ),
+        
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 uiOutput(ns('trackProtList'))
+        )
+                 
+      )         
+      
+      
       )
 }
 

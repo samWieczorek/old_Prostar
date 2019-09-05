@@ -50,9 +50,15 @@ resetModuleNormalization <- reactive({
 
 ############ SCREEN NORMALIZATION  #########
 output$screenNormalization1 <- renderUI({
+   
   isolate({
+    req(rv$current.obj)
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    
+    
     tagList(
       div(
+        
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
           selectInput("normalization.method","Normalization method", 
@@ -76,17 +82,32 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+        ),
+        div(
+          style="display:inline-block; vertical-align: middle; padding-right: 20px;",
           hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px"))
         )
+        
       ),
       uiOutput("helpForNormalizationMethods"),
       tags$hr(),
-      fluidRow(
-        column(width=4, moduleDensityplotUI("densityPlot_Norm")),
-        column(width=4,moduleBoxplotUI("boxPlot_Norm")  %>% withSpinner(type=spinnerType)),
-        column(width=4, imageOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
-      )
-    )
+      
+     tagList(
+       moduleBoxplotUI("boxPlot_Norm")),
+     div(
+    div(
+      style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+      moduleDensityplotUI("densityPlot_Norm")
+    ),
+    div(
+      style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+      imageOutput("viewComparisonNorm_DS"))
+  )
+    
+  )
+  
+  
   })
   
 })
@@ -178,14 +199,18 @@ observeEvent(input$normalization.method,{
   
   shinyjs::toggle("normalization.type", 
                   condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
-})
+
+    shinyjs::toggle('ProtForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
+
+  })
 
 
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
-  
+   
   isolate({
+     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     
     switch(input$normalization.method, 
            G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
@@ -200,19 +225,22 @@ observeEvent(input$perform.normalization,{
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                   input$normalization.method, 
                                                   input$normalization.type, 
-                                                  quantile = quant)
+                                                  quantile = quant,
+                                                  subset.norm=match(input$ProtForNorm, ll))
              
            } ,  
            MeanCentering = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                   input$normalization.method, 
                                                   input$normalization.type, 
-                                                  scaling=input$normalization.variance.reduction)
+                                                  scaling=input$normalization.variance.reduction,
+                                                  subset.norm=match(input$ProtForNorm, ll))
            }, 
            SumByColumns = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                   input$normalization.method, 
-                                                  input$normalization.type)
+                                                  input$normalization.type,
+                                                  subset.norm=match(input$ProtForNorm, ll))
              
            },
            LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 

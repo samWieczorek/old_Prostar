@@ -105,9 +105,9 @@ output$IntensityStatsPlots <- renderUI({
       )),
   
   
-  fluidRow(
-    column(width=6,moduleDensityplotUI("densityPlot_DS")),
-    column(width=6, moduleBoxplotUI("boxPlot_DS"))
+  tagList(
+    moduleDensityplotUI("densityPlot_DS"),
+    moduleBoxplotUI("boxPlot_DS")
   )
   )
   

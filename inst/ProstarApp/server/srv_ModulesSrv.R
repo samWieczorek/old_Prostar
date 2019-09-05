@@ -536,6 +536,8 @@ moduleDensityplot <- function(input, output, session) {
 #------------------------------------------------------------
 moduleBoxplot <- function(input, output, session) {
     
+  ns <- session$ns
+  
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
     boxplot={
@@ -550,15 +552,30 @@ moduleBoxplot <- function(input, output, session) {
   })
   
   
+  
+  output$trackProtList <- renderUI({
+    
+    isolate({
+      req(rv$current.obj)
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    selectInput(ns("trackProt"), "Choose proteins to track", choices=ll, multiple = TRUE, width='400px')
+    })
+  })
+  
+  
     output$BoxPlot <- renderHighchart({
       req(rv$current.obj)
       rv$current.obj.name
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
+      input$trackProt
       tmp <- NULL
       isolate({
+        ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+        
         pattern <- paste0(GetCurrentObjName(),".boxplot")
-        tmp <- DAPAR::boxPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+        tmp <- DAPAR::boxPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
+                                  subset.view = match(input$trackProt, ll))
         #future(createPNGFromWidget(tmp,pattern))
           
         
@@ -571,10 +588,15 @@ moduleBoxplot <- function(input, output, session) {
       req(rv$current.obj)
       rv$PlotParams$legendForSamples
       rv$PlotParams$paletteConditions
+      input$trackProt
       tmp <- NULL
-      
-      isolate({
-        # A temp file to save the output. It will be deleted after renderImage
+      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+     isolate({
+       
+       sv <- match(input$trackProt, ll)
+       if (length(sv)==0){sv <- NULL}
+       print(sv)
+       # A temp file to save the output. It will be deleted after renderImage
         # sends it, because deleteFile=TRUE.
         outfile <- tempfile(fileext='.png')
         
@@ -582,7 +604,8 @@ moduleBoxplot <- function(input, output, session) {
         # png(outfile, width = 640, height = 480, units = "px")
         png(outfile)
         pattern <- paste0(GetCurrentObjName(),".violinplot")
-        tmp <- DAPAR::violinPlotD(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+        tmp <- DAPAR::violinPlotD(rv$current.obj, legend=rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
+                                  subset.view =  sv)
         #future(createPNGFromWidget(tmp,pattern))
         dev.off()
 })
