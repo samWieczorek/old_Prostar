@@ -16,6 +16,42 @@ module_Not_a_numeric <- function(input, output, session, n){
 
 
 
+moduleTrackProt <- function(input, output, session){
+  
+  ns <- session$ns
+  
+  
+  
+  observeEvent(input$typeSelect, {
+    shinyjs::toggle("listSelect", condition=input$typeSelect=="ProteinList")
+    shinyjs::toggle("randSelect", condition=input$typeSelect=="Random")
+    shinyjs::toggle("colSelect", condition=input$typeSelect=="Column")
+  })
+  
+  output$listSelect_UI <- renderUI({
+    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px')
+  })
+  
+  
+  output$randomSelect_UI <- renderUI({
+    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    hidden(selectInput(ns("randSelect"), "Random", choices=1:10, width=('120px')))
+  })
+  
+  output$columnSelect_UI <- renderUI({
+    ll <-  colnames(Biobase::fData(rv$current.obj))
+    hidden(selectInput(ns("colSelect"), "Column", choices=ll))
+  })
+  
+  return(reactive({list(type = input$typeSelect,
+                        list = input$listSelect,
+                        rand = input$randSelect,
+                        col = input$colSelect)}))
+}
+
+
+
 moduleDesignExample <- function(input, output, session, n){
   
   

@@ -7,9 +7,13 @@
 
 
 callModule(moduleDensityplot,"densityPlot_Norm")
+
+
 rv.norm <- reactiveValues(
-  trackFromBoxplot = NULL
+  trackFromBoxplot = NULL,
+  selectProt = NULL
 )
+rv.norm$selectProt <- callModule(moduleTrackProt, "ProtSelection")
 rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", trackList = reactive({if (isTRUE(input$SynctForNorm)) {input$ProtForNorm} else NULL}))
 
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
@@ -86,7 +90,8 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+           hidden(div(id='DivProtSelection',moduleTrackProtUI('ProtSelection')))
+          # hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -194,22 +199,6 @@ output$choose_normalizationScaling <- renderUI({
 
 
 
-#### management of synchronize 
-
-# observeEvent(rv.norm$trackFromBoxplot, {
-#   if (isTRUE(input$SynctForNorm)) {
-#     updateSelectInput("ProtForNorm", session, selected=rv.norm$trackFromBoxplot)
-#   }
-# })
-# 
-# 
-# observeEvent(input$ProtForNorm, {
-#   if (input$SynctForNorm) 
-#   {
-#     updateSelectInput("ProtForNorm", session, selected=rv.norm$trackFromBoxplot)
-#   }
-# })
-
 observeEvent(input$normalization.method,{
   #req(input$normalization.method)
   if (input$normalization.method == "None"){
@@ -222,11 +211,38 @@ observeEvent(input$normalization.method,{
   shinyjs::toggle("normalization.type", 
                   condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 
-    shinyjs::toggle('ProtForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
+    shinyjs::toggle('DivProtSelection', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
    shinyjs::toggle('SynctForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
   #print(rv.norm$trackFromBoxplot())
+   print(rv.norm$selectProt())
   
   })
+
+
+observeEvent(rv.norm$selectProt(),{
+  print("resume des selections")
+  print(GetIndicesOfSelectedProteins())
+})
+
+GetIndicesOfSelectedProteins <- reactive({
+  req(rv.norm$selectProt()$type)
+
+  
+  ind <- NULL
+  ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+  tt <- rv.norm$selectProt()$type
+  print(tt)
+  switch(tt,
+         ProteinList = {ind <- match(rv.norm$selectProt()$list, ll)},
+         Random = {ind <- sample(1:length(ll), rv.norm$selectProt()$rand, replace=FALSE)},
+         Column = {ind <- which(rv.norm$selectProt()$col == 1)}
+         )
+  print("indices = ")
+  print(ind)
+  ind
+})
+
+
 
 
 ##' Reactive behavior : Normalization of data
