@@ -86,8 +86,7 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px')),
-          hidden(checkboxInput("SynctForNorm", "Synchronise for normalization", value=FALSE))
+          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -99,6 +98,7 @@ output$screenNormalization1 <- renderUI({
       tags$hr(),
       
      tagList(
+       hidden(checkboxInput("SynctForNorm", "Synchronise with selection above", value=FALSE)),
        moduleBoxplotUI("boxPlot_Norm")),
      div(
     div(
@@ -331,50 +331,49 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 
 #######################
 
-viewComparisonNorm2 <- reactive({
-  rv$PlotParams$paletteConditions
-  leg <- NULL
-  grp <- NULL
-  
-  labelsNorm <- NULL
-  labelsToShowNorm <- NULL
-  gToColorNorm <- NULL
-  
-  labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-  
-  
-  
-  if (is.null(rv$whichGroup2Color) 
-      || (rv$whichGroup2Color == "Condition")){
-    labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-  }else {
-    labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                        Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                        Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                        Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                        sep= "_")
-  }
-  
-  
-  if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
-    obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-    obj2 <- rv$dataset[[input$datasets]]
-  }
-  else {
-    obj1 <-rv$dataset[[input$datasets]]
-    obj2 <- rv$current.obj
-    
-  }
-  
-  wrapper.compareNormalizationD(obj1, obj2,
-                                labelsNorm,
-                                as.numeric(labelsToShowNorm),
-                                palette = rv$PlotParams$paletteConditions)
-  
-})
+# viewComparisonNorm2 <- reactive({
+#   rv$PlotParams$paletteConditions
+#   leg <- NULL
+#   grp <- NULL
+#   
+#   labelsNorm <- NULL
+#   labelsToShowNorm <- NULL
+#   gToColorNorm <- NULL
+#   
+#   labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+#   
+#   
+#   
+#   if (is.null(rv$whichGroup2Color) 
+#       || (rv$whichGroup2Color == "Condition")){
+#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
+#   }else {
+#     labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
+#                         Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+#                         Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+#                         Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+#                         sep= "_")
+#   }
+#   
+#   
+#   if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
+#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+#     obj2 <- rv$dataset[[input$datasets]]
+#   }
+#   else {
+#     obj1 <-rv$dataset[[input$datasets]]
+#     obj2 <- rv$current.obj
+#     
+#   }
+#   
+#   wrapper.compareNormalizationD(obj1, obj2,
+#                                 labelsNorm,
+#                                 as.numeric(labelsToShowNorm),
+#                                 palette = rv$PlotParams$paletteConditions)
+#   
+# })
 
-
-
+################
 viewComparisonNorm <- reactive({
   rv$PlotParams$paletteConditions
   req(rv$current.obj)
@@ -416,10 +415,23 @@ viewComparisonNorm <- reactive({
     
   }
   
-  wrapper.compareNormalizationD(obj1, obj2,
+  if (is.null(rv.norm$trackFromBoxplot())) {
+    wrapper.compareNormalizationD(obj1, obj2,
                                 labelsNorm,
                                 as.numeric(labelsToShowNorm),
-                                palette = rv$PlotParams$paletteConditions)
+                                palette = rv$PlotParams$paletteConditions) }
+  else {
+    
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    
+    wrapper.compareNormalizationDSubset(obj1, obj2,
+                                        labelsNorm,
+                                        as.numeric(labelsToShowNorm),
+                                        idsForLegend = ll,
+                                        palette = NULL,
+                                        subset.view= match(rv.norm$trackFromBoxplot(), ll)
+                                )
+  }
   
 })
 
