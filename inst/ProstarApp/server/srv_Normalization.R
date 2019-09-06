@@ -7,7 +7,11 @@
 
 
 callModule(moduleDensityplot,"densityPlot_Norm")
-callModule(moduleBoxplot,"boxPlot_Norm")
+rv.norm <- reactiveValues(
+  trackFromBoxplot = NULL
+)
+rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", trackList = reactive({if (isTRUE(input$SynctForNorm)) {input$ProtForNorm} else NULL}))
+
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
@@ -82,7 +86,8 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+          hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px')),
+          hidden(checkboxInput("SynctForNorm", "Synchronise for normalization", value=FALSE))
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -188,6 +193,23 @@ output$choose_normalizationScaling <- renderUI({
 })
 
 
+
+#### management of synchronize 
+
+# observeEvent(rv.norm$trackFromBoxplot, {
+#   if (isTRUE(input$SynctForNorm)) {
+#     updateSelectInput("ProtForNorm", session, selected=rv.norm$trackFromBoxplot)
+#   }
+# })
+# 
+# 
+# observeEvent(input$ProtForNorm, {
+#   if (input$SynctForNorm) 
+#   {
+#     updateSelectInput("ProtForNorm", session, selected=rv.norm$trackFromBoxplot)
+#   }
+# })
+
 observeEvent(input$normalization.method,{
   #req(input$normalization.method)
   if (input$normalization.method == "None"){
@@ -201,7 +223,9 @@ observeEvent(input$normalization.method,{
                   condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 
     shinyjs::toggle('ProtForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
-
+   shinyjs::toggle('SynctForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
+  #print(rv.norm$trackFromBoxplot())
+  
   })
 
 

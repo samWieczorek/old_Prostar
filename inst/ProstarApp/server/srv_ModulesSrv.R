@@ -534,7 +534,7 @@ moduleDensityplot <- function(input, output, session) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session) {
+moduleBoxplot <- function(input, output, session, trackList) {
     
   ns <- session$ns
   
@@ -551,13 +551,18 @@ moduleBoxplot <- function(input, output, session) {
     )
   })
   
-  
+  observeEvent(trackList(), {
+    if (!is.null(trackList())) {
+      updateSelectInput(session, 'trackProt', selected=trackList())}
+  })
   
   output$trackProtList <- renderUI({
     
     isolate({
       req(rv$current.obj)
-    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    #if (is.null(trackList())) {
+      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    #} else { ll <- trackList()}
     selectInput(ns("trackProt"), "Choose proteins to track", choices=ll, multiple = TRUE, width='400px')
     })
   })
@@ -616,6 +621,8 @@ moduleBoxplot <- function(input, output, session) {
          alt = "This is alternate text")
 }, deleteFile = TRUE)
     
+    
+    return(reactive({input$trackProt}))
 }
 
 
