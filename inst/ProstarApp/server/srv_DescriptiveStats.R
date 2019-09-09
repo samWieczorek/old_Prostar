@@ -6,7 +6,7 @@ callModule(missingValuesPlots, "MVPlots_DS",
            palette = reactive({rv$PlotParams$paletteConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS")
-callModule(moduleBoxplot, "boxPlot_DS",trackList = reactive({NULL}))
+callModule(moduleBoxplot, "boxPlot_DS",params = reactive({NULL}))
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
 
 callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)

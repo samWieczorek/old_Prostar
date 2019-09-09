@@ -163,7 +163,7 @@ moduleBoxplotUI <- function(id) {
         ),
         
         tags$div(style="display:inline-block; vertical-align: middle;",
-                 uiOutput(ns('trackProtList'))
+                 moduleTrackProtUI(ns('widgets'))
         )
                  
       )         

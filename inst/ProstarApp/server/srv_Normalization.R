@@ -13,8 +13,14 @@ rv.norm <- reactiveValues(
   trackFromBoxplot = NULL,
   selectProt = NULL
 )
-rv.norm$selectProt <- callModule(moduleTrackProt, "ProtSelection")
-rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", trackList = reactive({if (isTRUE(input$SynctForNorm)) {input$ProtForNorm} else NULL}))
+
+
+rv.norm$selectProt <- callModule(moduleTrackProt, "ProtSelection", 
+                                 params=reactive({NULL}))
+
+
+rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", 
+                                       params = reactive({if (isTRUE(input$SynctForNorm)) {rv.norm$selectProt()} else {NULL}}))
 
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
 
@@ -31,7 +37,7 @@ callModule(moduleProcess, "moduleProcess_Normalization",
 
 
 
-
+#observeEvent(rv.norm$tempProt, {  rv.norm$selectProt <- rv.norm$tempProt})
 
 resetModuleNormalization <- reactive({  
   ## update widgets values (reactive values)
@@ -91,7 +97,6 @@ output$screenNormalization1 <- renderUI({
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
            hidden(div(id='DivProtSelection',moduleTrackProtUI('ProtSelection')))
-          # hidden(selectInput("ProtForNorm", "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -211,34 +216,26 @@ observeEvent(input$normalization.method,{
   shinyjs::toggle("normalization.type", 
                   condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 
-    shinyjs::toggle('DivProtSelection', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
-   shinyjs::toggle('SynctForNorm', condition= input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns"))
-  #print(rv.norm$trackFromBoxplot())
-   print(rv.norm$selectProt())
-  
+   cond <-  input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns")
+   shinyjs::toggle('DivProtSelection', condition= cond)
+   shinyjs::toggle('SynctForNorm', condition= cond)
   })
 
 
-observeEvent(rv.norm$selectProt(),{
-  print("resume des selections")
-  print(GetIndicesOfSelectedProteins())
-})
 
 GetIndicesOfSelectedProteins <- reactive({
-  req(rv.norm$selectProt()$type)
-
-  
+  rv.norm$trackFromBoxplot()
+  if(is.null(rv.norm$trackFromBoxplot()$type)){return(NULL)}
+ 
   ind <- NULL
   ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-  tt <- rv.norm$selectProt()$type
-  print(tt)
+  tt <- rv.norm$trackFromBoxplot()$type
   switch(tt,
-         ProteinList = {ind <- match(rv.norm$selectProt()$list, ll)},
-         Random = {ind <- sample(1:length(ll), rv.norm$selectProt()$rand, replace=FALSE)},
-         Column = {ind <- which(rv.norm$selectProt()$col == 1)}
+         ProteinList = {ind <- match(rv.norm$trackFromBoxplot()$list, ll)},
+         Random = {ind <- sample(1:length(ll), rv.norm$trackFromBoxplot()$rand, replace=FALSE)},
+         Column = {ind <- which(rv.norm$trackFromBoxplot()$col == 1)}
          )
-  print("indices = ")
-  print(ind)
+  if (length(ind)==0){ind <- NULL}
   ind
 })
 
@@ -266,7 +263,8 @@ observeEvent(input$perform.normalization,{
                                                   input$normalization.method, 
                                                   input$normalization.type, 
                                                   quantile = quant,
-                                                  subset.norm=match(input$ProtForNorm, ll))
+                                                  subset.norm=GetIndicesOfSelectedProteins()
+                                                  )
              
            } ,  
            MeanCentering = {
@@ -274,13 +272,15 @@ observeEvent(input$perform.normalization,{
                                                   input$normalization.method, 
                                                   input$normalization.type, 
                                                   scaling=input$normalization.variance.reduction,
-                                                  subset.norm=match(input$ProtForNorm, ll))
+                                                  subset.norm=GetIndicesOfSelectedProteins()
+                                                  )
            }, 
            SumByColumns = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                   input$normalization.method, 
                                                   input$normalization.type,
-                                                  subset.norm=match(input$ProtForNorm, ll))
+                                                  subset.norm=GetIndicesOfSelectedProteins()
+                                                  )
              
            },
            LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
@@ -393,7 +393,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 viewComparisonNorm <- reactive({
   rv$PlotParams$paletteConditions
   req(rv$current.obj)
-  
+  GetIndicesOfSelectedProteins()
   leg <- NULL
   grp <- NULL
   
@@ -431,22 +431,21 @@ viewComparisonNorm <- reactive({
     
   }
   
-  if (is.null(rv.norm$trackFromBoxplot())) {
+  if (length(GetIndicesOfSelectedProteins())==0) {
     wrapper.compareNormalizationD(obj1, obj2,
                                 labelsNorm,
                                 as.numeric(labelsToShowNorm),
                                 palette = rv$PlotParams$paletteConditions) }
   else {
-    
-    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    
+     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     wrapper.compareNormalizationDSubset(obj1, obj2,
                                         labelsNorm,
                                         as.numeric(labelsToShowNorm),
                                         idsForLegend = ll,
                                         palette = NULL,
-                                        subset.view= match(rv.norm$trackFromBoxplot(), ll)
+                                        subset.view= GetIndicesOfSelectedProteins()
                                 )
+   
   }
   
 })

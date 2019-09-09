@@ -15,12 +15,20 @@ module_Not_a_numeric <- function(input, output, session, n){
 }
 
 
-
-moduleTrackProt <- function(input, output, session){
+#-----------------------------------------------
+moduleTrackProt <- function(input, output, session, params){
   
   ns <- session$ns
   
-  
+  observe({
+    params()
+    print("Observe Params() in moduletrackProt")
+    print(params())
+    updateSelectInput(session, "typeSelect", selected=params()$type)
+    updateSelectInput(session, "listSelect", selected=params()$list)
+    updateSelectInput(session, "randSelect", selected=params()$rand)
+    updateSelectInput(session, "colSelect", selected=params()$col)
+    })
   
   observeEvent(input$typeSelect, {
     shinyjs::toggle("listSelect", condition=input$typeSelect=="ProteinList")
@@ -29,19 +37,25 @@ moduleTrackProt <- function(input, output, session){
   })
   
   output$listSelect_UI <- renderUI({
-    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px')
+  })
   })
   
   
   output$randomSelect_UI <- renderUI({
-    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     hidden(selectInput(ns("randSelect"), "Random", choices=1:10, width=('120px')))
+    })
   })
   
   output$columnSelect_UI <- renderUI({
-    ll <-  colnames(Biobase::fData(rv$current.obj))
+    isolate({
+      ll <-  colnames(Biobase::fData(rv$current.obj))
     hidden(selectInput(ns("colSelect"), "Column", choices=ll))
+    })
   })
   
   return(reactive({list(type = input$typeSelect,
@@ -49,6 +63,10 @@ moduleTrackProt <- function(input, output, session){
                         rand = input$randSelect,
                         col = input$colSelect)}))
 }
+
+
+
+
 
 
 
@@ -570,9 +588,31 @@ moduleDensityplot <- function(input, output, session) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, trackList) {
+moduleBoxplot <- function(input, output, session, params) {
     
   ns <- session$ns
+  rv.modboxplot <- reactiveValues(
+    var = NULL,
+    ind = NULL
+  )
+  
+  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}))
+  
+  observeEvent(req(rv.modboxplot$var()),{
+    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
+    print("In observe rv.modboxplot$var")
+    print(rv.modboxplot$var())
+    
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    switch(rv.modboxplot$var()$type,
+           ProteinList = {rv.modboxplot$ind <- match(rv.modboxplot$var()$list, ll)},
+           Random = {rv.modboxplot$ind <- sample(1:length(ll), rv.modboxplot$var()$rand, replace=FALSE)},
+           Column = {rv.modboxplot$ind <- which(rv.modboxplot$var()$col == 1)}
+    )
+    if (length(rv.modboxplot$ind)==0){rv.modboxplot$ind <- NULL}
+    
+  })
+  
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -587,36 +627,21 @@ moduleBoxplot <- function(input, output, session, trackList) {
     )
   })
   
-  observeEvent(trackList(), {
-    if (!is.null(trackList())) {
-      updateSelectInput(session, 'trackProt', selected=trackList())}
-  })
-  
-  output$trackProtList <- renderUI({
-    
-    isolate({
-      req(rv$current.obj)
-    #if (is.null(trackList())) {
-      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    #} else { ll <- trackList()}
-    selectInput(ns("trackProt"), "Choose proteins to track", choices=ll, multiple = TRUE, width='400px')
-    })
-  })
-  
+ 
   
     output$BoxPlot <- renderHighchart({
       req(rv$current.obj)
       rv$current.obj.name
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
-      input$trackProt
+      rv.modboxplot$ind
       tmp <- NULL
       isolate({
         ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
         
         pattern <- paste0(GetCurrentObjName(),".boxplot")
         tmp <- DAPAR::boxPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
-                                  subset.view = match(input$trackProt, ll))
+                                  subset.view = rv.modboxplot$ind)
         #future(createPNGFromWidget(tmp,pattern))
           
         
@@ -629,14 +654,10 @@ moduleBoxplot <- function(input, output, session, trackList) {
       req(rv$current.obj)
       rv$PlotParams$legendForSamples
       rv$PlotParams$paletteConditions
-      input$trackProt
+      rv.modboxplot$ind
       tmp <- NULL
-      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-     isolate({
+      isolate({
        
-       sv <- match(input$trackProt, ll)
-       if (length(sv)==0){sv <- NULL}
-       print(sv)
        # A temp file to save the output. It will be deleted after renderImage
         # sends it, because deleteFile=TRUE.
         outfile <- tempfile(fileext='.png')
@@ -645,8 +666,9 @@ moduleBoxplot <- function(input, output, session, trackList) {
         # png(outfile, width = 640, height = 480, units = "px")
         png(outfile)
         pattern <- paste0(GetCurrentObjName(),".violinplot")
-        tmp <- DAPAR::violinPlotD(rv$current.obj, legend=rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
-                                  subset.view =  sv)
+        tmp <- DAPAR::violinPlotD(rv$current.obj, legend = rv$PlotParams$legendForSamples, 
+                                  palette = rv$PlotParams$paletteConditions,
+                                  subset.view =  rv.modboxplot$ind)
         #future(createPNGFromWidget(tmp,pattern))
         dev.off()
 })
@@ -658,7 +680,7 @@ moduleBoxplot <- function(input, output, session, trackList) {
 }, deleteFile = TRUE)
     
     
-    return(reactive({input$trackProt}))
+    return(reactive({rv.modboxplot$var()}))
 }
 
 
