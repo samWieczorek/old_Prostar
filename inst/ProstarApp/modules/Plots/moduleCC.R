@@ -2,33 +2,32 @@ library(visNetwork)
 
 moduleCCUI <- function(id) {
   ns <- NS(id)
-  tabPanel("Graph",
+  tabPanel("Peptide-Protein Graph",
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
              tabPanel("Settings",
-                      selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(rv$current.obj)),
+                      selectInput(ns('pepInfo'), "Peptide Info", choices=colnames(fData(rv$current.obj)),
                                   multiple=TRUE)
              ),
-             tabPanel("CC one prot",
+             tabPanel("One-One Connex Components",
                       tagList(
-                        shinyBS::bsCollapse(id = "collapseCCInfos", 
-                                   open = "",
-                                   multiple = TRUE,
-                                   shinyBS::bsCollapsePanel("One - One CC", 
-                                                   fluidRow(
-                                                     column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
-                                                     column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
-                                                     ),style = "info"),
-                                   shinyBS::bsCollapsePanel("One - Multi CC", 
-                                                   fluidRow(
-                                                     column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
-                                                     column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
-                                                   ), style = "primary")
+                        fluidRow(
+                                 column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
+                                 column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
+                                 )
+                        #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
+                        )
+             ),
+             tabPanel("One-Multi Connex Components",
+                      tagList(
+                        fluidRow(
+                                  column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
+                                  column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
                         )
                       )
              ),
-             tabPanel("CC multi prot",
+             tabPanel("Multi-Multi Connex Components",
                       tagList(
                         #uiOutput(ns("CCTooltip_UI")),
                         # highchartOutput(ns("jiji")))
@@ -104,6 +103,24 @@ moduleCC <- function(input, output, session,cc){
     this.index+1
     rvCC$selectedCC <- this.index+1
   })
+  
+  
+  # output$visNet_CC_OneOne <- renderVisNetwork({
+  #   req(rvCC$selectedCC)
+  #   local <-   cc()[Get_CC_One2One()]
+  #   
+  #   rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
+  #   
+  #   display.CC.visNet(rvCC$selectedCCgraph) %>%
+  #     visEvents(click = paste0("function(nodes){
+  #               Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
+  #               Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
+  #               ;}")
+  #     ) %>%
+  #     visOptions(highlightNearest = TRUE )
+  # })
+  # 
+  
   
 
 output$visNet_CC <- renderVisNetwork({
@@ -383,7 +400,7 @@ output$CCDetailed <- renderUI({
   BuildOne2MultiTab <- reactive({
     rv$CC$allPep
     table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
+    table <- table[c('Proteins Ids', 'nPep', 'Peptides Ids')]
     table
   })
   
@@ -391,7 +408,7 @@ output$CCDetailed <- renderUI({
   BuildMulti2AnyTab <- reactive({
     rv$CC$allPep
     table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
+    table <- table[c('Proteins Ids', 'nPep', 'Peptides Ids')]
     
     table
   })
