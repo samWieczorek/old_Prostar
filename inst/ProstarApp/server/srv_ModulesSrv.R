@@ -16,14 +16,25 @@ module_Not_a_numeric <- function(input, output, session, n){
 
 
 #-----------------------------------------------
-moduleTrackProt <- function(input, output, session, params){
+moduleTrackProt <- function(input, output, session, params, reset){
   
   ns <- session$ns
   
+  # rv.track <- reactiveValues(reset = FALSE)
+  # 
+  # observeEvent(reset(),{
+  #   if(isTRUE(reset())) {
+  #     
+  #     print("toto")
+  #   } else {
+  #     print("NON")
+  #   }
+  #   rv.track$reset <- FALSE
+  # })
+  # 
+  
   observe({
     params()
-    print("Observe Params() in moduletrackProt")
-    print(params())
     updateSelectInput(session, "typeSelect", selected=params()$type)
     updateSelectInput(session, "listSelect", selected=params()$list)
     updateSelectInput(session, "randSelect", selected=params()$rand)
@@ -47,7 +58,7 @@ moduleTrackProt <- function(input, output, session, params){
   output$randomSelect_UI <- renderUI({
     isolate({
       ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    hidden(selectInput(ns("randSelect"), "Random", choices=1:10, width=('120px')))
+    hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
     })
   })
   
@@ -60,7 +71,7 @@ moduleTrackProt <- function(input, output, session, params){
   
   return(reactive({list(type = input$typeSelect,
                         list = input$listSelect,
-                        rand = input$randSelect,
+                        rand = as.numeric(input$randSelect),
                         col = input$colSelect)}))
 }
 
@@ -596,7 +607,7 @@ moduleBoxplot <- function(input, output, session, params) {
     ind = NULL
   )
   
-  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}))
+  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({FALSE}))
   
   observeEvent(req(rv.modboxplot$var()),{
     if (is.null(rv.modboxplot$var()$type)){return(NULL)}

@@ -11,12 +11,14 @@ callModule(moduleDensityplot,"densityPlot_Norm")
 
 rv.norm <- reactiveValues(
   trackFromBoxplot = NULL,
-  selectProt = NULL
+  selectProt = NULL, 
+  resetTracking = FALSE
 )
 
 
 rv.norm$selectProt <- callModule(moduleTrackProt, "ProtSelection", 
-                                 params=reactive({NULL}))
+                                 params=reactive({NULL}), 
+                                 reset = reactive({rv.norm$resetTracking}))
 
 
 rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", 
@@ -208,6 +210,7 @@ observeEvent(input$normalization.method,{
   #req(input$normalization.method)
   if (input$normalization.method == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
+    rv.norm$resetTracking <- TRUE
   }
   
   shinyjs::toggle("perform.normalization", condition=input$normalization.method != "None")
