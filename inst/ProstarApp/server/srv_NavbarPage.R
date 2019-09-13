@@ -1,16 +1,10 @@
 
-#observeEvent(rv$current.obj,{  BuildNavbarPage()})
+observeEvent(rv$current.obj,{  BuildNavbarPage()})
 
 
 ClearNavbarPage <- reactive({
   
-  
-  # if ("UpdateDesign" %in% rv$UI_TabsList){
-  #   removeTab(inputId = "navPage",target="updateDesignTab")
-  #   isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "UpdateDesign")})
-  # }
-  
-  if ("dataProcessPeptTab" %in% rv$UI_TabsList){
+    if ("dataProcessPeptTab" %in% rv$UI_TabsList){
     removeTab(inputId = "navPage", target = "Data processing (peptide)")
     isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
     }

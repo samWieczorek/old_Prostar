@@ -276,6 +276,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'sharedPeptidesInfos'
+                                                   ),'print'),
                                     dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
@@ -322,6 +327,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'specific peptides infos'
+                                                   ),'print'),
                                     dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
@@ -389,6 +399,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'Infos'
+                                                   ),'print'),
                                     dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
@@ -667,22 +682,32 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 
   
-    output$StaticDataTable <- renderDT({
+    output$StaticDataTable <- DT::renderDataTable({
       req(rv$current.obj)
       #table2show
       if (length(table2show())==0){return(NULL)}
       
       isolate({
            DT::datatable(table2show(), 
-                         extensions = c('Scroller', 'Buttons'),
-                         escape = FALSE,
-                          rownames= showRownames,
-                          option=list(initComplete = initComplete(),
-                                dom = dom,
-                                server = FALSE,
-                                autoWidth=TRUE,
-                          columnDefs = list(list(width='150px',targets= "_all")),
-                          ordering = FALSE
+                         extensions = 'Buttons',
+                         #escape = TRUE,
+                         # rownames= showRownames,
+                          options=list(
+                            buttons = list(
+                              list(
+                                extend = 'csv',
+                                filename = 'Prostar_export'
+                              ),
+                              list(
+                                extend = 'pdf',
+                                filename = 'Prostar_export'
+                              ),'print'),
+                            #initComplete = initComplete(),
+                                dom = dom
+                            #    server = FALSE,
+                            #    autoWidth=TRUE,
+                          #columnDefs = list(list(width='150px',targets= "_all")),
+                          #ordering = FALSE
               )
             )
       })

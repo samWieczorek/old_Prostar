@@ -37,7 +37,7 @@ output$linktoDemoPdf <- renderUI({
     system(cmd)
   filename <-paste0(input$demoDataset,".pdf", sep="")
   tags$p("Dataset documentation ",
-  tags$a(href=filename, target='_blank', "(pdf)"))
+  tags$a(href=filename, target='_blank', paste0("(",filename,")")))
  })
 
 

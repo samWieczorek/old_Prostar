@@ -2,7 +2,7 @@ rvModProcess <- reactiveValues(
   
   moduleFiltering = list(name = "Filtering",
                              stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Save"),
-                             isMandatory = rep(FALSE,5),
+                             isMandatory = c(rep(FALSE,4),TRUE),
                              ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
                                            screenStep2 = uiOutput("screenFiltering2"),
                                            screenStep3 = uiOutput("screenFiltering3"),
@@ -16,7 +16,7 @@ rvModProcess <- reactiveValues(
   
   moduleNormalization = list(name = "Normalization",
                              stepsNames = c("Normalization", "Save"),
-                             isMandatory = rep(FALSE,2),
+                             isMandatory = rep(TRUE,2),
                              ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                            screenStep2 = uiOutput("screenNormalization2")),
                              rstFunc = reactive({resetModuleNormalization()})),
@@ -67,7 +67,7 @@ rvModProcess <- reactiveValues(
   moduleHypothesisTestDone =  rep(FALSE,2),
   
   moduleConvert = list(name = "Convert",
-                       stepsNames = c("Select file", "Data Id", "Epx. & feat. data", "Build design", "Convert"),
+                       stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                        isMandatory = rep(TRUE,5),
                        ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                      screenStep2 = uiOutput("Convert_DataId"),

@@ -253,7 +253,12 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable({
   DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits),
                 extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
-                               dom = 'Bfrtip',
+                               buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'detQuant_impValues'
+                                              ),'print'),
+                               dom='Bfrtip',
                                bLengthChange = FALSE))
 })
 

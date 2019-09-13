@@ -56,12 +56,12 @@ output$plotsCorM <- renderUI({
                                                    "Tune to modify the color gradient",
                                                    min = 0,max = 1,value = defaultGradientRate,step=0.01),
                                        tooltip="Plots parameters",
-                                       style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                       icon = icon("gear"), status = optionsBtnClass
                                        
                               )
                             ),
                             tooltip="Plots parameters",
-                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                            icon = icon("gear"), status = optionsBtnClass
                           ))
                )
                
@@ -347,7 +347,12 @@ output$viewpData <- DT::renderDataTable({
                         rownames=  FALSE,
                         
                     options=list(initComplete = initComplete(),
-                                 dom = 'Brtip',
+                                 buttons = list('copy',
+                                                list(
+                                                  extend = 'csv',
+                                                  filename = 'Samples data'
+                                                ),'print'),
+                                 dom='Bfrtip',
                                  pageLength=DT_pagelength,
                                  orderClasses = TRUE,
                                  autoWidth=TRUE,
@@ -379,6 +384,11 @@ output$viewfData <- DT::renderDataTable({
                              rownames = TRUE,
                              extensions = c('Scroller', 'Buttons','FixedColumns'),
                         options=list(initComplete = initComplete(),
+                                     buttons = list('copy',
+                                                    list(
+                                                      extend = 'csv',
+                                                      filename = 'feature metadata'
+                                                    ),'print'),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
                                     orderClasses = TRUE,
@@ -400,8 +410,13 @@ output$viewfData <- DT::renderDataTable({
                              rownames=TRUE,
                              extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                              options=list(initComplete = initComplete(),
-                                 dom='Bfrtip',
-                                 pageLength=DT_pagelength,
+                                          buttons = list('copy',
+                                                         list(
+                                                           extend = 'csv',
+                                                           filename = 'feature metadata'
+                                                         ),'print'),
+                                          dom='Bfrtip',
+                                          pageLength=DT_pagelength,
                                  deferRender = TRUE,
                                  bLengthChange = FALSE,
                                  scrollX = 200,
@@ -434,7 +449,12 @@ output$viewExprsMissValues <- DT::renderDataTable({
                       rownames = FALSE,
                       
         options=list(
-          dom = 'Bfrtip',
+          buttons = list('copy',
+                         list(
+                           extend = 'csv',
+                           filename = 'missing values'
+                         ),'print'),
+          dom='Bfrtip',
           orderClasses = TRUE,
             autoWidth=FALSE,
             bLengthChange = FALSE,
@@ -474,9 +494,9 @@ corrMatrix <- reactive({
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-    else{
-        gradient <- input$expGradientRate}
-        isolate({
+    else{gradient <- input$expGradientRate }
+    
+    isolate({
           rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
             rv$tempplot$corrMatrix
             })
@@ -531,8 +551,12 @@ output$table <- DT::renderDataTable({
     dt <- datatable( df,
                      extensions = c('Scroller', 'Buttons'),
                     options = list(
-                      dom = 'Bfrtip',
-                      initComplete = initComplete(),
+                      buttons = list('copy',
+                                     list(
+                                       extend = 'csv',
+                                       filename = 'quantitation data'
+                                     ),'print'),
+                      dom='Bfrtip',initComplete = initComplete(),
                         displayLength = 20,
                         deferRender = TRUE,
                         bLengthChange = FALSE,

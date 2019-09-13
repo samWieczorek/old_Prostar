@@ -55,8 +55,8 @@ output$screenAggregation1 <- renderUI({
                         modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL, choices=
                                c("No" = "No",
-                                 "as protein specific"= "Yes1" ,
-                                 "redistribution" = "Yes2" ),
+                                 "Yes (as protein specific)"= "Yes1" ,
+                                 "Yes (redistribution)" = "Yes2" ),
                              selected=rv$widgets$aggregation$includeSharedPeptides)),
       div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
               radioButtons("AggregationConsider", "Consider", 
@@ -284,7 +284,12 @@ output$aggregationStats <- DT::renderDataTable ({
                 rownames= FALSE,
                 extensions = c('Scroller', 'Buttons'),
                 option=list(initComplete = initComplete(),
-                            dom = 'Brt',
+                            buttons = list('copy',
+                                           list(
+                                             extend = 'csv',
+                                             filename = 'aggregation stats'
+                                           ),'print'),
+                            dom='Brt',
                             autoWidth=TRUE,
                             ordering=F,
                             columnDefs = list(list(width='150px',targets= 0),
@@ -377,7 +382,7 @@ output$Aggregation_Step2 <- renderUI({
                       choices = choices,
                       multiple = TRUE, width='200px',
                       size = 10,
-                      selectize = FALSE)
+                      selectize = TRUE)
         )
       )
     )

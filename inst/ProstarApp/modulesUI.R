@@ -32,7 +32,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                             tags$input(type="text", value=""),
                             tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
                    )),
-            column(width=10, tags$p("Partially Observed Value"))
+            column(width=10, tags$p("Partially Observed Value (POV)"))
         ),
         
         fluidRow(
@@ -41,7 +41,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                             tags$input(type="text", value=""),
                             tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
                    )),
-            column(width=10, tags$p("Missing in Entire Condition"))
+            column(width=10, tags$p("Missing in Entire Condition (MEC)"))
         )
     )
 }

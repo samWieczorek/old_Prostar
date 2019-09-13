@@ -435,7 +435,12 @@ output$GODatatable <- renderDataTable({
     
     dt <- datatable( as.data.frame(rv$GO$groupGO_data@result),
                      extensions = c('Scroller', 'Buttons'),
-                     options = list(dom = 'Bfrtip',
+                     options = list(buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'GO_datatable'
+                                                   ),'print'),
+                                    dom='Bfrtip',
                                     initComplete = initComplete(),
                                     displayLength = 20,
                                     deferRender = TRUE,
@@ -490,7 +495,12 @@ output$nonIdentifiedProteins <- renderDataTable({
       
       dt <- datatable( data,
                        extensions = c('Scroller', 'Buttons'),
-                       options = list(dom = 'Bfrtip',
+                       options = list(buttons = list('copy',
+                                                     list(
+                                                       extend = 'csv',
+                                                       filename = 'nonIdentifiedProteins'
+                                                     ),'print'),
+                                      dom='Bfrtip',
                                       initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
@@ -722,7 +732,12 @@ output$GO_resumeParams <- DT::renderDataTable({
                 rownames=FALSE,
                 extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
-                               dom = 'Brt',
+                               buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'GO_paramsUsed'
+                                              ),'print'),
+                               dom='Brt',
                                buttons = c('copy','excel', 'pdf', 'print'),
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = FALSE)

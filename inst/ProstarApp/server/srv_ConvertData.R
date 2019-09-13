@@ -39,9 +39,7 @@ resetModuleConvert<- reactive({
   updateRadioButtons(session, "checkDataLogged", selected="no")
   updateCheckboxInput(session,"replaceAllZeros", value= TRUE)
   
-  
-  
-  rvModProcess$moduleConvertDone = rep(FALSE, 5)
+  rvModProcess$moduleConvertDone <- rep(FALSE, 5)
  
 })
 
@@ -93,24 +91,31 @@ tags$div(
 output$Convert_ExpFeatData <- renderUI({
   
   tagList(
-    fluidRow(
-      column(width=4,checkboxInput("selectIdent", 
-                                   "Select columns for identification method", 
-                                   value = FALSE)),
-      column(width=4,uiOutput("checkIdentificationTab"))
-    ),
+    
     fluidRow(
       column(width=4,uiOutput("eData",width = "400px")),
-      column(width=8,DT::dataTableOutput("x1", width='500px'))),
-    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+      column(width=8,
+             tagList(
+               uiOutput("checkIdentificationTab"),
+               DT::dataTableOutput("x1", width='500px'),
+                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
-                                   })"))
+                                   })")),
+               hidden(checkboxInput("selectIdent", 
+                  "Select columns for identification method", 
+                  value = FALSE)
+               )
                            )
+    )
+  )
+  )
   })
 
 
 
-
+  observeEvent(req(input$eData.box), {
+    shinyjs::toggle('selectIdent', condition= length(input$eData.box)>0)
+  })
 
 output$Convert_BuildDesign <- renderUI({
   
@@ -118,7 +123,8 @@ output$Convert_BuildDesign <- renderUI({
     tags$p("If you do not know how to fill the experimental design, you can click
                                   on the '?' next to each design in the list that appear once the conditions 
                                   are checked or got to the ", 
-           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+           tags$a(href="http://prostar-proteomics.org/#how-to-build-a-valid-experimental-design", target='_blank', 'FAQ'),
+    
            " page."),
     fluidRow(
       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
@@ -168,7 +174,7 @@ output$Convert_Convert <- renderUI({
 observe({
   req(input$idBox)
   req(rv$tab1)
-  test1 <- test2 <- FALSE
+  test1 <- test2 <- TRUE
   
   test1 <- (input$typeOfData == "peptide") && !(input$convert_proteinId == "")
  
@@ -180,7 +186,6 @@ observe({
     test2 <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
   }
-   
   rvModProcess$moduleConvertDone[2] <- test1 && test2
 })
 
@@ -390,9 +395,9 @@ output$conversionDone <- renderUI({
 
 
 
-observe({
-  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
-})
+# observe({
+#   rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
+# })
 
 
 
@@ -457,13 +462,15 @@ output$eData <- renderUI({
 
 
 observe({
+  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
   rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
+  rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
 })
 
 
-observe({
-  rvModProcess$moduleConvertDone[4] <- !is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid)
-})
+# observe({
+#   rvModProcess$moduleConvertDone[4] <- !is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid)
+# })
 
 
 output$checkIdentificationTab <- renderUI({
@@ -547,7 +554,12 @@ output$x1 <- renderDataTable(
             'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
         # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-        dom = 'Bfrtip',
+        buttons = list('copy',
+                       list(
+                         extend = 'csv',
+                         filename = 'x1'
+                       ),'print'),
+        dom='Bfrtip',
         autoWidth=TRUE,
         deferRender = TRUE,
         bLengthChange = FALSE,
@@ -680,7 +692,7 @@ observeEvent(input$createMSnsetButton,{
                                     proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
                                     versions
                 )
-                
+                rvModProcess$moduleConvertDone[5] <- TRUE
                 print("Convert : after creating MSnset")
                 ClearUI()
                 ClearMemory()
@@ -693,8 +705,9 @@ observeEvent(input$createMSnsetButton,{
                 print("Convert : before loadObjectInMemoryFromConverter")
                 loadObjectInMemoryFromConverter()
                 print("Convert : after loadObjectInMemoryFromConverter")
+                
                 updateTabsetPanel(session, "tabImport", selected = "Convert")
-                rvModProcess$moduleConvertDone[5] <- TRUE
+                
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
@@ -702,11 +715,12 @@ observeEvent(input$createMSnsetButton,{
                                         "so that they cannot be logged. Please check back the dataset or", 
                                         "the log option in the first tab.",
                                         sep=" "))
-                } else {
-                    shinyjs::info(paste("Warning in CreateMSnSet",":",
-                                        conditionMessage(w), 
-                                        sep=" "))
-                }
+                } 
+              # else {
+              #       shinyjs::info(paste("Warning in CreateMSnSet",":",
+              #                           conditionMessage(w), 
+              #                           sep=" "))
+              #   }
             }, error = function(e) {
                 shinyjs::info(paste("Error :","CreateMSnSet",":",
                                     conditionMessage(e), 

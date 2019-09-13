@@ -192,7 +192,7 @@ getDatasetName <- reactive({
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent( input$datasets,ignoreInit = TRUE,{ 
+observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
 
     isolate({
         if (!is.null(input$datasets)) {
@@ -292,10 +292,6 @@ ComputeAdjacencyMatrices <- reactive({
   print("mat adj 2 done")
   
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
-  
-  print("dimensions matrice d'adjacence")
-  print(dim(matSharedPeptides))
-  print(dim(matUniquePeptides))
   rv$matAdj
 })
 
@@ -308,6 +304,7 @@ ComputeConnexComposants <- reactive({
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
   print("end ComputeConnexComposants")
+  
   rv$CC
 })
 
@@ -401,7 +398,7 @@ loadObjectInMemoryFromConverter <- function(){
     incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
-    
+    print("After BuildNavbarPage")
   })
 }
 
@@ -557,7 +554,7 @@ resetModuleProcess <- function(moduleName, obj){
           Convert ={
             
             rvModProcess$moduleConvert = list(name = "Convert",
-                                              stepsNames = c("Select file", "Data Id", "Epx. & feat. data", "Build design", "Convert"),
+                                              stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                                               isMandatory = rep(TRUE,5),
                                               ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                                             screenStep2 = uiOutput("Convert_DataId"),
@@ -620,7 +617,7 @@ ClearMemory <- function(){
   resetModuleProcess("PepImputation")
   resetModuleProcess("ProtImputation")
   resetModuleProcess("HypothesisTest")
-  resetModuleProcess("Convert")
+  #resetModuleProcess("Convert")
   resetModuleProcess("AnaDiff")
   
   ########
