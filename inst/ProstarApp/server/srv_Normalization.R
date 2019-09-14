@@ -234,9 +234,9 @@ GetIndicesOfSelectedProteins <- reactive({
   ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
   tt <- rv.norm$trackFromBoxplot()$type
   switch(tt,
-         ProteinList = {ind <- match(rv.norm$trackFromBoxplot()$list, ll)},
-         Random = {ind <- sample(1:length(ll), rv.norm$trackFromBoxplot()$rand, replace=FALSE)},
-         Column = {ind <- which(rv.norm$trackFromBoxplot()$col == 1)}
+         ProteinList = ind <- rv.norm$trackFromBoxplot()$list.indices, ll,
+         Random = ind <- rv.norm$trackFromBoxplot()$rand.indices,
+         Column = ind <- rv.norm$trackFromBoxplot()$col.indices
          )
   if (length(ind)==0){ind <- NULL}
   ind
