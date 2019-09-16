@@ -23,7 +23,7 @@ moduleTrackProtUI <- function(id){
   ns <- NS(id)
   tagList(
     selectInput(ns("typeSelect"), "Type of selection", 
-                     choices=c("Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
+                     choices=c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
                 width=('130px')),
   uiOutput(ns("listSelect_UI")),
   uiOutput(ns("randomSelect_UI")),

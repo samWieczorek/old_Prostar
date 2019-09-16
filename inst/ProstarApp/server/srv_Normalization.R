@@ -22,7 +22,9 @@ rv.norm$selectProt <- callModule(moduleTrackProt, "ProtSelection",
 
 
 rv.norm$trackFromBoxplot <- callModule(moduleBoxplot,"boxPlot_Norm", 
-                                       params = reactive({if (isTRUE(input$SynctForNorm)) {rv.norm$selectProt()} else {NULL}}))
+                                       params = reactive({if (isTRUE(input$SynctForNorm)) {rv.norm$selectProt()} else {NULL}}),
+                                        reset = reactive({rv.norm$resetTracking}))
+
 
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
 
@@ -45,16 +47,18 @@ resetModuleNormalization <- reactive({
   ## update widgets values (reactive values)
   resetModuleProcess("Normalization")
   
-  
+  print("##### fonction RESET")
   ## update widgets in UI
-  updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
+  #updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
+  updateSelectInput(session, "normalization.method", selected = "None")
   updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
   updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
   updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
   updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
   
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
-  
+  print("update reset value")
+  rv.norm$resetTracking <- TRUE
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   

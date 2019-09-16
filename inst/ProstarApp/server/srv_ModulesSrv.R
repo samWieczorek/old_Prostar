@@ -22,6 +22,18 @@ moduleTrackProt <- function(input, output, session, params, reset){
   
   
   observe({
+    reset()
+    print("In track module =RESET observe")
+    print(reset())
+    if (reset() > 0) {
+      updateSelectInput(session, "typeSelect", selected="None")
+      updateSelectInput(session, "listSelect", NULL)
+      updateSelectInput(session, "randSelect", selected="1")
+      updateSelectInput(session, "colSelect", selected=NULL)
+    }
+  })
+  
+  observe({
     params()
     updateSelectInput(session, "typeSelect", selected=params()$type)
     updateSelectInput(session, "listSelect", selected=params()$list)
@@ -30,15 +42,15 @@ moduleTrackProt <- function(input, output, session, params, reset){
     })
   
   observeEvent(input$typeSelect, {
-    shinyjs::toggle("listSelect", condition=input$typeSelect=="ProteinList")
-    shinyjs::toggle("randSelect", condition=input$typeSelect=="Random")
-    shinyjs::toggle("colSelect", condition=input$typeSelect=="Column")
+    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList")&&(input$typeSelect!="None"))
+    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random")&&(input$typeSelect!="None"))
+    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
   })
   
   output$listSelect_UI <- renderUI({
     isolate({
       ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px')
+    hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
   })
   })
   
@@ -614,7 +626,7 @@ moduleDensityplot <- function(input, output, session) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, params) {
+moduleBoxplot <- function(input, output, session, params, reset) {
     
   ns <- session$ns
   rv.modboxplot <- reactiveValues(
@@ -623,7 +635,7 @@ moduleBoxplot <- function(input, output, session, params) {
     indices = NULL
   )
   
-  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({FALSE}))
+  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({reset()}))
   
   observeEvent(req(rv.modboxplot$var()),{
     if (is.null(rv.modboxplot$var()$type)){return(NULL)}
