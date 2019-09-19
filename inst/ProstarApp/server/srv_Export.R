@@ -118,8 +118,7 @@ output$exportOptions <- renderUI({
 
 
 output$chooseMetaDataExport <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)  }
+  req(rv$current.obj)
   
   choices <- colnames(fData(rv$current.obj))
   names(choices) <- colnames(fData(rv$current.obj))
@@ -173,18 +172,7 @@ output$downloadMSnSet <- downloadHandler(
   },
   content = function(file) {
     dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    if (length(input$colsToExport) == 1){
-      Biobase::fData(dataToExport) <- 
-        data.frame(fData(dataToExport)[,input$colsToExport])
-      colnames( Biobase::fData(dataToExport)) <- input$colsToExport
-      t <- buildWritableVector(input$colsToExport)
-    }
-    else if (length(input$colsToExport) > 1){
-      Biobase::fData(dataToExport) <- 
-        data.frame(fData(dataToExport)[,input$colsToExport])
-      t <- buildWritableVector(input$colsToExport)
-    }
-    
+      Biobase::fData(dataToExport) <- Biobase::fData(dataToExport)[,c(rv$proteinId, input$colsToExport)]
     
     colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)

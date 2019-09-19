@@ -44,7 +44,7 @@ observeEvent(input$btn_checkConds,{
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
   
-  if (isTRUE(input$convert_reorder)) {
+  if (input$convert_reorder== "Yes") {
     rv$newOrder <- order(rv$hot["Condition"])
     rv$hot <- rv$hot[rv$newOrder,]
   }
@@ -183,8 +183,8 @@ output$UI_hierarchicalExp <- renderUI({
       radioButtons("chooseExpDesign", "",
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
-                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" ),
-                   selected=character(0))
+                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" )
+                   )
     )
   }
   
@@ -215,7 +215,7 @@ callModule(moduleDesignExample,"buildDesignExampleTwo", 2)
 #------------------------------------------------------------------------------
 output$designExamples <- renderUI({
   input$chooseExpDesign
-  print(input$chooseExpDesign)
+  print(paste0("in designExamples renderUI, chooseExpDesign = ",input$chooseExpDesign))
   switch(input$chooseExpDesign,
          FlatDesign = 
            {

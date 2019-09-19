@@ -72,8 +72,8 @@ rvModProcess <- reactiveValues(
                        ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                      screenStep2 = uiOutput("Convert_DataId"),
                                      screenStep3 = uiOutput("Convert_ExpFeatData"),
-                                     screenStep2 = uiOutput("Convert_BuildDesign"),
-                                     screenStep3 = uiOutput("Convert_Convert")
+                                     screenStep4 = uiOutput("Convert_BuildDesign"),
+                                     screenStep5 = uiOutput("Convert_Convert")
                                     ),
                        rstFunc = reactive({resetModuleConvert()})),
   moduleConvertDone =  rep(FALSE,5),
@@ -84,9 +84,20 @@ rvModProcess <- reactiveValues(
                        ll.UI = list( screenStep1 = uiOutput("screenAnaDiff1"),
                                      screenStep2 = uiOutput("screenAnaDiff2"),
                                      screenStep3 = uiOutput("screenAnaDiff3"),
-                                     screenStep2 = uiOutput("screenAnaDiff4")
+                                     screenStep4 = uiOutput("screenAnaDiff4")
                        ),
                        rstFunc = reactive({resetModuleAnaDiff()})),
-  moduleAnaDiffDone =  rep(FALSE,4)
+  moduleAnaDiffDone =  rep(FALSE,4),
+  
+  moduleGO = list(name = "GO",
+                       stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                       isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                       ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                     screenStep2 = uiOutput("screenGO2"),
+                                     screenStep3 = uiOutput("screenGO3"),
+                                     screenStep4 = uiOutput("screenGO4")
+                       ),
+                       rstFunc = reactive({resetModuleGO()})),
+  moduleGODone =  rep(FALSE,4)
 )
 

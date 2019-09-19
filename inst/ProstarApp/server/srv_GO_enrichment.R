@@ -1,84 +1,26 @@
 
+callModule(moduleProcess, "moduleProcess_GO", 
+           isDone = reactive({rvModProcess$moduleGODone}), 
+           pages = reactive({rvModProcess$moduleGO}),
+           rstFunc = resetModuleGO)
 
 
-##--------------------------------------------------------
-##---------------------------------------------------------
 
-output$checkGOPanel <- renderUI({
-  rv$pageGO
-  color <- rep("lightgrey",NUM_PAGES_GO)
-  
-  ##Step 1
-  if (rv$pageGO >= 1){
-    res <- TRUE
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageGO >= 2){
-    res <- TRUE
-    ifelse(res, color[2] <- "green", color[2] <- "red")
-    
-  }
-  
-  ## Step 3: Choose quantitative data
-  if (rv$pageGO >= 3){
-    res <- TRUE
-    
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    
-  }
-  
-  if (rv$pageGO >= 4){
-    res <- TRUE
-    ifelse(res, color[4] <- "green", color[4] <- "red")
-  }
+resetModuleGO <- reactive({  
+  ## update rv$widgets values (reactive values)
+  resetModuleProcess("GO")
   
   
-  txt <- c("GO setup", "GO classification", "GO enrichment", "Parameter summary")
-  buildTable(txt, color)
 })
-
-NUM_PAGES_GO <- 4
-
-observe({
-  toggleState(id = "prevBtnGO", condition = rv$pageGO > 1)
-  toggleState(id = "nextBtnGO", condition = rv$pageGO < NUM_PAGES_GO)
-  hide(selector = ".page")
-})
-
-navPageGO <- function(direction) {
-  rv$pageGO <- rv$pageGO + direction
-}
-
-observeEvent(input$prevBtnGO, navPageGO(-1))
-observeEvent(input$nextBtnGO, navPageGO(1))
 
 ##--------------------------------------------------------
 ##---------------------------------------------------------
 
 
 
-output$GOAnalysisMenu <- renderUI({
-    req(rv$current.obj)
-   isolate({
-    
-    tagList(
-      uiOutput("GO_setup"),
-      uiOutput("GO_classif"),
-      uiOutput("GO_enrich"),
-      uiOutput("GO_Summary")
-    )
-    
-  })
-  
-})
 
-
-output$GO_setup <- renderUI({
-  if (rv$pageGO != 1){return()}
-  
+output$screenGO1 <- renderUI({
+  print("output$screenGO1 <- renderUI")
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -107,8 +49,10 @@ output$GO_setup <- renderUI({
 
 })
 
-output$GO_classif <- renderUI({
-  if (rv$pageGO != 2){return()}
+
+
+
+output$screenGO2 <- renderUI({
   
   tagList(
   tags$div(
@@ -127,9 +71,9 @@ output$GO_classif <- renderUI({
 )
 })
 
-output$GO_enrich <- renderUI({
-  if (rv$pageGO != 3){return()}
-  
+
+
+output$screenGO3 <- renderUI({
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -150,10 +94,12 @@ output$GO_enrich <- renderUI({
 )
 })
 
-output$GO_Summary <- renderUI({
-  if (rv$pageGO != 4){return()}
+
+output$screenGO4 <- renderUI({
+  rvModProcess$moduleGODone[4] <- TRUE
   
   DT::dataTableOutput("GO_resumeParams")
+  
 })
 
 
@@ -277,10 +223,12 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
              rv$GO$gene <- bitr(rv$GO$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
             rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
             rv$GO$ratio <- 100*length(rv$GO$proteinsNotMapped) / length(index)
+            rvModProcess$moduleGODone[1] <- TRUE
         }, warning = function(w) {
             rv$GO$gene <- bitr(rv$GO$ProtIDList[index], fromType=input$idFrom, toType="ENTREZID", OrgDb=input$Organism)
             rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
             rv$GO$ratio <- 100*length(rv$GO$proteinsNotMapped) / length(index)
+            rvModProcess$moduleGODone[1] <- TRUE
             
         }, error = function(e) {
             # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
@@ -311,7 +259,9 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
     
     require(clusterProfiler)
     
-
+  withProgress(message = '',detail = '', value = 0, {
+    incProgress(0.2, detail = 'Get universe data')
+    
     if (input$universe == "Entire dataset") {
         rv$GO$universeData  <- rv$GO$ProtIDList
     } else if (input$universe == "Entire organism") {
@@ -320,13 +270,17 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
         rv$GO$universeData <- read.table(input$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
     }
     
+    incProgress(0.4, detail = 'Get data to analyze')
     index <- GetDataIndexForAnalysis()
+    incProgress(1, detail = 'Computing enrichment')
     rv$GO$enrichGO_data <- enrich_GO(rv$GO$ProtIDList[index],
                                   idFrom = input$idFrom, 
                                   orgdb = input$Organism, 
                                   ont = input$Ontology, 
                                   pval = input$pvalueCutoff, 
                                   universe = rv$GO$universeData )
+  })
+  rvModProcess$moduleGODone[3] <- TRUE
 })
 
 
@@ -342,19 +296,24 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     input$GO_level
     req(rv$GO$ratio)
     if (rv$GO$ratio == 100){return(NULL)}
-    
     levelIndex <- sort(input$GO_level)
+    
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(1/(1+length(levelIndex)), detail = 'Get data for analysis')
+      
     index <- GetDataIndexForAnalysis()
     rv$GO$groupGO_data <- list()
     for (i in 1:length(levelIndex)){
-        rv$GO$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
+      incProgress(1/(1+i), detail = paste0('Building plot for level ', i))
+      rv$GO$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
                                      ggo_res = group_GO(rv$GO$ProtIDList[index],
                                                         idFrom = input$idFrom,
                                                         orgdb = input$Organism,
                                                         ont=input$Ontology,
                                                         level=as.numeric(levelIndex[i])))
     }
-    
+    })
+    rvModProcess$moduleGODone[2] <- TRUE
     
 })
 

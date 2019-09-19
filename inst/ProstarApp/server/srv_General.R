@@ -600,8 +600,21 @@ resetModuleProcess <- function(moduleName, obj){
                                               ))
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
+          },
+          
+          GO = {
             
             
+            rvModProcess$moduleGO = list(name = "GO",
+                                              stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                                              isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                                              ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                                            screenStep2 = uiOutput("screenGO2"),
+                                                            screenStep3 = uiOutput("screenGO3"),
+                                                            screenStep2 = uiOutput("screenGO4")
+                                              ))
+            
+            rvModProcess$moduleGODone =  rep(FALSE,4)
             
           }
           )
@@ -1058,6 +1071,20 @@ Get_ParamValue <- function(pp, key){
   
   return(df[which(df$param==key),]$value)
 }
+
+
+
+
+buildWritableVector <- function(v){
+  t <- "c("
+  for (i in v){
+    t <- paste(t, "\"", as.character(i), "\"", sep="")
+    if (i == last(v)) {t <- paste(t, ")", sep="")}
+    else {t <- paste(t, ",", sep="")}
+  }
+  return(t)
+}
+
 
 
 

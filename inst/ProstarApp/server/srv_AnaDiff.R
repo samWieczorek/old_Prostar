@@ -1,18 +1,17 @@
 callModule(moduleVolcanoplot,"volcano_Step1", 
            comp = reactive({as.character(input$selectComparison)}),
-           tooltip = reactive({input$tooltipInfo})
-           )
+           tooltip = reactive({input$tooltipInfo}),
+           isSwaped = reactive({input$swapVolcano}))
 
 callModule(moduleVolcanoplot,"volcano_Step2",
            comp = reactive({as.character(input$selectComparison)}),
-           tooltip = reactive({input$tooltipInfo})
-           )
+           tooltip = reactive({input$tooltipInfo}),
+           isSwaped = reactive({input$swapVolcano}))
 
 callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
 #callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
 
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
-
 
 
 callModule(moduleProcess, "moduleProcess_AnaDiff", 
@@ -45,7 +44,7 @@ resetModuleAnaDiff <- reactive({
   updateNumericInput(session,"nBinsHistpval",value=80)
   updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
   updateRadioButtons(session, "downloadAnaDiff", selected="All")
-  updateCheckboxInput(session, "swapVolcano", value = rv$widgets$anaDiff$swapVolcano)
+  updateCheckboxInput(session, "swapVolcano", value =  rv$widgets$anaDiff$swapVolcano)
             
   rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
   
@@ -84,15 +83,10 @@ observeEvent(input$selectComparison, {
 
 })
 
-
-observeEvent(input$swapVolcano, {
-  req(rv$resAnaDiff)
-    rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
-
-})
-
-
-
+# 
+# observe({
+#   shinyjs::toggle("swapVolcano", condition=input$selectComparison != "None")
+# })
 
 observeEvent(req(input$AnaDiff_ChooseFilters), {
   if (input$AnaDiff_ChooseFilters==gFilterNone) {
@@ -110,17 +104,15 @@ observeEvent(req(input$calibrationMethod), {
 ##--------------------------------------------------------
 ##---------------------------------------------------------
 
-output$pushPValUI <- renderUI({
+
+observeEvent(input$swapVolcano, {
+  req(rv$resAnaDiff)
   req(input$selectComparison)
-  if (input$selectComparison == "None"){return(NULL)}
-  
-  tagList(
-    modulePopoverUI("modulePopover_pushPVal"),
-    radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff),
-    actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass)
-    
-  )
+  rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
+  rv$widgets$anaDiff$swapVolcano <- input$swapVolcano
 })
+
+
 
 output$volcanoTooltip_UI <- renderUI({
   req(input$selectComparison)
@@ -203,18 +195,25 @@ output$screenAnaDiff1 <- renderUI({
                 selectInput("selectComparison","Select comparison",
                             choices = c("None"="None",GetPairwiseCompChoice()),
                             selected = rv$widgets$anaDiff$Comparison,
-                            width='200px'),
-                checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-                uiOutput("pushPValUI")),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-                uiOutput("AnaDiff_seuilNADelete")),
-      
-      tags$div( style="display:inline-block; vertical-align: top;",
-                uiOutput("volcanoTooltip_UI"))
+                            width='200px')
+               ),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 0px",
+                uiOutput("pushPValUI"),
+                uiOutput("AnaDiff_seuilNADelete"),
+                hidden(actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass))
+      )
     ),
     tags$hr(),
-    moduleVolcanoplotUI("volcano_Step1")
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
+              moduleVolcanoplotUI("volcano_Step1")),
+      tags$div( style="display:inline-block; vertical-align: top;",
+              tagList(
+                checkboxInput("swapVolcano", "Swap volcanoplot", value = rv$widgets$anaDiff$swapVolcano),
+                br(),
+                uiOutput("volcanoTooltip_UI"))
+      )
+  )
   )
 })
 
@@ -271,25 +270,23 @@ output$screenAnaDiff3 <- renderUI({
                   textInput("seuilPVal",  NULL,
                              value=rv$widgets$anaDiff$th_pval, width='100px')),
         tags$div( style="display:inline-block; vertical-align: top;",
-                  module_Not_a_numericUI("test_seuilPVal")),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                uiOutput("tooltipInfo")),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                checkboxInput("showpvalTable","Show p-value table", value=FALSE)),
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" ))),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
+                  module_Not_a_numericUI("test_seuilPVal"))
+       
                 
               ),
       tags$hr(),
              tagList(
-               htmlOutput("showFDR"),
-               moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
+               tags$div(
+                 tags$div( style="display:inline-block; vertical-align: top;",
+                           htmlOutput("showFDR"),
+                          moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType)),
                
-               #hidden(div(id = 'toto',
-                #.           moduleStaticDataTableUI("anaDiff_selectedItems")
-                #)
+                 tags$div( style="display:inline-block; vertical-align: top;",
+                         uiOutput("tooltipInfo"),
+                         checkboxInput("showpvalTable","Show p-value table", value=FALSE),
+                         radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" )),
+                         downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
+               ),
                 hidden(DTOutput("anaDiff_selectedItems"))
               )
   )
@@ -426,6 +423,8 @@ callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HT
 callModule(modulePopover,"modulePopover_keepLines", data = reactive(list(title=HTML(paste0("<strong>n values</strong>")),
                                                                         content= "Keep the lines which have at least n intensity values.")))
 
+
+
 output$AnaDiff_seuilNADelete <- renderUI({ 
   req(input$AnaDiff_ChooseFilters)
   req(input$selectComparison)
@@ -447,6 +446,22 @@ output$AnaDiff_seuilNADelete <- renderUI({
 })
 
 
+output$pushPValUI <- renderUI({
+  req(input$selectComparison)
+  if (input$selectComparison == "None"){return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_pushPVal"),
+    radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff)
+    #uiOutput('AnaDiff_seuilNADelete')
+    
+  )
+})
+
+
+observeEvent(input$AnaDiff_ChooseFilters, {
+  shinyjs::toggle("AnaDiff_perform.filtering.MV", condition=input$AnaDiff_ChooseFilters != "None")
+})
 
 #####
 ####  SELECT AND LOAD ONE PARIWISE COMPARISON

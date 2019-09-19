@@ -158,13 +158,14 @@ shinyServer(function(input, output, session) {
                  {
                    source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
                    },
+               
                graphTab = 
                {
                  callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
                  
                },
                
-               GOAnalysisTab = 
+               GoTab = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
                
                # updateDesignTab = 

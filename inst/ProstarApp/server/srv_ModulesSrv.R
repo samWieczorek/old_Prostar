@@ -156,7 +156,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session,comp, tooltip){
+moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
   
   ns <- session$ns
   
@@ -430,11 +430,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     rv$colorsVolcanoplot
     rv$resAnaDiff
     tooltip()
-    #swap()
+    #isSwaped()
     
-    print(str(rv$resAnaDiff))
-    
-    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
+   #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
@@ -458,12 +456,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
         JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
       
       cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-      rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
+       rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                                          threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                          threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                          conditions = cond,
                                                          clickFunction=clickFun,
-                                                         rv$colorsVolcanoplot)
+                                                         palette = rv$colorsVolcanoplot,
+                                                         swap = isSwaped()
+                                                         )
       
     })
     
