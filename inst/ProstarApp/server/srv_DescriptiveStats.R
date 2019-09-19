@@ -7,9 +7,13 @@ callModule(missingValuesPlots, "MVPlots_DS",
 )
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleBoxplot, "boxPlot_DS")
-callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
+           filename='DescriptiveStats_Overview')
 
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
+callModule(moduleStaticDataTable,"PCAvarCoord", 
+           table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), 
+           showRownames=TRUE,
+           filename = 'PCA_Var_Coords')
 
 
 

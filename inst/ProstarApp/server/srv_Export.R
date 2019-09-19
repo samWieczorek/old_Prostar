@@ -1,9 +1,12 @@
 
-callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({BuildParamDataProcessingDT()}), showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({BuildParamDataProcessingDT()}), showRownames=FALSE,
+           filename='processingData')
 
-callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE,
+           filename='datamining_view')
 
-callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE,
+           filename='Prostar_Versions')
 
 
 

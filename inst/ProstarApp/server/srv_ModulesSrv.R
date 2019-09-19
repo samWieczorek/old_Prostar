@@ -674,7 +674,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt') {
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt', filename='Prostar_export') {
     
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
@@ -696,11 +696,11 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
                             buttons = list(
                               list(
                                 extend = 'csv',
-                                filename = 'Prostar_export'
+                                filename = filename
                               ),
                               list(
                                 extend = 'pdf',
-                                filename = 'Prostar_export'
+                                filename = filename
                               ),'print'),
                             #initComplete = initComplete(),
                                 dom = dom

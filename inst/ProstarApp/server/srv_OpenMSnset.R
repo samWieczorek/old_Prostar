@@ -1,4 +1,5 @@
-callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}),
+           filename='openMSnset_View')
 
 
 

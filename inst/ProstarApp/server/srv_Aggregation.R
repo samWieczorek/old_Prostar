@@ -1,4 +1,5 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}),
+           filename='Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 

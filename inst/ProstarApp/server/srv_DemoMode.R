@@ -1,4 +1,5 @@
-callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}),
+           filename = 'Demomode_Overview')
 
 
 output$chooseDataset <- renderUI({
