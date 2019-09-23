@@ -63,7 +63,8 @@ output$screenHypoTest1 <- renderUI({
                   textInput("seuilLogFC", "log(FC) threshold",  
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),
-                  module_Not_a_numericUI("test_seuillogFC")
+                  module_Not_a_numericUI("test_seuillogFC"),
+                  uiOutput("correspondingRatio")
         )
         )
       ,
@@ -82,6 +83,17 @@ output$screenHypoTest2 <- renderUI({
   )
 })
 
+
+
+
+
+output$correspondingRatio <- renderUI({
+  
+  ratio <- as.numeric(input$seuilLogFC)
+    
+h4(" (which correspond to a ratio = ", 2^(ratio))
+  
+})
 
 
 output$btn_valid <- renderUI({
