@@ -38,6 +38,10 @@ output$testPanel <- renderUI({
                                width='150px'),
                   module_Not_a_numericUI("test_seuillogFC")
         ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                  uiOutput("correspondingRatio")
+                  
+        ),
         tags$div( style="display:inline-block; vertical-align: middle;",
                   uiOutput("btn_valid")
         )
@@ -54,6 +58,15 @@ output$btn_valid <- renderUI({
   cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")
   if (!cond){return(NULL)}
   actionButton("ValidTest","Save significance test", class = actionBtnClass)
+})
+
+
+
+output$correspondingRatio <- renderUI({
+  req(input$seuilLogFC)
+  ratio <- as.numeric(input$seuilLogFC)
+  p("(FC = ", 2^(ratio), ")")
+  
 })
 
 
@@ -98,7 +111,7 @@ isolate({
            },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
-                                                                      Contrast=input$anaDiff_Design,
+                                                                      contrast=input$anaDiff_Design,
                                                                       type=input$ttest_options)
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
