@@ -1,7 +1,7 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.19.6
+Version: 2.0
 Date: 2019-06-21
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
@@ -22,10 +22,17 @@ biocViews: MassSpectrometry, Normalization, Preprocessing, R.utils
 License: Artistic-2.0
 Depends: R (>= 3.6)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.19.3), DAPARdata (>= 1.14.0), rhandsontable, data.table,
+Imports: DAPARdata (>= 1.14.0), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,
         shinythemes, XML,later, rclipboard, shinycssloaders, future, promises, 
-        colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets, sass
+        colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets, sass,
+        MSnbase, RColorBrewer,stats,preprocessCore,Cairo,png,
+        lattice,reshape2,gplots,pcaMethods,ggplot2,
+        limma,knitr,tmvtnorm,norm,impute, stringr,
+        grDevices, graphics, openxlsx, utils, cp4p
+        (>= 0.3.5), scales, Matrix, vioplot, imp4p (>= 0.7),
+        highcharter (>= 0.5.0), DAPARdata (>= 1.11.2), siggenes, graph, lme4, readxl,
+        clusterProfiler, dplyr, tidyr,AnnotationDbi, tidyverse, vsn, FactoMineR, factoextra
 NeedsCompilation: no
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264

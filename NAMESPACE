@@ -1,7 +1,6 @@
 
 import(rhandsontable)
 import(data.table)
-import(DAPAR)
 import(sass)
 import(webshot)
 import(htmlwidgets)
@@ -90,5 +89,160 @@ importFrom(shiny,
             withTags 
             )
 
+
+
+
+exportPattern("^[[:alpha:]]+")
+
+import(MSnbase)
+import(DAPARdata)
+import(RColorBrewer)
+import(Cairo)
+import(png)
+import(lattice)
+import(reshape2)
+import(tmvtnorm)
+import(ggplot2)
+import(norm)
+import(highcharter)
+import(vioplot)
+import(impute)
+import(knitr)
+importFrom("doParallel", "registerDoParallel")
+importFrom("dplyr", "left_join", "mutate","tbl_df", "select_","data_frame", "last", "tibble")
+importFrom("tidyr", "gather")
+import("foreach")
+importFrom("AnnotationDbi", "keys")
+import("parallel")
+import("doParallel")
+import("Matrix")
+import(cp4p)
+import(FactoMineR)
+import(factoextra)
+
+
+import(tidyverse)
+import(imp4p)
+importFrom("graphics", "par", "boxplot", "axis", "mtext", "abline", "points", 
+            "legend", "lines",  "barplot", "text","hist",
+           "layout", "plot.new", "strheight", "strwidth", "title","plot.window")
+ 
+importFrom("stats", "lowess", "cor", "density","pexp", "mad", 
+            "var", "t.test", "dist", "hclust", "setNames", 
+            "median", "p.adjust", "model.matrix", "rnorm","na.omit",
+           "quantile", "rbeta", "runif", "sd", "pchisq", "residuals","formula", "lm", "logLik")
+importFrom("preprocessCore", "normalize.quantiles")
+importFrom("gplots", "heatmap.2")
+importFrom("limma", "lmFit", "eBayes", "topTable", "makeContrasts", "contrasts.fit", "normalizeCyclicLoess")
+importFrom("pcaMethods", "completeObs", "pca")
+importFrom("scales", "alpha")
+importFrom("grDevices", "colorRampPalette", "palette", "heat.colors")
+importFrom("utils", "read.csv", "read.table", "de", "str","write.csv", "zip", "installed.packages")
+#importFrom("lme4", "getME")
+importFrom("openxlsx", "getSheetNames", "createWorkbook", "addWorksheet", "writeData", "saveWorkbook")
+import("readxl")
+import("siggenes") # SAM
+import("graph")
+importFrom("stringr", "str_match_all")
+importFrom("clusterProfiler", "bitr", "enrichGO", "groupGO")
+importFrom("vsn","vsn2","predict")
+
+
+export(
+"writeMSnsetToExcel",
+"writeMSnsetToCSV",
+"createMSnset",
+"readExcel",
+"listSheets",
+"addOriginOfValue","saveParameters",
+"rbindMSnset",
+
+"boxPlotD",
+"densityPlotD"
+,"wrapper.CVDistD","CVDistD"
+,"wrapper.corrMatrixD","corrMatrixD"
+,"wrapper.heatmapD","heatmapD"
+,"wrapper.mvPerLinesHisto", "mvPerLinesHisto"
+,"wrapper.mvPerLinesHisto_HC", "mvPerLinesHisto_HC"
+,"wrapper.mvPerLinesHistoPerCondition", "mvPerLinesHistoPerCondition"
+,"wrapper.mvHisto", "mvHisto"
+,"wrapper.pca",
+"plotPCA_Eigen_hc"
+,"plotPCA_Var", "plotPCA_Ind"
+
+
+,"wrapper.hc_mvTypePlot2","hc_mvTypePlot2"
+,"wrapper.mvImage","mvImage"
+,"heatmap.DAPAR"
+
+,"mvFilter"
+,"mvFilterFromIndices"
+,"mvFilterGetIndices"
+,"removeLines"
+,"deleteLinesFromIndices"
+,"StringBasedFiltering"
+,"getIndicesOfLinesToRemove"
+,"wrapper.normalizeD"
+,"wrapper.compareNormalizationD","compareNormalizationD"
+,"getListNbValuesInLines"
+
+,"reIntroduceMEC"
+,"findMECBlock"
+,"wrapper.impute.fixedValue"
+,"wrapper.impute.detQuant"
+,"wrapper.impute.slsa"
+,"getQuantile4Imp"
+,"wrapper.impute.KNN"
+,"wrapper.impute.mle"
+
+
+
+,"aggregateTopn"
+,"aggregateMean"
+,"aggregateSum"
+,"aggregateIterParallel"
+,"aggregateIter"
+,"BuildAdjacencyMatrix"
+,"GraphPepProt"
+,"BuildColumnToProteinDataset"
+,"BuildColumnToProteinDataset_par"
+,"getProteinsStats"
+
+
+
+## limma Complete test
+,"limmaCompleteTest"
+,"check.design"
+,"check.conditions"
+
+
+
+
+,"wrapper.t_test_Complete"
+,"diffAnaVolcanoplot_rCharts"
+,"diffAnaSave"
+,"diffAnaComputeFDR"
+,"wrapperCalibrationPlot"
+,"hc_logFC_DensityPlot"
+
+
+,"getProcessingInfo"
+
+,"pepa.test"
+
+
+
+,"group_GO"
+,"enrich_GO"
+,"univ_AnnotDbPkg"
+,"GOAnalysisSave"
+,"scatterplotEnrichGO_HC"
+,"barplotEnrichGO_HC"
+,"barplotGroupGO_HC"
+
+,"my_hc_ExportMenu"
+
+
+)
 
 export("Prostar")
