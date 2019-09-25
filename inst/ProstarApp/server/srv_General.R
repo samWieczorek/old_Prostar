@@ -373,9 +373,11 @@ loadObjectInMemoryFromConverter <- function(){
       print("end ComputeConnexComposants()")
     }
     
-      rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
-    
-    
+      if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
+        {
+          rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+      }
+
    
     
     name <- paste0("Original", ".", rv$typeOfDataset)
