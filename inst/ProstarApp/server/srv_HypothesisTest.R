@@ -64,6 +64,10 @@ output$screenHypoTest1 <- renderUI({
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),
                   module_Not_a_numericUI("test_seuillogFC")
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                  uiOutput("correspondingRatio")
+                  
         )
         )
       ,
@@ -109,6 +113,16 @@ output$FoldChangePlot <- renderHighchart({
 
 
 
+output$correspondingRatio <- renderUI({
+  
+  ratio <- as.numeric(input$seuilLogFC)
+  
+  p("(FC = ", 2^(ratio), ")")
+  
+})
+
+
+
 ########################################################
 
 ### calcul des comparaisons                         ####
@@ -131,7 +145,7 @@ isolate({
            },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
-                                                                      Contrast=input$anaDiff_Design,
+                                                                      contrast=input$anaDiff_Design,
                                                                       type=input$ttest_options)
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
