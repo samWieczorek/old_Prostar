@@ -7,10 +7,12 @@ callModule(missingValuesPlots, "MVPlots_DS",
 )
 callModule(moduleDensityplot, "densityPlot_DS")
 callModule(moduleBoxplot, "boxPlot_DS",params = reactive({NULL}))
-callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}))
-
-callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), showRownames=TRUE)
-
+callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
+           filename='DescriptiveStats_Overview')
+callModule(moduleStaticDataTable,"PCAvarCoord", 
+           table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), 
+           showRownames=TRUE,
+           filename = 'PCA_Var_Coords')
 
 
 # outs <- outputOptions(output)
@@ -56,7 +58,7 @@ output$plotsCorM <- renderUI({
                                                    "Tune to modify the color gradient",
                                                    min = 0,max = 1,value = defaultGradientRate,step=0.01),
                                        tooltip="Plots parameters",
-                                       style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                       icon = icon("gear"), status = optionsBtnClass
                                        
                               )
                             ),
@@ -343,7 +345,12 @@ output$viewpData <- DT::renderDataTable({
                         rownames=  FALSE,
                         
                     options=list(initComplete = initComplete(),
-                                 dom = 'Brtip',
+                                 buttons = list('copy',
+                                                list(
+                                                  extend = 'csv',
+                                                  filename = 'Samples data'
+                                                ),'print'),
+                                 dom='Bfrtip',
                                  pageLength=DT_pagelength,
                                  orderClasses = TRUE,
                                  autoWidth=TRUE,
@@ -375,6 +382,11 @@ output$viewfData <- DT::renderDataTable({
                              rownames = TRUE,
                              extensions = c('Scroller', 'Buttons','FixedColumns'),
                         options=list(initComplete = initComplete(),
+                                     buttons = list('copy',
+                                                    list(
+                                                      extend = 'csv',
+                                                      filename = 'feature metadata'
+                                                    ),'print'),
                                      dom='Bfrtip',
                                      pageLength=DT_pagelength,
                                     orderClasses = TRUE,
@@ -431,6 +443,11 @@ output$viewExprsMissValues <- DT::renderDataTable({
                       
         options=list(
           dom = 'Bfrtip',
+          buttons = list('copy',
+                         list(
+                           extend = 'csv',
+                           filename = 'missing values'
+                         ),'print'),
           orderClasses = TRUE,
             autoWidth=FALSE,
             bLengthChange = FALSE,
@@ -470,9 +487,10 @@ corrMatrix <- reactive({
     
     gradient <- NULL
     if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-    else{
-        gradient <- input$expGradientRate}
-        isolate({
+
+      else{gradient <- input$expGradientRate }
+      
+      isolate({
           rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
             rv$tempplot$corrMatrix
             })
@@ -529,6 +547,11 @@ output$table <- DT::renderDataTable({
                     options = list(
                       dom = 'Bfrtip',
                       initComplete = initComplete(),
+                      buttons = list('copy',
+                                     list(
+                                       extend = 'csv',
+                                       filename = 'quantitation data'
+                                     ),'print'),
                         displayLength = 20,
                         deferRender = TRUE,
                         bLengthChange = FALSE,

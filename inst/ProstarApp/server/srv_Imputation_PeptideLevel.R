@@ -254,6 +254,11 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable({
                 extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
                                dom = 'Bfrtip',
+                               buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'detQuant_impValues'
+                                              ),'print'),
                                bLengthChange = FALSE))
 })
 

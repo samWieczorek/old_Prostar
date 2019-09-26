@@ -2,7 +2,7 @@ rvModProcess <- reactiveValues(
   
   moduleFiltering = list(name = "Filtering",
                              stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Save"),
-                             isMandatory = rep(FALSE,5),
+                             isMandatory = c(rep(FALSE,4),TRUE),
                              ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
                                            screenStep2 = uiOutput("screenFiltering2"),
                                            screenStep3 = uiOutput("screenFiltering3"),
@@ -16,7 +16,7 @@ rvModProcess <- reactiveValues(
   
   moduleNormalization = list(name = "Normalization",
                              stepsNames = c("Normalization", "Save"),
-                             isMandatory = rep(FALSE,2),
+                             isMandatory = rep(TRUE,2),
                              ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                            screenStep2 = uiOutput("screenNormalization2")),
                              rstFunc = reactive({resetModuleNormalization()})),
@@ -67,13 +67,13 @@ rvModProcess <- reactiveValues(
   moduleHypothesisTestDone =  rep(FALSE,2),
   
   moduleConvert = list(name = "Convert",
-                       stepsNames = c("Select file", "Data Id", "Epx. & feat. data", "Build design", "Convert"),
+                       stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                        isMandatory = rep(TRUE,5),
                        ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                      screenStep2 = uiOutput("Convert_DataId"),
                                      screenStep3 = uiOutput("Convert_ExpFeatData"),
-                                     screenStep2 = uiOutput("Convert_BuildDesign"),
-                                     screenStep3 = uiOutput("Convert_Convert")
+                                     screenStep4 = uiOutput("Convert_BuildDesign"),
+                                     screenStep5 = uiOutput("Convert_Convert")
                                     ),
                        rstFunc = reactive({resetModuleConvert()})),
   moduleConvertDone =  rep(FALSE,5),
@@ -84,9 +84,20 @@ rvModProcess <- reactiveValues(
                        ll.UI = list( screenStep1 = uiOutput("screenAnaDiff1"),
                                      screenStep2 = uiOutput("screenAnaDiff2"),
                                      screenStep3 = uiOutput("screenAnaDiff3"),
-                                     screenStep2 = uiOutput("screenAnaDiff4")
+                                     screenStep4 = uiOutput("screenAnaDiff4")
                        ),
                        rstFunc = reactive({resetModuleAnaDiff()})),
-  moduleAnaDiffDone =  rep(FALSE,4)
+  moduleAnaDiffDone =  rep(FALSE,4),
+  
+  moduleGO = list(name = "GO",
+                  stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                  isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                  ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                screenStep2 = uiOutput("screenGO2"),
+                                screenStep3 = uiOutput("screenGO3"),
+                                screenStep4 = uiOutput("screenGO4")
+                  ),
+                  rstFunc = reactive({resetModuleGO()})),
+  moduleGODone =  rep(FALSE,4)
 )
 

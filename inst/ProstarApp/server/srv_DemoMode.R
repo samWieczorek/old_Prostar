@@ -1,5 +1,5 @@
-callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}))
-
+callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}),
+           filename = 'Demomode_Overview')
 
 output$chooseDataset <- renderUI({
   
@@ -37,7 +37,7 @@ output$linktoDemoPdf <- renderUI({
     system(cmd)
   filename <-paste0(input$demoDataset,".pdf", sep="")
   tags$p("Dataset documentation ",
-  tags$a(href=filename, target='_blank', "(pdf)"))
+         tags$a(href=filename, target='_blank', paste0("(",filename,")")))
  })
 
 

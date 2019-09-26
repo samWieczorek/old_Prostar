@@ -1,4 +1,5 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}),
+           filename='Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 
@@ -55,8 +56,8 @@ output$screenAggregation1 <- renderUI({
                         modulePopoverUI("modulePopover_includeShared"),
                 radioButtons("radioBtn_includeShared", NULL, choices=
                                c("No" = "No",
-                                 "as protein specific"= "Yes1" ,
-                                 "redistribution" = "Yes2" ),
+                                 "Yes (as protein specific)"= "Yes1" ,
+                                 "Yes (redistribution)" = "Yes2" ),
                              selected=rv$widgets$aggregation$includeSharedPeptides)),
       div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
               radioButtons("AggregationConsider", "Consider", 
@@ -113,6 +114,8 @@ output$screenAggregation2 <- renderUI({
 
 output$screenAggregation3 <- renderUI({
   tagList(
+    h4("Once the saving operation is done, the new current dataset is a protein dataset.
+       Prostar will automatically switch to the home page with the new dataset."),
     actionButton("valid.aggregation","Save aggregation", class = actionBtnClass)
   )
 })
@@ -221,12 +224,9 @@ observeEvent(input$valid.aggregation,{
     
     rv$dataset[[name]] <- rv$current.obj
     rvModProcess$moduleAggregationDone[3] <- TRUE
-    #updatePB(session,inputId="pb_SaveAggregation",value=70,text_value="70 %", striped = TRUE, active=TRUE)
-    #updatePB(session,inputId="pb_SaveAggregation",value=90,text_value="90 %", striped = TRUE, active=TRUE)
-    #}
     
     updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
-    BuildNavbarPage()
+
     
     })
   })
@@ -285,6 +285,11 @@ output$aggregationStats <- DT::renderDataTable ({
                 extensions = c('Scroller', 'Buttons'),
                 option=list(initComplete = initComplete(),
                             dom = 'Brt',
+                            buttons = list('copy',
+                                           list(
+                                             extend = 'csv',
+                                             filename = 'aggregation stats'
+                                           ),'print'),
                             autoWidth=TRUE,
                             ordering=F,
                             columnDefs = list(list(width='150px',targets= 0),
@@ -376,8 +381,8 @@ output$Aggregation_Step2 <- renderUI({
                       label = "",
                       choices = choices,
                       multiple = TRUE, width='200px',
-                      size = 10,
-                      selectize = FALSE)
+                      #size = 10,
+                      selectize = TRUE)
         )
       )
     )
@@ -394,6 +399,15 @@ output$Aggregation_Step2 <- renderUI({
 })
 
 
+observe({
+  input$columnsForProteinDataset.box
+  
+  if (length(input$columnsForProteinDataset.box) > 0){
+    rvModProcess$moduleAggregationDone[2] <- TRUE
+  } else {
+    rvModProcess$moduleAggregationDone[2] <- FALSE
+  }
+})
 
 
 
@@ -408,16 +422,6 @@ output$warningAgregationMethod <- renderUI({
   
 })
 
-
-buildWritableVector <- function(v){
-  t <- "c("
-  for (i in v){
-    t <- paste(t, "\"", as.character(i), "\"", sep="")
-    if (i == last(v)) {t <- paste(t, ")", sep="")}
-    else {t <- paste(t, ",", sep="")}
-  }
-  return(t)
-}
 
 
 

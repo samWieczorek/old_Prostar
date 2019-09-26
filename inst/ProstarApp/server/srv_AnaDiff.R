@@ -1,15 +1,15 @@
 callModule(moduleVolcanoplot,"volcano_Step1", 
            comp = reactive({as.character(input$selectComparison)}),
-           tooltip = reactive({input$tooltipInfo})
-           )
+           tooltip = reactive({input$tooltipInfo}),
+           isSwaped = reactive({input$swapVolcano}))
 
 callModule(moduleVolcanoplot,"volcano_Step2",
            comp = reactive({as.character(input$selectComparison)}),
-           tooltip = reactive({input$tooltipInfo})
-           )
+           tooltip = reactive({input$tooltipInfo}),
+           isSwaped = reactive({input$swapVolcano}))
 
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t')
-#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
+callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t',
+           filename='AnaDiffParams')
 
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 
@@ -85,13 +85,6 @@ observeEvent(input$selectComparison, {
 })
 
 
-observeEvent(input$swapVolcano, {
-  req(rv$resAnaDiff)
-    rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
-
-})
-
-
 
 
 observeEvent(req(input$AnaDiff_ChooseFilters), {
@@ -110,16 +103,11 @@ observeEvent(req(input$calibrationMethod), {
 ##--------------------------------------------------------
 ##---------------------------------------------------------
 
-output$pushPValUI <- renderUI({
+observeEvent(input$swapVolcano, {
+  req(rv$resAnaDiff)
   req(input$selectComparison)
-  if (input$selectComparison == "None"){return(NULL)}
-  
-  tagList(
-    modulePopoverUI("modulePopover_pushPVal"),
-    radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff),
-    actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass)
-    
-  )
+  rv$resAnaDiff$logFC <- (- rv$resAnaDiff$logFC)
+  rv$widgets$anaDiff$swapVolcano <- input$swapVolcano
 })
 
 output$volcanoTooltip_UI <- renderUI({
@@ -203,18 +191,25 @@ output$screenAnaDiff1 <- renderUI({
                 selectInput("selectComparison","Select comparison",
                             choices = c("None"="None",GetPairwiseCompChoice()),
                             selected = rv$widgets$anaDiff$Comparison,
-                            width='200px'),
-                checkboxInput("swapVolcano", "Swap volcanoplot", value = FALSE)),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-                uiOutput("pushPValUI")),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-                uiOutput("AnaDiff_seuilNADelete")),
-      
-      tags$div( style="display:inline-block; vertical-align: top;",
-                uiOutput("volcanoTooltip_UI"))
+                            width='200px')
+      ),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 0px",
+                uiOutput("pushPValUI"),
+                uiOutput("AnaDiff_seuilNADelete"),
+                hidden(actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass))
+      )
     ),
     tags$hr(),
-    moduleVolcanoplotUI("volcano_Step1")
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
+                moduleVolcanoplotUI("volcano_Step1")),
+      tags$div( style="display:inline-block; vertical-align: top;",
+                tagList(
+                  checkboxInput("swapVolcano", "Swap volcanoplot", value = rv$widgets$anaDiff$swapVolcano),
+                  br(),
+                  uiOutput("volcanoTooltip_UI"))
+      )
+    )
   )
 })
 
@@ -259,7 +254,7 @@ callModule(modulePopover,"modulePopover_pValThreshold",
 
 
 output$screenAnaDiff3 <- renderUI({
-  print("in output$screenAnaDiff3")
+  #print("in output$screenAnaDiff3")
   
   if(as.character(input$selectComparison) == "None"){return(NULL)}
  
@@ -271,25 +266,20 @@ output$screenAnaDiff3 <- renderUI({
                   textInput("seuilPVal",  NULL,
                              value=rv$widgets$anaDiff$th_pval, width='100px')),
         tags$div( style="display:inline-block; vertical-align: top;",
-                  module_Not_a_numericUI("test_seuilPVal")),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                uiOutput("tooltipInfo")),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                checkboxInput("showpvalTable","Show p-value table", value=FALSE)),
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" ))),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
-                
+                  module_Not_a_numericUI("test_seuilPVal"))
               ),
       tags$hr(),
              tagList(
-               htmlOutput("showFDR"),
-               moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType),
-               
-               #hidden(div(id = 'toto',
-                #.           moduleStaticDataTableUI("anaDiff_selectedItems")
-                #)
+               tags$div(
+                 tags$div( style="display:inline-block; vertical-align: top;",
+                           htmlOutput("showFDR"),
+                           moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType)),
+                 tags$div( style="display:inline-block; vertical-align: top;",
+                           uiOutput("tooltipInfo"),
+                           checkboxInput("showpvalTable","Show p-value table", value=FALSE),
+                           radioButtons("downloadAnaDiff", "Download as Excel file", choices=c("All data"="All", "only DA"="onlyDA" )),
+                           downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
+               ), 
                 hidden(DTOutput("anaDiff_selectedItems"))
               )
   )
@@ -299,13 +289,57 @@ output$screenAnaDiff3 <- renderUI({
 
 
 
+output$pushPValUI <- renderUI({
+  req(input$selectComparison)
+  if (input$selectComparison == "None"){return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_pushPVal"),
+    radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff)
+    #uiOutput('AnaDiff_seuilNADelete')
+    
+  )
+})
+
+
+observeEvent(input$AnaDiff_ChooseFilters, {
+  shinyjs::toggle("AnaDiff_perform.filtering.MV", condition=input$AnaDiff_ChooseFilters != "None")
+})
+
+
+
+GetFilenameAnaDiff <- reactive({
+  req(input$selectComparison)
+  cond1 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][1]
+  cond2 = strsplit(as.character(input$selectComparison), "_vs_")[[1]][2]
+  
+  if (isTRUE(input$swapVolcano)) {
+    filename = paste0('anaDiff_', cond2,'_vs_', cond1, '.xlsx')
+  } else {
+    filename = paste0('anaDiff_', cond1,'_vs_', cond2, '.xlsx')
+  }
+  filename
+})
+
+
 output$anaDiff_selectedItems <- renderDT({
 
   DT::datatable(GetSelectedItems(),
+                extensions = 'Buttons',
                 escape = FALSE,
                 rownames=FALSE,
-                options = list(initComplete = initComplete(),
-                               dom = 'Bfrtip',
+                options = list(
+                  buttons = list(
+                    list(
+                      extend = 'csv',
+                      filename = GetFilenameAnaDiff()
+                    ),
+                    list(
+                      extend = 'pdf',
+                      filename = GetFilenameAnaDiff()
+                    ),'print'),
+                  initComplete = initComplete(),
+                  dom = 'Bfrtip',
                                server = TRUE,
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = TRUE)
@@ -319,11 +353,10 @@ output$anaDiff_selectedItems <- renderDT({
 
 
 output$downloadSelectedItems <- downloadHandler(
-  filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
+  filename = filename = GetFilenameAnaDiff(),
   content = function(file) {
-    print(paste0("file to write=", file))
     DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
-    hs1 <- createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
+    hs1 <- openxlsx::createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
                        border = "Bottom")
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
@@ -335,8 +368,10 @@ output$downloadSelectedItems <- downloadHandler(
      openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col,
                         rows = 1+ ll.DA.row, style = DA_Style)
     
-     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+     tempFile <- tempfile(fileext = ".xlsx")
+     openxlsx::saveWorkbook(wb, file = tempFile, overwrite = TRUE)
      
+     file.rename(tempFile, file)
   })
 
 
@@ -362,43 +397,43 @@ output$diffAna_Summary <- renderUI({
       
 
 
-output$anaDiff_selectedItems <- renderDT({
-  
-  DT::datatable(GetSelectedItems(),
-                escape = FALSE,
-                rownames=TRUE,
-                options = list(initComplete = initComplete(),
-                               dom = 'Bfrtip',
-                               server = TRUE,
-                               columnDefs = list(list(width='200px',targets= "_all")),
-                               ordering = TRUE)
-  ) %>%
-    formatStyle(
-      'isDifferential',
-      target = 'row',
-      backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
-    )
-})
+# output$anaDiff_selectedItems <- renderDT({
+#   
+#   DT::datatable(GetSelectedItems(),
+#                 escape = FALSE,
+#                 rownames=TRUE,
+#                 options = list(initComplete = initComplete(),
+#                                dom = 'Bfrtip',
+#                                server = TRUE,
+#                                columnDefs = list(list(width='200px',targets= "_all")),
+#                                ordering = TRUE)
+#   ) %>%
+#     formatStyle(
+#       'isDifferential',
+#       target = 'row',
+#       backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
+#     )
+# })
 
 
 
-output$downloadSelectedItems <- downloadHandler(
-  #input$chooseDatasetToExportToMSnset,
-  filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
-  content = function(file) {
-    print(paste0("file to write=", file))
-    DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
-    hs1 <- createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
-                       border = "Bottom")
-    wb <- openxlsx::createWorkbook() # Create wb in R
-    openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
-    openxlsx::writeData(wb,sheet = 1, as.character(input$selectComparison), colNames = TRUE,headerStyle = hs1)
-    openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
-    ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
-    ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
-    openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col, rows = 1+ ll.DA.row, style = DA_Style)
-    openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
-  })
+# output$downloadSelectedItems <- downloadHandler(
+#   #input$chooseDatasetToExportToMSnset,
+#   filename = paste0('diffanalysis_', input$datasets,'.xlsx'),
+#   content = function(file) {
+#     print(paste0("file to write=", file))
+#     DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
+#     hs1 <- createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
+#                        border = "Bottom")
+#     wb <- openxlsx::createWorkbook() # Create wb in R
+#     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
+#     openxlsx::writeData(wb,sheet = 1, as.character(input$selectComparison), colNames = TRUE,headerStyle = hs1)
+#     openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
+#     ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
+#     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
+#     openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col, rows = 1+ ll.DA.row, style = DA_Style)
+#     openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
+#   })
 
 
 

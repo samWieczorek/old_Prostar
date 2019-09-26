@@ -72,13 +72,6 @@ moduleTrackProt <- function(input, output, session, params, reset){
 
   BuildResult2 <- reactive({
     
-    print("IN BuildResult2")
-    print(input$typeSelect)
-    print(input$listSelect)
-    print(input$randSelect)
-    print(input$colSelect)
-    
-    print("END IN BuildResult2")
     isolate({
       ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     res <- list(type= input$typeSelect,
@@ -90,12 +83,7 @@ moduleTrackProt <- function(input, output, session, params, reset){
                 col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
     )
     })
-    
-    print("IN track")
-    print(res)
-    print("END IN track")
-    
-    
+     
     res
   })
   
@@ -248,7 +236,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session,comp, tooltip){
+moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
   
   ns <- session$ns
   
@@ -369,6 +357,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'sharedPeptidesInfos'
+                                                   ),'print'),
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -415,6 +408,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'specific peptides infos'
+                                                   ),'print'),
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -482,6 +480,11 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'Infos'
+                                                   ),'print'),
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -507,11 +510,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
     rv$colorsVolcanoplot
     rv$resAnaDiff
     tooltip()
-    #swap()
     
-    print(str(rv$resAnaDiff))
-    
-    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
@@ -540,7 +539,9 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip){
                                                          threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                          conditions = cond,
                                                          clickFunction=clickFun,
-                                                         rv$colorsVolcanoplot)
+                                                         palette = rv$colorsVolcanoplot,
+                                                         swap = isSwaped()
+      )
       
     })
     
@@ -791,30 +792,40 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt') {
-    
+moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt', filename='Prostar_export') {
+  
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 
   
-    output$StaticDataTable <- renderDT({
+    output$StaticDataTable <- DT::renderDataTable({
       req(rv$current.obj)
       #table2show
       if (length(table2show())==0){return(NULL)}
       
       isolate({
            DT::datatable(table2show(), 
-                         extensions = c('Scroller', 'Buttons'),
-                         escape = FALSE,
-                          rownames= showRownames,
-                          option=list(initComplete = initComplete(),
-                                dom = dom,
-                                server = FALSE,
-                                autoWidth=TRUE,
-                          columnDefs = list(list(width='150px',targets= "_all")),
-                          ordering = FALSE
+                         extensions = 'Buttons',
+                         #escape = TRUE,
+                         # rownames= showRownames,
+                         options=list(
+                           buttons = list(
+                             list(
+                               extend = 'csv',
+                               filename = filename
+                             ),
+                             list(
+                               extend = 'pdf',
+                               filename = filename
+                             ),'print'),
+                           #initComplete = initComplete(),
+                           dom = dom
+                           #    server = FALSE,
+                           #    autoWidth=TRUE,
+                           #columnDefs = list(list(width='150px',targets= "_all")),
+                           #ordering = FALSE
               )
             )
       })

@@ -44,7 +44,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                             tags$input(type="text", value=""),
                             tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
                    )),
-            column(width=10, tags$p("Partially Observed Value"))
+            column(width=10, tags$p("Partially Observed Value (POV)"))
         ),
         
         fluidRow(
@@ -53,7 +53,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                             tags$input(type="text", value=""),
                             tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
                    )),
-            column(width=10, tags$p("Missing in Entire Condition"))
+            column(width=10, tags$p("Missing in Entire Condition (MEC)"))
         )
     )
 }
@@ -64,14 +64,8 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
-                uiOutput(ns("nbSelectedItems"))
-      ),
-      tags$div( style="display:inline-block; vertical-align: top;",
-                highchartOutput(ns("volcanoPlot"), width='600px', height='600px')
-      )
-    ),
+    uiOutput(ns("nbSelectedItems")),
+    highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
 
     uiOutput(ns("quantiDT"))
   )

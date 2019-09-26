@@ -99,6 +99,12 @@ MSnSetExplorer <- function(input, output, session, data) {
                           
                           options=list(initComplete = initComplete(),
                                        dom = 'Brtip',
+                                       buttons = list('copy',
+                                                      list(
+                                                        extend = 'csv',
+                                                        filename = 'phenoData'
+                                                      ),'print'),
+                                       dom='Bfrtip',
                                        pageLength=DT_pagelength,
                                        orderClasses = TRUE,
                                        autoWidth=TRUE,
@@ -131,6 +137,11 @@ MSnSetExplorer <- function(input, output, session, data) {
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
                                         dom='Bfrtip',
+                                        buttons = list('copy',
+                                                       list(
+                                                         extend = 'csv',
+                                                         filename = 'feature metadata'
+                                                       ),'print'),
                                         pageLength=DT_pagelength,
                                         orderClasses = TRUE,
                                         autoWidth=FALSE,
@@ -152,6 +163,11 @@ MSnSetExplorer <- function(input, output, session, data) {
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
                                         dom='Bfrtip',
+                                        buttons = list('copy',
+                                                       list(
+                                                         extend = 'csv',
+                                                         filename = 'feature metadata'
+                                                       ),'print'),
                                         pageLength=DT_pagelength,
                                         deferRender = TRUE,
                                         bLengthChange = FALSE,
@@ -188,6 +204,11 @@ MSnSetExplorer <- function(input, output, session, data) {
                      options = list(
                        dom = 'Bfrtip',
                        initComplete = initComplete(),
+                       buttons = list('copy',
+                                      list(
+                                        extend = 'csv',
+                                        filename = 'quantitation data'
+                                      ),'print'),
                        displayLength = 20,
                        deferRender = TRUE,
                        bLengthChange = FALSE,

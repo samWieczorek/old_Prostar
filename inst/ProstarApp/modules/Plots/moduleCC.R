@@ -2,36 +2,33 @@ library(visNetwork)
 
 moduleCCUI <- function(id) {
   ns <- NS(id)
-  tabPanel("Graph",
+  tabPanel("Peptide-Protein Graph",
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
-             tabPanel("Settings",
-                      selectInput(ns('pepInfo'), "PepInfo", choices=colnames(fData(rv$current.obj)),
-                                  multiple=TRUE)
-             ),
-             tabPanel("CC one prot",
+             tabPanel("One-One Connex Components",
                       tagList(
-                        shinyBS::bsCollapse(id = "collapseCCInfos", 
-                                   open = "",
-                                   multiple = TRUE,
-                                   shinyBS::bsCollapsePanel("One - One CC", 
-                                                   fluidRow(
-                                                     column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
-                                                     column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
-                                                     ),style = "info"),
-                                   shinyBS::bsCollapsePanel("One - Multi CC", 
-                                                   fluidRow(
-                                                     column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
-                                                     column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
-                                                   ), style = "primary")
+                        fluidRow(
+                          column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
+                          column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
+                        )
+                        #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
+                      )
+             ),
+             tabPanel("One-Multi Connex Components",
+                      tagList(
+                        fluidRow(
+                          column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
+                          column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
                         )
                       )
              ),
-             tabPanel("CC multi prot",
+             tabPanel("Multi-Multi Connex Components",
                       tagList(
                         #uiOutput(ns("CCTooltip_UI")),
                         # highchartOutput(ns("jiji")))
+                        selectInput(ns('pepInfo'), "Peptide Info", choices=colnames(fData(rv$current.obj)),
+                                    multiple=TRUE),
                         selectInput(ns("searchCC"), 'Search for CC', 
                                     choices = c('Tabular view' = 'tabular',
                                                 'Graphical view' = 'graphical'),
@@ -106,6 +103,24 @@ moduleCC <- function(input, output, session,cc){
   })
   
 
+  
+  # output$visNet_CC_OneOne <- renderVisNetwork({
+  #   req(rvCC$selectedCC)
+  #   local <-   cc()[Get_CC_One2One()]
+  #   
+  #   rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
+  #   
+  #   display.CC.visNet(rvCC$selectedCCgraph) %>%
+  #     visEvents(click = paste0("function(nodes){
+  #               Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
+  #               Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
+  #               ;}")
+  #     ) %>%
+  #     visOptions(highlightNearest = TRUE )
+  # })
+  # 
+  
+  
 output$visNet_CC <- renderVisNetwork({
     req(rvCC$selectedCC)
     local <-   cc()[Get_CC_Multi2Any()]
@@ -164,12 +179,17 @@ output$visNet_CC <- renderVisNetwork({
                                             nProt = length(x$proteins))}))
     df <- cbind(df,id = 1:nrow(df))
     df <- df[c('id', 'nProt', 'nPep', 'proteins', 'peptides')]
-    
+    colnames(df) <-c('id', 'nProt', 'nPep', 'Proteins Ids', 'Peptides Ids')
     dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
+                                      buttons = list('copy',
+                                                     list(
+                                                       extend = 'csv',
+                                                       filename = 'CCMultiMulti'
+                                                     ),'print'),
                                       dom='Bfrtip',
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -235,6 +255,7 @@ output$CCDetailed <- renderUI({
     df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
                      #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
                      )
+    colnames(df) <-c('Proteins Ids')
     dt <- datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
@@ -402,12 +423,19 @@ output$CCDetailed <- renderUI({
   
   output$OneMultiDT <- renderDataTable({
     req(rv$CC$allPep)
+    df <- BuildOne2MultiTab()
+    colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
     
-    dat <- DT::datatable(BuildOne2MultiTab(),
+    dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
+                                      buttons = list('copy',
+                                                     list(
+                                                       extend = 'csv',
+                                                       filename = 'CC_One_Multi'
+                                                     ),'print'),
                                       dom='Bfrtip',
                                       deferRender = TRUE,
                                       bLengthChange = TRUE,
@@ -452,6 +480,11 @@ output$CCDetailed <- renderUI({
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'Detailed_One_Multi'
+                                                   ),'print'),
                                     dom='Bfrtip',
                                     pageLength = 10,
                                     blengthChange = FALSE,
@@ -474,12 +507,18 @@ output$CCDetailed <- renderUI({
   
   output$OneOneDT <- renderDataTable({
     req(rv$CC$allPep)
-    
-    dat <- DT::datatable(BuildOne2OneTab(),
+    df <- BuildOne2OneTab()
+    colnames(df) <- c('Proteins Ids', 'Peptides Ids')
+    dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
                          extensions = c('Scroller', 'Buttons'),
                          options=list(initComplete = initComplete(),
+                                      buttons = list('copy',
+                                                     list(
+                                                       extend = 'csv',
+                                                       filename = 'CC_One_One'
+                                                     ),'print'),
                                       dom='Bfrtip',
                                        deferRender = TRUE,
                                       bLengthChange = FALSE,
@@ -521,6 +560,11 @@ output$CCDetailed <- renderUI({
     dt <- datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    buttons = list('copy',
+                                                   list(
+                                                     extend = 'csv',
+                                                     filename = 'Detailed_One_One'
+                                                   ),'print'),
                                     dom='Bfrtip',
                                     blengthChange = FALSE,
                                     pageLength = 10,

@@ -192,7 +192,7 @@ getDatasetName <- reactive({
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent( input$datasets,ignoreInit = TRUE,{ 
+observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
 
     isolate({
         if (!is.null(input$datasets)) {
@@ -293,9 +293,9 @@ ComputeAdjacencyMatrices <- reactive({
   
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   
-  print("dimensions matrice d'adjacence")
-  print(dim(matSharedPeptides))
-  print(dim(matUniquePeptides))
+  #print("dimensions matrice d'adjacence")
+  #print(dim(matSharedPeptides))
+  #print(dim(matUniquePeptides))
   rv$matAdj
 })
 
@@ -559,7 +559,7 @@ resetModuleProcess <- function(moduleName, obj){
           Convert ={
             
             rvModProcess$moduleConvert = list(name = "Convert",
-                                              stepsNames = c("Select file", "Data Id", "Epx. & feat. data", "Build design", "Convert"),
+                                              stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                                               isMandatory = rep(TRUE,5),
                                               ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                                             screenStep2 = uiOutput("Convert_DataId"),
@@ -605,6 +605,21 @@ resetModuleProcess <- function(moduleName, obj){
                                               ))
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
+            },
+            
+            GO = {
+              
+              
+              rvModProcess$moduleGO = list(name = "GO",
+                                           stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                                           isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                                           ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                                         screenStep2 = uiOutput("screenGO2"),
+                                                         screenStep3 = uiOutput("screenGO3"),
+                                                         screenStep2 = uiOutput("screenGO4")
+                                           ))
+              
+              rvModProcess$moduleGODone =  rep(FALSE,4)
             
             
             
@@ -622,7 +637,7 @@ ClearMemory <- function(){
   resetModuleProcess("PepImputation")
   resetModuleProcess("ProtImputation")
   resetModuleProcess("HypothesisTest")
-  resetModuleProcess("Convert")
+ # resetModuleProcess("Convert")
   resetModuleProcess("AnaDiff")
   
   ########
@@ -1199,3 +1214,15 @@ GetOnlineZipVersion <- function(){
   return(onlineZipVersion)
 }
 
+
+
+
+buildWritableVector <- function(v){
+  t <- "c("
+  for (i in v){
+    t <- paste(t, "\"", as.character(i), "\"", sep="")
+    if (i == last(v)) {t <- paste(t, ")", sep="")}
+    else {t <- paste(t, ",", sep="")}
+  }
+  return(t)
+}

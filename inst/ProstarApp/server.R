@@ -154,7 +154,7 @@ shinyServer(function(input, output, session) {
                  
                },
                
-               GOAnalysisTab = 
+               GoTab  = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
                
                # updateDesignTab = 

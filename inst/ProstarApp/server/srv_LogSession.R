@@ -31,6 +31,11 @@ output$logSession <- DT::renderDataTable({
                       rownames = FALSE,
                       options=list(initComplete = initComplete(),
                                    dom = 'Bfrtip',
+                                   buttons = list('copy',
+                                                  list(
+                                                    extend = 'csv',
+                                                    filename = 'logSession'
+                                                  ),'print'),
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
                                    bLengthChange = FALSE,

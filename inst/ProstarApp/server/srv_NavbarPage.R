@@ -1,5 +1,5 @@
 
-#observeEvent(rv$current.obj,{  BuildNavbarPage()})
+observeEvent(rv$current.obj,{  BuildNavbarPage()})
 
 
 ClearNavbarPage <- reactive({

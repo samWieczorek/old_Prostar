@@ -324,7 +324,7 @@ observeEvent(input$perform.imputationClassical.button,{
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
     incProgress(1, detail = 'Finalize POV imputation')
     nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-    rv$nbPOVimputed <- nbMVAfter - nbMVBefore
+    rv$nbPOVimputed <-  nbMVBefore - nbMVAfter
     
     rv$impute_Step <- 1
     rv$imputePlotsSteps[["step1"]] <- rv$current.obj
@@ -350,6 +350,7 @@ observeEvent(input$perform.imputationMEC.button,{
          incProgress(0.25, detail = 'Reintroduce MEC')
          
     rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+    nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     incProgress(0.75, detail = 'MEC Imputation')
     switch(input$MEC_missing.value.algorithm,
            detQuantile = {
@@ -362,6 +363,9 @@ observeEvent(input$perform.imputationMEC.button,{
                                                          fixVal = input$MEC_fixedValue)
            }
     )
+    
+    nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+    rv$nbMECimputed <-  nbMVBefore - nbMVAfter
     
     incProgress(1, detail = 'Finalize MEC imputation')
     rv$impute_Step <- 2
@@ -430,7 +434,7 @@ output$ImputationStep2Done <- renderUI({
   isolate({
     if (rv$impute_Step >= 2) {
       tagList(
-        h5("MEC imputation done."),
+        h5("MEC imputation done.", rv$nbMECimputed, " were imputed"),
         h5("Updated graphs cans be seen on tab \"3 - Validate and save\"."))
     }
   })

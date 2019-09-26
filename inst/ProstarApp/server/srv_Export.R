@@ -1,10 +1,12 @@
 
-callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({BuildParamDataProcessingDT()}), showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({BuildParamDataProcessingDT()}), showRownames=FALSE,
+           filename='processingData')
 
-callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE)
+callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE,
+           filename='datamining_view')
 
-callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE)
-
+callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE,
+           filename='Prostar_Versions')
 
 
 output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
@@ -66,7 +68,7 @@ observeEvent(rv$dataset, {
   for (i in 1:length(names(rv$dataset))){
     txt <-paste0('treeFor.',names(rv$dataset)[i])
     txt <- gsub(".", "_", txt, fixed=TRUE)
-    print(paste0("toggle : ", txt))
+    #print(paste0("toggle : ", txt))
     shinyjs::toggle(txt)
    }
  
@@ -118,8 +120,7 @@ output$exportOptions <- renderUI({
 
 
 output$chooseMetaDataExport <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) {return(NULL)  }
+  req(rv$current.obj)
   
   choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
   names(choices) <- choices

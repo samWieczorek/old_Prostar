@@ -4,7 +4,7 @@ callModule(moduleInsertMarkdown, "ProstarPresentation_MD",URL_ProstarPresentatio
 output$citationText <- renderUI({
   tagList(
     tags$div(style="background-color: lightgrey;",
-    tags$p(class="body",tags$b("é ç à è Maintaining ProStaR as free software is a heavy and time-consuming
+    tags$p(class="body",tags$b("Maintaining ProStaR as free software is a heavy and time-consuming
                 duty. If you use it, please cite the following reference:")),
     tags$p(tags$i("S. Wieczorek, F. Combes, C. Lazar, Q. Giai-Gianetto, 
                 L. Gatto, A. Dorffer, A.-M. Hesse, Y. Coute, M. Ferro, 

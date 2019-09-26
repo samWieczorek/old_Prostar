@@ -63,7 +63,8 @@ output$screenHypoTest1 <- renderUI({
                   textInput("seuilLogFC", "log(FC) threshold",  
                                value=rv$widgets$hypothesisTest$th_logFC,
                                width='150px'),
-                  module_Not_a_numericUI("test_seuillogFC")
+                  module_Not_a_numericUI("test_seuillogFC"),
+                  uiOutput("correspondingRatio")
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   uiOutput("correspondingRatio")

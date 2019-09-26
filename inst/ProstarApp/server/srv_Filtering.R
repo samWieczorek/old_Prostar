@@ -129,7 +129,7 @@ output$screenFiltering3 <- renderUI({
                                         '==' = '==',
                                         '<=' = '<=',
                                         '<' = '<',
-                                        '=>' = '=>',
+                                        '>=' = '>=',
                                         '>' = '>',
                                         '!=' = '!='), width='100px')
       ),
@@ -285,6 +285,11 @@ output$numericalFilterSummaryData <- DT::renderDataTable({
                 
                 options=list(initComplete = initComplete(),
                              dom = 'Brt',
+                             buttons = list('copy',
+                                            list(
+                                              extend = 'csv',
+                                              filename = 'NumericalFiltering_summary'
+                                            ),'print'),
                              deferRender = TRUE,
                              bLengthChange = FALSE
                 ))
@@ -300,14 +305,19 @@ output$FilterSummaryData <- DT::renderDataTable({
   
   if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
     df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
-    rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-  }
+    rv$widgets$filtering$DT_filterSummary <- df
+    }
   
   
   DT::datatable(rv$widgets$filtering$DT_filterSummary,
                 extensions = c('Scroller', 'Buttons'),
                 rownames = FALSE,
                 options=list(dom='Brt',
+                             buttons = list('copy',
+                                            list(
+                                              extend = 'csv',
+                                              filename = 'Filtering_summary'
+                                            ),'print'),
                              initComplete = initComplete(),
                              deferRender = TRUE,
                              bLengthChange = FALSE
@@ -441,7 +451,12 @@ output$VizualizeFilteredData <- DT::renderDataTable({
       dt <- datatable( data,
                        extensions = c('Scroller', 'Buttons'),
                        options = list(dom = 'Brtip',
-                                      initComplete = initComplete(),
+                                      options = list(buttons = list('copy',
+                                                                    list(
+                                                                      extend = 'csv',
+                                                                      filename = 'Prostar_export'
+                                                                    ),'print'),
+                                            initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,

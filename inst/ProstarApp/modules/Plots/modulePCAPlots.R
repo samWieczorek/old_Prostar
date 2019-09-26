@@ -30,7 +30,11 @@ pcaPlots <- function(input, output, session, data) {
     PCA_varScale = NULL
   )
   
-  callModule(moduleStaticDataTable,"PCAvarCoord", table2show=reactive({if (!is.null(rv.pca$res.pca)) round(rv.pca$res.pca$var$coord, digits=7)}), showRownames=TRUE)
+  callModule(moduleStaticDataTable,"PCAvarCoord", 
+             table2show=reactive({if (!is.null(rv.pca$res.pca)) round(rv.pca$res.pca$var$coord, digits=7)}), 
+             showRownames=TRUE,
+             filename = 'PCAVarCoords')
+  
   
   output$pcaOptions <- renderUI({
     req(data())
