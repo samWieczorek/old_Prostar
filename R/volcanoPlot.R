@@ -34,8 +34,7 @@ diffAnaVolcanoplot <- function(logFC=NULL,
                                 pVal=NULL, 
                                 threshold_pVal=1e-60, 
                                 threshold_logFC=0, 
-                                conditions=NULL, 
-                               colors=NULL){
+                                conditions=NULL, colors=NULL){
 
 xtitle <- paste("log2 ( mean(",conditions[2],") / mean(",conditions[1],") )",
                 sep="")
@@ -117,6 +116,7 @@ return(p)
 ##' show info from slots in df. The variable this.index refers to the slot 
 ##' named index and allows to retrieve the right row to show in the tooltip.
 ##' @param palette xxx
+##' @param swap A boolean that indicates if the conditions have been swaped
 ##' @return An interactive volcanoplot
 ##' @author Samuel Wieczorek
 ##' @examples
@@ -148,11 +148,13 @@ diffAnaVolcanoplot_rCharts <- function(df,
                                         threshold_logFC=0, 
                                         conditions=NULL, 
                                         clickFunction=NULL,
-                                       palette=NULL){
+                                       palette=NULL,
+                                       swap=FALSE){
     
   
-   xAxisTitle <- ifelse(swap, "-log(FC)","log(FC)")
-   xtitle <- paste("log2 ( mean(",conditions[2],") / mean(",conditions[1],") )",sep="")
+  print("In DAPAR::diffAnaVolcanoplot_rCharts")
+  print(str(df))
+    xtitle <- paste("log2 ( mean(",conditions[2],") / mean(",conditions[1],") )",sep="")
     
     if (is.null(clickFunction)){
         clickFunction <- 
@@ -182,7 +184,9 @@ diffAnaVolcanoplot_rCharts <- function(df,
                              y = c(threshold_pVal,threshold_pVal,max(df$y)))
     rightBorder <- data.frame(x=c(max(df$x), threshold_logFC,threshold_logFC),
                              y = c(threshold_pVal,threshold_pVal,max(df$y)))
+    
     title <- NULL
+    #title <- paste0(cond[1], '_vs_', cond[2])
     if (isTRUE(swap)){
       title <- paste0(conditions[2], '_vs_', conditions[1])
     } else {
@@ -193,9 +197,12 @@ diffAnaVolcanoplot_rCharts <- function(df,
         hc_add_series(data = df, type = "scatter", hcaes(x,y,group=g)) %>%
         hc_colors(c(palette$In, palette$Out)) %>%
         my_hc_chart(zoomType = "xy",chartType="scatter") %>%
+      hc_title(text = title,
+               margin = 20, align = "center",
+               style = list(size = 20, color = "black", useHTML = TRUE)) %>%
         hc_legend(enabled = FALSE) %>%
         hc_yAxis(title = list(text="-log10(pValue)")) %>%
-        hc_xAxis(title = list(text = xAxisTitle),
+        hc_xAxis(title = list(text = "logFC"),
                  plotLines=list(list(color= "grey" , width = 1, value = 0, zIndex = 5))) %>%
         hc_tooltip(headerFormat= '',pointFormat = txt_tooltip) %>%
         hc_plotOptions( line = list(marker=list(enabled=FALSE),

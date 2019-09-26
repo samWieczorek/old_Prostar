@@ -67,7 +67,7 @@ moduleInfoDataset <-function(input, output, session, obj){
     PROSTAR.version <- obj()@experimentData@other$Prostar_Version
     
     if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
-        && (DAPAR::check.design(Biobase::pData(obj()))$valid))
+        && (check.design(Biobase::pData(obj()))$valid))
     {return (FALSE)}
     
     else {

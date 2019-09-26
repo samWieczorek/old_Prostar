@@ -15,34 +15,34 @@
 ##' MShared <- BuildAdjacencyMatrix(obj, protID, FALSE)
 ##' getProteinsStats(MShared)
 getProteinsStats <- function(matShared){
-  if (is.null(matShared)){return(NULL)}
-  #if(!is.matrix(matUnique) || !is.matrix(matShared)){return(NULL)}
-  
-  
-  ind.shared.Pep <- which(rowSums(as.matrix(matShared))>1)
-  ind.unique.Pep <- which(rowSums(as.matrix(matShared))==1)
-  
-  M.shared.Pep <- matShared[ind.shared.Pep,]
-  M.shared.Pep <- M.shared.Pep[,-which(colSums(M.shared.Pep)==0)]
-  
-  M.unique.Pep <- matShared[ind.unique.Pep,]
-  M.unique.Pep <- M.unique.Pep[,-which(colSums(M.unique.Pep)==0)]
-  
-  
-  pep.names.shared <- colnames(M.shared.Pep)
-  pep.names.unique <- colnames(M.unique.Pep)
-  protOnlyShared <- setdiff(pep.names.shared, intersect(pep.names.shared, pep.names.unique))
-  protOnlyUnique <- setdiff(pep.names.unique, intersect(pep.names.shared, pep.names.unique))
-  protMix <- intersect(pep.names.shared, pep.names.unique)
-  
-  
-  return (list(nbPeptides = nrow(M.unique.Pep)+nrow(M.shared.Pep),
-               nbSpecificPeptides = nrow(M.unique.Pep),
-               nbSharedPeptides = nrow(M.shared.Pep),
-               nbProt = length(protOnlyShared)+length(protOnlyUnique)+length(protMix),
-               protOnlyUniquePep =protOnlyUnique,
-               protOnlySharedPep =protOnlyShared,
-               protMixPep = protMix)) 
+    if (is.null(matShared)){return(NULL)}
+    #if(!is.matrix(matUnique) || !is.matrix(matShared)){return(NULL)}
+    
+    
+    ind.shared.Pep <- which(rowSums(as.matrix(matShared))>1)
+    ind.unique.Pep <- which(rowSums(as.matrix(matShared))==1)
+    
+    M.shared.Pep <- matShared[ind.shared.Pep,]
+    M.shared.Pep <- M.shared.Pep[,-which(colSums(as.matrix(M.shared.Pep))==0)]
+    
+    M.unique.Pep <- matShared[ind.unique.Pep,]
+    M.unique.Pep <- M.unique.Pep[,-which(colSums(as.matrix(M.unique.Pep))==0)]
+    
+    
+    pep.names.shared <- colnames(M.shared.Pep)
+    pep.names.unique <- colnames(M.unique.Pep)
+    protOnlyShared <- setdiff(pep.names.shared, intersect(pep.names.shared, pep.names.unique))
+    protOnlyUnique <- setdiff(pep.names.unique, intersect(pep.names.shared, pep.names.unique))
+    protMix <- intersect(pep.names.shared, pep.names.unique)
+    
+
+    return (list(nbPeptides = nrow(M.unique.Pep)+nrow(M.shared.Pep),
+                 nbSpecificPeptides = nrow(M.unique.Pep),
+                 nbSharedPeptides = nrow(M.shared.Pep),
+                 nbProt = length(protOnlyShared)+length(protOnlyUnique)+length(protMix),
+                 protOnlyUniquePep =protOnlyUnique,
+                  protOnlySharedPep =protOnlyShared,
+                  protMixPep = protMix))
 }
 
 
@@ -103,6 +103,7 @@ return(newCol)
 ##' @return A vector
 ##' @author Samuel Wieczorek
 ##' @examples
+##' \dontrun{
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
 ##' protID <- "Protein.group.IDs"
@@ -113,6 +114,7 @@ return(newCol)
 ##' name <- "Protein.group.IDs"
 ##' proteinNames <- rownames(Biobase::fData(protData))
 ##' BuildColumnToProteinDataset_par(data, M, name,proteinNames )
+##' }
 BuildColumnToProteinDataset_par <- function(peptideData, matAdj, columnName, proteinNames){
     doParallel::registerDoParallel()
     
@@ -218,33 +220,33 @@ BuildAdjacencyMatrix <- function(obj.pep, protID, unique=TRUE){
     # 
     # if (unique == TRUE){
     #   ll <- which(rowSums(X)>1)
-    #     if (length(ll) > 0) {
-    #       X[ll,] <- 0
-    #     }
+    #   if (length(ll) > 0) {
+    #     X[ll,] <- 0
+    #   }
     #      }
     # 
     # return(X)
-    
-    
-    data <- Biobase::exprs(obj.pep)
-    PG <- Biobase::fData(obj.pep)[,protID]
-    PG.l <- strsplit(as.character(PG), split=";", fixed=TRUE)
-    
-    t <- table(data.frame(A=rep(seq_along(PG.l), lengths(PG.l)), B=unlist(PG.l)))
-    
-    if (unique == TRUE){
-      ll <- which(rowSums(t)>1)
-      if (length(ll) > 0) {
-        t[ll,] <- 0
-      }
-      
+  
+  
+  data <- Biobase::exprs(obj.pep)
+  PG <- Biobase::fData(obj.pep)[,protID]
+  PG.l <- strsplit(as.character(PG), split=";", fixed=TRUE)
+  
+  t <- table(data.frame(A=rep(seq_along(PG.l), lengths(PG.l)), B=unlist(PG.l)))
+  
+  if (unique == TRUE){
+    ll <- which(rowSums(t)>1)
+    if (length(ll) > 0) {
+      t[ll,] <- 0
     }
     
-    X <- Matrix(t, sparse=T,
-                dimnames = list(rownames(obj.pep), colnames(t))
-    )
-    
-    return(X)
+  }
+  
+  X <- Matrix::Matrix(t, sparse=T,
+              dimnames = list(rownames(obj.pep), colnames(t))
+  )
+  
+  return(X)
 }
 
 
@@ -459,6 +461,99 @@ aggregateMean <- function(obj.pep, X){
   return(obj.prot)
 }
 
+
+##' Method to split an adjacency matrix into specific and shared
+##' 
+##' @title splits an adjacency matrix into specific and shared 
+##' @param X An adjacency matrix
+##' @return A list of two adjacency matrices
+##' @author Samuel Wieczorek
+splitAdjacencyMat <- function(X){
+  hasShared <- length( which(rowSums(X) > 1)) > 0
+  hasSpec <- length( which(rowSums(X) == 1)) > 0
+  
+  
+  if (hasShared && !hasSpec){
+    tmpShared <- X
+    tmpSpec <- X
+    tmpSpec[which(rowSums(tmpSpec) > 1),] <- 0
+  }
+  else if (!hasShared && hasSpec){
+    tmpSpec <- X
+    tmpShared <- X
+    tmpShared[which(rowSums(tmpShared) == 1),] <- 0
+  }
+  else if (hasShared && hasSpec){
+    tmpSpec <- X
+    tmpShared <- X
+    tmpShared[which(rowSums(tmpShared) == 1),] <- 0
+    tmpSpec[which(rowSums(tmpSpec) > 1),] <- 0
+  } else {
+    tmpSpec <- X
+    tmpShared <- X
+  }
+  
+  
+  return (list(Xshared = tmpShared, Xspec = tmpSpec))
+  
+}
+
+##' Method to compute the detailed number of quantified peptides used for aggregating each protein
+##' 
+##' @title Computes the detailed number of peptides used for aggregating each protein 
+##' @param X An adjacency matrix
+##' @param pepData A data.frame of quantitative data
+##' @return A list of two items
+##' @author Samuel Wieczorek
+##' require(DAPARdata)
+##' data(Exp1_R25_pept)
+##' obj.pep <- Exp1_R25_pept[1:1000]
+##' protID <- "Protein.group.IDs"
+##' X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
+##' require(DAPARdata)
+##' data(Exp1_R25_pept)
+##' obj.pep <- Exp1_R25_pept[1:1000]
+##' protID <- "Protein.group.IDs"
+##' X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
+##' GetDetailedNbPeptidesUsed(X, obj.pep)
+GetDetailedNbPeptidesUsed <- function(X, pepData){
+  pepData[!is.na(pepData)] <- 1
+  pepData[is.na(pepData)] <- 0
+  
+  mat <- splitAdjacencyMat(X)
+  return(list(nShared=t(mat$Xshared) %*% pepData, 
+              nSpec=t(mat$Xspec) %*% pepData))
+  
+}
+
+
+##' Method to compute the detailed number of quantified peptides for each protein
+##' 
+##' @title Computes the detailed number of peptides for each protein 
+##' @param X An adjacency matrix
+##' @return A data.frame
+##' @author Samuel Wieczorek
+##' @examples
+##' require(DAPARdata)
+##' data(Exp1_R25_pept)
+##' obj.pep <- Exp1_R25_pept[1:1000]
+##' protID <- "Protein.group.IDs"
+##' X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
+##' GetDetailedNbPeptides(X)
+GetDetailedNbPeptides <- function(X){
+  
+  mat <- splitAdjacencyMat(as.matrix(X))
+  
+  
+  return(list(nTotal = rowSums(t(as.matrix(X))),
+              nShared=rowSums(t(mat$Xshared)), 
+              nSpec=rowSums(t(mat$Xspec)))
+  )
+  
+}
+
+
+
 ##' Method to xxxxx
 ##' 
 ##' @title xxxx 
@@ -562,30 +657,41 @@ aggregateTopn <- function(obj.pep,X,  method='Mean', n=10){
 ##' @param X An adjacency matrix in which lines and columns correspond 
 ##' respectively to peptides and proteins.
 ##' @param protData xxxxx
+##' @param lib.loc A list of two items (lib.loc$Prostar.loc and lib.loc$DAPAR.loc) to provide the 
+##' location of the installed packages
 ##' @return A protein object of class \code{MSnset}
 ##' @author Samuel Wieczorek
-##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
-##' obj.pep <- Exp1_R25_pept[1:1000]
-##' pepData <- 2^(Biobase::exprs(obj.pep))
-##' protID <- "Protein.group.IDs"
-##' X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
-##' protData <- inner.mean(pepData,X)
-##' finalizeAggregation(obj.pep, pepData, protData, X)
-finalizeAggregation <- function(obj.pep, pepData, protData,X){
+finalizeAggregation <- function(obj.pep, pepData, protData,X, lib.loc=NULL){
  
   protData <- as.matrix(protData)
+  X <- as.matrix(X)
   protData[protData==0] <- NA
   protData[is.nan(protData)] <- NA
   protData[is.infinite(protData)] <-NA
   
+  temp <- GetDetailedNbPeptidesUsed(X, pepData)
   
-  pep <- as.matrix(GetNbPeptidesUsed(X, pepData))
-  colnames(pep) <- paste("nb.pep.used.", colnames(pepData), sep="")
-  rownames(pep) <- colnames(X)
+  pepSharedUsed <- as.matrix(temp$nShared)
+  colnames(pepSharedUsed) <- paste("pepShared.used.", colnames(pepData), sep="")
+  rownames(pepSharedUsed) <- colnames(X)
   
-   fd <- data.frame(colnames(X), pep)
+  pepSpecUsed <- as.matrix(temp$nSpec)
+  colnames(pepSpecUsed) <- paste("pepSpec.used.", colnames(pepData), sep="")
+  rownames(pepSpecUsed) <- colnames(X)
+  
+  pepTotalUsed <- as.matrix(GetNbPeptidesUsed(X, pepData))
+  colnames(pepTotalUsed) <- paste("pepTotal.used.", colnames(pepData), sep="")
+  rownames(pepTotalUsed) <- colnames(X)
+  
+  n <- GetDetailedNbPeptides(X)
+  
+   fd <- data.frame(colnames(X), 
+                    nPepTotal = n$nTotal,
+                    nPepShared = n$nShared, 
+                    nPepSpec = n$nSpec, 
+                    pepSpecUsed, 
+                    pepSharedUsed, 
+                    pepTotalUsed)
   
   obj.prot <- MSnSet(exprs = log2(protData), 
                 fData = fd, 
@@ -594,8 +700,8 @@ finalizeAggregation <- function(obj.pep, pepData, protData,X){
   obj.prot@experimentData@other$typeOfData <-"protein"
   #obj.prot <- addOriginOfValue(obj.prot)
   obj.prot@experimentData@other$OriginOfValues <- NULL
-  #obj.prot@experimentData@other$Prostar_Version <- installed.packages(lib.loc = lib.loc$Prostar.loc)["Prostar","Version"]
-  #obj.prot@experimentData@other$DAPAR_Version <- installed.packages(lib.loc = lib.loc$DAPAR.loc)["DAPAR","Version"]
+  obj.prot@experimentData@other$Prostar_Version <- installed.packages(lib.loc = lib.loc$Prostar.loc)["Prostar","Version"]
+  obj.prot@experimentData@other$DAPAR_Version <- installed.packages(lib.loc = lib.loc$DAPAR.loc)["DAPAR","Version"]
   return (obj.prot)
 }
 

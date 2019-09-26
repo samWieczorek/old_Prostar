@@ -23,7 +23,7 @@ Boxplot for quantitative proteomics data
 require(DAPARdata)
 data(Exp1_R25_pept)
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
-boxPlotD(Exp1_R25_pept, legend = conds)
+boxPlotD(Exp1_R25_pept)
 }
 \seealso{
 \code{\link{densityPlotD}}

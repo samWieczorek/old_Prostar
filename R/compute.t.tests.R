@@ -32,7 +32,7 @@ wrapper.t_test_Complete <- function(obj,...){
 ##'
 ##' @title xxxxxx
 ##' @param qData A matrix of quantitative data, without any missing values.
-##' @param sTab xxxx 
+##' @param sTab xxxx  
 ##' @param contrast Indicates if the test consists of the comparison of each 
 ##' biological condition versus 
 ##' each of the other ones (contrast=1; 
@@ -55,10 +55,14 @@ wrapper.t_test_Complete <- function(obj,...){
 ##' qData <- Biobase::exprs(obj)
 ##' ttest <- compute.t.tests(qData,sTab ,"OnevsOne")
 compute.t.tests <- function(qData,sTab, contrast="OnevsOne", type="Student"){
+
+    
     switch(type,
            Student=.type <- TRUE,
            Welch=.type <- FALSE)
-
+    
+    
+    
 res<-list()
 logFC <- list()
 P_Value <- list()
@@ -125,7 +129,6 @@ Cond.Nb<-length(levels(Conditions.f))
             m1.name <- names(unlist(lapply(res.tmp,function(x)x$estimate[1])))[1]
             m2.name <- names(unlist(lapply(res.tmp,function(x)x$estimate[2])))[1]
             logFC.tmp <- m1.tmp - m2.tmp
-            
             if (grepl(levels(Conditions.f)[i], m2.name)){logFC.tmp <- -logFC.tmp}
             
             txt <- paste(levels(Conditions.f)[i],"_vs_(all-",levels(Conditions.f)[i],")", sep="")

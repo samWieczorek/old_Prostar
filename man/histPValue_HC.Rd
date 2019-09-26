@@ -2,22 +2,22 @@
 % Please edit documentation in R/DiffAnalysis.R
 \name{histPValue_HC}
 \alias{histPValue_HC}
-\title{Distribution of p-values (histogram)}
+\title{Plots a histogram ov p-values}
 \usage{
 histPValue_HC(pval_ll, bins = 80, pi0 = 1)
 }
 \arguments{
-\item{pval_ll}{A list that contains the data}
+\item{pval_ll}{xxx}
 
-\item{bins}{An integer that is the number of bins of the histogram.}
+\item{bins}{xxx}
 
-\item{pi0}{A float that is the threshold}
+\item{pi0}{xxx}
 }
 \value{
 A plot
 }
 \description{
-This function plots a distribution of the p-values.
+This function plots a histogram ov p-values
 }
 \examples{
 require(DAPARdata)

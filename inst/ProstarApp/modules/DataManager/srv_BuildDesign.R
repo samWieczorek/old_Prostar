@@ -61,7 +61,7 @@ observeEvent(input$btn_checkConds,{
     rv.buildDesign$hot <- rv.buildDesign$hot[rv.buildDesign$newOrder,]
   }
   
-  rv.buildDesign$conditionsChecked <- DAPAR::check.conditions(rv.buildDesign$hot$Condition)
+  rv.buildDesign$conditionsChecked <- check.conditions(rv.buildDesign$hot$Condition)
   
 })
 
@@ -291,7 +291,7 @@ observeEvent(input$hot,{ rv.buildDesign$hot <-  hot_to_r(input$hot)})
 
 #------------------------------------------------------------------------------
 observeEvent(input$btn_checkDesign,{ 
-  rv.buildDesign$designChecked <- DAPAR::check.design(rv.buildDesign$hot)
+  rv.buildDesign$designChecked <- check.design(rv.buildDesign$hot)
   print(rv.buildDesign$designChecked)
 
 })

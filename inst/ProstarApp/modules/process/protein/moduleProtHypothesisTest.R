@@ -253,7 +253,7 @@ moduleProtHypothesisTest <- function(input, output, session, dataIn, screen.id, 
     
     ### Save RAW data
     isolate({
-      rv.hypothesisTest$obj <- DAPAR::diffAnaSave(obj = rv.hypothesisTest$obj,
+      rv.hypothesisTest$obj <- diffAnaSave(obj = rv.hypothesisTest$obj,
                                            allComp = rv.hypothesisTest$res_AllPairwiseComparisons)
       
       

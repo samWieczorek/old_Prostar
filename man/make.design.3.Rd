@@ -16,7 +16,7 @@ A design matrix
 This function builds the design matrix for design of level 3
 }
 \examples{
-\donttest{
+\dontrun{
 require(DAPARdata)
 data(Exp1_R25_pept)
 make.design.3(Biobase::pData(Exp1_R25_pept))

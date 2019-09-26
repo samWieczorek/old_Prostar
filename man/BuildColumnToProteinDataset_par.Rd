@@ -28,6 +28,7 @@ by using the previous peptide dataset. It is a parallel version of the function
 \code{BuildColumnToProteinDataset}
 }
 \examples{
+\dontrun{
 require(DAPARdata)
 data(Exp1_R25_pept)
 protID <- "Protein.group.IDs"
@@ -38,6 +39,7 @@ protData <- DAPAR::aggregateSum(obj.pep, M)
 name <- "Protein.group.IDs"
 proteinNames <- rownames(Biobase::fData(protData))
 BuildColumnToProteinDataset_par(data, M, name,proteinNames )
+}
 }
 \author{
 Samuel Wieczorek

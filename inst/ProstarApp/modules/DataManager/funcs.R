@@ -5,7 +5,7 @@ ConfigureData <- function(obj){
   
   data <- getMSnSet(obj, 1)
   
-  data <- DAPAR::addOriginOfValue(data)
+  data <- addOriginOfValue(data)
   #data <- obj$datasets$original
   #if (is.null(data@experimentData@other$typeOfData)) {
   #  obj@experimentData@other$typeOfData <- ""

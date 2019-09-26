@@ -338,8 +338,8 @@ ComputeAdjacencyMatrices <- function(obj){
   print(paste0("class of obj : ", class(obj)))
   
   matAdj <- NULL
-  matSharedPeptides <- DAPAR::BuildAdjacencyMatrix(obj, pId, FALSE)
-  matUniquePeptides <- DAPAR::BuildAdjacencyMatrix(obj, pId, TRUE)
+  matSharedPeptides <- Prostar::BuildAdjacencyMatrix(obj, pId, FALSE)
+  matUniquePeptides <- Prostar::BuildAdjacencyMatrix(obj, pId, TRUE)
   matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   
   return(matAdj)

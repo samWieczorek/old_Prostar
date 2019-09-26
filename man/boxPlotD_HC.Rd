@@ -4,7 +4,7 @@
 \alias{boxPlotD_HC}
 \title{Builds a boxplot from a dataframe using the library \code{highcharter}}
 \usage{
-boxPlotD_HC(obj, legend = NULL, palette = NULL)
+boxPlotD_HC(obj, legend = NULL, palette = NULL, subset.view = NULL)
 }
 \arguments{
 \item{obj}{xxx}
@@ -12,6 +12,8 @@ boxPlotD_HC(obj, legend = NULL, palette = NULL)
 \item{legend}{A vector of the conditions (one condition per sample).}
 
 \item{palette}{xxx}
+
+\item{subset.view}{A vector of index indicating rows to highlight}
 }
 \value{
 A boxplot
@@ -23,11 +25,11 @@ Boxplot for quantitative proteomics data using the library \code{highcharter}
 require(DAPARdata)
 data(Exp1_R25_pept)
 legend <- Biobase::pData(Exp1_R25_pept)[,"Sample.name"]
-boxPlotD_HC(Exp1_R25_pept, legend)
+boxPlotD_HC(Exp1_R25_pept, legend, subset.view=1:10)
 }
 \seealso{
 \code{\link{densityPlotD_HC}}
 }
 \author{
-Samuel Wieczorek
+Samuel Wieczorek, Anais Courtier
 }

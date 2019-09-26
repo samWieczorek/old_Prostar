@@ -158,7 +158,7 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
                          versions=NULL){
     
     if (!is.data.frame(file)){ #the variable is a path to a text file
-        data <- read.table(file, header=TRUE, sep="\t",colClasses="character")
+        data <- read.table(file, header=TRUE, sep="\t", stringsAsFactors = FALSE)
     } else {data <- file}
     
     ## replace all blanks by a dot
@@ -181,7 +181,7 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
     # }else{rownames(Intensity) <- data[,indiceID]}
     
     ##building fData of MSnSet file
-    fd <- data.frame( data[,indFData])
+    fd <- data.frame( data[,indFData],stringsAsFactors = F)
     
     if (is.null(indiceID)) {
         rownames(fd) <- rep(paste(pep_prot_data, "_", 1:nrow(fd), sep=""))
@@ -193,7 +193,7 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
     
     colnames(fd) <- gsub(".", "_", colnames(data)[indFData], fixed=TRUE)
     
-     pd <- as.data.frame(metadata)
+     pd <- as.data.frame(metadata,stringsAsFactors = F)
     rownames(pd) <- gsub(".", "_", pd$Sample.name, fixed=TRUE)
     
     ##Integrity tests
@@ -343,22 +343,22 @@ writeMSnsetToExcel <- function(obj, filename)
 ##' @return A data.frame
 ##' @author Samuel Wieczorek
 readExcel <- function(file, extension, sheet){
-    # data <- NULL
-    # if (extension=="xls") {
-    #     data <- readxl::read_xls(file, sheet)
-    # }
-    # else if (extension=="xlsx") {
-    #     data <- readxl::read_xlsx(file, sheet)
-    # }
-    # return(as.data.frame(data,asIs=T))
-    
-  options(digits=10)
+  # data <- NULL
+  # if (extension=="xls") {
+  #     data <- readxl::read_xls(file, sheet)
+  # }
+  # else if (extension=="xlsx") {
+  #     data <- readxl::read_xlsx(file, sheet)
+  # }
+  # return(as.data.frame(data,asIs=T))
+  
+  #options(digits=10)
   data <- NULL
   data <- readxl::read_excel(file, sheet)
   
   return(as.data.frame(data,asIs=T, stringsAsFactors=F))
+    
 }
-
 
 
 ##' This function lists all the sheets of an Excel file.

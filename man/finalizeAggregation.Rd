@@ -4,7 +4,7 @@
 \alias{finalizeAggregation}
 \title{Finalizes the aggregation process}
 \usage{
-finalizeAggregation(obj.pep, pepData, protData, X)
+finalizeAggregation(obj.pep, pepData, protData, X, lib.loc = NULL)
 }
 \arguments{
 \item{obj.pep}{A peptide object of class \code{MSnset}}
@@ -15,22 +15,15 @@ finalizeAggregation(obj.pep, pepData, protData, X)
 
 \item{X}{An adjacency matrix in which lines and columns correspond 
 respectively to peptides and proteins.}
+
+\item{lib.loc}{A list of two items (lib.loc$Prostar.loc and lib.loc$DAPAR.loc) to provide the 
+location of the installed packages}
 }
 \value{
 A protein object of class \code{MSnset}
 }
 \description{
 Method to finalize the aggregation process
-}
-\examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-obj.pep <- Exp1_R25_pept[1:1000]
-pepData <- 2^(Biobase::exprs(obj.pep))
-protID <- "Protein.group.IDs"
-X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
-protData <- inner.mean(pepData,X)
-finalizeAggregation(obj.pep, pepData, protData, X)
 }
 \author{
 Samuel Wieczorek

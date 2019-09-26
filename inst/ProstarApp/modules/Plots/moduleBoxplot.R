@@ -61,7 +61,7 @@ moduleBoxplot <- function(input, output, session, dataIn, params) {
     isolate({
       
       pattern <- paste0(name,".boxplot")
-      tmp <- DAPAR::boxPlotD_HC(dataIn()$obj, rv.prostar$settings()$legendForSamples, 
+      tmp <- boxPlotD_HC(dataIn()$obj, rv.prostar$settings()$legendForSamples, 
                                 palette=rv.prostar$settings()$examplePalette,
                                 subset.view = rv.modboxplot$ind)
       #future(createPNGFromWidget(tmp,pattern))
@@ -81,7 +81,7 @@ moduleBoxplot <- function(input, output, session, dataIn, params) {
     rv.modboxplot$ind
     isolate({
       pattern <- paste0(dataIn()$name,".violinplot")
-      tmp <- DAPAR::violinPlotD(dataIn()$obj, 
+      tmp <- violinPlotD(dataIn()$obj, 
                                 rv.prostar$settings()$legendForSamples, 
                                 palette=rv.prostar$settings()$examplePalette,
                                 subset.view =  rv.modboxplot$ind)

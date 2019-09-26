@@ -205,7 +205,7 @@ make.design <- function(sTab){
 ##' make.design.1(Biobase::pData(Exp1_R25_pept))
 make.design.1 <- function(sTab){
   
-  Conditions <- factor(sTab$Condition,   levels=unique(sTab$Condition))
+  Conditions <- factor(sTab$Condition, levels=unique(sTab$Condition))
   nb_cond=length(unique(Conditions))
   nb_samples <- nrow(sTab)
   
@@ -242,12 +242,12 @@ make.design.1 <- function(sTab){
 ##' make.design.2(Biobase::pData(Exp1_R25_pept))
 ##' }
 make.design.2=function(sTab){
-  Condition <- factor(sTab$Condition,   levels=unique(sTab$Condition))
-  RepBio <- factor(sTab$Bio.Rep,   levels=unique(sTab$Bio.Rep))
+  Condition <- factor(sTab$Condition,  levels=unique(sTab$Condition))
+  RepBio <- factor(sTab$Bio.Rep,  levels=unique(sTab$Bio.Rep))
   
   #Renome the levels of factor
-  levels(Condition)=c(1:length(unique(Condition)))
-  levels(RepBio)=c(1:length(unique(RepBio)))
+  levels(Condition)=c(1:length(levels(Condition)))
+  levels(RepBio)=c(1:length(levels(RepBio)))
   
   #Initial design matrix
   df <- rep(0,nrow(sTab))
@@ -282,16 +282,16 @@ make.design.2=function(sTab){
 ##' @return A design matrix
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' \donttest{
+##' \dontrun{
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
 ##' make.design.3(Biobase::pData(Exp1_R25_pept))
 ##' }
 make.design.3=function(sTab){
   
-  Condition <- factor(sTab$Condition,   levels=unique(sTab$Condition))
-  RepBio <- factor(sTab$Bio.Rep,   levels=unique(sTab$Bio.Rep))
-  RepTech <- factor(sTab$Tech.Rep,   levels=unique(sTab$Tech.Rep))
+  Condition <- factor(sTab$Condition,  levels=unique(sTab$Condition))
+  RepBio <- factor(sTab$Bio.Rep,  levels=unique(sTab$Bio.Rep))
+  RepTech <- factor(sTab$Tech.Rep,  levels=unique(sTab$Tech.Rep))
   
   
   #Rename the levels of factor
@@ -466,6 +466,7 @@ limmaCompleteTest <- function(qData, sTab, comp.type="OnevsOne"){
   sTab <- sTab[unlist(lapply(split(sTab, conds), function(x) {x['Sample.name']})),]
   qData <- qData[,unlist(lapply(split(sTab.old, conds), function(x) {x['Sample.name']}))]
   conds <- conds[order(conds)]
+  
   
   res.l <- NULL
   design.matrix <- make.design(sTab)

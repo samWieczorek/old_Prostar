@@ -16,7 +16,7 @@
 wrapper.pca <- function(obj, var.scaling=TRUE, ncp=NULL){
  # require(FactoMineR)
   
-  
+  if (is.null(var.scaling)) {var.scaling <- TRUE}
   if (length(which(is.na(Biobase::exprs(obj)))) > 0){return(NULL)}
   if (is.null(ncp)){
     nmax <- 12
@@ -61,7 +61,7 @@ plotPCA_Var <- function(res.pca, chosen.axes=c(1,2)){
   if (is.null(res.pca)){return(NULL)}
   factoextra::fviz_pca_var(res.pca, axes = chosen.axes, col.var = "cos2",
                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-               repel = TRUE 
+               repel = TRUE # ?vite le chevauchement de texte
   )
   
 }
@@ -156,7 +156,7 @@ plotPCA_Eigen_hc <- function(res.pca){
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
 ##' conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
-##' boxPlotD(Exp1_R25_pept, legend = conds)
+##' boxPlotD(Exp1_R25_pept)
 boxPlotD <- function(obj,legend=NULL,palette=NULL){
   qData <- Biobase::exprs(obj)
   if (is.null(palette)){
@@ -203,15 +203,16 @@ abline(h=0)
 ##' @param obj xxx
 ##' @param legend A vector of the conditions (one condition per sample).
 ##' @param palette xxx
+##' @param subset.view A vector of index indicating rows to highlight
 ##' @return A boxplot
-##' @author Samuel Wieczorek
+##' @author Samuel Wieczorek, Anais Courtier
 ##' @seealso \code{\link{densityPlotD_HC}}
 ##' @examples
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
 ##' legend <- Biobase::pData(Exp1_R25_pept)[,"Sample.name"]
-##' boxPlotD_HC(Exp1_R25_pept, legend)
-boxPlotD_HC <- function(obj, legend=NULL, palette = NULL){
+##' boxPlotD_HC(Exp1_R25_pept, legend, subset.view=1:10)
+boxPlotD_HC <- function(obj, legend=NULL, palette = NULL,subset.view=NULL){
 
   qData <- Biobase::exprs(obj)
   if( is.null(legend)){legend <- Biobase::pData(obj)[,"Sample.name"]}
@@ -239,15 +240,12 @@ boxPlotD_HC <- function(obj, legend=NULL, palette = NULL){
   df <- data.frame(values = as.vector(qData,mode='numeric'),samples = tmp, stringsAsFactors = FALSE)
   
   
-  hc <- hcboxplot(x=df$values, var = df$samples, colorByPoint = TRUE, 
-                  
-                  outliers = TRUE) %>%
+  hc <- hcboxplot(x=df$values, var = df$samples, colorByPoint = TRUE, outliers = TRUE) %>%
     hc_chart(type="column") %>%
     hc_yAxis(title = list(text = "Log (intensity)")) %>%
     hc_xAxis(title = list(text = "Samples"), categories=legend) %>%
     hc_colors(palette) %>%
-    hc_add_series(type= "scatter",df_outlier) %>%
-    hc_tooltip(enabled = FALSE) %>%
+    hc_add_series(type= "scatter",df_outlier,name="Outliers",tooltip=list(enabled=F,headerFormat ="",pointFormat="{point.y: .2f} ")) %>%  
     hc_plotOptions(
       
       boxplot= list(
@@ -272,7 +270,22 @@ boxPlotD_HC <- function(obj, legend=NULL, palette = NULL){
       )
     )
   
-  
+  # Display of rows to highlight (index of row in subset.view) 
+  if(!is.null(subset.view)){
+    idColName<-obj@experimentData@other$proteinId
+    idVector=obj@featureData@data[,idColName]
+    pal=colorRampPalette(brewer.pal(8, "Set1"))(length(subset.view))    
+    n=0
+    for(i in subset.view){
+      n=n+1
+      dfSubset <- data.frame(y = as.vector(qData[i,],mode='numeric'), x = as.numeric(factor(names(qData[i,])))-1, stringsAsFactors = FALSE)
+      hc<-hc %>%
+        hc_add_series(type= "line",data=dfSubset,color=pal[n], dashStyle = "shortdot",name=idVector[i],
+                      tooltip=list(enabled=T,headerFormat ="",pointFormat="{point.series.name} : {point.y: .2f} ") )
+      
+    }
+  }  
+
   hc
   
 }
@@ -286,18 +299,18 @@ boxPlotD_HC <- function(obj, legend=NULL, palette = NULL){
 ##' @param obj xxx
 ##' @param legend A vector of the conditions (one condition per sample).
 ##' @param palette xxx
+##' @param subset.view A vector of index indicating rows to highlight
 ##' @return A violinplot
-##' @author Samuel Wieczorek
+##' @author Samuel Wieczorek, Anais Courtier
 ##' @seealso \code{\link{densityPlotD}}
 ##' @examples
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
 ##' library(vioplot)
 ##' legend <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
-##' violinPlotD(Exp1_R25_pept, legend=legend)
-violinPlotD <- function(obj, legend=NULL, palette = NULL){
-  print(legend)
-    plot.new()
+##' violinPlotD(Exp1_R25_pept, legend=legend,subset.view=20:30)
+violinPlotD <- function(obj, legend=NULL, palette = NULL,subset.view=NULL){
+  plot.new()
   qData <- Biobase::exprs(obj)
   
     if (!is.null(palette)) {
@@ -336,6 +349,23 @@ violinPlotD <- function(obj, legend=NULL, palette = NULL){
         }
 
         mtext("Samples",side=1,line=6+length(colnames(legend)), cex.lab=1, las=1)
+    }
+  # Display of rows to highlight (index of row in subset.view) 
+  if(!is.null(subset.view)){
+    idColName<-obj@experimentData@other$proteinId
+    idVector=obj@featureData@data[,idColName]
+    pal=colorRampPalette(brewer.pal(8, "Set1"))(length(subset.view))
+    
+    n=0
+    for (i in subset.view) {
+      n=n+1
+      for (c in 1:(ncol(qData)-1)) {
+        segments(y0=qData[i,c],y1=qData[i,c+1],x0=c,x1=c+1,pch=16,col=pal[n],lwd=2)
+        points(y=qData[i,c],x=c,pch=16,col=pal[n])
+      }
+      points(y=qData[i,ncol(qData)],x=ncol(qData),pch=16,col=pal[n])
+    }
+    legend("topleft",legend=idVector[subset.view],lty=1,lwd=2,col=pal,pch=16,bg="transparent",bty="n")
     }
 
 }
@@ -503,6 +533,139 @@ legend("topleft"
 
 
 
+
+
+##' Wrapper to the function that plot to compare the quantitative proteomics 
+##' data before and after normalization
+##' 
+##' @title Builds a plot from a dataframe
+##' @param objBefore A dataframe that contains quantitative data before 
+##' normalization.
+##' @param objAfter A dataframe that contains quantitative data after 
+##' normalization.
+##' @param condsForLegend A vector of the conditions (one condition per sample).
+##' @param indData2Show A vector of the indices of the columns to show in the 
+##' plot. The indices are those of indices of 
+##' the columns int the data.frame qDataBefore.
+##' @param ... arguments for palette
+##' @return A plot
+##' @author Samuel Wieczorek
+##' @examples
+##' require(DAPARdata)
+##' data(Exp1_R25_pept)
+##' conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
+##' objAfter <- wrapper.normalizeD(Exp1_R25_pept, "QuantileCentering","within conditions")
+##' ids <- fData(Exp1_R25_pept)[,Exp1_R25_pept@experimentData@other$proteinId]
+##' wrapper.compareNormalizationDSubset(Exp1_R25_pept, objAfter, conds, idsForLegend=ids, subset.view=1:10)
+wrapper.compareNormalizationDSubset <- function(objBefore, objAfter, 
+                                          condsForLegend=NULL,
+                                          indData2Show=NULL,
+                                          ...){
+  
+  qDataBefore <- Biobase::exprs(objBefore)
+  qDataAfter <- Biobase::exprs(objAfter)
+  #if (is.null(condsForLegend)){
+    #condsForLegend <- Biobase::pData(objBefore)[,"Condition"]}
+  
+  compareNormalizationDSubset(qDataBefore, qDataAfter, indData2Show, ...)
+}
+
+
+
+
+
+##' Plot to compare the quantitative proteomics data before and after 
+##' normalization for a subset of protein
+##' 
+##' @title Builds a plot from a dataframe
+##' @param qDataBefore A dataframe that contains quantitative data before 
+##' normalization.
+##' @param qDataAfter A dataframe that contains quantitative data after 
+##' normalization.
+##' @param indData2Show A vector of the indices of the columns to show in 
+##' the plot. The indices are those of indices of 
+##' the columns int the data.frame qDataBefore.
+##' @param idsForLegend A vector of the ids of the row in the data.frame qDataBefore.
+##' @param palette xxx
+##' @param subset.view A vector of index indicating rows to highlight
+##' @return A plot
+##' @author Samuel Wieczorek, Anais Courtier
+##' @examples
+##' require(DAPARdata)
+##' data(Exp1_R25_pept)
+##' qDataBefore <- Biobase::exprs(Exp1_R25_pept)
+##' ids <-Exp1_R25_pept@featureData@data[,obj@experimentData@other$proteinId]
+##' objAfter <- wrapper.normalizeD(Exp1_R25_pept,"QuantileCentering","within conditions")
+##' compareNormalizationDSubset(qDataBefore, Biobase::exprs(objAfter), idsForLegend=ids,subset.view=1:10)
+compareNormalizationDSubset <- function(qDataBefore,
+                                  qDataAfter,
+                                  indData2Show=NULL, idsForLegend=NULL,
+                                  palette = NULL,subset.view=NULL){
+  
+  
+  if (is.null(idsForLegend)) return(NULL)
+  if (is.null(indData2Show)) {indData2Show <- c(1:ncol(qDataAfter)) }
+  
+  if (is.null(palette)){
+    palette <- colorRampPalette(brewer.pal(8, "Set1"))(length(subset.view))
+    
+  }else{
+    if (length(palette) != length(subset.view)){
+      warning("The color palette has not the same dimension as the number of proteins")
+      return(NULL)
+    }
+  }
+  
+  x <- qDataBefore
+  y <- qDataAfter/qDataBefore
+  
+  lim.x <- range(min(x, na.rm=TRUE), max(x, na.rm=TRUE))
+  lim.y <- range(min(y, na.rm=TRUE), max(y, na.rm=TRUE))
+  
+  
+  ##Colors definition
+  legendColor <- palette
+  txtLegend <- idsForLegend[subset.view]
+  
+  
+  plot(x=NULL
+       ,xlim = lim.x
+       ,ylim = lim.y
+       , cex = 1
+       , axes=TRUE
+       , xlab = "Intensities before normalization"
+       , ylab = "Intensities after normalization / Intensities before 
+       normalization"
+       ,cex.lab = 1
+       ,cex.axis = 1
+       ,cex.main = 3)
+  
+  
+  for (i in indData2Show){
+    points(x[subset.view,i], y[subset.view,i], col = palette, cex = 1,pch=16)
+  }
+  
+  legend("topleft"
+         , legend = txtLegend
+         , col = legendColor
+         , pch = 15 
+         , bty = "n"
+         , pt.cex = 2
+         , cex = 1
+         , horiz = FALSE
+         , inset=c(0,0)
+  )
+
+}
+
+
+
+
+
+
+
+
+
 ##' Plot to compare the quantitative proteomics data before and after 
 ##' normalization using the library \code{highcharter}
 ##' 
@@ -664,8 +827,7 @@ legend("topleft"
 ##' @examples 
 ##' require(DAPARdata)
 ##' data(Exp1_R25_pept)
-##' conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
-##' densityPlotD_HC(Exp1_R25_pept, conds)
+##' densityPlotD_HC(Exp1_R25_pept)
 densityPlotD_HC <- function(obj, legend=NULL, palette = NULL){
   
   qData <- Biobase::exprs(obj)
@@ -1421,82 +1583,45 @@ heatmap.DAPAR <-
     }
 
 
-###--------------------------------------------------------------------
-##' fill a matrix by row
-##' 
-##' @title Same as rep function but on a matrix.
-##' @param x The data to repeat
-##' @param n The number of repetitions.
-##' @return A matrix
-##' @author Samuel Wieczorek
-##' @examples
-##' rep_row('foo', 4)
-rep_row <-function(x,n){
-  matrix(rep(x,each=n),nrow=n)
-}
+# 
+# rep.row <-function(x,n){
+#   matrix(rep(x,each=n),nrow=n)
+# }
+# 
+# rep.col<-function(x,n){
+#   matrix(rep(x,each=n), ncol=n, byrow=TRUE)
+# }
 
 ###--------------------------------------------------------------------
-##' fill a matrix by column
-##' 
-##' @title Same as rep function but on a matrix.
-##' @param x The data to repeat
-##' @param n The number of repetitions.
-##' @return A matrix
-##' @author Samuel Wieczorek
-##' @examples
-##' rep_col('foo', 4)
-rep_col<-function(x,n){
-  matrix(rep(x,each=n), ncol=n, byrow=TRUE)
-}
-
-###--------------------------------------------------------------------
-##' Heatmap inspired by the heatmap.2 function and uses the highcharts library
-##' 
-##' @title This function is inspired from the function \code{\link{heatmap.2}} 
-##' that displays quantitative data in the \code{exprs()} table of an object of
-##' class \code{MSnSet}. For more information, please refer to the help 
-##' of the heatmap.2 function.
-##' @param qData A dataframe that contains quantitative data.
-##' @param col colors used for the image. Defaults to heat colors (heat.colors).
-##' @param labCol character vectors with column conds to use.
-##' @return A heatmap
-##' @author Samuel Wieczorek
-##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
-##' obj <- Exp1_R25_pept[1:100,]
-##' obj <- mvFilter(obj, "wholeMatrix", 6)
-##' qData <- Biobase::exprs(obj)
-##' heatmap_HC(qData)
-heatmap_HC <- function(qData, col=heat.colors(100),labCol)
-{
-  conds_v <- c(rep_row(colnames(qData), nrow(qData)))
-  lines_v <- c(rep_col(1:nrow(qData), ncol(qData)))
-  data <- dplyr::tibble(id=lines_v, condition=conds_v, value=round(c(qData), digits=2 ))
-  
-#   fntltp <- JS("function(){
-#                return this.point.x + ' ' +  this.series.yAxis.categories[this.point.y] + ':<br>' +
-#                Highcharts.numberFormat(this.point.value, 2);
-# }")
-Exp1_R25_pept
-  # plotline <- list(
-  #   color = "#fde725", value = 3, width = 2, zIndex = 5,
-  #   label = list(
-  #     text = "", verticalAlign = "top",
-  #     style = list(color = "black"), textAlign = "left",
-  #     rotation = 0, y = -5)
-  # )
-  
- # highchart2() %>%
-    hchart(data, "heatmap", hcaes(x = condition, y = id, value = value)) %>% 
-    hc_colorAxis(stops = color_stops(100, col),type = "linear") %>% 
-    # hc_yAxis(reversed = FALSE, offset = -20, tickLength = 0,
-    #          gridLineWidth = 0, minorGridLineWidth = 0,
-    #          labels = list(style = list(fontSize = "8px"))) %>% 
-    hc_tooltip(enabled = FALSE) %>% 
-    #hc_xAxis(plotLines = list(plotline)) %>%
-    hc_title(text = "MEC repartition") %>% 
-    hc_legend(layout = "vertical", verticalAlign = "top",
-              align = "left", valueDecimals = 0)
-  
-}
+# heatmap_HC <- function(qData, col=heat.colors(100),labCol)
+# {
+#   conds_v <- c(rep.row(colnames(qData), nrow(qData)))
+#   lines_v <- c(rep.col(1:nrow(qData), ncol(qData)))
+#   data <- tibble(id=lines_v, condition=conds_v, value=round(c(qData), digits=2 ))
+#   
+# #   fntltp <- JS("function(){
+# #                return this.point.x + ' ' +  this.series.yAxis.categories[this.point.y] + ':<br>' +
+# #                Highcharts.numberFormat(this.point.value, 2);
+# # }")
+# 
+#   # plotline <- list(
+#   #   color = "#fde725", value = 3, width = 2, zIndex = 5,
+#   #   label = list(
+#   #     text = "", verticalAlign = "top",
+#   #     style = list(color = "black"), textAlign = "left",
+#   #     rotation = 0, y = -5)
+#   # )
+#   
+#  # highchart2() %>%
+#     hchart(data, "heatmap", hcaes(x = condition, y = id, value = value)) %>% 
+#     hc_colorAxis(stops = color_stops(100, col),type = "linear") %>% 
+#     # hc_yAxis(reversed = FALSE, offset = -20, tickLength = 0,
+#     #          gridLineWidth = 0, minorGridLineWidth = 0,
+#     #          labels = list(style = list(fontSize = "8px"))) %>% 
+#     hc_tooltip(enabled = FALSE) %>% 
+#     #hc_xAxis(plotLines = list(plotline)) %>%
+#     hc_title(text = "MEC repartition") %>% 
+#     hc_legend(layout = "vertical", verticalAlign = "top",
+#               align = "left", valueDecimals = 0)
+#   
+# }
