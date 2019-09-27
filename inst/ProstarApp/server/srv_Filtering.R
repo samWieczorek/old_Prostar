@@ -85,7 +85,7 @@ resetModuleFiltering <- reactive({
 output$screenFiltering2 <- renderUI({
   print("In output$screenFiltering2 <- renderUI")
    tagList(
-     h3("toto"),
+     #h3("toto"),
      
   #   id = "screen2Filtering",
      tags$div(
@@ -451,7 +451,7 @@ output$VizualizeFilteredData <- DT::renderDataTable({
       dt <- datatable( data,
                        extensions = c('Scroller', 'Buttons'),
                        options = list(dom = 'Brtip',
-                                      options = list(buttons = list('copy',
+                                      buttons = list('copy',
                                                                     list(
                                                                       extend = 'csv',
                                                                       filename = 'Prostar_export'

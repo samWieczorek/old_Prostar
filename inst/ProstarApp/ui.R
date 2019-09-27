@@ -10,6 +10,7 @@ theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
 
 shinyUI <- fluidPage(
+  
   #theme = "css/ceruleanProstar.css",
   theme = shinythemes::shinytheme("cerulean"),
   
@@ -19,6 +20,7 @@ shinyUI <- fluidPage(
   includeCSS("www/progressBar/progressBar.css"),
   tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
                             sass_options(output_style = "expanded")))),
+ 
   titlePanel("", windowTitle = "Prostar"),
   
   ###### DIV LOADING PAGE  #######
@@ -50,11 +52,10 @@ shinyUI <- fluidPage(
       id = "main_content",
       
       #rclipboardSetup(),
-
+      
       tags$head(includeCSS("www/css/arrow.css")),
       #tagList(tags$div(class="arrow")),
       launchGA(),
-      
       #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
       #inlineCSS(appCSS),
@@ -86,7 +87,7 @@ shinyUI <- fluidPage(
       # position: fixed;
       # z-index: 100000;
       # }
-
+     
       div(
         id = "header",
       #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value

@@ -141,8 +141,8 @@ shinyServer(function(input, output, session) {
                imputationPeptideLevelTabs = {
                   source(file.path("server", "srv_Imputation_PeptideLevel.R"),  local = TRUE)$value
                },
-               AggregationTab =
-                 source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
+               #AggregationTab =
+               #  source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
                
                diffAnalysisTab = 
                  {
@@ -172,7 +172,13 @@ shinyServer(function(input, output, session) {
                
                bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value,
                
-               testTab = source(file.path("server", "srv_HypothesisTest.R"),  local = TRUE)$value
+               testPeptideTab = {
+                 source(file.path("server", "srv_AggregateTest_Peptide.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_HypothesisTest_Peptide.R"),  local = TRUE)$value
+                 source(file.path("server", "srv_PeptideLevelproteinTest_Peptide.R"),  local = TRUE)$value
+               },
+               testProteinTab = source(file.path("server", "srv_HypothesisTest_Protein.R"),  local = TRUE)$value
                )
 
      })
