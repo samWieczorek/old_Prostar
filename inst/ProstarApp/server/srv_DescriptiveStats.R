@@ -6,7 +6,11 @@ callModule(missingValuesPlots, "MVPlots_DS",
            palette = reactive({rv$PlotParams$paletteConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS")
-callModule(moduleBoxplot, "boxPlot_DS",params = reactive({NULL}))
+callModule(moduleBoxplot, "boxPlot_DS",
+           params = reactive({NULL}),
+           reset=reactive({FALSE}))
+
+
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
            filename='DescriptiveStats_Overview')
 callModule(moduleStaticDataTable,"PCAvarCoord", 

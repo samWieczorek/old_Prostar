@@ -16,7 +16,7 @@ module_Not_a_numeric <- function(input, output, session, n){
 
 
 #-----------------------------------------------
-moduleTrackProt <- function(input, output, session, params, reset){
+moduleTrackProt <- function(input, output, session, params, reset=FALSE){
   
   ns <- session$ns
   
@@ -70,9 +70,9 @@ moduleTrackProt <- function(input, output, session, params, reset){
   })
   
 
-  BuildResult2 <- reactive({
+  BuildResult <- reactive({
     
-    isolate({
+    #isolate({
       ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     res <- list(type= input$typeSelect,
                 list = input$listSelect,
@@ -82,12 +82,12 @@ moduleTrackProt <- function(input, output, session, params, reset){
                 rand.indices = if (length(input$randSelect)==0){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
                 col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
     )
-    })
+   # })
      
     res
   })
   
-  return(reactive({BuildResult2()}))
+  return(reactive({BuildResult()}))
 }
 
 
@@ -639,9 +639,11 @@ moduleBoxplot <- function(input, output, session, params, reset) {
   rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({reset()}))
   
   observeEvent(req(rv.modboxplot$var()),{
-    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
     print("In observe rv.modboxplot$var")
     print(rv.modboxplot$var())
+    
+    
+    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
     
     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     switch(rv.modboxplot$var()$type,
