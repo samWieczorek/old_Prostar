@@ -351,12 +351,12 @@ loadObjectInMemoryFromConverter <- function(){
   
   
     #If there are already pVal values, then do no compute them 
-    if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
-        rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
-                              P_Value = Biobase::fData(rv$current.obj)$P_Value)
-        rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
-        #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
-    }
+    # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
+    #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
+    #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
+    #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
+    #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
+    # }
     
   if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     rv$current.obj@experimentData@other$RawPValues <- FALSE
@@ -554,6 +554,38 @@ resetModuleProcess <- function(moduleName, obj){
           rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
           },
           
+          HypothesisTestPeptide ={
+            rv$widgets$hypothesisTestPeptide = list(design = "None",
+                                             method = "None",
+                                             ttest_options = "Student",
+                                             th_logFC = 0,
+                                             listNomsComparaison = NULL)
+            rvModProcess$moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
+                                                     stepsNames = c("HypothesisTestPeptide", "Save"),
+                                                     isMandatory = c(TRUE, TRUE),
+                                                     ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
+                                                                   screenStep2 = uiOutput("screenHypoTestPeptide2")))
+            rvModProcess$moduleHypothesisTestPeptideDone =  rep(FALSE,2)
+          },
+          
+          
+          
+          
+          HypothesisTestPeptidomic ={
+            rv$widgets$hypothesisTestPeptidomic = list(design = "None",
+                                                    method = "None",
+                                                    ttest_options = "Student",
+                                                    th_logFC = 0,
+                                                    listNomsComparaison = NULL)
+            rvModProcess$moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
+                                                            stepsNames = c("HypothesisTestPeptidomic", "Save"),
+                                                            isMandatory = c(TRUE, TRUE),
+                                                            ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
+                                                                          screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
+            rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
+          },
+          
+          
           
           
           Convert ={
@@ -637,6 +669,7 @@ ClearMemory <- function(){
   resetModuleProcess("PepImputation")
   resetModuleProcess("ProtImputation")
   resetModuleProcess("HypothesisTest")
+  resetModuleProcess("HypothesisTestPeptide")
  # resetModuleProcess("Convert")
   resetModuleProcess("AnaDiff")
   
@@ -863,6 +896,11 @@ rv <- reactiveValues(
                             ttest_options = "Student",
                             th_logFC = 0,
                             listNomsComparaison = NULL),
+  hypothesisTestPeptide = list(design = "None",
+                        method = "None",
+                        ttest_options = "Student",
+                        th_logFC = 0,
+                        listNomsComparaison = NULL),
        peptideImput = list( pepLevel_algorithm = "None",
                             pepLevel_basicAlgorithm = "detQuantile",
                             pepLevel_detQuantile = 2.5,

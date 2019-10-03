@@ -66,6 +66,25 @@ rvModProcess <- reactiveValues(
                               rstFunc = reactive({resetModuleHypothesisTest()})),
   moduleHypothesisTestDone =  rep(FALSE,2),
   
+  moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
+                              stepsNames = c("HypothesisTestPeptide", "Save"),
+                              isMandatory = rep(TRUE, 2),
+                              ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptide1"),
+                                           screenStep2 = uiOutput("screenHypoTestPeptide2")),
+                              rstFunc = reactive({resetModuleHypothesisTestPeptide()})),
+  moduleHypothesisTestPeptideDone =  rep(FALSE,2),
+  
+  
+  moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
+                                     stepsNames = c("HypothesisTestPeptidomic", "Save"),
+                                     isMandatory = rep(TRUE, 2),
+                                     ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
+                                                  screenStep2 = uiOutput("screenHypoTestPeptidomic2")),
+                                     rstFunc = reactive({resetModuleHypothesisTestPeptidomic()})),
+  moduleHypothesisTestPeptidomicDone =  rep(FALSE,2),
+  
+  
+  
   moduleConvert = list(name = "Convert",
                        stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                        isMandatory = rep(TRUE,5),

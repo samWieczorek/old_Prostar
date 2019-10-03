@@ -1,5 +1,5 @@
 tabPanel("Hypothesis testing peptide",
          value = "testPeptideTab",
-         moduleProcessUI("moduleProcess_HypothesisTest")
+         moduleProcessUI("moduleProcess_HypothesisTestPeptide")
          
 )

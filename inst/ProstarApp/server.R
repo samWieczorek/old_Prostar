@@ -174,10 +174,8 @@ shinyServer(function(input, output, session) {
                
                testPeptideTab = {
                  source(file.path("server", "srv_AggregateTest_Peptide.R"),  local = TRUE)$value
-                 source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value
-                 source(file.path("server", "srv_HypothesisTest_Peptide.R"),  local = TRUE)$value
-                 source(file.path("server", "srv_PeptideLevelproteinTest_Peptide.R"),  local = TRUE)$value
-               },
+                 
+                  },
                testProteinTab = source(file.path("server", "srv_HypothesisTest_Protein.R"),  local = TRUE)$value
                )
 
