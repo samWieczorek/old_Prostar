@@ -111,13 +111,11 @@ output$screenProtImput1 <- renderUI({
     tags$hr(),
     moduleMVPlotsUI("mvImputationPlots_MV")
               )
-
 })
 
 
 
 output$screenProtImput2 <- renderUI({
-  
  
   tagList(
     uiOutput("warningMECImputation"),
