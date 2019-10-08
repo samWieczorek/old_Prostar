@@ -22,7 +22,7 @@ output$code <- renderUI({
 })
 
 
-output$logSession <- DT::renderDataTable({
+output$logSession <- DT::renderDataTable(server=TRUE,{
   req(rv$text.log)
   
   dt <- DT::datatable(rv$text.log,

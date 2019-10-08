@@ -469,7 +469,7 @@ resetModuleProcess <- function(moduleName, obj){
                                            proteinId = "None",
                                            topN = 3)
                         rvModProcess$moduleAggregation = list(name = "Aggregation",
-                                                stepsNames = c("Aggregation 1", "Aggregation 2", "Save"),
+                                                stepsNames = c("Aggregation", "Add metadata", "Save"),
                                                 isMandatory = c(TRUE, FALSE, TRUE),
                                                 ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
                                                               screenStep2 = uiOutput("screenAggregation2"),
@@ -505,7 +505,7 @@ resetModuleProcess <- function(moduleName, obj){
                                                pepLevel_imp4pLAPALA_distrib = "beta",
                                                pepLevel_KNN_n = 10)
           rvModProcess$modulePepImputation = list(name = "PepImputation",
-                                                  stepsNames = c("PeptideImputation 1", "Save"),
+                                                  stepsNames = c("Imputation", "Save"),
                                                   isMandatory = c(TRUE, TRUE),
                                                   ll.UI = list(uiOutput("screenPepImputation1"),
                                                                uiOutput("screenPepImputation2")))

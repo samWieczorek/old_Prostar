@@ -102,7 +102,7 @@ output$screenFiltering2 <- renderUI({
      hr(),
      div(
        div( style="display:inline-block; vertical-align: middle; align: center;",
-                 DT::dataTableOutput("FilterSummaryData")
+            DT::dataTableOutput("FilterSummaryData")
        )
      )
     
@@ -165,7 +165,8 @@ output$screenFiltering4 <- renderUI({
       column(width=3,uiOutput("legendForExprsData2"))
       ),
       hr(),
-      DT::dataTableOutput("VizualizeFilteredData"),
+    uiOutput("Warning_VizualizeFilteredData"),
+    DT::dataTableOutput("VizualizeFilteredData"),
       uiOutput("helpTextMV")
          )
 })
@@ -272,7 +273,7 @@ observeEvent(input$btn_numFilter,{
 
 
 ### ------------------------------------------------------------
-output$numericalFilterSummaryData <- DT::renderDataTable({
+output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
   
@@ -302,7 +303,7 @@ output$numericalFilterSummaryData <- DT::renderDataTable({
 
 
 
-output$FilterSummaryData <- DT::renderDataTable({
+output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
   
@@ -417,18 +418,33 @@ output$legendForExprsData2 <- renderUI({
 })
 
 
-#----------------------------------------------
-output$VizualizeFilteredData <- DT::renderDataTable({
+
+output$Warning_VizualizeFilteredData <- renderUI({
+  if (length(GetDataFor_VizualizeFilteredData())==0){return(NULL)}
+  if (nrow(GetDataFor_VizualizeFilteredData())>153) 
+    p(MSG_WARNING_SIZE_DT)
+  
+})
+
+
+
+GetDataFor_VizualizeFilteredData <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.mvLines
   req(input$ChooseViewAfterFiltering)
   req(input$ChooseTabAfterFiltering)
   rv$deleted.stringBased
   rv$deleted.numeric
+  #print("DANS REACTIVE : GetDataFor_VizualizeFilteredData")
+ 
+  
+  
   
   data <- NULL
   if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.mvLines))
   {
+    #print("DANS REACTIVE : If 1")
+    #print(dim(getDataForMVFiltered()))
     switch(input$ChooseTabAfterFiltering,
            quantiData =  data <- getDataForMVFiltered(),
            metaData = data <- cbind(ID = rownames(Biobase::fData(rv$deleted.mvLines)), Biobase::fData(rv$deleted.mvLines))
@@ -437,28 +453,42 @@ output$VizualizeFilteredData <- DT::renderDataTable({
   
   else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
     
+    #print("DANS REACTIVE : If 2")
     switch(input$ChooseTabAfterFiltering,
            quantiData =  data <- getDataForMVStringFiltered(),
            metaData = data <- Biobase::fData(rv$deleted.stringBased)
     )
   }  else if ((input$ChooseViewAfterFiltering == "Numerical") && !is.null(rv$deleted.numeric)) {
-    
+    #print("DANS REACTIVE : If 3")
     switch(input$ChooseTabAfterFiltering,
            quantiData =  data <- getDataForNumericalFiltered(),
            metaData = data <- Biobase::fData(rv$deleted.numeric)
     )
   }
   
-  if (!is.null(data)){
-    
+ # print("END OF REACTIVE")
+  #print(data)
+  data
+})
+
+
+
+#----------------------------------------------
+output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
+  input$ChooseTabAfterFiltering
+  req(GetDataFor_VizualizeFilteredData())
+  dt <- NULL
+  data <- GetDataFor_VizualizeFilteredData()
+     
     if(input$ChooseTabAfterFiltering =="quantiData"){
-      dt <- datatable( data,
+      dt <- DT::datatable( data,
                        extensions = c('Scroller', 'Buttons'),
-                       options = list(buttons = list('copy',
-                                                     list(
+                       options = list(
+                         buttons = list('copy',
+                                        list(
                                                        extend = 'csv',
-                                                       filename = 'Prostar_export'
-                                                     ),'print'),
+                                                       filename = 'Prostar_export'),
+                                                     'print'),
                                       dom='Brtip',
                                       initComplete = initComplete(),
                                       displayLength = 20,
@@ -468,17 +498,18 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                                       scrollY = 600,
                                       scroller = TRUE,
                                       ordering=FALSE,
-                                      server = TRUE,
                                       columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
                                                         list(width='150px',targets= "_all"))
-                       )) %>%
+                       )
+                       ) %>%
         formatStyle(
           colnames(data)[1:(ncol(data)/2)],
           colnames(data)[((ncol(data)/2)+1):ncol(data)],
           backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
         )
     } else {
-      dt <- datatable( data,extensions = 'Scroller',
+      dt <- DT::datatable( data,
+                           extensions = 'Scroller',
                        options = list(initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
@@ -486,12 +517,11 @@ output$VizualizeFilteredData <- DT::renderDataTable({
                                       scrollX = 200,
                                       scrollY = 600,
                                       scroller = TRUE,
-                                      ordering=FALSE,
-                                      server = TRUE)) 
+                                      ordering=FALSE)) 
     }
-    
+ # }
     dt
-  }
+  
 })
 
 

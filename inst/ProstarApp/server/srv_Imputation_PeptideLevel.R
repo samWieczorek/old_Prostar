@@ -246,7 +246,7 @@ output$peptideLevel_detQuant_impValues <- renderUI({
   
 })
 
-output$peptideLevel_TAB_detQuant_impValues <- renderDataTable({
+output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server=TRUE,{
   values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), 
                             input$peptideLevel_detQuant_quantile/100, 
                             input$peptideLevel_detQuant_factor)

@@ -77,9 +77,15 @@ MSnSetExplorer <- function(input, output, session, data) {
     print(paste0('input$DS_TabsChoice', input$DS_TabsChoice))
     switch(input$DS_TabsChoice,
            None = {return(NULL)},
-           tabExprs = DT::dataTableOutput(ns("table")),
-           tabfData = DT::dataTableOutput(ns("viewfData")),
-           tabpData = DT::dataTableOutput(ns("viewpData"))
+           tabExprs = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("table"))),
+           tabfData = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("viewfData"))),
+           tabpData = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("viewpData")))
     )
     
   })
@@ -88,13 +94,13 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   ##' show pData of the MSnset object
   ##' @author Samuel Wieczorek
-  output$viewpData <- DT::renderDataTable({
+  output$viewpData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
     data <- as.data.frame(Biobase::pData(rv$current.obj))
     pal <- unique(rv$PlotParams$paletteConditions)
     dt <- DT::datatable(  data,
-                          extensions = c('Scroller', 'Buttons'),
+                           extensions = c('Scroller', 'Buttons'),
                           rownames=  FALSE,
                           
                           options=list(initComplete = initComplete(),
@@ -126,7 +132,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   ##' show fData of the MSnset object in a table
   ##' @author Samuel Wieczorek
-  output$viewfData <- DT::renderDataTable({
+  output$viewfData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
     
@@ -192,11 +198,11 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   
   #################
-  output$table <- DT::renderDataTable({
+  output$table <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
     print(head(df))
-    dt <- datatable( df,
+    dt <- DT::datatable( df,
                      rownames=TRUE,
                      extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                      options = list(

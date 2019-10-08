@@ -71,8 +71,7 @@ moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
   tagList(
     h5("The missing values will be imputed by the following values :"),
-    
-  DT::dataTableOutput(ns("detQuantValues_DT"))
+    DT::dataTableOutput(ns("detQuantValues_DT"))
   )
 }
 
@@ -144,6 +143,7 @@ moduleStaticDataTableUI <- function(id) {
     ns <- NS(id)
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                uiOutput(ns("warningOnSize")),
                 DT::dataTableOutput(ns("StaticDataTable"))
       )
     )

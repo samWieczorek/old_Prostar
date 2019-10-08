@@ -660,4 +660,4 @@ navbarPageWithInputs <- function(..., inputs) {
 
 
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
-
+MSG_WARNING_SIZE_DT <- "The size of the table is too big to be exported with the buttons below (only the first 154 rows will be exported). It is advised to use the Export tool of Prostar."

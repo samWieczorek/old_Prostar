@@ -81,7 +81,7 @@ output$screenAggregation1 <- renderUI({
        div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
                  uiOutput("allPeptideBarplot")),
       div( style="display:inline-block; vertical-align: top;",
-                DT::dataTableOutput("aggregationStats"))
+            DT::dataTableOutput("aggregationStats"))
     )
    
   )
@@ -258,7 +258,7 @@ output$ObserverAggregationDone <- renderUI({
 
 
 
-output$aggregationStats <- DT::renderDataTable ({
+output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   #req(input$proteinId)
   #req(rv$current.obj)
   #print("toto")

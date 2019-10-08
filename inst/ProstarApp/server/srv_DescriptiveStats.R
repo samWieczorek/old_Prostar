@@ -325,9 +325,21 @@ output$tabToShow <- renderUI({
     
     switch(input$DS_TabsChoice,
           None = {return(NULL)},
-          tabExprs = DT::dataTableOutput("table"),
-          tabfData = DT::dataTableOutput("viewfData"),
-          tabpData = DT::dataTableOutput("viewpData")
+          tabExprs = {
+            tagList(
+              if (nrow(rv$current.obj)>153) p(MSG_WARNING_SIZE_DT),
+            DT::dataTableOutput("table"))
+            },
+          tabfData = {
+            tagList(
+              if (nrow(rv$current.obj)>153) p(MSG_WARNING_SIZE_DT),
+              DT::dataTableOutput("viewfData"))
+              },
+          tabpData = {
+            tagList(
+            if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+            DT::dataTableOutput("viewpData"))
+            }
           # processingData = {
           #             helpText("Previous operations made on the original dataset :")
           #             DT::dataTableOutput("viewProcessingData")
@@ -341,7 +353,7 @@ output$tabToShow <- renderUI({
 
 ##' show pData of the MSnset object
 ##' @author Samuel Wieczorek
-output$viewpData <- DT::renderDataTable({
+output$viewpData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
   data <- as.data.frame(Biobase::pData(rv$current.obj))
@@ -379,7 +391,7 @@ output$viewpData <- DT::renderDataTable({
 
 ##' show fData of the MSnset object in a table
 ##' @author Samuel Wieczorek
-output$viewfData <- DT::renderDataTable({
+output$viewfData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
     
@@ -387,7 +399,8 @@ output$viewfData <- DT::renderDataTable({
         dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                              rownames = TRUE,
                              extensions = c('Scroller', 'Buttons','FixedColumns'),
-                        options=list(initComplete = initComplete(),
+                        options=list(
+                        initComplete = initComplete(),
                                      buttons = list('copy',
                                                     list(
                                                       extend = 'csv',
@@ -445,7 +458,7 @@ output$viewfData <- DT::renderDataTable({
 
 ##' Visualisation of missing values table
 ##' @author Samuel Wieczorek
-output$viewExprsMissValues <- DT::renderDataTable({
+output$viewExprsMissValues <- DT::renderDataTable(server=TRUE, {
     req(rv$current.obj)
   dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
                                 Biobase::exprs(rv$current.obj))),
@@ -548,7 +561,7 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 #################
-output$table <- DT::renderDataTable({
+output$table <- DT::renderDataTable(server=TRUE, {
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
     print(head(df))

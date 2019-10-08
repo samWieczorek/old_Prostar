@@ -101,7 +101,7 @@ moduleDesignExample <- function(input, output, session, n){
 moduleDetQuantImpValues <- function(input, output, session, quant,factor)
 {
   
-  output$detQuantValues_DT <- renderDataTable({
+  output$detQuantValues_DT <- renderDataTable(server=TRUE,{
     req(rv$current.obj, quant(), factor())
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
@@ -166,12 +166,20 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     
     if (is.null(rv$matAdj)){
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                          shinyBS::bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"))
+                          shinyBS::bsCollapsePanel("Protein", tagList(
+                            uiOutput(ns("Warning_Infos")),
+                            DT::dataTableOutput(ns("Infos"))),style = "info"))
     } else {
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 shinyBS::bsCollapsePanel("Protein", DT::dataTableOutput(ns("Infos")),style = "info"),
-                 shinyBS::bsCollapsePanel("Specific peptides", DT::dataTableOutput(ns("specificPeptidesInfos")), style = "primary"),
-                 shinyBS::bsCollapsePanel("Shared peptides", DT::dataTableOutput(ns("sharedPeptidesInfos")), style = "primary"))
+                 shinyBS::bsCollapsePanel("Protein", tagList(
+                   uiOutput(ns("Warning_Infos")),
+                   DT::dataTableOutput(ns("Infos"))),style = "info"),
+                 shinyBS::bsCollapsePanel("Specific peptides",tagList(
+                   uiOutput(ns("Warning_specificPeptidesInfos")),
+                   DT::dataTableOutput(ns("specificPeptidesInfos"))), style = "primary"),
+                 shinyBS::bsCollapsePanel("Shared peptides", tagList(
+                   uiOutput(ns("Warning_sharedPeptidesInfos")),
+                   DT::dataTableOutput(ns("sharedPeptidesInfos"))), style = "primary"))
     }
   })
   
@@ -246,7 +254,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
   })
   
   
-  output$sharedPeptidesInfos <- renderDataTable({
+  
+  output$Warning_sharedPeptidesInfos <- renderUI({
+    GetDataFor_sharedPeptidesInfos()
+    if (nrow(GetDataFor_sharedPeptidesInfos())>153)
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
+  GetDataFor_sharedPeptidesInfos <- reactive({
     #req(rv$current.obj)
     req(comp())
     #req(rv$matAdj)
@@ -271,8 +286,12 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     allPeptidesIndices <- which(Xshared[,i]==1)
     peptidesIndices <- setdiff(allPeptidesIndices, specificPeptidesIndices)
     data <- data[peptidesIndices,]
+    data
+  })
+  
+  output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
     
-    dt <- datatable( data,
+    dt <- DT::datatable( GetDataFor_sharedPeptidesInfos(),
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -298,7 +317,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     dt
   })
   
-  output$specificPeptidesInfos <- renderDataTable({
+  output$Warning_specificPeptidesInfos <- renderUI({
+    GetDataFor_specificPeptidesInfos()
+    if (nrow(GetDataFor_specificPeptidesInfos())>153)
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
+  
+  GetDataFor_specificPeptidesInfos <- reative({
     #req(rv$current.obj)
     req(comp())
     #req(rv$matAdj)
@@ -320,10 +346,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     i <- which(colnames(Xspec)==prot.indice)
     peptidesIndices <- which(Xspec[,i]==1)
     data <- data[peptidesIndices,]
+    data
+  })
+  
+  
+  output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
     
-    #data <- data[,ind]
-    
-    dt <- datatable( data, 
+    dt <- DT::datatable( GetDataFor_specificPeptidesInfos(), 
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -384,9 +413,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
   
   
   
+  output$Warning_Infos <- renderUI({
+    GetDataFor_Infos()
+    if (nrow(GetDataFor_Infos())>153)
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
   
-  ##------------------------------------------------------------------------------
-  output$Infos <- renderDataTable({ 
+  GetDataFor_Infos <- reactive({
     req(comp())
     
     borders_index <- GetBorderIndices()
@@ -395,8 +429,14 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     
     print('################### Dans Infos  #################')
     print(colnames(data))
+    data
+  })
+  
+  ##------------------------------------------------------------------------------
+  output$Infos <- renderDataTable(server=TRUE,{ 
+    req(comp())
     
-    dt <- datatable( data,
+    dt <- DT::datatable( GetDataFor_Infos(),
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',
@@ -681,8 +721,14 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
 
+  output$warningOnSize <- renderUI({
+    if (length(table2show())==0){return(NULL)}
+    if (nrow(table2show())>153) 
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
   
-    output$StaticDataTable <- DT::renderDataTable({
+    output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
       req(rv$current.obj)
       #table2show
       if (length(table2show())==0){return(NULL)}

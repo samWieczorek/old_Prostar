@@ -43,6 +43,7 @@ output$screenGO1 <- renderUI({
   br(), br(),
   uiOutput("GeneMappedRatio"),
   br(), br(),
+  if (nrow(pData(rv$current.obj))>153) p("The size of the table is too big to be exported with the buttons below (only the first 154 rows will be exported). It is advised to use the Export tool of Prostar."),
   DT::dataTableOutput("nonIdentifiedProteins", width = "80%")
   
 )
@@ -387,12 +388,12 @@ output$GOdotplotEnrich <- renderHighchart({
 })
 
 
-output$GODatatable <- renderDataTable({
+output$GODatatable <- renderDataTable(server=TRUE,{
     req(rv$GO$enrichGO_data)
     req(rv$GO$groupGO_data)
     
     
-    dt <- datatable( as.data.frame(rv$GO$groupGO_data@result),
+    dt <- DT::datatable( as.data.frame(rv$GO$groupGO_data@result),
                      extensions = c('Scroller', 'Buttons'),
                      options = list(buttons = list('copy',
                                                    list(
@@ -439,20 +440,39 @@ output$GeneMappedRatio <- renderUI({
 
 
 
-output$nonIdentifiedProteins <- renderDataTable({
+output$Warning_nonIdentifiedProteins <- renderUI({
+  GetDataFor_nonIdentifiedProteins()
+  if (nrow(GetDataFor_nonIdentifiedProteins())>153) 
+    p(MSG_WARNING_SIZE_DT)
+  
+})
+
+
+GetDataFor_nonIdentifiedProteins <- reactive({
+  req(rv$GO$ProtIDList)
+req(rv$current.obj)
+req(rv$GO$gene)
+input$idFrom
+
+index <- GetDataIndexForAnalysis()
+rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+data <- as.data.frame(fData(rv$current.obj)[index[rv$GO$proteinsNotMapped],])
+
+data
+}
+)
+
+output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
     req(rv$GO$ProtIDList)
     req(rv$current.obj)
     req(rv$GO$gene)
     input$idFrom
     
-    index <- GetDataIndexForAnalysis()
-    rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
-    data <- as.data.frame(fData(rv$current.obj)[index[rv$GO$proteinsNotMapped],])
-    
-    
+    i
+    data <- GetDataFor_nonIdentifiedProteins()
     if( nrow(data) != 0){
       
-      dt <- datatable( data,
+      dt <- DT::datatable( data,
                        extensions = c('Scroller', 'Buttons'),
                        options = list(buttons = list('copy',
                                                      list(
@@ -671,7 +691,7 @@ observeEvent(input$ValidGOAnalysis,ignoreInit =  TRUE,{
 
 
 
-output$GO_resumeParams <- DT::renderDataTable({
+output$GO_resumeParams <- DT::renderDataTable(server=TRUE,{
   req(c(rv$current.obj,input$selectComparison,
         as.numeric(input$seuilPVal),as.character(input$AnaDiff_ChooseFilters),input$calibrationMethod))
   rv$resAnaDiff

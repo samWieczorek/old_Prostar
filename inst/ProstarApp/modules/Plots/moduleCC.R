@@ -10,8 +10,13 @@ moduleCCUI <- function(id) {
              tabPanel("One-One Connex Components",
                       tagList(
                         fluidRow(
-                                 column(width=4, DT::dataTableOutput(ns("OneOneDT"))),
-                                 column(width=8, DT::dataTableOutput(ns("OneOneDTDetailed")))
+                                 column(width=4, tagList(
+                                   uiOutput(ns("Warning_OneOneDT")),
+                                   DT::dataTableOutput(ns("OneOneDT")))
+                                            ),
+                                 column(width=8, tagList(
+                                   uiOutput(ns("Warning_OneOneDTDetailed")),
+                                   DT::dataTableOutput(ns("OneOneDTDetailed"))))
                                  )
                         #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
                         )
@@ -19,15 +24,17 @@ moduleCCUI <- function(id) {
              tabPanel("One-Multi Connex Components",
                       tagList(
                         fluidRow(
-                                  column(width=4, DT::dataTableOutput(ns("OneMultiDT"))),
-                                  column(width=8, DT::dataTableOutput(ns("OneMultiDTDetailed")))
+                                  column(width=4, tagList(
+                                    uiOutput(ns("Warning_OneMultiDT")),
+                                    DT::dataTableOutput(ns("OneMultiDT")))),
+                                  column(width=8, tagList(
+                                    uiOutput(ns("Warning_OneMultiDTDetailed")),
+                                    DT::dataTableOutput(ns("OneMultiDTDetailed"))))
                         )
                       )
              ),
              tabPanel("Multi-Multi Connex Components",
                       tagList(
-                        #uiOutput(ns("CCTooltip_UI")),
-                        # highchartOutput(ns("jiji")))
                         selectInput(ns('pepInfo'), "Peptide Info", choices=colnames(fData(rv$current.obj)),
                                     multiple=TRUE),
                         selectInput(ns("searchCC"), 'Search for CC', 
@@ -37,6 +44,7 @@ moduleCCUI <- function(id) {
                         fluidRow(
                           column(width=6,tagList(
                             highchartOutput(ns("jiji")),
+                            uiOutput(ns("Warning_CCMultiMulti")),
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
                             )),
                           column(width=6, tagList(
@@ -171,7 +179,14 @@ output$visNet_CC <- renderVisNetwork({
   
 
   
-  output$CCMultiMulti <- renderDataTable({
+  
+  output$Warning_CCMultiMulti <- renderUI({
+      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
+        p(MSG_WARNING_SIZE_DT)
+    })
+
+  
+  GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
     df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],
                                function(x){
@@ -181,7 +196,13 @@ output$visNet_CC <- renderVisNetwork({
     df <- cbind(df,id = 1:nrow(df))
     df <- df[c('id', 'nProt', 'nPep', 'proteins', 'peptides')]
     colnames(df) <-c('id', 'nProt', 'nPep', 'Proteins Ids', 'Peptides Ids')
-    dat <- DT::datatable(df,
+    
+    
+    df
+  })
+  
+  output$CCMultiMulti <- renderDataTable(server=TRUE,{
+    dat <- DT::datatable(GetDataFor_CCMultiMulti(),
                          selection = 'single',
                          rownames=FALSE,
                          extensions = c('Scroller', 'Buttons'),
@@ -247,7 +268,7 @@ output$CCDetailed <- renderUI({
     )
 })
  
-  output$CCDetailedProt<- renderDataTable({
+  output$CCDetailedProt<- renderDataTable(server=TRUE,{
     req(rvCC$selectedCC)
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
@@ -257,7 +278,7 @@ output$CCDetailed <- renderUI({
                      #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
                      )
     colnames(df) <-c('Proteins Ids')
-    dt <- datatable( df,
+    dt <- DT::datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
                                     dom='rt',
@@ -276,7 +297,7 @@ output$CCDetailed <- renderUI({
   
   #######
   
-  output$CCDetailedSharedPep <- renderDataTable({
+  output$CCDetailedSharedPep <- renderDataTable(server=TRUE,{
     rvCC$detailedselectedNode
     input$pepInfo
     
@@ -296,7 +317,7 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
-    dt <- datatable( data,
+    dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
                                     dom='rt',
@@ -323,7 +344,7 @@ output$CCDetailed <- renderUI({
   
   
   #####-----------
-  output$CCDetailedSpecPep <- renderDataTable({
+  output$CCDetailedSpecPep <- renderDataTable(server=TRUE,{
     rvCC$detailedselectedNode
     input$pepInfo
     if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
@@ -343,7 +364,7 @@ output$CCDetailed <- renderUI({
     offset <- length(input$pepInfo)
     
     
-    dt <- datatable( data,
+    dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
                                     dom='rt',
@@ -420,9 +441,13 @@ output$CCDetailed <- renderUI({
   
   
   
+  output$Warning_OneMultiDT <- renderUI({
+    req(rv$CC$allPep)
+    if (nrow(BuildOne2MultiTab()) > 153) 
+      p(MSG_WARNING_SIZE_DT)
+  })
   
-  
-  output$OneMultiDT <- renderDataTable({
+  output$OneMultiDT <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
     df <- BuildOne2MultiTab()
       colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
@@ -454,7 +479,15 @@ output$CCDetailed <- renderUI({
   
   
   
-  output$OneMultiDTDetailed <- renderDataTable({
+  output$Warning_OneMultiDTDetailed <- renderUI({
+    req(req(input$OneMultiDT_rows_selected))
+
+    if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
+      p(MSG_WARNING_SIZE_DT)
+  })
+  
+  
+  GetDataFor_OneMultiDTDetailed <- reactive({
     input$pepInfo
     req(input$OneMultiDT_rows_selected)
     
@@ -475,9 +508,17 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
+    data
+  })
+  
+  
+  output$OneMultiDTDetailed <- renderDataTable(server=TRUE,{
+    input$pepInfo
+    req(input$OneMultiDT_rows_selected)
     
     
-    dt <- datatable( data,
+    
+    dt <- DT::datatable( GetDataFor_OneMultiDTDetailed(),
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',
@@ -502,9 +543,13 @@ output$CCDetailed <- renderUI({
   })
   
   
+  output$Warning_OneOneDT <- renderUI({
+    if (nrow(BuildOne2OneTab()) > 153) 
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
   
-  
-  output$OneOneDT <- renderDataTable({
+  output$OneOneDT <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
     df <- BuildOne2OneTab()
     colnames(df) <- c('Proteins Ids', 'Peptides Ids')
@@ -534,8 +579,13 @@ output$CCDetailed <- renderUI({
   })
   
   
+  output$Warning_OneOneDTDetailed <- reactive({
+    if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
+      p(MSG_WARNING_SIZE_DT)
+    
+  })
   
-  output$OneOneDTDetailed <- renderDataTable({
+  GetDataFor_OneOneDTDetailed <- reactive({
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
     input$pepInfo
@@ -555,8 +605,14 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
-
-    dt <- datatable( data,
+    data
+  })
+  
+  output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
+    req(rv$CC$allPep)
+    req(input$OneOneDT_rows_selected)
+    
+    dt <- DT::datatable( GetDataFor_OneOneDTDetailed(),
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',
