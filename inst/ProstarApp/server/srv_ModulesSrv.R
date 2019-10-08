@@ -324,7 +324,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     
   })
   
-  GetDataFor_specificPeptidesInfos <- reative({
+  GetDataFor_specificPeptidesInfos <- reactive({
     #req(rv$current.obj)
     req(comp())
     #req(rv$matAdj)
