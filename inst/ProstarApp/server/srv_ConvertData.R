@@ -98,14 +98,15 @@ output$Convert_ExpFeatData <- renderUI({
       column(width=8,
              tagList(
                uiOutput("checkIdentificationTab"),
-               DT::dataTableOutput("x1", width='500px'),
-                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
-                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
-                                   })")),
+                
                hidden(checkboxInput("selectIdent", 
                   "Select columns for identification method", 
                   value = FALSE)
-               )
+               ),
+               tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+                                   })")),
+               shinyjs::hidden(DT::dataTableOutput("x1", width='500px'))
                            )
     )
   )
@@ -433,8 +434,7 @@ output$ManageXlsFiles <- renderUI({
 ##############################################
 output$eData <- renderUI({
     input$file1
-    rv$tab1
-    if (is.null(rv$tab1)) {return(NULL)  }
+    req(rv$tab1)
     
     choices <- colnames(rv$tab1)
     names(choices) <- colnames(rv$tab1)
@@ -538,13 +538,17 @@ quantiDataTable <- reactive({
 })
 
 
+observeEvent(input$selectIdent, {
+  shinyjs::toggle('x1', condition=isTRUE(input$selectIdent))
+  })
+
 
 output$x1 <- renderDataTable(
     quantiDataTable(),
     escape=FALSE,
     rownames = FALSE,
-    extensions = c('Scroller', 'Buttons'),
-    server=TRUE,
+    extensions = c('Scroller'),
+    server=FALSE,
     selection='none', 
     class = 'compact',
     options=list(
@@ -555,11 +559,6 @@ output$x1 <- renderDataTable(
             'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
         # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-        buttons = list('copy',
-                       list(
-                         extend = 'csv',
-                         filename = 'x1'
-                       ),'print'),
         dom='Bfrtip',
         autoWidth=TRUE,
         deferRender = TRUE,

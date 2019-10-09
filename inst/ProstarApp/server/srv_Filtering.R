@@ -68,8 +68,8 @@ resetModuleFiltering <- reactive({
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         ),
       hr(),
-      missingValuesPlotsUI("MVPlots_filtering")
-      #uiOutput("ObserverMVFilteringDone")
+      missingValuesPlotsUI("MVPlots_filtering"),
+      uiOutput("ObserverMVFilteringDone")
       )
  
     )
@@ -85,7 +85,6 @@ resetModuleFiltering <- reactive({
 output$screenFiltering2 <- renderUI({
   print("In output$screenFiltering2 <- renderUI")
    tagList(
-     h3("toto"),
      
   #   id = "screen2Filtering",
      tags$div(
@@ -165,9 +164,10 @@ output$screenFiltering4 <- renderUI({
       column(width=3,uiOutput("legendForExprsData2"))
       ),
       hr(),
+    uiOutput("helpTextMV"),
     uiOutput("Warning_VizualizeFilteredData"),
-    DT::dataTableOutput("VizualizeFilteredData"),
-      uiOutput("helpTextMV")
+    DT::dataTableOutput("VizualizeFilteredData")
+     
          )
 })
 
@@ -568,20 +568,20 @@ output$ObserverStringBasedFilteringDone <- renderUI({
   })
 })
 
-# output$ObserverMVFilteringDone <- renderUI({
-#   
-#   #isolate({
-#     
-#     n <- 0
-#     if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-#     if (!isDone[1]) 
-#     {return(NULL)  }
-#     else {
-#       h3(paste0("MV filtering done. ",n, " lines were deleted."))
-#     }
-#     
-#  # })
-# })
+output$ObserverMVFilteringDone <- renderUI({
+req(rv$deleted.mvLines)
+  #isolate({
+
+    n <- 0
+    if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
+    if (!rvModProcess$moduleFilteringDone[1])
+    {return(NULL)  }
+    else {
+      h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
+    }
+
+ # })
+})
 
 
 #########################################################

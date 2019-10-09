@@ -8,7 +8,7 @@ output$chooseDataset <- renderUI({
     print("DAPARdata is loaded correctly")
     selectInput("demoDataset",
                 "Demo dataset",
-                choices = utils::data(package="DAPARdata")$results[,"Item"],
+                choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
                 width='200px'    )
   } else {
     print("trying to install DAPARdata")
@@ -17,7 +17,7 @@ output$chooseDataset <- renderUI({
       print("DAPARdata installed and loaded")
       selectInput("demoDataset",
                   "Demo dataset",
-                  choices = utils::data(package='DAPARdata')$results[,"Item"],
+                  choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
                   width='200px'   )
     } else {
       stop("Could not install the package DAPARdata")
@@ -31,7 +31,7 @@ output$chooseDataset <- renderUI({
 
 output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
-  
+  if (input$demoDataset == "None"){return(NULL)}
   file<- paste(system.file(package = "DAPARdata"),"/doc/",
                input$demoDataset,".pdf", sep="")
   cmd <- paste("cp ",file," www/.", sep="")
