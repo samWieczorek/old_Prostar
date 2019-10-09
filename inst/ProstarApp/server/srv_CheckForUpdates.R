@@ -4,18 +4,13 @@
 
 
 
-output$tab_versions <- DT::renderDataTable({
-  dt <- DT::datatable(getPackagesVersions(), 
+output$tab_versions <- DT::renderDataTable(server=TRUE,{
+  dt <- DT::datatable(getPackagesVersions2(), 
                       escape = FALSE,
                       rownames= FALSE,
                       extensions = c('Scroller', 'Buttons'),
                       option=list(initComplete = initComplete(),
                                   dom = 'Brt',
-                                  buttons = list('copy',
-                                                 list(
-                                                   extend = 'csv',
-                                                   filename = 'versions'
-                                                 ),'print'),
                                   autoWidth=TRUE,
                                   ordering = F,
                                   columnDefs = list(list(visible=FALSE,targets=c(3)),
@@ -30,7 +25,7 @@ output$tab_versions <- DT::renderDataTable({
 
 output$infoForNewVersions <- renderUI({
   
-  df <- getPackagesVersions()$NeedsUpdate
+  #df <- getPackagesVersions2()$NeedsUpdate
    
   tagList(
     p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 

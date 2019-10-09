@@ -48,7 +48,7 @@ output$versionsText <- renderUI({
 
 output$NoteForNewVersion <- renderUI({
   
-  df <- getPackagesVersions()
+  df <- getPackagesVersions2()
   #if (sum(df$NeedsUpdate) == TRUE) {
   tags$div(
     style="font-size: 16px",

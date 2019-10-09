@@ -37,6 +37,7 @@ output$screenGO1 <- renderUI({
   br(), br(),
   uiOutput("GeneMappedRatio"),
   br(), br(),
+  uiOutput('Warning_nonIdentifiedProteins'),
   DT::dataTableOutput("nonIdentifiedProteins", width = "80%")
   
 )
@@ -424,16 +425,35 @@ output$GeneMappedRatio <- renderUI({
 
 
 
-output$nonIdentifiedProteins <- renderDataTable({
+output$Warning_nonIdentifiedProteins <- renderUI({
+  GetDataFor_nonIdentifiedProteins()
+  if (nrow(GetDataFor_nonIdentifiedProteins())>153) 
+    p(MSG_WARNING_SIZE_DT)
+  
+})
+
+
+GetDataFor_nonIdentifiedProteins <- reactive({
+  req(rv$GO$ProtIDList)
+  req(rv$current.obj)
+  req(rv$GO$gene)
+  input$idFrom
+  
+  index <- GetDataIndexForAnalysis()
+  rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
+  data <- as.data.frame(fData(rv$current.obj)[index[rv$GO$proteinsNotMapped],])
+  
+  data
+}
+)
+
+output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
     req(rv$GO$ProtIDList)
     req(rv$current.obj)
     req(rv$GO$gene)
     input$idFrom
     
-    index <- GetDataIndexForAnalysis()
-    rv$GO$proteinsNotMapped <- which((rv$GO$ProtIDList[index] %in% rv$GO$gene[,input$idFrom]) == FALSE)
-    data <- as.data.frame(fData(rv$current.obj)[index[rv$GO$proteinsNotMapped],])
-    
+    data <- GetDataFor_nonIdentifiedProteins()
     
     if( nrow(data) != 0){
       
@@ -452,8 +472,7 @@ output$nonIdentifiedProteins <- renderDataTable({
                                       scrollX = 400,
                                       scrollY = 600,
                                       scroller = TRUE,
-                                      ordering=FALSE,
-                                      server = TRUE)
+                                      ordering=FALSE)
       )
       
       dt

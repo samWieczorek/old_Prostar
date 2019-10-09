@@ -259,7 +259,7 @@ output$ObserverAggregationDone <- renderUI({
 
 
 
-output$aggregationStats <- DT::renderDataTable ({
+output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   #req(input$proteinId)
   #req(rv$current.obj)
   #print("toto")

@@ -345,7 +345,7 @@ output$anaDiff_selectedItems <- renderDT({
                                ordering = TRUE)
   ) %>%
     formatStyle(
-      'isDifferential',
+      paste0('isDifferential (', as.character(input$selectComparison), ')'),
       target = 'row',
       backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
     )
@@ -362,11 +362,10 @@ output$downloadSelectedItems <- downloadHandler(
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     openxlsx::writeData(wb,sheet = 1, as.character(input$selectComparison), colNames = TRUE,headerStyle = hs1)
     openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
-    ll.DA.row <- which(GetSelectedItems()[,'isDifferential']==1)
-    ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
-    
+    ll.DA.row <- which(GetSelectedItems()[,paste0('isDifferential (',as.character(input$selectComparison), ')')]==1)
+    ll.DA.col <- rep(which(colnames(GetSelectedItems()) == paste0('isDifferential (',as.character(input$selectComparison),')')), length(ll.DA.row))
      openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col,
-                        rows = 1+ ll.DA.row, style = DA_Style)
+                        rows = 3 + ll.DA.row, style = DA_Style)
     
      tempFile <- tempfile(fileext = ".xlsx")
      openxlsx::saveWorkbook(wb, file = tempFile, overwrite = TRUE)
@@ -873,7 +872,7 @@ GetSelectedItems <- reactive({
   tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems,input$tooltipInfo])
   names(tmp) <-input$tooltipInfo
   t <- cbind(t, tmp)
-  
+  colnames(t)[2:4] <- paste0(colnames(t)[2:4], " (", as.character(input$selectComparison),')')
   t
 })
 

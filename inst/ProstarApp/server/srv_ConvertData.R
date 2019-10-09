@@ -550,7 +550,7 @@ output$x1 <- renderDataTable(
     escape=FALSE,
     rownames = FALSE,
     extensions = c('Scroller', 'Buttons'),
-    server=FALSE,
+    server=TRUE,
     selection='none', 
     class = 'compact',
     options=list(

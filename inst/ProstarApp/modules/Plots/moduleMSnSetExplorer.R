@@ -77,9 +77,15 @@ MSnSetExplorer <- function(input, output, session, data) {
     print(paste0('input$DS_TabsChoice', input$DS_TabsChoice))
     switch(input$DS_TabsChoice,
            None = {return(NULL)},
-           tabExprs = DT::dataTableOutput(ns("table")),
-           tabfData = DT::dataTableOutput(ns("viewfData")),
-           tabpData = DT::dataTableOutput(ns("viewpData"))
+           tabExprs = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("table"))),
+           tabfData = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("viewfData"))),
+           tabpData = tagList(
+             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
+             DT::dataTableOutput(ns("viewpData")))
     )
     
   })
@@ -88,7 +94,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   ##' show pData of the MSnset object
   ##' @author Samuel Wieczorek
-  output$viewpData <- DT::renderDataTable({
+  output$viewpData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
     data <- as.data.frame(Biobase::pData(rv$current.obj))
@@ -98,7 +104,6 @@ MSnSetExplorer <- function(input, output, session, data) {
                           rownames=  FALSE,
                           
                           options=list(initComplete = initComplete(),
-                                       dom = 'Brtip',
                                        buttons = list('copy',
                                                       list(
                                                         extend = 'csv',
@@ -127,7 +132,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   ##' show fData of the MSnset object in a table
   ##' @author Samuel Wieczorek
-  output$viewfData <- DT::renderDataTable({
+  output$viewfData <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     
     
@@ -136,12 +141,12 @@ MSnSetExplorer <- function(input, output, session, data) {
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
-                                        dom='Bfrtip',
                                         buttons = list('copy',
                                                        list(
                                                          extend = 'csv',
                                                          filename = 'feature metadata'
                                                        ),'print'),
+                                        dom='Bfrtip',
                                         pageLength=DT_pagelength,
                                         orderClasses = TRUE,
                                         autoWidth=FALSE,
@@ -162,13 +167,12 @@ MSnSetExplorer <- function(input, output, session, data) {
                            rownames = TRUE,
                            extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
-                                        dom='Bfrtip',
                                         buttons = list('copy',
                                                        list(
                                                          extend = 'csv',
                                                          filename = 'feature metadata'
                                                        ),'print'),
-                                        pageLength=DT_pagelength,
+                                        dom='Bfrtip',pageLength=DT_pagelength,
                                         deferRender = TRUE,
                                         bLengthChange = FALSE,
                                         scrollX = 200,
@@ -194,31 +198,31 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   
   #################
-  output$table <- DT::renderDataTable({
+  output$table <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
     print(head(df))
-    dt <- datatable( df,
-                     rownames=TRUE,
-                     extensions = c('Scroller', 'Buttons', 'FixedColumns'),
-                     options = list(
-                       dom = 'Bfrtip',
-                       initComplete = initComplete(),
-                       buttons = list('copy',
-                                      list(
-                                        extend = 'csv',
-                                        filename = 'quantitation data'
-                                      ),'print'),
-                       displayLength = 20,
-                       deferRender = TRUE,
-                       bLengthChange = FALSE,
-                       scrollX = 200,
-                       scrollY = 600,
-                       scroller = TRUE,
-                       ordering=FALSE,
-                       server = TRUE,
-                       fixedColumns = list(leftColumns = 1),
-                       columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
+    dt <- DT::datatable( df,
+                         rownames=TRUE,
+                         extensions = c('Scroller', 'Buttons', 'FixedColumns'),
+                         options = list(
+                           buttons = list('copy',
+                                          list(
+                                            extend = 'csv',
+                                            filename = 'quantitation data'
+                                          ),'print'),
+                           dom='Bfrtip',
+                           initComplete = initComplete(),
+                           displayLength = 20,
+                           deferRender = TRUE,
+                           bLengthChange = FALSE,
+                           scrollX = 200,
+                           scrollY = 600,
+                           scroller = TRUE,
+                           ordering=FALSE,
+                           server = TRUE,
+                           fixedColumns = list(leftColumns = 1),
+                           columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],

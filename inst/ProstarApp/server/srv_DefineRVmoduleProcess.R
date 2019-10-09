@@ -26,7 +26,7 @@ rvModProcess <- reactiveValues(
   
   
   moduleAggregation = list(name = "Aggregation",
-                           stepsNames = c("Aggregation 1", "Aggregation 2", "Save"),
+                           stepsNames = c("Aggregation", "Add metadata", "Save"),
                            isMandatory = rep(TRUE, 3),
                            ll.UI = list(screenStep1 = uiOutput("screenAggregation1"),
                                         screenStep2 = uiOutput("screenAggregation2"),
@@ -50,7 +50,7 @@ rvModProcess <- reactiveValues(
   moduleProtImputationDone =  rep(FALSE,3),
   
   modulePepImputation = list(name = "PepImputation",
-                             stepsNames = c("PeptideImputation 1", "Save"),
+                             stepsNames = c("Imputation", "Save"),
                              isMandatory = rep(TRUE, 2),
                              ll.UI = list(uiOutput("screenPepImputation1"),
                                           uiOutput("screenPepImputation2")),
