@@ -16,7 +16,7 @@ knitr::opts_chunk$set(cache=FALSE)
 ```{r DT_versions,out.width = "150%", echo=FALSE}
 
 library(DT)
-DT::datatable(getPackagesVersions('installed'), 
+DT::datatable(getPackagesVersions2('installed'), 
                           escape = FALSE,
                           rownames = FALSE,
                           option=list(

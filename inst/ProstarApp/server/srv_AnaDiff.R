@@ -395,7 +395,7 @@ output$downloadSelectedItems <- downloadHandler(
     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == 'isDifferential'), length(ll.DA.row))
     
      openxlsx::addStyle(wb, sheet=1, cols=ll.DA.col,
-                        rows = 1+ ll.DA.row, style = DA_Style)
+                        rows = 3 + ll.DA.row, style = DA_Style)
     
      openxlsx::saveWorkbook(wb, file = file, overwrite = TRUE)
      

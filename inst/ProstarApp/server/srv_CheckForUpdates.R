@@ -5,7 +5,7 @@
 
 
 output$tab_versions <- DT::renderDataTable({
-  dt <- DT::datatable(getPackagesVersions(), 
+  dt <- DT::datatable(getPackagesVersions2(), 
                       escape = FALSE,
                       rownames= FALSE,
                       extensions = c('Scroller', 'Buttons'),
@@ -25,7 +25,7 @@ output$tab_versions <- DT::renderDataTable({
 
 output$infoForNewVersions <- renderUI({
   
-  df <- getPackagesVersions()$NeedsUpdate
+  df <- getPackagesVersions2()$NeedsUpdate
   
   if (sum(df)==FALSE){return(NULL)}
 
