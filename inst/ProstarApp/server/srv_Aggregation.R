@@ -36,7 +36,7 @@ resetModuleAggregation <- reactive({
   
   rvModProcess$moduleAggregationDone = rep(FALSE, 3)
   ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
   ## reset temp object
   rv$temp.aggregate <- NULL

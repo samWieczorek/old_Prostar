@@ -40,7 +40,7 @@ resetModulePepImputation <- reactive({
     
   rvModProcess$modulePepImputationDone = rep(FALSE, 2)
   ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+ # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
@@ -345,10 +345,9 @@ observeEvent(input$peptideLevel_ValidImputation,{
     name <- paste0("Imputed", ".", rv$typeOfDataset)
     rv$current.obj <- saveParameters(rv$current.obj, name,"peptideImputation",l.params)
     
-    rv$dataset[[name]] <- rv$current.obj
     rvModProcess$modulePepImputationDone[2] <- TRUE
+    UpdateDatasetWidget(rv$current.obj, name)
     
-    updateSelectInput(session, "datasets",choices = names(rv$dataset), selected = name)
   })
 })
 

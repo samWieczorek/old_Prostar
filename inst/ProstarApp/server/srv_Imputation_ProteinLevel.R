@@ -48,7 +48,7 @@ resetModuleProtImputation <- reactive({
   rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   
   ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+  #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
@@ -387,13 +387,8 @@ observeEvent(input$ValidImputation,{
     
     name <- paste0("Imputed", ".", rv$typeOfDataset)
     rv$current.obj <- saveParameters(rv$current.obj, name,"proteinImputation",build_ParamsList_ProteinImputation())
+    UpdateDatasetWidget(rv$current.obj, name)
     
-    rv$dataset[[name]] <- rv$current.obj
-    
-    updateSelectInput(session, "datasets",
-                      #paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                      choices = names(rv$dataset),
-                      selected = name)
     
        rv$ValidImputationClicked <- TRUE
     rvModProcess$moduleProtImputationDone[3] <- TRUE

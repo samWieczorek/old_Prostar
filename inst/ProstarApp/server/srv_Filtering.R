@@ -9,7 +9,8 @@
 callModule(moduleProcess, "moduleProcess_Filtering", 
            isDone = reactive({rvModProcess$moduleFilteringDone}), 
            pages = reactive({rvModProcess$moduleFiltering}),
-           rstFunc = resetModuleFiltering)
+           rstFunc = resetModuleFiltering,
+           forceReset = reactive({rvModProcess$moduleFilteringForceReset })  )
 
 
 callModule(missingValuesPlots,"MVPlots_filtering",
@@ -27,20 +28,17 @@ callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tag
  
 resetModuleFiltering <- reactive({  
     ## update rv$widgets values (reactive values)
-    resetModuleProcess("Filtering")
+  resetModuleProcess("Filtering")
   
-    rv$widgets$seuilNA <- 0
+  rv$widgets$filtering$ChooseFilters <- "None"
+  rv$widgets$filtering$seuilNA <- 0
     rv$deleted.stringBased <- NULL
     rv$deleted.mvLines <- NULL
     rv$deleted.numeric = NULL
 
-    ## update rv$widgets in UI
-    updateSelectInput(session, "ChooseFilters", selected = rv$widgets$ChooseFilters)
-    updateSelectInput(session, "seuilNA", selected = rv$widgets$seuilNA)
-  
     rvModProcess$moduleFilteringDone = rep(FALSE, 5)
     ##update dataset to put the previous one
-    rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+    #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
 
 })
   
@@ -48,17 +46,19 @@ resetModuleFiltering <- reactive({
 
 
   output$screenFiltering1 <- renderUI({
-  #rv$widgets$ChooseFilters
+  #rv$widgets$filtering$ChooseFilters
   print("In output$screenFiltering1 <- renderUI")
-  
-  tagList(
+  print(rv$widgets$filtering$ChooseFilters)
+ 
+  isolate({
+    tagList(
    div(
       id = "screen1Filtering",
      # tags$div(
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
                   selectInput("ChooseFilters","Type",  
                               choices = gFiltersList, 
-                              selected=rv$widgets$ChooseFilters,
+                              selected=rv$widgets$filtering$ChooseFilters,
                               width='200px')
         ),
         div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
@@ -73,6 +73,7 @@ resetModuleFiltering <- reactive({
       )
  
     )
+  })
   
 })
 
@@ -335,12 +336,22 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
 
 #############-------------------------
 
+# observe({
+#   req(rv$widgets$filtering$ChooseFilters)
+#   updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
+# })
 
-observeEvent(input$ChooseFilters, {
-  rv$widgets$ChooseFilters <- input$ChooseFilters
+observeEvent(input$ChooseFilters,{
+  print("------- update de ChooseFilters")
+  print(rv$widgets$filtering$ChooseFilters)
+  print(input$ChooseFilters)
+  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
+  print(rv$widgets$filtering$ChooseFilters)
+  print(input$ChooseFilters)
 })
-observeEvent(input$seuilNA, {
-  rv$widgets$seuilNA <- input$seuilNA
+
+observeEvent(input$seuilNA, ignoreNULL = TRUE,ignoreInit = TRUE, {
+  rv$widgets$filtering$seuilNA <- input$seuilNA
 })
 
 
@@ -539,7 +550,7 @@ output$seuilNADelete <- renderUI({
     
     selectInput("seuilNA", NULL,
                 choices = choix,
-                selected = rv$widgets$seuilNA,
+                selected = rv$widgets$filtering$seuilNA,
                 width='150px'))
   
 })
@@ -598,20 +609,22 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Filtered", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
-      rv$dataset[[name]] <- rv$current.obj
+      
       dataOut<- rv$current.obj
-      rvModProcess$moduleNormalizationDone[5] <- TRUE
+      rvModProcess$moduleFilteringDone[5] <- TRUE
     
       if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
         ComputeAdjacencyMatrices()
         ComputeConnexComposants()
       }
-      updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+      UpdateDatasetWidget(rv$current.obj, name)
       }
     rvModProcess$moduleFilteringDone[5] <- TRUE
   })
   
 })
+
+
 
 
 

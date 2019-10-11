@@ -139,10 +139,10 @@ shinyServer(function(input, output, session) {
                  source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
                },
                  
-               FilterDataTab =
+               FilteringTab =
                  source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value,
                
-               Normalization = 
+               NormalizationTab = 
                  source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value,
                
                imputationProteinLevelTabs = {

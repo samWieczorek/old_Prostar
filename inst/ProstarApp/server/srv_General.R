@@ -192,24 +192,22 @@ getDatasetName <- reactive({
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
-
-    isolate({
-        if (!is.null(input$datasets)) {
-            rv$current.obj <- rv$dataset[[input$datasets]]
-        }
-      
-        if (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData){
-              BuildNavbarPage()
-            }
-            
-       if (!is.null( rv$current.obj)){
-            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-        }
-
-    })
-    
-})
+# observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
+# 
+#     isolate({
+#       rv$current.obj <- rv$dataset[[input$datasets]]
+# 
+#         # if (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData){
+#         #       BuildNavbarPage()
+#         #     }
+#             
+#        if (!is.null( rv$current.obj)){
+#             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+#         }
+# 
+#     })
+#     
+# })
 
 
 
@@ -400,7 +398,7 @@ loadObjectInMemoryFromConverter <- function(){
     incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
-    print("After BuildNavbarPage")
+   
   })
 }
 
@@ -434,7 +432,7 @@ createPNGFromWidget <- function(tempplot, pattern){
 }
 
 
-resetModuleProcess <- function(moduleName, obj){
+resetModuleProcess <- function(moduleName){
   
   switch (moduleName,
           Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
@@ -451,6 +449,9 @@ resetModuleProcess <- function(moduleName, obj){
                                                                                           stringsAsFactors=F)
                                                          )
 
+          updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
+          updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
+          
           rvModProcess$moduleFiltering = list(name = "Filtering",
                                                   stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
                                                   isMandatory = rep(FALSE,5),
@@ -626,18 +627,13 @@ resetModuleProcess <- function(moduleName, obj){
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
-  resetModuleProcess("Aggregation")
-  resetModuleProcess("Normalization")
-  resetModuleProcess("Filtering")
-  resetModuleProcess("PepImputation")
-  resetModuleProcess("ProtImputation")
-  resetModuleProcess("HypothesisTest")
-  #resetModuleProcess("Convert")
-  resetModuleProcess("AnaDiff")
   
   ########
   ### Settings
   ########
+  
+  rv$processSaved = FALSE
+  rv$current.navPage = NULL
   rv$current.comp = NULL
   rv$colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey')
   rv$colorsTypeMV = list(MEC=orangeProstar, POV='lightblue')
@@ -651,7 +647,8 @@ ClearMemory <- function(){
   ########
   ### Parameters
   ######## 
-    rv$current.obj = NULL
+  rv$dataset = list()
+  rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
     rv$deleted.stringBased.exprsData = NULL
@@ -665,7 +662,6 @@ ClearMemory <- function(){
     
     # variable to keep memory of previous datasets before 
     # transformation of the data
-    rv$dataset = list()
     # Variable that contains the log for the current R session
     rv$text.log = data.frame(Date="", 
                              Dataset="", 
@@ -759,14 +755,33 @@ ClearMemory <- function(){
     rv$distance = "euclidean"
     
     
+    
+    
+    
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
+    
+    
+    resetModuleProcess("Aggregation")
+    resetModuleProcess("Normalization")
+    resetModuleProcess("Filtering")
+    resetModuleProcess("PepImputation")
+    resetModuleProcess("ProtImputation")
+    resetModuleProcess("HypothesisTest")
+    #resetModuleProcess("Convert")
+    resetModuleProcess("AnaDiff")
     
 }
 
 
 
 
+
+UpdateDatasetWidget <- function(obj, name){
+  rv$processSaved <- TRUE
+  rv$dataset[[name]] <- obj
+  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+}
 
 
 
@@ -776,9 +791,9 @@ rv <- reactiveValues(
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,
   
+  processSaved = FALSE,
   
-  
-  
+  current.navPage = NULL,
   # variable to handle the current object that will be showed
     current.comp = NULL,
     current.obj = NULL,

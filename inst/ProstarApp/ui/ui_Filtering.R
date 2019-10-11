@@ -1,5 +1,5 @@
 tabPanel("Filter data",
-         value = "FilterDataTab",
+         value = "FilteringTab",
          moduleProcessUI("moduleProcess_Filtering")
 )
 

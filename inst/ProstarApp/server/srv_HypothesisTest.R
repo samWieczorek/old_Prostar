@@ -23,7 +23,7 @@ resetModuleHypothesisTest <- reactive({
     
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
   ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+ # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
@@ -181,10 +181,9 @@ isolate({
   name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
   rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   
-  rv$dataset[[name]] <- rv$current.obj
   rvModProcess$moduleHypothesisTestDone[2] <- TRUE
+  UpdateDatasetWidget(rv$current.obj, name)
   
-  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
   BuildNavbarPage()
 })
   

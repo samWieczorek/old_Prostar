@@ -1,15 +1,15 @@
-moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
+moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceReset){
   ns <- session$ns
   
   current <- reactiveVal(1)
-   nbSteps <- length(pages()$stepsNames)
+  nbSteps <- length(pages()$stepsNames)
    
    ##--------------------------------------------------------------
   ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
-  
    
   output$checkPanel <- renderUI({
+    current()
     color <- rep("lightgrey",nbSteps)
     colorForCursor <- rep("white",nbSteps)
     
@@ -26,9 +26,15 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
   })
   
 
-   observeEvent(input$rstBtn,{
-     current(1)
-     rstFunc()
+   observeEvent(c(forceReset(),input$rstBtn),{
+     print(" ########### DANS observeEvent(c(pages()$forceReset,input$rstBtn),{")
+     print(forceReset())
+     if (forceReset()>0 || input$rstBtn > 0){
+       print("ON FAIT LE RESET EFFECTIF")
+       rstFunc()
+        current(1)
+     }
+     
      })
    
   observe({

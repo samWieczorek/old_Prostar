@@ -40,7 +40,7 @@ resetModuleNormalization <- reactive({
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
   
   ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
+ # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
@@ -242,14 +242,9 @@ observeEvent(input$valid.normalization,{
       rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Normalized", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
-      rv$dataset[[name]] <- rv$current.obj
       
       rvModProcess$moduleNormalizationDone[2] <- TRUE
-      
-      updateSelectInput(session, "datasets", 
-                        #paste("Dataset versions of",rv$current.obj.name, sep=" "),
-                        choices = names(rv$dataset),
-                        selected = name)
+      UpdateDatasetWidget(rv$current.obj, name)
       
     }
     
