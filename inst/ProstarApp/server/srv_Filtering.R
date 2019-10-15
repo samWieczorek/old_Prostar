@@ -34,7 +34,7 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$seuilNA <- 0
     rv$deleted.stringBased <- NULL
     rv$deleted.mvLines <- NULL
-    rv$deleted.numeric = NULL
+    rv$deleted.numeric <- NULL
 
     rvModProcess$moduleFilteringDone = rep(FALSE, 5)
     ##update dataset to put the previous one
@@ -213,7 +213,7 @@ observeEvent(input$actionButtonFilter,{
 
 ##
 ## Perform missing values filtering
-observeEvent(input$perform.filtering.MV,{
+observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
   print("In : observeEvent(input$perform.filtering.MV")
   
   if (input$ChooseFilters == gFilterNone){
@@ -241,7 +241,7 @@ observeEvent(input$perform.filtering.MV,{
 
 ## ----------------------------------------------
 # Perform numerical filtering
-observeEvent(input$btn_numFilter,{
+observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
   temp <- rv$current.obj
   
   if (input$numericFilter_cname=="None"){return()}
@@ -341,13 +341,8 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
 #   updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
 # })
 
-observeEvent(input$ChooseFilters,{
-  print("------- update de ChooseFilters")
-  print(rv$widgets$filtering$ChooseFilters)
-  print(input$ChooseFilters)
+observeEvent(input$ChooseFilters,ignoreInit=TRUE,{
   rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
-  print(rv$widgets$filtering$ChooseFilters)
-  print(input$ChooseFilters)
 })
 
 observeEvent(input$seuilNA, ignoreNULL = TRUE,ignoreInit = TRUE, {

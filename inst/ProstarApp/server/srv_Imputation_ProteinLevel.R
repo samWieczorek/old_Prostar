@@ -5,10 +5,12 @@ callModule(moduleMVPlots,"mvImputationPlots_MV",
            data=reactive(rv$imputePlotsSteps[["step0"]]),
            title = reactive("POV distribution"),
            palette =reactive(unique(rv$PlotParams$paletteConditions)))
+
 callModule(moduleMVPlots,"mvImputationPlots_MEC", 
            data=reactive(rv$imputePlotsSteps[["step1"]]),
            title = reactive("Distribution after POV imputation"),
            palette =reactive(unique(rv$PlotParams$paletteConditions)))
+
 callModule(moduleMVPlots,"mvImputationPlots_Valid", 
            data=reactive(rv$imputePlotsSteps[["step2"]]),
            title = reactive("Distribution after POV and MEC imputation"),
@@ -26,24 +28,24 @@ callModule(moduleDetQuantImpValues, "MEC_DetQuantValues_DT",
 callModule(moduleProcess, "moduleProcess_ProtImputation", 
            isDone = reactive({rvModProcess$moduleProtImputationDone}), 
            pages = reactive({rvModProcess$moduleProtImputation}),
-           rstFunc = resetModuleProtImputation)
+           rstFunc = resetModuleProtImputation,
+           forceReset = reactive({rvModProcess$moduleProtImputationForceReset })  )
 
 resetModuleProtImputation <- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("ProtImputation")
     
-  ## update widgets in UI
-  updateSelectInput(session,"POV_missing.value.algorithm",selected=rv$widgets$proteinImput$POV_algorithm)
-  updateSelectInput(session,"MEC_missing.value.algorithm", selected=rv$widgets$proteinImput$MEC_algorithm)
-  updateNumericInput(session,"POV_detQuant_quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
-  updateNumericInput(session,"POV_detQuant_factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
-  updateNumericInput(session,"KNN_nbNeighbors", value = rv$widgets$proteinImput$POV_KNN_n)
-  updateNumericInput(session, "MEC_detQuant_quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
-  updateNumericInput(session, "MEC_detQuant_factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
-  updateNumericInput(session, "MEC_fixedValue", value = rv$widgets$proteinImput$MEC_fixedValue)
+  rv$widgets$proteinImput$POV_algorithm <-  "None"
+  rv$widgets$proteinImput$POV_detQuant_quantile <-  2.5
+  rv$widgets$proteinImput$POV_detQuant_factor <-  1
+  rv$widgets$proteinImput$POV_KNN_n <-  10
+  rv$widgets$proteinImput$MEC_algorithm <-  "None"
+  rv$widgets$proteinImput$MEC_detQuant_quantile <-  2.5
+  rv$widgets$proteinImput$MEC_detQuant_factor <-  1
+  rv$widgets$proteinImput$MEC_fixedValue <- 0
   
   
-  
+  rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
   
   rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   
@@ -409,28 +411,26 @@ output$ImputationSaved <- renderUI({
 })
 
 output$ImputationStep1Done <- renderUI({
-  rv$impute_Step
-  isolate({
-    if (rv$impute_Step >= 1) {
+  #isolate({
+    if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
       tagList(
         h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
         # br(),
-        h5("Updated graphs can be seen on tab \"2 - Missing on the Entire Condition\".")
+        h5("Updated graphs can be seen on step \"2 - Missing on the Entire Condition\".")
       )
     }
-  })
+ # })
 })
 
 
 output$ImputationStep2Done <- renderUI({
-  rv$impute_Step
-  isolate({
-    if (rv$impute_Step >= 2) {
+  #isolate({
+    if (isTRUE(rvModProcess$moduleProtImputationDone[2])) {
       tagList(
         h5("MEC imputation done.", rv$nbMECimputed, " were imputed"),
-        h5("Updated graphs cans be seen on tab \"3 - Validate and save\"."))
+        h5("Updated graphs cans be seen on step \"3 - Save\"."))
     }
-  })
+  #})
 })
 
 output$warningMECImputation<- renderUI({

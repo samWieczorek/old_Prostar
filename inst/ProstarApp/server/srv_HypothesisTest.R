@@ -8,19 +8,20 @@ observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric
 callModule(moduleProcess, "moduleProcess_HypothesisTest", 
            isDone = reactive({rvModProcess$moduleHypothesisTestDone}), 
            pages = reactive({rvModProcess$moduleHypothesisTest}),
-           rstFunc = resetModuleHypothesisTest)
+           rstFunc = resetModuleHypothesisTest,
+           forceReset = reactive({rvModProcess$moduleHypothesisTestForceReset })  )
 
 
 resetModuleHypothesisTest <- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("HypothesisTest")
     
-  ## update widgets in UI
-  updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
-  updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
-  updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
-  updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
-    
+  rv$widgets$hypothesisTest$design <- "None"
+  rv$widgets$hypothesisTest$method <- "None"
+  rv$widgets$hypothesisTest$ttest_options <- "Student"
+  rv$widgets$hypothesisTest$th_logFC <- 0
+  rv$widgets$hypothesisTest$listNomsComparaison <- NULL
+                                   
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
   ##update dataset to put the previous one
  # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 

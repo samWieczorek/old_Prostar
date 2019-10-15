@@ -23,7 +23,7 @@ rvModProcess <- reactiveValues(
                                            screenStep2 = uiOutput("screenNormalization2")),
                              rstFunc = reactive({resetModuleNormalization()})),
   moduleNormalizationDone =  rep(FALSE,2),
-  
+  moduleNormalizationForceReset = 0,
   
   
   
@@ -52,6 +52,8 @@ rvModProcess <- reactiveValues(
                               rstFunc = reactive({resetModuleProtimputation()})
                               ),
   moduleProtImputationDone =  rep(FALSE,3),
+  moduleProtImputationForceReset = 0,
+  
   
   modulePepImputation = list(name = "PepImputation",
                              stepsNames = c("Imputation", "Save"),
@@ -61,6 +63,7 @@ rvModProcess <- reactiveValues(
                                           uiOutput("screenPepImputation2")),
                              rstFunc = reactive({resetModulePepImputation()})),
   modulePepImputationDone =  rep(FALSE,2),
+  modulePepImputationForceReset = 0,
   
   
   moduleHypothesisTest = list(name = "HypothesisTest",
@@ -71,6 +74,9 @@ rvModProcess <- reactiveValues(
                                           screenStep2 = uiOutput("screenHypoTest2")),
                               rstFunc = reactive({resetModuleHypothesisTest()})),
   moduleHypothesisTestDone =  rep(FALSE,2),
+  moduleHypothesisTestForceReset = 0,
+  
+  
   
   moduleConvert = list(name = "Convert",
                        stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),

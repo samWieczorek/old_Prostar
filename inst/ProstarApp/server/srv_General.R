@@ -491,7 +491,15 @@ resetModuleProcess <- function(moduleName){
                                                   isMandatory = rep(FALSE,2),
                                                   ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                                                 screenStep2 = uiOutput("screenNormalization2")))
-                        rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+                          ## update widgets in UI
+                          updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
+                          updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
+                          updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
+                          updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
+                          updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
+
+                          
+                          rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
                         },
           
           
@@ -510,6 +518,18 @@ resetModuleProcess <- function(moduleName){
                                                   isMandatory = c(TRUE, TRUE),
                                                   ll.UI = list(uiOutput("screenPepImputation1"),
                                                                uiOutput("screenPepImputation2")))
+          ## update widgets in UI
+          updateSelectInput(session,"peptideLevel_missing.value.algorithm", selected = rv$widgets$peptideImput$pepLevel_algorithm)
+          updateSelectInput(session,"peptideLevel_missing.value.basic.algorithm", selected = rv$widgets$peptideImput$pepLevel_basicAlgorithm)
+          updateNumericInput(session,"peptideLevel_detQuant_quantile", value = rv$widgets$peptideImput$pepLevel_detQuantile)
+          updateNumericInput(session,"peptideLevel_detQuant_factor", value = rv$widgets$peptideImput$pepLevel_detQuant_factor)
+          updateNumericInput(session,"KNN_n",  value = rv$widgets$peptideImput$pepLevel_KNN_n)
+          updateNumericInput(session,"peptideLevel_imp4p_nbiter", value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter)
+          updateCheckboxInput(session,"peptideLevel_imp4p_withLapala", value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala)
+          updateNumericInput(session,"peptideLevel_imp4p_qmin",  value = rv$widgets$peptideImput$pepLevel_imp4p_qmin)
+          updateRadioButtons(session, "peptideLevel_imp4pLAPALA_distrib", selected = rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib)
+          
+          
           rvModProcess$modulePepImputationDone =  rep(FALSE,2)
           },
           
@@ -530,6 +550,18 @@ resetModuleProcess <- function(moduleName){
                                                                  screenStep2 = uiOutput("screenProtImput2"),
                                                                  screenStep3 = uiOutput("screenProtImput3")
                                                    ))
+          
+          ## update widgets in UI
+          updateSelectInput(session,"POV_missing.value.algorithm",selected=rv$widgets$proteinImput$POV_algorithm)
+          updateSelectInput(session,"MEC_missing.value.algorithm", selected=rv$widgets$proteinImput$MEC_algorithm)
+          updateNumericInput(session,"POV_detQuant_quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
+          updateNumericInput(session,"POV_detQuant_factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
+          updateNumericInput(session,"KNN_nbNeighbors", value = rv$widgets$proteinImput$POV_KNN_n)
+          updateNumericInput(session, "MEC_detQuant_quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
+          updateNumericInput(session, "MEC_detQuant_factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
+          updateNumericInput(session, "MEC_fixedValue", value = rv$widgets$proteinImput$MEC_fixedValue)
+          
+          
           rvModProcess$moduleProtImputationDone =  rep(FALSE,3)
           rv$imputePlotsSteps = list(step0 = NULL,
                                      step1 = NULL,
@@ -549,6 +581,12 @@ resetModuleProcess <- function(moduleName){
                                                    isMandatory = c(TRUE, TRUE),
                                                    ll.UI = list( screenStep1 = uiOutput("screenHypoTest1"),
                                                                  screenStep2 = uiOutput("screenHypoTest2")))
+          ## update widgets in UI
+          updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
+          updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
+          updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
+          updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
+          
           rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
           },
           

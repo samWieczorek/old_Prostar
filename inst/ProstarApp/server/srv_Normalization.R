@@ -18,7 +18,8 @@ callModule(modulePopover,"modulePopover_normQuanti",
 callModule(moduleProcess, "moduleProcess_Normalization", 
            isDone = reactive({rvModProcess$moduleNormalizationDone}), 
            pages = reactive({rvModProcess$moduleNormalization}),
-           rstFunc = resetModuleNormalization)
+           rstFunc = resetModuleNormalization,
+           forceReset = reactive({rvModProcess$moduleNormalizationForceReset })  )
 
 
 
@@ -30,12 +31,13 @@ resetModuleNormalization <- reactive({
   resetModuleProcess("Normalization")
   
   
-  ## update widgets in UI
-  updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-  updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-  updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
-  updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
-  updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
+  
+  
+  rv$widgets$normalization$method <- "None"
+  rv$widgets$normalization$type <- "None"
+  rv$widgets$normalization$varReduction <- FALSE
+  rv$widgets$normalization$quantile <- 0.15
+  rv$widgets$normalization$spanLOESS <- 0.7
   
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
   

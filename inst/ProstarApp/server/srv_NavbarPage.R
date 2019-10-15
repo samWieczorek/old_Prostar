@@ -38,24 +38,24 @@ ClearCurrentNavPage <- function(page){
   switch(page,
          FilteringTab = {
            resetModuleProcess("Filtering")
-           rvModProcess$moduleFilteringForceReset <-  1+rvModProcess$moduleFilteringForceReset  
+           rvModProcess$moduleFilteringForceReset <-  1 + rvModProcess$moduleFilteringForceReset  
          },
          NormalizationTab = {
            resetModuleProcess("Normalization")
-           rvModProcess$moduleNormalizationgForceReset <-  1+rvModProcess$moduleNormalizationForceReset  
+           rvModProcess$moduleNormalizationForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
          },
          imputationProteinLevelTabs = {
            resetModuleProcess("ProtImputation")
-           rvModProcess$moduleProtImputationForceReset <-  1+rvModProcess$moduleProtImputationForceReset  
+           rvModProcess$moduleProtImputationForceReset <-  1 + rvModProcess$moduleProtImputationForceReset  
          },
          imputationPeptideLevelTabs = {
            resetModuleProcess("PepImputation")
-           rvModProcess$modulePepImputationForceReset <-  1+rvModProcess$modulePepImputationForceReset  
+           rvModProcess$modulePepImputationForceReset <-  1 + rvModProcess$modulePepImputationForceReset  
          },
          #AggregationTab = resetModuleProcess("Aggregation"),
          testTab = {
            resetModuleProcess("HypothesisTest")
-           rvModProcess$moduleHypothesisTestForceReset <-  1+rvModProcess$moduleHypothesisTestForceReset  
+           rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  
          } 
   )
 }
