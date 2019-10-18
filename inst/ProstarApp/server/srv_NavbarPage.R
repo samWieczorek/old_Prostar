@@ -25,6 +25,10 @@ observeEvent( req(input$datasets),ignoreInit = TRUE,{
       rv$current.obj <- rv$dataset[[input$datasets]]
       if (!is.null( rv$current.obj)){
         rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        
+        ## remettre les logFC s'ils existent
+          rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
+        
       }
       ClearCurrentNavPage(input$navPage)
     }
@@ -56,7 +60,15 @@ ClearCurrentNavPage <- function(page){
          testTab = {
            resetModuleProcess("HypothesisTest")
            rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  
-         } 
+         } ,
+         diffAnalysisTab = {
+           resetModuleProcess("AnaDiff")
+           rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset
+         },
+         convertTab = {
+           resetModuleProcess("Convert")
+           rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
+         }
   )
 }
 

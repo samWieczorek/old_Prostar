@@ -661,18 +661,34 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
   
 
   
+  
+  output$WarnForImageNA <- renderUI({
+    
+    tryCatch(
+      {
+        wrapper.mvImage(data())
+    
+  },
+  warning = function(w) { p(conditionMessage(w))},
+  error = function(e) {p(conditionMessage(e))},
+  finally = {
+    #cleanup-code 
+  })
+
+  })
+  
   output$plot_showImageNA <- renderImage({
     
-    req(data())
+    req(wrapper.mvImage(data()))
     
     # A temp file to save the output. It will be deleted after renderImage
     # sends it, because deleteFile=TRUE.
     outfile <- tempfile(fileext='.png')
-    
-    # Generate a png
+
     png(outfile)
-      wrapper.mvImage(data())
+    wrapper.mvImage(data())
       dev.off()
+     
     
     # Return a list
     list(src = outfile,

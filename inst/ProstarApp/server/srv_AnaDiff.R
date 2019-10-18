@@ -18,7 +18,8 @@ callModule(module_Not_a_numeric,"test_seuilPVal", reactive({input$seuilPVal}))
 callModule(moduleProcess, "moduleProcess_AnaDiff", 
            isDone = reactive({rvModProcess$moduleAnaDiffDone}), 
            pages = reactive({rvModProcess$moduleAnaDiff}),
-           rstFunc = resetModuleAnaDiff)
+           rstFunc = resetModuleAnaDiff,
+           forceReset = reactive({rvModProcess$moduleAnaDiffForceReset}))
 
 
 
@@ -34,19 +35,29 @@ resetModuleAnaDiff <- reactive({
   # rv$deleted.mvLines <- NULL
   
   
-  ## update widgets in UI
-  #if (!is.null(input$showpvalTable) )updateCheckboxInput(session, 'showpvalTable', value = FALSE)
-  updateSelectInput(session, "selectComparison", selected=rv$widgets$anaDiff$Comparison)
-  updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$filter_th_NA)
-  updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=rv$widgets$anaDiff$filterType)
-  updateSelectInput(session, "tooltipInfo", selected=character(0))
-  updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
-  updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
-  updateNumericInput(session,"nBinsHistpval",value=80)
-  updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
-  updateRadioButtons(session, "downloadAnaDiff", selected="All")
-  updateCheckboxInput(session, "swapVolcano", value =  rv$widgets$anaDiff$swapVolcano)
-            
+  rv$nbTotalAnaDiff = NULL
+  rv$nbSelectedAnaDiff = NULL
+  rv$nbSelectedTotal_Step3 = NULL
+  rv$nbSelected_Step3 = NULL  
+  rv$conditions <- list(cond1 = NULL, cond2 = NULL)
+  rv$calibrationRes <- NULL
+  rv$errMsgcalibrationPlot <- NULL
+  rv$errMsgcalibrationPlotALL <- NULL
+  rv$pi0 <- NULL
+  
+  rv$widgets$anaDiff$Comparison = "None"
+  rv$widgets$anaDiff$Condition1 = ""
+  rv$widgets$anaDiff$Condition2 = ""
+  rv$widgets$anaDiff$swapVolcano = FALSE
+  rv$widgets$anaDiff$filterType = "None"
+  rv$widgets$anaDiff$filter_th_NA = 0
+  rv$widgets$anaDiff$calibMethod = 'None'
+  rv$widgets$anaDiff$numValCalibMethod = 0
+  rv$widgets$anaDiff$th_pval = 0
+  rv$widgets$anaDiff$FDR = 0
+  rv$widgets$anaDiff$NbSelected = 0
+  
+  
   rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
   
   ##update dataset to put the previous one
@@ -131,6 +142,8 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 GetPairwiseCompChoice <- reactive({
+  rv$res_AllPairwiseComparisons
+  print(str(rv$res_AllPairwiseComparisons))
   ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
   ll
 })
@@ -166,22 +179,22 @@ observeEvent(input$selectComparison, {
 
 
 
-
-output$anaDiffPanel <- renderUI({
-  req(rv$current.obj)
-    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-  dataset.name <- last(names(rv$dataset))
-  prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
-  if (NA.count > 0){
-    tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else if (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
-             rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
-    tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
-    } else {
-      moduleProcessUI("moduleProcess_AnaDiff")
-    }
-  
-})
+# 
+# output$anaDiffPanel <- renderUI({
+#   req(rv$current.obj)
+#     NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+#   dataset.name <- last(names(rv$dataset))
+#   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
+#   if (NA.count > 0){
+#     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
+#   } else if (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
+#              rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
+#     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
+#     } else {
+#       moduleProcessUI("moduleProcess_AnaDiff")
+#     }
+#   
+# })
 
 
 output$screenAnaDiff1 <- renderUI({

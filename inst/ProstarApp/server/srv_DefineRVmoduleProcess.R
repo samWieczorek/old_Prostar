@@ -36,6 +36,7 @@ rvModProcess <- reactiveValues(
                                         screenStep3 = uiOutput("screenAggregation3")),
                           rstFunc = reactive({resetModuleAggregation()})
                           ),
+  moduleAggregationForceReset = 0,
   moduleAggregationDone =  rep(FALSE,3),
   
   
@@ -89,6 +90,7 @@ rvModProcess <- reactiveValues(
                                      screenStep5 = uiOutput("Convert_Convert")
                                     ),
                        rstFunc = reactive({resetModuleConvert()})),
+  moduleConvertForceReset = 0,
   moduleConvertDone =  rep(FALSE,5),
   
   moduleAnaDiff = list(name = "AnaDiff",
@@ -101,6 +103,7 @@ rvModProcess <- reactiveValues(
                                      screenStep4 = uiOutput("screenAnaDiff4")
                        ),
                        rstFunc = reactive({resetModuleAnaDiff()})),
+  moduleAnaDiffForceReset = 0,
   moduleAnaDiffDone =  rep(FALSE,4),
   
   moduleGO = list(name = "GO",

@@ -1,11 +1,3 @@
-
-
-##---------------------------------------------------------------
-##------------------------------------------------------------------
-
-
-
-
 callModule(moduleProcess, "moduleProcess_Filtering", 
            isDone = reactive({rvModProcess$moduleFilteringDone}), 
            pages = reactive({rvModProcess$moduleFiltering}),
@@ -20,12 +12,7 @@ callModule(missingValuesPlots,"MVPlots_filtering",
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                          content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
-  
-  
-  ##--------------------------------------------------------------
-  ## Gestion des couleurs du slideshow
-  ##--------------------------------------------------------------
- 
+
 resetModuleFiltering <- reactive({  
     ## update rv$widgets values (reactive values)
   resetModuleProcess("Filtering")
@@ -37,19 +24,13 @@ resetModuleFiltering <- reactive({
     rv$deleted.numeric <- NULL
 
     rvModProcess$moduleFilteringDone = rep(FALSE, 5)
-    ##update dataset to put the previous one
-    #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
-
+    
 })
   
 
-
-
   output$screenFiltering1 <- renderUI({
   #rv$widgets$filtering$ChooseFilters
-  print("In output$screenFiltering1 <- renderUI")
-  print(rv$widgets$filtering$ChooseFilters)
- 
+  
   isolate({
     tagList(
    div(
@@ -278,6 +259,7 @@ output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
   
+  isolate({
   if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
     df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
     rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
@@ -300,14 +282,15 @@ output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
                 ))
 })
 
-
+})
 
 
 
 output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
-  
+  isolate({
+    
   if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
     df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
     #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
@@ -328,6 +311,7 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
                              deferRender = TRUE,
                              bLengthChange = FALSE
                 ))
+  })
 })
 
 

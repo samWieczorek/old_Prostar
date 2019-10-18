@@ -152,7 +152,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
       rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
                                             P_Value = .P_Value)
       
-      rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
+      #rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
       rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
       }
     

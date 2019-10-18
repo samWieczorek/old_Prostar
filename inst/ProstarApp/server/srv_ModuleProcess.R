@@ -40,7 +40,7 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
      toggle(id = "prevBtn", condition = (nbSteps >1))
     toggle(id = "nextBtn", condition = (nbSteps >1) )
     
-    toggle(id = "rstBtn", condition = !(isDone()[nbSteps])) 
+   # toggle(id = "rstBtn", condition = !(isDone()[nbSteps])) 
     
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)

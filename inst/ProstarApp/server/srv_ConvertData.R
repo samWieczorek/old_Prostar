@@ -25,27 +25,67 @@ callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({Ge
 callModule(moduleProcess, "moduleProcess_Convert", 
            isDone = reactive({rvModProcess$moduleConvertDone}), 
            pages = reactive({rvModProcess$moduleConvert}),
-           rstFunc = resetModuleConvert)
+           rstFunc = resetModuleConvert,
+           forceReset = reactive({rvModProcess$moduleConvertForceReset}))
 
 
 resetModuleConvert<- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("Convert")
     
+  #shinyjs::reset('file1')
   ## update widgets in UI
-  updateCheckboxInput(session,"selectIdent", value = FALSE)
-  updateSelectInput(session,"convert_proteinId",selected = character(0))
-  updateSelectInput(session,"idBox", selected = "Auto ID")
-  updateRadioButtons(session, "typeOfData", selected="peptide")
-  updateRadioButtons(session, "checkDataLogged", selected="no")
-  updateCheckboxInput(session,"replaceAllZeros", value= TRUE)
-  
+  rv$widgets$Convert$datafile <- NULL
+  rv$widgets$Convert$selectIdent <- FALSE
+  rv$widgets$Convert$convert_proteinId <- character(0)
+  rv$widgets$Convert$idBox <- "Auto ID"
+  rv$widgets$Convert$eDatabox <- character(0)
+  rv$widgets$Convert$typeOfData <- "peptide"
+  rv$widgets$Convert$checkDataLogged <- "no"
+  rv$widgets$Convert$replaceAllZeros <- TRUE
+  rv$widgets$Convert$convert_reorder <- "no"
+  rv$widgets$Convert$XLSsheets <- character(0)
+  rv$hot <- NULL
+  rv$tab1 <- NULL
+  rv$designChecked <- NULL
   rvModProcess$moduleConvertDone <- rep(FALSE, 5)
+  
+})
+
+
+observeEvent(req(input$file1),{
+  rv$widgets$Convert$datafile <- input$file1
+  rvModProcess$moduleConvertDone[1] <- TRUE
+  })
+
+
+observeEvent(rvModProcess$moduleConvertForceReset,{
+  rv$widgets$Convert$datafile <- NULL
  
 })
 
 
+observeEvent(input$selectIdent,{ rv$widgets$Convert$selectIdent <- input$selectIdent})
+observeEvent(input$convert_proteinId,{ rv$widgets$Convert$convert_proteinId <- input$convert_proteinId})
+observeEvent(input$idBox,{ rv$widgets$Convert$idBox <- input$idBox})
+observeEvent(input$eDatabox,{ rv$widgets$Convert$eDatabox <- input$eDatabox})
+observeEvent(input$typeOfData,{ rv$widgets$Convert$typeOfData <- input$typeOfData})
+observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
+observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
+observeEvent(input$replaceAllZeros,{ rv$widgets$Convert$replaceAllZeros <- input$replaceAllZeros})
+observeEvent(input$convert_reorder,{ rv$widgets$Convert$convert_reorder <- input$convert_reorder})
+observeEvent(input$XLSsheets,{ rv$widgets$Convert$XLSsheets <- input$XLSsheets})
 
+observeEvent(input$eData.box, { rv$widgets$Convert$eDatabox <- input$eData.box})
+
+
+
+output$resettableInput <- renderUI({
+  rv$widgets$Convert$datafile
+  fileInput("file1", rv$widgets$Convert$datafile$name, 
+            multiple=FALSE, 
+            accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")) 
+})
 
 
 #################################
@@ -53,9 +93,7 @@ output$Convert_SelectFile <- renderUI({
    tagList(br(), br(),
           fluidRow(
             column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
-            column(width = 10, fileInput("file1", "", 
-                                         multiple=FALSE, 
-                                         accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
+            column(width = 10, uiOutput('resettableInput') )),
           uiOutput("ManageXlsFiles"),
           # helpText("Hint : before importing quantification 
           #             file data, check the syntax of your text 
@@ -66,6 +104,8 @@ output$Convert_SelectFile <- renderUI({
 })
 
 
+
+### SCREEN 2
 output$Convert_DataId <- renderUI({
   
   tagList(
@@ -101,7 +141,7 @@ output$Convert_ExpFeatData <- renderUI({
                 
                hidden(checkboxInput("selectIdent", 
                   "Select columns for identification method", 
-                  value = FALSE)
+                  value = rv$widgets$Convert$selectIdent)
                ),
                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
@@ -115,12 +155,14 @@ output$Convert_ExpFeatData <- renderUI({
 
 
 
-  observeEvent(req(input$eData.box), {
-    shinyjs::toggle('selectIdent', condition= length(input$eData.box)>0)
+  observeEvent(req(rv$widgets$Convert$eDatabox), {
+    shinyjs::toggle('selectIdent', condition= length(rv$widgets$Convert$eDatabox)>0)
   })
 
-output$Convert_BuildDesign <- renderUI({
   
+  ### SCREEN 4
+output$Convert_BuildDesign <- renderUI({
+  req(rv$widgets$Convert$datafile)
   tagList(... = tagList(
     tags$p("If you do not know how to fill the experimental design, you can click
                                   on the '?' next to each design in the list that appear once the conditions 
@@ -139,6 +181,7 @@ output$Convert_BuildDesign <- renderUI({
   ),
   hr(),
   selectInput("convert_reorder", "Order by conditions ?",
+              selected=rv$widgets$Convert$convert_reorder,
               choices=c("No"="No", "Yes"="Yes"),
               width="100px"),
   tags$div(
@@ -231,16 +274,15 @@ output$convertChooseProteinID_UI <- renderUI({
   names(.choices) <- c("",colnames(rv$tab1))
   tagList(
     modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId","",choices =  .choices , selected = character(0))
+    selectInput("convert_proteinId","",choices =  .choices , selected = rv$widgets$Convert$convert_proteinId )
   )
 })
 
 
 
 output$previewProteinID_UI <- renderUI({
-  print(input$convert_proteinId)
-  req(input$convert_proteinId)
-  if (input$convert_proteinId == "") {return (NULL)}
+  req(rv$widgets$Convert$convert_proteinId)
+  if (rv$widgets$Convert$convert_proteinId == "") {return (NULL)}
   
   tagList(
     p(style="color: black;", 'Preview'),
@@ -254,7 +296,8 @@ output$previewProteinID_UI <- renderUI({
 
 
 output$previewProtID <- renderTable(
-  head(rv$tab1[,input$convert_proteinId]),
+ # req(input$convert_proteinId),
+  head(rv$tab1[,rv$widgets$Convert$convert_proteinId]),
  colnames = FALSE
 )
 
@@ -268,7 +311,7 @@ output$id <- renderUI({
   
   tagList(
     modulePopoverUI("modulePopover_convertIdType"),
-    selectInput("idBox", label = "", choices = .choices)
+    selectInput("idBox", label = "", choices = .choices, selected=rv$widgets$Convert$idBox)
   )
   
 })
@@ -276,14 +319,14 @@ output$id <- renderUI({
 
 
 output$ConvertOptions <- renderUI({
-  input$file1
-  if (is.null(input$file1)){return(NULL)}
+  #req(rv$widgets$Convert$datafile )
   
   tagList(
     radioButtons("typeOfData", 
                  "Is it a peptide or protein dataset ?", 
                  choices=c("peptide dataset" = "peptide", 
-                           "protein dataset" = "protein")
+                           "protein dataset" = "protein"),
+                 selected=rv$widgets$Convert$typeOfData
     )
     
     ,radioButtons("checkDataLogged", 
@@ -291,11 +334,11 @@ output$ConvertOptions <- renderUI({
                   #width = widthWellPanel, 
                   choices=c("yes (they stay unchanged)" = "yes", 
                             "no (they wil be automatically transformed)"="no"), 
-                  selected="no")
+                  selected=rv$widgets$Convert$checkDataLogged)
     ,br()
     ,checkboxInput("replaceAllZeros", 
                    "Replace all 0 and NaN by NA", 
-                   value= TRUE)
+                   value= rv$widgets$Convert$replaceAllZeros)
   )
 })
 
@@ -308,7 +351,7 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
   updateSelectInput(session, "eData.box", 
                     label = "",
                     choices = choices,
-                    selected = choices)
+                    selected = rv$widgets$Convert$eDatabox)
   
 })
 
@@ -316,10 +359,10 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
 
 
 output$helpTextDataID <- renderUI({
-  input$typeOfData
-  if (is.null(input$typeOfData)){return(NULL)}
+  rv$widgets$Convert$typeOfData
+  if (is.null(rv$widgets$Convert$typeOfData)){return(NULL)}
   t <- ""
-  switch(input$typeOfData,
+  switch(rv$widgets$Convert$typeOfData,
          protein = {t <- "proteins"},
          peptide = {t <- "peptides"}
   )
@@ -334,21 +377,21 @@ output$helpTextDataID <- renderUI({
 
 
 readTextFile <- reactive({
-  rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)
+  req(rv$widgets$Convert$datafile)
+  rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)
 })
 
 readXLSFile <- reactive({})
 
 ############ Read text file to be imported ######################
-observeEvent(c(input$file1,input$XLSsheets),{
+observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
   
-  input$XLSsheets
-  if (((GetExtension(input$file1$name)== "xls")
-       || (GetExtension(input$file1$name) == "xlsx") )
-      && is.null(input$XLSsheets)) {return(NULL)  }
+  if (((GetExtension(rv$widgets$Convert$datafile$name)== "xls")
+       || (GetExtension(rv$widgets$Convert$datafile$name) == "xlsx") )
+      && is.null(rv$widgets$Convert$XLSsheets)) {return(NULL)  }
 
   authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
-  if( is.na(match(GetExtension(input$file1$name), authorizedExts))) {
+  if( is.na(match(GetExtension(rv$widgets$Convert$datafile$name), authorizedExts))) {
     shinyjs::info("Warning : this file is not a text nor an Excel file ! 
                   Please choose another one.")
   }
@@ -357,14 +400,14 @@ observeEvent(c(input$file1,input$XLSsheets),{
   #   {
       ClearUI()
       ClearMemory()
-      ext <- GetExtension(input$file1$name)
+      ext <- GetExtension(rv$widgets$Convert$datafile$name)
       
       switch(ext,
-             txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-             csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-             tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-             xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
-             xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
+             txt = { rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+             csv = { rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+             tsv = { rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+             xls = { rv$tab1 <- readExcel(rv$widgets$Convert$datafile$datapath, ext, sheet=rv$widgets$Convert$XLSsheets)},
+             xlsx = {rv$tab1 <- readExcel(rv$widgets$Convert$datafile$datapath, ext, sheet=rv$widgets$Convert$XLSsheets)}
       )
   #   }
   #   , warning = function(w) {
@@ -391,27 +434,26 @@ output$conversionDone <- renderUI({
   h4("The conversion is done. Your dataset has been automatically loaded 
        in memory. Now, you can switch to the Descriptive statistics panel to 
        vizualize your data.")
-  
-  
 })
 
 
-
+# 
 # observe({
-#   rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
+#   rvModProcess$moduleConvertDone[1] <- !is.null(rv$widgets$Convert$datafile)
 # })
-
+# 
 
 
 
 #####-------------------------------------------------------
 output$ManageXlsFiles <- renderUI({
-  req(input$file1)
+  req(rv$widgets$Convert$datafile)
   
-  .ext <- GetExtension(input$file1$name)
+  .ext <- GetExtension(rv$widgets$Convert$datafile$name)
   if ((.ext == "xls") || (.ext == "xlsx")){ 
-    sheets <- listSheets(input$file1$datapath)
+    sheets <- listSheets(rv$widgets$Convert$datafile$datapath)
     selectInput("XLSsheets", "sheets", choices = as.list(sheets),
+                selected=rv$widgets$Convert$XLSsheets,
                 width='200px')
   }
   
@@ -433,7 +475,7 @@ output$ManageXlsFiles <- renderUI({
 ##
 ##############################################
 output$eData <- renderUI({
-    input$file1
+    #rv$widgets$Convert$datafile
     req(rv$tab1)
     
     choices <- colnames(rv$tab1)
@@ -444,6 +486,7 @@ output$eData <- renderUI({
         selectInput("eData.box",
                     label = "",
                     choices = choices,
+                    selected = rv$widgets$Convert$eDatabox,
                     multiple = TRUE, width='200px',
                     size = 20,
                     selectize = FALSE)
@@ -463,8 +506,8 @@ output$eData <- renderUI({
 
 
 observe({
-  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
-  rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
+  rvModProcess$moduleConvertDone[1] <- !is.null(rv$widgets$Convert$datafile)
+  rvModProcess$moduleConvertDone[3] <- length(rv$widgets$Convert$eDatabox)>0
   rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
 })
 
@@ -475,11 +518,11 @@ observe({
 
 
 output$checkIdentificationTab <- renderUI({
-  req(input$selectIdent)
-  if (!isTRUE(input$selectIdent)){return(NULL)}
+  req(rv$widgets$Convert$selectIdent)
+  if (!isTRUE(rv$widgets$Convert$selectIdent)){return(NULL)}
   
-  shinyValue("colForOriginValue_",length(input$eData.box))
-    temp <- shinyValue("colForOriginValue_",length(input$eData.box))
+  shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
+    temp <- shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
     
     if ((length(which(temp == "None")) == length(temp)))
       {
@@ -514,7 +557,7 @@ output$checkIdentificationTab <- renderUI({
 
 # reactive dataset
 quantiDataTable <- reactive({
-    req(input$eData.box)
+    req(rv$widgets$Convert$eDatabox)
     req(rv$tab1)
     
     session$sendCustomMessage('unbind-DT', 'x1')
@@ -522,24 +565,24 @@ quantiDataTable <- reactive({
     choices <- c("None",colnames(rv$tab1))
     names(choices) <- c("None",colnames(rv$tab1))
     
-    if (isTRUE(input$selectIdent)) {
+    if (isTRUE(rv$widgets$Convert$selectIdent)) {
         
-        df <- data.frame(as.data.frame(input$eData.box),
+        df <- data.frame(as.data.frame(rv$widgets$Convert$eDatabox),
                          shinyInput(selectInput,
                                     "colForOriginValue_",
-                                    nrow(as.data.frame(input$eData.box)),
+                                    nrow(as.data.frame(rv$widgets$Convert$eDatabox)),
                                     choices=choices))
         colnames(df) <- c("Sample", "Identification method")
     } else {
-        df <- data.frame(Sample = as.data.frame(input$eData.box))
+        df <- data.frame(Sample = as.data.frame(rv$widgets$Convert$eDatabox))
         colnames(df) <- c("Sample")
     }
     df
 })
 
 
-observeEvent(input$selectIdent, {
-  shinyjs::toggle('x1', condition=isTRUE(input$selectIdent))
+observeEvent(rv$widgets$Convert$selectIdent, {
+  shinyjs::toggle('x1', condition=isTRUE(rv$widgets$Convert$selectIdent))
   })
 
 
@@ -580,7 +623,7 @@ checkIdentificationMethod_Ok <- reactive({
   #req(input$selectIdent)
   res <- TRUE
   tmp <- NULL
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(rv$widgets$Convert$selectIdent)) {
     tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
   } 
@@ -590,12 +633,12 @@ checkIdentificationMethod_Ok <- reactive({
 
 
 datasetID_Ok <- reactive({
-  req(input$idBox)
+  req(rv$widgets$Convert$idBox)
   req(rv$tab1)
-  if (input$idBox == "Auto ID") {t <- TRUE}
+  if (rv$widgets$Convert$idBox == "Auto ID") {t <- TRUE}
   else {
-  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  t <- (length(as.data.frame(rv$tab1)[, rv$widgets$Convert$idBox])
+        == length(unique(as.data.frame(rv$tab1)[, rv$widgets$Convert$idBox])))
   }
   t
 })
@@ -604,7 +647,7 @@ datasetID_Ok <- reactive({
 
 
 output$warningCreateMSnset <- renderUI({
-    if (isTRUE(input$selectIdent)){
+    if (isTRUE(rv$widgets$Convert$selectIdent)){
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
         if (length(which(colNamesForOriginofValues == "None")) >0){
             text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
@@ -624,7 +667,7 @@ observeEvent(input$createMSnsetButton,{
      if(!is.null(rv$current.obj)){return(NULL)}
     print("In observeEvent(input$createMSnsetButton")
     colNamesForOriginofValues <- NULL
-    if (isTRUE(input$selectIdent)) {
+    if (isTRUE(rv$widgets$Convert$selectIdent)) {
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
         if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
     } 
@@ -632,11 +675,11 @@ observeEvent(input$createMSnsetButton,{
     #isolate({
         result = tryCatch(
             {
-                ext <- GetExtension(input$file1$name)
-                txtTab <-  paste("tab1 <- read.csv(\"", input$file1$name,
+                ext <- GetExtension(rv$widgets$Convert$datafile$name)
+                txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
                                  "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-                txtXls <-  paste("tab1 <- read.xlsx(",input$file1$name,
-                                 ",sheet=", input$XLSsheets,")",sep="")
+                txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
+                                 ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
                 switch(ext,
                        txt = writeToCommandLogFile(txtTab),
                        csv = writeToCommandLogFile(txtTab),
@@ -648,7 +691,7 @@ observeEvent(input$createMSnsetButton,{
                 input$filenameToCreate
                 rv$tab1
                 
-                tmp.eData.box <- input$eData.box
+                tmp.eData.box <- rv$widgets$Convert$eDatabox
                 indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
                 if (!is.null(rv$newOrder)){
                     tmp.eData.box <- tmp.eData.box[rv$newOrder]
@@ -658,13 +701,13 @@ observeEvent(input$createMSnsetButton,{
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
                 
                 indexForIDBox <- NULL
-                if (input$idBox !="Auto ID") {
-                    indexForIDBox <- match(input$idBox, colnames(rv$tab1))
+                if (rv$widgets$Convert$idBox !="Auto ID") {
+                    indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
                 }
                 
                 
                 metadata <- hot_to_r(input$hot)
-                logData <- (input$checkDataLogged == "no")
+                logData <- (rv$widgets$Convert$checkDataLogged == "no")
                 
                 
                 indexForOriginOfValue <- NULL
@@ -687,9 +730,9 @@ observeEvent(input$createMSnsetButton,{
                                     indexForIDBox,
                                     indexForOriginOfValue,
                                     logData, 
-                                    input$replaceAllZeros,
-                                    pep_prot_data = input$typeOfData,
-                                    proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
+                                    rv$widgets$Convert$replaceAllZeros,
+                                    pep_prot_data = rv$widgets$Convert$typeOfData,
+                                    proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
                                     versions
                 )
                 rvModProcess$moduleConvertDone[5] <- TRUE

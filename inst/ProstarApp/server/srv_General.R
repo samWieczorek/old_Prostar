@@ -346,12 +346,12 @@ loadObjectInMemoryFromConverter <- function(){
   
   
     #If there are already pVal values, then do no compute them 
-    if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
-        rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
-                              P_Value = Biobase::fData(rv$current.obj)$P_Value)
-        rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
-        #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
-    }
+    # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
+    #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
+    #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
+    #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
+    #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
+    # }
     
   if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     rv$current.obj@experimentData@other$RawPValues <- FALSE
@@ -585,7 +585,10 @@ resetModuleProcess <- function(moduleName){
           updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
           updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
           updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
-          updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
+          #updateTextInput(session, "seuilLogFC", value= 0)
+          
+          rv$res_AllPairwiseComparisons <- NULL
+          rv$tempplot$logFCDistr <- NULL
           
           rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
           },
@@ -593,6 +596,17 @@ resetModuleProcess <- function(moduleName){
           
           
           Convert ={
+            rv$widgets$Convert = list(datafile = NULL,
+                                      selectIdent = FALSE,
+                                             convert_proteinId = character(0),
+                                             idBox = "Auto ID",
+                                             eDatabox = character(0),
+                                             typeOfData = "peptide",
+                                             checkDataLogged = "no",
+                                             replaceAllZeros =TRUE,
+                                             convert_reorder = "no",
+                                            XLSsheets = character(0))
+            
             
             rvModProcess$moduleConvert = list(name = "Convert",
                                               stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
@@ -603,7 +617,18 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep2 = uiOutput("Convert_BuildDesign"),
                                                             screenStep3 = uiOutput("Convert_Convert")
                                               ))
+            ## update widgets in UI
+            updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)
+            updateSelectInput(session,"convert_proteinId",selected = rv$widgets$convert_proteinId)
+            updateSelectInput(session,"idBox", selected = rv$widgets$Convert$idBox)
+            updateRadioButtons(session, "typeOfData", selected=rv$widgets$Convert$typeOfData)
+            updateRadioButtons(session, "checkDataLogged", selected=rv$widgets$Convert$checkDataLogged)
+            updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
+            updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
+            updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
+            
             rvModProcess$moduleConvertDone =  rep(FALSE,5)
+            
           },
           
           
@@ -639,6 +664,18 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep3 = uiOutput("screenAnaDiff3"),
                                                             screenStep2 = uiOutput("screenAnaDiff4")
                                               ))
+            ## update widgets in UI
+            #if (!is.null(input$showpvalTable) )updateCheckboxInput(session, 'showpvalTable', value = FALSE)
+            updateSelectInput(session, "selectComparison", selected=rv$widgets$anaDiff$Comparison)
+            updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$filter_th_NA)
+            updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=rv$widgets$anaDiff$filterType)
+            updateSelectInput(session, "tooltipInfo", selected=character(0))
+            updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
+            updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
+            updateNumericInput(session,"nBinsHistpval",value=80)
+            updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
+            updateRadioButtons(session, "downloadAnaDiff", selected="All")
+            updateCheckboxInput(session, "swapVolcano", value =  rv$widgets$anaDiff$swapVolcano)
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
           },

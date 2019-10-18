@@ -16,6 +16,7 @@ shinyUI <- fluidPage(
   tagList(
   
   shinyjs::useShinyjs(),
+  
   includeCSS("www/progressBar/progressBar.css"),
   tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
                             sass_options(output_style = "expanded")))),
