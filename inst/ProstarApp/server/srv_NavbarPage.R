@@ -68,7 +68,13 @@ ClearCurrentNavPage <- function(page){
          convertTab = {
            resetModuleProcess("Convert")
            rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
+         },
+         
+         GoTab = {
+           resetModuleProcess("GO")
+           rvModProcess$moduleGOForceReset <- 1 + rvModProcess$moduleGOForceReset
          }
+         
   )
 }
 

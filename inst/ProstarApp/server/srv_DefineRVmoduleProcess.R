@@ -116,6 +116,7 @@ rvModProcess <- reactiveValues(
                                      screenStep4 = uiOutput("screenGO4")
                        ),
                        rstFunc = reactive({resetModuleGO()})),
+  moduleGOForceReset = 0,
   moduleGODone =  rep(FALSE,4)
 )
 

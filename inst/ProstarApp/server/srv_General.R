@@ -682,6 +682,29 @@ resetModuleProcess <- function(moduleName){
           
           GO = {
             
+            rv$widgets$go <- list(
+              sourceOfProtID = NULL,
+              idFrom = "UNIPROT",
+              Organism = character(0),
+              Ontology = character(0),
+              UniprotIDCol = character(0),
+              UNIPROTID_File = NULL,
+              GO_level = 2,
+              universe =NULL,
+              UniverseFile = NULL,
+              pvalueCutoff = 0.01,
+              
+              ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL
+            )
+            
+  
             
             rvModProcess$moduleGO = list(name = "GO",
                                               stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
@@ -764,14 +787,7 @@ ClearMemory <- function(){
     rv$fdr = NULL
     #rv$ValidFilteringClicked = FALSE
     rv$ValidImputationClicked = FALSE
-    rv$GO = list(ProtIDList=NULL,
-              gene=NULL,
-              proteinsNotMapped=NULL,
-              ratio=NULL,
-              uniprotID=NULL,
-              universeData=NULL,
-              enrichGO_data=NULL,
-              groupGO_data=NULL)
+    
 
     rv$impute_Step = 0
     
@@ -975,7 +991,19 @@ rv <- reactiveValues(
                       numValCalibMethod = 0,
                       th_pval = 0,
                       FDR = 0,
-                      NbSelected = 0)
+                      NbSelected = 0),
+        go = list(
+          sourceOfProtID = NULL,
+          idFrom = "UNIPROT",
+          Organism = character(0),
+          Ontology = character(0),
+          UniprotIDCol = character(0),
+          UNIPROTID_File = NULL,
+          GO_level = 2,
+          universe =NULL,
+          UniverseFile = NULL,
+          pvalueCutoff = 0.01
+        )
   ),
     hot = NULL,
     newOrder = NULL,
@@ -1024,14 +1052,7 @@ rv <- reactiveValues(
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
     nbSelected_Step3 = NULL,
-    GO = list(ProtIDList=NULL,
-              gene=NULL,
-              proteinsNotMapped=NULL,
-              ratio=NULL,
-              uniprotID=NULL,
-              universeData=NULL,
-              enrichGO_data=NULL,
-              groupGO_data=NULL),
+
 
     GOWarningMessage = NULL,
 

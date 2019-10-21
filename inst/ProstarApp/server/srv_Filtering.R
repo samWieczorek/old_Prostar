@@ -19,11 +19,11 @@ resetModuleFiltering <- reactive({
   
   rv$widgets$filtering$ChooseFilters <- "None"
   rv$widgets$filtering$seuilNA <- 0
-    rv$deleted.stringBased <- NULL
-    rv$deleted.mvLines <- NULL
-    rv$deleted.numeric <- NULL
+  rv$deleted.stringBased <- NULL
+  rv$deleted.mvLines <- NULL
+  rv$deleted.numeric <- NULL
 
-    rvModProcess$moduleFilteringDone = rep(FALSE, 5)
+  rvModProcess$moduleFilteringDone = rep(FALSE, 5)
     
 })
   
