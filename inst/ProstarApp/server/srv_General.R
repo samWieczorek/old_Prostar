@@ -418,8 +418,7 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
-GetCurrentObjName <- reactive({
-  rv$datasets[[input$datasets]]})
+GetCurrentObjName <- reactive({rv$datasets[[input$datasets]]})
 
 createPNGFromWidget <- function(tempplot, pattern){
   tmp_filename <- paste0(pattern, '.html')
@@ -464,27 +463,41 @@ resetModuleProcess <- function(moduleName){
           },
           
           
-          Aggregation ={rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
+          Aggregation ={
+            rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
                                            operator = "Mean",
                                            considerPeptides = 'allPeptides',
                                            proteinId = "None",
-                                           topN = 3)
+                                           topN = 3,
+                                           filterProtAfterAgregation = NULL,
+                                           columnsForProteinDataset.box = NULL,
+                                           nbPeptides = 0
+                                          )
+            
                         rvModProcess$moduleAggregation = list(name = "Aggregation",
                                                 stepsNames = c("Aggregation", "Add metadata", "Save"),
                                                 isMandatory = c(TRUE, FALSE, TRUE),
                                                 ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
                                                               screenStep2 = uiOutput("screenAggregation2"),
                                                               screenStep3 = uiOutput("screenAggregation3")))
+                        ## update widgets in UI
+                        updateSelectInput(session, "proteinId", selected = rv$widgets$aggregation$proteinId)
+                        updateRadioButtons(session, "radioBtn_includeShared", selected = rv$widgets$aggregation$includeSharedPeptides)
+                        updateRadioButtons(session, "AggregationConsider", selected = rv$widgets$aggregation$considerPeptides)
+                        updateNumericInput(session, "nTopn", value=rv$widgets$aggregation$topN)
+                        updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
+                        
+                        
                         rvModProcess$moduleAggregationDone =  rep(FALSE,3)
                         },
           
-          Normalization ={rv$widgets$normalization <- list(method = "None",
+          Normalization ={
+            rv$widgets$normalization <- list(method = "None",
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
                                              spanLOESS = 0.7)
-                            rv$normalizationFamily <- NULL
-                            rv$normalizationMethod <- NULL 
+                             
           
                           rvModProcess$moduleNormalization = list(name = "Normalization",
                                                   stepsNames = c("Normalization", "Validate"),
@@ -576,6 +589,7 @@ resetModuleProcess <- function(moduleName){
                                                  ttest_options = "Student",
                                                  th_logFC = 0,
                                                  listNomsComparaison = NULL)
+            
           rvModProcess$moduleHypothesisTest = list(name = "HypothesisTest",
                                                    stepsNames = c("HypothesisTest", "Save"),
                                                    isMandatory = c(TRUE, TRUE),
@@ -585,7 +599,7 @@ resetModuleProcess <- function(moduleName){
           updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
           updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
           updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
-          #updateTextInput(session, "seuilLogFC", value= 0)
+          updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
           
           rv$res_AllPairwiseComparisons <- NULL
           rv$tempplot$logFCDistr <- NULL
@@ -654,7 +668,10 @@ resetModuleProcess <- function(moduleName){
                                     numValCalibMethod = 0,
                                     th_pval = 0,
                                     FDR = 0,
-                                    NbSelected = 0)
+                                    NbSelected = 0,
+                                    nBinsHistpval = 80,
+                                    downloadAnaDiff = "All",
+                                    tooltipInfo=NULL)
             
             rvModProcess$moduleAnaDiff = list(name = "AnaDiff",
                                               stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
@@ -675,7 +692,7 @@ resetModuleProcess <- function(moduleName){
             updateNumericInput(session,"nBinsHistpval",value=80)
             updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
-            updateCheckboxInput(session, "swapVolcano", value =  rv$widgets$anaDiff$swapVolcano)
+            updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
           },
@@ -991,7 +1008,10 @@ rv <- reactiveValues(
                       numValCalibMethod = 0,
                       th_pval = 0,
                       FDR = 0,
-                      NbSelected = 0),
+                      NbSelected = 0,
+                      nBinsHistpval = 80,
+                      downloadAnaDiff = "All",
+                      tooltipInfo=NULL),
         go = list(
           sourceOfProtID = NULL,
           idFrom = "UNIPROT",

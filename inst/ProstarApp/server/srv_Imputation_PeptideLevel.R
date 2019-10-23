@@ -7,8 +7,8 @@ callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel",
 
 
 callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT", 
-           reactive({input$peptideLevel_detQuant_quantile}), 
-           reactive({input$peptideLevel_detQuant_factor}))
+           reactive({rv$widgets$peptideImput$pepLevel_detQuantile}), 
+           reactive({rv$widgets$peptideImput$pepLevel_detQuant_factor}))
 
 
 callModule(modulePopover,"modulePopover_HelpImputationPeptide", 
@@ -38,9 +38,7 @@ resetModulePepImputation <- reactive({
   rv$widgets$peptideImput$pepLevel_KNN_n <- 10
     
   rvModProcess$modulePepImputationDone = rep(FALSE, 2)
-  ##update dataset to put the previous one
- # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
-  
+  rv$current.obj <- rv$dataset[[input$datasets]] 
 })
 
 
@@ -148,7 +146,7 @@ output$screenPepImputation2 <- renderUI({
 
 
 output$basicAlgoUI <- renderUI({
-  if (input$peptideLevel_missing.value.algorithm != "BasicMethods"){return(NULL)}
+  if (rv$widgets$peptideImput$pepLevel_algorithm != "BasicMethods"){return(NULL)}
   
   selectInput("peptideLevel_missing.value.basic.algorithm", 
               "Methods", width='150px',
@@ -159,10 +157,10 @@ output$basicAlgoUI <- renderUI({
 
 
 output$detQuantOptsUI <- renderUI({
-  req(input$peptideLevel_missing.value.basic.algorithm)
-  req(input$peptideLevel_missing.value.algorithm)
-  if ((input$peptideLevel_missing.value.basic.algorithm != "detQuantile") || 
-      (input$peptideLevel_missing.value.algorithm != "BasicMethods")){return(NULL)}
+  req(rv$widgets$peptideImput$pepLevel_basicAlgorithm)
+  req(rv$widgets$peptideImput$pepLevel_algorithm)
+  if ((rv$widgets$peptideImput$pepLevel_basicAlgorithm != "detQuantile") || 
+      (rv$widgets$peptideImput$pepLevel_algorithm != "BasicMethods")){return(NULL)}
   
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
@@ -182,10 +180,10 @@ output$detQuantOptsUI <- renderUI({
 
 
 output$KNNOptsUI <- renderUI({
-  req(input$peptideLevel_missing.value.basic.algorithm)
-  req(input$peptideLevel_missing.value.algorithm)
-  if ((input$peptideLevel_missing.value.basic.algorithm != "KNN") || 
-      (input$peptideLevel_missing.value.algorithm != "BasicMethods")){return(NULL)}
+  req(rv$widgets$peptideImput$pepLevel_basicAlgorithm)
+  req(rv$widgets$peptideImput$pepLevel_algorithm)
+  if ((rv$widgets$peptideImput$pepLevel_basicAlgorithm != "KNN") || 
+      (rv$widgets$peptideImput$pepLevel_algorithm != "BasicMethods")){return(NULL)}
   
   isolate({
     numericInput("KNN_n", "Neighbors", 
@@ -198,7 +196,7 @@ output$KNNOptsUI <- renderUI({
 
 
 output$imp4pOptsUI <- renderUI({
-  if (input$peptideLevel_missing.value.algorithm != "imp4p"){return(NULL)}
+  if (rv$widgets$peptideImput$pepLevel_algorithm != "imp4p"){return(NULL)}
   
   updateSelectInput(session,"peptideLevel_missing.value.basic.algorithm", selected="None")
   tagList(
@@ -215,7 +213,7 @@ output$imp4pOptsUI <- renderUI({
 
 
 output$imp4pOpts2UI <- renderUI({
-  if (!isTRUE(input$peptideLevel_imp4p_withLapala)){return(NULL)}
+  if (!isTRUE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala)){return(NULL)}
   
   
   tagList(
@@ -235,10 +233,10 @@ output$imp4pOpts2UI <- renderUI({
 
 
 output$peptideLevel_detQuant_impValues <- renderUI({
-  req(input$peptideLevel_missing.value.basic.algorithm)
-  req(input$peptideLevel_missing.value.algorithm)
-  if ((input$peptideLevel_missing.value.basic.algorithm != "detQuantile") || 
-      (input$peptideLevel_missing.value.algorithm != "BasicMethods")){return(NULL)}
+  req(rv$widgets$peptideImput$pepLevel_basicAlgorithm)
+  req(rv$widgets$peptideImput$pepLevel_algorithm)
+  if ((rv$widgets$peptideImput$pepLevel_basicAlgorithm != "detQuantile") || 
+      (rv$widgets$peptideImput$pepLevel_algorithm != "BasicMethods")){return(NULL)}
   
   
   moduleDetQuantImpValuesUI("peptide_DetQuantValues_DT")
@@ -247,8 +245,8 @@ output$peptideLevel_detQuant_impValues <- renderUI({
 
 output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server=TRUE,{
   values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), 
-                            input$peptideLevel_detQuant_quantile/100, 
-                            input$peptideLevel_detQuant_factor)
+                            rv$widgets$peptideImput$pepLevel_detQuantile/100, 
+                            rv$widgets$peptideImput$pepLevel_detQuant_factor)
   DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits),
                 extensions = c('Scroller', 'Buttons'),
                 options = list(initComplete = initComplete(),
@@ -270,7 +268,7 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server=TRUE,{
 observeEvent(input$peptideLevel_perform.imputation.button,{
   
   nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-  algo <- input$peptideLevel_missing.value.algorithm
+  algo <- rv$widgets$peptideImput$pepLevel_algorithm
   if (algo == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
   } else {
@@ -279,30 +277,28 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
       
       if (algo == "imp4p")
       {
-        if (input$peptideLevel_imp4p_withLapala) {
+        if (rv$widgets$peptideImput$pepLevel_imp4p_withLapala) {
           rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
-                                                    #eps = input$imp4p_eps,
-                                                    nb.iter = input$peptideLevel_imp4p_nbiter,
-                                                    lapala = input$peptideLevel_imp4p_withLapala,
-                                                    q.min = input$peptideLevel_imp4p_qmin / 100,
-                                                    distribution = as.character(input$peptideLevel_imp4pLAPALA_distrib))
+                                                    nb.iter = rv$widgets$peptideImput$pepLevel_imp4p_nbiter,
+                                                    lapala = rv$widgets$peptideImput$pepLevel_imp4p_withLapala,
+                                                    q.min = rv$widgets$peptideImput$pepLevel_imp4p_qmin / 100,
+                                                    distribution = as.character(rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib))
           
           
         } else {
           rv$current.obj <- wrapper.dapar.impute.mi(rv$dataset[[input$datasets]],
-                                                    #eps = input$imp4p_eps,
-                                                    nb.iter = input$peptideLevel_imp4p_nbiter,
-                                                    lapala = input$peptideLevel_imp4p_withLapala)
+                                                    nb.iter = rv$widgets$peptideImput$pepLevel_imp4p_nbiter,
+                                                    lapala = rv$widgets$peptideImput$pepLevel_imp4p_withLapala)
           
         }
         
         
       } else if (algo == "BasicMethods"){
-        algoBasic <- input$peptideLevel_missing.value.basic.algorithm
+        algoBasic <- rv$widgets$peptideImput$pepLevel_basicAlgorithm
         switch(algoBasic,
                KNN={  
                  busyIndicator(WaitMsgCalc,wait = 0)
-                 rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],K=input$KNN_n)
+                 rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],K=rv$widgets$peptideImput$pepLevel_KNN_n)
                },
                MLE={
                  busyIndicator(WaitMsgCalc,wait = 0)
@@ -310,8 +306,8 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                detQuantile=
                {
                  rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
-                                                           qval = (input$peptideLevel_detQuant_quantile/100),
-                                                           factor = input$peptideLevel_detQuant_factor)
+                                                           qval = (rv$widgets$peptideImput$pepLevel_detQuantile/100),
+                                                           factor = rv$widgets$peptideImput$pepLevel_detQuant_factor)
                }
         )
       }
@@ -355,14 +351,14 @@ observeEvent(input$peptideLevel_ValidImputation,{
 
 
 output$peptideLevel_warningImputationMethod <- renderText({
-  req(input$peptideLevel_missing.value.algorithm)
-  req(input$peptideLevel_imp4p_withLapala)
+  req(rv$widgets$peptideImput$pepLevel_algorithm)
+  req(rv$widgets$peptideImput$pepLevel_imp4p_withLapala)
   
   
-  if (input$peptideLevel_imp4p_withLapala == FALSE){return(NULL)}
+  if (rv$widgets$peptideImput$pepLevel_imp4p_withLapala == FALSE){return(NULL)}
   
-  var <- ((input$peptideLevel_missing.value.algorithm == "imp4p") && (isTRUE(input$peptideLevel_imp4p_withLapala))) ||
-    (input$peptideLevel_missing.value.basic.algorithm ==  "BasicMethods")
+  var <- ((rv$widgets$peptideImput$pepLevel_algorithm == "imp4p") && (isTRUE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala))) ||
+    (rv$widgets$peptideImput$pepLevel_basicAlgorithm ==  "BasicMethods")
   
   if (var){
     t <- "<br> 
@@ -383,4 +379,38 @@ callModule(modulePopover,"modulePopover_helpForImputation",
                                 
                                 content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.",
                                 color = 'white')))
+
+
+
+# output$helpForImputation <- renderText({
+#   req(input$missing.value.algorithm)
+#   input$missing.value.basic.algorithm
+#   rv$typeOfDataset
+#   
+#   if ((input$missing.value.algorithm == "None")) {return(NULL)}
+#   if ((input$missing.value.algorithm == "Basic methods") && is.null(input$missing.value.basic.algorithm == "None")) {return(NULL)}
+#   
+#   name <- NULL
+#   
+#   helpTextImputation <- list("imp4p" = "<strong>imp4p [5]</strong> is a proteomic-specific multiple imputation
+#                              method that operates on peptide-level datasets and which proposes <br>
+#                              to impute each missing value according to its nature (censored
+#                              or random). <br> The more iterations, the more accurate the results,
+#                              yet the more time-consuming.",
+#                              "dummy censored" = "Dummy censored: each missing value is supposed to be a censored value and
+#                              is replaced by the XXX quantile <br> of the corresponding sample
+#                              abundance distribution",
+#                              "KNN" = "<strong>K- nearest neighbors</strong>, see [7]",
+#                              "MLE" = "<strong>Maximum likelihood estimation</strong>, see [8]")
+#   
+#   
+#   if (input$missing.value.algorithm == "Basic methods") {
+#     name <- input$missing.value.basic.algorithm}
+#   else {name <- input$missing.value.algorithm}
+#   
+#   if (!is.null(name)) {
+#     HTML(helpTextImputation[[name]])
+#     
+#   }
+# })
 

@@ -13,23 +13,39 @@ callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                          content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
 
-resetModuleFiltering <- reactive({  
+resetModuleFiltering <- reactive({ 
+  #req(input$datasets)
     ## update rv$widgets values (reactive values)
   resetModuleProcess("Filtering")
   
   rv$widgets$filtering$ChooseFilters <- "None"
   rv$widgets$filtering$seuilNA <- 0
+  rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL, 
+                                Prefix=NULL,
+                                nbDeleted=NULL, 
+                                Total=NULL, 
+                                stringsAsFactors=F)
+  rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter=NULL, 
+                                   Condition=NULL,
+                                   nbDeleted=NULL, 
+                                   Total=NULL, 
+                                   stringsAsFactors=F)
+  
+  
   rv$deleted.stringBased <- NULL
   rv$deleted.mvLines <- NULL
   rv$deleted.numeric <- NULL
-
+  
+  print(input$datasets)
+  print(rv$dataset[[input$datasets]])
+  rv$current.obj <- rv$dataset[[input$datasets]]
+  
   rvModProcess$moduleFilteringDone = rep(FALSE, 5)
     
 })
   
 
   output$screenFiltering1 <- renderUI({
-  #rv$widgets$filtering$ChooseFilters
   
   isolate({
     tagList(
@@ -196,6 +212,8 @@ observeEvent(input$actionButtonFilter,{
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
   print("In : observeEvent(input$perform.filtering.MV")
+  input$ChooseFilters
+  input$seuilNA
   
   if (input$ChooseFilters == gFilterNone){
     #rv$current.obj <- rv$dataset[[input$datasets]]

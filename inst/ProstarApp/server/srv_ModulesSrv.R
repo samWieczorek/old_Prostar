@@ -156,7 +156,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
+moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwaped){
   
   ns <- session$ns
   
@@ -189,13 +189,13 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$current.obj
-    rv$resAnaDiff
+    data()
     
     
-    if(is.null(rv$resAnaDiff$logFC) || is.null(rv$resAnaDiff$P_Value)){return(NULL)}
+    if(is.null(data()$logFC) || is.null(data()$P_Value)){return(NULL)}
    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     p <- NULL
-    p <- rv$resAnaDiff
+    p <- data()
     upItemsPVal <- NULL
     upItemsLogFC <- NULL
     
@@ -387,7 +387,7 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     rv$widgets$hypothesisTest$th_logFC
     rv$widgets$anaDiff$th_pval
     
-    rv$resAnaDiff
+    data()
     
     ind <- GetSortingIndices()
     
@@ -397,8 +397,8 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     data <- getDataForExprs(rv$current.obj)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
-    ) & (abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
+    index.g1 <- which((-log10(data()$P_Value) >= rv$widgets$anaDiff$th_pval
+    ) & (abs(data()$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
     
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
@@ -468,34 +468,35 @@ moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
-    rv$resAnaDiff
+    #data()$logFC
     tooltip()
-    #isSwaped()
+    isSwaped()
     
-   #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
-    if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
+    print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
+    isolate({
+    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
+    if ((length(data()$logFC) == 0)  ){return()}
+    print("in volcanoplot")
+    print(head(data()$logFC))
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
-    isolate({
-      
-      df <- data_frame(x=rv$resAnaDiff$logFC, 
-                       y = -log10(rv$resAnaDiff$P_Value),
+    
+      df <- data_frame(x=data()$logFC, 
+                       y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
-      if (!is.null( tooltip())){
+      if (length( tooltip()) > 0){
         df <- cbind(df,fData(rv$current.obj)[ tooltip()])
       }
-      
       colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
       if (ncol(df) > 3){
         colnames(df)[4:ncol(df)] <- 
           paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
       }
-      
       clickFun <-   
         JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
       
-      cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+      cond <- c(data()$condition1, data()$condition2)
        rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                                          threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                          threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
@@ -564,12 +565,13 @@ missingValuesPlots <- function(input, output, session, data, title=NULL, palette
 
 
 #------------------------------------------------------------
-moduleDensityplot <- function(input, output, session) {
+moduleDensityplot <- function(input, output, session, data) {
     
   #outputOptions(output, 'Densityplot', suspendWhenHidden=FALSE)
   
     output$Densityplot <- renderHighchart({
-      req(rv$current.obj)
+      #req(rv$current.obj)
+      data()
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
       tmp <- NULL
@@ -577,7 +579,7 @@ moduleDensityplot <- function(input, output, session) {
       
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
-          tmp <- DAPAR::densityPlotD_HC(rv$current.obj, 
+          tmp <- DAPAR::densityPlotD_HC(data(), 
                                         rv$PlotParams$legendForSamples,
                                         rv$PlotParams$paletteConditions)
           future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
@@ -589,7 +591,7 @@ moduleDensityplot <- function(input, output, session) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session) {
+moduleBoxplot <- function(input, output, session, data) {
     
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -606,14 +608,15 @@ moduleBoxplot <- function(input, output, session) {
   
   
     output$BoxPlot <- renderHighchart({
-      req(rv$current.obj)
+      #req(rv$current.obj)
+      data()
       rv$current.obj.name
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".boxplot")
-        tmp <- DAPAR::boxPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+        tmp <- DAPAR::boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
           
         
@@ -622,7 +625,8 @@ moduleBoxplot <- function(input, output, session) {
     })
     
     output$viewViolinPlot<- renderImage({
-      req(rv$current.obj)
+      #req(rv$current.obj)
+      data()
       rv$PlotParams$legendForSamples
       rv$PlotParams$paletteConditions
       tmp <- NULL
@@ -637,7 +641,7 @@ moduleBoxplot <- function(input, output, session) {
      # png(outfile, width = 640, height = 480, units = "px")
       png(outfile)
       pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      tmp <- DAPAR::violinPlotD(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()
       })

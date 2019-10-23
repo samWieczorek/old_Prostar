@@ -98,11 +98,11 @@ output$exportOptions <- renderUI({
       column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
     ),
     
-    br(),
-    fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
-      column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
-    ),
+    # br(),
+    # fluidRow(
+    #   column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
+    #   column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
+    # ),
     br(),
     fluidRow(
       column(width=2,modulePopoverUI("modulePopover_exportFilename")),
@@ -119,20 +119,20 @@ output$exportOptions <- renderUI({
 
 
 
-
-output$chooseMetaDataExport <- renderUI({
-  req(rv$current.obj)
-  
-  
-  choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
-  names(choices) <- choices
-  
-  selectizeInput("colsToExport",
-                 label = "",
-                 choices = choices,
-                  multiple = TRUE, width='500px')
-  
-})
+# 
+# output$chooseMetaDataExport <- renderUI({
+#   req(rv$current.obj)
+#   
+#   
+#   choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
+#   names(choices) <- choices
+#   
+#   selectizeInput("colsToExport",
+#                  label = "",
+#                  choices = choices,
+#                   multiple = TRUE, width='500px')
+#   
+# })
 
 
 
@@ -176,10 +176,16 @@ output$downloadMSnSet <- downloadHandler(
     
   },
   content = function(file) {
-    dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    print(rv$current.obj@experimentData@other$OriginOfValues)
-    addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$OriginOfValues)
-    Biobase::fData(dataToExport) <- select(Biobase::fData(dataToExport),c(rv$proteinId, addColumns))
+     dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
+    # addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$OriginOfValues)
+    # res <- Get_AllComparisons(dataToExport)
+    # print(str(res))
+    # if (!is.null(res)){
+    #   addColumns <- c(addColumns, colnames(res))
+    # }
+    # Biobase::fData(dataToExport) <- select(Biobase::fData(dataToExport),c(rv$proteinId, addColumns))
+    # 
+    
     colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     

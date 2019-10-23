@@ -16,16 +16,19 @@ resetModuleHypothesisTest <- reactive({
   rv$widgets$hypothesisTest$ttest_options <- "Student"
   rv$widgets$hypothesisTest$th_logFC <- 0
   rv$widgets$hypothesisTest$listNomsComparaison <- NULL
+  
   rv$res_AllPairwiseComparisons <- NULL
   rv$tempplot$logFCDistr <- NULL
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
+  rv$current.obj <- rv$dataset[[input$datasets]]
 })
 
 
-callModule(module_Not_a_numeric,"test_seuillogFC", reactive({input$seuilLogFC}))
+callModule(module_Not_a_numeric,"test_seuillogFC", reactive({rv$widgets$hypothesisTest$th_logFC}))
 
-observeEvent(input$seuilLogFC, ignoreInit=T,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
-
+observeEvent(input$anaDiff_Design, ignoreInit=T,{  rv$widgets$hypothesisTest$design<- input$anaDiff_Design})
+observeEvent(input$diffAnaMethod,{rv$widgets$hypothesisTest$method <- input$diffAnaMethod})
+observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
 observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
 
 output$screenHypoTest1 <- renderUI({
@@ -93,7 +96,7 @@ output$screenHypoTest2 <- renderUI({
 
 output$correspondingRatio <- renderUI({
   
-  ratio <- as.numeric(input$seuilLogFC)
+  ratio <- as.numeric(rv$widgets$hypothesisTest$th_logFC)
     
 p("(FC = ", 2^(ratio), ")")
   
@@ -101,15 +104,15 @@ p("(FC = ", 2^(ratio), ")")
 
 
 output$btn_valid <- renderUI({
-  cond <- (input$diffAnaMethod != "None")&&(input$anaDiff_Design != "None")
+  cond <- (rv$widgets$hypothesisTest$method != "None")&&(rv$widgets$hypothesisTest$design != "None")
   if (!cond){return(NULL)}
   actionButton("ValidTest","Save significance test", class = actionBtnClass)
 })
 
 
-observeEvent(input$diffAnaMethod,{
+observeEvent(rv$widgets$hypothesisTest$method,{
   
-  toggle(id = "ttest_options",  condition = (input$diffAnaMethod == "ttests"))
+  toggle(id = "ttest_options",  condition = (rv$widgets$hypothesisTest$method == "ttests"))
 })
 
 
@@ -117,11 +120,11 @@ observeEvent(input$diffAnaMethod,{
 output$FoldChangePlot <- renderHighchart({
   req(ComputeComparisons()$logFC)
   rv$PlotParams$paletteConditions
-  input$seuilLogFC
+  rv$widgets$hypothesisTest$th_logFC
   print("ON EST DANS LA FONCTION")
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
  
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(input$seuilLogFC))
+  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$hypothesisTest$th_logFC))
  # rv$tempplot$logFCDistr
 })
 
@@ -132,26 +135,26 @@ output$FoldChangePlot <- renderHighchart({
 ### calcul des comparaisons                         ####
 ########################################################
 ComputeComparisons <- reactive({
-  req(input$diffAnaMethod)
-  req(input$anaDiff_Design)
-  input$ttest_options
-  if ((input$diffAnaMethod=="None")|| (input$anaDiff_Design=="None")) {return (NULL)}
+  req(rv$widgets$hypothesisTest$method)
+  req(rv$widgets$hypothesisTest$design)
+  rv$widgets$hypothesisTest$ttest_options
+  if ((rv$widgets$hypothesisTest$method=="None")|| (rv$widgets$hypothesisTest$design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   rv$res_AllPairwiseComparisons <- NULL
 #isolate({
   #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
-    switch(input$diffAnaMethod,
+    switch(rv$widgets$hypothesisTest$method,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
-                                                                input$anaDiff_Design) 
+                                                                rv$widgets$hypothesisTest$design) 
              
            },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
-                                                                      contrast=input$anaDiff_Design,
-                                                                      type=input$ttest_options)
+                                                                      contrast=rv$widgets$hypothesisTest$design,
+                                                                      type=rv$widgets$hypothesisTest$ttest_options)
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     

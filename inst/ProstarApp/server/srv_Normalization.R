@@ -6,9 +6,11 @@
 ###########################################################################
 
 
-callModule(moduleDensityplot,"densityPlot_Norm")
-callModule(moduleBoxplot,"boxPlot_Norm")
-callModule(module_Not_a_numeric,"test_spanLOESS", reactive({input$spanLOESS}))
+callModule(moduleDensityplot,"densityPlot_Norm",
+           data=reactive({rv$current.obj}))
+callModule(moduleBoxplot,"boxPlot_Norm",
+           data=reactive({rv$current.obj}))
+callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
            data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
@@ -30,24 +32,32 @@ resetModuleNormalization <- reactive({
   ## update widgets values (reactive values)
   resetModuleProcess("Normalization")
   
-  
-  
-  
   rv$widgets$normalization$method <- "None"
   rv$widgets$normalization$type <- "None"
   rv$widgets$normalization$varReduction <- FALSE
   rv$widgets$normalization$quantile <- 0.15
   rv$widgets$normalization$spanLOESS <- 0.7
   
+  rv$current.obj <- rv$dataset[[input$datasets]] 
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
-  
-  ##update dataset to put the previous one
- # rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   
 })
 
-
-
+observeEvent(input$normalization.method,ignoreInit=TRUE,{
+  rv$widgets$normalization$method <- input$normalization.method
+})
+observeEvent(input$normalization.type,ignoreInit=TRUE,{
+  rv$widgets$normalization$type <- input$normalization.type
+})
+observeEvent(input$normalization.variance.reduction,ignoreInit=TRUE,{
+  rv$widgets$normalization$varReduction <- input$normalization.variance.reduction
+})
+observeEvent(input$normalization.quantile,ignoreInit=TRUE,{
+  rv$widgets$normalization$quantile <- input$normalization.quantile
+})
+observeEvent(input$spanLOESS,ignoreInit=TRUE,{
+  rv$widgets$normalization$spanLOESS <- input$spanLOESS
+})
 
 
 ############ SCREEN NORMALIZATION  #########
@@ -107,11 +117,11 @@ output$screenNormalization2 <- renderUI({
 
 
 output$helpForNormalizationMethods <- renderUI({
-  req(input$normalization.method)
-  if (input$normalization.method == "None") {return(NULL)}
+  req(rv$widgets$normalization$method)
+  if (rv$widgets$normalization$method == "None") {return(NULL)}
   
   
-  switch(input$normalization.method,
+  switch(rv$widgets$normalization$method,
          GlobalQuantileAlignment= txt <- "This method proposes a normalization of important
          magnitude that should be cautiously used. It proposes to align the quantiles of all 
          the replicates as described in [Other ref. 1]; practically it amounts to replace 
@@ -139,11 +149,11 @@ output$helpForNormalizationMethods <- renderUI({
 })
 
 
-callModule(module_Not_a_numeric,"test_normQuant", reactive({input$normalization.quantile}))
+callModule(module_Not_a_numeric,"test_normQuant", reactive({rv$widgets$normalization$quantile}))
 
 output$choose_normalizationQuantile <- renderUI({
-  req(input$normalization.method)
-  if (input$normalization.method != "QuantileCentering") { return (NULL)}
+  req(rv$widgets$normalization$method)
+  if (rv$widgets$normalization$method != "QuantileCentering") { return (NULL)}
   
   tagList(
     modulePopoverUI("modulePopover_normQuanti"),
@@ -157,9 +167,9 @@ output$choose_normalizationQuantile <- renderUI({
 
 
 output$choose_normalizationScaling <- renderUI({
-  req(input$normalization.method)
+  req(rv$widgets$normalization$method)
   
-  if (input$normalization.method == "MeanCentering"){
+  if (rv$widgets$normalization$method == "MeanCentering"){
     # check if the normalisation has already been performed
     
     checkboxInput("normalization.variance.reduction", "Include variance reduction",  
@@ -169,66 +179,67 @@ output$choose_normalizationScaling <- renderUI({
 })
 
 
-observeEvent(input$normalization.method,{
-  #req(input$normalization.method)
-  if (input$normalization.method == "None"){
+observeEvent(rv$widgets$normalization$method,{
+  #req(rv$widgets$normalization$method)
+  if (rv$widgets$normalization$method == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
   }
   
-  shinyjs::toggle("perform.normalization", condition=input$normalization.method != "None")
-  shinyjs::toggle("spanLOESS", condition=input$normalization.method == "LOESS")
+  shinyjs::toggle("perform.normalization", condition=rv$widgets$normalization$method != "None")
+  shinyjs::toggle("spanLOESS", condition=rv$widgets$normalization$method == "LOESS")
   
   shinyjs::toggle("normalization.type", 
-                  condition=( input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
+                  condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
 })
 
 
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
-  
-  isolate({
+  rv$widgets$normalization$method
+  rv$dataset[[input$datasets]]
+ # isolate({
     
-    switch(input$normalization.method, 
+    switch(rv$widgets$normalization$method, 
            G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
            GlobalQuantileAlignment = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], input$normalization.method)
+             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], rv$widgets$normalization$method)
            },
            QuantileCentering = {
              quant <-NA
-             if (!is.null(input$normalization.quantile))
-             {quant <- as.numeric(input$normalization.quantile)}
+             if (!is.null(rv$widgets$normalization$quantile))
+             {quant <- as.numeric(rv$widgets$normalization$quantile)}
              
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  input$normalization.method, 
-                                                  input$normalization.type, 
+                                                  rv$widgets$normalization$method, 
+                                                  rv$widgets$normalization$type, 
                                                   quantile = quant)
              
            } ,  
            MeanCentering = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  input$normalization.method, 
-                                                  input$normalization.type, 
-                                                  scaling=input$normalization.variance.reduction)
+                                                  rv$widgets$normalization$method, 
+                                                  rv$widgets$normalization$type, 
+                                                  scaling=rv$widgets$normalization$varReduction)
            }, 
            SumByColumns = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  input$normalization.method, 
-                                                  input$normalization.type)
+                                                  rv$widgets$normalization$method, 
+                                                  rv$widgets$normalization$type)
              
            },
            LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                          input$normalization.method, 
-                                                          input$normalization.type,
-                                                          span=as.numeric(input$spanLOESS))
+                                                          rv$widgets$normalization$method, 
+                                                          rv$widgets$normalization$type,
+                                                          span=as.numeric(rv$widgets$normalization$spanLOESS))
            },
            vsn = {
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  input$normalization.method, 
-                                                  input$normalization.type)
+                                                  rv$widgets$normalization$method, 
+                                                  rv$widgets$normalization$type)
            }
     )
-  })
+ # })
   rvModProcess$moduleNormalizationDone[1] <- TRUE
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })
@@ -240,7 +251,7 @@ observeEvent(input$valid.normalization,{
   req(input$perform.normalization)
   
   isolate({
-    if (input$normalization.method != G_noneStr) {
+    if (rv$widgets$normalization$method != G_noneStr) {
       rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Normalized", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
