@@ -116,7 +116,7 @@ observeEvent(input$AnaDiff_seuilNA, {
 
 observeEvent(input$calibrationMethod,{  
   rv$widgets$anaDiff$calibMethod <- input$calibrationMethod
-  shinyjs::toggle("numericValCalibration", condition=input$calibrationMethod == "numeric value")
+  shinyjs::toggle("numericValCalibration", condition=rv$widgets$anaDiff$calibMethod == "numeric value")
 })
 
 
@@ -124,7 +124,7 @@ observeEvent(input$numericValCalibration,{
   rv$widgets$anaDiff$numValCalibMethod <- input$numericValCalibration
   })
 
-observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(Get_seuilPVal())})
+observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(input$seuilPVal)})
 
 
 observeEvent(input$nBinsHistpval,{  rv$widgets$anaDiff$nBinsHistpval <- as.numeric(input$nBinsHistpval)})
@@ -137,7 +137,7 @@ observeEvent(input$showpvalTable, {
 
 observeEvent(input$tooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
 
-observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- as.numeric(input$downloadAnaDiff)})
+observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
 
 
 ##################################################################################
@@ -189,8 +189,8 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 GetPairwiseCompChoice <- reactive({
-  req(rv$res_AllPairwiseComparisons$logFC)
   print(str(rv$res_AllPairwiseComparisons))
+  req(rv$res_AllPairwiseComparisons$logFC)
   ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
   ll
 })
@@ -237,10 +237,14 @@ output$screenAnaDiff1 <- renderUI({
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
-                selectInput("selectComparison","Select comparison",
+                selectInput("selectComparison","Select a comparison",
                             choices = c("None"="None",GetPairwiseCompChoice()),
                             selected = rv$widgets$anaDiff$Comparison,
-                            width='200px')
+                            width='200px'),
+                #  checkboxInput("swapVolcano", "Swap logFC in volcanoplot", value = rv$widgets$anaDiff$swapVolcano),
+                hidden(radioButtons("swapVolcano", "Swap volcano", choices=c("Original dataset"=FALSE,
+                                                                             "Swaped dataset"=TRUE),
+                                    selected=rv$widgets$anaDiff$swapVolcano))
                ),
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 0px",
                 hidden(div(id='trtr',
@@ -250,7 +254,8 @@ output$screenAnaDiff1 <- renderUI({
                 )),
                 #uiOutput("pushPValUI"),
                 uiOutput("AnaDiff_seuilNADelete"),
-                hidden(actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass))
+                hidden(actionButton("AnaDiff_perform.filtering.MV", "Push p-value", class = actionBtnClass)),
+                
       )
     ),
     tags$hr(),
@@ -259,10 +264,7 @@ output$screenAnaDiff1 <- renderUI({
                moduleVolcanoplotUI("volcano_Step1")),
       tags$div( style="display:inline-block; vertical-align: top;",
               tagList(
-              #  checkboxInput("swapVolcano", "Swap volcanoplot", value = rv$widgets$anaDiff$swapVolcano),
-               radioButtons("swapVolcano", "Swap volcano", choices=c("Original dataset"=FALSE,
-                                                                     "Swaped dataset"=TRUE),
-                            selected=rv$widgets$anaDiff$swapVolcano),
+              
                br(),
                 uiOutput("volcanoTooltip_UI"))
       )
@@ -305,7 +307,10 @@ output$AnaDiff_seuilNADelete <- renderUI({
 observe({
   req(rv$widgets$anaDiff$Comparison)
   shinyjs::toggle('trtr', condition=rv$widgets$anaDiff$Comparison != "None")
+  shinyjs::toggle('swapVolcano', condition=rv$widgets$anaDiff$Comparison != "None")
 })
+
+
 # output$pushPValUI <- renderUI({
 #   req(rv$widgets$anaDiff$Comparison)
 #   if (rv$widgets$anaDiff$Comparison == "None"){return(NULL)}
@@ -327,16 +332,21 @@ output$screenAnaDiff2 <- renderUI({
    tagList(
                tags$div(
                  tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                           selectInput("calibrationMethod","Calibration method",choices = calibMethod_Choices,
+                           selectInput("calibrationMethod","Calibration method",
+                                       choices = calibMethod_Choices,
                                        selected = rv$widgets$anaDiff$calibMethod, width='200px')
                  ),
                  tags$div( style="display:inline-block; vertical-align: middle;",
-                           hidden(numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
-                                                value = rv$widgets$anaDiff$numValCalibMethod, 
-                                                min=0, max=1, step=0.05, width='200px'))
+                           uiOutput('numericalValForCalibrationPlot')
+                           #hidden(numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
+                           #                     value = rv$widgets$anaDiff$numValCalibMethod, 
+                           #                     min=0, max=1, step=0.05, width='200px')
+                            #      )
                  ),
                  tags$div( style="display:inline-block; vertical-align: middle;",
-                            textInput("nBinsHistpval", "n bins", value=rv$widgets$anaDiff$nBinsHistpval, width='80px'))
+                            selectInput("nBinsHistpval", "n bins", 
+                                        choices = c(1,seq(from = 0, to = 100, by = 10)[-1]),
+                                        selected=rv$widgets$anaDiff$nBinsHistpval, width='80px'))
                  
                ),
                tags$hr(),
@@ -623,13 +633,13 @@ not_a_numeric <- function(input) {
   }
 }
 
-
-Get_seuilPVal <- reactive({
-   shiny::validate(
-    need(!is.na(rv$widgets$anaDiff$th_pval), "")
-  )
-  rv$widgets$anaDiff$th_pval
-})
+# 
+# Get_seuilPVal <- reactive({
+#    shiny::validate(
+#     need(!is.na(rv$widgets$anaDiff$th_pval), "")
+#   )
+#   rv$widgets$anaDiff$th_pval
+# })
 
 
 Get_FDR <- reactive({
@@ -646,7 +656,7 @@ Get_FDR <- reactive({
   
   rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
                               rv$resAnaDiff[["P_Value"]],
-                              as.numeric(Get_seuilPVal()), 
+                              as.numeric(rv$widgets$anaDiff$th_pval), 
                               rv$widgets$hypothesisTest$th_logFC, 
                               m)
   rvModProcess$moduleAnaDiffDone[3] <- TRUE
@@ -664,7 +674,7 @@ output$showFDR <- renderUI({
   tagList(
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
-             signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")")
+             signif(10^(- (as.numeric(rv$widgets$anaDiff$th_pval))), digits=3), ")")
     } else {
       tags$p(style="font-size: 25px;","FDR = NA") 
     },
@@ -693,7 +703,7 @@ histPValue <- reactive({
         (length(rv$resAnaDiff$logFC) == 0)) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
     
-    
+    isolate({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
@@ -701,6 +711,7 @@ histPValue <- reactive({
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
     histPValue_HC(t,bins=as.numeric(rv$widgets$anaDiff$nBinsHistpval), pi0=rv$pi0)
+    })
 })
 
 output$histPValue <- renderHighchart({
@@ -710,10 +721,11 @@ output$histPValue <- renderHighchart({
 
 
 output$numericalValForCalibrationPlot <- renderUI({
-    
+  rv$widgets$anaDiff$calibMethod
     if (rv$widgets$anaDiff$calibMethod == "numeric value"){
-        numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
-                      value = 0, min=0, max=1, step=0.05)
+        numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis",
+                      value = rv$widgets$anaDiff$numValCalibMethod,
+                      min=0, max=1, step=0.05)
     }
 })
 
@@ -744,8 +756,9 @@ calibrationPlot <- reactive({
     rv$resAnaDiff
     req(rv$current.obj)
     
-    if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ||
-        (length(rv$resAnaDiff$logFC) == 0)) { return()}
+    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ||
+        if (length(rv$resAnaDiff$logFC) == 0) { return()}
+    
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
         return()}
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
@@ -759,8 +772,6 @@ calibrationPlot <- reactive({
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
     
-    
-    
     l <- NULL
     ll <- NULL
     result = tryCatch(
@@ -771,7 +782,7 @@ calibrationPlot <- reactive({
                 
                 ll <-catchToList(
                     wrapperCalibrationPlot(t, 
-                                           as.numeric(rv$widgets$anaDiff$numValCalibMethod)))
+                                           rv$widgets$anaDiff$numValCalibMethod))
                 rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
             }
             else if (rv$widgets$anaDiff$calibMethod == "Benjamini-Hochberg") {
@@ -910,14 +921,14 @@ output$calibrationPlotAll <- renderImage({
 output$equivPVal <- renderUI ({
   req(rv$widgets$anaDiff$th_pval)
   
-  tags$p(paste0("(p-value = ",signif(10^(- (as.numeric(Get_seuilPVal()))), digits=3), ")"))
+  tags$p(paste0("(p-value = ",signif(10^(- (as.numeric(rv$widgets$anaDiff$th_pval))), digits=3), ")"))
 })
 
 
 output$equivLog10 <- renderText ({
   req(rv$widgets$anaDiff$th_pval)
   
-  tags$p(paste0("-log10 (p-value) = ",signif(- log10(as.numeric(Get_seuilPVal())/100), digits=1)))
+  tags$p(paste0("-log10 (p-value) = ",signif(- log10(as.numeric(rv$widgets$anaDiff$th_pval)/100), digits=1)))
 })
 
 
@@ -929,7 +940,7 @@ GetSelectedItems <- reactive({
 
   
   t <- NULL
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(Get_seuilPVal()))
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(rv$widgets$anaDiff$th_pval))
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
   
   if ( rv$widgets$anaDiff$downloadAnaDiff == "All"){

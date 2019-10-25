@@ -689,7 +689,7 @@ resetModuleProcess <- function(moduleName){
             updateSelectInput(session, "tooltipInfo", selected=character(0))
             updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
             updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
-            updateNumericInput(session,"nBinsHistpval",value=80)
+            updateSelectInput(session,"nBinsHistpval",selected=rv$widgets$anaDiff$nBinsHistpval)
             updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
             updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)

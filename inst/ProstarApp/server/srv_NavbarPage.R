@@ -60,7 +60,11 @@ ClearCurrentNavPage <- function(page){
          testTab = {
            resetModuleProcess("HypothesisTest")
            rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  
-         } ,
+         },
+         AggregationTab = {
+           resetModuleProcess("Aggregation")
+           rvModProcess$moduleAggregationForceReset <-  1 + rvModProcess$moduleAggregationForceReset  
+         },
          diffAnalysisTab = {
            resetModuleProcess("AnaDiff")
            rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset

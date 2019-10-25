@@ -571,6 +571,7 @@ calibMethod_Choices <- c("Benjamini-Hochberg",
                          "langaas","jiang", "histo", 
                          "pounds", "abh","slim", 
                          "numeric value")
+names(calibMethod_Choices)<- calibMethod_Choices
 
 anaDiffMethod_Choices <- c("None"="None",
                            "Limma"="Limma", 

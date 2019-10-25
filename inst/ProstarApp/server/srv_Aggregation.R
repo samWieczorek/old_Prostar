@@ -4,7 +4,8 @@ callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({Ge
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 
            pages = reactive({rvModProcess$moduleAggregation}),
-           rstFunc = resetModuleAggregation)
+           rstFunc = resetModuleAggregation,
+           forceReset = reactive({rvModProcess$moduleAggregationForceReset })  )
 
 
 
@@ -65,7 +66,7 @@ observeEvent(req(input$proteinId),{
 })
 
 
-observeEvent(input$nTopn,ignoreInit = TRUE,{
+observeEvent(input$nTopn,{
   rv$widgets$aggregation$topN <- input$nTopn
 })
 
@@ -75,7 +76,7 @@ observeEvent(input$filterProtAfterAgregation,ignoreInit = TRUE,{
 })
 
 
-observeEvent(input$columnsForProteinDataset.box,ignoreInit = TRUE,{
+observeEvent(input$columnsForProteinDataset.box,{
   rv$widgets$aggregation$columnsForProteinDataset.box <- input$columnsForProteinDataset.box
 })
 
@@ -106,7 +107,7 @@ output$screenAggregation1 <- renderUI({
                                                "N most abundant"="onlyN"), 
                                      selected=rv$widgets$aggregation$considerPeptides)),
       div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
-                numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')),
+               uiOutput('nTopn_widget')),
       
       div( style="display:inline-block; vertical-align: top;",
                 uiOutput("operatorChoice")
@@ -129,6 +130,14 @@ output$screenAggregation1 <- renderUI({
    
 
 })
+
+
+output$nTopn_widget <- renderUI({
+  req(rv$widgets$aggregation$considerPeptides)
+  if (rv$widgets$aggregation$considerPeptides!='onlyN'){return(NULL)}
+  numericInput("nTopn", "N",value = rv$widgets$aggregation$topN, min = 0, step=1, width='100px')
+})
+
 
 output$operatorChoice <- renderUI({
   rv$widgets$aggregation$includeSharedPeptides
@@ -161,10 +170,6 @@ output$screenAggregation3 <- renderUI({
   )
 })
 
-
-observeEvent(rv$widgets$aggregation$considerPeptides,{
-  shinyjs::toggle('nTopn', condition=rv$widgets$aggregation$considerPeptides=='onlyN')
-})
 
 observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
   if (rv$widgets$aggregation$includeSharedPeptides=='Yes2'){
@@ -353,7 +358,7 @@ output$specificPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("Only specific peptides"),
-    plotOutput("aggregationPlotUnique", width="400px") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotUnique", width="400px")
   )
 })
 
@@ -361,7 +366,7 @@ output$allPeptideBarplot <- renderUI({
   req(rv$matAdj)
   tagList(
     h4("All (specific & shared) peptides"),
-    plotOutput("aggregationPlotShared", width="400px") %>% withSpinner(type=spinnerType)
+    plotOutput("aggregationPlotShared", width="400px")
   )
 })
 
