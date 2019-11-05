@@ -192,22 +192,24 @@ getDatasetName <- reactive({
 
 ##' Get back to a previous object ---------------------------------------
 ##' @author Samuel Wieczorek
-# observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
-# 
-#     isolate({
-#       rv$current.obj <- rv$dataset[[input$datasets]]
-# 
-#         # if (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData){
-#         #       BuildNavbarPage()
-#         #     }
-#             
-#        if (!is.null( rv$current.obj)){
-#             rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-#         }
-# 
-#     })
-#     
-# })
+observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
+
+    isolate({
+        if (!is.null(input$datasets)) {
+            rv$current.obj <- rv$dataset[[input$datasets]]
+        }
+      
+        if (rv$typeOfDataset != rv$current.obj@experimentData@other$typeOfData){
+              BuildNavbarPage()
+            }
+            
+       if (!is.null( rv$current.obj)){
+            rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        }
+
+    })
+    
+})
 
 
 
@@ -290,6 +292,10 @@ ComputeAdjacencyMatrices <- reactive({
   print("mat adj 2 done")
   
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
+  
+  #print("dimensions matrice d'adjacence")
+  #print(dim(matSharedPeptides))
+  #print(dim(matUniquePeptides))
   rv$matAdj
 })
 
@@ -302,7 +308,6 @@ ComputeConnexComposants <- reactive({
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
   print("end ComputeConnexComposants")
-  
   rv$CC
 })
 
@@ -371,11 +376,11 @@ loadObjectInMemoryFromConverter <- function(){
       print("end ComputeConnexComposants()")
     }
     
-      if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
-        {
-          rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
-      }
-
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
+    {
+      rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+    }
+    
    
     
     name <- paste0("Original", ".", rv$typeOfDataset)
@@ -398,7 +403,7 @@ loadObjectInMemoryFromConverter <- function(){
     incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
-   
+    
   })
 }
 
@@ -418,7 +423,8 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
-GetCurrentObjName <- reactive({rv$datasets[[input$datasets]]})
+GetCurrentObjName <- reactive({
+  rv$datasets[[input$datasets]]})
 
 createPNGFromWidget <- function(tempplot, pattern){
   tmp_filename <- paste0(pattern, '.html')
@@ -431,7 +437,7 @@ createPNGFromWidget <- function(tempplot, pattern){
 }
 
 
-resetModuleProcess <- function(moduleName){
+resetModuleProcess <- function(moduleName, obj){
   
   switch (moduleName,
           Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
@@ -448,9 +454,6 @@ resetModuleProcess <- function(moduleName){
                                                                                           stringsAsFactors=F)
                                                          )
 
-          updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
-          updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
-          
           rvModProcess$moduleFiltering = list(name = "Filtering",
                                                   stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
                                                   isMandatory = rep(FALSE,5),
@@ -463,56 +466,34 @@ resetModuleProcess <- function(moduleName){
           },
           
           
-          Aggregation ={
-            rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
+          Aggregation ={rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
                                            operator = "Mean",
                                            considerPeptides = 'allPeptides',
                                            proteinId = "None",
-                                           topN = 3,
-                                           filterProtAfterAgregation = NULL,
-                                           columnsForProteinDataset.box = NULL,
-                                           nbPeptides = 0
-                                          )
-            
+                                           topN = 3)
                         rvModProcess$moduleAggregation = list(name = "Aggregation",
                                                 stepsNames = c("Aggregation", "Add metadata", "Save"),
-                                                isMandatory = c(TRUE, FALSE, TRUE),
+                                                isMandatory = rep(TRUE, 3),
                                                 ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
                                                               screenStep2 = uiOutput("screenAggregation2"),
                                                               screenStep3 = uiOutput("screenAggregation3")))
-                        ## update widgets in UI
-                        updateSelectInput(session, "proteinId", selected = rv$widgets$aggregation$proteinId)
-                        updateRadioButtons(session, "radioBtn_includeShared", selected = rv$widgets$aggregation$includeSharedPeptides)
-                        updateRadioButtons(session, "AggregationConsider", selected = rv$widgets$aggregation$considerPeptides)
-                        updateNumericInput(session, "nTopn", value=rv$widgets$aggregation$topN)
-                        updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
-                        
-                        
                         rvModProcess$moduleAggregationDone =  rep(FALSE,3)
                         },
           
-          Normalization ={
-            rv$widgets$normalization <- list(method = "None",
+          Normalization ={rv$widgets$normalization <- list(method = "None",
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
                                              spanLOESS = 0.7)
-                             
+                            rv$normalizationFamily <- NULL
+                            rv$normalizationMethod <- NULL 
           
                           rvModProcess$moduleNormalization = list(name = "Normalization",
                                                   stepsNames = c("Normalization", "Validate"),
                                                   isMandatory = rep(FALSE,2),
                                                   ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
                                                                 screenStep2 = uiOutput("screenNormalization2")))
-                          ## update widgets in UI
-                          updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                          updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                          updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
-                          updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
-                          updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
-
-                          
-                          rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+                        rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
                         },
           
           
@@ -531,18 +512,6 @@ resetModuleProcess <- function(moduleName){
                                                   isMandatory = c(TRUE, TRUE),
                                                   ll.UI = list(uiOutput("screenPepImputation1"),
                                                                uiOutput("screenPepImputation2")))
-          ## update widgets in UI
-          updateSelectInput(session,"peptideLevel_missing.value.algorithm", selected = rv$widgets$peptideImput$pepLevel_algorithm)
-          updateSelectInput(session,"peptideLevel_missing.value.basic.algorithm", selected = rv$widgets$peptideImput$pepLevel_basicAlgorithm)
-          updateNumericInput(session,"peptideLevel_detQuant_quantile", value = rv$widgets$peptideImput$pepLevel_detQuantile)
-          updateNumericInput(session,"peptideLevel_detQuant_factor", value = rv$widgets$peptideImput$pepLevel_detQuant_factor)
-          updateNumericInput(session,"KNN_n",  value = rv$widgets$peptideImput$pepLevel_KNN_n)
-          updateNumericInput(session,"peptideLevel_imp4p_nbiter", value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter)
-          updateCheckboxInput(session,"peptideLevel_imp4p_withLapala", value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala)
-          updateNumericInput(session,"peptideLevel_imp4p_qmin",  value = rv$widgets$peptideImput$pepLevel_imp4p_qmin)
-          updateRadioButtons(session, "peptideLevel_imp4pLAPALA_distrib", selected = rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib)
-          
-          
           rvModProcess$modulePepImputationDone =  rep(FALSE,2)
           },
           
@@ -563,18 +532,6 @@ resetModuleProcess <- function(moduleName){
                                                                  screenStep2 = uiOutput("screenProtImput2"),
                                                                  screenStep3 = uiOutput("screenProtImput3")
                                                    ))
-          
-          ## update widgets in UI
-          updateSelectInput(session,"POV_missing.value.algorithm",selected=rv$widgets$proteinImput$POV_algorithm)
-          updateSelectInput(session,"MEC_missing.value.algorithm", selected=rv$widgets$proteinImput$MEC_algorithm)
-          updateNumericInput(session,"POV_detQuant_quantile", value = rv$widgets$proteinImput$POV_detQuant_quantile)
-          updateNumericInput(session,"POV_detQuant_factor", value = rv$widgets$proteinImput$POV_detQuant_factor)
-          updateNumericInput(session,"KNN_nbNeighbors", value = rv$widgets$proteinImput$POV_KNN_n)
-          updateNumericInput(session, "MEC_detQuant_quantile", value = rv$widgets$proteinImput$MEC_detQuant_quantile)
-          updateNumericInput(session, "MEC_detQuant_factor", value = rv$widgets$proteinImput$MEC_detQuant_factor)
-          updateNumericInput(session, "MEC_fixedValue", value = rv$widgets$proteinImput$MEC_fixedValue)
-          
-          
           rvModProcess$moduleProtImputationDone =  rep(FALSE,3)
           rv$imputePlotsSteps = list(step0 = NULL,
                                      step1 = NULL,
@@ -589,38 +546,49 @@ resetModuleProcess <- function(moduleName){
                                                  ttest_options = "Student",
                                                  th_logFC = 0,
                                                  listNomsComparaison = NULL)
-            
           rvModProcess$moduleHypothesisTest = list(name = "HypothesisTest",
                                                    stepsNames = c("HypothesisTest", "Save"),
                                                    isMandatory = c(TRUE, TRUE),
                                                    ll.UI = list( screenStep1 = uiOutput("screenHypoTest1"),
                                                                  screenStep2 = uiOutput("screenHypoTest2")))
-          ## update widgets in UI
-          updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
-          updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
-          updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
-          updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
-          
-          rv$res_AllPairwiseComparisons <- NULL
-          rv$tempplot$logFCDistr <- NULL
-          
           rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
+          },
+          
+          HypothesisTestPeptide ={
+            rv$widgets$hypothesisTestPeptide = list(design = "None",
+                                             method = "None",
+                                             ttest_options = "Student",
+                                             th_logFC = 0,
+                                             listNomsComparaison = NULL)
+            rvModProcess$moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
+                                                     stepsNames = c("HypothesisTestPeptide", "Save"),
+                                                     isMandatory = c(TRUE, TRUE),
+                                                     ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
+                                                                   screenStep2 = uiOutput("screenHypoTestPeptide2")))
+            rvModProcess$moduleHypothesisTestPeptideDone =  rep(FALSE,2)
           },
           
           
           
+          
+          HypothesisTestPeptidomic ={
+            rv$widgets$hypothesisTestPeptidomic = list(design = "None",
+                                                    method = "None",
+                                                    ttest_options = "Student",
+                                                    th_logFC = 0,
+                                                    listNomsComparaison = NULL)
+            rvModProcess$moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
+                                                            stepsNames = c("HypothesisTestPeptidomic", "Save"),
+                                                            isMandatory = c(TRUE, TRUE),
+                                                            ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
+                                                                          screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
+            rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
+          },
+          
+          
+          
+          
           Convert ={
-            rv$widgets$Convert = list(datafile = NULL,
-                                      selectIdent = FALSE,
-                                             convert_proteinId = character(0),
-                                             idBox = "Auto ID",
-                                             eDatabox = character(0),
-                                             typeOfData = "peptide",
-                                             checkDataLogged = "no",
-                                             replaceAllZeros =TRUE,
-                                             convert_reorder = "no",
-                                            XLSsheets = character(0))
-            
             
             rvModProcess$moduleConvert = list(name = "Convert",
                                               stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
@@ -631,18 +599,7 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep2 = uiOutput("Convert_BuildDesign"),
                                                             screenStep3 = uiOutput("Convert_Convert")
                                               ))
-            ## update widgets in UI
-            updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)
-            updateSelectInput(session,"convert_proteinId",selected = rv$widgets$convert_proteinId)
-            updateSelectInput(session,"idBox", selected = rv$widgets$Convert$idBox)
-            updateRadioButtons(session, "typeOfData", selected=rv$widgets$Convert$typeOfData)
-            updateRadioButtons(session, "checkDataLogged", selected=rv$widgets$Convert$checkDataLogged)
-            updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
-            updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
-            updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
-            
             rvModProcess$moduleConvertDone =  rep(FALSE,5)
-            
           },
           
           
@@ -668,10 +625,7 @@ resetModuleProcess <- function(moduleName){
                                     numValCalibMethod = 0,
                                     th_pval = 0,
                                     FDR = 0,
-                                    NbSelected = 0,
-                                    nBinsHistpval = 80,
-                                    downloadAnaDiff = "All",
-                                    tooltipInfo=NULL)
+                                    NbSelected = 0)
             
             rvModProcess$moduleAnaDiff = list(name = "AnaDiff",
                                               stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
@@ -681,58 +635,25 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep3 = uiOutput("screenAnaDiff3"),
                                                             screenStep2 = uiOutput("screenAnaDiff4")
                                               ))
-            ## update widgets in UI
-            #if (!is.null(input$showpvalTable) )updateCheckboxInput(session, 'showpvalTable', value = FALSE)
-            updateSelectInput(session, "selectComparison", selected=rv$widgets$anaDiff$Comparison)
-            updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$filter_th_NA)
-            updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=rv$widgets$anaDiff$filterType)
-            updateSelectInput(session, "tooltipInfo", selected=character(0))
-            updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
-            updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
-            updateSelectInput(session,"nBinsHistpval",selected=rv$widgets$anaDiff$nBinsHistpval)
-            updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
-            updateRadioButtons(session, "downloadAnaDiff", selected="All")
-            updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
-          },
-          
-          GO = {
+            },
             
-            rv$widgets$go <- list(
-              sourceOfProtID = NULL,
-              idFrom = "UNIPROT",
-              Organism = character(0),
-              Ontology = character(0),
-              UniprotIDCol = character(0),
-              UNIPROTID_File = NULL,
-              GO_level = 2,
-              universe =NULL,
-              UniverseFile = NULL,
-              pvalueCutoff = 0.01,
+            GO = {
               
-              ProtIDList=NULL,
-              gene=NULL,
-              proteinsNotMapped=NULL,
-              ratio=NULL,
-              uniprotID=NULL,
-              universeData=NULL,
-              enrichGO_data=NULL,
-              groupGO_data=NULL
-            )
+              
+              rvModProcess$moduleGO = list(name = "GO",
+                                           stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                                           isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                                           ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                                         screenStep2 = uiOutput("screenGO2"),
+                                                         screenStep3 = uiOutput("screenGO3"),
+                                                         screenStep2 = uiOutput("screenGO4")
+                                           ))
+              
+              rvModProcess$moduleGODone =  rep(FALSE,4)
             
-  
             
-            rvModProcess$moduleGO = list(name = "GO",
-                                              stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
-                                              isMandatory = c(TRUE, FALSE, FALSE, FALSE),
-                                              ll.UI = list( screenStep1 = uiOutput("screenGO1"),
-                                                            screenStep2 = uiOutput("screenGO2"),
-                                                            screenStep3 = uiOutput("screenGO3"),
-                                                            screenStep2 = uiOutput("screenGO4")
-                                              ))
-            
-            rvModProcess$moduleGODone =  rep(FALSE,4)
             
           }
           )
@@ -742,13 +663,19 @@ resetModuleProcess <- function(moduleName){
 
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
+  resetModuleProcess("Aggregation")
+  resetModuleProcess("Normalization")
+  resetModuleProcess("Filtering")
+  resetModuleProcess("PepImputation")
+  resetModuleProcess("ProtImputation")
+  resetModuleProcess("HypothesisTest")
+  resetModuleProcess("HypothesisTestPeptide")
+ # resetModuleProcess("Convert")
+  resetModuleProcess("AnaDiff")
   
   ########
   ### Settings
   ########
-  
-  rv$processSaved = FALSE
-  rv$current.navPage = NULL
   rv$current.comp = NULL
   rv$colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey')
   rv$colorsTypeMV = list(MEC=orangeProstar, POV='lightblue')
@@ -762,8 +689,7 @@ ClearMemory <- function(){
   ########
   ### Parameters
   ######## 
-  rv$dataset = list()
-  rv$current.obj = NULL
+    rv$current.obj = NULL
     rv$current.obj.name = NULL
     rv$deleted.mvLines = NULL
     rv$deleted.stringBased.exprsData = NULL
@@ -777,6 +703,7 @@ ClearMemory <- function(){
     
     # variable to keep memory of previous datasets before 
     # transformation of the data
+    rv$dataset = list()
     # Variable that contains the log for the current R session
     rv$text.log = data.frame(Date="", 
                              Dataset="", 
@@ -804,7 +731,14 @@ ClearMemory <- function(){
     rv$fdr = NULL
     #rv$ValidFilteringClicked = FALSE
     rv$ValidImputationClicked = FALSE
-    
+    rv$GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL)
 
     rv$impute_Step = 0
     
@@ -863,33 +797,14 @@ ClearMemory <- function(){
     rv$distance = "euclidean"
     
     
-    
-    
-    
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
     unlink("www/*pdf")
     
-    
-    resetModuleProcess("Aggregation")
-    resetModuleProcess("Normalization")
-    resetModuleProcess("Filtering")
-    resetModuleProcess("PepImputation")
-    resetModuleProcess("ProtImputation")
-    resetModuleProcess("HypothesisTest")
-    #resetModuleProcess("Convert")
-    resetModuleProcess("AnaDiff")
-    
 }
 
 
 
 
-
-UpdateDatasetWidget <- function(obj, name){
-  rv$processSaved <- TRUE
-  rv$dataset[[name]] <- obj
-  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-}
 
 
 
@@ -899,9 +814,9 @@ rv <- reactiveValues(
   UI_fileSourced = NULL,
   SRV_fileSourced = NULL,
   
-  processSaved = FALSE,
   
-  current.navPage = NULL,
+  
+  
   # variable to handle the current object that will be showed
     current.comp = NULL,
     current.obj = NULL,
@@ -981,6 +896,11 @@ rv <- reactiveValues(
                             ttest_options = "Student",
                             th_logFC = 0,
                             listNomsComparaison = NULL),
+  hypothesisTestPeptide = list(design = "None",
+                        method = "None",
+                        ttest_options = "Student",
+                        th_logFC = 0,
+                        listNomsComparaison = NULL),
        peptideImput = list( pepLevel_algorithm = "None",
                             pepLevel_basicAlgorithm = "detQuantile",
                             pepLevel_detQuantile = 2.5,
@@ -1008,22 +928,7 @@ rv <- reactiveValues(
                       numValCalibMethod = 0,
                       th_pval = 0,
                       FDR = 0,
-                      NbSelected = 0,
-                      nBinsHistpval = 80,
-                      downloadAnaDiff = "All",
-                      tooltipInfo=NULL),
-        go = list(
-          sourceOfProtID = NULL,
-          idFrom = "UNIPROT",
-          Organism = character(0),
-          Ontology = character(0),
-          UniprotIDCol = character(0),
-          UNIPROTID_File = NULL,
-          GO_level = 2,
-          universe =NULL,
-          UniverseFile = NULL,
-          pvalueCutoff = 0.01
-        )
+                      NbSelected = 0)
   ),
     hot = NULL,
     newOrder = NULL,
@@ -1072,7 +977,14 @@ rv <- reactiveValues(
     nbTotalAnaDiff = NULL,
     nbSelectedTotal_Step3 = NULL,
     nbSelected_Step3 = NULL,
-
+    GO = list(ProtIDList=NULL,
+              gene=NULL,
+              proteinsNotMapped=NULL,
+              ratio=NULL,
+              uniprotID=NULL,
+              universeData=NULL,
+              enrichGO_data=NULL,
+              groupGO_data=NULL),
 
     GOWarningMessage = NULL,
 
@@ -1205,21 +1117,6 @@ Get_ParamValue <- function(pp, key){
   return(df[which(df$param==key),]$value)
 }
 
-
-
-
-buildWritableVector <- function(v){
-  t <- "c("
-  for (i in v){
-    t <- paste(t, "\"", as.character(i), "\"", sep="")
-    if (i == last(v)) {t <- paste(t, ")", sep="")}
-    else {t <- paste(t, ",", sep="")}
-  }
-  return(t)
-}
-
-
-
 getPackagesVersions2 <- function(){
   
   type <- "all"
@@ -1329,6 +1226,7 @@ getPackagesVersions2 <- function(){
 }
 
 
+
 getPackagesVersions <- reactive({
   
   type <- "all"
@@ -1373,9 +1271,7 @@ getPackagesVersions <- reactive({
   df[, "Installed.packages"] <- unlist(instPkgs)
   
   if (!is.null(biocRelease)) {
-    tryCatch({
-      
-      biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
+    biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
                      DAPAR = as.character(biocRelease["DAPAR","Version"]),
                      DAPARdata = as.character(DAPARdata.version))
     
@@ -1406,15 +1302,9 @@ getPackagesVersions <- reactive({
       df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
     }
     df[, "Bioc.release"] <- unlist(biocPkgs)
-  }, warning = function(w) {
-    return()
-  }, error = function(e) {
-    return()
-  }, finally = {
-    #cleanup-code 
-  })
-  
   }
+  
+  
   colnames(df) <- c("Names", "Installed packages", "Bioc release","NeedsUpdate")
   
   switch(type,
@@ -1470,3 +1360,15 @@ GetOnlineZipVersion <- function(){
   return(onlineZipVersion)
 }
 
+
+
+
+buildWritableVector <- function(v){
+  t <- "c("
+  for (i in v){
+    t <- paste(t, "\"", as.character(i), "\"", sep="")
+    if (i == last(v)) {t <- paste(t, ")", sep="")}
+    else {t <- paste(t, ",", sep="")}
+  }
+  return(t)
+}

@@ -7,12 +7,92 @@
 module_Not_a_numeric <- function(input, output, session, n){
   
   output$msg_not_numeric <- renderUI({
-    n()
+    req(n())
     if (is.na(as.numeric(n()))){
       tags$p("Please choose a number")
     }
   })
 }
+
+
+#-----------------------------------------------
+moduleTrackProt <- function(input, output, session, params, reset=FALSE){
+  
+  ns <- session$ns
+  
+  
+  observe({
+    reset()
+    print("In track module =RESET observe")
+    print(reset())
+    if (reset() > 0) {
+      updateSelectInput(session, "typeSelect", selected="None")
+      updateSelectInput(session, "listSelect", NULL)
+      updateSelectInput(session, "randSelect", selected="1")
+      updateSelectInput(session, "colSelect", selected=NULL)
+    }
+  })
+  
+  observe({
+    params()
+    updateSelectInput(session, "typeSelect", selected=params()$type)
+    updateSelectInput(session, "listSelect", selected=params()$list)
+    updateSelectInput(session, "randSelect", selected=params()$rand)
+    updateSelectInput(session, "colSelect", selected=params()$col)
+    })
+  
+  observeEvent(input$typeSelect, {
+    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList")&&(input$typeSelect!="None"))
+    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random")&&(input$typeSelect!="None"))
+    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
+  })
+  
+  output$listSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+  })
+  })
+  
+  
+  output$randomSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
+    })
+  })
+  
+  output$columnSelect_UI <- renderUI({
+    isolate({
+      ll <-  colnames(Biobase::fData(rv$current.obj))
+    hidden(selectInput(ns("colSelect"), "Column", choices=ll))
+    })
+  })
+  
+
+  BuildResult <- reactive({
+    
+    #isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    res <- list(type= input$typeSelect,
+                list = input$listSelect,
+                rand = as.numeric(input$randSelect),
+                col = input$colSelect,
+                list.indices = if (length(input$listSelect)==0){NULL} else match(input$listSelect, ll),
+                rand.indices = if (length(input$randSelect)==0){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
+                col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
+    )
+   # })
+     
+    res
+  })
+  
+  return(reactive({BuildResult()}))
+}
+
+
+
+
 
 
 
@@ -156,7 +236,7 @@ moduleLegendColoredExprs <- function(input, output, session){}
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwaped){
+moduleVolcanoplot <- function(input, output, session,comp, tooltip, isSwaped){
   
   ns <- session$ns
   
@@ -171,15 +251,15 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                             DT::dataTableOutput(ns("Infos"))),style = "info"))
     } else {
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 shinyBS::bsCollapsePanel("Protein", tagList(
-                   uiOutput(ns("Warning_Infos")),
-                   DT::dataTableOutput(ns("Infos"))),style = "info"),
-                 shinyBS::bsCollapsePanel("Specific peptides",tagList(
-                   uiOutput(ns("Warning_specificPeptidesInfos")),
-                   DT::dataTableOutput(ns("specificPeptidesInfos"))), style = "primary"),
-                 shinyBS::bsCollapsePanel("Shared peptides", tagList(
-                   uiOutput(ns("Warning_sharedPeptidesInfos")),
-                   DT::dataTableOutput(ns("sharedPeptidesInfos"))), style = "primary"))
+                          shinyBS::bsCollapsePanel("Protein", tagList(
+                            uiOutput(ns("Warning_Infos")),
+                            DT::dataTableOutput(ns("Infos"))),style = "info"),
+                          shinyBS::bsCollapsePanel("Specific peptides",tagList(
+                            uiOutput(ns("Warning_specificPeptidesInfos")),
+                            DT::dataTableOutput(ns("specificPeptidesInfos"))), style = "primary"),
+                          shinyBS::bsCollapsePanel("Shared peptides", tagList(
+                            uiOutput(ns("Warning_sharedPeptidesInfos")),
+                            DT::dataTableOutput(ns("sharedPeptidesInfos"))), style = "primary"))
     }
   })
   
@@ -189,13 +269,13 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$current.obj
-    data()
+    rv$resAnaDiff
     
     
-    if(is.null(data()$logFC) || is.null(data()$P_Value)){return(NULL)}
+    if(is.null(rv$resAnaDiff$logFC) || is.null(rv$resAnaDiff$P_Value)){return(NULL)}
    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     p <- NULL
-    p <- data()
+    p <- rv$resAnaDiff
     upItemsPVal <- NULL
     upItemsLogFC <- NULL
     
@@ -254,13 +334,13 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   
-  
   output$Warning_sharedPeptidesInfos <- renderUI({
     GetDataFor_sharedPeptidesInfos()
     if (nrow(GetDataFor_sharedPeptidesInfos())>153)
       p(MSG_WARNING_SIZE_DT)
     
   })
+  
   GetDataFor_sharedPeptidesInfos <- reactive({
     #req(rv$current.obj)
     req(comp())
@@ -286,21 +366,21 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     allPeptidesIndices <- which(Xshared[,i]==1)
     peptidesIndices <- setdiff(allPeptidesIndices, specificPeptidesIndices)
     data <- data[peptidesIndices,]
+    
     data
   })
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
-    
-    dt <- DT::datatable( GetDataFor_sharedPeptidesInfos(),
+    dt <- datatable( GetDataFor_sharedPeptidesInfos(),
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
                                     buttons = list('copy',
                                                    list(
                                                      extend = 'csv',
                                                      filename = 'sharedPeptidesInfos'
                                                    ),'print'),
-                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -346,22 +426,22 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     i <- which(colnames(Xspec)==prot.indice)
     peptidesIndices <- which(Xspec[,i]==1)
     data <- data[peptidesIndices,]
+    
     data
   })
   
   
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
-    
-    dt <- DT::datatable( GetDataFor_specificPeptidesInfos(), 
+    dt <- datatable( GetDataFor_specificPeptidesInfos(), 
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
                                     buttons = list('copy',
                                                    list(
                                                      extend = 'csv',
                                                      filename = 'specific peptides infos'
                                                    ),'print'),
-                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -387,7 +467,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$hypothesisTest$th_logFC
     rv$widgets$anaDiff$th_pval
     
-    data()
+    rv$resAnaDiff
     
     ind <- GetSortingIndices()
     
@@ -397,8 +477,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     data <- getDataForExprs(rv$current.obj)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    index.g1 <- which((-log10(data()$P_Value) >= rv$widgets$anaDiff$th_pval
-    ) & (abs(data()$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
+    index.g1 <- which((-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval
+    ) & (abs(rv$resAnaDiff$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
     
     data.g1 <- data[index.g1,]
     data.g2 <- data[-index.g1,]
@@ -412,7 +492,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   
-  
   output$Warning_Infos <- renderUI({
     GetDataFor_Infos()
     if (nrow(GetDataFor_Infos())>153)
@@ -420,7 +499,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
   })
   
-  GetDataFor_Infos <- reactive({
+  ##------------------------------------------------------------------------------
+  GetDataFor_Infos <- reactive({ 
     req(comp())
     
     borders_index <- GetBorderIndices()
@@ -435,16 +515,15 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   ##------------------------------------------------------------------------------
   output$Infos <- renderDataTable(server=TRUE,{ 
     req(comp())
-    
-    dt <- DT::datatable( GetDataFor_Infos(),
+    dt <- datatable( GetDataFor_Infos(),
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
+                                    dom='Bfrtip',
                                     buttons = list('copy',
                                                    list(
                                                      extend = 'csv',
                                                      filename = 'Infos'
                                                    ),'print'),
-                                    dom='Bfrtip',
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
@@ -468,43 +547,40 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
-    #data()$logFC
+    rv$resAnaDiff
     tooltip()
-    isSwaped()
     
-    print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
-    isolate({
-    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
-    if ((length(data()$logFC) == 0)  ){return()}
-    print("in volcanoplot")
-    print(head(data()$logFC))
+    if ((length(rv$resAnaDiff$logFC) == 0)  ){return()}
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
-    
-      df <- data_frame(x=data()$logFC, 
-                       y = -log10(data()$P_Value),
+    isolate({
+      
+      df <- data_frame(x=rv$resAnaDiff$logFC, 
+                       y = -log10(rv$resAnaDiff$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
-      if (length( tooltip()) > 0){
+      if (!is.null( tooltip())){
         df <- cbind(df,fData(rv$current.obj)[ tooltip()])
       }
+      
       colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
       if (ncol(df) > 3){
         colnames(df)[4:ncol(df)] <- 
           paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
       }
+      
       clickFun <-   
         JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
       
-      cond <- c(data()$condition1, data()$condition2)
-       rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
+      cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+      rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                                          threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                          threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                          conditions = cond,
                                                          clickFunction=clickFun,
                                                          palette = rv$colorsVolcanoplot,
                                                          swap = isSwaped()
-                                                         )
+      )
       
     })
     
@@ -565,13 +641,12 @@ missingValuesPlots <- function(input, output, session, data, title=NULL, palette
 
 
 #------------------------------------------------------------
-moduleDensityplot <- function(input, output, session, data) {
+moduleDensityplot <- function(input, output, session) {
     
   #outputOptions(output, 'Densityplot', suspendWhenHidden=FALSE)
   
     output$Densityplot <- renderHighchart({
-      #req(rv$current.obj)
-      data()
+      req(rv$current.obj)
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
       tmp <- NULL
@@ -579,7 +654,7 @@ moduleDensityplot <- function(input, output, session, data) {
       
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
-          tmp <- DAPAR::densityPlotD_HC(data(), 
+          tmp <- DAPAR::densityPlotD_HC(rv$current.obj, 
                                         rv$PlotParams$legendForSamples,
                                         rv$PlotParams$paletteConditions)
           future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
@@ -591,8 +666,38 @@ moduleDensityplot <- function(input, output, session, data) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, data) {
+moduleBoxplot <- function(input, output, session, params, reset) {
     
+  ns <- session$ns
+  rv.modboxplot <- reactiveValues(
+    var = NULL,
+    ind = NULL,
+    indices = NULL
+  )
+  
+  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({reset()}))
+  
+  observeEvent(req(rv.modboxplot$var()),{
+    print("In observe rv.modboxplot$var")
+    print(rv.modboxplot$var())
+    
+    
+    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
+    
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    switch(rv.modboxplot$var()$type,
+           #ProteinList = rv.modboxplot$ind <- rv.modboxplot$var()$list,
+           #Random = rv.modboxplot$ind <- rv.modboxplot$var()$rand,
+          # Column = rv.modboxplot$ind <- rv.modboxplot$var()$col,
+          ProteinList = rv.modboxplot$indices <- rv.modboxplot$var()$list.indices,
+          Random = rv.modboxplot$indices <- rv.modboxplot$var()$rand.indices,
+          Column = rv.modboxplot$indices <- rv.modboxplot$var()$col.indices
+    )
+    #if (length(rv.modboxplot$ind)==0){rv.modboxplot$ind <- NULL}
+    if (length(rv.modboxplot$indices)==0){rv.modboxplot$indices <- NULL}
+  })
+  
+  
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
     boxplot={
@@ -606,17 +711,21 @@ moduleBoxplot <- function(input, output, session, data) {
     )
   })
   
+ 
   
     output$BoxPlot <- renderHighchart({
-      #req(rv$current.obj)
-      data()
+      req(rv$current.obj)
       rv$current.obj.name
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
+      rv.modboxplot$indices
       tmp <- NULL
       isolate({
+        ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+        
         pattern <- paste0(GetCurrentObjName(),".boxplot")
-        tmp <- DAPAR::boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+        tmp <- DAPAR::boxPlotD_HC(rv$current.obj, rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
+                                  subset.view = rv.modboxplot$indices)
         #future(createPNGFromWidget(tmp,pattern))
           
         
@@ -624,35 +733,42 @@ moduleBoxplot <- function(input, output, session, data) {
       tmp
     })
     
+    
     output$viewViolinPlot<- renderImage({
-      #req(rv$current.obj)
-      data()
+      req(rv$current.obj)
       rv$PlotParams$legendForSamples
       rv$PlotParams$paletteConditions
+      rv.modboxplot$indices
       tmp <- NULL
-      
       isolate({
-        
-        # A temp file to save the output. It will be deleted after renderImage
-      # sends it, because deleteFile=TRUE.
-      outfile <- tempfile(fileext='.png')
-      
-      # Generate a png
-     # png(outfile, width = 640, height = 480, units = "px")
-      png(outfile)
-      pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
-      #future(createPNGFromWidget(tmp,pattern))
-      dev.off()
-      })
-      # Return a list
-      list(src = outfile,
-           alt = "This is alternate text")
-    }, deleteFile = TRUE)
+       
+       # A temp file to save the output. It will be deleted after renderImage
+        # sends it, because deleteFile=TRUE.
+        outfile <- tempfile(fileext='.png')
+        print("IN violinPlot")
+        print(rv.modboxplot$indices)
+        print("END IN violinplot")
+        # Generate a png
+        # png(outfile, width = 640, height = 480, units = "px")
+        png(outfile)
+        pattern <- paste0(GetCurrentObjName(),".violinplot")
+        tmp <- DAPAR::violinPlotD(rv$current.obj, legend = rv$PlotParams$legendForSamples, 
+                                  palette = rv$PlotParams$paletteConditions,
+                                  subset.view =  rv.modboxplot$indices)
+        #future(createPNGFromWidget(tmp,pattern))
+        dev.off()
+})
+      tmp
+
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+}, deleteFile = TRUE)
     
- 
-  
+    
+    return(reactive({rv.modboxplot$var()}))
 }
+
 
 
 
@@ -663,41 +779,24 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
   })
   
-
-  
-  
-  output$WarnForImageNA <- renderUI({
-    
-    tryCatch(
-      {
-        wrapper.mvImage(data())
-    
-  },
-  warning = function(w) { p(conditionMessage(w))},
-  error = function(e) {p(conditionMessage(e))},
-  finally = {
-    #cleanup-code 
-  })
-
-  })
-  
   output$plot_showImageNA <- renderImage({
-    
-    req(wrapper.mvImage(data()))
-    
-    # A temp file to save the output. It will be deleted after renderImage
-    # sends it, because deleteFile=TRUE.
-    outfile <- tempfile(fileext='.png')
-
-    png(outfile)
-    wrapper.mvImage(data())
+    req(data())
+    isolate({
+      # A temp file to save the output. It will be deleted after renderImage
+      # sends it, because deleteFile=TRUE.
+      outfile <- tempfile(fileext='.png')
+      
+      # Generate a png
+      # png(outfile, width = 640, height = 480, units = "px")
+      png(outfile)
+      wrapper.mvImage(data())
       dev.off()
-     
-    
-    # Return a list
-    list(src = outfile,
-         alt = "This is alternate text")
-  }, deleteFile = TRUE)
+    })
+      # Return a list
+      list(src = outfile,
+           alt = "This is alternate text")
+    }, deleteFile = TRUE)
+
 }
 
 
@@ -735,7 +834,7 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt', filename='Prostar_export') {
-    
+  
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
@@ -748,7 +847,8 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
     
   })
   
-    output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
+  
+    output$StaticDataTable <- DT::renderDataTable({
       req(rv$current.obj)
       #table2show
       if (length(table2show())==0){return(NULL)}
@@ -758,22 +858,22 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
                          extensions = 'Buttons',
                          #escape = TRUE,
                          # rownames= showRownames,
-                          options=list(
-                            buttons = list(
-                              list(
-                                extend = 'csv',
-                                filename = filename
-                              ),
-                              list(
-                                extend = 'pdf',
-                                filename = filename
-                              ),'print'),
-                            #initComplete = initComplete(),
-                                dom = dom
-                            #    server = FALSE,
-                            #    autoWidth=TRUE,
-                          #columnDefs = list(list(width='150px',targets= "_all")),
-                          #ordering = FALSE
+                         options=list(
+                           buttons = list(
+                             list(
+                               extend = 'csv',
+                               filename = filename
+                             ),
+                             list(
+                               extend = 'pdf',
+                               filename = filename
+                             ),'print'),
+                           #initComplete = initComplete(),
+                           dom = dom
+                           #    server = FALSE,
+                           #    autoWidth=TRUE,
+                           #columnDefs = list(list(width='150px',targets= "_all")),
+                           #ordering = FALSE
               )
             )
       })

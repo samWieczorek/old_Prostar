@@ -100,7 +100,7 @@ MSnSetExplorer <- function(input, output, session, data) {
     data <- as.data.frame(Biobase::pData(rv$current.obj))
     pal <- unique(rv$PlotParams$paletteConditions)
     dt <- DT::datatable(  data,
-                           extensions = c('Scroller', 'Buttons'),
+                          extensions = c('Scroller', 'Buttons'),
                           rownames=  FALSE,
                           
                           options=list(initComplete = initComplete(),
@@ -203,26 +203,26 @@ MSnSetExplorer <- function(input, output, session, data) {
     df <- getDataForExprs(rv$current.obj)
     print(head(df))
     dt <- DT::datatable( df,
-                     rownames=TRUE,
-                     extensions = c('Scroller', 'Buttons', 'FixedColumns'),
-                     options = list(
-                       buttons = list('copy',
-                                      list(
-                                        extend = 'csv',
-                                        filename = 'quantitation data'
-                                      ),'print'),
-                       dom='Bfrtip',
-                       initComplete = initComplete(),
-                       displayLength = 20,
-                       deferRender = TRUE,
-                       bLengthChange = FALSE,
-                       scrollX = 200,
-                       scrollY = 600,
-                       scroller = TRUE,
-                       ordering=FALSE,
-                       server = TRUE,
-                       fixedColumns = list(leftColumns = 1),
-                       columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
+                         rownames=TRUE,
+                         extensions = c('Scroller', 'Buttons', 'FixedColumns'),
+                         options = list(
+                           buttons = list('copy',
+                                          list(
+                                            extend = 'csv',
+                                            filename = 'quantitation data'
+                                          ),'print'),
+                           dom='Bfrtip',
+                           initComplete = initComplete(),
+                           displayLength = 20,
+                           deferRender = TRUE,
+                           bLengthChange = FALSE,
+                           scrollX = 200,
+                           scrollY = 600,
+                           scroller = TRUE,
+                           ordering=FALSE,
+                           server = TRUE,
+                           fixedColumns = list(leftColumns = 1),
+                           columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],

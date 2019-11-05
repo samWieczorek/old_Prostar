@@ -40,7 +40,6 @@ req(rv$designChecked)
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
-  req(rv$widgets$Convert$datafile)
   input$convert_reorder
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
@@ -184,8 +183,7 @@ output$UI_hierarchicalExp <- renderUI({
       radioButtons("chooseExpDesign", "",
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
-                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" )
-                   )
+                               "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" ))
     )
   }
   
@@ -216,7 +214,7 @@ callModule(moduleDesignExample,"buildDesignExampleTwo", 2)
 #------------------------------------------------------------------------------
 output$designExamples <- renderUI({
   input$chooseExpDesign
-  print(paste0("in designExamples renderUI, chooseExpDesign = ",input$chooseExpDesign))
+  print(input$chooseExpDesign)
   switch(input$chooseExpDesign,
          FlatDesign = 
            {
@@ -246,7 +244,7 @@ observe({
 
 #------------------------------------------------------------------------------
 observeEvent(input$chooseExpDesign, {
-  req(rv$hot)
+  rv$hot
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
@@ -284,7 +282,6 @@ observeEvent(input$btn_checkDesign,{ rv$designChecked <- DAPAR::check.design(rv$
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
   req(input$chooseExpDesign)
-  req(rv$widgets$Convert$datafile)
   rv$designChecked
   req(rv$conditionsChecked)
   

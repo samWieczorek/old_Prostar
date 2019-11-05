@@ -42,9 +42,9 @@ output$plotintensitylarge <- renderUI({
       )),
     
     
-    fluidRow(
-      column(width=6,moduleDensityplotUI(ns("densityPlot"))),
-      column(width=6, moduleBoxplotUI(ns("boxPlot")))
+    tagList(
+      moduleDensityplotUI(ns("densityPlot"))
+      moduleBoxplotUI(ns("boxPlot"))
     )
   )
   

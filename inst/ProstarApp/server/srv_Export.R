@@ -9,7 +9,6 @@ callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({get
            filename='Prostar_Versions')
 
 
-
 output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
 
 output$plotsFor_Original_peptide <- renderTree({list( "Descr stats"= ll_descrStats )})
@@ -98,11 +97,11 @@ output$exportOptions <- renderUI({
       column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
     ),
     
-    # br(),
-    # fluidRow(
-    #   column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
-    #   column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
-    # ),
+    br(),
+    fluidRow(
+      column(width=2,modulePopoverUI("modulePopover_exportMetaData")),
+      column(width=10,uiOutput("chooseMetaDataExport",width = widthWellPanel))
+    ),
     br(),
     fluidRow(
       column(width=2,modulePopoverUI("modulePopover_exportFilename")),
@@ -119,20 +118,18 @@ output$exportOptions <- renderUI({
 
 
 
-# 
-# output$chooseMetaDataExport <- renderUI({
-#   req(rv$current.obj)
-#   
-#   
-#   choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
-#   names(choices) <- choices
-#   
-#   selectizeInput("colsToExport",
-#                  label = "",
-#                  choices = choices,
-#                   multiple = TRUE, width='500px')
-#   
-# })
+
+output$chooseMetaDataExport <- renderUI({
+  req(rv$current.obj)
+  
+  choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
+  names(choices) <- choices
+  selectizeInput("colsToExport",
+                 label = "",
+                 choices = choices,
+                 multiple = TRUE, width='500px')
+  
+})
 
 
 
@@ -176,16 +173,11 @@ output$downloadMSnSet <- downloadHandler(
     
   },
   content = function(file) {
-     dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    # addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$OriginOfValues)
-    # res <- Get_AllComparisons(dataToExport)
-    # print(str(res))
-    # if (!is.null(res)){
-    #   addColumns <- c(addColumns, colnames(res))
-    # }
-    # Biobase::fData(dataToExport) <- select(Biobase::fData(dataToExport),c(rv$proteinId, addColumns))
-    # 
+    dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
     
+      addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$OriginOfValues)
+      Biobase::fData(dataToExport) <- select(Biobase::fData(dataToExport),c(rv$proteinId, addColumns))
+      
     colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
     names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     
@@ -195,7 +187,6 @@ output$downloadMSnSet <- downloadHandler(
     
     if (input$fileformatExport == gFileFormatExport$excel) {
       fname <- paste(input$nameExport,gFileExtension$excel,  sep="")
-      print(fname)
       writeMSnsetToExcel(dataToExport, input$nameExport)
       file.copy(fname, file)
       file.remove(fname)

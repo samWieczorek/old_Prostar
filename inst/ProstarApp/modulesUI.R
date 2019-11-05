@@ -18,6 +18,18 @@ module_Not_a_numericUI <- function(id){
 }
 
 
+#####################################
+moduleTrackProtUI <- function(id){
+  ns <- NS(id)
+  tagList(
+    selectInput(ns("typeSelect"), "Type of selection", 
+                     choices=c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
+                width=('130px')),
+  uiOutput(ns("listSelect_UI")),
+  uiOutput(ns("randomSelect_UI")),
+  uiOutput(ns("columnSelect_UI"))
+  )
+}
 
 
 moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
@@ -52,8 +64,8 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-          uiOutput(ns("nbSelectedItems")),
-          highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
+    uiOutput(ns("nbSelectedItems")),
+    highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
 
     uiOutput(ns("quantiDT"))
   )
@@ -71,7 +83,8 @@ moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
   tagList(
     h5("The missing values will be imputed by the following values :"),
-    DT::dataTableOutput(ns("detQuantValues_DT"))
+    
+  DT::dataTableOutput(ns("detQuantValues_DT"))
   )
 }
 
@@ -103,7 +116,6 @@ moduleMVPlotsUI <- function(id) {
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                     highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                    uiOutput(ns("WarnForImageNA")),
                     imageOutput(ns("plot_showImageNA"), width='600px'))
        )
       )
@@ -133,9 +145,24 @@ moduleDesignExampleUI <- function(id){
 moduleBoxplotUI <- function(id) {
     ns <- NS(id)
     tagList(
-      highchartOutput(ns("BoxPlot")),
-      imageOutput(ns("viewViolinPlot")),
-      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+      
+      br(), br(),
+      tags$div(
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 highchartOutput(ns("BoxPlot")),
+                 imageOutput(ns("viewViolinPlot"))
+        ),
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
+        ),
+        
+        tags$div(style="display:inline-block; vertical-align: middle;",
+                 moduleTrackProtUI(ns('widgets'))
+        )
+                 
+      )         
+      
+      
       )
 }
 

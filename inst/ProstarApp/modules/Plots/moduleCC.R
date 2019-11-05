@@ -6,30 +6,30 @@ moduleCCUI <- function(id) {
            value = "graphTab",
            tabsetPanel(
              id = "graphsPanel",
-            
+             
              tabPanel("One-One Connex Components",
                       tagList(
                         fluidRow(
-                                 column(width=4, tagList(
-                                   uiOutput(ns("Warning_OneOneDT")),
-                                   DT::dataTableOutput(ns("OneOneDT")))
-                                            ),
-                                 column(width=8, tagList(
-                                   uiOutput(ns("Warning_OneOneDTDetailed")),
-                                   DT::dataTableOutput(ns("OneOneDTDetailed"))))
-                                 )
-                        #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
+                          column(width=4, tagList(
+                            uiOutput(ns("Warning_OneOneDT")),
+                            DT::dataTableOutput(ns("OneOneDT")))
+                          ),
+                          column(width=8, tagList(
+                            uiOutput(ns("Warning_OneOneDTDetailed")),
+                            DT::dataTableOutput(ns("OneOneDTDetailed"))))
                         )
+                        #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
+                      )
              ),
              tabPanel("One-Multi Connex Components",
                       tagList(
                         fluidRow(
-                                  column(width=4, tagList(
-                                    uiOutput(ns("Warning_OneMultiDT")),
-                                    DT::dataTableOutput(ns("OneMultiDT")))),
-                                  column(width=8, tagList(
-                                    uiOutput(ns("Warning_OneMultiDTDetailed")),
-                                    DT::dataTableOutput(ns("OneMultiDTDetailed"))))
+                          column(width=4, tagList(
+                            uiOutput(ns("Warning_OneMultiDT")),
+                            DT::dataTableOutput(ns("OneMultiDT")))),
+                          column(width=8, tagList(
+                            uiOutput(ns("Warning_OneMultiDTDetailed")),
+                            DT::dataTableOutput(ns("OneMultiDTDetailed"))))
                         )
                       )
              ),
@@ -46,7 +46,7 @@ moduleCCUI <- function(id) {
                             highchartOutput(ns("jiji")),
                             uiOutput(ns("Warning_CCMultiMulti")),
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
-                            )),
+                          )),
                           column(width=6, tagList(
                             visNetworkOutput(ns("visNet_CC"), height='600px')))
                         ),
@@ -75,7 +75,7 @@ moduleCC <- function(input, output, session,cc){
       sharedPepLabels = NULL, 
       specPepLabels  = NULL,
       protLabels  = NULL)
-  
+    
   )
   
   observeEvent(req(input$searchCC), {
@@ -90,13 +90,13 @@ moduleCC <- function(input, output, session,cc){
   # select a point in the grpah
   observeEvent(input$click,{
     rvCC$selectedNode <- input$click
-    })
+  })
   
-
+  
   # Get the id of selected neighbors in the graph
   observeEvent(input$visNet_CC_highlight_color_id,{
     rvCC$selectedNeighbors <- input$visNet_CC_highlight_color_id
-    })
+  })
   
   
   # select a CC in the summary table
@@ -129,15 +129,15 @@ moduleCC <- function(input, output, session,cc){
   # 
   
   
-
-output$visNet_CC <- renderVisNetwork({
+  
+  output$visNet_CC <- renderVisNetwork({
     req(rvCC$selectedCC)
     local <-   cc()[Get_CC_Multi2Any()]
     
     rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
     
     display.CC.visNet(rvCC$selectedCCgraph) %>%
-    visEvents(click = paste0("function(nodes){
+      visEvents(click = paste0("function(nodes){
                 Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
                 Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
                 ;}")
@@ -149,42 +149,42 @@ output$visNet_CC <- renderVisNetwork({
   output$jiji <- renderHighchart({
     tooltip <- NULL
     
-   isolate({
-     local <-   cc()[Get_CC_Multi2Any()]
-     n.prot <- unlist(lapply(local, function(x){length(x$proteins)}))
-     n.pept <- unlist(lapply(local, function(x){length(x$peptides)}))
-     df <- tibble(x=jitter(n.pept),
-                     y = jitter(n.prot),
-                     index = 1:length(local))
-        
-        if (!is.null( tooltip)){
-          df <- cbind(df,fData(rv$current.obj)[ tooltip])
-        }
-
-        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-        if (ncol(df) > 3){
-          colnames(df)[4:ncol(df)] <-
-            paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-        }
-
-        clickFun <-
-          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
-
-          rv$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
-
-      })
-     rv$tempplot$plotCC
-
+    isolate({
+      local <-   cc()[Get_CC_Multi2Any()]
+      n.prot <- unlist(lapply(local, function(x){length(x$proteins)}))
+      n.pept <- unlist(lapply(local, function(x){length(x$peptides)}))
+      df <- tibble(x=jitter(n.pept),
+                   y = jitter(n.prot),
+                   index = 1:length(local))
+      
+      if (!is.null( tooltip)){
+        df <- cbind(df,fData(rv$current.obj)[ tooltip])
+      }
+      
+      colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+      if (ncol(df) > 3){
+        colnames(df)[4:ncol(df)] <-
+          paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+      }
+      
+      clickFun <-
+        JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+      
+      rv$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
+      
+    })
+    rv$tempplot$plotCC
+    
   })
   
-
+  
   
   
   output$Warning_CCMultiMulti <- renderUI({
-      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
-        p(MSG_WARNING_SIZE_DT)
-    })
-
+    if (nrow(GetDataFor_CCMultiMulti()) > 153) 
+      p(MSG_WARNING_SIZE_DT)
+  })
+  
   
   GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
@@ -229,8 +229,8 @@ output$visNet_CC <- renderVisNetwork({
   })
   
   
- 
- observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
+  
+  observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
     
     local <-   cc()[Get_CC_Multi2Any()]
     rvCC$selectedNeighbors
@@ -241,7 +241,7 @@ output$visNet_CC <- renderVisNetwork({
       sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
       specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
       protIndices <- intersect(rvCC$selectedNeighbors,which(nodes[,'group'] == "protein"))
-    
+      
     } else {
       sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
       specPepIndices <- which(nodes[,'group'] == "spec.peptide")
@@ -251,14 +251,14 @@ output$visNet_CC <- renderVisNetwork({
     rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
     rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
     
-})
-
-
-output$CCDetailed <- renderUI({
-   req(rvCC$detailedselectedNode)
-   req(rvCC$selectedCC)
-   
-   tagList(
+  })
+  
+  
+  output$CCDetailed <- renderUI({
+    req(rvCC$detailedselectedNode)
+    req(rvCC$selectedCC)
+    
+    tagList(
       h4("Proteins"),
       dataTableOutput(ns('CCDetailedProt')),
       h4("Specific peptides"),
@@ -266,30 +266,30 @@ output$CCDetailed <- renderUI({
       h4("Shared peptides"),
       dataTableOutput(ns('CCDetailedSharedPep'))
     )
-})
- 
+  })
+  
   output$CCDetailedProt<- renderDataTable(server=TRUE,{
     req(rvCC$selectedCC)
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
-   # print("output$CCDetailedProt<- renderDataTable(")
+    # print("output$CCDetailedProt<- renderDataTable(")
     df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
                      #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
-                     )
+    )
     colnames(df) <-c('Proteins Ids')
     dt <- DT::datatable( df,
-                     extensions = c('Scroller'),
-                     options = list(initComplete = initComplete(),
-                                    dom='rt',
-                                    blengthChange = FALSE,
-                                    ordering=FALSE,
-                                    scrollX = 400,
-                                    scrollY = 100,
-                                    displayLength = 10,
-                                    scroller = TRUE,
-                                    header=FALSE,
-                                    server = FALSE)) 
+                         extensions = c('Scroller'),
+                         options = list(initComplete = initComplete(),
+                                        dom='rt',
+                                        blengthChange = FALSE,
+                                        ordering=FALSE,
+                                        scrollX = 400,
+                                        scrollY = 100,
+                                        displayLength = 10,
+                                        scroller = TRUE,
+                                        header=FALSE,
+                                        server = FALSE)) 
     dt
   })
   
@@ -311,26 +311,26 @@ output$CCDetailed <- renderUI({
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
-      {
+    {
       data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     offset <- length(input$pepInfo)
     dt <- DT::datatable( data,
-                     extensions = c('Scroller'),
-                     options = list(initComplete = initComplete(),
-                                    dom='rt',
-                                    blengthChange = FALSE,
-                                    ordering=FALSE,
-                                    scrollX = 400,
-                                    scrollY = 150,
-                                    displayLength = 10,
-                                    scroller = TRUE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
+                         extensions = c('Scroller'),
+                         options = list(initComplete = initComplete(),
+                                        dom='rt',
+                                        blengthChange = FALSE,
+                                        ordering=FALSE,
+                                        scrollX = 400,
+                                        scrollY = 150,
+                                        displayLength = 10,
+                                        scroller = TRUE,
+                                        header=FALSE,
+                                        server = FALSE,
+                                        columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                         )) %>%
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
@@ -365,19 +365,19 @@ output$CCDetailed <- renderUI({
     
     
     dt <- DT::datatable( data,
-                     extensions = c('Scroller'),
-                     options = list(initComplete = initComplete(),
-                                    dom='rt',
-                                    blengthChange = FALSE,
-                                    ordering=FALSE,
-                                    scrollX = 400,
-                                    scrollY = 100,
-                                    displayLength = 10,
-                                    scroller = TRUE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
+                         extensions = c('Scroller'),
+                         options = list(initComplete = initComplete(),
+                                        dom='rt',
+                                        blengthChange = FALSE,
+                                        ordering=FALSE,
+                                        scrollX = 400,
+                                        scrollY = 100,
+                                        displayLength = 10,
+                                        scroller = TRUE,
+                                        header=FALSE,
+                                        server = FALSE,
+                                        columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                         )) %>%
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
@@ -450,9 +450,9 @@ output$CCDetailed <- renderUI({
   output$OneMultiDT <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
     df <- BuildOne2MultiTab()
-      colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
+    colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
     
-  dat <- DT::datatable(df,
+    dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
                          extensions = c('Scroller', 'Buttons'),
@@ -481,7 +481,7 @@ output$CCDetailed <- renderUI({
   
   output$Warning_OneMultiDTDetailed <- renderUI({
     req(req(input$OneMultiDT_rows_selected))
-
+    
     if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
@@ -519,21 +519,21 @@ output$CCDetailed <- renderUI({
     
     
     dt <- DT::datatable( GetDataFor_OneMultiDTDetailed(),
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_Multi'
-                                                   ),'print'),
-                                    dom='Bfrtip',pageLength = 10,
-                                    blengthChange = FALSE,
-                                    displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
+                         extensions = c('Scroller', 'Buttons'),
+                         options = list(initComplete = initComplete(),
+                                        buttons = list('copy',
+                                                       list(
+                                                         extend = 'csv',
+                                                         filename = 'Detailed_One_Multi'
+                                                       ),'print'),
+                                        dom='Bfrtip',pageLength = 10,
+                                        blengthChange = FALSE,
+                                        displayLength = 10,
+                                        ordering=FALSE,
+                                        header=FALSE,
+                                        server = FALSE,
+                                        columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                         )) %>%
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
@@ -613,21 +613,21 @@ output$CCDetailed <- renderUI({
     req(input$OneOneDT_rows_selected)
     
     dt <- DT::datatable( GetDataFor_OneOneDTDetailed(),
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_One'
-                                                   ),'print'),
-                                    dom='Bfrtip',blengthChange = FALSE,
-                                    pageLength = 10,
-                                    displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
+                         extensions = c('Scroller', 'Buttons'),
+                         options = list(initComplete = initComplete(),
+                                        buttons = list('copy',
+                                                       list(
+                                                         extend = 'csv',
+                                                         filename = 'Detailed_One_One'
+                                                       ),'print'),
+                                        dom='Bfrtip',blengthChange = FALSE,
+                                        pageLength = 10,
+                                        displayLength = 10,
+                                        ordering=FALSE,
+                                        header=FALSE,
+                                        server = FALSE,
+                                        columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                         )) %>%
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],

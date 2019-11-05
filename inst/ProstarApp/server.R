@@ -54,17 +54,7 @@ shinyServer(function(input, output, session) {
       sink(con, append=TRUE, type="message")
     }
 
-    message(tempdir())
-    
-    message(tempdir())
-    message(normalizePath(tempdir()))
-    message(getwd())
-    message("TEST=")
-    message(Sys.getenv('TEST'))
-    
-    message(Sys.getenv('TMP'))
-    message(Sys.getenv('TMPDIR'))
-    message(Sys.getenv('TEMP'))
+    print(tempdir())
     
    # unsuspendAll(session)
        
@@ -139,10 +129,10 @@ shinyServer(function(input, output, session) {
                  source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
                },
                  
-               FilteringTab =
+               FilterDataTab =
                  source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value,
                
-               NormalizationTab = 
+               Normalization = 
                  source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value,
                
                imputationProteinLevelTabs = {
@@ -151,21 +141,20 @@ shinyServer(function(input, output, session) {
                imputationPeptideLevelTabs = {
                   source(file.path("server", "srv_Imputation_PeptideLevel.R"),  local = TRUE)$value
                },
-               AggregationTab =
-                 source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
+               #AggregationTab =
+               #  source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
                
                diffAnalysisTab = 
                  {
                    source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
                    },
-               
                graphTab = 
                {
                  callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
                  
                },
                
-               GoTab = 
+               GoTab  = 
                  source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
                
                # updateDesignTab = 
@@ -183,7 +172,11 @@ shinyServer(function(input, output, session) {
                
                bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value,
                
-               testTab = source(file.path("server", "srv_HypothesisTest.R"),  local = TRUE)$value
+               testPeptideTab = {
+                 source(file.path("server", "srv_AggregateTest_Peptide.R"),  local = TRUE)$value
+                 
+                  },
+               testProteinTab = source(file.path("server", "srv_HypothesisTest_Protein.R"),  local = TRUE)$value
                )
 
      })

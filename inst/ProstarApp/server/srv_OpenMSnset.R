@@ -1,5 +1,4 @@
-callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}),
-           filename='openMSnset_View')
+callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}))
 
 
 
@@ -137,40 +136,48 @@ observeEvent(input$file,ignoreInit =TRUE,{
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     {
       rv$current.obj@experimentData@other$RawPValues <- FALSE
-      } else if(isTRUE(rv$current.obj@experimentData@other$RawPValues )){
+      } else if(rv$current.obj@experimentData@other$RawPValues ){
       
-      #   nn <- names(rv$current.obj@experimentData@other$Params)
-      #    ind <-  grep("HypothesisTest",nn)
-      # names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
-      # names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
-      # 
-      # .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
-      # .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
-      # names(.logFC) <- names.logFC
-      # names(.P_Value) <- names.P_Value
-      # 
+        nn <- names(rv$current.obj@experimentData@other$Params)
+         ind <-  grep("HypothesisTest",nn)
+      names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
+      names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       
-      #rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
+      .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
+      .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
+      names(.logFC) <- names.logFC
+      names(.P_Value) <- names.P_Value
+      
+      rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
+                                            P_Value = .P_Value)
+      
+      rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
       rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
       }
-    nn <- names(rv$current.obj@experimentData@other$Params)
-    ind <-  grep("HypothesisTest",nn)
-    #params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
-    if (length(ind)>0){
-      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
-      #                                                      params.tmp$AllPairwiseCompNames$logFC),
-      #                                     P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
-      #                                                        params.tmp$AllPairwiseCompNames$P_Value
-      #                                     ))
-      rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
-      rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
+    
+    params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
+    if (!is.null(params.tmp)){
+      rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
+                                                           params.tmp$AllPairwiseCompNames$logFC),
+                                          P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
+                                                             params.tmp$AllPairwiseCompNames$P_Value
+                                          ))
+    
+    rv$listNomsComparaison <- colnames(params.tmp$AllPairwiseCompNames$logFC)
     }
     
     
     rv$current.obj <- addOriginOfValue(rv$current.obj)
     l.params <- list(filename = rv$current.obj.name)
+    
+    
+    
     retroCompatibility()
+    
+    
+    #loadObjectInMemoryFromConverter()
     loadObjectInMemoryFromConverter()
+    
   }
   
   })

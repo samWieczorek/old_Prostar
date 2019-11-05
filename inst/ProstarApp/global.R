@@ -247,6 +247,7 @@ JSCSSTags <- function()
 list(
   tags$script(src="////code.highcharts.com/highcharts.js",type="text/javascript"),
   
+  
   tags$script(src="js/jquery.js",type="text/javascript"),
     tags$script(src="js/jquery.dataTables.js",type="text/javascript"),
     tags$link(href='css/jquery.dataTables.css', rel="stylesheet", 
@@ -571,7 +572,6 @@ calibMethod_Choices <- c("Benjamini-Hochberg",
                          "langaas","jiang", "histo", 
                          "pounds", "abh","slim", 
                          "numeric value")
-names(calibMethod_Choices)<- calibMethod_Choices
 
 anaDiffMethod_Choices <- c("None"="None",
                            "Limma"="Limma", 
@@ -598,7 +598,7 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
 
 
 G_logFC_Column <- "logFC"
-G_pvalue_Column <- "P_Value"
+
 
 G_sourceOfProtID_Choices <- c("Select a column in dataset" = "colInDataset",
   "Choose a file" = "extFile")
@@ -661,4 +661,5 @@ navbarPageWithInputs <- function(..., inputs) {
 
 
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
+
 MSG_WARNING_SIZE_DT <- "The size of the table is too big to be exported with the buttons below (only the first 154 rows will be exported). It is advised to use the Export tool of Prostar."

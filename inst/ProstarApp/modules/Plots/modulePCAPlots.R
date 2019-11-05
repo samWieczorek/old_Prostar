@@ -35,6 +35,7 @@ pcaPlots <- function(input, output, session, data) {
              showRownames=TRUE,
              filename = 'PCAVarCoords')
   
+  
   output$pcaOptions <- renderUI({
     req(data())
     
@@ -101,24 +102,26 @@ pcaPlots <- function(input, output, session, data) {
   
   
   
+  
   output$pcaPlotVar <- renderImage({
-    print("pca_axes")
-    print(rv.pca$PCA_axes)
-    
     req(rv.pca$PCA_axes)
     req(rv.pca$res.pca)
+   
     outfile <- tempfile(fileext='.png')
-    
     # Generate a png
     png(outfile)
-    plotPCA_Var(rv.pca$res.pca, rv.pca$PCA_axes)
+    image <- plotPCA_Var(rv.pca$res.pca, rv.pca$PCA_axes)
+    print(image)
     dev.off()
     
     # Return a list
     list(src = outfile,
          alt = "This is alternate text")
   }, deleteFile = TRUE)
+
   
+
+
   output$pcaPlotInd <- renderImage({
     req(rv.pca$PCA_axes)
     req(rv.pca$res.pca)
@@ -127,15 +130,17 @@ pcaPlots <- function(input, output, session, data) {
     
     # Generate a png
     png(outfile)
-    plotPCA_Ind(rv.pca$res.pca, rv.pca$PCA_axes)
-    dev.off()
-    
-    # Return a list
-    list(src = outfile,
-         alt = "This is alternate text")
-  }, deleteFile = TRUE)
+    image <-plotPCA_Ind(rv.pca$res.pca, rv.pca$PCA_axes)
+    print(image)
+
+  dev.off()
   
-  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
+}, deleteFile = TRUE)
+
+
   output$pcaPlotEigen <- renderHighchart({
     req(rv.pca$res.pca)
     plotPCA_Eigen_hc(rv.pca$res.pca)

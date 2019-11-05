@@ -10,8 +10,7 @@ output$tab_versions <- DT::renderDataTable(server=TRUE,{
                       rownames= FALSE,
                       extensions = c('Scroller', 'Buttons'),
                       option=list(initComplete = initComplete(),
-                                  
-                                  dom='Brt',
+                                  dom = 'Brt',
                                   autoWidth=TRUE,
                                   ordering = F,
                                   columnDefs = list(list(visible=FALSE,targets=c(3)),

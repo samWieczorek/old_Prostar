@@ -9,8 +9,8 @@ output$plotpcasmall <- renderImage({
 
 
 
-# callModule(module=pcaPlots, 'pcaPlots', data=reactive({dataIn()}))
-# 
-# output$plotpcalarge <- renderUI({
-#   pcaPlotsUI(ns('pcaPlots'))
-# })
+callModule(module=pcaPlots, 'pcaPlots', data=reactive({dataIn()}))
+
+output$plotpcalarge <- renderUI({
+  pcaPlotsUI(ns('pcaPlots'))
+})

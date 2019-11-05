@@ -1,8 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.19.0
-Date: 2019-10-25
+Version: 1.19.9
+Date: 2019-11-05
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -22,10 +22,10 @@ biocViews: ImmunoOncology, MassSpectrometry, Normalization, Preprocessing, R.uti
 License: Artistic-2.0
 Depends: R (>= 3.5)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.17.21), DAPARdata (>= 1.14.0), rhandsontable, data.table,
+Imports: DAPAR (>= 1.19.9), DAPARdata (>= 1.15.8), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,
         shinythemes, XML,later, rclipboard, shinycssloaders, future, promises, 
-        colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets, sass
+        colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets
 NeedsCompilation: no
 RoxygenNote: 6.0.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264

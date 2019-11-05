@@ -22,7 +22,7 @@ output$code <- renderUI({
 })
 
 
-output$logSession <- DT::renderDataTable(server=TRUE,{
+output$logSession <- DT::renderDataTable({
   req(rv$text.log)
   
   dt <- DT::datatable(rv$text.log,
@@ -30,12 +30,12 @@ output$logSession <- DT::renderDataTable(server=TRUE,{
                       extensions = c('Scroller', 'Buttons'),
                       rownames = FALSE,
                       options=list(initComplete = initComplete(),
+                                   dom = 'Bfrtip',
                                    buttons = list('copy',
                                                   list(
                                                     extend = 'csv',
                                                     filename = 'logSession'
                                                   ),'print'),
-                                   dom='Bfrtip',
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
                                    bLengthChange = FALSE,
