@@ -1,4 +1,4 @@
-moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
+moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceReset){
   ns <- session$ns
   
   current <- reactiveVal(1)
@@ -10,6 +10,7 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
   
    
   output$checkPanel <- renderUI({
+    current()
     color <- rep("lightgrey",nbSteps)
     colorForCursor <- rep("white",nbSteps)
     
@@ -26,16 +27,21 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
   })
   
 
-   observeEvent(input$rstBtn,{
-     current(1)
-     rstFunc()
-     })
+   observeEvent(c(forceReset(),input$rstBtn),{
+     current()
+     if (forceReset()>0 || input$rstBtn > 0){
+       print("ON FAIT LE RESET EFFECTIF")
+       rstFunc()
+       current(1)
+     }
+     
+   })
+   
    
   observe({
-     toggle(id = "prevBtn", condition = (nbSteps >1))
+    current()
+    toggle(id = "prevBtn", condition = (nbSteps >1))
     toggle(id = "nextBtn", condition = (nbSteps >1) )
-    
-    toggle(id = "rstBtn", condition = !(isDone()[nbSteps])) 
     
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
@@ -51,9 +57,8 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc){
    current(newValue)
    }
   
-  observeEvent(input$prevBtn,{navPage(-1)})
-  observeEvent(input$nextBtn,{navPage(1)})
-  
+  observeEvent(input$prevBtn,ignoreInit = TRUE,{navPage(-1)})
+  observeEvent(input$nextBtn,ignoreInit = TRUE,{navPage(1)})
  
   
   output$screens <- renderUI({

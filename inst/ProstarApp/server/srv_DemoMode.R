@@ -7,7 +7,7 @@ output$chooseDataset <- renderUI({
     print("DAPARdata is loaded correctly")
     selectInput("demoDataset",
                 "Demo dataset",
-                choices = utils::data(package="DAPARdata")$results[,"Item"],
+                choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
                 width='200px'    )
   } else {
     print("trying to install DAPARdata")
@@ -16,7 +16,7 @@ output$chooseDataset <- renderUI({
       print("DAPARdata installed and loaded")
       selectInput("demoDataset",
                   "Demo dataset",
-                  choices = utils::data(package='DAPARdata')$results[,"Item"],
+                  choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
                   width='200px'   )
     } else {
       stop("Could not install the package DAPARdata")
@@ -30,7 +30,7 @@ output$chooseDataset <- renderUI({
 
 output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
-  
+  if (input$demoDataset == "None"){return(NULL)}
   file<- paste(system.file(package = "DAPARdata"),"/doc/",
                input$demoDataset,".pdf", sep="")
   cmd <- paste("cp ",file," www/.", sep="")
@@ -85,12 +85,20 @@ output$infoAboutDemoDataset <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
+  if (input$loadDemoDataset == "None"){return(NULL)}
   
-  ntotal <- 4
+  isolate({
+    ntotal <- 4
   withProgress(message = '',detail = '', value = 0, {
+    print("debut du chargement du dataset")
+    print(rv$widgets$filtering$ChooseFilters)
+    ClearUI()
+    print("debut du chargement du dataset")
+    print(rv$widgets$filtering$ChooseFilters)
+    ClearMemory()
+    print("debut du chargement du dataset")
+    print(rv$widgets$filtering$ChooseFilters)
     
-  ClearMemory()
-  ClearUI()
   incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
@@ -105,6 +113,8 @@ observeEvent(input$loadDemoDataset,{
   
   loadObjectInMemoryFromConverter()
   incProgress(1/ntotal, detail = 'Load memory ')
-  
+  print("Fin du chargement du dataset")
+  print(rv$widgets$filtering$ChooseFilters)
+   })
   })
 })

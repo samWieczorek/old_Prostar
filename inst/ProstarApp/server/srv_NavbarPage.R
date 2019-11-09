@@ -1,5 +1,93 @@
+# IF the dataset is changed par the user, the current process step is reset
+#observeEvent(input$datasets,ignoreInit = TRUE,{ isolate({  ResetActivePage()}) })
 
-observeEvent(rv$current.obj,{  BuildNavbarPage()})
+
+
+observeEvent(rv$current.obj,{  
+  print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
+  
+  BuildNavbarPage()  
+})
+
+
+
+observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
+  
+  # isolate({
+  
+  if (rv$processSaved== TRUE) {
+    print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
+    rv$processSaved <- FALSE
+  } else {
+    print("---- changement de dataset par le menu - Utilisateur !!!!-----")
+    print("---- => On fait un reset de l'interface -----")
+    rv$current.obj <- rv$dataset[[input$datasets]]
+    if (!is.null( rv$current.obj)){
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+      ## remettre les logFC s'ils existent
+      rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
+      
+    }
+    ClearCurrentNavPage(input$navPage)
+  }
+  
+  # })
+  
+})
+
+
+ClearCurrentNavPage <- function(page){
+  switch(page,
+         FilteringTab = {
+           resetModuleProcess("Filtering")
+           rvModProcess$moduleFilteringForceReset <-  1 + rvModProcess$moduleFilteringForceReset  
+         },
+         NormalizationTab = {
+           resetModuleProcess("Normalization")
+           rvModProcess$moduleNormalizationgForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
+         },
+         imputationProteinLevelTabs = {
+           resetModuleProcess("ProtImputation")
+           rvModProcess$moduleProtImputationForceReset <-  1 + rvModProcess$moduleProtImputationForceReset  
+         },
+         imputationPeptideLevelTabs = {
+           resetModuleProcess("PepImputation")
+           rvModProcess$modulePepImputationForceReset <-  1 + rvModProcess$modulePepImputationForceReset  
+         },
+         AggregationTab = {
+           resetModuleProcess("Aggregation")
+           rvModProcess$moduleAggregationForceReset <-  1 + rvModProcess$moduleAggregationForceReset  
+         },
+         testPeptideTab = {
+           resetModuleProcess("HypothesisTestPeptide")
+           rvModProcess$moduleHypothesisTestPeptideForceReset <-  1 + rvModProcess$moduleHypothesisTestPeptideForceReset  
+         } ,
+         testProteinTab = {
+           resetModuleProcess("HypothesisTestProtein")
+           rvModProcess$moduleHypothesisTestProteinForceReset <-  1 + rvModProcess$moduleHypothesisTestProteinForceReset  
+         } ,
+         diffAnalysisTab = {
+           resetModuleProcess("AnaDiff")
+           rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset
+         },
+         convertTab = {
+           resetModuleProcess("Convert")
+           rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
+         } ,
+         
+         GoTab = {
+           resetModuleProcess("GO")
+           rvModProcess$moduleGOForceReset <- 1 + rvModProcess$moduleGOForceReset
+         }
+  )
+}
+
+## Change of page
+observeEvent(input$navPage,{ 
+  print("---- changement de page !!!!-----")
+  print(paste0("La nouvelle page est :", input$navPage))
+  ClearCurrentNavPage(input$navPage) 
+})
 
 
 ClearNavbarPage <- reactive({
@@ -52,7 +140,7 @@ rv$current.obj
                          ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
-                         ,source(file.path("ui", "ui_HypothesisTest_Protein.R"),  local = TRUE)$value
+                         ,source(file.path("ui", "ui_HypothesisTestProtein.R"),  local = TRUE)$value
                          ),
               target = "Data manager",
               position="after")

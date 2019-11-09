@@ -74,7 +74,7 @@ build_ParamsList_Aggregation <- reactive({
 })
 
 #------------------------------------------------------------------------
-build_ParamsList_HypothesisTest <- reactive({
+build_ParamsList_HypothesisTestProtein <- reactive({
   l.params <- list(design = input$anaDiff_Design,
                    method = input$diffAnaMethod,
                    ttest_options = input$ttest_options,
@@ -99,7 +99,17 @@ build_ParamsList_HypothesisTestPeptide <- reactive({
   l.params
 })
 
-
+#------------------------------------------------------------------------
+build_ParamsList_HypothesisTestPeptidomic <- reactive({
+  l.params <- list(design = input$anaDiff_Design,
+                   method = input$diffAnaMethod,
+                   ttest_options = input$ttest_options,
+                   th_logFC = as.numeric(input$seuilLogFC),
+                   AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
+                                               P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
+  )
+  l.params
+})
 #------------------------------------------------------------------------
 build_ParamsList_AnaDiff <- reactive({})
 

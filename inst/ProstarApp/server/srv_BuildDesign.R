@@ -40,6 +40,7 @@ req(rv$designChecked)
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
+  req(rv$widgets$Convert$datafile)
   input$convert_reorder
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
@@ -244,7 +245,7 @@ observe({
 
 #------------------------------------------------------------------------------
 observeEvent(input$chooseExpDesign, {
-  rv$hot
+  req(rv$hot)
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
@@ -282,6 +283,7 @@ observeEvent(input$btn_checkDesign,{ rv$designChecked <- DAPAR::check.design(rv$
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
   req(input$chooseExpDesign)
+  req(rv$widgets$Convert$datafile)
   rv$designChecked
   req(rv$conditionsChecked)
   

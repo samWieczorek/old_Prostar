@@ -116,6 +116,7 @@ moduleMVPlotsUI <- function(id) {
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                     highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
           tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    uiOutput(ns("WarnForImageNA")),
                     imageOutput(ns("plot_showImageNA"), width='600px'))
        )
       )
