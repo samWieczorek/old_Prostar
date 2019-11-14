@@ -315,10 +315,9 @@ observeEvent(input$perform.normalization,{
              rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
                                                   rv$widgets$normalization$method, 
                                                   rv$widgets$normalization$type)
-                                                        )
            }
-    )
-  })
+          )
+
   rvModProcess$moduleNormalizationDone[1] <- TRUE
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })

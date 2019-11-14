@@ -1,12 +1,16 @@
+
+
+
 tabPanel("Aggregate and Test",
          value = "testPeptideTab",
         selectInput('chooseTest', "Choose test", 
                     choices=c("None" = "None", 
                               "Aggregate"="Aggregate", 
-                              'peptidomic test'='peptidomictest', 
-                              'peptide-level protein test'='peptidelevelproteintest')),
-        uiOutput('aggregate_UI'),
-        uiOutput('peptidomicTest_UI'),
-        uiOutput('peptidelevelproteintest_UI')
+                              'peptidomic test'='peptidomicTest', 
+                              'peptide-level protein test'='peptideTest')),
+        shinyjs::hidden(div(id="moduleProcess_Aggregation_UI",moduleProcessUI("moduleProcess_Aggregation"))),
+        shinyjs::hidden(div(id="moduleProcess_HypothesisTestPeptidomic_UI",moduleProcessUI("moduleProcess_HypothesisTestPeptidomic"))),
+        shinyjs::hidden(div(id="moduleProcess_HypothesisTestPeptide_UI",moduleProcessUI("moduleProcess_HypothesisTestPeptide")))
+        
          
 )

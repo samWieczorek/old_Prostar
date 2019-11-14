@@ -13,7 +13,7 @@ rvModProcess <- reactiveValues(
   moduleFilteringForceReset = 0,
   
   
-  
+  ###################
   moduleNormalization = list(name = "Normalization",
                              stepsNames = c("Normalization", "Save"),
                              isMandatory = rep(TRUE,2),
@@ -25,7 +25,7 @@ rvModProcess <- reactiveValues(
   moduleNormalizationForceReset = 0,
   
   
-  
+  ###################
   moduleAggregation = list(name = "Aggregation",
                            stepsNames = c("Aggregation", "Add metadata", "Save"),
                            isMandatory = rep(TRUE, 3),
@@ -41,7 +41,7 @@ rvModProcess <- reactiveValues(
   
   
   
-  
+  ###################
   moduleProtImputation = list(name = "ProtImputation",
                               stepsNames = c("Partially Observed Values", "Missing on Entire Condition", "Save"),
                               isMandatory = c(TRUE, FALSE, TRUE),
@@ -54,6 +54,12 @@ rvModProcess <- reactiveValues(
   moduleProtImputationDone =  rep(FALSE,3),
   moduleProtImputationForceReset = 0,
   
+  
+  
+  
+  
+  
+  ###################
   modulePepImputation = list(name = "PepImputation",
                              stepsNames = c("Imputation", "Save"),
                              isMandatory = rep(TRUE, 2),
@@ -65,6 +71,9 @@ rvModProcess <- reactiveValues(
   modulePepImputationForceReset = 0,
   
   
+  
+  
+  ###################
   moduleHypothesisTestProtein = list(name = "HypothesisTestProtein",
                               stepsNames = c("HypothesisTestProtein", "Save"),
                               isMandatory = rep(TRUE, 2),
@@ -74,6 +83,10 @@ rvModProcess <- reactiveValues(
   moduleHypothesisTestProteinDone =  rep(FALSE,2),
   moduleHypothesisTestProteinForceReset = 0,
   
+  
+  
+  
+  ###########################################################################################
   moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
                               stepsNames = c("HypothesisTestPeptide", "Save"),
                               isMandatory = rep(TRUE, 2),
@@ -81,8 +94,12 @@ rvModProcess <- reactiveValues(
                                            screenStep2 = uiOutput("screenHypoTestPeptide2")),
                               rstFunc = reactive({resetModuleHypothesisTestPeptide()})),
   moduleHypothesisTestPeptideDone =  rep(FALSE,2),
+  moduleHypothesisTestPeptideForceReset = 0,
   
   
+  
+  
+  ###########################################################################################
   moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
                                      stepsNames = c("HypothesisTestPeptidomic", "Save"),
                                      isMandatory = rep(TRUE, 2),
@@ -90,9 +107,10 @@ rvModProcess <- reactiveValues(
                                                   screenStep2 = uiOutput("screenHypoTestPeptidomic2")),
                                      rstFunc = reactive({resetModuleHypothesisTestPeptidomic()})),
   moduleHypothesisTestPeptidomicDone =  rep(FALSE,2),
+  moduleHypothesisTestPeptidomicForceReset = 0,
   
   
-  
+  ###########################################################################################
   moduleConvert = list(name = "Convert",
                        stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                        isMandatory = rep(TRUE,5),
@@ -107,6 +125,7 @@ rvModProcess <- reactiveValues(
   moduleConvertForceReset = 0,
   moduleConvertDone =  rep(FALSE,5),
   
+  ###########################################################################################
   moduleAnaDiff = list(name = "AnaDiff",
                        stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
                        isMandatory = rep(TRUE,4),
@@ -120,6 +139,7 @@ rvModProcess <- reactiveValues(
   moduleAnaDiffForceReset = 0,
   moduleAnaDiffDone =  rep(FALSE,4),
   
+  ###########################################################################################
   moduleGO = list(name = "GO",
                   stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
                   isMandatory = c(TRUE, FALSE, FALSE, FALSE),

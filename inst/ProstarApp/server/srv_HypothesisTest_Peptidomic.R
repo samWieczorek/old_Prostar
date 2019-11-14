@@ -1,3 +1,5 @@
+
+
 callModule(module_Not_a_numeric,"test_seuillogFCPeptidomic", reactive({input$seuilLogFCPeptidomic}))
 
 
@@ -8,7 +10,9 @@ observeEvent(input$seuilLogFCPeptidomic,{  rv$widgets$hypothesisTest$th_logFC<- 
 callModule(moduleProcess, "moduleProcess_HypothesisTestPeptidomic", 
            isDone = reactive({rvModProcess$moduleHypothesisTestPeptidomicDone}), 
            pages = reactive({rvModProcess$moduleHypothesisTestPeptidomic}),
-           rstFunc = resetModuleHypothesisTestPeptidomic)
+           rstFunc = resetModuleHypothesisTestPeptidomic,
+           forceReset = reactive({rvModProcess$moduleHypothesisTestPeptidomicForceReset })  )
+
 
 
 resetModuleHypothesisTestPeptidomic <- reactive({  

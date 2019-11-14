@@ -28,7 +28,9 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
   
 
    observeEvent(c(forceReset(),input$rstBtn),{
+     req(input$rstBtn)
      current()
+   
      if (forceReset()>0 || input$rstBtn > 0){
        print("ON FAIT LE RESET EFFECTIF")
        rstFunc()
@@ -38,14 +40,15 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
    })
    
    
-  observe({
-    current()
-    toggle(id = "prevBtn", condition = (nbSteps >1))
-    toggle(id = "nextBtn", condition = (nbSteps >1) )
+  observeEvent(current(),{
+    
+    
+    toggle(id = "prevBtn", condition = (nbSteps > 1))
+    toggle(id = "nextBtn", condition = (nbSteps > 1) )
     
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
-    hide(selector = ".page")
+    #hide(selector = ".page")
   })
   
   ##--------------------------------------------------------------
