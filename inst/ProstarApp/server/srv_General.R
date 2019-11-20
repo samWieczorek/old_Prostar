@@ -415,7 +415,7 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
-GetCurrentObjName <- reactive({rv$dataset[[input$datasets]]})
+GetCurrentObjName <- reactive({rv$datasets[[input$datasets]]})
 
 createPNGFromWidget <- function(tempplot, pattern){
   tmp_filename <- paste0(pattern, '.html')

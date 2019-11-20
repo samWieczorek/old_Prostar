@@ -575,6 +575,7 @@ moduleDensityplot <- function(input, output, session, data) {
       data()
       print("data() in densityPlot module")
       print(data())
+      print(GetCurrentObjName())
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
       tmp <- NULL

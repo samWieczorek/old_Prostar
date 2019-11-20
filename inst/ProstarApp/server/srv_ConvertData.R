@@ -730,20 +730,19 @@ observeEvent(input$createMSnsetButton,{
                                    installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 )
 
-
-
-                rv$current.obj <- DAPAR::createMSnset(rv$tab1,
-                                    metadata,
-                                    indexForEData,
-                                    indexForFData,
-                                    indexForIDBox,
-                                    indexForOriginOfValue,
-                                    (rv$widgets$Convert$checkDataLogged == "no"),
-                                    rv$widgets$Convert$replaceAllZeros,
-                                    pep_prot_data = rv$widgets$Convert$typeOfData,
-                                    proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
-                                    versions
-                                    )
+                rv$current.obj <- Exp1_R25_pept
+                # rv$current.obj <- DAPAR::createMSnset(rv$tab1,
+                #                     metadata,
+                #                     indexForEData,
+                #                     indexForFData,
+                #                     indexForIDBox,
+                #                     indexForOriginOfValue,
+                #                     (rv$widgets$Convert$checkDataLogged == "no"),
+                #                     rv$widgets$Convert$replaceAllZeros,
+                #                     pep_prot_data = rv$widgets$Convert$typeOfData,
+                #                     proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
+                #                     versions
+                #                     )
 
                #rv$current.obj <- tmp
                #rv$current.obj <- get("Exp1_R25_pept")
