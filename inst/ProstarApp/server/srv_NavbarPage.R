@@ -8,6 +8,8 @@ observeEvent(rv$current.obj,{
   print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
   
   BuildNavbarPage()  
+  print("after call to BuildNavbarPage")
+  print(rv$current.obj)
   })
 
 
@@ -17,7 +19,7 @@ observeEvent( req(input$datasets),ignoreInit = TRUE,{
  # isolate({
     
     if (rv$processSaved== TRUE) {
-      print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
+      print("---- changement de dataset par mise à jour de input$datasets !!!!-----")
       rv$processSaved <- FALSE
     } else {
       print("---- changement de dataset par le menu - Utilisateur !!!!-----")
@@ -56,7 +58,6 @@ ClearCurrentNavPage <- function(page){
            resetModuleProcess("PepImputation")
            rvModProcess$modulePepImputationForceReset <-  1 + rvModProcess$modulePepImputationForceReset  
          },
-         #AggregationTab = resetModuleProcess("Aggregation"),
          testTab = {
            resetModuleProcess("HypothesisTest")
            rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  

@@ -333,78 +333,75 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function(){
-  req(rv$current.obj)
-  rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+  # req(rv$current.obj)
+   
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
-  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
-    
-  
+  if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
+    rv$typeOfDataset <- ""
+    } else {
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+    }
+
+
   withProgress(message = 'Loading memory',detail = '', value = 0, {
     incProgress(0.5, detail = 'Miscellaneous updates')
   colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
   names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-  
-  
-    #If there are already pVal values, then do no compute them 
+
+
+    #If there are already pVal values, then do no compute them
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
     #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
     #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
     #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
     #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
     # }
-    
+
   if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     rv$current.obj@experimentData@other$RawPValues <- FALSE
-  
-  
-  
+
     rv$PlotParams$paletteConditions <- GetExamplePalette()
-    
-    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){ 
+
+    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
      print("begin compute adjacency matrix")
-        incProgress(0.6, detail = 'Compute Adjacency Matrices')  
+        incProgress(0.6, detail = 'Compute Adjacency Matrices')
         ComputeAdjacencyMatrices()
-      print("End ComputeAdjacencyMatrices()")
-      print("begin ComputeConnexComposants")
-      incProgress(0.7, detail = 'Compute Connex Composants')  
+      incProgress(0.7, detail = 'Compute Connex Composants')
       ComputeConnexComposants()
-      print("end ComputeConnexComposants()")
     }
-    
+
       if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
         {
           rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
       }
-
    
-    
     name <- paste0("Original", ".", rv$typeOfDataset)
-    
     if (is.null(rv$current.obj@experimentData@other$Params))
-      rv$current.obj <- saveParameters(rv$current.obj, name,"-")
-    else {
-      names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
-    }
-    
-    rv$dataset[[name]] <- rv$current.obj
-    
-    
-    
-    updateSelectInput(session, "datasets", 
-                      #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                      choices = names(rv$dataset),
-                      selected = name)
-    
-    incProgress(0.9, detail = 'Build UI') 
-    ClearNavbarPage()
-    BuildNavbarPage()
-   
-  })
+       rv$current.obj <- saveParameters(rv$current.obj, name,"-")
+     else {
+       names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
+     }
+
+  UpdateDatasetWidget(rv$current.obj, name)
+  #   print("------- dans lodObjectInMemory, apres UpdateDatasetWidget")
+  #   print(rv$current.obj)
+     incProgress(0.9, detail = 'Build UI') 
+     ClearNavbarPage()
+     BuildNavbarPage()
+  #  
+  #   
+  #   print("toto")
+    }) # end of withProgress
+
 }
 
-#
 
 
+UpdateDatasetWidget <- function(obj, name){
+  rv$processSaved <- TRUE
+  rv$dataset[[name]] <- obj
+  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+}
 
 
 ###-------------------------------------------------------------------
@@ -418,7 +415,7 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
-GetCurrentObjName <- reactive({rv$datasets[[input$datasets]]})
+GetCurrentObjName <- reactive({rv$dataset[[input$datasets]]})
 
 createPNGFromWidget <- function(tempplot, pattern){
   tmp_filename <- paste0(pattern, '.html')
@@ -619,7 +616,8 @@ resetModuleProcess <- function(moduleName){
                                              checkDataLogged = "no",
                                              replaceAllZeros =TRUE,
                                              convert_reorder = "no",
-                                            XLSsheets = character(0))
+                                            XLSsheets = character(0),
+                                            design = NULL)
             
             
             rvModProcess$moduleConvert = list(name = "Convert",
@@ -883,13 +881,6 @@ ClearMemory <- function(){
 
 
 
-
-
-UpdateDatasetWidget <- function(obj, name){
-  rv$processSaved <- TRUE
-  rv$dataset[[name]] <- obj
-  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-}
 
 
 

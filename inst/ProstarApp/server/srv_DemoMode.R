@@ -91,16 +91,10 @@ observeEvent(input$loadDemoDataset,{
   isolate({
     ntotal <- 4
   withProgress(message = '',detail = '', value = 0, {
-    print("debut du chargement du dataset")
-    print(rv$widgets$filtering$ChooseFilters)
     
     ClearUI()
-    print("debut du chargement du dataset")
-    print(rv$widgets$filtering$ChooseFilters)
     ClearMemory()
-  print("debut du chargement du dataset")
-  print(rv$widgets$filtering$ChooseFilters)
-  incProgress(1/ntotal, detail = 'Clear memory ')
+   incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
   incProgress(1/ntotal, detail = 'Load dataset ')
@@ -114,8 +108,6 @@ observeEvent(input$loadDemoDataset,{
   
   loadObjectInMemoryFromConverter()
   incProgress(1/ntotal, detail = 'Load memory ')
-  print("Fin du chargement du dataset")
-  print(rv$widgets$filtering$ChooseFilters)
   })
   })
 })

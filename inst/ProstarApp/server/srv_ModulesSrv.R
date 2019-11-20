@@ -518,10 +518,11 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data, title=NULL, palette) {
+missingValuesPlots <- function(input, output, session, data, palette) {
     
   output$histo_MV <- renderHighchart({
     data()
+    
     rv$PlotParams$paletteConditions
     tmp <- NULL
     #isolate({
@@ -572,6 +573,8 @@ moduleDensityplot <- function(input, output, session, data) {
     output$Densityplot <- renderHighchart({
       #req(rv$current.obj)
       data()
+      print("data() in densityPlot module")
+      print(data())
       rv$PlotParams$paletteConditions
       rv$PlotParams$legendForSamples
       tmp <- NULL

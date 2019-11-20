@@ -9,6 +9,7 @@ callModule(missingValuesPlots,"MVPlots_filtering",
            data=reactive({rv$current.obj}),
            palette = reactive({rv$PlotParams$paletteConditions})
            )
+
 callModule(moduleFilterStringbasedOptions,"filteringStringBasedOptions")
 callModule(modulePopover,"modulePopover_keepVal", data = reactive(list(title=tags$b("Keep vals"),
                                                                          content= "The user-defined threshold allows to tune the minimum amount of non-NA values for each line to be kept in the dataset (the line is filtered out otherwise). The threshold either applies on the whole dataset, on each condition or on at least one condition.")))
@@ -36,10 +37,7 @@ resetModuleFiltering <- reactive({
   rv$deleted.mvLines <- NULL
   rv$deleted.numeric <- NULL
   
-  print(input$datasets)
-  print(rv$dataset[[input$datasets]])
   rv$current.obj <- rv$dataset[[input$datasets]]
-  
   rvModProcess$moduleFilteringDone = rep(FALSE, 5)
     
 })
@@ -212,27 +210,27 @@ observeEvent(input$actionButtonFilter,{
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
   print("In : observeEvent(input$perform.filtering.MV")
-  input$ChooseFilters
+  rv$widgets$filtering$ChooseFilters
   input$seuilNA
   
-  if (input$ChooseFilters == gFilterNone){
+  if (rv$widgets$filtering$ChooseFilters == gFilterNone){
     #rv$current.obj <- rv$dataset[[input$datasets]]
   } else {
     keepThat <- mvFilterGetIndices(rv$current.obj,
-                                   input$ChooseFilters,
+                                   rv$widgets$filtering$ChooseFilters,
                                    as.integer(input$seuilNA))
     if (!is.null(keepThat))
     {
       rv$deleted.mvLines <- rv$current.obj[-keepThat]
       rv$current.obj <- mvFilterFromIndices(rv$current.obj,
                             keepThat,
-                            GetFilterText(input$ChooseFilters, as.integer(input$seuilNA)))
+                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
       
       rvModProcess$moduleFilteringDone[1] <- TRUE
     }
   }
-  updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-  updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+  #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  #updateSelectInput(session, "seuilNA", selected = input$seuilNA)
 })
 
 
@@ -334,16 +332,7 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
 
 
 
-
-
-#############-------------------------
-
-# observe({
-#   req(rv$widgets$filtering$ChooseFilters)
-#   updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
-# })
-
-observeEvent(input$ChooseFilters,ignoreInit=TRUE,{
+observeEvent(input$ChooseFilters,{
   rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
 })
 
@@ -369,7 +358,7 @@ output$ObserverNumericalFilteringDone <- renderUI({
 
 
 Get_symFilter_cname_choice <- reactive({
-  
+  req(rv$current.obj)
   choice <- c("None", colnames(fData(rv$current.obj)))
   choice
 })
@@ -537,11 +526,11 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
 ##' Show the widget (slider input) for filtering
 ##' @author Samuel Wieczorek
 output$seuilNADelete <- renderUI({ 
-  req(input$ChooseFilters)
+  req(rv$widgets$filtering$ChooseFilters)
   
-  if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
+  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
   print(rv$current.obj)
-  choix <- getListNbValuesInLines(rv$current.obj, type=input$ChooseFilters)
+  choix <- getListNbValuesInLines(rv$current.obj, type=rv$widgets$filtering$ChooseFilters)
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
     
@@ -598,7 +587,7 @@ req(rv$deleted.mvLines)
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
   
   isolate({
-    if((input$ChooseFilters != gFilterNone) 
+    if((rv$widgets$filtering$ChooseFilters != gFilterNone) 
        || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
        || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
       l.params <- build_ParamsList_Filtering()

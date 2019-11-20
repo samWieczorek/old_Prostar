@@ -1,8 +1,7 @@
 
-
 observeEvent(input$linkToFaq1, {
   updateTabsetPanel(session, 'navPage', "faqTab")
-  })
+})
 
 
 
@@ -24,19 +23,6 @@ color_renderer <- reactive({
 
 
 
-output$convertFinalStep <- renderUI({
-req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
-    uiOutput("warningCreateMSnset")
-    
-  )
-})
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
@@ -62,7 +48,7 @@ observeEvent(input$eData.box,{
                         Condition = rep("",length(input$eData.box)),
                         stringsAsFactors = FALSE)
   
- 
+  
 })
 
 #-------------------------------------------------------------
@@ -77,33 +63,33 @@ output$hot <- renderRHandsontable({
   }
   
   hot <- rhandsontable::rhandsontable(rv$hot,rowHeaders=NULL, 
-                       fillHandle = list(direction='vertical', 
-                                         autoInsertRow=FALSE,
-                                         maxRows=nrow(rv$hot))) %>%
+                                      fillHandle = list(direction='vertical', 
+                                                        autoInsertRow=FALSE,
+                                                        maxRows=nrow(rv$hot))) %>%
     rhandsontable::hot_rows(rowHeights = 30) %>%
     rhandsontable::hot_context_menu(allowRowEdit = TRUE, 
-                     allowColEdit = FALSE,
-                     allowInsertRow = FALSE,
-                     allowInsertColumn = FALSE,
-                     allowRemoveRow = TRUE,
-                     allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
+                                    allowColEdit = FALSE,
+                                    allowInsertRow = FALSE,
+                                    allowInsertColumn = FALSE,
+                                    allowRemoveRow = TRUE,
+                                    allowRemoveColumn = FALSE,
+                                    autoInsertRow=FALSE     ) %>%
     rhandsontable:: hot_cols(renderer = color_renderer()) %>%
     rhandsontable::hot_col(col = "Sample.name", readOnly = TRUE)
   
   if (!is.null(input$chooseExpDesign)) {
     switch(input$chooseExpDesign,
            FlatDesign = {
-               if ("Bio.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% rhandsontable::hot_col(col = "Bio.Rep", readOnly = TRUE)
-               },
+             if ("Bio.Rep" %in% colnames(rv$hot))
+               hot <- hot %>% rhandsontable::hot_col(col = "Bio.Rep", readOnly = TRUE)
+           },
            twoLevelsDesign = {
-               if ("Tech.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% rhandsontable::hot_col(col =  "Tech.Rep", readOnly = TRUE)
+             if ("Tech.Rep" %in% colnames(rv$hot))
+               hot <- hot %>% rhandsontable::hot_col(col =  "Tech.Rep", readOnly = TRUE)
            } ,
            threeLevelsDesign = {
-               if ("Analyt.Rep" %in% colnames(rv$hot))
-                   hot <- hot %>% rhandsontable::hot_col(col = "Analyt.Rep", readOnly = TRUE)
+             if ("Analyt.Rep" %in% colnames(rv$hot))
+               hot <- hot %>% rhandsontable::hot_col(col = "Analyt.Rep", readOnly = TRUE)
            }
     )
   }
@@ -117,7 +103,7 @@ output$hot <- renderRHandsontable({
 
 #----------------------------------------------------------
 output$UI_checkConditions  <- renderUI({
-
+  
   req(rv$hot)
   rv$conditionsChecked
   input$convert_reorder
@@ -185,7 +171,7 @@ output$UI_hierarchicalExp <- renderUI({
                    choices = c("Flat design (automatic)" = "FlatDesign" ,
                                "2 levels design (complete Bio.Rep column)" = "twoLevelsDesign" ,
                                "3 levels design (complete Bio.Rep and Tech.Rep columns)" = "threeLevelsDesign" )
-                   )
+      )
     )
   }
   
@@ -221,19 +207,19 @@ output$designExamples <- renderUI({
          FlatDesign = 
            {
              tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")
-             },
+           },
          twoLevelsDesign =  {
            tagList(h4("Example for a 2-levels design"),
                    moduleDesignExampleUI("buildDesignExampleTwo")
            )
-           },
+         },
          threeLevelsDesign =  {
            tagList(
              h4("Example for a 3-levels design"),
-           moduleDesignExampleUI("buildDesignExampleThree")
+             moduleDesignExampleUI("buildDesignExampleThree")
            )
-           }
-         )
+         }
+  )
 })
 
 
@@ -250,23 +236,23 @@ observeEvent(input$chooseExpDesign, {
   rv$designChecked <- NULL
   switch(input$chooseExpDesign,
          FlatDesign = {
-                      rv$hot  <- data.frame(rv$hot[,1:2],
+           rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-                      },
+         },
          twoLevelsDesign = {
-                      rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
+           rv$hot  <- data.frame(rv$hot[,1:2],Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-                          },
+         },
          threeLevelsDesign = {
-                        #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
-                        rv$hot  <- data.frame(rv$hot[,1:2],
+           #if (length(grep("Tech.Rep", colnames(rv$hot))) > 0) { return(NULL)}
+           rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = rep("",nrow(rv$hot)),
                                  Tech.Rep = rep("",nrow(rv$hot)),
                                  Analyt.Rep = seq(1:nrow(rv$hot)),
                                  stringsAsFactors = FALSE)
-                              }
+         }
   )
 })
 
@@ -292,7 +278,7 @@ output$checkDesign <- renderUI({
   switch(isolate({input$chooseExpDesign}),
          FlatDesign = {},
          twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
-         threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}
+         threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "") + sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}
   )
   
   
@@ -310,7 +296,7 @@ output$checkDesign <- renderUI({
           shinyjs::enable("createMSnsetButton")
           img <- "images/Ok.png"
           txt <- "Correct design"
-         # rvModProcess$moduleConvertDone[4] <- TRUE
+          # rvModProcess$moduleConvertDone[4] <- TRUE
         }else {
           img <- "images/Problem.png"
           txt <- "Invalid design"}
@@ -335,8 +321,3 @@ output$checkDesign <- renderUI({
   
   
 })
-
-
-
-
-

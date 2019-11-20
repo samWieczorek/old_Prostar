@@ -30,12 +30,9 @@ callModule(moduleProcess, "moduleProcess_Convert",
 
 
 resetModuleConvert<- reactive({  
-  ## update widgets values (reactive values)
   resetModuleProcess("Convert")
-    
-  #shinyjs::reset('file1')
-  ## update widgets in UI
-  rv$widgets$Convert$datafile <- NULL
+
+   rv$widgets$Convert$datafile <- NULL
   rv$widgets$Convert$selectIdent <- FALSE
   rv$widgets$Convert$convert_proteinId <- character(0)
   rv$widgets$Convert$idBox <- "Auto ID"
@@ -48,6 +45,7 @@ resetModuleConvert<- reactive({
   rv$hot <- NULL
   rv$tab1 <- NULL
   rv$designChecked <- NULL
+  #rv$current.obj <- rv$dataset[[input$datasets]]
   rvModProcess$moduleConvertDone <- rep(FALSE, 5)
   
 })
@@ -139,10 +137,9 @@ output$Convert_ExpFeatData <- renderUI({
              tagList(
                uiOutput("checkIdentificationTab"),
                 
-               hidden(checkboxInput("selectIdent", 
+               checkboxInput("selectIdent", 
                   "Select columns for identification method", 
-                  value = rv$widgets$Convert$selectIdent)
-               ),
+                  value = rv$widgets$Convert$selectIdent),
                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })")),
@@ -658,8 +655,19 @@ output$warningCreateMSnset <- renderUI({
 })
 
 
-
-
+output$convertFinalStep <- renderUI({
+  req(rv$designChecked)
+  if (!(rv$designChecked$valid)){return(NULL)}
+  tagList(
+    uiOutput("checkAll_convert", width="50"),
+    htmlOutput("msgAlertCreateMSnset"),
+    hr(),
+    textInput("filenameToCreate","Enter the name of the study"),
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
+    uiOutput("warningCreateMSnset")
+    
+  )
+})
 
 
 #######################################
@@ -670,11 +678,12 @@ observeEvent(input$createMSnsetButton,{
     if (isTRUE(rv$widgets$Convert$selectIdent)) {
         colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
         if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
-    } 
-    
-    #isolate({
+    }
+
+
         result = tryCatch(
             {
+              isolate({
                 ext <- GetExtension(rv$widgets$Convert$datafile$name)
                 txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
                                  "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
@@ -687,94 +696,85 @@ observeEvent(input$createMSnsetButton,{
                        xls= writeToCommandLogFile(txtXls),
                        xlsx = writeToCommandLogFile(txtXls)
                 )
-                
-                input$filenameToCreate
-                rv$tab1
-                
+
                 tmp.eData.box <- rv$widgets$Convert$eDatabox
                 indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
                 if (!is.null(rv$newOrder)){
                     tmp.eData.box <- tmp.eData.box[rv$newOrder]
                     indexForEData <- indexForEData[rv$newOrder]
                 }
-                
+
                 indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
-                
+
                 indexForIDBox <- NULL
                 if (rv$widgets$Convert$idBox !="Auto ID") {
                     indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
                 }
-                
-                
+
+
                 metadata <- hot_to_r(input$hot)
                 logData <- (rv$widgets$Convert$checkDataLogged == "no")
-                
-                
+
+
                 indexForOriginOfValue <- NULL
                 if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
                     for (i in 1:length(tmp.eData.box)){
                         indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
                     }
                 }
-                
-                
-                versions <- list(Prostar_Version = 
+
+
+                versions <- list(Prostar_Version =
                                    installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
-                                 DAPAR_Version = 
+                                 DAPAR_Version =
                                    installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 )
-                tmp <- DAPAR::createMSnset(rv$tab1, 
-                                    metadata, 
-                                    indexForEData, 
-                                    indexForFData, 
+
+
+
+                rv$current.obj <- DAPAR::createMSnset(rv$tab1,
+                                    metadata,
+                                    indexForEData,
+                                    indexForFData,
                                     indexForIDBox,
                                     indexForOriginOfValue,
-                                    logData, 
+                                    (rv$widgets$Convert$checkDataLogged == "no"),
                                     rv$widgets$Convert$replaceAllZeros,
                                     pep_prot_data = rv$widgets$Convert$typeOfData,
                                     proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
                                     versions
-                )
-                rvModProcess$moduleConvertDone[5] <- TRUE
-                print("Convert : after creating MSnset")
-                ClearUI()
-                ClearMemory()
-                rv$current.obj <- tmp
-                
+                                    )
+
+               #rv$current.obj <- tmp
+               #rv$current.obj <- get("Exp1_R25_pept")
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+                rv$typeOfDataset <- rv$widgets$Convert$typeOfData
+                rv$current.obj <- addOriginOfValue(rv$current.obj)
+
+                rvModProcess$moduleConvertDone[5] <- TRUE
                 
-                l.params <- list(filename = input$filenameToCreate)
-                print("Convert : before loadObjectInMemoryFromConverter")
-                loadObjectInMemoryFromConverter()
-                print("Convert : after loadObjectInMemoryFromConverter")
-                
-                updateTabsetPanel(session, "tabImport", selected = "Convert")
-                
+               loadObjectInMemoryFromConverter()
+
+                print("after loadObjectInMemoryFromConverter")
+                print(rv$current.obj)
+                #updateTabsetPanel(session, "tabImport", selected = "Convert")
+            }) ## end of isolate
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
                     shinyjs::info(paste("Warning : Your original dataset may contain negative values",
-                                        "so that they cannot be logged. Please check back the dataset or", 
+                                        "so that they cannot be logged. Please check back the dataset or",
                                         "the log option in the first tab.",
                                         sep=" "))
-                } 
-              # else {
-              #       shinyjs::info(paste("Warning in CreateMSnSet",":",
-              #                           conditionMessage(w), 
-              #                           sep=" "))
-              #   }
-            }, error = function(e) {
+                }
+              }, error = function(e) {
                 shinyjs::info(paste("Error :","CreateMSnSet",":",
-                                    conditionMessage(e), 
+                                    conditionMessage(e),
                                     sep=" "))
             }, finally = {
-                #cleanup-code 
+                #cleanup-code
             })
-        
-        
-        
-    #})
 })
 
 

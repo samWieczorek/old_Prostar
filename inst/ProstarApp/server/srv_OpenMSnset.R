@@ -11,7 +11,7 @@ output$updateDesign <- renderUI({
   rv$current.obj
   
   if(!NeedsUpdate()){return(NULL)}
-  source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
+  #source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
   tagList(
     fluidRow(
       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
@@ -168,6 +168,8 @@ observeEvent(input$file,ignoreInit =TRUE,{
     
     
     rv$current.obj <- addOriginOfValue(rv$current.obj)
+    
+    
     l.params <- list(filename = rv$current.obj.name)
     retroCompatibility()
     loadObjectInMemoryFromConverter()
