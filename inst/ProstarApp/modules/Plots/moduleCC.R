@@ -507,7 +507,6 @@ output$CCDetailed <- renderUI({
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
-    offset <- length(input$pepInfo)
     data
   })
   
@@ -516,9 +515,11 @@ output$CCDetailed <- renderUI({
     input$pepInfo
     req(input$OneMultiDT_rows_selected)
     
+    data <- GetDataFor_OneMultiDTDetailed()
+    offset <- length(input$pepInfo)
     
     
-    dt <- DT::datatable( GetDataFor_OneMultiDTDetailed(),
+    dt <- DT::datatable(data ,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',
@@ -589,30 +590,32 @@ output$CCDetailed <- renderUI({
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
     input$pepInfo
-    
+    print(input$pepInfo)
     line <- input$OneOneDT_rows_selected
     
     ind <- 1:ncol(rv$current.obj)
+    print(ind)
     data <- getDataForExprs(rv$current.obj)
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
-    
+    print("marqueur 1")
     if(!is.null(input$pepInfo))
     {
       data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
-    offset <- length(input$pepInfo)
     data
   })
   
   output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
+    data <- GetDataFor_OneOneDTDetailed()
+    offset <- length(input$pepInfo)
     
-    dt <- DT::datatable( GetDataFor_OneOneDTDetailed(),
+    dt <- DT::datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',

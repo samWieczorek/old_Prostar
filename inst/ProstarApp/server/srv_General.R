@@ -812,6 +812,11 @@ ClearMemory <- function(){
     rv$designChecked = NULL
     rv$designSaved = FALSE
     rv$conditionsChecked = NULL
+    
+    rv$newOrder = NULL
+    rv$designChecked = NULL
+    rv$designSaved = FALSE
+    rv$conditionsChecked = NULL
     rv$nbPOVimputed = 0
     rv$nbMVimputed = 0
     
@@ -1022,19 +1027,6 @@ rv <- reactiveValues(
     designSaved = FALSE,
     conditionsChecked = NULL,
     
-    
-    
-    # updateDesign = list(designChecked=NULL,
-    #                        hot=NULL,
-    #                        newOrder=NULL,
-    #                        conditionsChecked=NULL,
-    #                     designSaved=FALSE),
-    
-    updateDesign_designChecked=NULL,
-    updateDesign_hot=NULL,
-    updateDesign_newOrder=NULL,
-    updateDesign_conditionsChecked=NULL,
-    updateDesign_designSaved=FALSE,
     
     settings_nDigits = 10,
     calibrationRes = NULL,
