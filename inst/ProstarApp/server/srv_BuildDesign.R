@@ -368,11 +368,12 @@ output$convertFinalStep <- renderUI({
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
+  input$file1
   input$convert_reorder
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
   
-  if (isTRUE(input$convert_reorder)) {
+  if (input$convert_reorder == "Yes") {
     rv$newOrder <- order(rv$hot["Condition"])
     rv$hot <- rv$hot[rv$newOrder,]
   }

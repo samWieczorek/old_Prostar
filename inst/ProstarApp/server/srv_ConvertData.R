@@ -1451,7 +1451,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           tmp.eData.box <- tmp.eData.box[rv$newOrder]
           indexForEData <- indexForEData[rv$newOrder]
         }
-        
+
         indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
         
         indexForIDBox <- NULL
