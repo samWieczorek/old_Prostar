@@ -482,7 +482,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
     
-      df <- data_frame(x=data()$logFC, 
+      df <- dplyr::data_frame(x=data()$logFC, 
                        y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
       if (length( tooltip()) > 0){
@@ -695,9 +695,8 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
 
     png(outfile)
     wrapper.mvImage(data())
-      dev.off()
+    dev.off()
      
-    
     # Return a list
     list(src = outfile,
          alt = "This is alternate text")
