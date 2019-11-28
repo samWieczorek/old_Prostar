@@ -347,7 +347,7 @@ loadObjectInMemoryFromConverter <- function(){
     incProgress(0.5, detail = 'Miscellaneous updates')
   colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
   names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-
+  pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
 
     #If there are already pVal values, then do no compute them
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
