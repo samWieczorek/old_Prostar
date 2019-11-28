@@ -5,7 +5,7 @@ tabPanel(title="Global settings",
          #             choices = c("Interactive (nice but slower)" = "Interactive",
          #                     "Static (faster)" = "Static")),
          tabsetPanel(
-           tabPanel("Miscallenous",
+           tabPanel("Miscellaneous",
                     div(
               div(
              style="display:inline-block; vertical-align: middle; padding-right: 20px;",

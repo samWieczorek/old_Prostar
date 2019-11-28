@@ -72,20 +72,24 @@ output$defineColorsForConditionsUI <- renderUI({
   tagList(
     fluidRow(
     column(width=3,radioButtons("typeOfPalette", "Type of palette for conditions",
-                                choices=c("predefined"="predefined", "custom"="custom"), selected=GetTypeOfPalette())),
+                                choices=c("predefined"="predefined", "custom"="custom"), selected=rv$typeOfPalette)),
     column(width=6,highchartOutput("displayPalette", width="300px", height = "200px"))
   ),
   
-  hidden(selectInput("choosePalette", "Palette", choices=listBrewerPalettes,selected=GetDefaultPalette(),width='200px')),
-  
-  hidden(uiOutput("customPaletteUI")),
+  uiOutput('choosePalette_UI'),
+  uiOutput("customPaletteUI"),
   hr()
   )
 })
 
 
+output$choosePalette_UI <- renderUI({
+  rv$typeOfPalette
+  if (rv$typeOfPalette !="predefined") {return(NULL)}
+  selectInput("choosePalette", "Palette", choices=listBrewerPalettes,selected=rv$typeOfPalette,width='200px')
+  
+})
 
-GetDefaultPalette <- reactive({ rv$choosePalette})
 observeEvent(input$choosePalette, {rv$choosePalette <-input$choosePalette })
 
 
@@ -200,17 +204,11 @@ GetExamplePalette <- reactive({
   pal
 })
 
-observeEvent(input$typeOfPalette,{
-  shinyjs::toggle("choosePalette", condition=input$typeOfPalette=="predefined")
-  shinyjs::toggle("customPaletteUI", condition=input$typeOfPalette=="custom")
-  rv$typeOfPalette <- input$typeOfPalette
-})
-
-
-GetTypeOfPalette <- reactive({rv$typeOfPalette})
-
+observeEvent(input$typeOfPalette,{rv$typeOfPalette <- input$typeOfPalette})
 
 output$customPaletteUI <- renderUI({
+  rv$typeOfPalette
+  if (rv$typeOfPalette != "custom"){return(NULL)}
   rv$whichGroup2Color
   ll <- list()
   nbColors <- NULL
