@@ -40,7 +40,15 @@ shinyServer(function(input, output, session) {
   #Sys.setenv(LANG = "fr")
   print(Sys.getlocale())
   
-  
+  observeEvent(input$timeOut, { 
+    print(paste0("Session (", session$token, ") timed out at: ", Sys.time()))
+    showModal(modalDialog(
+      title = "Timeout",
+      paste("Session timeout due to", input$timeOut, "inactivity -", Sys.time()),
+      footer = NULL
+    ))
+    session$close()
+  })
   
     Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
     sessionID <- Sys.getpid()
