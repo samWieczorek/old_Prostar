@@ -10,6 +10,7 @@ tabPanel("Demo data",
            )),
            
            actionButton("loadDemoDataset", "Load demo dataset",class = actionBtnClass),
+
          
          hr(),
          uiOutput("infoAboutDemoDataset")

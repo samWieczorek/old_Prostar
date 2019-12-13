@@ -25,6 +25,7 @@ import(shinyjqui)
 import(shinyTree)
 import(colourpicker)
 import(promises)
+import(sass)
 
 importFrom(shiny,
             absolutePanel ,

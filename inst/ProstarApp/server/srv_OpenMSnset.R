@@ -115,17 +115,19 @@ output$infoAboutAggregationTool <- renderUI({
 
 ##-- Open a MSnset File --------------------------------------------
 observeEvent(input$file,ignoreInit =TRUE,{ 
+  ClearMemory()
+  ClearUI()
   
-  exts <- c("MSnset","MSnSet")
-  if( is.na(match(GetExtension(input$file$name), exts))) {
+  rv$current.obj <- readRDS(input$file$datapath)
+  
+  exts <- c("msnset")
+  if( class(rv$current.obj)[1] != "MSnSet") {
     shinyjs::info("Warning : this file is not a MSnset file ! 
                   Please choose another one.")
   }
   else {
-    ClearMemory()
-    ClearUI()
-    rv$current.obj <- readRDS(input$file$datapath)
-    rv$current.obj.name <- DeleteFileExtension(input$file$name)
+    
+     rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
     rv$updateDesign_designChecked <- check.design(Biobase::pData(rv$current.obj))
@@ -173,6 +175,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
     l.params <- list(filename = rv$current.obj.name)
     retroCompatibility()
     loadObjectInMemoryFromConverter()
+    shinyjs::disable("loadMSnset")
   }
   
   })

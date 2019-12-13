@@ -49,8 +49,7 @@ output$versionsText <- renderUI({
 output$NoteForNewVersion <- renderUI({
   
   df <- getPackagesVersions2()
-  print(df)
-  #if (sum(df$NeedsUpdate) == TRUE) {
+  if (sum(grepl("(Out of date)",df[,1])) >= 1) {
   tags$div(
     style="font-size: 16px",
     tags$div( style="display:inline-block; vertical-align: top;",
@@ -61,7 +60,7 @@ output$NoteForNewVersion <- renderUI({
     )
   )
   
-  # }
+   }
 })
 
 observeEvent(input$goToReleasesNotes, {

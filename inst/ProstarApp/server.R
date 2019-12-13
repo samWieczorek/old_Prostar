@@ -138,6 +138,9 @@ shinyServer(function(input, output, session) {
                  source(file.path("server", "srv_Export.R"),  local = TRUE)$value
                  source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
                },
+               ReloadTab = {
+                 source(file.path("server", "srv_ReloadProstar.R"),  local = TRUE)$value
+               },
                  
                FilteringTab =
                  source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value,
@@ -192,4 +195,6 @@ shinyServer(function(input, output, session) {
      shinyjs::hide(id = "loading_page", anim = FALSE)
      
      shinyjs::show("main_content", anim = TRUE, animType = "fade")
+     
+     print(ls())
 })

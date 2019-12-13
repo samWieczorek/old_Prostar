@@ -897,6 +897,7 @@ output$Convert_SelectFile <- renderUI({
             column(width = 10, fileInput("file1", "", 
                                          multiple=FALSE, 
                                          accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
+          actionButton("loadData2Convert", "Load data file",class = actionBtnClass),
           uiOutput("ManageXlsFiles"),
           # helpText("Hint : before importing quantification 
           #             file data, check the syntax of your text 
@@ -1129,7 +1130,6 @@ readXLSFile <- reactive({})
 
 ############ Read text file to be imported ######################
 observeEvent(c(input$file1,input$XLSsheets),{
-  
   input$XLSsheets
   if (((GetExtension(input$file1$name)== "xls")
        || (GetExtension(input$file1$name) == "xlsx") )
@@ -1146,7 +1146,7 @@ observeEvent(c(input$file1,input$XLSsheets),{
     ClearUI()
     ClearMemory()
     ext <- GetExtension(input$file1$name)
-    
+    shinyjs::disable("file1")
     switch(ext,
            txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
            csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},

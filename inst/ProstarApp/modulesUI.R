@@ -111,16 +111,6 @@ moduleMVPlotsUI <- function(id) {
 
 
 
-# moduleViewNAbyMeanUI <- function(id) {
-#     ns <- NS(id)
-#     plotOutput(ns("viewNAbyMean")) %>% withSpinner(type=spinnerType)
-# }
-# 
-# moduleShowImageNAUI <- function(id) {
-#     ns <- NS(id)
-#     plotOutput(ns("showImageNA")) %>% withSpinner(type=spinnerType)
-# }
-
 moduleDesignExampleUI <- function(id){
   ns <- NS(id)
   tagList(

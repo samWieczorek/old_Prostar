@@ -14,7 +14,9 @@ output$plotvarDistlarge <- renderUI({
     helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
              of the protein/peptides."),
     helpText("For better visualization, it is possible to zoom in by click-and-drag."),
-    highchartOutput(ns("viewDistCV"),width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
+    withProgress(message = '',detail = '', value = 1, {
+      highchartOutput(ns("viewDistCV"),width = plotWidth, height = plotHeight)
+    })
   )
 })
 

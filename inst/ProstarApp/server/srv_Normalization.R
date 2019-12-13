@@ -95,8 +95,14 @@ output$screenNormalization1 <- renderUI({
       tags$hr(),
       fluidRow(
         column(width=4, moduleDensityplotUI("densityPlot_Norm")),
-        column(width=4,moduleBoxplotUI("boxPlot_Norm")  %>% withSpinner(type=spinnerType)),
-        column(width=4,imageOutput("viewComparisonNorm_DS") %>% withSpinner(type=spinnerType))
+        column(width=4,
+               withProgress(message = 'Building plot',detail = '', value = 0, {
+                 moduleBoxplotUI("boxPlot_Norm")
+                 })),
+        column(width=4,withProgress(message = 'Building plot',detail = '', value = 0, {
+          imageOutput("viewComparisonNorm_DS")
+        })
+        )
       )
     )
   })

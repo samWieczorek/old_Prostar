@@ -71,7 +71,9 @@ output$plotsCorM <- renderUI({
                
       )
     ),
-  highchartOutput("corrMatrix",width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+    withProgress(message = '',detail = '', value = 1, {
+      highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
+    })
   )
 })
 
@@ -132,7 +134,9 @@ output$plotsDistCV <- renderUI({
     helpText("Display the condition-wise distributions of the log-intensity CV (Coefficient of Variation) 
              of the protein/peptides."),
     helpText("For better visualization, it is possible to zoom in by click-and-drag."),
-    highchartOutput("viewDistCV",width = plotWidth, height = plotHeight) %>% withSpinner(type=spinnerType)
+    withProgress(message = '',detail = '', value = 1, {
+      highchartOutput("viewDistCV",width = plotWidth, height = plotHeight)
+    })
     )
 })
 
@@ -552,7 +556,9 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-        plotOutput("heatmap", width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+      withProgress(message = 'Building plot',detail = '', value = 1, {
+        plotOutput("heatmap", width = "900px", height = "600px")
+  })
  
     )
   }

@@ -620,7 +620,10 @@ moduleBoxplot <- function(input, output, session, data) {
       tmp <- NULL
       isolate({
         pattern <- paste0(GetCurrentObjName(),".boxplot")
-        tmp <- DAPAR::boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+        print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
+        print(ncol(exprs(data())))
+        print(str(exprs(data())))
+        tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
         #future(createPNGFromWidget(tmp,pattern))
           
         

@@ -67,7 +67,9 @@ output$DS_PlotHeatmap <- renderUI({
     tags$p("The dataset is too big to compute the heatmap in a reasonable time.")
   }else {
     tagList(
-      imageOutput(ns("heatmap"), width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+      withProgress(message = '',detail = '', value = 1, {
+        imageOutput(ns("heatmap"), width = "900px", height = "600px")
+      })
       
     )
   }

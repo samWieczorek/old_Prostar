@@ -122,9 +122,14 @@ output$screenGO2 <- renderUI({
   ),
   tags$hr(),
 
-  highchartOutput("GOplotGroup_level2",  width = "80%") %>% withSpinner(type=spinnerType),
-  highchartOutput("GOplotGroup_level3",  width = "80%") %>% withSpinner(type=spinnerType),
-  highchartOutput("GOplotGroup_level4",  width = "80%") %>% withSpinner(type=spinnerType)
+  withProgress(message = 'Building plot',detail = '', value = 0, {
+    incProgress(1/3, detail = 'Goup level 2')
+    highchartOutput("GOplotGroup_level2",  width = "80%")
+    incProgress(2/3, detail = 'Goup level 3')
+  highchartOutput("GOplotGroup_level3",  width = "80%")
+  incProgress(3/3, detail = 'Goup level 4')
+  highchartOutput("GOplotGroup_level4",  width = "80%")
+  })
   
 )
 })
@@ -150,8 +155,12 @@ output$screenGO3 <- renderUI({
   
   actionButton("perform.GO.button","Perform enrichment analysis", class = actionBtnClass),
   tags$hr(),
-  highchartOutput("GObarplotEnrich", width = "80%") %>% withSpinner(type=spinnerType),
-  highchartOutput("GOdotplotEnrich", width = "80%") %>% withSpinner(type=spinnerType)
+  withProgress(message = 'Building plot',detail = '', value = 0, {
+    incProgress(1/3, detail = 'Bar plot')
+    highchartOutput("GObarplotEnrich", width = "80%")
+    incProgress(1/3, detail = 'Dotplot')
+    highchartOutput("GOdotplotEnrich", width = "80%")
+  })
 )
 })
 

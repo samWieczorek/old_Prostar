@@ -3,7 +3,7 @@ callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDa
 
 
 output$chooseDataset <- renderUI({
-  
+ 
   if(require("DAPARdata", lib.loc=DAPARdata.loc)){
     print("DAPARdata is loaded correctly")
     selectInput("demoDataset",
@@ -24,7 +24,7 @@ output$chooseDataset <- renderUI({
     }
   }
   
-  
+
 })
 
 
@@ -47,7 +47,9 @@ output$linktoDemoPdf <- renderUI({
 output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
-  isolate({ NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  isolate({ 
+    
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
   
@@ -84,7 +86,6 @@ output$infoAboutDemoDataset <- renderUI({
 
 
 
-
 observeEvent(input$loadDemoDataset,{
   if (input$loadDemoDataset == "None"){return(NULL)}
   
@@ -110,4 +111,5 @@ observeEvent(input$loadDemoDataset,{
   incProgress(1/ntotal, detail = 'Load memory ')
   })
   })
+  shinyjs::disable("loadDemoDataset")
 })

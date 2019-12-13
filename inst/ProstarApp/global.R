@@ -616,11 +616,11 @@ G_pAdjustMethod_Choices <- c("BH", "fdr", "None")
 G_imp4PDistributionType_Choices <- c("uniform" = "unif", "beta" = "beta")
 
 G_ConvertDataID_Choices <- c("Auto ID" = "Auto ID", "Custom ID" = "custom ID")
-G_exportFileFormat_Choices <- c( "MSnset","Excel", "zip")
-gFileFormatExport <- list(msnset = "MSnset",excel = "Excel", zip="zip")
+G_exportFileFormat_Choices <- c( "msnset","Excel", "zip")
+gFileFormatExport <- list(msnset = "msnset",excel = "Excel", zip="zip")
 gFileExtension <- list(txt = ".txt",
                        tsv = ".tsv",
-                       msnset = ".MSnset",
+                       msnset = "msnset",
                        excel = ".xlsx",
                        zip = ".zip")
 

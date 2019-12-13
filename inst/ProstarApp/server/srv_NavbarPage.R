@@ -5,11 +5,7 @@
 
 
 observeEvent(rv$current.obj,{  
-  print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
-  
   BuildNavbarPage()  
-  print("after call to BuildNavbarPage")
-  print(rv$current.obj)
   })
 
 
@@ -85,9 +81,10 @@ ClearCurrentNavPage <- function(page){
 
 ## Change of page
 observeEvent(input$navPage,{ 
-  print("---- changement de page !!!!-----")
-  print(paste0("La nouvelle page est :", input$navPage))
+  # print("---- changement de page !!!!-----")
+  # print(paste0("La nouvelle page est :", input$navPage))
  ClearCurrentNavPage(input$navPage) 
+
   })
 
 
