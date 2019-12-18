@@ -387,6 +387,14 @@ loadObjectInMemoryFromConverter <- function(){
   ClearNavbarPage()
   BuildNavbarPage()
   })
+  
+  shinyjs::disable("loadDemoDataset")
+  shinyjs::disable("chooseDataset")
+  shinyjs::disable("linktoDemoPdf")
+  shinyjs::disable("loadMSnset")
+  shinyjs::disable("file")
+  shinyjs::disable("loadData2Convert")
+  shinyjs::disable("file1")
 }
 
 

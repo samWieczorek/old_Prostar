@@ -111,5 +111,7 @@ observeEvent(input$loadDemoDataset,{
   incProgress(1/ntotal, detail = 'Load memory ')
   })
   })
-  shinyjs::disable("loadDemoDataset")
+  # shinyjs::disable("loadDemoDataset")
+  # shinyjs::disable("chooseDataset")
+  # shinyjs::disable("linktoDemoPdf")
 })

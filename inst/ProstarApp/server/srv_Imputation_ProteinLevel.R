@@ -302,17 +302,21 @@ observeEvent(input$perform.imputationClassical.button,{
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Find MEC blocks')
       
-    rv$MECIndex <- findMECBlock(rv$current.obj)
     busyIndicator(WaitMsgCalc,wait = 0)
     incProgress(0.5, detail = 'POV Imputation')
     switch(rv$widgets$proteinImput$POV_algorithm,
            slsa = {
+             rv$MECIndex <- findMECBlock(rv$current.obj)
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
+             rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+             
            },
            detQuantile = {
-           rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+             rv$MECIndex <- findMECBlock(rv$current.obj)
+             rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
                                                        qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
                                                        factor = rv$widgets$proteinImput$POV_detQuant_factor)
+           rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
            
            },
            KNN = {
@@ -320,7 +324,6 @@ observeEvent(input$perform.imputationClassical.button,{
            }
     )
     incProgress(0.75, detail = 'Reintroduce MEC blocks')
-    rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
     incProgress(1, detail = 'Finalize POV imputation')
     nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$nbPOVimputed <-  nbMVBefore - nbMVAfter

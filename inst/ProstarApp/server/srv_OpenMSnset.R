@@ -114,7 +114,8 @@ output$infoAboutAggregationTool <- renderUI({
 
 
 ##-- Open a MSnset File --------------------------------------------
-observeEvent(input$file,ignoreInit =TRUE,{ 
+observeEvent(input$loadMSnset,ignoreInit =TRUE,{ 
+  input$file
   ClearMemory()
   ClearUI()
   
@@ -175,7 +176,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
     l.params <- list(filename = rv$current.obj.name)
     retroCompatibility()
     loadObjectInMemoryFromConverter()
-    shinyjs::disable("loadMSnset")
+
   }
   
   })

@@ -897,7 +897,7 @@ output$Convert_SelectFile <- renderUI({
             column(width = 10, fileInput("file1", "", 
                                          multiple=FALSE, 
                                          accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx")))),
-          actionButton("loadData2Convert", "Load data file",class = actionBtnClass),
+          #actionButton("loadData2Convert", "Load data file",class = actionBtnClass),
           uiOutput("ManageXlsFiles"),
           # helpText("Hint : before importing quantification 
           #             file data, check the syntax of your text 
@@ -957,8 +957,8 @@ output$Convert_ExpFeatData <- renderUI({
 
 output$Convert_BuildDesign <- renderUI({
   #if (rv$pageConvert != 4){return()}
-  
-  tagList(... = tagList(
+  req(input$file1)
+  tagList(
     tags$p("If you do not know how to fill the experimental design, you can click
                                   on the '?' next to each design in the list that appear once the conditions 
                                   are checked or got to the ", 
@@ -971,8 +971,7 @@ output$Convert_BuildDesign <- renderUI({
     fluidRow(
       column(width=6,uiOutput("UI_hierarchicalExp")),
       column(width=6,uiOutput("checkDesign") )
-    )
-  ),
+    ),
   hr(),
   selectInput("convert_reorder", "Order by conditions ?",
               choices=c("No"="No", "Yes"="Yes"),
@@ -985,9 +984,9 @@ output$Convert_BuildDesign <- renderUI({
     tags$div(style="display:inline-block; vertical-align: top;",
              shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
     )
+  )
     
-    
-  ))
+  )
   
 })
 
@@ -1120,14 +1119,6 @@ output$helpTextDataID <- renderUI({
 
 
 
-
-
-readTextFile <- reactive({
-  rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)
-})
-
-readXLSFile <- reactive({})
-
 ############ Read text file to be imported ######################
 observeEvent(c(input$file1,input$XLSsheets),{
   input$XLSsheets
@@ -1165,6 +1156,7 @@ observeEvent(c(input$file1,input$XLSsheets),{
     #     #cleanup-code 
     #   })
   }
+  #shinyjs::disable('file1')
   
 })
 

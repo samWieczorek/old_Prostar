@@ -745,7 +745,9 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
+  
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
+  
 
   output$warningOnSize <- renderUI({
     if (length(table2show())==0){return(NULL)}

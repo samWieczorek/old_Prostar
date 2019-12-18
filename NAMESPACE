@@ -26,6 +26,7 @@ import(shinyTree)
 import(colourpicker)
 import(promises)
 import(sass)
+import(V8)
 
 importFrom(shiny,
             absolutePanel ,

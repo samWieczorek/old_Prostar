@@ -226,8 +226,7 @@ GetPairwiseCompChoice <- reactive({
 convertAnaDiff2DF <- reactive({
   req(rv$widgets$anaDiff)
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
-  df <- cbind(names(rv$widgets$anaDiff),
-              as.data.frame(unlist(rv$widgets$anaDiff)))
+  df <- as.data.frame(enframe(rv$widgets$anaDiff))
   names(df) <- c("Parameter", "Value")
   rownames(df) <- NULL
   df
