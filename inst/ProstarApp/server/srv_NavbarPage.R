@@ -112,11 +112,18 @@ ClearNavbarPage <- reactive({
 })
 
 
-
+################################################################################################
 BuildNavbarPage <- reactive({   
 rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
+   
+   
+   ## if a dataset is in memory (ie rv$current.obj is not null
+   ## remove menus to import new dataset
+   removeTab(inputId = "navPage", target = "demoTab")
+   removeTab(inputId = "navPage", target = "convertTab")
+   removeTab(inputId = "navPage", target = "openMSnsetTab")
    
 
     if (!is.null(rv$typeOfDataset)){
