@@ -24,7 +24,7 @@ Suggests: BiocStyle, testthat
 Imports: DAPAR (>= 1.18.1), DAPARdata (>= 1.16.0), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter (>= 0.7.0), htmlwidgets, webshot, R.utils,
         shinythemes, XML,later, rclipboard, shinycssloaders, future, promises, 
-        colourpicker, BiocManager, shinyTree, shinyWidgets, sass
+        colourpicker, BiocManager, shinyTree, shinyWidgets, sass, tibble
 NeedsCompilation: no
 RoxygenNote: 6.0.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264

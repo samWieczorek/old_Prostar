@@ -27,6 +27,7 @@ import(colourpicker)
 import(promises)
 import(sass)
 
+importFrom(tibble, enframe)
 
 importFrom(shiny,
             absolutePanel ,

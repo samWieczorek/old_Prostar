@@ -160,7 +160,7 @@ observeEvent(input$showpvalTable, {
 })
 
 
-observeEvent(input$tooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
+observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
 
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
 
@@ -206,7 +206,8 @@ output$volcanoTooltip_UI <- renderUI({
             label = NULL,
             choices = colnames(fData(rv$current.obj)),
             selected = rv$widgets$anaDiff$tooltipInfo,
-            multiple = TRUE, selectize=FALSE,width='200px', size=5)
+            multiple = TRUE, selectize=FALSE,width='200px', size=5),
+    actionButton("validTooltipInfo", "Valid tooltip choices", class = actionBtnClass)
   )
   })
 })
@@ -226,7 +227,7 @@ GetPairwiseCompChoice <- reactive({
 convertAnaDiff2DF <- reactive({
   req(rv$widgets$anaDiff)
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
-  df <- as.data.frame(enframe(rv$widgets$anaDiff))
+  df <- as.data.frame(tibble::enframe(rv$widgets$anaDiff))
   names(df) <- c("Parameter", "Value")
   rownames(df) <- NULL
   df

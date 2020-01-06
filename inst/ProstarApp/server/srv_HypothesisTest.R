@@ -26,10 +26,22 @@ resetModuleHypothesisTest <- reactive({
 
 callModule(module_Not_a_numeric,"test_seuillogFC", reactive({rv$widgets$hypothesisTest$th_logFC}))
 
-observeEvent(input$anaDiff_Design, ignoreInit=T,{  rv$widgets$hypothesisTest$design<- input$anaDiff_Design})
-observeEvent(input$diffAnaMethod,{rv$widgets$hypothesisTest$method <- input$diffAnaMethod})
-observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
-observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
+# observeEvent(input$anaDiff_Design, ignoreInit=T,{  rv$widgets$hypothesisTest$design<- input$anaDiff_Design})
+# observeEvent(input$diffAnaMethod,{rv$widgets$hypothesisTest$method <- input$diffAnaMethod})
+# observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
+# observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
+# 
+
+
+
+observeEvent(input$PerformLogFCPlot, {
+  rv$widgets$hypothesisTest$design<- input$anaDiff_Design
+  rv$widgets$hypothesisTest$method <- input$diffAnaMethod
+  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)
+  rv$widgets$hypothesisTest$ttest_options <- input$ttest_options                                                
+})
+
+
 
 output$screenHypoTest1 <- renderUI({
   
@@ -70,6 +82,10 @@ output$screenHypoTest1 <- renderUI({
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                   uiOutput("correspondingRatio")
+                  
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                  actionButton("PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
                   
         )
         
@@ -119,13 +135,14 @@ observeEvent(rv$widgets$hypothesisTest$method,{
 
 output$FoldChangePlot <- renderHighchart({
   req(ComputeComparisons()$logFC)
-  rv$PlotParams$paletteConditions
-  rv$widgets$hypothesisTest$th_logFC
-  print("ON EST DANS LA FONCTION")
+  req(rv$PlotParams$paletteConditions)
+  req(rv$widgets$hypothesisTest$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
- 
+  withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$hypothesisTest$th_logFC))
  # rv$tempplot$logFCDistr
+  
+  })
 })
 
 
@@ -144,6 +161,8 @@ ComputeComparisons <- reactive({
   rv$res_AllPairwiseComparisons <- NULL
 #isolate({
   #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
+  withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
+    
     switch(rv$widgets$hypothesisTest$method,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
@@ -160,6 +179,8 @@ ComputeComparisons <- reactive({
     
   
   rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+  
+  })
   rv$res_AllPairwiseComparisons
 })
 #})
