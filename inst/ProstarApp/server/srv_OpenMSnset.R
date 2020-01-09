@@ -10,7 +10,7 @@ output$updateDesign <- renderUI({
   rv$current.obj
   
   if(!NeedsUpdate()){return(NULL)}
-  source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
+  #source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value
   tagList(
     fluidRow(
       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
@@ -113,17 +113,18 @@ output$infoAboutAggregationTool <- renderUI({
 
 
 ##-- Open a MSnset File --------------------------------------------
-observeEvent(input$file,ignoreInit =TRUE,{ 
+observeEvent(input$loadMSnset,ignoreInit =TRUE,{ 
+  input$file 
+  ClearMemory()
+  ClearUI()
+  rv$current.obj <- readRDS(input$file$datapath)
   
-  exts <- c("MSnset","MSnSet")
-  if( is.na(match(GetExtension(input$file$name), exts))) {
+  exts <- c("msnset")
+  if( class(rv$current.obj)[1] != "MSnSet") {
     shinyjs::info("Warning : this file is not a MSnset file ! 
                   Please choose another one.")
   }
   else {
-    ClearMemory()
-    ClearUI()
-    rv$current.obj <- readRDS(input$file$datapath)
     rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
@@ -174,7 +175,7 @@ observeEvent(input$file,ignoreInit =TRUE,{
     
     retroCompatibility()
     loadObjectInMemoryFromConverter()
-    
+
   }
   
   })

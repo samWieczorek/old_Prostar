@@ -128,15 +128,22 @@ output$screenNormalization1 <- renderUI({
       
      tagList(
        hidden(checkboxInput("SynctForNorm", "Synchronise with selection above", value=FALSE)),
-       moduleBoxplotUI("boxPlot_Norm")),
+       withProgress(message = 'Building plot',detail = '', value = 0, {
+         moduleBoxplotUI("boxPlot_Norm")
+       })
+       ),
      div(
     div(
       style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-      moduleDensityplotUI("densityPlot_Norm")
+      withProgress(message = 'Building plot',detail = '', value = 0, {
+        moduleDensityplotUI("densityPlot_Norm")}
+      )
     ),
     div(
       style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-      imageOutput("viewComparisonNorm_DS"))
+      withProgress(message = 'Building plot',detail = '', value = 0, {
+        imageOutput("viewComparisonNorm_DS")})
+      )
   )
     
   )

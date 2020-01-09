@@ -59,20 +59,42 @@ resetModuleAnaDiff <- reactive({
   
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
   rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
-  
+  rv_anaDiff$filename = NULL
 })
 #####
+
+rv_anaDiff <- reactiveValues(
+  filename = NULL
+)
 
 
 ##################################################################################
 ###### Set code for widgets managment
 ##################################################################################
-observeEvent(input$seuilPVal,{  rv$widgets$anaDiff$th_pval <- as.numeric(input$seuilPVal)})
-
+observeEvent(input$valid_seuilPVal,{ 
+  req(input$seuilPVal)
+  tmp <- gsub(",", ".", input$seuilPVal, fixed=TRUE)
+  
+  rv$widgets$anaDiff$th_pval <- as.numeric(tmp)
+})
 
 observeEvent(input$selectComparison,ignoreInit = TRUE,{ 
   rv$widgets$anaDiff$Comparison <- input$selectComparison
   UpdateCompList()
+  
+  req(rv$widgets$anaDiff$Comparison)
+  cond1 = rv$widgets$anaDiff$Condition1
+  cond2 = rv$widgets$anaDiff$Condition2
+  
+  print(cond1)
+  print(cond2)
+  
+  if (isTRUE(rv$widgets$anaDiff$swapVolcano)) {
+    rv_anaDiff$filename = paste0('anaDiff_', cond2,'_vs_', cond1, '.xlsx')
+  } else {
+    rv_anaDiff$filename = paste0('anaDiff_', cond1,'_vs_', cond2, '.xlsx')
+  }
+  print(rv_anaDiff$filename)
 })
 
 
@@ -123,7 +145,7 @@ observeEvent(input$showpvalTable, {
 
 
 
-observeEvent(input$tooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
+observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
 
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
 
@@ -165,7 +187,8 @@ output$volcanoTooltip_UI <- renderUI({
             label = NULL,
             choices = colnames(fData(rv$current.obj)),
             selected = rv$widgets$anaDiff$tooltipInfo,
-            multiple = TRUE, selectize=FALSE,width='200px', size=5)
+            multiple = TRUE, selectize=FALSE,width='200px', size=5),
+    actionButton("validTooltipInfo", "Valid tooltip choices", class = actionBtnClass)
   )
 })
 })
@@ -184,8 +207,7 @@ convertAnaDiff2DF <- reactive({
   req(rv$widgets$anaDiff)
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
   
-  df <- cbind(names(rv$widgets$anaDiff),
-              as.data.frame(unlist(rv$widgets$anaDiff)))
+  df <- as.data.frame(tibble::enframe(rv$widgets$anaDiff))
   names(df) <- c("Parameter", "Value")
   rownames(df) <- NULL
   df
@@ -294,8 +316,8 @@ output$screenAnaDiff2 <- renderUI({
                tags$hr(),
                
                fluidRow(
-                 column(width=6,fluidRow(style = "height:800px;", imageOutput("calibrationPlotAll", height='800px') %>% withSpinner(type=spinnerType))),
-                 column(width=6,fluidRow(style = "height:400px;", imageOutput("calibrationPlot", height='400px') %>% withSpinner(type=spinnerType)),
+                 column(width=6,fluidRow(style = "height:800px;",imageOutput("calibrationPlotAll", height='800px'))),
+                 column(width=6,fluidRow(style = "height:400px;",imageOutput("calibrationPlot", height='400px')),
                         fluidRow(style = "height:400px;",highchartOutput("histPValue"))
                   )
                )
@@ -321,10 +343,11 @@ output$screenAnaDiff3 <- renderUI({
   isolate({
     tagList(
       tags$div(
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 2px;",
+        tags$div( style="display:inline-block; vertical-align: center; padding-right: 2px;",
                   modulePopoverUI("modulePopover_pValThreshold"),
                   textInput("seuilPVal",  NULL,
                              value=rv$widgets$anaDiff$th_pval, width='100px')),
+        actionButton("valid_seuilPVal", 'Validate value', class = actionBtnClass),
         tags$div( style="display:inline-block; vertical-align: top;",
                   module_Not_a_numericUI("test_seuilPVal"))
               ),
@@ -333,7 +356,10 @@ output$screenAnaDiff3 <- renderUI({
                tags$div(
                  tags$div( style="display:inline-block; vertical-align: top;",
                            htmlOutput("showFDR"),
-                           moduleVolcanoplotUI("volcano_Step2") %>% withSpinner(type=spinnerType)),
+                           withProgress(message = '',detail = '', value = 1, {
+                             moduleVolcanoplotUI("volcano_Step2")
+                           })
+                 ),
                  tags$div( style="display:inline-block; vertical-align: top;",
                            uiOutput("tooltipInfo"),
                            checkboxInput("showpvalTable","Show p-value table", value=FALSE),
@@ -351,18 +377,6 @@ output$screenAnaDiff3 <- renderUI({
 
 
 
-GetFilenameAnaDiff <- reactive({
-  req(rv$widgets$anaDiff$Comparison)
-  cond1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
-  cond2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
-  
-  if (isTRUE(rv$widgets$anaDiff$swapVolcano)) {
-    filename = paste0('anaDiff_', cond2,'_vs_', cond1, '.xlsx')
-  } else {
-    filename = paste0('anaDiff_', cond1,'_vs_', cond2, '.xlsx')
-  }
-  filename
-})
 
 
 output$anaDiff_selectedItems <- renderDT({
@@ -375,11 +389,11 @@ output$anaDiff_selectedItems <- renderDT({
                   buttons = list(
                     list(
                       extend = 'csv',
-                      filename = GetFilenameAnaDiff()
+                      filename = rv_anaDiff$filename
                     ),
                     list(
                       extend = 'pdf',
-                      filename = GetFilenameAnaDiff()
+                      filename = rv_anaDiff$filename
                     ),'print'),
                   initComplete = initComplete(),
                   dom = 'Bfrtip',
@@ -396,7 +410,7 @@ output$anaDiff_selectedItems <- renderDT({
 
 
 output$downloadSelectedItems <- downloadHandler(
-  filename = filename = GetFilenameAnaDiff(),
+  filename = reactive({rv_anaDiff$filename}),
   content = function(file) {
     DA_Style <- openxlsx::createStyle(fgFill = orangeProstar)
     hs1 <- openxlsx::createStyle(fgFill = "#DCE6F1", halign = "CENTER", textDecoration = "italic",
@@ -527,7 +541,7 @@ Get_FDR <- reactive({
   
   rv$widgets$anaDiff$FDR <- diffAnaComputeFDR(rv$resAnaDiff[["logFC"]], 
                               rv$resAnaDiff[["P_Value"]],
-                              as.numeric(rv$widgets$anaDiff$th_pval),  
+                              rv$widgets$anaDiff$th_pval,  
                               rv$widgets$hypothesisTest$th_logFC, 
                               m)
   rvModProcess$moduleAnaDiffDone[3] <- TRUE
@@ -545,7 +559,7 @@ output$showFDR <- renderUI({
   tagList(
     if (!is.infinite(Get_FDR())){
       tags$p(style="font-size: 25px;","FDR = ", round(100*Get_FDR(), digits=2)," % (p-value = ",
-             signif(10^(- (as.numeric(rv$widgets$anaDiff$th_pval))), digits=3), ")")
+             signif(10^(- (rv$widgets$anaDiff$th_pval)), digits=3), ")")
     } else {
       tags$p(style="font-size: 25px;","FDR = NA") 
     },
@@ -629,7 +643,8 @@ calibrationPlot <- reactive({
     
     if (length(rv$resAnaDiff$logFC) == 0) { return()}
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-        return()}
+        return()
+      }
     cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
     # ________
     
@@ -792,7 +807,7 @@ output$calibrationPlotAll <- renderImage({
 output$equivPVal <- renderUI ({
   req(rv$widgets$anaDiff$th_pval)
   
-  tags$p(paste0("-log10 (p-value) = ",signif(- log10(as.numeric(rv$widgets$anaDiff$th_pval)/100), digits=1)))
+  tags$p(paste0("-log10 (p-value) = ",signif(- log10(rv$widgets$anaDiff$th_pval/100), digits=1)))
 })
 
 
@@ -811,7 +826,7 @@ GetSelectedItems <- reactive({
 
   
   t <- NULL
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=as.numeric(rv$widgets$anaDiff$th_pval))
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=rv$widgets$anaDiff$th_pval)
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
   
   if ( rv$widgets$anaDiff$downloadAnaDiff == "All"){

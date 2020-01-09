@@ -46,7 +46,8 @@ output$linktoDemoPdf <- renderUI({
 output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
-  isolate({ NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+  isolate({ 
+    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
   
@@ -90,16 +91,9 @@ observeEvent(input$loadDemoDataset,{
   isolate({
     ntotal <- 4
   withProgress(message = '',detail = '', value = 0, {
-    print("debut du chargement du dataset")
-    print(rv$widgets$filtering$ChooseFilters)
     ClearUI()
-    print("debut du chargement du dataset")
-    print(rv$widgets$filtering$ChooseFilters)
     ClearMemory()
-    print("debut du chargement du dataset")
-    print(rv$widgets$filtering$ChooseFilters)
-    
-  incProgress(1/ntotal, detail = 'Clear memory ')
+    incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
   incProgress(1/ntotal, detail = 'Load dataset ')
@@ -113,8 +107,9 @@ observeEvent(input$loadDemoDataset,{
   
   loadObjectInMemoryFromConverter()
   incProgress(1/ntotal, detail = 'Load memory ')
-  print("Fin du chargement du dataset")
-  print(rv$widgets$filtering$ChooseFilters)
    })
   })
+  # shinyjs::disable("loadDemoDataset")
+  # shinyjs::disable("chooseDataset")
+  # shinyjs::disable("linktoDemoPdf")
 })

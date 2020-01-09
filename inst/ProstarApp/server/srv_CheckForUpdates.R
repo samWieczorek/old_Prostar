@@ -12,11 +12,7 @@ output$tab_versions <- DT::renderDataTable(server=TRUE,{
                       option=list(initComplete = initComplete(),
                                   dom = 'Brt',
                                   autoWidth=TRUE,
-                                  ordering = F,
-                                  columnDefs = list(list(visible=FALSE,targets=c(3)),
-                                                    list(width='200px', targets="_all"),
-                                                    list(className = 'dt-center', targets=c(1,2))
-                                  )
+                                  ordering = F
                       )
   )
   dt
@@ -24,8 +20,8 @@ output$tab_versions <- DT::renderDataTable(server=TRUE,{
 
 
 output$infoForNewVersions <- renderUI({
-  
-  #df <- getPackagesVersions2()$NeedsUpdate
+  df <- getPackagesVersions2()
+  if (sum(grepl("(Out of date)",df[,1])) >= 1) {
    
   tagList(
     p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
@@ -43,6 +39,7 @@ output$infoForNewVersions <- renderUI({
         )
       }
     )
+  }
 })
 
 

@@ -71,7 +71,10 @@ output$screenHypoTestPeptidomic1 <- renderUI({
           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                     uiOutput("correspondingRatioPeptidomic")
                     
-          )
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    actionButton("PerformLogFCPlotPeptidomic", "Perform log FC plot",class = actionBtnClass )
+                    
         )
         ,
         tags$hr(),
@@ -106,16 +109,15 @@ observeEvent(input$diffAnaMethodPeptidomic,{
 
 
 output$FoldChangePlotPeptidomic <- renderHighchart({
-  #req(rv$res_AllPairwiseComparisons)
-  rv$PlotParams$paletteConditions
-  
+  req(ComputeComparisons()$logFC)
+  req(rv$PlotParams$paletteConditions)
+  req(rv$widgets$hypothesisTest$th_logFC)
   data <- ComputeComparisonsPeptidomic()
-  print(str(data))
-  print(as.numeric(input$seuilLogFCPeptidomic))
+  withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFCPeptidomic))
   rv$tempplot$logFCDistr
 })
-
+})
 
 
 output$correspondingRatioPeptidomic <- renderUI({
@@ -141,7 +143,8 @@ ComputeComparisonsPeptidomic <- reactive({
   
   isolate({
     #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
-    switch(input$diffAnaMethodPeptidomic,
+    withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
+      switch(input$diffAnaMethodPeptidomic,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
@@ -157,6 +160,7 @@ ComputeComparisonsPeptidomic <- reactive({
     
     
     rvModProcess$moduleHypothesisTestPeptidomicDone[1] <- TRUE
+    })
     rv$res_AllPairwiseComparisons
   })
 })

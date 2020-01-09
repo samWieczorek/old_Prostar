@@ -26,12 +26,17 @@ resetModuleHypothesisTestProtein <- reactive({
 
 callModule(module_Not_a_numeric,"HypoTestProt_test_seuillogFC", reactive({rv$widgets$HypothesisTestProtein$th_logFC}))
 
-observeEvent(input$HypoTestProt_anaDiff_Design, ignoreInit=T,{  rv$widgets$HypothesisTestProtein$design<- input$HypoTestProt_anaDiff_Design})
-observeEvent(input$HypoTestProt_diffAnaMethod,{rv$widgets$HypothesisTestProtein$method <- input$HypoTestProt_diffAnaMethod})
-observeEvent(input$HypoTestProt_seuilLogFC,{  rv$widgets$HypothesisTestProtein$th_logFC<- as.numeric(input$HypoTestProt_seuilLogFC)})
+#observeEvent(input$HypoTestProt_anaDiff_Design, ignoreInit=T,{  rv$widgets$HypothesisTestProtein$design<- input$HypoTestProt_anaDiff_Design})
+#observeEvent(input$HypoTestProt_diffAnaMethod,{rv$widgets$HypothesisTestProtein$method <- input$HypoTestProt_diffAnaMethod})
+#observeEvent(input$HypoTestProt_seuilLogFC,{  rv$widgets$HypothesisTestProtein$th_logFC<- as.numeric(input$HypoTestProt_seuilLogFC)})
+#observeEvent(input$HypoTestProt_ttest_options,{rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options})
 
-observeEvent(input$HypoTestProt_ttest_options,{rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options})
-
+observeEvent(input$PerformLogFCPlot, {
+  rv$widgets$HypothesisTestProtein$design<- input$HypoTestProt_anaDiff_Design
+  rv$widgets$HypothesisTestProtein$method <- input$HypoTestProt_diffAnaMethod
+  rv$widgets$HypothesisTestProtein$th_logFC<- as.numeric(input$HypoTestProt_seuilLogFC)
+  rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options                                                
+})
 output$screenHypoTestProtein1 <- renderUI({
   
   rv$current.obj
@@ -101,13 +106,12 @@ observeEvent(rv$widgets$HypothesisTestProtein$method,{
 
 output$HypoTestProt_FoldChangePlot <- renderHighchart({
   req(ComputeComparisons()$logFC)
-  rv$PlotParams$paletteConditions
-  
-  rv$widgets$HypothesisTestProtein$th_logFC
+  req(rv$PlotParams$paletteConditions)
+  req(rv$widgets$HypothesisTestProtein$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
-  
+  withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
   rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$HypothesisTestProtein$th_logFC))
-  
+  })
 })
 
 
@@ -126,7 +130,8 @@ ComputeComparisons <- reactive({
   rv$res_AllPairwiseComparisons <- NULL
   #isolate({
   #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTestProtein"]])){
-  switch(rv$widgets$HypothesisTestProtein$method,
+  withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
+    switch(rv$widgets$HypothesisTestProtein$method,
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
@@ -141,6 +146,7 @@ ComputeComparisons <- reactive({
     
   
   rvModProcess$moduleHypothesisTestProteinDone[1] <- TRUE
+  })
   rv$res_AllPairwiseComparisons
 #})
 })

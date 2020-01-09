@@ -2,7 +2,7 @@
 
 observeEvent(input$linkToFaq1, {
   updateTabsetPanel(session, 'navPage', "faqTab")
-  })
+})
 
 
 
@@ -24,23 +24,9 @@ color_renderer <- reactive({
 
 
 
-output$convertFinalStep <- renderUI({
-req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
-    uiOutput("warningCreateMSnset")
-    
-  )
-})
-
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
-  req(rv$widgets$Convert$datafile)
+  input$file1
   input$convert_reorder
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
@@ -77,17 +63,17 @@ output$hot <- renderRHandsontable({
   }
   
   hot <- rhandsontable::rhandsontable(rv$hot,rowHeaders=NULL, 
-                       fillHandle = list(direction='vertical', 
-                                         autoInsertRow=FALSE,
-                                         maxRows=nrow(rv$hot))) %>%
+                                      fillHandle = list(direction='vertical', 
+                                                        autoInsertRow=FALSE,
+                                                        maxRows=nrow(rv$hot))) %>%
     rhandsontable::hot_rows(rowHeights = 30) %>%
     rhandsontable::hot_context_menu(allowRowEdit = TRUE, 
-                     allowColEdit = FALSE,
-                     allowInsertRow = FALSE,
-                     allowInsertColumn = FALSE,
-                     allowRemoveRow = TRUE,
-                     allowRemoveColumn = FALSE,
-                     autoInsertRow=FALSE     ) %>%
+                                    allowColEdit = FALSE,
+                                    allowInsertRow = FALSE,
+                                    allowInsertColumn = FALSE,
+                                    allowRemoveRow = TRUE,
+                                    allowRemoveColumn = FALSE,
+                                    autoInsertRow=FALSE     ) %>%
     rhandsontable:: hot_cols(renderer = color_renderer()) %>%
     rhandsontable::hot_col(col = "Sample.name", readOnly = TRUE)
   
