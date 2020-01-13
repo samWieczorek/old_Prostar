@@ -40,10 +40,67 @@ output$versionsText <- renderUI({
                              ProstarVersion,"), which proposes a web-based graphical user interface to DAPAR."))),
                tags$li(tags$p(tags$a("DAPAR", href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", target="_blank"),paste0(" (version ",
                               daparVersion,"), which contains all the routines to analyze and visualize proteomics data.")))
+              )
             )
-     )
+     
 )
 })
+
+output$versionsWarning <- renderUI({
+  daparUserVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
+  ProstarUserVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
+  Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
+  DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
+  daparBiocversion <-as.character(DAPAR.html[[3]][2][1,])
+  ProstarBiocversion <-as.character(Prostar.html[[3]][2][1,])
+  #Prostar_desc <- gsub("[^0-9.]","",packageDescription("Prostar")$Depends)
+  currentRversion <- gsub("[^0-9.]","", (strsplit(R.version.string,"\\("))[[1]][1])
+  
+  
+  tagList(
+    tags$p(class="body",
+           "You are currently on R version",
+           tags$b(currentRversion),
+           # if (currentRversion < Prostar_desc){
+           #   tags$p("Prostar needs a R version superior or equal to",
+           #          tags$b(Prostar_desc),".",
+           #          tags$a("Please update R.", href="https://cran.r-project.org/", target="_blank")
+           #   )
+           # }
+           ),
+    tags$p(class="body",
+           if (daparUserVersion > daparBiocversion){ tags$p(class="body",
+                                                            paste0("Your DAPAR is too advanced (", daparUserVersion, "). Bioconductor version is"),
+                                                            tags$b(daparBiocversion),
+                                                            "."
+                                                            )
+             } else { tags$p(class="body",
+                             "DAPAR last bioconductor version is",
+                             tags$b(daparBiocversion),
+                             ". You are using version ",
+                             daparUserVersion, ". Please download the last zip at the Prostar web site (",
+                             tags$a("http://www.prostar-proteomics.org/#zero-install", href="http://www.prostar-proteomics.org/#zero-install", target="_blank"),
+                             ").")
+             }
+           
+           ),
+    tags$p(class="body",
+           if (ProstarUserVersion > ProstarBiocversion){ tags$p(class="body",
+                                                            paste0("Your Prostar is too advanced (", ProstarUserVersion, "). Bioconductor version is"),
+                                                            tags$b(ProstarBiocversion),
+                                                            "."
+                                                            )
+             } else { tags$p(class="body",
+                             "Prostar last bioconductor version is",
+                             tags$b(ProstarBiocversion),
+                             ". You are using version",
+                             ProstarUserVersion, ". Please download the last zip at the Prostar web site (",
+                             tags$a("http://www.prostar-proteomics.org/#zero-install", href="http://www.prostar-proteomics.org/#zero-install", target="_blank"),
+                             ").") 
+               }
+           )
+    )
+  })
 
 
 output$NoteForNewVersion <- renderUI({
