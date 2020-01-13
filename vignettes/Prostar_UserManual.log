@@ -1,0 +1,339 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (MiKTeX 2.9.7000 64-bit) (preloaded format=pdflatex 2019.12.18)  8 JAN 2020 15:39
+entering extended mode
+**./Prostar_UserManual.tex
+(Prostar_UserManual.tex
+LaTeX2e <2018-12-01>
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\article.cls"
+Document Class: article 2018/09/03 v1.4i Standard LaTeX document class
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\size12.clo"
+File: size12.clo 2018/09/03 v1.4i Standard LaTeX file (size option)
+)
+\c@part=\count80
+\c@section=\count81
+\c@subsection=\count82
+\c@subsubsection=\count83
+\c@paragraph=\count84
+\c@subparagraph=\count85
+\c@figure=\count86
+\c@table=\count87
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/soul\soul.sty
+Package: soul 2003/11/17 v2.4 letterspacing/underlining (mf)
+\SOUL@word=\toks14
+\SOUL@lasttoken=\toks15
+\SOUL@cmds=\toks16
+\SOUL@buffer=\toks17
+\SOUL@token=\toks18
+\SOUL@spaceskip=\skip43
+\SOUL@ttwidth=\dimen103
+\SOUL@uldp=\dimen104
+\SOUL@ulht=\dimen105
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\color.sty"
+Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics-cfg\color.cfg"
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package color Info: Driver file: pdftex.def on input line 147.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics-def\pdftex.def"
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
+))
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/colortbl\colortbl.sty
+Package: colortbl 2018/12/12 v1.0d Color table columns (DPC)
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/tools\array.sty"
+Package: array 2018/12/30 v2.4k Tabular extension package (FMi)
+\col@sep=\dimen106
+\ar@mcellbox=\box27
+\extrarowheight=\dimen107
+\NC@list=\toks19
+\extratabsurround=\skip44
+\backup@length=\skip45
+\ar@cellbox=\box28
+)
+\everycr=\toks20
+\minrowclearance=\skip46
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/url\url.sty
+\Urlmuskip=\muskip10
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\inputenc.sty"
+Package: inputenc 2018/08/11 v1.3c Input encoding file
+\inpenc@prehook=\toks21
+\inpenc@posthook=\toks22
+)
+(C:/Users/EF249002/Documents/R/R-devel/library/BiocStyle/resources/tex/Biocondu
+ctor.sty
+
+LaTeX Warning: You have requested package `C:/Users/EF249002/Documents/R/R-deve
+l/library/BiocStyle/resources/tex/Bioconductor',
+               but the package provides `Bioconductor'.
+
+Package: Bioconductor 2016/06/22 Bioconductor LaTeX Style
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\ifthen.sty"
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\hyperref.sty"
+Package: hyperref 2018/11/30 v6.88e Hypertext links for LaTeX
+
+("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\hobsub-hyperref.sty"
+Package: hobsub-hyperref 2016/05/16 v1.14 Bundle oberdiek, subset hyperref (HO)
+
+
+("C:\Program Files\MiKTeX 2.9\tex/generic/oberdiek\hobsub-generic.sty"
+Package: hobsub-generic 2016/05/16 v1.14 Bundle oberdiek, subset generic (HO)
+Package: hobsub 2016/05/16 v1.14 Construct package bundles (HO)
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
+Package ifvtex Info: VTeX not detected.
+Package: intcalc 2016/05/16 v1.2 Expandable calculations with integers (HO)
+Package: ifpdf 2018/09/07 v3.3 Provides the ifpdf switch
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
+Package: pdftexcmds 2018/09/10 v0.29 Utility functions of pdfTeX for LuaTeX (HO
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+Package: pdfescape 2016/05/16 v1.14 Implements pdfTeX's escape features (HO)
+Package: bigintcalc 2016/05/16 v1.4 Expandable calculations on big integers (HO
+)
+Package: bitset 2016/05/16 v1.2 Handle bit-vector datatype (HO)
+Package: uniquecounter 2016/05/16 v1.3 Provide unlimited unique counter (HO)
+)
+Package hobsub Info: Skipping package `hobsub' (already loaded).
+Package: letltxmacro 2016/05/16 v1.5 Let assignment for LaTeX macros (HO)
+Package: hopatch 2016/05/16 v1.3 Wrapper for package hooks (HO)
+Package: xcolor-patch 2016/05/16 xcolor patch
+Package: atveryend 2016/05/16 v1.9 Hooks at the very end of document (HO)
+Package atveryend Info: \enddocument detected (standard20110627).
+Package: atbegshi 2016/06/09 v1.18 At begin shipout hook (HO)
+Package: refcount 2016/05/16 v3.5 Data extraction from label references (HO)
+Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/graphics\keyval.sty"
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks23
+)
+("C:\Program Files\MiKTeX 2.9\tex/generic/ifxetex\ifxetex.sty"
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\auxhook.sty"
+Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\kvoptions.sty"
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+)
+\@linkdim=\dimen108
+\Hy@linkcounter=\count88
+\Hy@pagecounter=\count89
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\pd1enc.def"
+File: pd1enc.def 2018/11/30 v6.88e Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+\Hy@SavedSpaceFactor=\count90
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/00miktex\hyperref.cfg"
+File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
+)
+Package hyperref Info: Option `pdfpagelabels' set `true' on input line 4393.
+Package hyperref Info: Option `plainpages' set `false' on input line 4393.
+Package hyperref Info: Option `bookmarks' set `true' on input line 4393.
+Package hyperref Info: Option `bookmarksopen' set `true' on input line 4393.
+Package hyperref Info: Option `bookmarksnumbered' set `true' on input line 4393
+.
+Package hyperref Info: Option `hyperfootnotes' set `false' on input line 4393.
+Package hyperref Info: Option `colorlinks' set `true' on input line 4393.
+Package hyperref Info: Option `breaklinks' set `true' on input line 4393.
+Package hyperref Info: Option `raiselinks' set `true' on input line 4393.
+Package hyperref Info: Option `pdfusetitle' set `true' on input line 4393.
+Package hyperref Info: Hyper figures OFF on input line 4519.
+Package hyperref Info: Link nesting OFF on input line 4524.
+Package hyperref Info: Hyper index ON on input line 4527.
+Package hyperref Info: Plain pages OFF on input line 4534.
+Package hyperref Info: Backreferencing OFF on input line 4539.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4772.
+\c@Hy@tempcnt=\count91
+LaTeX Info: Redefining \url on input line 5125.
+\XeTeXLinkMargin=\dimen109
+\Fld@menulength=\count92
+\Field@Width=\dimen110
+\Fld@charsize=\dimen111
+Package hyperref Info: Hyper figures OFF on input line 6380.
+Package hyperref Info: Link nesting OFF on input line 6385.
+Package hyperref Info: Hyper index ON on input line 6388.
+Package hyperref Info: backreferencing OFF on input line 6395.
+Package hyperref Info: Link coloring ON on input line 6398.
+Package hyperref Info: Link coloring with OCG OFF on input line 6405.
+Package hyperref Info: PDF/A mode OFF on input line 6410.
+LaTeX Info: Redefining \ref on input line 6450.
+LaTeX Info: Redefining \pageref on input line 6454.
+\Hy@abspage=\count93
+\c@Item=\count94
+)
+Package hyperref Info: Driver: hpdftex.
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/hyperref\hpdftex.def"
+File: hpdftex.def 2018/11/30 v6.88e Hyperref driver for pdfTeX
+\Fld@listcount=\count95
+\c@bookmark@seq@number=\count96
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/oberdiek\rerunfilecheck.sty"
+Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+82.
+)
+\Hy@SectionHShift=\skip47
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/geometry\geometry.sty"
+Package: geometry 2018/04/16 v5.8 Page Geometry
+\Gm@cnth=\count97
+\Gm@cntv=\count98
+\c@Gm@tempcnt=\count99
+\Gm@bindingoffset=\dimen112
+\Gm@wd@mp=\dimen113
+\Gm@odd@mp=\dimen114
+\Gm@even@mp=\dimen115
+\Gm@layoutwidth=\dimen116
+\Gm@layoutheight=\dimen117
+\Gm@layouthoffset=\dimen118
+\Gm@layoutvoffset=\dimen119
+\Gm@dimlist=\toks24
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/geometry\geometry.cfg"))
+\hfskip=\skip48
+\layoutw=\skip49
+\layouth=\skip50
+\layouthoff=\skip51
+\layoutvoff=\skip52
+
+
+Package geometry Warning: Over-specification in `h'-direction.
+    `width' (384.1122pt) is ignored.
+
+\overhang=\skip53
+\rightoffset=\skip54
+\fltoffset=\skip55
+\capoffset=\skip56
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/bera\beramono.sty
+Package: beramono 2004/01/31 (WaS)
+)
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\fontenc.sty"
+Package: fontenc 2018/08/11 v2.0j Standard LaTeX package
+
+("C:\Program Files\MiKTeX 2.9\tex/latex/base\t1enc.def"
+File: t1enc.def 2018/08/11 v2.0j Standard LaTeX file
+LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+))
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/etoolbox\etoolbox.sty
+Package: etoolbox 2019/09/21 v2.5h e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count100
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/titlesec\titlesec.sty
+Package: titlesec 2019/10/16 v2.13 Sectioning titles
+\ttl@box=\box29
+\beforetitleunit=\skip57
+\aftertitleunit=\skip58
+\ttl@plus=\dimen120
+\ttl@minus=\dimen121
+\ttl@toksa=\toks25
+\titlewidth=\dimen122
+\titlewidthlast=\dimen123
+\titlewidthfirst=\dimen124
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/framed\framed.sty
+Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
+\OuterFrameSep=\skip59
+\fb@frw=\dimen125
+\fb@frh=\dimen126
+\FrameRule=\dimen127
+\FrameSep=\dimen128
+)
+\voverhang=\skip60
+
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/fancyhdr\fancyhdr.sty
+Package: fancyhdr 2019/01/31 v3.10 Extensive control of page headers and footer
+s
+\f@nch@headwidth=\skip61
+\f@nch@O@elh=\skip62
+\f@nch@O@erh=\skip63
+\f@nch@O@olh=\skip64
+\f@nch@O@orh=\skip65
+\f@nch@O@elf=\skip66
+\f@nch@O@erf=\skip67
+\f@nch@O@olf=\skip68
+\f@nch@O@orf=\skip69
+)
+
+Package Fancyhdr Warning: \fancyhead's `E' option without twoside option is use
+less on input line 162.
+
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/enumitem\enumitem.sty
+Package: enumitem 2019/06/20 v3.9 Customized lists
+\labelindent=\skip70
+\enit@outerparindent=\dimen129
+\enit@toks=\toks26
+\enit@inbox=\box30
+\enit@count@id=\count101
+\enitdp@description=\count102
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/parskip\parskip.sty
+Package: parskip 2019-01-16 v2.0c non-zero parskip adjustments
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/nowidow\nowidow.sty
+Package: nowidow 2011/09/20 1.0 Easily prevent widows and orphans
+Package: nowidow 
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/parnotes\parnotes.sty
+Package: parnotes 2019/07/23 rev. 3b Notes after every paragraph, or elsewhere
+\c@parnotemark=\count103
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/preprint\authblk.sty
+Package: authblk 2001/02/27 1.3 (PWD)
+\affilsep=\skip71
+\@affilsep=\skip72
+\c@Maxaffil=\count104
+\c@authors=\count105
+\c@affil=\count106
+)
+(C:\Users\EF249002\AppData\Roaming\MiKTeX\2.9\tex/latex/placeins\placeins.sty
+Package: placeins 2005/04/18  v 2.2
+)
+
+! LaTeX Error: File `ragged2e.sty' not found.
+
+Type X to quit or <RETURN> to proceed,
+or enter new name. (Default extension: sty)
+
+Enter file name: 
+! Emergency stop.
+<read *> 
+         
+l.297 \RequirePackage
+                     [side, ragged, flushmargin, multiple]{footmisc}
+*** (cannot \read from terminal in nonstop modes)
+
+ 
+Here is how much of TeX's memory you used:
+ 6576 strings out of 492945
+ 95396 string characters out of 3135503
+ 203598 words of memory out of 3000000
+ 10433 multiletter control sequences out of 15000+200000
+ 5015 words of font info for 17 fonts, out of 3000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 35i,0n,45p,1068b,37s stack positions out of 5000i,500n,10000p,200000b,50000s
+!  ==> Fatal error occurred, no output PDF file produced!

@@ -12,6 +12,7 @@ tabPanel(title="Home",
              tags$p("")
          ),
          uiOutput("versionsText"),
+         uiOutput("versionsWarning"),
          tags$br(), tags$br(),
          uiOutput('NoteForNewVersion'),
          
