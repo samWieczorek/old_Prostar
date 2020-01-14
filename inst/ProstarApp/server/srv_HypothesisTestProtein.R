@@ -26,17 +26,14 @@ resetModuleHypothesisTestProtein <- reactive({
 
 callModule(module_Not_a_numeric,"HypoTestProt_test_seuillogFC", reactive({rv$widgets$HypothesisTestProtein$th_logFC}))
 
-#observeEvent(input$HypoTestProt_anaDiff_Design, ignoreInit=T,{  rv$widgets$HypothesisTestProtein$design<- input$HypoTestProt_anaDiff_Design})
-#observeEvent(input$HypoTestProt_diffAnaMethod,{rv$widgets$HypothesisTestProtein$method <- input$HypoTestProt_diffAnaMethod})
-#observeEvent(input$HypoTestProt_seuilLogFC,{  rv$widgets$HypothesisTestProtein$th_logFC<- as.numeric(input$HypoTestProt_seuilLogFC)})
-#observeEvent(input$HypoTestProt_ttest_options,{rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options})
-
-observeEvent(input$PerformLogFCPlot, {
+observeEvent(input$HypoTestProt_PerformLogFCPlot, {
   rv$widgets$HypothesisTestProtein$design<- input$HypoTestProt_anaDiff_Design
   rv$widgets$HypothesisTestProtein$method <- input$HypoTestProt_diffAnaMethod
   rv$widgets$HypothesisTestProtein$th_logFC<- as.numeric(input$HypoTestProt_seuilLogFC)
   rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options                                                
 })
+
+
 output$screenHypoTestProtein1 <- renderUI({
   
   rv$current.obj
@@ -69,7 +66,15 @@ output$screenHypoTestProtein1 <- renderUI({
                   textInput("HypoTestProt_seuilLogFC", "log(FC) threshold",  
                                value=rv$widgets$HypothesisTestProtein$th_logFC,
                                width='150px'),
-                  module_Not_a_numericUI("test_seuillogFC")
+                  module_Not_a_numericUI("HypoTestProt_test_seuillogFC")
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                  uiOutput("HypoTestProt_correspondingRatio")
+                  
+        ),
+        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                  actionButton("HypoTestProt_PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
+                  
         )
         )
       ,
@@ -88,6 +93,11 @@ output$screenHypoTestProtein2 <- renderUI({
   )
 })
 
+
+output$HypoTestProt_correspondingRatio <- renderUI({
+  ratio <- as.numeric(rv$widgets$HypothesisTestProtein$th_logFC)
+  p("(FC = ", 2^(ratio), ")")
+})
 
 
 output$HypoTestProt_btn_valid <- renderUI({

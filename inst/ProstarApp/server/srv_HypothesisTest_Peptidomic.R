@@ -20,11 +20,11 @@ resetModuleHypothesisTestPeptidomic <- reactive({
   resetModuleProcess("HypothesisTest")
   
   ## update widgets in UI
-  updateSelectInput(session,"anaDiff_DesignPeptidomic", selected = rv$widgets$hypothesisTest$design)
-  updateSelectInput(session,"diffAnaMethodPeptidomic", selected = rv$widgets$hypothesisTest$method)
-  updateRadioButtons(session,"ttest_optionsPeptidomic", selected = rv$widgets$hypothesisTest$ttest_options)
-  updateTextInput(session, "seuilLogFCPeptidomic", value= rv$widgets$hypothesisTest$th_logFC)
-  
+  # updateSelectInput(session,"anaDiff_DesignPeptidomic", selected = rv$widgets$hypothesisTest$design)
+  # updateSelectInput(session,"diffAnaMethodPeptidomic", selected = rv$widgets$hypothesisTest$method)
+  # updateRadioButtons(session,"ttest_optionsPeptidomic", selected = rv$widgets$hypothesisTest$ttest_options)
+  # updateTextInput(session, "seuilLogFCPeptidomic", value= rv$widgets$hypothesisTest$th_logFC)
+  # 
   rvModProcess$moduleHypothesisTestPeptidomicDone = rep(FALSE, 2)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
@@ -78,9 +78,11 @@ output$screenHypoTestPeptidomic1 <- renderUI({
         )
         ,
         tags$hr(),
-        highchartOutput("FoldChangePlotPeptidomic", height="100%") %>% withSpinner(type=spinnerType)
+        withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
+          highchartOutput("FoldChangePlotPeptidomic", height="100%")
+        }) # end of withProgress
       )
-      
+      ) # end of tagListe
     }
   })
 })
@@ -109,7 +111,7 @@ observeEvent(input$diffAnaMethodPeptidomic,{
 
 
 output$FoldChangePlotPeptidomic <- renderHighchart({
-  req(ComputeComparisons()$logFC)
+  req(ComputeComparisonsPeptidomic()$logFC)
   req(rv$PlotParams$paletteConditions)
   req(rv$widgets$hypothesisTest$th_logFC)
   data <- ComputeComparisonsPeptidomic()

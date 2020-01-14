@@ -1,12 +1,3 @@
-
-
-callModule(module_Not_a_numeric,"test_seuillogFCPeptide", reactive({input$seuilLogFCPeptide}))
-
-
-observeEvent(input$seuilLogFCPeptide,{  rv$widgets$HypothesisTestPeptide$th_logFC<- as.numeric(input$seuilLogFCPeptide)})
-
-
-
 callModule(moduleProcess, "moduleProcess_HypothesisTestPeptide", 
            isDone = reactive({rvModProcess$moduleHypothesisTestPeptideDone}), 
            pages = reactive({rvModProcess$moduleHypothesisTestPeptide}),
@@ -19,21 +10,32 @@ resetModuleHypothesisTestPeptide <- reactive({
   ## update widgets values (reactive values)
   resetModuleProcess("HypothesisTestPeptide")
   
-  ## update widgets in UI
-  #updateSelectInput(session,"anaDiff_DesignPeptide", selected = rv$widgets$hypothesisTestPeptide$design)
-  #updateSelectInput(session,"diffAnaMethodPeptide", selected = rv$widgets$hypothesisTestPeptide$method)
-  #updateRadioButtons(session,"ttest_optionsPeptide", selected = rv$widgets$hypothesisTestPeptide$ttest_options)
-  #updateTextInput(session, "seuilLogFCPeptide", value= rv$widgets$hypothesisTestPeptide$th_logFC)
+  
+  rv$widgets$HypothesisTestPeptide$design <- "None"
+  rv$widgets$HypothesisTestPeptide$method <- "None"
+  rv$widgets$HypothesisTestPeptide$ttest_options <- "Student"
+  rv$widgets$HypothesisTestPeptide$th_logFC <- 0
+  rv$widgets$HypothesisTestPeptide$listNomsComparaison <- NULL
+  
+  rv$res_AllPairwiseComparisons <- NULL
+  rv$tempplot$logFCDistr <- NULL
   
   rvModProcess$moduleHypothesisTestPeptideDone = rep(FALSE, 2)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
-  
 })
 
 
+callModule(module_Not_a_numeric,"HypoTestPept_test_seuillogFC", reactive({rv$widgets$HypothesisTestPeptide$th_logFC}))
 
-observeEvent(input$ttest_optionsPeptide,{rv$widgets$HypothesisTestPeptide$ttest_options <- input$ttest_optionsPeptide})
+
+observeEvent(input$HypoTestPept_PerformLogFCPlot, {
+  rv$widgets$HypothesisTestPeptide$design<- input$HypoTestPept_anaDiff_Design
+  rv$widgets$HypothesisTestPeptide$method <- input$HypoTestPept_diffAnaMethod
+  rv$widgets$HypothesisTestPeptide$th_logFC<- as.numeric(input$HypoTestPept_seuilLogFC)
+  rv$widgets$HypothesisTestPeptide$ttest_options <- input$HypoTestPept_ttest_options                                                
+})
+
 
 output$screenHypoTestPeptide1 <- renderUI({
   
@@ -47,36 +49,40 @@ output$screenHypoTestPeptide1 <- renderUI({
         
         tags$div(
           tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                    selectInput("anaDiff_DesignPeptide", "Contrast", 
+                    selectInput("HypoTestPept_anaDiff_Design", "Contrast", 
                                 choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
                                 selected=rv$widgets$HypothesisTestPeptide$design,
                                 width='150px')
           ),
           tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                    selectInput("diffAnaMethodPeptide","Statistical test",
+                    selectInput("HypoTestPept_diffAnaMethod","Statistical test",
                                 choices = c("None"="None", "groupttests"="groupttests", "PEPA"="groupttests"),
                                 selected=rv$widgets$HypothesisTestPeptide$method,
                                 width='150px')
           ),
           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                    hidden( radioButtons("ttest_optionsPeptide", "t-tests options",choices=c("Student", "Welch"),
+                    hidden( radioButtons("HypoTestPept_ttest_options", "t-tests options",choices=c("Student", "Welch"),
                                          selected=rv$widgets$HypothesisTestPeptide$ttest_options,
                                          width='150px'))
           ),
           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                    textInput("seuilLogFCPeptide", "log(FC) threshold",  
+                    textInput("HypoTestPept_seuilLogFC", "log(FC) threshold",  
                               value="0",
                               width='150px'),
-                    module_Not_a_numericUI("test_seuillogFCPeptide")
+                    module_Not_a_numericUI("HypoTestPept_test_seuillogFC")
           ),
           tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                    uiOutput("correspondingRatioPeptide")
+                    uiOutput("HypoTestPept_correspondingRatio")
+                    
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    actionButton("HypoTestPept_PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
                     
           )
         )
         ,
         tags$hr(),
-        highchartOutput("FoldChangePlotPeptide", height="100%") %>% withSpinner(type=spinnerType)
+        highchartOutput("HypoTestPept_FoldChangePlot", height="100%")
       )
       
     }
@@ -86,45 +92,41 @@ output$screenHypoTestPeptide1 <- renderUI({
 
 output$screenHypoTestPeptide2 <- renderUI({
   tagList(
-    uiOutput("btn_validPeptide")
+    uiOutput("HypoTestPept_btn_valid")
   )
 })
 
-
-
-output$btn_validPeptide <- renderUI({
-  cond <- (input$diffAnaMethodPeptide != "None")&&(input$anaDiff_DesignPeptide != "None")
-  if (!cond){return(NULL)}
-  actionButton("ValidTestPeptide","Save significance test", class = actionBtnClass)
-})
-
-
-observeEvent(input$diffAnaMethodPeptide,{
-  
-  toggle(id = "ttest_optionsPeptide",  condition = (input$diffAnaMethodPeptide == "groupttests"))
-})
-
-
-
-output$FoldChangePlotPeptide <- renderHighchart({
-  #req(rv$res_AllPairwiseComparisons)
-  rv$PlotParams$paletteConditions
-  
-  data <- ComputeComparisonsPeptide()
-  print(str(data))
-  
-  rv$tempplot$logFCDistrPeptide <- hc_logFC_DensityPlot(data$logFC,as.numeric(input$seuilLogFCPeptide))
-  rv$tempplot$logFCDistrPeptide
-})
-
-
-
-output$correspondingRatioPeptide <- renderUI({
-  
-  ratio <- as.numeric(input$seuilLogFCPeptide)
-  
+output$HypoTestPept_correspondingRatio <- renderUI({
+  ratio <- as.numeric(rv$widgets$HypothesisTestPeptide$th_logFC)
   p("(FC = ", 2^(ratio), ")")
+})
+
+
+
+output$HypoTestPept_btn_valid <- renderUI({
+  cond <- (input$HypoTestPept_diffAnaMethod != "None")&&(input$HypoTestPept_anaDiff_Design != "None")
+  if (!cond){return(NULL)}
+  actionButton("HypoTestPept_ValidTest","Save significance test", class = actionBtnClass)
+})
+
+
+observeEvent(rv$widgets$HypothesisTestPeptide$method,{
   
+  toggle(id = "HypoTestPept_ttest_options",  condition = (rv$widgets$HypothesisTestPeptide$method == "groupttests"))
+})
+
+
+
+output$HypoTestPept_FoldChangePlot <- renderHighchart({
+  req(ComputeComparisonsPeptide()$logFC)
+  req(rv$PlotParams$paletteConditions)
+  req(rv$widgets$HypothesisTestProtein$th_logFC)
+  data <- ComputeComparisonsPeptide()
+  if (length(data$logFC)==0){return(NULL)}
+  withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
+    rv$tempplot$HypoTestPept_logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(rv$widgets$HypothesisTestPeptide$th_logFC))
+  })
+ 
 })
 
 
@@ -134,20 +136,23 @@ output$correspondingRatioPeptide <- renderUI({
 ### calcul des comparaisons                         ####
 ########################################################
 ComputeComparisonsPeptide <- reactive({
-  req(input$diffAnaMethodPeptide)
-  req(input$anaDiff_DesignPeptide)
-  input$ttest_optionsPeptide
-  if ((input$diffAnaMethodPeptide=="None")|| (input$anaDiff_DesignPeptide=="None")) {return (NULL)}
+  req(rv$widgets$HypothesisTestPeptide$method)
+  req(rv$widgets$HypothesisTestPeptide$design)
+  rv$widgets$HypothesisTestPeptide$ttest_options
+  if ((rv$widgets$HypothesisTestPeptide$method=="None")|| (rv$widgets$HypothesisTestPeptide$design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-  isolate({
+  rv$res_AllPairwiseComparisons <- NULL
+  #isolate({
     #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTestPeptide"]])){
-    switch(input$diffAnaMethodPeptide,
+  withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
+    switch(rv$widgets$HypothesisTestPeptide$method,
            PEPA={
              rv$res_AllPairwiseComparisons <- NULL
              
            },
            groupttests={
+             print("IN group t tests")
                qData <- Biobase::exprs(rv$current.obj)
                sTab <- Biobase::pData(rv$current.obj)
                X.spec <- rv$matAdj$matWithUniquePeptides
@@ -155,13 +160,13 @@ ComputeComparisonsPeptide <- reactive({
                print(head(qData))
                print(sTab)
                print(dim(X.spec))
-               print(input$anaDiff_DesignPeptide)
-               print(input$ttest_optionsPeptide)
+               print(rv$widgets$HypothesisTestPeptide$design)
+               print(rv$widgets$HypothesisTestPeptide$ttest_options)
                
                
              rv$res_AllPairwiseComparisons <- compute.group.t.tests(qData, sTab, X.spec, 
-                                                                      contrast=input$anaDiff_DesignPeptide,
-                                                                      type=input$ttest_optionsPeptide)
+                                                                      contrast=rv$widgets$HypothesisTestPeptide$design,
+                                                                      type=rv$widgets$HypothesisTestPeptide$ttest_options)
            })
     rv$widgets$HypothesisTestPeptide$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
@@ -178,7 +183,7 @@ ComputeComparisonsPeptide <- reactive({
 #
 #
 ########################################################################
-observeEvent(input$ValidTestPeptide,{ 
+observeEvent(input$HypoTestProt_ValidTest,{ 
   # req(rv$current.obj)
   req(rv$res_AllPairwiseComparisons)
   
@@ -198,18 +203,13 @@ observeEvent(input$ValidTestPeptide,{
                                 X = rv$matAdj$matWithUniquePeptides
                                 )
     
-    rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
-                                         allComp = rv$res_AllPairwiseComparisons)
+    rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,allComp = rv$res_AllPairwiseComparisons)
     
     
     name <- paste("HypothesisTestPeptide.", rv$typeOfDataset, sep="")
     rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTestPeptide", build_ParamsList_HypothesisTestPeptide())
-    
-    rv$dataset[[name]] <- rv$current.obj
-    rvModProcess$moduleHypothesisTestPeptideDone[2] <- TRUE
-    
-    updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
     BuildNavbarPage()
+    rvModProcess$moduleHypothesisTestPeptideDone[2] <- TRUE
+    UpdateDatasetWidget(rv$current.obj, name)
   })
-  
 })

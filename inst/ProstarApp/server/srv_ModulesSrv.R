@@ -604,6 +604,8 @@ missingValuesPlots <- function(input, output, session, data, palette) {
     rv$PlotParams$paletteConditions
     tmp <- NULL
     #isolate({
+    print("toto")
+    print(GetCurrentObjName())
     pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
     #future(createPNGFromWidget(tmp,pattern))

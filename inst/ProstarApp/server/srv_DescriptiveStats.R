@@ -76,6 +76,7 @@ output$plotsCorM <- renderUI({
     withProgress(message = '',detail = '', value = 1, {
       highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
     })
+)
 })
 
 

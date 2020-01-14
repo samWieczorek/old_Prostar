@@ -7,7 +7,7 @@ tabPanel("Demo data",
            
            tags$div( style="display:inline-block; vertical-align: middle;",
                      p(""),
-                     uiOutput("linktoDemoPdf")
+                     uiOutput("linktoDemoPdf"),
                      actionButton("loadDemoDataset", "Load demo dataset",class = actionBtnClass),
 )),
 

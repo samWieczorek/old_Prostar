@@ -427,7 +427,7 @@ writeToCommandLogFile <- function(txt, verbose = FALSE){
 
 
 
-GetCurrentObjName <- reactive({rv$dataset[[input$datasets]]})
+GetCurrentObjName <- reactive({rv$datasets[[input$datasets]]})
 
 createPNGFromWidget <- function(tempplot, pattern){
   tmp_filename <- paste0(pattern, '.html')
@@ -600,16 +600,19 @@ resetModuleProcess <- function(moduleName){
                                                    ll.UI = list( screenStep1 = uiOutput("screenHypoTestProtein1"),
                                                                  screenStep2 = uiOutput("screenHypoTestProtein2")))
           ## update widgets in UI
-          updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$HypothesisTestProtein$design)
-          updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$HypothesisTestProtein$method)
-          updateRadioButtons(session,"ttest_options", selected = rv$widgets$HypothesisTestProtein$ttest_options)
-          updateTextInput(session, "seuilLogFC", value= rv$widgets$HypothesisTestProtein$th_logFC)
+          updateSelectInput(session,"HypoTestProt_anaDiff_Design", selected = rv$widgets$HypothesisTestProtein$design)
+          updateSelectInput(session,"HypoTestProt_diffAnaMethod", selected = rv$widgets$HypothesisTestProtein$method)
+          updateRadioButtons(session,"HypoTestProt_ttest_options", selected = rv$widgets$HypothesisTestProtein$ttest_options)
+          updateTextInput(session, "HypoTestProt_seuilLogFC", value= rv$widgets$HypothesisTestProtein$th_logFC)
           
           
           rv$res_AllPairwiseComparisons <- NULL
           rv$tempplot$logFCDistr <- NULL
           rvModProcess$moduleHypothesisTestProteinDone =  rep(FALSE,2)
           },
+          
+          
+          
           
           HypothesisTestPeptide ={
             rv$widgets$hypothesisTestPeptide = list(design = "None",
@@ -622,6 +625,14 @@ resetModuleProcess <- function(moduleName){
                                                      isMandatory = c(TRUE, TRUE),
                                                      ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
                                                                    screenStep2 = uiOutput("screenHypoTestPeptide2")))
+            
+            updateSelectInput(session,"anaDiff_DesignPeptide", selected = rv$widgets$hypothesisTestPeptide$design)
+            updateSelectInput(session,"diffAnaMethodPeptide", selected = rv$widgets$hypothesisTestPeptide$method)
+            updateRadioButtons(session,"ttest_optionsPeptide", selected = rv$widgets$hypothesisTestPeptide$ttest_options)
+            updateTextInput(session, "seuilLogFCPeptide", value= rv$widgets$hypothesisTestPeptide$th_logFC)
+            
+            rv$res_AllPairwiseComparisons <- NULL
+            rv$tempplot$logFCDistr <- NULL
             rvModProcess$moduleHypothesisTestPeptideDone =  rep(FALSE,2)
           },
           
@@ -639,6 +650,15 @@ resetModuleProcess <- function(moduleName){
                                                             isMandatory = c(TRUE, TRUE),
                                                             ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
                                                                           screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
+            
+            updateSelectInput(session,"anaDiff_DesignPeptidomic", selected = rv$widgets$HypothesisTestPeptidomic$design)
+            updateSelectInput(session,"diffAnaMethodPeptidomic", selected = rv$widgets$HypothesisTestPeptidomic$method)
+            updateRadioButtons(session,"ttest_optionsPeptidomic", selected = rv$widgets$HypothesisTestPeptidomic$ttest_options)
+            updateTextInput(session, "seuilLogFCPeptidomic", value= rv$widgets$HypothesisTestPeptidomic$th_logFC)
+            
+            rv$res_AllPairwiseComparisons <- NULL
+            rv$tempplot$logFCDistr <- NULL
+            
             rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
           },
           
@@ -656,7 +676,7 @@ resetModuleProcess <- function(moduleName){
                                       replaceAllZeros =TRUE,
                                       convert_reorder = "no",
                                       XLSsheets = character(0),
-                                      design = NULL))
+                                      design = NULL)
             
             
             rvModProcess$moduleConvert = list(name = "Convert",
@@ -1334,11 +1354,6 @@ getPackagesVersions2 <- reactive({
  
   
   df
-
-}
-
-
-
 
 })
 

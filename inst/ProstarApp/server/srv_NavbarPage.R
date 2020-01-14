@@ -171,8 +171,8 @@ rv$current.obj
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      #source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_AggregateTest_Peptide.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_AggregatePeptide.R"),  local = TRUE)$value
+                     source(file.path("ui", "ui_AggregateTest_Peptide.R"),  local = TRUE)$value
+                     #source(file.path("ui", "ui_AggregatePeptide.R"),  local = TRUE)$value
                     ),
           target = "Data manager",
           position="after"
