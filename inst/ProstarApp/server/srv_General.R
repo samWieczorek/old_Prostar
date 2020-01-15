@@ -351,7 +351,7 @@ loadObjectInMemoryFromConverter <- function(){
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
     #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
     #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
-    #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
+    #     rv$widgets$HypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
     #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
     # }
     
@@ -605,7 +605,7 @@ resetModuleProcess <- function(moduleName){
           },
           
           HypothesisTestPeptide ={
-            rv$widgets$hypothesisTestPeptide = list(design = "None",
+            rv$widgets$HypothesisTestPeptide = list(design = "None",
                                              method = "None",
                                              ttest_options = "Student",
                                              th_logFC = 0,
@@ -622,7 +622,7 @@ resetModuleProcess <- function(moduleName){
           
           
           HypothesisTestPeptidomic ={
-            rv$widgets$hypothesisTestPeptidomic = list(design = "None",
+            rv$widgets$HypothesisTestPeptidomic = list(design = "None",
                                                     method = "None",
                                                     ttest_options = "Student",
                                                     th_logFC = 0,
@@ -632,6 +632,13 @@ resetModuleProcess <- function(moduleName){
                                                             isMandatory = c(TRUE, TRUE),
                                                             ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
                                                                           screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
+            ## update widgets in UI
+            updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$HypothesisTestPeptidomic$design)
+            updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$HypothesisTestPeptidomic$method)
+            updateRadioButtons(session,"ttest_options", selected = rv$widgets$HypothesisTestPeptidomic$ttest_options)
+            updateTextInput(session, "seuilLogFC", value= rv$widgets$HypothesisTestPeptidomic$th_logFC)
+            
+            
             rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
           },
           
@@ -1081,7 +1088,7 @@ rv <- reactiveValues(
     errMsgcalibrationPlot = NULL,
     errMsgcalibrationPlotALL = NULL,
     typeOfDataset = "",
-  proteinId = NULL,
+    proteinId = NULL,
     #ValidFilteringClicked = FALSE,
     ValidImputationClicked = FALSE,
     commandLog = "", 
