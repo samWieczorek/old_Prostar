@@ -156,6 +156,7 @@ ComputeComparisonsPeptide <- reactive({
                qData <- Biobase::exprs(rv$current.obj)
                sTab <- Biobase::pData(rv$current.obj)
                X.spec <- rv$matAdj$matWithUniquePeptides
+               X <- rv$matAdj$matWithSharedPeptides
                
                print(head(qData))
                print(sTab)
@@ -164,7 +165,7 @@ ComputeComparisonsPeptide <- reactive({
                print(rv$widgets$HypothesisTestPeptide$ttest_options)
                
                
-             rv$res_AllPairwiseComparisons <- compute.group.t.tests(qData, sTab, X.spec, 
+             rv$res_AllPairwiseComparisons <- compute.group.t.tests(qData, sTab, X, X.spec, 
                                                                       contrast=rv$widgets$HypothesisTestPeptide$design,
                                                                       type=rv$widgets$HypothesisTestPeptide$ttest_options)
            })
