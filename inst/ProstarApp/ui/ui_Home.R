@@ -15,9 +15,6 @@ tabPanel(title="Home",
          uiOutput("versionsWarning"),
          tags$br(), tags$br(),
          uiOutput('NoteForNewVersion'),
-         
-         #uiOutput("descriptionText")
-         #includeMarkdown(URL_ProstarPresentation)
          moduleInsertMarkdownUI("ProstarPresentation_MD")
          )
 )

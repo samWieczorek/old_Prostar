@@ -16,7 +16,7 @@ observeEvent( req(input$datasets),ignoreInit = TRUE,{
   # isolate({
   
   if (rv$processSaved== TRUE) {
-    print("---- changement de dataset par mise à jour de rv$current.obj !!!!-----")
+    print("---- changement de dataset par mise à jour de input$datasets !!!!-----")
     rv$processSaved <- FALSE
   } else {
     print("---- changement de dataset par le menu - Utilisateur !!!!-----")
@@ -126,7 +126,11 @@ BuildNavbarPage <- reactive({
 rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
-   
+   ## if a dataset is in memory (ie rv$current.obj is not null
+   ## remove menus to import new dataset
+   removeTab(inputId = "navPage", target = "demoTab")
+   removeTab(inputId = "navPage", target = "convertTab")
+   removeTab(inputId = "navPage", target = "openMSnsetTab")
 
     if (!is.null(rv$typeOfDataset)){
 
@@ -167,8 +171,8 @@ rv$current.obj
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      #source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_AggregateTest_Peptide.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_AggregatePeptide.R"),  local = TRUE)$value
+                     source(file.path("ui", "ui_AggregateTest_Peptide.R"),  local = TRUE)$value
+                     #source(file.path("ui", "ui_AggregatePeptide.R"),  local = TRUE)$value
                     ),
           target = "Data manager",
           position="after"

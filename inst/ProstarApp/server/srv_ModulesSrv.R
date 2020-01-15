@@ -559,7 +559,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
-      df <- data_frame(x=data()$logFC, 
+      df <- dplyr::data_frame(x=data()$logFC, 
                        y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
       if (length( tooltip()) > 0){
@@ -597,13 +597,15 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data, title=NULL, palette) {
+missingValuesPlots <- function(input, output, session, data, palette) {
     
   output$histo_MV <- renderHighchart({
     data()
     rv$PlotParams$paletteConditions
     tmp <- NULL
     #isolate({
+    print("toto")
+    print(GetCurrentObjName())
     pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
     #future(createPNGFromWidget(tmp,pattern))

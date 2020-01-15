@@ -1,7 +1,7 @@
 
 library(shiny)
 library(shinyjs)
-library(shinyjqui)
+#library(shinyjqui)
 library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
@@ -38,10 +38,11 @@ shinyUI <- fluidPage(
   
   #theme = "css/ceruleanProstar.css",
   theme = shinythemes::shinytheme("cerulean"),
-  
+  jsResetCode <- "shinyjs.reset = function() {history.go(0)}",
   tagList(
   
   shinyjs::useShinyjs(),
+  extendShinyjs(text = jsResetCode, functions = c("reset")),
   includeCSS("www/progressBar/progressBar.css"),
   tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
                             sass_options(output_style = "expanded")))),
@@ -76,25 +77,16 @@ shinyUI <- fluidPage(
     div(
       id = "main_content",
       
-      #rclipboardSetup(),
       
       tags$head(includeCSS("www/css/arrow.css")),
-      #tagList(tags$div(class="arrow")),
       launchGA(),
-      #tags$head(includeScript("www/google-analytics.js")),
       tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
-      #inlineCSS(appCSS),
-      tags$head(tags$style(".modal-dialog{ width:200px}")),
+       tags$head(tags$style(".modal-dialog{ width:200px}")),
       tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
       tags$style(HTML(".tab-content {padding-top: 40px; }")),
       
-      # tags$head(tags$style(" table.dataTable thead th {
-      #                      padding: 8px 10px !important;
-      #                      }
-      #                      ")),
-       sidebarPanelWidth()
+      sidebarPanelWidth()
       ,includeCSS("www/css/prostar.css")
-      #,includeCSS("www/css/fontawesome.css")
       , inlineCSS(".body { font-size:14px;}")
       , inlineCSS(".rect {float: left;
                   width: 100px;
@@ -104,19 +96,10 @@ shinyUI <- fluidPage(
       , inlineCSS(".green {background: #06AB27}")
       , inlineCSS(".red {background: #C90404}")
       , inlineCSS(".grey {background:lightgrey;}"),
-      #tags$style(".btn.disabled {background-color: red;}"),
-     # inlineCSS('.btn{color: blue; background-color: #35e51d}'),
-      #inlineCSS('.btn-default{color:#555555;background-color:#ffbbff;border-color:rgba(0,0,0,0.1)}'),
       
-      # #header {
-      # position: fixed;
-      # z-index: 100000;
-      # }
      
       div(
         id = "header",
-      #,source(file.path("ui", "ui_NavbarPage.R"),  local = TRUE)$value
-      #tagList( shinyjs::hidden(div(id = 'tete',modulePlotsUI('showPlots')))),
       navbarPage(
                  #,inlineCSS('.btn-default{color:#555555;background-color:#000000;border-color:rgba(0,0,0,0.1)}')
         position = "fixed-top",
@@ -136,12 +119,13 @@ shinyUI <- fluidPage(
                               source(file.path("ui", "ui_Settings.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_ReleaseNotes.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_CheckForUpdates.R"),  local = TRUE)$value
-                  )
+                              )
                   ,navbarMenu("Data manager",
                               source(file.path("ui", "ui_OpenMSnSetFile.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_ConvertData.R"),  local = TRUE)$value,
                               source(file.path("ui", "ui_DemoMode.R"),  local = TRUE)$value,
-                              source(file.path("ui", "ui_Export.R"),  local = TRUE)$value
+                              source(file.path("ui", "ui_Export.R"),  local = TRUE)$value,
+                              source(file.path("ui", "ui_ReloadProstar.R"),  local = TRUE)$value
                               #source(file.path("ui", "ui_LogSession.R"),  local = TRUE)$value
                   )
                   

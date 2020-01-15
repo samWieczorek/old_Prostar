@@ -20,6 +20,7 @@ resetModuleHypothesisTestPeptidomic <- reactive({
   rv$res_AllPairwiseComparisons <- NULL
   rv$tempplot$logFCDistr <- NULL
   
+
   rvModProcess$moduleHypothesisTestPeptidomicDone = rep(FALSE, 2)
   ##update dataset to put the previous one
   rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
@@ -137,10 +138,12 @@ ComputeComparisonsPeptidomic <- reactive({
   if ((rv$widgets$HypothesisTestPeptidomic$method=="None")|| (rv$widgets$HypothesisTestPeptidomic$design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-  rv$res_AllPairwiseComparisons <- NULL
-  #isolate({
-    #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTestPeptidomic"]])){
-    switch(rv$widgets$HypothesisTestPeptidomic$method,
+
+  isolate({
+    #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
+    withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
+      switch(input$diffAnaMethodPeptidomic,
+
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
@@ -156,8 +159,9 @@ ComputeComparisonsPeptidomic <- reactive({
     
     
     rvModProcess$moduleHypothesisTestPeptidomicDone[1] <- TRUE
+    })
     rv$res_AllPairwiseComparisons
- # })
+  })
 })
 
 

@@ -507,7 +507,6 @@ moduleCC <- function(input, output, session,cc){
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
-    offset <- length(input$pepInfo)
     data
   })
   
@@ -516,9 +515,11 @@ moduleCC <- function(input, output, session,cc){
     input$pepInfo
     req(input$OneMultiDT_rows_selected)
     
+    data <- GetDataFor_OneMultiDTDetailed()
+    offset <- length(input$pepInfo)
     
     
-    dt <- DT::datatable( GetDataFor_OneMultiDTDetailed(),
+    dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
                          options = list(initComplete = initComplete(),
                                         buttons = list('copy',
@@ -604,15 +605,17 @@ moduleCC <- function(input, output, session,cc){
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
-    offset <- length(input$pepInfo)
     data
   })
   
   output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
+    data <- GetDataFor_OneOneDTDetailed()
+    offset <- length(input$pepInfo)
     
-    dt <- DT::datatable( GetDataFor_OneOneDTDetailed(),
+    
+    dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
                          options = list(initComplete = initComplete(),
                                         buttons = list('copy',

@@ -84,6 +84,7 @@ output$screenHypoTestProtein1 <- renderUI({
       
     }
   })
+
 })
 
 
@@ -120,6 +121,7 @@ output$HypoTestProt_FoldChangePlot <- renderHighchart({
   req(rv$widgets$HypothesisTestProtein$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
+
     rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$HypothesisTestProtein$th_logFC))
   })
 })
@@ -154,6 +156,7 @@ ComputeComparisons <- reactive({
            })
     rv$widgets$HypothesisTestProtein$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
+
     
     rvModProcess$moduleHypothesisTestProteinDone[1] <- TRUE
   })

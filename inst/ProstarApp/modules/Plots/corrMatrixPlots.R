@@ -39,7 +39,9 @@ output$plotcorrMatrixlarge <- renderUI({
                
       )
     ),
-    highchartOutput(ns("corrMatrix"),width = plotWidth,height = plotHeight) %>% withSpinner(type=spinnerType)
+    withProgress(message = 'Building plot...',detail = '', value = 1, {
+      highchartOutput(ns("corrMatrix"),width = plotWidth,height = plotHeight)
+    })
   )
 })
 

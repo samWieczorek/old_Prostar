@@ -29,7 +29,6 @@ callModule(moduleProcess, "moduleProcess_Convert",
 
 
 resetModuleConvert<- reactive({  
-  ## update widgets values (reactive values)
   resetModuleProcess("Convert")
     
   rv$widgets$Convert$datafile <- NULL
@@ -96,6 +95,7 @@ output$Convert_SelectFile <- renderUI({
           fluidRow(
             column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
             column(width = 10, uiOutput('resettableInput') )),
+          #actionButton("loadData2Convert", "Load data file",class = actionBtnClass),
           uiOutput("ManageXlsFiles"),
           # helpText("Hint : before importing quantification 
           #             file data, check the syntax of your text 
@@ -130,18 +130,16 @@ tags$div(
 
 
 output$Convert_ExpFeatData <- renderUI({
-  
-  tagList(
+
     
     fluidRow(
       column(width=4,uiOutput("eData",width = "400px")),
       column(width=8,
              tagList(
                uiOutput("checkIdentificationTab"),
-               hidden(checkboxInput("selectIdent", 
+               checkboxInput("selectIdent", 
                                     "Select columns for identification method", 
-                                    value = rv$widgets$Convert$selectIdent)
-               ),
+                                    value = rv$widgets$Convert$selectIdent),
                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })")),
@@ -149,7 +147,7 @@ output$Convert_ExpFeatData <- renderUI({
              )
       )
     )
-  )
+
 })
 
 
@@ -163,8 +161,8 @@ observeEvent(req(rv$widgets$Convert$eDatabox), {
 ### SCREEN 4
 output$Convert_BuildDesign <- renderUI({
   req(rv$widgets$Convert$datafile)
-  
-  tagList(... = tagList(
+  req(input$file1)
+  tagList(
     tags$p("If you do not know how to fill the experimental design, you can click
                                   on the '?' next to each design in the list that appear once the conditions 
                                   are checked or got to the ", 
@@ -177,7 +175,6 @@ output$Convert_BuildDesign <- renderUI({
     fluidRow(
       column(width=6,uiOutput("UI_hierarchicalExp")),
       column(width=6,uiOutput("checkDesign") )
-    )
   ),
   hr(),
   selectInput("convert_reorder", "Order by conditions ?",
@@ -209,7 +206,12 @@ output$Convert_Convert <- renderUI({
   
   uiOutput("convertFinalStep"),
   moduleStaticDataTableUI("overview_convertData"),
-  uiOutput("conversionDone")
+  uiOutput("conversionDone"),
+  p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
+    interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
+    (because successive dataset loading can make Prostar unstable). To work on another dataset, use first the 'Reload Prostar' functionality from 
+    the 'Dataset manager' menu: it will make Prostar restart with a fresh R session where import functions are enabled.")
+  
   
   )
 })
@@ -375,14 +377,6 @@ output$helpTextDataID <- renderUI({
 
 
 
-
-readTextFile <- reactive({
-  req(rv$widgets$Convert$datafile)
-  rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)
-})
-
-readXLSFile <- reactive({})
-
 ############ Read text file to be imported ######################
 observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
   
@@ -402,7 +396,7 @@ observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
       ClearUI()
       ClearMemory()
       ext <- GetExtension(rv$widgets$Convert$datafile$name)
-      
+      shinyjs::disable("file1")
       switch(ext,
              txt = { rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
              csv = { rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
@@ -421,7 +415,7 @@ observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
   #     #cleanup-code 
   #   })
    }
-  
+  #shinyjs::disable('file1')
 })
 
 
@@ -658,7 +652,19 @@ output$warningCreateMSnset <- renderUI({
 })
 
 
-
+output$convertFinalStep <- renderUI({
+  req(rv$designChecked)
+  if (!(rv$designChecked$valid)){return(NULL)}
+  tagList(
+    uiOutput("checkAll_convert", width="50"),
+    htmlOutput("msgAlertCreateMSnset"),
+    hr(),
+    textInput("filenameToCreate","Enter the name of the study"),
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
+    uiOutput("warningCreateMSnset")
+    
+  )
+})
 
 
 
@@ -672,9 +678,10 @@ observeEvent(input$createMSnsetButton,{
         if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
     } 
     
-    #isolate({
+
         result = tryCatch(
             {
+              isolate({
               ext <- GetExtension(rv$widgets$Convert$datafile$name)
               txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
                                "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
@@ -687,9 +694,6 @@ observeEvent(input$createMSnsetButton,{
                        xls= writeToCommandLogFile(txtXls),
                        xlsx = writeToCommandLogFile(txtXls)
                 )
-                
-                input$filenameToCreate
-                rv$tab1
                 
                 tmp.eData.box <- rv$widgets$Convert$eDatabox
                 indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
@@ -723,33 +727,32 @@ observeEvent(input$createMSnsetButton,{
                                  DAPAR_Version = 
                                    installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
                 )
-                tmp <- DAPAR::createMSnset(rv$tab1, 
+                rv$current.obj <- DAPAR::createMSnset(rv$tab1, 
                                     metadata, 
                                     indexForEData, 
                                     indexForFData, 
                                     indexForIDBox,
                                     indexForOriginOfValue,
-                                    logData, 
+                                    (rv$widgets$Convert$checkDataLogged == "no"), 
                                     rv$widgets$Convert$replaceAllZeros,
                                     pep_prot_data = rv$widgets$Convert$typeOfData,
                                     proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
                                     versions
                 )
-                
-                rvModProcess$moduleConvertDone[5] <- TRUE
-                print("Convert : after creating MSnset")
-                ClearUI()
-                ClearMemory()
-                rv$current.obj <- tmp
+
                 
                 rv$current.obj.name <- input$filenameToCreate
                 rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+                rv$typeOfDataset <- rv$widgets$Convert$typeOfData
+                rv$current.obj <- addOriginOfValue(rv$current.obj)
                 
-                l.params <- list(filename = input$filenameToCreate)
-                print("Convert : before loadObjectInMemoryFromConverter")
+                rvModProcess$moduleConvertDone[5] <- TRUE
                 loadObjectInMemoryFromConverter()
-                print("Convert : after loadObjectInMemoryFromConverter")
-                updateTabsetPanel(session, "tabImport", selected = "Convert")
+                
+                print("after loadObjectInMemoryFromConverter")
+                print(rv$current.obj)
+                #updateTabsetPanel(session, "tabImport", selected = "Convert")
+              }) ## end of isolate
             }
             , warning = function(w) {
                 if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){

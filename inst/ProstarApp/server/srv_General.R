@@ -250,7 +250,7 @@ session$onSessionEnded(function() {
   
     
     #rm(list= list(myListOfThings))
-    stopApp()
+    #stopApp()
 })
 
 
@@ -335,17 +335,20 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function(){
-  req(rv$current.obj)
-  rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+  #req(rv$current.obj)
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
-  if (is.null(rv$typeOfDataset)) {rv$typeOfDataset <- ""}
-    
+  if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
+    rv$typeOfDataset <- ""
+  } else {
+    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+  }
+  
   
   withProgress(message = 'Loading memory',detail = '', value = 0, {
     incProgress(0.5, detail = 'Miscellaneous updates')
   colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
   names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-  
+  pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
   
     #If there are already pVal values, then do no compute them 
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
@@ -388,25 +391,29 @@ loadObjectInMemoryFromConverter <- function(){
       names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
     }
     
-    rv$dataset[[name]] <- rv$current.obj
-    
-    
-    
-    updateSelectInput(session, "datasets", 
-                      #label = paste("Dataset versions of", rv$current.obj.name, sep=" "),
-                      choices = names(rv$dataset),
-                      selected = name)
-    
+    UpdateDatasetWidget(rv$current.obj, name)
     incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
-    
   })
+  
+  shinyjs::disable("file1")
+  shinyjs::disable("loadDemoDataset")
+  shinyjs::disable("chooseDataset")
+  shinyjs::disable("linktoDemoPdf")
+  shinyjs::disable("loadMSnset")
+  shinyjs::disable("file")
+  shinyjs::disable("loadData2Convert")
+
 }
 
 #
 
-
+UpdateDatasetWidget <- function(obj, name){
+  rv$processSaved <- TRUE
+  rv$dataset[[name]] <- obj
+  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
+}
 
 
 ###-------------------------------------------------------------------
@@ -593,16 +600,19 @@ resetModuleProcess <- function(moduleName){
                                                    ll.UI = list( screenStep1 = uiOutput("screenHypoTestProtein1"),
                                                                  screenStep2 = uiOutput("screenHypoTestProtein2")))
           ## update widgets in UI
-          updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$HypothesisTestProtein$design)
-          updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$HypothesisTestProtein$method)
-          updateRadioButtons(session,"ttest_options", selected = rv$widgets$HypothesisTestProtein$ttest_options)
-          updateTextInput(session, "seuilLogFC", value= rv$widgets$HypothesisTestProtein$th_logFC)
+          updateSelectInput(session,"HypoTestProt_anaDiff_Design", selected = rv$widgets$HypothesisTestProtein$design)
+          updateSelectInput(session,"HypoTestProt_diffAnaMethod", selected = rv$widgets$HypothesisTestProtein$method)
+          updateRadioButtons(session,"HypoTestProt_ttest_options", selected = rv$widgets$HypothesisTestProtein$ttest_options)
+          updateTextInput(session, "HypoTestProt_seuilLogFC", value= rv$widgets$HypothesisTestProtein$th_logFC)
           
           
           rv$res_AllPairwiseComparisons <- NULL
           rv$tempplot$logFCDistr <- NULL
           rvModProcess$moduleHypothesisTestProteinDone =  rep(FALSE,2)
           },
+          
+          
+          
           
           HypothesisTestPeptide ={
             rv$widgets$HypothesisTestPeptide = list(design = "None",
@@ -615,6 +625,14 @@ resetModuleProcess <- function(moduleName){
                                                      isMandatory = c(TRUE, TRUE),
                                                      ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
                                                                    screenStep2 = uiOutput("screenHypoTestPeptide2")))
+            
+            updateSelectInput(session,"HypoTestPeptide_anaDiff_Design", selected = rv$widgets$hypothesisTestPeptide$design)
+            updateSelectInput(session,"HypoTestPeptide_diffAnaMethod", selected = rv$widgets$hypothesisTestPeptide$method)
+            updateRadioButtons(session,"HypoTestPeptide_ttest_options", selected = rv$widgets$hypothesisTestPeptide$ttest_options)
+            updateTextInput(session, "HypoTestPeptide_seuilLogFC", value= rv$widgets$hypothesisTestPeptide$th_logFC)
+            
+            rv$res_AllPairwiseComparisons <- NULL
+            rv$tempplot$logFCDistr <- NULL
             rvModProcess$moduleHypothesisTestPeptideDone =  rep(FALSE,2)
           },
           
@@ -633,12 +651,12 @@ resetModuleProcess <- function(moduleName){
                                                             ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
                                                                           screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
             ## update widgets in UI
-            updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$HypothesisTestPeptidomic$design)
-            updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$HypothesisTestPeptidomic$method)
-            updateRadioButtons(session,"ttest_options", selected = rv$widgets$HypothesisTestPeptidomic$ttest_options)
-            updateTextInput(session, "seuilLogFC", value= rv$widgets$HypothesisTestPeptidomic$th_logFC)
+            updateSelectInput(session,"HypoTestPeptidomic_anaDiff_Design", selected = rv$widgets$HypothesisTestPeptidomic$design)
+            updateSelectInput(session,"HypoTestPeptidomic_diffAnaMethod", selected = rv$widgets$HypothesisTestPeptidomic$method)
+            updateRadioButtons(session,"HypoTestPeptidomic_ttest_options", selected = rv$widgets$HypothesisTestPeptidomic$ttest_options)
+            updateTextInput(session, "HypoTestPeptidomic_seuilLogFC", value= rv$widgets$HypothesisTestPeptidomic$th_logFC)
             
-            
+
             rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
           },
           
@@ -655,7 +673,8 @@ resetModuleProcess <- function(moduleName){
                                       checkDataLogged = "no",
                                       replaceAllZeros =TRUE,
                                       convert_reorder = "no",
-                                      XLSsheets = character(0))
+                                      XLSsheets = character(0),
+                                      design = NULL)
             
             
             rvModProcess$moduleConvert = list(name = "Convert",
@@ -916,12 +935,6 @@ ClearMemory <- function(){
     
 }
 
-
-UpdateDatasetWidget <- function(obj, name){
-  rv$processSaved <- TRUE
-  rv$dataset[[name]] <- obj
-  updateSelectInput(session, "datasets", choices = names(rv$dataset), selected = name)
-}
 
 
 
@@ -1243,24 +1256,20 @@ Get_ParamValue <- function(pp, key){
   return(df[which(df$param==key),]$value)
 }
 
-getPackagesVersions2 <- function(){
+
+
+GetBioconductorVersions <- function(){
+  ll.versions <- list()
   
-  type <- "all"
-  outOfDate <- "(Out of date)"
-  dev <- "(Devel)"
-  
-  biocRelease <- NULL
-  DAPARdata.version <- NULL
+  DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
   tryCatch({
-    #biocRelease <- available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
     require(XML)
     Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
     DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
     DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
-    DAPAR.version <-as.character(DAPAR.html[[3]][2][1,])
-    Prostar.version <-as.character(Prostar.html[[3]][2][1,])
-    DAPARdata.version <- as.character(DAPARdata.html[[3]][2][1,])
-    
+    ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
+    ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
+    ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
   }, warning = function(w) {
     return()
   }, error = function(e) {
@@ -1269,60 +1278,67 @@ getPackagesVersions2 <- function(){
     #cleanup-code 
   })
   
-  pkgs <- c("Prostar", "DAPAR", "DAPARdata")
-  loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
-  instPkgs <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
-                   DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+  
+  return (ll.versions)
+}
+
+
+GetLocalVersions <- function(){
+  local.version <- list()
+  #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+                        DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
                    DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
   
+  return(local.version)
+}
+
+
+
+getPackagesVersions2 <- reactive({
   
+  outOfDate <- "(Out of date)"
+  dev <- "(Devel)"
+  
+  bioconductor.version <-GetBioconductorVersions()
+  local.version <- GetLocalVersions()
   names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
   
   
   df <- data.frame("Name" = names,
-                   "Installed.packages"= rep(NA, 3), 
-                   "Bioc.release" =  rep(NA, 3),
-                   "NeedsUpdate"= rep(FALSE,3),
+                   "Installed packages"= unlist(local.version), 
+                   "Bioc release" =  unlist(bioconductor.version),
                    stringsAsFactors = FALSE)
   
   
-  df[, "Installed.packages"] <- unlist(instPkgs)
-  
-  if (!is.null(Prostar.version) && !is.null(DAPAR.version)) {
+  if (!is.null(local.version$Prostar) && !is.null(local.version$DAPAR)) {
     tryCatch({
       
-      biocPkgs <- list(Prostar = Prostar.version,
-                       DAPAR = DAPAR.version,
-                       DAPARdata = DAPARdata.version)
-      
-      if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 0){df[1,"Name"] <-  names[1]}
-      else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 1){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
-      else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar)==-1){
+      compare.prostar <- compareVersion(local.version$Prostar,bioconductor.version$Prostar)
+      if (compare.prostar == 0){}
+      if (compare.prostar == 1){
+        df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")
+      }
+      if (compare.prostar==-1){
         df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
-        inst <- unlist(strsplit(instPkgs$Prostar, split=".", fixed=TRUE))
-        bioc <- unlist(strsplit(biocPkgs$Prostar, split=".", fixed=TRUE))
-        df[1,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
-      }
+         }
       
-      if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
-      else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR) == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
-      else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR)==-1){
+      compare.dapar <- compareVersion(local.version$DAPAR,bioconductor.version$DAPAR)
+      if (compare.dapar == 0){}
+      if (compare.dapar == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+      if (compare.dapar ==-1){
         df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
-        inst <- unlist(strsplit(instPkgs$DAPAR, split=".", fixed=TRUE))
-        bioc <- unlist(strsplit(biocPkgs$DAPAR, split=".", fixed=TRUE))
-        df[2,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
-      }
+         }
       
-      if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
-      else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata) == 1){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
-      else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata)==-1){
-        df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
-        inst <- unlist(strsplit(instPkgs$DAPARdata, split=".", fixed=TRUE))
-        bioc <- unlist(strsplit(biocPkgs$DAPARdata, split=".", fixed=TRUE))
-        df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
+      if (compareVersion(local.version$DAPARdata,bioconductor.version$DAPARdata) == 0){}
+      if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata) == 1){
+        df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")
       }
+      if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata)==-1){
+        df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
+        }
       df[, "Bioc.release"] <- unlist(biocPkgs)
     }, warning = function(w) {
       return()
@@ -1333,119 +1349,9 @@ getPackagesVersions2 <- function(){
     })
     
   }
-  colnames(df) <- c("Names", "Installed packages", "Bioc release","NeedsUpdate")
-  
-  switch(type,
-         all=df <- df,
-         installed = {
-           df <- df[,1:2]
-           df[,1] <- c('Prostar', 'DAPAR', 'DAPARdata')
-         }
-  )
-  print(df)
+ 
   
   df
-  
-  
-  #}
-  
-}
-
-
-
-getPackagesVersions <- reactive({
-  
-  type <- "all"
-  outOfDate <- "(Out of date)"
-  dev <- "(Devel)"
-  
-  biocRelease <- NULL
-  DAPARdata.version <- NULL
-  tryCatch({
-    biocRelease <- available.packages(contrib.url("http://bioconductor.org/packages/release/bioc/"))
-    require(XML)
-    html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
-    DAPARdata.version <- as.character(html[[3]][2][1,])
-    
-  }, warning = function(w) {
-    return()
-  }, error = function(e) {
-    return()
-  }, finally = {
-    #cleanup-code 
-  })
-  
-  pkgs <- c("Prostar", "DAPAR", "DAPARdata")
-  loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
-  instPkgs <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
-                   DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
-                   DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
-  
-  
-  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
-             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
-             as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
-  
-  
-  df <- data.frame("Name" = names,
-                   "Installed.packages"= rep(NA, 3), 
-                   "Bioc.release" =  rep(NA, 3),
-                   "NeedsUpdate"= rep(FALSE,3),
-                   stringsAsFactors = FALSE)
-  
-  
-  df[, "Installed.packages"] <- unlist(instPkgs)
-  
-  if (!is.null(biocRelease)) {
-    biocPkgs <- list(Prostar = as.character(biocRelease["Prostar","Version"]),
-                     DAPAR = as.character(biocRelease["DAPAR","Version"]),
-                     DAPARdata = as.character(DAPARdata.version))
-    
-    if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 0){df[1,"Name"] <-  names[1]}
-    else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar) == 1){df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")}
-    else if (compareVersion(instPkgs$Prostar,biocPkgs$Prostar)==-1){
-      df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
-      inst <- unlist(strsplit(instPkgs$Prostar, split=".", fixed=TRUE))
-      bioc <- unlist(strsplit(biocPkgs$Prostar, split=".", fixed=TRUE))
-      df[1,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
-    }
-    
-    if (compareVersion(instPkgs$DAPAR,biocPkgs$DAPAR) == 0){df[2,"Name"] <-  names[2]}
-    else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR) == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
-    else if (compareVersion(instPkgs$DAPAR , biocPkgs$DAPAR)==-1){
-      df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
-      inst <- unlist(strsplit(instPkgs$DAPAR, split=".", fixed=TRUE))
-      bioc <- unlist(strsplit(biocPkgs$DAPAR, split=".", fixed=TRUE))
-      df[2,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
-    }
-    
-    if (compareVersion(instPkgs$DAPARdata,biocPkgs$DAPARdata) == 0){df[3,"Name"] <-  names[3]}
-    else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata) == 1){df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")}
-    else if (compareVersion(instPkgs$DAPARdata , biocPkgs$DAPARdata)==-1){
-      df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
-      inst <- unlist(strsplit(instPkgs$DAPARdata, split=".", fixed=TRUE))
-      bioc <- unlist(strsplit(biocPkgs$DAPARdata, split=".", fixed=TRUE))
-      df[3,"NeedsUpdate"] <- ((inst[2]==bioc[2] && (as.numeric(inst[3]) < as.numeric(bioc[3]))))
-    }
-    df[, "Bioc.release"] <- unlist(biocPkgs)
-  }
-  
-  
-  colnames(df) <- c("Names", "Installed packages", "Bioc release","NeedsUpdate")
-  
-  switch(type,
-         all=df <- df,
-         installed = {
-           df <- df[,1:2]
-           df[,1] <- c('Prostar', 'DAPAR', 'DAPARdata')
-           }
-         )
-  print(df)
-  
-  df
-  
-
-#}
 
 })
 
