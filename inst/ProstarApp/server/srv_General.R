@@ -626,10 +626,10 @@ resetModuleProcess <- function(moduleName){
                                                      ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
                                                                    screenStep2 = uiOutput("screenHypoTestPeptide2")))
             
-            updateSelectInput(session,"HypoTestPeptide_anaDiff_Design", selected = rv$widgets$hypothesisTestPeptide$design)
-            updateSelectInput(session,"HypoTestPeptide_diffAnaMethod", selected = rv$widgets$hypothesisTestPeptide$method)
-            updateRadioButtons(session,"HypoTestPeptide_ttest_options", selected = rv$widgets$hypothesisTestPeptide$ttest_options)
-            updateTextInput(session, "HypoTestPeptide_seuilLogFC", value= rv$widgets$hypothesisTestPeptide$th_logFC)
+            updateSelectInput(session,"HypoTestPept_anaDiff_Design", selected = rv$widgets$HypothesisTestPeptide$design)
+            updateSelectInput(session,"HypoTestPept_diffAnaMethod", selected = rv$widgets$HypothesisTestPeptide$method)
+            updateRadioButtons(session,"HypoTestPept_ttest_options", selected = rv$widgets$HypothesisTestPeptide$ttest_options)
+            updateTextInput(session, "HypoTestPept_seuilLogFC", value= rv$widgets$HypothesisTestPeptide$th_logFC)
             
             rv$res_AllPairwiseComparisons <- NULL
             rv$tempplot$logFCDistr <- NULL

@@ -117,13 +117,21 @@ observeEvent(rv$widgets$HypothesisTestPeptidomic$method,{
 
 output$HypoTestPeptidomic_FoldChangePlot <- renderHighchart({
   #req(rv$res_AllPairwiseComparisons) 
-  rv$PlotParams$paletteConditions
+  #rv$PlotParams$paletteConditions
   
-  data <- ComputeComparisonsPeptidomic()
-  print(str(data))
-  print(as.numeric(rv$widgets$HypothesisTestPeptidomic$th_logFC))
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(rv$widgets$HypothesisTestPeptidomic$th_logFC))
-  rv$tempplot$logFCDistr
+  #data <- ComputeComparisonsPeptidomic()
+  #print(str(data))
+  #print(as.numeric(rv$widgets$HypothesisTestPeptidomic$th_logFC))
+  #rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(data$logFC,as.numeric(rv$widgets$HypothesisTestPeptidomic$th_logFC))
+  #rv$tempplot$logFCDistr
+  req(ComputeComparisons()$logFC)
+  req(rv$PlotParams$paletteConditions)
+  req(rv$widgets$HypothesisTestPeptidomic$th_logFC)
+  if (length(ComputeComparisons()$logFC)==0){return(NULL)}
+  withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
+    
+    rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$HypothesisTestPeptidomic$th_logFC))
+  })
 })
 
 
@@ -131,18 +139,18 @@ output$HypoTestPeptidomic_FoldChangePlot <- renderHighchart({
 
 ### calcul des comparaisons                         ####
 ########################################################
-ComputeComparisonsPeptidomic <- reactive({
+ComputeComparisons <- reactive({
   req(rv$widgets$HypothesisTestPeptidomic$method)
   req(rv$widgets$HypothesisTestPeptidomic$design)
   rv$widgets$HypothesisTestPeptidomic$ttest_options
   if ((rv$widgets$HypothesisTestPeptidomic$method=="None")|| (rv$widgets$HypothesisTestPeptidomic$design=="None")) {return (NULL)}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
-
-  isolate({
+  rv$res_AllPairwiseComparisons <- NULL
+  #isolate({
     #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
     withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
-      switch(input$diffAnaMethodPeptidomic,
+      switch(rv$widgets$HypothesisTestPeptidomic$method,
 
            Limma={
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
@@ -161,8 +169,9 @@ ComputeComparisonsPeptidomic <- reactive({
     rvModProcess$moduleHypothesisTestPeptidomicDone[1] <- TRUE
     })
     rv$res_AllPairwiseComparisons
-  })
+  #})
 })
+
 
 
 ########################################################################
