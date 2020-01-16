@@ -119,15 +119,25 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
   ClearMemory()
   ClearUI()
   
-  rv$current.obj <- readRDS(input$file$datapath)
+  authorizedExtension <- "msnset"
   
-  exts <- c("msnset")
-  if( class(rv$current.obj)[1] != "MSnSet") {
-    shinyjs::info("Warning : this file is not a MSnset file ! 
-                  Please choose another one.")
-  }
-  else {
+  tryCatch({
     
+    if (length(grep(GetExtension(input$file$datapath),authorizedExtension,ignore.case=TRUE) )==0)
+    {
+     # shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
+      warning("Warning : this file is not a MSnset file ! Please choose another one.")
+    }
+    rv$current.obj <- readRDS(input$file$datapath)
+    
+    if( class(rv$current.obj)[1] != "MSnSet") {
+     # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
+      warning("Warning : this file is not a MSnset file ! Please choose another one.")
+    }
+ 
+  
+  
+  
      rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
@@ -176,8 +186,16 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     l.params <- list(filename = rv$current.obj.name)
     retroCompatibility()
     loadObjectInMemoryFromConverter()
-
   }
+  , warning = function(w) {
+    shinyjs::info( conditionMessage(w))
+    return(NULL)
+  }, error = function(e) {
+    shinyjs::info(conditionMessage(e))
+    return(NULL)
+  }, finally = {
+    #cleanup-code 
+  })
   
   })
 

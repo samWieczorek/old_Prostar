@@ -477,12 +477,12 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
     if ((length(data()$logFC) == 0)  ){return()}
     print("in volcanoplot")
-    print(head(data()$logFC))
+    print(head(data()))
     
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
     
-      df <- dplyr::data_frame(x=data()$logFC, 
+      df <-  data.frame(x=data()$logFC, 
                        y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
       if (length( tooltip()) > 0){
