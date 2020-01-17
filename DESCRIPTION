@@ -2,7 +2,7 @@ Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
 Version: 1.18.5
-Date: 2020-01-15
+Date: 2020-01-17
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
