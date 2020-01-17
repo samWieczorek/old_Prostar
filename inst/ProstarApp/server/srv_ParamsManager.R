@@ -22,7 +22,7 @@ build_ParamsList_Filtering <- reactive({
     df.string <- NULL
   } else {
     df.string <- rv$widgets$filtering$DT_filterSummary
-    }
+  }
   
   if (nrow(rv$widgets$filtering$DT_numfilterSummary) <=1) {
     df.numeric <- NULL
@@ -74,21 +74,7 @@ build_ParamsList_Aggregation <- reactive({
 })
 
 #------------------------------------------------------------------------
-build_ParamsList_HypothesisTestProtein <- reactive({
-  l.params <- list(design = input$HypoTestProt_anaDiff_DesignanaDiff_Design,
-                   method = input$HypoTestProt_anaDiff_DesigndiffAnaMethod,
-                   ttest_options = input$HypoTestProt_anaDiff_Designttest_options,
-                   th_logFC = as.numeric(input$HypoTestProt_anaDiff_DesignseuilLogFC),
-                   AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
-                                               P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
-  )
-  l.params
-})
-
-
-
-#------------------------------------------------------------------------
-build_ParamsList_HypothesisTestPeptide <- reactive({
+build_ParamsList_HypothesisTest <- reactive({
   l.params <- list(design = input$anaDiff_Design,
                    method = input$diffAnaMethod,
                    ttest_options = input$ttest_options,
@@ -99,17 +85,43 @@ build_ParamsList_HypothesisTestPeptide <- reactive({
   l.params
 })
 
-#------------------------------------------------------------------------
-build_ParamsList_HypothesisTestPeptidomic <- reactive({
-  l.params <- list(design = input$anaDiff_Design,
-                   method = input$diffAnaMethod,
-                   ttest_options = input$ttest_options,
-                   th_logFC = as.numeric(input$seuilLogFC),
-                   AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
-                                               P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
-  )
-  l.params
-})
+# #------------------------------------------------------------------------
+# build_ParamsList_HypothesisTestProtein <- reactive({
+#   l.params <- list(design = input$HypoTestProt_anaDiff_DesignanaDiff_Design,
+#                    method = input$HypoTestProt_anaDiff_DesigndiffAnaMethod,
+#                    ttest_options = input$HypoTestProt_anaDiff_Designttest_options,
+#                    th_logFC = as.numeric(input$HypoTestProt_anaDiff_DesignseuilLogFC),
+#                    AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC),
+#                                                P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
+#   )
+#   l.params
+# })
+
+# 
+# 
+# #------------------------------------------------------------------------
+# build_ParamsList_HypothesisTestPeptide <- reactive({
+#   l.params <- list(design = input$anaDiff_Design,
+#                    method = input$diffAnaMethod,
+#                    ttest_options = input$ttest_options,
+#                    th_logFC = as.numeric(input$seuilLogFC),
+#                    AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC), 
+#                                                P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
+#   )
+#   l.params
+# })
+# 
+# #------------------------------------------------------------------------
+# build_ParamsList_HypothesisTestPeptidomic <- reactive({
+#   l.params <- list(design = input$anaDiff_Design,
+#                    method = input$diffAnaMethod,
+#                    ttest_options = input$ttest_options,
+#                    th_logFC = as.numeric(input$seuilLogFC),
+#                    AllPairwiseCompNames = list(logFC = colnames(rv$res_AllPairwiseComparisons$logFC),
+#                                                P_Value=colnames(rv$res_AllPairwiseComparisons$P_Value))
+#   )
+#   l.params
+# })
 #------------------------------------------------------------------------
 build_ParamsList_AnaDiff <- reactive({})
 

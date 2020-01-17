@@ -70,10 +70,19 @@ rvModProcess <- reactiveValues(
   modulePepImputationDone =  rep(FALSE,2),
   modulePepImputationForceReset = 0,
   
+ 
+   ###################
+  moduleHypothesisTest = list(name = "HypothesisTest",
+                              stepsNames = c("HypothesisTest", "Save"),
+                              isMandatory = rep(TRUE, 2),
+                              forceReset = FALSE,
+                              ll.UI = list(screenStep1 = uiOutput("screenHypoTest1"),
+                                           screenStep2 = uiOutput("screenHypoTest2")),
+                              rstFunc = reactive({resetModuleHypothesisTest()})),
+  moduleHypothesisTestDone =  rep(FALSE,2),
+  moduleHypothesisTestForceReset = 0,
   
-  
-  
-  ###################
+  # ###################
   moduleHypothesisTestProtein = list(name = "HypothesisTestProtein",
                               stepsNames = c("HypothesisTestProtein", "Save"),
                               isMandatory = rep(TRUE, 2),
@@ -82,24 +91,24 @@ rvModProcess <- reactiveValues(
                               rstFunc = reactive({resetModuleHypothesisTestProtein()})),
   moduleHypothesisTestProteinDone =  rep(FALSE,2),
   moduleHypothesisTestProteinForceReset = 0,
-  
-  
-  
-  
-  ###########################################################################################
-  moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
-                              stepsNames = c("HypothesisTestPeptide", "Save"),
-                              isMandatory = rep(TRUE, 2),
-                              ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptide1"),
-                                           screenStep2 = uiOutput("screenHypoTestPeptide2")),
-                              rstFunc = reactive({resetModuleHypothesisTestPeptide()})),
-  moduleHypothesisTestPeptideDone =  rep(FALSE,2),
-  moduleHypothesisTestPeptideForceReset = 0,
-  
-  
-  
-  
-  ###########################################################################################
+  # 
+  # 
+  # 
+  # 
+  # ###########################################################################################
+  # moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
+  #                             stepsNames = c("HypothesisTestPeptide", "Save"),
+  #                             isMandatory = rep(TRUE, 2),
+  #                             ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptide1"),
+  #                                          screenStep2 = uiOutput("screenHypoTestPeptide2")),
+  #                             rstFunc = reactive({resetModuleHypothesisTestPeptide()})),
+  # moduleHypothesisTestPeptideDone =  rep(FALSE,2),
+  # moduleHypothesisTestPeptideForceReset = 0,
+  # 
+  # 
+  # 
+  # 
+  # ###########################################################################################
   moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
                                      stepsNames = c("HypothesisTestPeptidomic", "Save"),
                                      isMandatory = rep(TRUE, 2),

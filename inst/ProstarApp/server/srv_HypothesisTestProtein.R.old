@@ -178,8 +178,8 @@ observeEvent(input$HypoTestProt_ValidTest,{
   #isolate({
   rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj, allComp = rv$res_AllPairwiseComparisons)
   
-  name <- paste("HypothesisTestProtein.", rv$typeOfDataset, sep="")
-  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTestProtein", build_ParamsList_HypothesisTestProtein())
+  name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
+  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestProteinDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)

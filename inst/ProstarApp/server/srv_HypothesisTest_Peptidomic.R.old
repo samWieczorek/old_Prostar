@@ -189,8 +189,8 @@ observeEvent(input$HypoTestPeptidomic_ValidTest,{
   rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj, allComp = rv$res_AllPairwiseComparisons)
   
   
-  name <- paste("HypothesisTestPeptidomic.", rv$typeOfDataset, sep="")
-  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTestPeptidomic", build_ParamsList_HypothesisTestPeptidomic())
+  name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
+  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestPeptidomicDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)
