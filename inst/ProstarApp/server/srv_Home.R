@@ -49,6 +49,7 @@ output$versionsText <- renderUI({
 output$versionsWarning <- renderUI({
   daparUserVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
   ProstarUserVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
+  require(XML)
   Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
   DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
   daparBiocversion <-as.character(DAPAR.html[[3]][2][1,])

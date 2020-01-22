@@ -24,6 +24,8 @@ resetModuleHypothesisTestProtein <- reactive({
   rv$current.obj <- rv$dataset[[input$datasets]]
 })
 
+
+
 callModule(module_Not_a_numeric,"HypoTestProt_test_seuillogFC", reactive({rv$widgets$HypothesisTestProtein$th_logFC}))
 
 observeEvent(input$HypoTestProt_PerformLogFCPlot, {
@@ -33,57 +35,56 @@ observeEvent(input$HypoTestProt_PerformLogFCPlot, {
   rv$widgets$HypothesisTestProtein$ttest_options <- input$HypoTestProt_ttest_options                                                
 })
 
-
 output$screenHypoTestProtein1 <- renderUI({
   
   rv$current.obj
   isolate({
     NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-  if (NA.count > 0){
-    tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else {
-    tagList(
+    if (NA.count > 0){
+      tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
+    } else {
+      tagList(
+        
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                    selectInput("HypoTestProt_anaDiff_Design", "Contrast", 
+                                choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
+                                selected=rv$widgets$HypothesisTestProtein$design,
+                                width='150px')
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                    selectInput("HypoTestProt_diffAnaMethod","Statistical test",
+                                choices = anaDiffMethod_Choices,
+                                selected=rv$widgets$HypothesisTestProtein$method,
+                                width='150px')
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    hidden( radioButtons("HypoTestProt_ttest_options", "t-tests options",choices=c("Student", "Welch"),
+                                         selected=rv$widgets$HypothesisTestProtein$ttest_options,
+                                         width='150px'))
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    textInput("HypoTestProt_seuilLogFC", "log(FC) threshold",  
+                              value=rv$widgets$HypothesisTestProtein$th_logFC,
+                              width='150px'),
+                    module_Not_a_numericUI("HypoTestProt_test_seuillogFC")
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    uiOutput("HypoTestProt_correspondingRatio")
+                    
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    actionButton("HypoTestProt_PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
+                    )
+          )
+        ,
+        tags$hr(),
+        highchartOutput("HypoTestProt_FoldChangePlot", height="100%") 
+      )
       
-      tags$div(
-        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                  selectInput("HypoTestProt_anaDiff_Design", "Contrast", 
-                              choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
-                              selected=rv$widgets$HypothesisTestProtein$design,
-                              width='150px')
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                  selectInput("HypoTestProt_diffAnaMethod","Statistical test",
-                              choices = anaDiffMethod_Choices,
-                              selected=rv$widgets$HypothesisTestProtein$method,
-                              width='150px')
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  hidden( radioButtons("HypoTestProt_ttest_options", "t-tests options",choices=c("Student", "Welch"),
-                                       selected=rv$widgets$HypothesisTestProtein$ttest_options,
-                                       width='150px'))
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  textInput("HypoTestProt_seuilLogFC", "log(FC) threshold",  
-                               value=rv$widgets$HypothesisTestProtein$th_logFC,
-                               width='150px'),
-                  module_Not_a_numericUI("HypoTestProt_test_seuillogFC")
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  uiOutput("HypoTestProt_correspondingRatio")
-                  
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  actionButton("HypoTestProt_PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
-                  
-        )
-        )
-      ,
-      tags$hr(),
-      highchartOutput("HypoTestProt_FoldChangePlot", height="100%") 
-    )
-    
-  }
-    })
+    }
+  })
+
 })
 
 
@@ -120,7 +121,8 @@ output$HypoTestProt_FoldChangePlot <- renderHighchart({
   req(rv$widgets$HypothesisTestProtein$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$HypothesisTestProtein$th_logFC))
+
+    rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$HypothesisTestProtein$th_logFC))
   })
 })
 
@@ -146,19 +148,20 @@ ComputeComparisons <- reactive({
              rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
                                                                 rv$widgets$HypothesisTestProtein$design) 
-            },
+           },
            ttests={
              rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
                                                                       contrast=rv$widgets$HypothesisTestProtein$design,
                                                                       type=rv$widgets$HypothesisTestProtein$ttest_options)
            })
-  rv$widgets$HypothesisTestProtein$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
+    rv$widgets$HypothesisTestProtein$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
-  
-  rvModProcess$moduleHypothesisTestProteinDone[1] <- TRUE
+
+    
+    rvModProcess$moduleHypothesisTestProteinDone[1] <- TRUE
   })
   rv$res_AllPairwiseComparisons
-#})
+  #})
 })
 
 
@@ -171,14 +174,15 @@ ComputeComparisons <- reactive({
 observeEvent(input$HypoTestProt_ValidTest,{ 
   #req(rv$res_AllPairwiseComparisons)
   
+  
   #isolate({
   rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj, allComp = rv$res_AllPairwiseComparisons)
   
-  name <- paste("HypothesisTestProtein.", rv$typeOfDataset, sep="")
-  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTestProtein", build_ParamsList_HypothesisTestProtein())
+  name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
+  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestProteinDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)
-
+  
   
 })

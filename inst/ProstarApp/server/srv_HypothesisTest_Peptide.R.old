@@ -104,7 +104,7 @@ output$HypoTestPept_correspondingRatio <- renderUI({
 
 
 output$HypoTestPept_btn_valid <- renderUI({
-  cond <- (input$HypoTestPept_diffAnaMethod != "None")&&(input$HypoTestPept_anaDiff_Design != "None")
+  cond <- (rv$widgets$HypothesisTestPeptide$method != "None")&&(rv$widgets$HypothesisTestPeptide$design != "None")
   if (!cond){return(NULL)}
   actionButton("HypoTestPept_ValidTest","Save significance test", class = actionBtnClass)
 })
