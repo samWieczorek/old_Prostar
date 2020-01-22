@@ -562,7 +562,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       df <- data.frame(x=data()$logFC, 
                        y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
-      if (length( tooltip()) > 0){
+      print(tooltip())
+      if (!is.na(tooltip()) && length( tooltip()) > 0){
         df <- cbind(df,fData(rv$current.obj)[ tooltip()])
       }
       
