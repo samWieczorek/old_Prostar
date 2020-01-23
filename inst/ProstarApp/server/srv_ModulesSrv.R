@@ -290,8 +290,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
-    
-    dt <- DT::datatable( GetDataFor_sharedPeptidesInfos(),
+    data <-  GetDataFor_sharedPeptidesInfos()
+    dt <- DT::datatable(data,
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -352,7 +352,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
     
-    dt <- DT::datatable( GetDataFor_specificPeptidesInfos(), 
+    data <- GetDataFor_specificPeptidesInfos()
+    dt <- DT::datatable( data, 
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -365,7 +366,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                                     blengthChange = FALSE,
                                     displayLength = 20,
                                     ordering=FALSE,
-                                    server = FALSE,
                                     columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                      )) %>%
       formatStyle(
@@ -408,6 +408,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             g2 = data <- data.g2[this.index+1,] 
     )
     
+    print("dans GetExprsClickedProtein")
+    print(data)
+    
     data
   })
   
@@ -420,11 +423,13 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
   })
   
+  
+  
+  
   GetDataFor_Infos <- reactive({
     req(comp())
     
-    borders_index <- GetBorderIndices()
-    
+   
     data <- GetExprsClickedProtein()
     
     print('################### Dans Infos  #################')
@@ -436,7 +441,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   output$Infos <- renderDataTable(server=TRUE,{ 
     req(comp())
     
-    dt <- DT::datatable( GetDataFor_Infos(),
+    borders_index <- GetBorderIndices()
+    data <- GetExprsClickedProtein()
+    dt <- DT::datatable(data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     buttons = list('copy',
@@ -449,7 +456,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                                     displayLength = 20,
                                     ordering=FALSE,
                                     header=FALSE,
-                                    server = FALSE,
                                     columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                      )) %>%
       formatStyle(
@@ -478,7 +484,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     if ((length(data()$logFC) == 0)  ){return()}
     print("in volcanoplot")
     print(head(data()))
-    
+    withProgress(message = 'Building plot...',detail = '', value = 0, {
     if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
     
     
@@ -509,6 +515,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     })
     
     rv$tempplot$volcano
+    })
   })
   
   
@@ -761,10 +768,11 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
       #table2show
       if (length(table2show())==0){return(NULL)}
       
+      print(table2show())
       isolate({
            DT::datatable(table2show(), 
                          extensions = 'Buttons',
-                         #escape = TRUE,
+                         escape = FALSE,
                          # rownames= showRownames,
                           options=list(
                             buttons = list(
