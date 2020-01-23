@@ -74,6 +74,8 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
     
     #isolate({
     ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    
+    
     res <- list(type= input$typeSelect,
                 list = input$listSelect,
                 rand = as.numeric(input$randSelect),
@@ -82,8 +84,9 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
                 rand.indices = if (length(input$randSelect)==0){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
                 col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
     )
-    # })
     
+    # })
+    print("res")
     res
   })
   
