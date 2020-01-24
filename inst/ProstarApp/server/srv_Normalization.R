@@ -259,7 +259,7 @@ GetIndicesOfSelectedProteins <- reactive({
   ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
   tt <- rv.norm$trackFromBoxplot()$type
   switch(tt,
-         ProteinList = ind <- rv.norm$trackFromBoxplot()$list.indices, ll,
+         ProteinList = ind <- rv.norm$trackFromBoxplot()$list.indices,
          Random = ind <- rv.norm$trackFromBoxplot()$rand.indices,
          Column = ind <- rv.norm$trackFromBoxplot()$col.indices
          )
@@ -278,11 +278,22 @@ observeEvent(input$perform.normalization,{
   rv$dataset[[input$datasets]]
   
      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    
+     
+     print("param de wrapper.normalizeD")
+     print(head(rv$dataset[[input$datasets]]))
+     print(rv$widgets$normalization$method)
+     print(rv$widgets$normalization$type)
+     print(rv$widgets$normalization$varReduction)
+     print(as.numeric(rv$widgets$normalization$quantile))
+     print(as.numeric(input$spanLOESS))
+     print(GetIndicesOfSelectedProteins())
+     
+
      switch(rv$widgets$normalization$method, 
            G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
            GlobalQuantileAlignment = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], rv$widgets$normalization$method)
+             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                  rv$widgets$normalization$method)
            },
            QuantileCentering = {
              quant <-NA

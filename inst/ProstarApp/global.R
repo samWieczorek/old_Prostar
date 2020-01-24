@@ -621,7 +621,7 @@ G_exportFileFormat_Choices <- c( "msnset","Excel", "zip")
 gFileFormatExport <- list(msnset = "msnset",excel = "Excel", zip="zip")
 gFileExtension <- list(txt = ".txt",
                        tsv = ".tsv",
-                       msnset = "msnset",
+                       msnset = ".msnset",
                        excel = ".xlsx",
                        zip = ".zip")
 

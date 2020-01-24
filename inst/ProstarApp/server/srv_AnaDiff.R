@@ -31,6 +31,7 @@ resetModuleAnaDiff <- reactive({
     rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
   }
   
+  resetModuleProcess("AnaDiff")
   
   rv$nbTotalAnaDiff = NULL
   rv$nbSelectedAnaDiff = NULL
@@ -293,6 +294,7 @@ output$AnaDiff_seuilNADelete <- renderUI({
 
 observe({
   req(rv$widgets$anaDiff$Comparison)
+  shinyjs::toggle('trtr', condition=rv$widgets$anaDiff$Comparison != "None")
   shinyjs::toggle('swapVolcano', condition=rv$widgets$anaDiff$Comparison != "None")
 })
 

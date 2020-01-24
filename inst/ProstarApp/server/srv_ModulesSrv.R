@@ -74,6 +74,8 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
     
     #isolate({
     ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    
+    
     res <- list(type= input$typeSelect,
                 list = input$listSelect,
                 rand = as.numeric(input$randSelect),
@@ -82,8 +84,9 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
                 rand.indices = if (length(input$randSelect)==0){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
                 col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
     )
-    # })
     
+    # })
+    print("res")
     res
   })
   
@@ -562,7 +565,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       df <- data.frame(x=data()$logFC, 
                        y = -log10(data()$P_Value),
                        index = 1:nrow(fData(rv$current.obj)))
-      if (length( tooltip()) > 0){
+      print(tooltip())
+      if (!is.na(tooltip()) && length( tooltip()) > 0){
         df <- cbind(df,fData(rv$current.obj)[ tooltip()])
       }
       
