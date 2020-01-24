@@ -685,7 +685,6 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     tryCatch(
       {
         wrapper.mvImage(data())
-    
   },
   warning = function(w) { p(conditionMessage(w))},
   error = function(e) {p(conditionMessage(e))},
@@ -696,8 +695,7 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
   })
   
   output$plot_showImageNA <- renderImage({
-    
-    req(wrapper.mvImage(data()))
+     #req(wrapper.mvImage(data()))
     
     # A temp file to save the output. It will be deleted after renderImage
     # sends it, because deleteFile=TRUE.
@@ -809,7 +807,8 @@ moduleInsertMarkdown <- function(input, output, session,url){
         includeMarkdown(url)
       }
       , warning = function(w) {
-        tags$p("URL not found<br>",conditionMessage(w))
+        #conditionMessage(w)
+        tags$p("URL not found. Please check your internet connection.")
         #shinyjs::info(paste("URL not found",":",conditionMessage(w), sep=" "))
       }, error = function(e) {
         shinyjs::info(paste("Error :","in moduleInsertMarkdown",":", conditionMessage(e), sep=" "))

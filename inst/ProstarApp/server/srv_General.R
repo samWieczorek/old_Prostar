@@ -1209,7 +1209,9 @@ buildWritableVector <- function(v){
 
 
 GetBioconductorVersions <- function(){
-  ll.versions <- list()
+  ll.versions <- list(Prostar = "NA",
+                      DAPAR = "NA",
+                      DAPARdata = "NA")
   
   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
   tryCatch({
@@ -1217,7 +1219,6 @@ GetBioconductorVersions <- function(){
     Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
     DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
     DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
-    
     ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
     ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
     ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
@@ -1228,6 +1229,8 @@ GetBioconductorVersions <- function(){
     return()
   }, finally = {
     #cleanup-code 
+    
+    
   })
   
   

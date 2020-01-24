@@ -2,17 +2,17 @@ require(imp4p)
 
 
 callModule(moduleMVPlots,"mvImputationPlots_MV", 
-           data=reactive(rv$imputePlotsSteps[["step0"]]),
+           data=reactive({rv$imputePlotsSteps[["step0"]]}),
            title = reactive("POV distribution"),
            palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleMVPlots,"mvImputationPlots_MEC", 
-           data=reactive(rv$imputePlotsSteps[["step1"]]),
+           data=reactive({rv$imputePlotsSteps[["step1"]]}),
            title = reactive("Distribution after POV imputation"),
            palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleMVPlots,"mvImputationPlots_Valid", 
-           data=reactive(rv$imputePlotsSteps[["step2"]]),
+           data=reactive({rv$imputePlotsSteps[["step2"]]}),
            title = reactive("Distribution after POV and MEC imputation"),
            palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
@@ -101,17 +101,18 @@ output$screenProtImput1 <- renderUI({
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               uiOutput("POV_showDetQuantValues"))
     ),
-    tagList(
+    
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                          actionButton("perform.imputationClassical.button",
                                      "Perform imputation", class = actionBtnClass)),
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
-                uiOutput("ImputationStep1Done"))),
+                uiOutput("ImputationStep1Done")),
     
     htmlOutput("helpForImputation"),
     tags$hr(),
+    print("lacement du MVplots"),
     moduleMVPlotsUI("mvImputationPlots_MV")
-              )
+)
 })
 
 
@@ -133,10 +134,12 @@ output$screenProtImput2 <- renderUI({
                 actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)),
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                 uiOutput("ImputationStep2Done"))),
-    
-      busyIndicator(WaitMsgCalc,wait = 0),
-      tags$hr(),
+    tags$hr(),
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.5, detail = 'Building plots...')
+      
       moduleMVPlotsUI("mvImputationPlots_MEC")
+    })
       )
 
 })
@@ -168,7 +171,7 @@ output$POV_showDetQuantValues <- renderUI({
   if (rv$widgets$proteinImput$POV_algorithm == 'detQuantile')
   {
     tagList(
-      h5("The MEC will be imputed by the following values :"),
+      h5("The POV will be imputed by the following values :"),
       moduleDetQuantImpValuesUI("POV_DetQuantValues_DT")
     )
   }
@@ -302,7 +305,6 @@ observeEvent(input$perform.imputationClassical.button,{
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Find MEC blocks')
       
-    busyIndicator(WaitMsgCalc,wait = 0)
     incProgress(0.5, detail = 'POV Imputation')
     switch(rv$widgets$proteinImput$POV_algorithm,
            slsa = {
@@ -347,7 +349,6 @@ observeEvent(input$perform.imputationClassical.button,{
 observeEvent(input$perform.imputationMEC.button,{
   
      isolate({
-    busyIndicator(WaitMsgCalc,wait = 0)
        withProgress(message = '',detail = '', value = 0, {
          incProgress(0.25, detail = 'Reintroduce MEC')
          

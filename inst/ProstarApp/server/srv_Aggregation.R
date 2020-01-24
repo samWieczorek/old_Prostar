@@ -156,8 +156,10 @@ output$operatorChoice <- renderUI({
 output$screenAggregation2 <- renderUI({
   tagList(
     uiOutput(outputId = "progressSaveAggregation"),
-    busyIndicator(WaitMsgCalc,wait = 0),
-    uiOutput("Aggregation_Step2")
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.5, detail = 'Aggregation in progress')
+      uiOutput("Aggregation_Step2")
+    })
   )
 })
 
@@ -261,9 +263,12 @@ observeEvent(input$valid.aggregation,{
     
     rv$current.obj@experimentData@other$Prostar_Version <- 
       installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
+    
     rv$current.obj@experimentData@other$DAPAR_Version <- 
       installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+    
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+    rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj,NULL)
     
     name <- paste0("Aggregated", ".", rv$typeOfDataset)
     rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
@@ -330,14 +335,14 @@ output$aggregationStats <- DT::renderDataTable (server=TRUE,{
 
 output$aggregationPlotShared <- renderPlot({
   req(rv$matAdj)
-  GraphPepProt(rv$matAdj$matWithSharedPeptides)
+    GraphPepProt(rv$matAdj$matWithSharedPeptides)
 })
 
 
 output$aggregationPlotUnique <- renderPlot({
   req(rv$matAdj)
-  GraphPepProt(rv$matAdj$matWithUniquePeptides)
-  
+ 
+    GraphPepProt(rv$matAdj$matWithUniquePeptides)
 })
 
 
@@ -356,18 +361,22 @@ observeEvent(input$perform.aggregation,{
 
 output$specificPeptideBarplot <- renderUI({
   req(rv$matAdj)
-  tagList(
+  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
+    tagList(
     h4("Only specific peptides"),
     plotOutput("aggregationPlotUnique", width="400px")
   )
+  })
 })
 
 output$allPeptideBarplot <- renderUI({
   req(rv$matAdj)
-  tagList(
+  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
+    tagList(
     h4("All (specific & shared) peptides"),
     plotOutput("aggregationPlotShared", width="400px")
   )
+  })
 })
 
 
