@@ -374,7 +374,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
-    dt <- datatable( GetDataFor_sharedPeptidesInfos(),
+    data <-  GetDataFor_sharedPeptidesInfos()
+    dt <- DT::datatable(data,
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -435,7 +436,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
-    dt <- datatable( GetDataFor_specificPeptidesInfos(), 
+    data <- GetDataFor_specificPeptidesInfos()
+    dt <- DT::datatable( data, 
                      #colnames=NULL,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -506,7 +508,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   GetDataFor_Infos <- reactive({ 
     req(comp())
     
-    borders_index <- GetBorderIndices()
     
     data <- GetExprsClickedProtein()
     
@@ -518,7 +519,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   ##------------------------------------------------------------------------------
   output$Infos <- renderDataTable(server=TRUE,{ 
     req(comp())
-    dt <- datatable( GetDataFor_Infos(),
+    borders_index <- GetBorderIndices()
+    data <- GetExprsClickedProtein()
+    dt <- DT::datatable(data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
                                     dom='Bfrtip',
@@ -558,8 +561,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
       print("in volcanoplot")
-      print(head(data()$logFC))
-      
+      print(head(data()))
+      withProgress(message = 'Building plot...',detail = '', value = 0, {
       if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
       
       df <- data.frame(x=data()$logFC, 
@@ -592,6 +595,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     })
     
     rv$tempplot$volcano
+    
+    })
   })
   
   
@@ -789,26 +794,29 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
   })
   
   
-  output$WarnForImageNA <- renderUI({
-    
-    tryCatch(
-      {
-        wrapper.mvImage(data())
-        
-      },
-      warning = function(w) { p(conditionMessage(w))},
-      error = function(e) {p(conditionMessage(e))},
-      finally = {
-        #cleanup-code 
-      })
-    
-  })
+  # output$WarnForImageNA <- renderUI({
+  #   
+  #   tryCatch(
+  #     {
+  #       wrapper.mvImage(data())
+  #       
+  #     },
+  #     warning = function(w) { p(conditionMessage(w))},
+  #     error = function(e) {p(conditionMessage(e))},
+  #     finally = {
+  #       #cleanup-code 
+  #     })
+  #   
+  # })
   
   
   
   output$plot_showImageNA <- renderImage({
-    req(wrapper.mvImage(data()))
-    isolate({
+    print("DANS FONCTION :  output$plot_showImageNA <- renderImage")
+    dt <- data()
+   print(dt)
+    #req(wrapper.mvImage(dt))
+    #isolate({
       # A temp file to save the output. It will be deleted after renderImage
       # sends it, because deleteFile=TRUE.
       outfile <- tempfile(fileext='.png')
@@ -816,9 +824,9 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
       # Generate a png
       # png(outfile, width = 640, height = 480, units = "px")
       png(outfile)
-      wrapper.mvImage(data())
+      wrapper.mvImage(dt)
       dev.off()
-    })
+   # })
     # Return a list
     list(src = outfile,
          alt = "This is alternate text")
@@ -883,7 +891,7 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
     isolate({
       DT::datatable(table2show(), 
                     extensions = 'Buttons',
-                    #escape = TRUE,
+                    escape = FALSE,
                     # rownames= showRownames,
                     options=list(
                       buttons = list(
@@ -920,7 +928,8 @@ moduleInsertMarkdown <- function(input, output, session,url){
         includeMarkdown(url)
       }
       , warning = function(w) {
-        tags$p("URL not found<br>",conditionMessage(w))
+        #conditionMessage(w)
+        tags$p("URL not found. Please check your internet connection.")
         #shinyjs::info(paste("URL not found",":",conditionMessage(w), sep=" "))
       }, error = function(e) {
         shinyjs::info(paste("Error :","in moduleInsertMarkdown",":", conditionMessage(e), sep=" "))

@@ -33,9 +33,13 @@ callModule(module_Not_a_numeric,"test_seuillogFC", reactive({rv$widgets$hypothes
 # observeEvent(input$seuilLogFC,{  rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)})
 # observeEvent(input$ttest_options,{rv$widgets$hypothesisTest$ttest_options <- input$ttest_options})
 
+observeEvent(input$diffAnaMethod, {
+  rv$widgets$hypothesisTest$method <- input$diffAnaMethod
+})
+
+
 observeEvent(input$PerformLogFCPlot, {
   rv$widgets$hypothesisTest$design<- input$anaDiff_Design
-  rv$widgets$hypothesisTest$method <- input$diffAnaMethod
   rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)
   rv$widgets$hypothesisTest$ttest_options <- input$ttest_options                                                
 })

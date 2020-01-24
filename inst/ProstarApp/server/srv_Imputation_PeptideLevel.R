@@ -126,8 +126,10 @@ output$screenPepImputation1 <- renderUI({
                                      #uiOutput(outputId = "progressOne")
                            tagList(
                              tags$hr(),
-                              busyIndicator(WaitMsgPlot,wait = 0),
+                             withProgress(message = '',detail = '', value = 0, {
+                               incProgress(0.5, detail = 'Aggregation in progress')
                              moduleMVPlotsUI("mvImputationPlots_PeptideLevel")
+                             })
                            )      
                            
                )
@@ -295,11 +297,11 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
         algoBasic <- rv$widgets$peptideImput$pepLevel_basicAlgorithm
         switch(algoBasic,
                KNN={  
-                 busyIndicator(WaitMsgCalc,wait = 0)
+                
                  rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],K=rv$widgets$peptideImput$pepLevel_KNN_n)
                },
                MLE={
-                 busyIndicator(WaitMsgCalc,wait = 0)
+                
                  rv$current.obj <- wrapper.impute.mle(rv$dataset[[input$datasets]])},
                detQuantile=
                {

@@ -163,13 +163,13 @@ output$downloadMSnSet <- downloadHandler(
   filename = function() { 
     #input$nameExport
     if (input$fileformatExport == gFileFormatExport$excel) {
-      paste(input$nameExport,gFileExtension$excel,  sep="")}
+      paste(input$nameExport,gFileExtension$excel,  sep=".")}
     else if (input$fileformatExport == gFileFormatExport$msnset)
-    {
+    {.
       paste(input$nameExport,gFileExtension$msnset,  sep="")}
     else if (input$fileformatExport == gFileFormatExport$zip)
     {
-      paste(input$nameExport,gFileExtension$zip,  sep="")}
+      paste(input$nameExport,gFileExtension$zip,  sep=".")}
     
   },
   content = function(file) {

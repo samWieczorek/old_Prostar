@@ -59,67 +59,48 @@ output$versionsWarning <- renderUI({
   
   
   tagList(
-    tags$p(class="body",
-           "You are currently on R version",
-           tags$b(currentRversion),
-           # if (currentRversion < Prostar_desc){
-           #   tags$p("Prostar needs a R version superior or equal to",
-           #          tags$b(Prostar_desc),".",
-           #          tags$a("Please update R.", href="https://cran.r-project.org/", target="_blank")
-           #   )
-           # }
-           ),
-    tags$p(class="body",
-           if (daparUserVersion > daparBiocversion){ tags$p(class="body",
-                                                            paste0("Your DAPAR is too advanced (", daparUserVersion, "). Bioconductor version is"),
-                                                            tags$b(daparBiocversion),
-                                                            "."
-                                                            )
-             } else { tags$p(class="body",
-                             "DAPAR last bioconductor version is",
-                             tags$b(daparBiocversion),
-                             ". You are using version ",
-                             daparUserVersion, ". Please download the last zip at the Prostar web site (",
-                             tags$a("http://www.prostar-proteomics.org/#zero-install", href="http://www.prostar-proteomics.org/#zero-install", target="_blank"),
-                             ").")
-             }
-           
-           ),
-    tags$p(class="body",
-           if (ProstarUserVersion > ProstarBiocversion){ tags$p(class="body",
-                                                            paste0("Your Prostar is too advanced (", ProstarUserVersion, "). Bioconductor version is"),
-                                                            tags$b(ProstarBiocversion),
-                                                            "."
-                                                            )
-             } else { tags$p(class="body",
-                             "Prostar last bioconductor version is",
-                             tags$b(ProstarBiocversion),
-                             ". You are using version",
-                             ProstarUserVersion, ". Please download the last zip at the Prostar web site (",
-                             tags$a("http://www.prostar-proteomics.org/#zero-install", href="http://www.prostar-proteomics.org/#zero-install", target="_blank"),
-                             ").") 
-               }
-           )
+    tags$p(class="body","You are currently on R version",tags$b(currentRversion)),
+
+     if ((daparUserVersion > daparBiocversion) || (ProstarUserVersion > ProstarBiocversion)){
+            tags$p(class="body",paste0("Note: You are using the devel version of Prostar"))
+     }
+    else if ((daparUserVersion < daparBiocversion) || (ProstarUserVersion < ProstarBiocversion))
+      {
+      tags$p(class="body",style="font-size: 16px",
+             tags$div( style="display:inline-block; vertical-align: top;",
+                         p(style="color: red",'Newer versions of Prostar and/or DAPAR packages have been released.')
+               )
     )
-  })
-
-
-output$NoteForNewVersion <- renderUI({
-  
-  df <- getPackagesVersions2()
-  if (sum(grepl("(Out of date)",df[,1])) >= 1) {
-  tags$div(
-    style="font-size: 16px",
-    tags$div( style="display:inline-block; vertical-align: top;",
-              p(style="color: red",'Newer versions of Prostar and/or DAPAR packages have been released. For more information, please go to the page ')
-    ),
-    tags$div( style="display:inline-block; vertical-align: top;",
-              actionLink('goToReleasesNotes', "'Check for updates'",style="background-color: white, color: blue")
+    },
+    
+    tags$div(
+      style="font-size: 16px",
+      tags$div( style="display:inline-block; vertical-align: top;",
+                p('For more information, please go to the page ')
+      ),
+      tags$div( style="display:inline-block; vertical-align: top;",
+                actionLink('goToReleasesNotes', "'Check for updates'",style="background-color: white, color: blue")
+      )
     )
   )
-  
-   }
 })
+
+# output$NoteForNewVersion <- renderUI({
+#   
+#   df <- getPackagesVersions2()
+#   if (sum(grepl("(Out of date)",df[,1])) >= 1) {
+#   tags$div(
+#     style="font-size: 16px",
+#     tags$div( style="display:inline-block; vertical-align: top;",
+#               p(style="color: red",'Newer versions of Prostar and/or DAPAR packages have been released. For more information, please go to the page ')
+#     ),
+#     tags$div( style="display:inline-block; vertical-align: top;",
+#               actionLink('goToReleasesNotes', "'Check for updates'",style="background-color: white, color: blue")
+#     )
+#   )
+#   
+#    }
+# })
 
 observeEvent(input$goToReleasesNotes, {
   updateTabsetPanel(session, 'navPage', "checkForUpdatesTab")
