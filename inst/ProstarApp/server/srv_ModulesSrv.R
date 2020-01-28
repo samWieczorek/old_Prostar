@@ -249,7 +249,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   GetBorderIndices <- reactive({
     conds <- (pData(rv$current.obj)$Condition)[GetSortingIndices()]
     ## build index for border-formatting
-    borders_index <- unlist(lapply(unique(conds), function(x){first(grep(x, conds))}))
+    borders_index <- unlist(lapply(unique(conds), function(x){which.max(x== conds)}))
     borders_index
   })
   
