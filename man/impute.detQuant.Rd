@@ -18,8 +18,7 @@ An imputed dataset
 This method replaces each missing value by a given value
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 values <- getQuantile4Imp(qData)$shiftedImpVal
 impute.detQuant(qData, values) 

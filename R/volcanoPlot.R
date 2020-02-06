@@ -21,8 +21,7 @@
 ##' @return A volcanoplot
 ##' @author Florence Combes, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept[1:1000]
 ##' keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', ncol(obj))
 ##' obj <- mvFilterFromIndices(obj, keepThat)
@@ -122,9 +121,7 @@ return(p)
 ##' @examples
 ##' \donttest{
 ##' library(highcharter) 
-##' library(tidyverse)
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept[1:1000]
 ##' keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', ncol(obj))
 ##' obj <- mvFilterFromIndices(obj, keepThat)
@@ -152,8 +149,6 @@ diffAnaVolcanoplot_rCharts <- function(df,
                                        swap=FALSE){
     
   
-  print("In DAPAR::diffAnaVolcanoplot_rCharts")
-  print(str(df))
     xtitle <- paste("log2 ( mean(",conditions[2],") / mean(",conditions[1],") )",sep="")
     
     if (is.null(clickFunction)){
@@ -186,7 +181,6 @@ diffAnaVolcanoplot_rCharts <- function(df,
                              y = c(threshold_pVal,threshold_pVal,max(df$y)))
     
     title <- NULL
-    #title <- paste0(cond[1], '_vs_', cond[2])
     if (isTRUE(swap)){
       title <- paste0(conditions[2], '_vs_', conditions[1])
     } else {

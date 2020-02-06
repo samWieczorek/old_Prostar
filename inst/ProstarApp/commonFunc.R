@@ -404,3 +404,47 @@ launchGA <- function(){
   
 }
 
+
+
+
+ReadPipelineConfig <- function(filename) {
+  
+  f <- readLines(filename)
+  f <- f[f != ""]
+  
+  
+  id_names <- grep(pattern = "\\[", f)
+  pipeline.def <- vector(mode='list', length=length(grep(pattern = "\\[", f)))
+  
+  i <- 1
+  count <- 1
+  
+  
+  while (i < id_names[length(id_names)]) {
+    
+    if (i %in% id_names) {
+      names(pipeline.def)[[count]] <- gsub("\\[|\\]", "", f[i])
+      i=i+1
+    }
+    else {
+      
+      pipeline.def[[count]] <- f[i:(id_names[count+1]-1)] # id_names[ x ]
+      
+      i=id_names[count+1]
+      count <- count + 1
+    }
+    
+    
+    if (i >= id_names[length(id_names)]) {
+      names(pipeline.def)[[length(id_names)]] <- gsub("\\[|\\]", "", f[i]) 
+      pipeline.def[[count]] <- f[(i+1):length(f)]
+      
+    }
+    
+    
+  }
+  
+  return(pipeline.def)
+  
+}
+

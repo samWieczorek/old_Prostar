@@ -19,7 +19,7 @@ observeEvent(req(WatchmoduleProtFiltering()),{
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleProtFiltering')
+  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleProtFiltering')
   DeleteDatasetsAfter('moduleProtFiltering')
   rvNav$Done[pipeline$current.indice-1] <- TRUE
   

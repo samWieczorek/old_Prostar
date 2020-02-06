@@ -4,8 +4,13 @@
 \alias{inner.aggregate.iter}
 \title{xxxx}
 \usage{
-inner.aggregate.iter(pepData, X, init.method = "Sum", method = "Mean",
-  n = NULL)
+inner.aggregate.iter(
+  pepData,
+  X,
+  init.method = "Sum",
+  method = "Mean",
+  n = NULL
+)
 }
 \arguments{
 \item{pepData}{xxxxx}
@@ -26,10 +31,9 @@ Method to xxxxx
 }
 \author{
 Samuel Wieczorek
-require(DAPARdata)
-data(Exp1_R25_pept)
-protID <- "Protein.group.IDs"
+utils::data(Exp1_R25_pept, package='DAPARdata')
+protID <- "Protein_group_IDs"
 obj.pep <- Exp1_R25_pept[1:1000]
 X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
-DAPAR::inner.aggregate.iter(exprs(obj.pep), X)
+Prostar::inner.aggregate.iter(exprs(obj.pep), X)
 }

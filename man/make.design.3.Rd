@@ -16,11 +16,9 @@ A design matrix
 This function builds the design matrix for design of level 3
 }
 \examples{
-\dontrun{
-require(DAPARdata)
-data(Exp1_R25_pept)
-make.design.3(Biobase::pData(Exp1_R25_pept))
-}
+utils::data(Exp1_R25_pept, package='DAPARdata')
+sTab <-cbind(Biobase::pData(Exp1_R25_pept), Tech.Rep=1:6)
+make.design.3(sTab)
 }
 \author{
 Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek

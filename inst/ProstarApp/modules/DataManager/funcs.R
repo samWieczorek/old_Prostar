@@ -1,5 +1,8 @@
 ####### Common functions
 
+
+##############################################################################
+## Fonction qui npermet de completer les informations contenues dans un MSnset
 ConfigureData <- function(obj){
   
   

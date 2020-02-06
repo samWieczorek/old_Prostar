@@ -22,8 +22,7 @@ of a object. The CV is calculated for each condition present
 in the dataset (see the slot \code{'Condition'} in the \code{pData()} table)
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 CVDistD(Biobase::exprs(Exp1_R25_pept), conds)
 }

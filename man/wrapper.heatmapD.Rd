@@ -6,8 +6,12 @@
 quantitative data in the \code{exprs()} table of an object of
 class \code{MSnSet}}
 \usage{
-wrapper.heatmapD(obj, distance = "euclidean", cluster = "complete",
-  dendro = FALSE)
+wrapper.heatmapD(
+  obj,
+  distance = "euclidean",
+  cluster = "complete",
+  dendro = FALSE
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -29,8 +33,7 @@ Builds a heatmap of the quantitative proteomic data of a
 }
 \examples{
 \dontrun{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- mvFilter(Exp1_R25_pept[1:1000], "wholeMatrix", 6)
 wrapper.heatmapD(obj)
 }

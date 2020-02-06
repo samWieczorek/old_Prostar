@@ -18,8 +18,7 @@ Similar to the function \code{is.na} but focused on the equality with the missin
 values in the dataset (type 'POV' and 'MEC')
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- Exp1_R25_pept
 data <- Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues]
 is.MV(data)

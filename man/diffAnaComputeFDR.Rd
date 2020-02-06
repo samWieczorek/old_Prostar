@@ -5,8 +5,13 @@
 \title{Computes the FDR corresponding to the p-values of the 
 differential analysis using}
 \usage{
-diffAnaComputeFDR(logFC, pval, threshold_PVal = 0, threshold_LogFC = 0,
-  pi0Method = 1)
+diffAnaComputeFDR(
+  logFC,
+  pval,
+  threshold_PVal = 0,
+  threshold_LogFC = 0,
+  pi0Method = 1
+)
 }
 \arguments{
 \item{logFC}{The result (logFC values) of the differential analysis processed 
@@ -34,8 +39,7 @@ differential analysis.
 The FDR is computed with the function \code{p.adjust}\{stats\}..
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- Exp1_R25_pept[1:1000]
 keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', ncol(obj))
 obj <- mvFilterFromIndices(obj, keepThat)

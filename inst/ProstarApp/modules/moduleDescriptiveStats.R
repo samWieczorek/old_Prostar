@@ -1,3 +1,9 @@
+##################################################################################
+##
+## Ce module affiche un ecran composé de différentes tabulations pour l'affichage des plots
+## de statistiques descriptives
+##
+##################################################################################
 source(file.path(".", "modules/Plots/moduleMSnSetExplorer.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCorrMatrix.R"),  local = TRUE)$value

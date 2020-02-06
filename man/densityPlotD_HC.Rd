@@ -22,8 +22,7 @@ Densityplot of quantitative proteomics data over samples. Same as the function \
 but uses the package \code{highcharter}
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 densityPlotD_HC(Exp1_R25_pept)
 }
 \seealso{

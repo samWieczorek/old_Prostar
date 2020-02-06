@@ -18,9 +18,8 @@ A plot
 Display a CC
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept) 
-X <- BuildAdjacencyMatrix(Exp1_R25_pept, "Protein.group.IDs", FALSE)
+utils::data(Exp1_R25_pept, package='DAPARdata') 
+X <- BuildAdjacencyMatrix(Exp1_R25_pept, "Protein_group_IDs", FALSE)
 ll <- get.pep.prot.cc(X)
 g <- buildGraph(ll[[1]], X)
 }

@@ -6,8 +6,16 @@
 (fudge factor) used to regularize the variance estimator in the
 likelihood ratio statistic}
 \usage{
-fudge2LRT(lmm.res.h0, lmm.res.h1, cc, n, p, s, alpha = seq(0, 1, 0.05),
-  include.zero = TRUE)
+fudge2LRT(
+  lmm.res.h0,
+  lmm.res.h1,
+  cc,
+  n,
+  p,
+  s,
+  alpha = seq(0, 1, 0.05),
+  include.zero = TRUE
+)
 }
 \arguments{
 \item{lmm.res.h0}{a vector of object containing the estimates (used to

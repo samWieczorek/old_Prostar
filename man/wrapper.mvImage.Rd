@@ -21,8 +21,7 @@ The lines have been sorted in order to vizualize easily the different
 number of missing values. A white square is plotted for missing values.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- Exp1_R25_pept
 keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', 1)
 obj <- mvFilterFromIndices(obj, keepThat)

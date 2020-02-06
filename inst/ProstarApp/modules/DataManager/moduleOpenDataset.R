@@ -12,17 +12,9 @@ moduleOpenDatasetUI  <- function(id){
   tagList(
     shinyjs::disabled(actionButton(ns('btn_launch'), "Launch pipeline",class = actionBtnClass)),
     tabsetPanel(
-    
-              tabPanel("Open MSnset",
-                      moduleOpenMSnSetUI(ns("moduleOpenMSnSet"))
-             ),
-             tabPanel("Convert",
-                      value = "convertTab",
-                      moduleConvertDataUI(ns("moduleProcess_Convert"))
-             ),
-             tabPanel("Demo data", 
-                      moduleOpenDemoDatasetUI(ns("moduleOpenDemoDataset"))
-             )
+      tabPanel("Open MSnset",moduleOpenMSnSetUI(ns("moduleOpenMSnSet"))),
+      tabPanel("Convert",value = "convertTab",moduleConvertDataUI(ns("moduleProcess_Convert"))),
+      tabPanel("Demo data",  moduleOpenDemoDatasetUI(ns("moduleOpenDemoDataset")))
   )
   
   )
@@ -35,19 +27,30 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   ns <- session$ns
   
   rv.opendataset <- reactiveValues(
+    
+    ## variables temporaires servant à stocker les datasets qui sont charges par l'utilisateur
+    ## Ces variables servent de tampon entre la sortie des modules appelés et la variable
+    ## obj qui va récupérer le seul dataset chargé
     tmp.convert = NULL,
     tmp.demo = NULL,
     tmp.file = NULL,
+    
+    
+    ## Stocke le dataset ouvert
     obj = NULL,
+    
+    ## Structure de donnees de sortie du module
     dataOut = NULL
   )
   
   
+  ## Chargement en memoire des structure renvoyees 
   rv.opendataset$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
   rv.opendataset$tmp.demo <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset')
   rv.opendataset$tmp.file <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
   
   
+  ## Mise a jour de la variable obj avec le dataset charge
   observe({
     req(rv.opendataset$tmp.file())
     rv.opendataset$obj <- rv.opendataset$tmp.file()
@@ -62,14 +65,18 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   observe({
     req(rv.opendataset$tmp.demo())
     rv.opendataset$obj <- rv.opendataset$tmp.demo()
-    print("demo dataset loaded")
   })
   
   
   
+  ## Lorsqu'un dataset est charge, On opere un certain nombre de traitements preparatifs
+  ## au cas ou des informations manqueraient
+  ## Lorsque c'est fait, on rend disponible le bouton de chargement
   observeEvent(req(rv.opendataset$obj),{
     print("PASS dedans")
     rv.opendataset$obj <- ConfigureData(rv.opendataset$obj)
+    
+    ## Cette partie sur les compo
     if ( rv.opendataset$obj@pipeline == 'peptide') {
       if (length(rv.opendataset$obj@AdjacencyMat)==0){
       rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])

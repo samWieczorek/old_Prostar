@@ -1,3 +1,5 @@
+## Ce module affiche l'écran permettant de faire un retour aux developpeurs de Prostar
+
 moduleBugReportUI <- function(id)
   {
   ns <- NS(id)

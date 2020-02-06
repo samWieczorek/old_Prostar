@@ -19,7 +19,7 @@ observeEvent(req(WatchmoduleProtImputation()),{
   print(str((pipeline$current.obj@datasets)))
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleProtImputation')
+  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleProtImputation')
   DeleteDatasetsAfter('moduleProtImputation')
   rvNav$Done[pipeline$current.indice-1] <- TRUE
 })

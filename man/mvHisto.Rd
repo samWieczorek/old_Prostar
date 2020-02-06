@@ -4,8 +4,14 @@
 \alias{mvHisto}
 \title{Histogram of missing values}
 \usage{
-mvHisto(qData, samplesData, conds, indLegend = "auto",
-  showValues = FALSE, palette = NULL)
+mvHisto(
+  qData,
+  samplesData,
+  conds,
+  indLegend = "auto",
+  showValues = FALSE,
+  palette = NULL
+)
 }
 \arguments{
 \item{qData}{A dataframe that contains quantitative data.}
@@ -29,8 +35,7 @@ A histogram
 This method plots a histogram of missing values.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 samplesData <- Biobase::pData(Exp1_R25_pept)
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]

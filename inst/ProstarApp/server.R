@@ -35,6 +35,8 @@ library(shinyBS)
 server <- function(input, output, session){
   env <- environment()
   
+  #pipeline.def <- ReadPipelineConfig("config/pipeline.conf")
+  #print(paste0("pipeline.def = ", pipeline.def))
   source(file.path(".", "pipelineDefinition.R"), local = TRUE)$value
   
   source(file.path(".", "srv_CheckForUpdates.R"),  local = TRUE)$value
@@ -52,7 +54,10 @@ server <- function(input, output, session){
   source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
   source(file.path(".", "commonFunc.R"), local = TRUE)$value
   source(file.path(".", "modules/moduleSettings.R"), local = TRUE)$value
-  source(file.path(".", "pipelineCore.R"),  local = TRUE)$value
+  
+  
+  ## L'appel a pipelineCore.R permet d'attendre le chargement d'un dataset et de créer ensuite le pipeline correspondant
+  source(file.path(".", "core.R"),  local = TRUE)$value
  
   
   source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
@@ -64,6 +69,8 @@ server <- function(input, output, session){
   loadLibraries()
   plan(multiprocess)
   
+  
+  #Global reactive variables for Prostar-core
     rv.prostar <- reactiveValues(
       obj = NULL,
       settings = NULL
@@ -101,7 +108,8 @@ server <- function(input, output, session){
   })
 
 
-  observeEvent(input$sidebar_left, {
+  ## Select submenu in sidebar
+ observeEvent(input$sidebar_left, {
     print(input$sidebar_left)
     switch(input$sidebar_left,
            FAQ =  toggleModal(session, "modalFAQ"),

@@ -22,8 +22,7 @@ This method is a wrapper of the function \code{\link{impute.detQuant}} for objec
 of class \code{MSnSet}
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.impute.detQuant(Exp1_R25_pept)
 }
 \author{

@@ -20,8 +20,7 @@ objects of class \code{MSnSet} and imputes missing values with a fixed value.
 This function imputes the missing values condition by condition.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.impute.KNN(Exp1_R25_pept[1:1000], 3)
 }
 \author{

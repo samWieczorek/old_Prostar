@@ -34,12 +34,10 @@
 ##' data in the \code{exprs()} tab has been normalized.
 ##' @author Samuel Wieczorek, Thomas Burger, Helene Borges, Anais Courtier
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' wrapper.normalizeD(Exp1_R25_pept[1:1000], "QuantileCentering", "within conditions",subset.norm=1:10)
 wrapper.normalizeD <- function(obj, method, type=NULL, scaling=FALSE, quantile=0.15, span = 0.7,
                                subset.norm=NULL){
-  
   parammethod<-c("GlobalQuantileAlignment",
                  "SumByColumns",
                  "QuantileCentering",
@@ -81,8 +79,8 @@ wrapper.normalizeD <- function(obj, method, type=NULL, scaling=FALSE, quantile=0
   
   switch(method,
          GlobalQuantileAlignment = {
-           require(preprocessCore)
-           Biobase::exprs(obj) <- normalize.quantiles(qData)
+#require(preprocessCore)
+           Biobase::exprs(obj) <- preprocessCore::normalize.quantiles(qData)
            dimnames(Biobase::exprs(obj)) <- list(rownames(qData),colnames(qData))
            obj@processingData@processing <- c(obj@processingData@processing, msg_method, msg_type)
            obj@experimentData@other$normalizationMethod <- method

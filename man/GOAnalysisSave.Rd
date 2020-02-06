@@ -6,8 +6,16 @@
 the GO analysis performed with the functions \code{enrichGO} and/or 
 \code{groupGO} of the \code{\link{clusterProfiler}} package.}
 \usage{
-GOAnalysisSave(obj, ggo_res = NULL, ego_res = NULL, organism, ontology,
-  levels, pvalueCutoff, typeUniverse)
+GOAnalysisSave(
+  obj,
+  ggo_res = NULL,
+  ego_res = NULL,
+  organism,
+  ontology,
+  levels,
+  pvalueCutoff,
+  typeUniverse
+)
 }
 \arguments{
 \item{obj}{An object of the class \code{MSnSet}}

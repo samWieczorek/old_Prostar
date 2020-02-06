@@ -4,8 +4,13 @@
 \alias{StringBasedFiltering}
 \title{Removes lines in the dataset based on a prefix strings (contaminants, reverse or both).}
 \usage{
-StringBasedFiltering(obj, idCont2Delete = NULL, prefix_Cont = NULL,
-  idRev2Delete = NULL, prefix_Rev = NULL)
+StringBasedFiltering(
+  obj,
+  idCont2Delete = NULL,
+  prefix_Cont = NULL,
+  idRev2Delete = NULL,
+  prefix_Rev = NULL
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -34,9 +39,8 @@ corresponding to reverse,
 This function removes lines in the dataset based on prefix strings (contaminants, reverse or both).
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-StringBasedFiltering(Exp1_R25_pept, 'Potential.contaminant', '+', 'Reverse', '+')
+utils::data(Exp1_R25_pept, package='DAPARdata')
+StringBasedFiltering(Exp1_R25_pept, 'Potential_contaminant', '+', 'Reverse', '+')
 }
 \author{
 Samuel Wieczorek

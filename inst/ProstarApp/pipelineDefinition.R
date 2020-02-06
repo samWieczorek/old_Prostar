@@ -4,9 +4,9 @@
 ## dans les fichiers source sans quoi, Prostar ne pourra pas les trouver
 ## TODO : faire une gestion d'erreur en cas d'absence d'un module
 ######
-peptide <- c('moduleFiltering', 'moduleNormalization', 'modulePepImputation', 'moduleHypothesisTest')
-protein <- c('moduleProtFiltering', 'moduleProtNormalization', 'moduleProtImputation')
-p2p <- c('moduleH','moduleI')
+#peptide <- c('moduleFiltering', 'moduleNormalization', 'modulePepImputation', 'moduleHypothesisTest')
+#protein <- c('moduleProtFiltering', 'moduleProtNormalization', 'moduleProtImputation')
+#p2p <- c('moduleH','moduleI')
 
 
 pipeline.def <- list(

@@ -18,8 +18,7 @@ An integer
 Returns the possible number of values in lines in a matrix.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 getListNbValuesInLines(Exp1_R25_pept)
 }
 \author{

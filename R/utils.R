@@ -6,8 +6,7 @@
 ##' @return The slot processing of obj@processingData
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' getProcessingInfo(Exp1_R25_pept)
 getProcessingInfo <- function(obj){
 return(obj@processingData@processing)
@@ -20,8 +19,7 @@ return(obj@processingData@processing)
 ##' @return An integer
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' qData <- Biobase::exprs(Exp1_R25_pept)
 ##' getNumberOfEmptyLines(qData)
 getNumberOfEmptyLines <- function(qData){
@@ -37,8 +35,7 @@ return (n)
 ##' @return A boolean dataframe 
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept
 ##' data <- Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues]
 ##' is.OfType(data, "MEC")
@@ -59,8 +56,7 @@ is.OfType <- function(data, type){
 ##' @return A boolean dataframe 
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept
 ##' data <- Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues]
 ##' is.MV(data)
@@ -68,8 +64,9 @@ is.MV <- function(data){
   #MV=is.OfType(data, "MV")
   POV=is.OfType(data, "POV")
   MEC=is.OfType(data, "MEC")
+  isNA = is.na(data)
+  df <- POV | MEC | isNA
   
-  df <- POV | MEC
   return (df)
 }
 
@@ -81,8 +78,7 @@ is.MV <- function(data){
 ##' @return An integer
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' getListNbValuesInLines(Exp1_R25_pept)
 getListNbValuesInLines <- function(obj, type="wholeMatrix"){
   if (is.null(obj)){return()}
@@ -131,8 +127,7 @@ getListNbValuesInLines <- function(obj, type="wholeMatrix"){
 ##' dataset. 
 ##' @author Florence Combes, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 ##' getIndicesConditions(conds, "25fmol", "10fmol")
 getIndicesConditions <- function(conds, cond1, cond2){
@@ -243,8 +238,7 @@ nonzero <- function(x){
 ##' @return A MSnset object 
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' res <- tabOperator(Exp1_R25_pept, c(1:10))
 # tabOperator <- function(obj, lineIndices){
 #     

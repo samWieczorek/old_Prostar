@@ -4,8 +4,14 @@
 \alias{mvHisto_HC}
 \title{Histogram of missing values}
 \usage{
-mvHisto_HC(qData, samplesData, conds, indLegend = "auto",
-  showValues = FALSE, palette = NULL)
+mvHisto_HC(
+  qData,
+  samplesData,
+  conds,
+  indLegend = "auto",
+  showValues = FALSE,
+  palette = NULL
+)
 }
 \arguments{
 \item{qData}{A dataframe that contains quantitative data.}
@@ -30,8 +36,7 @@ This method plots a histogram of missing values. Same as the function \code{mvHi
 but uses the package \code{highcharter}
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 samplesData <- Biobase::pData(Exp1_R25_pept)
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]

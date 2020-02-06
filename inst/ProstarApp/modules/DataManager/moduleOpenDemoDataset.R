@@ -117,6 +117,8 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
                  }
           )
           
+          
+          ## L'objet retourné est l'instanciation d'une classe dont la definition se trouve dans le repertoire Classes
           rv.openDemo$current.obj <- initialize(rv.openDemo$current.obj, 
                                                 c('original',ll.process), 
                                                 data,

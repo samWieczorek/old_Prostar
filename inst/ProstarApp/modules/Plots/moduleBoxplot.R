@@ -12,29 +12,41 @@ moduleBoxplotUI <- function(id) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, dataIn, params) {
+moduleBoxplot <- function(input, output, session, dataIn, params, reset) {
+  
   ns <- session$ns
   rv.modboxplot <- reactiveValues(
     var = NULL,
-    ind = NULL
+    ind = NULL,
+    indices = NULL
   )
+  source(file.path(".", "modules/Plots/moduleTracking.R"), local = TRUE)$value
   
-  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({FALSE}))
+  rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", 
+                                  dataIn = reactive({dataIn()$obj}),
+                                  params=reactive({params()}), 
+                                  reset=reactive({reset()}))
   
   observeEvent(req(rv.modboxplot$var()),{
-    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
     print("In observe rv.modboxplot$var")
     print(rv.modboxplot$var())
     
-    ll <- Biobase::fData(dataIn()$obj)[,dataIn()$obj@experimentData@other$proteinId]
-    switch(rv.modboxplot$var()$type,
-           ProteinList = {rv.modboxplot$ind <- match(rv.modboxplot$var()$list, ll)},
-           Random = {rv.modboxplot$ind <- sample(1:length(ll), rv.modboxplot$var()$rand, replace=FALSE)},
-           Column = {rv.modboxplot$ind <- which(rv.modboxplot$var()$col == 1)}
-    )
-    if (length(rv.modboxplot$ind)==0){rv.modboxplot$ind <- NULL}
     
+    if (is.null(rv.modboxplot$var()$type)){return(NULL)}
+    
+    ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    switch(rv.modboxplot$var()$type,
+           #ProteinList = rv.modboxplot$ind <- rv.modboxplot$var()$list,
+           #Random = rv.modboxplot$ind <- rv.modboxplot$var()$rand,
+           # Column = rv.modboxplot$ind <- rv.modboxplot$var()$col,
+           ProteinList = rv.modboxplot$indices <- rv.modboxplot$var()$list.indices,
+           Random = rv.modboxplot$indices <- rv.modboxplot$var()$rand.indices,
+           Column = rv.modboxplot$indices <- rv.modboxplot$var()$col.indices
+    )
+    #if (length(rv.modboxplot$ind)==0){rv.modboxplot$ind <- NULL}
+    if (length(rv.modboxplot$indices)==0){rv.modboxplot$indices <- NULL}
   })
+  
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -50,20 +62,20 @@ moduleBoxplot <- function(input, output, session, dataIn, params) {
   })
   
   
+  
   output$BoxPlot <- renderHighchart({
-    req(dataIn()$obj)
-    #rv$PlotParams$paletteConditions
-    rv.prostar$settings()$legendForSamples
-    name <- dataIn()$name
-    rv.modboxplot$ind
-    
+    dataIn()
+    rv$current.obj.name
+    rv$PlotParams$paletteConditions
+    rv$PlotParams$legendForSamples
+    rv.modboxplot$indices
     tmp <- NULL
     isolate({
+      ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
       
-      pattern <- paste0(name,".boxplot")
-      tmp <- boxPlotD_HC(dataIn()$obj, rv.prostar$settings()$legendForSamples, 
-                                palette=rv.prostar$settings()$examplePalette,
-                                subset.view = rv.modboxplot$ind)
+      pattern <- paste0(GetCurrentObjName(),".boxplot")
+      tmp <- DAPAR::boxPlotD_HC(dataIn(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions,
+                                subset.view = rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -72,23 +84,37 @@ moduleBoxplot <- function(input, output, session, dataIn, params) {
   })
   
   
-  output$viewViolinPlot <- renderPlot({
-    
-    req(dataIn())
-    rv.prostar$settings()$legendForSamples
-    rv.prostar$settings()$examplePalette
+  output$viewViolinPlot<- renderImage({
+    dataIn()
+    rv$PlotParams$legendForSamples
+    rv$PlotParams$paletteConditions
+    rv.modboxplot$indices
     tmp <- NULL
-    rv.modboxplot$ind
     isolate({
-      pattern <- paste0(dataIn()$name,".violinplot")
-      tmp <- violinPlotD(dataIn()$obj, 
-                                rv.prostar$settings()$legendForSamples, 
-                                palette=rv.prostar$settings()$examplePalette,
-                                subset.view =  rv.modboxplot$ind)
+      
+      # A temp file to save the output. It will be deleted after renderImage
+      # sends it, because deleteFile=TRUE.
+      outfile <- tempfile(fileext='.png')
+      print("IN violinPlot")
+      print(rv.modboxplot$indices)
+      print("END IN violinplot")
+      # Generate a png
+      # png(outfile, width = 640, height = 480, units = "px")
+      png(outfile)
+      pattern <- paste0(GetCurrentObjName(),".violinplot")
+      tmp <- DAPAR::violinPlotD(dataIn(), legend = rv$PlotParams$legendForSamples, 
+                                palette = rv$PlotParams$paletteConditions,
+                                subset.view =  rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
+      dev.off()
     })
     tmp
-  }) 
+    
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = TRUE)
+  
   
   return(reactive({rv.modboxplot$var()}))
 }

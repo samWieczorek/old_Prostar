@@ -5,8 +5,11 @@
 \title{Bar plot of missing values per lines and per conditions from an 
 object \code{MSnSet}}
 \usage{
-wrapper.mvPerLinesHistoPerCondition(obj, indLegend = "auto",
-  showValues = FALSE)
+wrapper.mvPerLinesHistoPerCondition(
+  obj,
+  indLegend = "auto",
+  showValues = FALSE
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -25,8 +28,7 @@ bar plot which represents the distribution of the
 number of missing values (NA) per lines (ie proteins) and per conditions.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.mvPerLinesHistoPerCondition(Exp1_R25_pept)
 }
 \author{

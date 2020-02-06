@@ -6,7 +6,7 @@ library(shinyjqui)
 library(sass)
 
 
-
+## Load of modules that are to be imbedded in the sidebar
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
@@ -14,11 +14,10 @@ source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment()
 source(file.path(".", "modules/moduleSettings.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleHomepage.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleReleaseNotes.R"),  local = TRUE)$value
-
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 
 
-
+## Generic modules, usefull everywhere
 source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
 source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
@@ -177,26 +176,23 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
     launchGA(),
     
     titlePanel("", windowTitle = "Prostar"),
+    #rclipboardSetup(),
+    modulePlotsUI('showPlots'),
+    tabItems(
+      tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
     
-
-    
-           #rclipboardSetup(),
-           modulePlotsUI('showPlots'),
-           tabItems(
-              tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
-    
-              tabItem(tabName = "dataManager",
-                      moduleOpenDatasetUI("moduleOpenDataset"),
-                    uiOutput('btn_launch')
-                    ),
-              tabItem(tabName = "dataAnalysis",
+      tabItem(tabName = "dataManager",
+                moduleOpenDatasetUI("moduleOpenDataset"),
+                uiOutput('btn_launch')
+              ),
+      tabItem(tabName = "dataAnalysis",
                       h3('data analysis'),
                       uiOutput('UI_dataAnalysis')
               ),
-              tabItem(tabName = "settings", moduleSettingsUI("modSettings")),
+      tabItem(tabName = "settings", moduleSettingsUI("modSettings")),
     
-              tabItem(tabName = "releaseNotes", moduleReleaseNotesUI("modReleaseNotes")),
-              tabItem(tabName = "checkUpdates",
+      tabItem(tabName = "releaseNotes", moduleReleaseNotesUI("modReleaseNotes")),
+      tabItem(tabName = "checkUpdates",
                       uiOutput("baseVersions"),
                       DT::dataTableOutput("tab_versions", width = '600px'),
                       br(), br(),
@@ -204,9 +200,9 @@ source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
                       ),
     
     
-             tabItem(tabName = "links", shinyBS::bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
-              tabItem(tabName = "FAQ",shinyBS::bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
-              tabItem(tabName = "bugReport", shinyBS::bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
+      tabItem(tabName = "links", shinyBS::bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
+      tabItem(tabName = "FAQ",shinyBS::bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
+      tabItem(tabName = "bugReport", shinyBS::bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
               )
             )
 

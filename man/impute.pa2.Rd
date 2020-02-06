@@ -4,8 +4,14 @@
 \alias{impute.pa2}
 \title{Missing values imputation from a \code{MSnSet} object}
 \usage{
-impute.pa2(tab, conditions, q.min = 0, q.norm = 3, eps = 0,
-  distribution = "unif")
+impute.pa2(
+  tab,
+  conditions,
+  q.min = 0,
+  q.norm = 3,
+  eps = 0,
+  distribution = "unif"
+)
 }
 \arguments{
 \item{tab}{An object of class \code{MSnSet}.}
@@ -36,8 +42,7 @@ This method is a variation to the function \code{impute.pa} from the package
 \code{imp4p}.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.impute.pa2(Exp1_R25_pept[1:1000], distribution="beta")
 }
 \author{

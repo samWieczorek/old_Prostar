@@ -52,7 +52,9 @@ moduleIntensityPlots <- function(input, output, session, dataIn){
   
   
   
-  callModule(moduleBoxplot, "boxPlot_AbsPanel", dataIn = reactive({dataIn()}))
+  callModule(moduleBoxplot, "boxPlot_AbsPanel", dataIn = reactive({dataIn()}),
+             params = reactive({NULL}),
+             reset=reactive({FALSE}))
   callModule(moduleDensityplot, "densityPlot_AbsPanel", dataIn = reactive({dataIn()}))
   
   

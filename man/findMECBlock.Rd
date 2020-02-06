@@ -16,8 +16,7 @@ A data.frame that contains the indexes of LAPALA
 This method finds the LAPALA in a dataset.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- Exp1_R25_pept[1:1000]
 lapala <- findMECBlock(obj)
 }

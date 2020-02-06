@@ -23,8 +23,7 @@ The lines have been sorted in order to vizualize easily the different
 number of missing values. A white square is plotted for missing values.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 mvImage(qData, conds)

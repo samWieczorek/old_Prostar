@@ -24,8 +24,7 @@ Correlation matrix based on a \code{MSnSet} object. Same as the
 function \link{corrMatrixD} but uses the package \code{highcharter}
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 samplesData <- Biobase::pData(Exp1_R25_pept)
 res <- cor(qData,use = 'pairwise.complete.obs')

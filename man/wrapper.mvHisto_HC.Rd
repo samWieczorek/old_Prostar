@@ -24,8 +24,7 @@ This method plots from a \code{MSnSet} object a histogram of
 missing values.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.mvHisto_HC(Exp1_R25_pept, showValues=TRUE)
 }
 \author{

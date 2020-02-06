@@ -21,10 +21,9 @@ This function computes the intensity of proteins as the mean of the
 intensities of their peptides.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj.pep <- Exp1_R25_pept[1:1000]
-protID <- "Protein.group.IDs"
+protID <- "Protein_group_IDs"
 X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
 aggregateMean(obj.pep, X)
 }

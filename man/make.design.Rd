@@ -16,8 +16,7 @@ A design matrix
 This function builds the design matrix
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 make.design(Biobase::pData(Exp1_R25_pept))
 }
 \author{

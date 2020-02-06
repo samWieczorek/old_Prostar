@@ -1,5 +1,10 @@
 
-###### Module de gestion des interfaces pour les data Process   ######
+######################################################################################
+##
+###### Module de gestion des interfaces pour suivre les differentes etapes dans un process de traitement
+##
+####################################################################################################
+
 moduleNavigationUI <- function(id){
   ns <- NS(id)
   

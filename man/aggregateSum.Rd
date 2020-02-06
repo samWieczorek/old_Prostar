@@ -21,12 +21,11 @@ This function computes the intensity of proteins based on the sum of the
 intensities of their peptides.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-protID <- "Protein.group.IDs"
+utils::data(Exp1_R25_pept, package='DAPARdata')
+protID <- "Protein_group_IDs"
 obj.pep <- Exp1_R25_pept[1:1000]
 X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
-DAPAR::aggregateSum(obj.pep, X)
+Prostar::aggregateSum(obj.pep, X)
 }
 \author{
 Alexia Dorffer

@@ -20,8 +20,7 @@ This method is a wrapper for the function \code{\link{hc_mvTypePlot2}} adapted t
 of class \code{MSnSet}).
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.hc_mvTypePlot2(Exp1_R25_pept)
 }
 \author{

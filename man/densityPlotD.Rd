@@ -4,10 +4,12 @@
 \alias{densityPlotD}
 \title{Builds a densityplot from a dataframe}
 \usage{
-densityPlotD(obj, legend = NULL, palette = NULL)
+densityPlotD(obj, conds, legend = NULL, palette = NULL)
 }
 \arguments{
 \item{obj}{xxx}
+
+\item{conds}{xxx}
 
 \item{legend}{A vector of the conditions (one condition per sample).}
 
@@ -20,8 +22,7 @@ A density plot
 Densityplot of quantitative proteomics data over samples.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 densityPlotD(Exp1_R25_pept, conds)
 }

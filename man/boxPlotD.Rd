@@ -4,10 +4,12 @@
 \alias{boxPlotD}
 \title{Builds a boxplot from a dataframe}
 \usage{
-boxPlotD(obj, legend = NULL, palette = NULL)
+boxPlotD(obj, conds, legend = NULL, palette = NULL)
 }
 \arguments{
 \item{obj}{xxx}
+
+\item{conds}{xxx}
 
 \item{legend}{A vector of the conditions (one string per sample).}
 
@@ -20,10 +22,9 @@ A boxplot
 Boxplot for quantitative proteomics data
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
-boxPlotD(Exp1_R25_pept)
+boxPlotD(Exp1_R25_pept, conds)
 }
 \seealso{
 \code{\link{densityPlotD}}

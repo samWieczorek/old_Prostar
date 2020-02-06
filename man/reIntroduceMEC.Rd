@@ -18,8 +18,7 @@ The object \code{obj} where LAPALA have been reintroduced
 This method is used to put back the LAPALA that have been identified previously
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj <- Exp1_R25_pept[1:1000]
 lapala <- findMECBlock(obj)
 obj <- wrapper.impute.detQuant(obj)

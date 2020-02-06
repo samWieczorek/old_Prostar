@@ -1,4 +1,7 @@
 ######
+## Affcihe des miniatures des plots de stats descriptives qui sont clickables
+## avec apparition du grpahique en grand dans une fenetre popup
+
 modulePlotsUI <- function(id){
   ns <- NS(id)
   

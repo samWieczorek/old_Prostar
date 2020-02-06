@@ -22,9 +22,8 @@ deleted : an object of class \code{MSnSet} which contains the deleted lines
 This function removes lines in the dataset based on prefix strings.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-StringBasedFiltering2(Exp1_R25_pept, 'Potential.contaminant', '+')
+utils::data(Exp1_R25_pept, package='DAPARdata')
+StringBasedFiltering2(Exp1_R25_pept, 'Potential_contaminant', '+')
 }
 \author{
 Samuel Wieczorek

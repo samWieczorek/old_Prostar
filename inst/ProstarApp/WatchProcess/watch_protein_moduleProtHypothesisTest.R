@@ -18,7 +18,7 @@ observeEvent(req(WatchmoduleProtHypothesisTest()),{
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleProtHypothesisTest')
+  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleProtHypothesisTest')
   
   DeleteDatasetsAfter('moduleProtHypothesisTest')
   rvNav$Done[pipeline$current.indice-1] <- TRUE

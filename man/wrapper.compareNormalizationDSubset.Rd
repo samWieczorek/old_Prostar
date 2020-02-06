@@ -4,8 +4,13 @@
 \alias{wrapper.compareNormalizationDSubset}
 \title{Builds a plot from a dataframe}
 \usage{
-wrapper.compareNormalizationDSubset(objBefore, objAfter,
-  condsForLegend = NULL, indData2Show = NULL, ...)
+wrapper.compareNormalizationDSubset(
+  objBefore,
+  objAfter,
+  condsForLegend = NULL,
+  indData2Show = NULL,
+  ...
+)
 }
 \arguments{
 \item{objBefore}{A dataframe that contains quantitative data before 
@@ -30,11 +35,10 @@ Wrapper to the function that plot to compare the quantitative proteomics
 data before and after normalization
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 objAfter <- wrapper.normalizeD(Exp1_R25_pept, "QuantileCentering","within conditions")
-ids <- fData(Exp1_R25_pept)[,Exp1_R25_pept@experimentData@other$proteinId]
+ids <- Biobase::fData(Exp1_R25_pept)[,Exp1_R25_pept@experimentData@other$proteinId]
 wrapper.compareNormalizationDSubset(Exp1_R25_pept, objAfter, conds, idsForLegend=ids, subset.view=1:10)
 }
 \author{

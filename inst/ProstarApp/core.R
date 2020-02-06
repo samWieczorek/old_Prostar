@@ -1,40 +1,51 @@
-source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
-source(file.path(".", "Classes/ClassProtPipeline.R"), local = TRUE)$value
 
-
+## CHargement des modules generaux
 source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
-
-
-source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/modulePepImputation.R"), local = TRUE)$value
-source(file.path(".", "modules/process/peptide/moduleHypothesisTest.R"), local = TRUE)$value
-
-source(file.path(".", "modules/process/protein/moduleProtFiltering.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleProtNormalization.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleProtImputation.R"), local = TRUE)$value
-source(file.path(".", "modules/process/protein/moduleProtHypothesisTest.R"), local = TRUE)$value
-
-source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
-source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
-
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
 source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
 
 
+## Chargement des modules specifiques au traitement des données
+#source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
+source(file.path(".", "Classes/ClassProtPipeline.R"), local = TRUE)$value
 
+
+# source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
+# source(file.path(".", "modules/process/peptide/moduleNormalization.R"), local = TRUE)$value
+# source(file.path(".", "modules/process/peptide/modulePepImputation.R"), local = TRUE)$value
+# source(file.path(".", "modules/process/peptide/moduleHypothesisTest.R"), local = TRUE)$value
+
+#source(file.path(".", "modules/process/protein/moduleProtFiltering.R"), local = TRUE)$value
+#source(file.path(".", "modules/process/protein/moduleProtNormalization.R"), local = TRUE)$value
+#source(file.path(".", "modules/process/protein/moduleProtImputation.R"), local = TRUE)$value
+#source(file.path(".", "modules/process/protein/moduleProtHypothesisTest.R"), local = TRUE)$value
+
+source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
+source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
+
+
+
+## definition des variables globales liees a un pipeline
 pipeline <- reactiveValues(
   # current working data from current pipeline
   type = NULL,
+  
+  ## indice du dataset courant dans la liste ll.process.
   current.indice = 1,
+  
+  ## liste qui contiendra les noms des différents datasets enregsitres au cours 
+  ## de l'execution sdu module. Il est initialisé à Original car dans tous les cas,
+  ## on démarre avec un dataset intitule original
   ll.process = c('original'),
   
   # object returned by demode, openmode and convertmode
-  #object that is used for modules in pipeline
+  #object that is used for modules in pipeline. C'st une instance d'une classe Pipeline
   current.obj = NULL,
+  
   tempplot = NULL,
+  
   nav2 =NULL
   
 )
@@ -42,7 +53,9 @@ pipeline <- reactiveValues(
 
 
 ###############################################################################
-
+## Declaration des variables gloables su pipeline qui vont gerer la navigation 
+## entre les differents modules de traitement dans le pipeline courant
+###############################################################################
 rvNav <- reactiveValues(
   Done = NULL,
   def = list(name = NULL,
@@ -67,31 +80,42 @@ resetNavPipeline <- reactive({
 
 
 ################################################################################
-
+#instanciation du premier dataset. 
 obj.openDataset <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
 
 
 
 
+###############################################################################
+##  Recupere le nom du process courant
 GetCurrentProcess <- reactive({
   req(pipeline$current.obj)
-  pipeline$current.obj@ll.process[[pipeline$current.indice]]
+  pipeline$current.obj@processes[[pipeline$current.indice]]
 })
 
+
+###############################################################################
+## Recupere le dataset (MSnset) courant
 GetCurrentMSnSet <- reactive({
   req(pipeline$current.obj)
   pipeline$current.obj@datasets[[pipeline$current.indice]]
   })
 
+
+###############################################################################
+## Recupere la matric d'adjacence du pipeline courant
 GetAdjacencyMatrix <- reactive({
   req(pipeline$current.obj)
   getAdjacencyMatrix(pipeline$current.obj)
   })
 
+###############################################################################
+## Recupere les composantes connexes du pipeline courant
 GetConnexComposant <- reactive({ 
   req(pipeline$current.obj)
   getConnexComp(pipeline$current.obj)
   })
+
 
 
 observeEvent(GetCurrentMSnSet(),{
@@ -111,13 +135,16 @@ GetCurrentObjName <- reactive({
 
 
 
-## Initialization of the pipeline
+## Attente d'une valeur. Lorsqu'il y en a une, Initialization of the pipeline 
 observeEvent(req(obj.openDataset()),{
   
   print(paste0("IN observeEvent(req(obj()$initialData : ", obj.openDataset()@pipeline))
   def <- name <- NULL
   type.pipeline <- obj.openDataset()@pipeline
+  
+  ## Get liste des process du pipeline
   def <- pipeline.def[[type.pipeline]]
+  ## pour chaque process, on lance son observateur
   for (i in def) {
         source(file.path("WatchProcess",paste0("watch_",type.pipeline, "_", i, '.R')),  local = TRUE)$value
        }
@@ -134,6 +161,8 @@ observeEvent(req(obj.openDataset()),{
   pipeline$current.indice <- 1
   pipeline$current.obj <- obj.openDataset()
   
+  ## Lancement du module de navigation du pipeline pour suivre les différents process
+  ## de traitement liés au pipeline
   pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
                               isDone = reactive({rvNav$Done}),
                               pages = reactive({rvNav$def}),

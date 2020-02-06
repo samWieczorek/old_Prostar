@@ -23,9 +23,8 @@ Method to create a binary matrix with proteins in columns and peptides
 in lines on a \code{MSnSet} object (peptides)
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept) 
-BuildAdjacencyMatrix(Exp1_R25_pept[1:1000], "Protein.group.IDs", TRUE)
+utils::data(Exp1_R25_pept, package='DAPARdata') 
+BuildAdjacencyMatrix(Exp1_R25_pept[1:1000], "Protein_group_IDs", TRUE)
 }
 \author{
 Florence Combes, Samuel Wieczorek, Alexia Dorffer

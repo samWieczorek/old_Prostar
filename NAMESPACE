@@ -93,8 +93,7 @@ importFrom(shiny,
 
 
 exportPattern("^[[:alpha:]]+")
-
-import(MSnbase)
+importFrom(MSnbase, pData, exprs, fData, MSnSet-class, readMSnSet)
 import(DAPARdata)
 import(RColorBrewer)
 import(Cairo)
@@ -106,7 +105,7 @@ import(ggplot2)
 import(norm)
 import(highcharter)
 import(vioplot)
-import(impute)
+importFrom(impute, impute.knn)
 import(knitr)
 importFrom("doParallel", "registerDoParallel")
 importFrom("dplyr", "left_join", "mutate","tbl_df", "select_","data_frame", "last", "tibble")
@@ -115,39 +114,44 @@ import("foreach")
 importFrom("AnnotationDbi", "keys")
 import("parallel")
 import("doParallel")
-import("Matrix")
+#import("Matrix")
 import(cp4p)
 import(FactoMineR)
 import(factoextra)
+importFrom("grDevices","rainbow")
 
 
 import(tidyverse)
 import(imp4p)
 importFrom("graphics", "par", "boxplot", "axis", "mtext", "abline", "points", 
-            "legend", "lines",  "barplot", "text","hist",
+            "legend", "lines",  "barplot", "text","hist", "segments",
            "layout", "plot.new", "strheight", "strwidth", "title","plot.window")
  
 importFrom("stats", "lowess", "cor", "density","pexp", "mad", 
             "var", "t.test", "dist", "hclust", "setNames", 
             "median", "p.adjust", "model.matrix", "rnorm","na.omit",
-           "quantile", "rbeta", "runif", "sd", "pchisq", "residuals","formula", "lm", "logLik")
-importFrom("preprocessCore", "normalize.quantiles")
+           "quantile", "rbeta", "runif", "sd", "pchisq", "residuals","formula", "lm", "logLik",
+           "complete.cases")
+import("preprocessCore")
 importFrom("gplots", "heatmap.2")
 importFrom("limma", "lmFit", "eBayes", "topTable", "makeContrasts", "contrasts.fit", "normalizeCyclicLoess")
 importFrom("pcaMethods", "completeObs", "pca")
 importFrom("scales", "alpha")
 importFrom("grDevices", "colorRampPalette", "palette", "heat.colors")
-importFrom("utils", "read.csv", "read.table", "de", "str","write.csv", "zip", "installed.packages")
+importFrom("utils", "combn", "read.csv", "read.table", "de", "str","write.csv", "zip", "installed.packages")
 #importFrom("lme4", "getME")
 importFrom("openxlsx", "getSheetNames", "createWorkbook", "addWorksheet", "writeData", "saveWorkbook")
-import("readxl")
+importFrom("readxl","read_excel")
 import("siggenes") # SAM
 import("graph")
+importFrom("visNetwork","visNetwork", "visNodes", "visGroups", "visOptions", "visEdges")
 importFrom("stringr", "str_match_all")
 importFrom("clusterProfiler", "bitr", "enrichGO", "groupGO")
 importFrom("vsn","vsn2","predict")
+import('Matrix')
+#import('igraph')
 
-
+  
 export(
 "writeMSnsetToExcel",
 "writeMSnsetToCSV",
@@ -229,7 +233,7 @@ export(
 ,"getProcessingInfo"
 
 ,"pepa.test"
-
+,"compute.group.t.tests"
 
 
 ,"group_GO"

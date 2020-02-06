@@ -7,8 +7,7 @@
 ##' @return A list of two items
 ##' @author Thomas Burger, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' test.design(Biobase::pData(Exp1_R25_pept)[,1:3])
 test.design <- function(tab){
   valid <- TRUE
@@ -67,8 +66,7 @@ test.design <- function(tab){
 ##' @return A list
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' check.conditions(Biobase::pData(Exp1_R25_pept)$Condition)
 check.conditions <- function(conds){
   res <- list(valid=TRUE,warn=NULL)
@@ -103,8 +101,7 @@ check.conditions <- function(conds){
 ##' @return A boolean
 ##' @author Thomas Burger, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' check.design(Biobase::pData(Exp1_R25_pept)[,1:3])
 check.design <- function(sTab){
   res <- list(valid=FALSE,warn=NULL)
@@ -171,8 +168,7 @@ check.design <- function(sTab){
 ##' @return A design matrix
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' make.design(Biobase::pData(Exp1_R25_pept))
 make.design <- function(sTab){
   
@@ -200,8 +196,7 @@ make.design <- function(sTab){
 ##' @return A design matrix
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' make.design.1(Biobase::pData(Exp1_R25_pept))
 make.design.1 <- function(sTab){
   
@@ -237,8 +232,7 @@ make.design.1 <- function(sTab){
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
 ##' \donttest{
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' make.design.2(Biobase::pData(Exp1_R25_pept))
 ##' }
 make.design.2=function(sTab){
@@ -282,11 +276,9 @@ make.design.2=function(sTab){
 ##' @return A design matrix
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' \dontrun{
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
-##' make.design.3(Biobase::pData(Exp1_R25_pept))
-##' }
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
+##' sTab <-cbind(Biobase::pData(Exp1_R25_pept), Tech.Rep=1:6)
+##' make.design.3(sTab)
 make.design.3=function(sTab){
   
   Condition <- factor(sTab$Condition,  levels=unique(sTab$Condition))
@@ -340,8 +332,7 @@ make.design.3=function(sTab){
 ##' @return A constrat matrix
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' design <- make.design(Biobase::pData(Exp1_R25_pept))
 ##' conds <- Biobase::pData(Exp1_R25_pept)$Condition
 ##' make.contrast(design, conds)
@@ -447,8 +438,7 @@ make.contrast <- function(design,condition, contrast=1){
 ##' are identical and correspond to the description of the comparison. 
 ##' @author Thomas Burger, Quentin Giai-Gianetto, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept
 ##' keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', ncol(obj))
 ##' obj <- mvFilterFromIndices(obj, keepThat)
@@ -494,8 +484,7 @@ limmaCompleteTest <- function(qData, sTab, comp.type="OnevsOne"){
 ##' are identical and correspond to the description of the comparison. 
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' obj <- Exp1_R25_pept
 ##' keepThat <- mvFilterGetIndices(obj, 'wholeMatrix', ncol(obj))
 ##' obj <- mvFilterFromIndices(obj, keepThat)

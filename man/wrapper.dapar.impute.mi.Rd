@@ -4,11 +4,28 @@
 \alias{wrapper.dapar.impute.mi}
 \title{Missing values imputation using the LSimpute algorithm.}
 \usage{
-wrapper.dapar.impute.mi(obj, nb.iter = 3, nknn = 15, selec = 600,
-  siz = 500, weight = 1, ind.comp = 1, progress.bar = TRUE,
-  x.step.mod = 300, x.step.pi = 300, nb.rei = 100, method = 4,
-  gridsize = 300, q = 0.95, q.min = 0, q.norm = 3, eps = 0,
-  methodi = "slsa", lapala = TRUE, distribution = "unif")
+wrapper.dapar.impute.mi(
+  obj,
+  nb.iter = 3,
+  nknn = 15,
+  selec = 600,
+  siz = 500,
+  weight = 1,
+  ind.comp = 1,
+  progress.bar = FALSE,
+  x.step.mod = 300,
+  x.step.pi = 300,
+  nb.rei = 100,
+  method = 4,
+  gridsize = 300,
+  q = 0.95,
+  q.min = 0,
+  q.norm = 3,
+  eps = 0,
+  methodi = "slsa",
+  lapala = TRUE,
+  distribution = "unif"
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -59,8 +76,7 @@ This method is a wrapper to the function \code{impute.mi} of the package \code{i
 an object of class \code{MSnSet}.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 dat <- mvFilter(Exp1_R25_pept[1:1000], type="allCond", th = 1)
 dat <- wrapper.dapar.impute.mi(dat, nb.iter=1)
 }

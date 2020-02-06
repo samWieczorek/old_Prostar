@@ -24,8 +24,7 @@ An instance of class \code{MSnSet} that have been filtered.
 Delete the lines of \code{exprs()} table identified by their indice.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 deleteLinesFromIndices(Exp1_R25_pept, c(1:10))
 }
 \author{

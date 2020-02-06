@@ -4,8 +4,12 @@
 \alias{NumericalgetIndicesOfLinesToRemove}
 \title{Get the indices of the lines to delete, based on a prefix string}
 \usage{
-NumericalgetIndicesOfLinesToRemove(obj, name = NULL, value = NULL,
-  operator = NULL)
+NumericalgetIndicesOfLinesToRemove(
+  obj,
+  name = NULL,
+  value = NULL,
+  operator = NULL
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -24,9 +28,8 @@ This function returns the indice of the lines to delete, based on a
 prefix string
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-NumericalgetIndicesOfLinesToRemove(Exp1_R25_pept, "A.Count", value="6", operator='==')
+utils::data(Exp1_R25_pept, package='DAPARdata')
+NumericalgetIndicesOfLinesToRemove(Exp1_R25_pept, "A_Count", value="6", operator='==')
 }
 \author{
 Samuel Wieczorek

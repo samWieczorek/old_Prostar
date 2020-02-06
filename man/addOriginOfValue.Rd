@@ -18,8 +18,7 @@ An instance of class \code{MSnSet}.
 Sets the OriginOfValues dataframe in the fData table
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 addOriginOfValue(Exp1_R25_pept)
 }
 \author{

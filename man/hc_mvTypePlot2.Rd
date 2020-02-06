@@ -4,8 +4,7 @@
 \alias{hc_mvTypePlot2}
 \title{Distribution of Observed values with respect to intensity values}
 \usage{
-hc_mvTypePlot2(qData, conds, palette = NULL, typeofMV = NULL,
-  title = NULL)
+hc_mvTypePlot2(qData, conds, palette = NULL, typeofMV = NULL, title = NULL)
 }
 \arguments{
 \item{qData}{A dataframe that contains quantitative data.}
@@ -32,8 +31,7 @@ whereas the y-axis count the number of observed values for this entity
 and the considered condition.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 qData <- Biobase::exprs(Exp1_R25_pept)
 conds <- Biobase::pData(Exp1_R25_pept)[,"Condition"]
 hc_mvTypePlot2(qData, conds, title="POV distribution")

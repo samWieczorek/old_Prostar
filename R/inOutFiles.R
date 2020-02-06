@@ -8,8 +8,7 @@
 ##' @return An instance of class \code{MSnSet}.
 ##' @author Samuel Wieczorek
 ##' @examples 
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' l.params=list(method="Global quantile alignment", type="overall")
 ##' saveParameters(Exp1_R25_pept, "Filtered.peptide", "Imputation",l.params)
 saveParameters <- function(obj,name.dataset=NULL,name=NULL,l.params=NULL){
@@ -38,8 +37,7 @@ saveParameters <- function(obj,name.dataset=NULL,name=NULL,l.params=NULL){
 ##' @return An instance of class \code{MSnSet}.
 ##' @author Samuel Wieczorek
 ##' @examples 
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' setMEC(Exp1_R25_pept)
 setMEC <- function(obj){
   
@@ -72,8 +70,7 @@ setMEC <- function(obj){
 ##' @return An instance of class \code{MSnSet}.
 ##' @author Samuel Wieczorek
 ##' @examples 
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' addOriginOfValue(Exp1_R25_pept)
 addOriginOfValue <- function(obj,index=NULL){
 
@@ -141,7 +138,6 @@ return(obj)
 ##' @return An instance of class \code{MSnSet}.
 ##' @author Florence Combes, Samuel Wieczorek
 ##' @examples 
-##' require(DAPARdata)
 ##' require(Matrix)
 ##' exprsFile <- system.file("extdata", "Exp1_R25_pept.txt", package="DAPARdata")
 ##' metadataFile <- system.file("extdata", "samples_Exp1_R25.txt", package="DAPARdata")
@@ -181,7 +177,7 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
     # }else{rownames(Intensity) <- data[,indiceID]}
     
     ##building fData of MSnSet file
-    fd <- data.frame( data[,indFData],stringsAsFactors = F)
+    fd <- data.frame( data[,indFData],stringsAsFactors = FALSE)
     
     if (is.null(indiceID)) {
         rownames(fd) <- rep(paste(pep_prot_data, "_", 1:nrow(fd), sep=""))
@@ -193,8 +189,9 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
     
     colnames(fd) <- gsub(".", "_", colnames(data)[indFData], fixed=TRUE)
     
-     pd <- as.data.frame(metadata,stringsAsFactors = F)
+     pd <- as.data.frame(metadata,stringsAsFactors = FALSE)
     rownames(pd) <- gsub(".", "_", pd$Sample.name, fixed=TRUE)
+    pd$Sample.name <- gsub(".", "_", pd$Sample.name, fixed=TRUE)
     
     ##Integrity tests
     if(identical(rownames(Intensity), rownames(fd))==FALSE)
@@ -255,9 +252,8 @@ createMSnset <- function(file,metadata=NULL,indExpData,indFData,indiceID=NULL,
 ##' @examples
 ##' \donttest{
 ##' Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
-##' require(DAPARdata)
-##' data(Exp1_R2_pept)
-##' obj <- Exp1_R2_pept[1:1000]
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
+##' obj <- Exp1_R25_pept[1:1000]
 ##' writeMSnsetToExcel(obj, "foo")
 ##' }
 writeMSnsetToExcel <- function(obj, filename)
@@ -383,9 +379,8 @@ listSheets <- function(file){
 ##' @author Samuel Wieczorek
 ##' @examples
 ##' \donttest{
-##' require(DAPARdata)
-##' data(Exp1_R2_pept)
-##' obj <- Exp1_R2_pept[1:1000]
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
+##' obj <- Exp1_R25_pept[1:1000]
 ##' writeMSnsetToCSV(obj, "foo")
 ##' }
 writeMSnsetToCSV <- function(obj, fname){
@@ -411,10 +406,9 @@ writeMSnsetToCSV <- function(obj, fname){
 ##' @return An instance of class \code{MSnSet}.
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R2_pept)
-##' df1 <- Exp1_R2_pept[1:100]
-##' df2 <- Exp1_R2_pept[200:250]
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
+##' df1 <- Exp1_R25_pept[1:100]
+##' df2 <- Exp1_R25_pept[200:250]
 ##' rbindMSnset(df1, df2)
 rbindMSnset <- function(df1=NULL, df2){
   

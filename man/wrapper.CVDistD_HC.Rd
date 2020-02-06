@@ -22,8 +22,7 @@ in the dataset (see the slot \code{'Condition'} in the \code{pData()} table).
 Same as the function \code{\link{wrapper.CVDistD}} but uses the package \code{highcharter}
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.CVDistD_HC(Exp1_R25_pept)
 }
 \author{

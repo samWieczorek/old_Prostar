@@ -17,7 +17,7 @@ observeEvent(req(WatchmoduleAgregation()),{
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@ll.process == 'moduleAgregation')
+  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleAgregation')
   
   DeleteDatasetsAfter('moduleAgregation')
   rvNav$Done[pipeline$current.indice-1] <- TRUE

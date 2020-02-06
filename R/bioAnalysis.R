@@ -19,8 +19,7 @@
 ##' @author Florence Combes
 ##' @examples
 ##' \donttest{
-##' require(DAPARdata)
-##' data(Exp1_R25_prot)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' ggo<-group_GO(data=fData(Exp1_R25_prot)$Protein.IDs, idFrom="UNIPROT", 
 ##' orgdb="org.Sc.sgd.db", ont="MF", level=2)
 ##' }
@@ -68,8 +67,7 @@ group_GO <- function(data, idFrom,  orgdb, ont, level, readable=FALSE){
 ##' @author Florence Combes
 ##' @examples
 ##' \donttest{
-##' require(DAPARdata)
-##' data(Exp1_R25_prot)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' univ<-univ_AnnotDbPkg("org.Sc.sgd.db") #univ is the background
 ##' ego<-enrich_GO(data=fData(Exp1_R25_prot)$Protein.IDs, idFrom="UNIPROT", 
 ##' orgdb="org.Sc.sgd.db",ont="MF", pval=0.05, universe = univ)

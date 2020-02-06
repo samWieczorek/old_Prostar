@@ -26,14 +26,13 @@ This function creates a column for the protein dataset after aggregation
 by using the previous peptide dataset.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-protID <- "Protein.group.IDs"
+utils::data(Exp1_R25_pept, package='DAPARdata')
+protID <- "Protein_group_IDs"
 obj.pep <- Exp1_R25_pept[1:1000]
 M <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
 data <- Biobase::fData(obj.pep)
-protData <- DAPAR::aggregateMean(obj.pep, M)
-name <- "Protein.group.IDs"
+protData <- Prostar::aggregateMean(obj.pep, M)
+name <- "Protein_group_IDs"
 proteinNames <- rownames(Biobase::fData(protData))
 BuildColumnToProteinDataset(data, M, name,proteinNames )
 }

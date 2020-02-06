@@ -4,8 +4,15 @@
 \alias{wrapper.normalizeD}
 \title{Normalisation}
 \usage{
-wrapper.normalizeD(obj, method, type = NULL, scaling = FALSE,
-  quantile = 0.15, span = 0.7, subset.norm = NULL)
+wrapper.normalizeD(
+  obj,
+  method,
+  type = NULL,
+  scaling = FALSE,
+  quantile = 0.15,
+  span = 0.7,
+  subset.norm = NULL
+)
 }
 \arguments{
 \item{obj}{An object of class \code{MSnSet}.}
@@ -52,8 +59,7 @@ by condition.
 Normalization can be based only on a subset of protein. Proteins with NA in this subset are ignored
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 wrapper.normalizeD(Exp1_R25_pept[1:1000], "QuantileCentering", "within conditions",subset.norm=1:10)
 }
 \author{

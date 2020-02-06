@@ -1,15 +1,15 @@
 
-
+## Cette classe définit un pipeline générique avec les structures de données adéquates
+## elle n'est instanciée qu'une seule fois dans une session prostar
 
 genericPipeline <- setClass("genericPipeline",
-                            
+          contains = "MultiAssayExperiment",                
          representation = representation(
-           datasets="list",
            indexNA = "vector",
            res_AllPairwiseComparisons = "list",
            name.dataset = "character",
            pipeline = "character",
-           ll.process = "character"),
+           processes = "character"),
          
          
          prototype = prototype(
@@ -18,7 +18,7 @@ genericPipeline <- setClass("genericPipeline",
            res_AllPairwiseComparisons = list(),
            name.dataset = NA_character_,
            pipeline = NA_character_,
-           ll.process = c()),
+           processes = c()),
          
          # Make a function that can test to see if the data is consistent.
          # This is not called if you have an initialize function defined!
@@ -33,7 +33,7 @@ genericPipeline <- setClass("genericPipeline",
 
 # create a method to initialize the datasets list with the name of the processes
 setGeneric(name="initialize",
-           def=function(theObject,ll.process, obj, data.name, type)
+           def=function(theObject,processes, obj, data.name, type)
            {
              standardGeneric("initialize")
            }
@@ -41,13 +41,26 @@ setGeneric(name="initialize",
 
 setMethod(f="initialize",
           signature="genericPipeline",
-          definition=function(theObject,ll.process, obj, data.name, type)
+          definition=function(theObject,ll.processes, obj, data.name, type)
           {
-            theObject@datasets[ll.process] <- list(NULL)
-            theObject@ll.process <- ll.process
-            theObject@datasets[[1]] <- obj
+            print("## Initialization of the class genericPipeline ##")
+            #theObject@datasets[ll.processes] <- list(NULL)
+            #theObject@datasets[[1]] <- obj
+            theObject <- MultiAssayExperiment(obj,...)
+            theObject@processes <- ll.processes
             theObject@name.dataset <- data.name
             theObject@pipeline <- type
+           
+            ## Sourcing the code for corresponding modules. le nom de l'item dans la liste
+            ## doit correspondre au nom du fichier source prefixé par 'module' 
+            for(p in ll.process[-1]){
+              print(p)
+              path <- file.path(".", paste0('modules/process/', type, "/",p, ".R"))
+              print(paste0("looking for source code :", path))
+              source(path, local = TRUE)$value
+            }
+             
+            
             validObject(theObject)
             return(theObject)
           }

@@ -1,3 +1,5 @@
+## Cette classe est une spécialisation de la classe generiqcPipeline pour s'adapter aux donnes peptidiques
+
 source(file.path(".", "Classes/ClassGenericPipeline.R"), local = TRUE)$value
 
 pepPipeline <- setClass("pepPipeline",

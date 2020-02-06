@@ -19,15 +19,9 @@ Method to compute the detailed number of quantified peptides used for aggregatin
 }
 \author{
 Samuel Wieczorek
-require(DAPARdata)
-data(Exp1_R25_pept)
+utils::data(Exp1_R25_pept, package='DAPARdata')
 obj.pep <- Exp1_R25_pept[1:1000]
-protID <- "Protein.group.IDs"
-X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
-require(DAPARdata)
-data(Exp1_R25_pept)
-obj.pep <- Exp1_R25_pept[1:1000]
-protID <- "Protein.group.IDs"
+protID <- "Protein_group_IDs"
 X <- BuildAdjacencyMatrix(obj.pep, protID, FALSE)
 GetDetailedNbPeptidesUsed(X, obj.pep)
 }

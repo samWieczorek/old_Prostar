@@ -1,5 +1,9 @@
 
-###### Module de gestion des interfaces pour les data Process   ######
+######################################################################################
+##
+###### Module de gestion des interfaces pour suivre les data Process  dans un module pipeline  ######
+##
+####################################################################################################
 moduleNavigation2UI <- function(id){
   ns <- NS(id)
   

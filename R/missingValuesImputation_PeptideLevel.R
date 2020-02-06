@@ -8,8 +8,7 @@
 ##' @return The \code{exprs(obj)} matrix with imputed values instead of missing values.
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' dat <- mvFilter(Exp1_R25_pept[1:1000,], type="allCond", th = 1)
 ##' dat <- wrapper.impute.mle(dat)
 wrapper.impute.mle <- function(obj){
@@ -50,44 +49,49 @@ wrapper.impute.mle <- function(obj){
 ##' @return The \code{exprs(obj)} matrix with imputed values instead of missing values.
 ##' @author Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' dat <- mvFilter(Exp1_R25_pept[1:1000], type="allCond", th = 1)
 ##' dat <- wrapper.dapar.impute.mi(dat, nb.iter=1)
-wrapper.dapar.impute.mi <- function (obj, nb.iter = 3, 
-                                     nknn = 15, selec = 600, siz = 500, weight = 1, ind.comp = 1, 
-                                     progress.bar = TRUE, x.step.mod = 300, 
+wrapper.dapar.impute.mi <- function (obj, nb.iter = 3, nknn = 15, selec = 600, siz = 500, 
+                                     weight = 1, ind.comp = 1, progress.bar = FALSE, x.step.mod = 300,
                                      x.step.pi = 300, nb.rei = 100, method = 4, gridsize = 300, 
                                      q = 0.95, q.min = 0, q.norm = 3, eps = 0, methodi = "slsa",
-                                     lapala = TRUE,
-                                     distribution="unif") 
+                                     lapala = TRUE,distribution="unif") 
 {
     
-    conditions <- as.factor(Biobase::pData(obj)$Condition)
-    repbio <- as.factor(Biobase::pData(obj)$Bio.Rep)
-    reptech <-as.factor(Biobase::pData(obj)$Tech.Rep)
-    
-    tab <- Biobase::exprs(obj)
+  ## order exp and pData table before using imp4p functions
+  conds <- factor(Biobase::pData(obj)$Condition, levels=unique(Biobase::pData(obj)$Condition))
+  sample.names.old <- Biobase::pData(obj)$Sample.name
+  sTab <- Biobase::pData(obj)
+  new.order <- unlist(lapply(split(sTab, conds), function(x) {x['Sample.name']}))
+  qData <- Biobase::exprs(obj)[,new.order]
+  sTab <- Biobase::pData(obj)[new.order,]
+  
+  conditions <- as.factor(sTab$Condition)
+  repbio <- as.factor(sTab$Bio.Rep)
+  reptech <-as.factor(sTab$Tech.Rep)
+  
+  
+    tab <- qData
     
     if (progress.bar == TRUE) {
         cat(paste("\n 1/ Initial imputation under the MCAR assumption with impute.rand ... \n  "))
     }
-    dat.slsa = impute.rand(tab = tab, conditions = conditions)
+    dat.slsa = imp4p::impute.rand(tab = tab, conditions = conditions)
     
     if (progress.bar == TRUE) {
         cat(paste("\n 2/ Estimation of the mixture model in each sample... \n  "))
     }
     res = estim.mix(tab = tab, tab.imp = dat.slsa, conditions = conditions, 
                     x.step.mod = x.step.mod, 
-                    x.step.pi = x.step.pi, nb.rei = nb.rei, method = method, 
-                    gridsize = gridsize)
+                    x.step.pi = x.step.pi, nb.rei = nb.rei)
     
     
     if (progress.bar == TRUE) {
         cat(paste("\n 3/ Estimation of the probabilities each missing value is MCAR... \n  "))
     }
     born = estim.bound(tab = tab, conditions = conditions, q = q)
-    proba = prob.mcar.tab(born$tab.lower, born$tab.upper, res)
+    proba = prob.mcar.tab(born$tab.upper, res)
     
     
     if (progress.bar == TRUE) {
@@ -109,8 +113,12 @@ wrapper.dapar.impute.mi <- function (obj, nb.iter = 3,
         data.final <- data.mi
     }
     
-    colnames(data.final) <- colnames(Biobase::exprs(obj))
+    # restore previous order
+    colnames(data.final) <- new.order
+    data.final <- data.final[,sample.names.old]
+    
     Biobase::exprs(obj) <- data.final
+    
     
     msg <- paste("Missing values imputation using imp4p")
     obj@processingData@processing <- c(obj@processingData@processing,msg)
@@ -164,14 +172,25 @@ translatedRandomBeta <- function(n, min, max, param1=3, param2=1){
 ##' @return The object \code{obj} which has been imputed
 ##' @author Thomas Burger, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' wrapper.impute.pa2(Exp1_R25_pept[1:1000], distribution="beta")
 wrapper.impute.pa2 <- function (obj, q.min = 0, q.norm = 3, eps = 0, distribution = "unif"){
-    tab <- Biobase::exprs(obj)
-    conditions <- as.factor(Biobase::pData(obj)$Condition)
-    
+  ## order exp and pData table before using imp4p functions
+  conds <- factor(Biobase::pData(obj)$Condition, levels=unique(Biobase::pData(obj)$Condition))
+  sample.names.old <- Biobase::pData(obj)$Sample.name
+  sTab <- Biobase::pData(obj)
+  new.order <- unlist(lapply(split(sTab, conds), function(x) {x['Sample.name']}))
+  qData <- Biobase::exprs(obj)[,new.order]
+  sTab <- Biobase::pData(obj)[new.order,]
+  
+  tab <- qData
+  conditions <-  as.factor(sTab$Condition)
+  
     tab_imp <- impute.pa2(tab, conditions, q.min, q.norm, eps, distribution)
+    
+    colnames(tab_imp) <- new.order
+    tab_imp <- tab_imp[,sample.names.old]
+    
     Biobase::exprs(obj) <- tab_imp
     
     
@@ -204,8 +223,7 @@ wrapper.impute.pa2 <- function (obj, q.min = 0, q.norm = 3, eps = 0, distributio
 ##' @return The object \code{obj} which has been imputed
 ##' @author Thomas Burger, Samuel Wieczorek
 ##' @examples
-##' require(DAPARdata)
-##' data(Exp1_R25_pept)
+##' utils::data(Exp1_R25_pept, package='DAPARdata')
 ##' wrapper.impute.pa2(Exp1_R25_pept[1:1000], distribution="beta")
 impute.pa2 <- function (tab, conditions, q.min = 0, q.norm = 3, eps = 0, distribution = "unif"){
     tab_imp = tab

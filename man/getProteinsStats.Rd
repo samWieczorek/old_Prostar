@@ -19,9 +19,8 @@ This function computes the number of proteins that are only defined by
 specific peptides, shared peptides or a mixture of two.
 }
 \examples{
-require(DAPARdata)
-data(Exp1_R25_pept)
-protID <- "Protein.group.IDs"
+utils::data(Exp1_R25_pept, package='DAPARdata')
+protID <- "Protein_group_IDs"
 obj <- Exp1_R25_pept[1:1000]
 MShared <- BuildAdjacencyMatrix(obj, protID, FALSE)
 getProteinsStats(MShared)
