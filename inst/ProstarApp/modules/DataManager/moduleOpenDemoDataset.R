@@ -42,10 +42,11 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
   
   callModule(moduleStaticDataTable,"overview_DemoMode", 
              table2show=reactive({req(rv.openDemo$current.obj)
-                                GetDatasetOverview2(rv.openDemo$current.obj@datasets[[1]])}))
+                                GetDatasetOverview2(dataset(rv.openDemo$current.obj, 'original'))}))
+  
   callModule(moduleInfoDataset, "infoAboutMSnset",
               obj = reactive({req(rv.openDemo$current.obj)
-                rv.openDemo$current.obj@datasets[[1]]}))
+                dataset(rv.openDemo$current.obj, 'original')}))
     
 
 
@@ -104,7 +105,11 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
                    type <- 'peptide'
                    },
                  protein = {
-                   rv.openDemo$current.obj <- protPipeline()
+                   rv.openDemo$current.obj <- PipelineProtein(datasetName= input$demoDataset, 
+                                                              pipelineType = "protein", 
+                                                              processes=pipeline.def$protein, 
+                                                              experiments=list(original=data), 
+                                                              colData=Biobase::pData(data))
                    ll.process <- pipeline.def$protein
                    type <- 'protein'
                    
@@ -117,14 +122,7 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
                  }
           )
           
-          
-          ## L'objet retourné est l'instanciation d'une classe dont la definition se trouve dans le repertoire Classes
-          rv.openDemo$current.obj <- initialize(rv.openDemo$current.obj, 
-                                                c('original',ll.process), 
-                                                data,
-                                                input$demoDataset, 
-                                                type )
-          
+
           
         } else {
           shinyjs::info("Warning : this file is not a MSnset file ! 

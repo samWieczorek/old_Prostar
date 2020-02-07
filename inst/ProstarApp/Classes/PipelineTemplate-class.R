@@ -1,3 +1,56 @@
+#' @import BiocGenerics SummarizedExperiment S4Vectors GenomicRanges methods
+#' IRanges
+NULL
+
+## Helper function for validity checks
+.uniqueSortIdentical <- function(charvec1, charvec2) {
+  listInput <- list(charvec1, charvec2)
+  listInput <- lapply(listInput, function(x) sort(unique(x)))
+  return(identical(listInput[[1]], listInput[[2]]))
+}
+
+.allIn <- function(charvec1, charvec2) {
+  return(all(charvec2 %in% charvec1))
+}
+
+### ==============================================
+### MultiAssayExperiment class
+### ----------------------------------------------
+
+#' An integrative multi-assay class for experiment data
+#'
+#' @description
+#' The \code{PipelineTemplate} class inherits from the \code{MultiAssayExperiment} and serves as a template for
+#' instanciate pipeline classes such as proteinPipeline, proteinPipeline, etc. It can be used to manage results of
+#' diverse assays on a collection of specimen. Currently,  the class can handle
+#' assays that are organized instances of
+#' \code{\linkS4class{MSnSet}},
+#' \code{matrix}.
+#'
+#'
+#' @slot PairwiseComparisons A \code{list} to store the result of hypothesis tests.
+#' @slot indexNA A xxxxxs
+#' @slot datasetName A character vector that is the name of the MS study
+#' @slot pipelineType A character vector that indicates the type of data that are managed in this instance
+#' @slot processes xxx
+#'
+#'@param ... Additional arguments for supporting functions. See details.
+#'
+#' @return A \code{PipelineTemplate} object
+#'
+#' @examples
+#' example("PipelineTemp")
+
+#'
+#' @exportClass PipelineTemplate
+#' 
+#' 
+#' 
+#' 
+#' 
+
+## Cette classe définit un pipeline générique avec les structures de données adéquates
+## elle n'est instanciée qu'une seule fois dans une session prostar
 
 #########################################################
 #' @export
@@ -28,6 +81,17 @@ PipelineTemplate <- function(
   ...)
   {
   mae <- MultiAssayExperiment(...)
+  
+  ## on configure le dataset
+  
+  tmp <- experiments(mae)[[1]]
+  tmp <- addOriginOfValue(tmp)
+  #tmp <- setIndexNA(tmp,which(is.na(data)))
+  colnames(Biobase::fData(tmp)) <- gsub(".", "_", colnames(Biobase::fData(tmp)), fixed=TRUE)
+  names(tmp@experimentData@other) <- gsub(".", "_", names(tmp@experimentData@other), fixed=TRUE)
+  
+  experiments(mae)[[1]] <- tmp
+  
   obj <- new("PipelineTemplate",mae,
                     indexNA = indexNA,
                     PairwiseComparisons = PairwiseComparisons,
@@ -41,7 +105,7 @@ PipelineTemplate <- function(
   ## Sourcing the code for corresponding modules. le nom de l'item dans la liste
   ## doit correspondre au nom du fichier source prefixé par 'module' 
   for(p in processes(obj)[-1]){
-     path <- file.path(".", paste0('modules/process/', pipelineType(obj), "/module_",pipelineType(obj), "_",p, ".R"))
+     path <- file.path(".", paste0('modules/process/', pipelineType(obj), "/",p, ".R"))
     source(path, local = TRUE)$value
      }
   
@@ -107,11 +171,11 @@ setMethod("GetExperimentList", "PipelineTemplate", function(x) {
 ## Create getter methods for 2D data structures
 ##
 #' @export
-setGeneric("PairwiseComparisons", function(x, ...) standardGeneric("PairwiseComparisons"))
+setGeneric("PairwiseComps", function(x, ...) standardGeneric("PairwiseComps"))
 
 
 #' @export
-setMethod("PairwiseComparisons", "PipelineTemplate", function(x, withDimnames=TRUE) {
+setMethod("PairwiseComps", "PipelineTemplate", function(x, withDimnames=TRUE) {
   out <- x@PairwiseComparisons
   out
 })
@@ -241,9 +305,14 @@ setGeneric("datasetName<-", function(x, ..., value) standardGeneric("datasetName
 #' @export
 setGeneric("processes<-", function(x, ..., value) standardGeneric("processes<-"))
 
+#' @export
+setGeneric("indexNA<-", function(x, ...) standardGeneric("indexNA<-"))
+
 
 # We define the class-specific methods for these generics. Note that use of validObject 
 # to ensure that the assigned input is still valid.
+
+
 
 
 #' @export
@@ -267,17 +336,24 @@ setReplaceMethod("datasetName", "PipelineTemplate", function(x, value) {
   x
 })
 
+#' @export
+setReplaceMethod("indexNA", "PipelineTemplate", function(x, value) {
+  x@indexNA <- value
+  validObject(x)
+  x
+})
+
 
 # For 2D data structures
 # We repeat this process for the 2D structures.
 
 
 #' @export
-setGeneric("PairwiseComparisons<-", function(x, ..., value) standardGeneric("PairwiseComparisons<-"))
+setGeneric("PairwiseComps<-", function(x, ..., value) standardGeneric("PairwiseComps<-"))
 
 # Again, we define class-specific methods for these generics.
 #' @export
-setReplaceMethod("PairwiseComparisons", "PipelineTemplate", function(x, value) {
+setReplaceMethod("PairwiseComps", "PipelineTemplate", function(x, value) {
   x@PairwiseComparisons <- value
   validObject(x)
   x
@@ -305,13 +381,16 @@ setReplaceMethod("PairwiseComparisons", "PipelineTemplate", function(x, value) {
 #' })
 
 
+
+
+
 #' @export
 setGeneric("rmDatasetByIndice", function(x, ind) standardGeneric("rmDatasetByIndice"))
 
 #' @export
 setMethod("rmDatasetByIndice", "PipelineTemplate", function(x, ind) {
   #mae <- callNextMethod()
-  x@ExperimentList <- x@ExperimentList[-ind] 
+  experiments(x) <- experiments(x)[-ind] 
   validObject(x)
   x
 })
@@ -323,13 +402,13 @@ setGeneric("rmDatasetByName", function(x, name) standardGeneric("rmDatasetByName
 #' @export
 setMethod("rmDatasetByName", "PipelineTemplate", function(x, name) {
   #mae <- callNextMethod()
-  x@ExperimentList <- within(x@ExperimentList, rm(name)) 
+  experiments(x) <- within(experiments(x), rm(name)) 
   validObject(x)
   x
 })
 
 #' @export
-setGeneric("addDataset<-", function(x, name, dataset) standardGeneric("addDataset<-"))
+setGeneric("addDataset", function(x, name, dataset) standardGeneric("addDataset"))
 #' @export
 setMethod("addDataset", "PipelineTemplate", function(x, name, dataset) {
   #mae <- callNextMethod()
@@ -342,11 +421,50 @@ setMethod("addDataset", "PipelineTemplate", function(x, name, dataset) {
 
 
 
+#' @export
+setGeneric("updateDataset", function(x, name, newdataset) standardGeneric("updateDataset"))
+#' @export
+setMethod("updateDataset", "PipelineTemplate", function(x, name, newdataset) {
+  #mae <- callNextMethod()
+  .checkDatasetNameExists(x, name)
+  
+  experiments(x)[[name]] <- newdataset
+  validObject(x)
+  x
+})
+
+
+#' @export
+setGeneric("dataset", function(x, name) standardGeneric("dataset"))
+#' @export
+setMethod("dataset", "PipelineTemplate", function(x, name) {
+  #mae <- callNextMethod()
+  .checkDatasetNameExists(x, name)
+  out <- experiments(x)[[name]]
+  out
+})
+
+
+
+
+
+.checkDatasetNameExists <- function(object, name)
+{
+  if (!(name %in% names(assays(object)))){
+    warning("The dataset called name was not found")
+    return(NULL)
+  }
+  
+  if (class(name) != "character"){
+    warning("The name parameter must be a string.")
+    return(NULL)
+  }
+}
 
 .checkProcessSourceCode <- function(object) {
   errors <- character()
   for(p in processes(object)[-1]){
-    path <- file.path(".", paste0('modules/process/', pipelineType(object), "/module_",pipelineType(object), "_",p, ".R"))
+    path <- file.path(".", paste0('modules/process/', pipelineType(object), "/",p, ".R"))
     if (!file.exists(path)) {
       msg <- paste0( path, ' was not found.')
       errors <- c(errors, msg)

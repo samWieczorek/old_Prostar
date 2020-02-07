@@ -35,9 +35,9 @@ library(shinyBS)
 server <- function(input, output, session){
   env <- environment()
   
-  #pipeline.def <- ReadPipelineConfig("config/pipeline.conf")
-  #print(paste0("pipeline.def = ", pipeline.def))
-  source(file.path(".", "pipelineDefinition.R"), local = TRUE)$value
+  pipeline.def <- ReadPipelineConfig("config/pipeline.conf")
+  print(pipeline.def)
+  #source(file.path(".", "pipelineDefinition.R"), local = TRUE)$value
   
   source(file.path(".", "srv_CheckForUpdates.R"),  local = TRUE)$value
   
@@ -96,16 +96,6 @@ server <- function(input, output, session){
  callModule(moduleReleaseNotes, "modReleaseNotes")
 
   
-  ## manual change of current dataset
- observeEvent(input$currentDataset,{
-   print('!!!!! Manual change of current dataset')
-    n <- which(names(pipeline$current.obj@datasets)==input$currentDataset)
-    if (length(n)==0){
-      pipeline$current.indice <- 1
-    } else {
-      pipeline$current.indice <- n
-    }
-  })
 
 
   ## Select submenu in sidebar

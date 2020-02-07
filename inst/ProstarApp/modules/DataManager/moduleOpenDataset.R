@@ -74,10 +74,9 @@ moduleOpenDataset  <- function(input, output, session, selectedPanel){
   ## Lorsque c'est fait, on rend disponible le bouton de chargement
   observeEvent(req(rv.opendataset$obj),{
     print("PASS dedans")
-    rv.opendataset$obj <- ConfigureData(rv.opendataset$obj)
     
     ## Cette partie sur les compo
-    if ( rv.opendataset$obj@pipeline == 'peptide') {
+    if ( pipelineType(rv.opendataset$obj) == 'peptide') {
       if (length(rv.opendataset$obj@AdjacencyMat)==0){
       rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])
       pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)

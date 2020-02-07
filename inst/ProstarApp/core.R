@@ -9,7 +9,7 @@ source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
 
 ## Chargement des modules specifiques au traitement des données
 #source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
-source(file.path(".", "Classes/ClassProtPipeline.R"), local = TRUE)$value
+source(file.path(".", "Classes/ProteinPipeline-class.R"), local = TRUE)$value
 
 
 # source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
@@ -311,6 +311,22 @@ output$btn_launch <- renderUI({
   #moduleOpenDatasetUI("moduleOpenDataset")
 }
 })
+
+
+
+
+## manual change of current dataset
+observeEvent(input$currentDataset,{
+  print('!!!!! Manual change of current dataset')
+  n <- which(names(pipeline$current.obj@datasets)==input$currentDataset)
+  if (length(n)==0){
+    pipeline$current.indice <- 1
+  } else {
+    pipeline$current.indice <- n
+  }
+})
+
+
 
 
 ##################
