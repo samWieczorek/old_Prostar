@@ -1,7 +1,6 @@
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
-source(file.path(".", "commonFunc.R"),  local = TRUE)$value
 
 
 
@@ -140,9 +139,6 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Mcquitty" = "mcquitty",
                                  "Median" = "median")
 
-
-source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
 
 
 ## URLs for the .md files stored in the website github directory

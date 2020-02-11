@@ -1,222 +1,167 @@
 library(shiny)
-library(shinydashboard)
-library(shinydashboardPlus)
 library(shinyjs)
 library(shinyjqui)
 library(sass)
+library(shinyBS)
 
 
 ## Load of modules that are to be imbedded in the sidebar
-source(file.path(".", "modules/DataManager/moduleOpenDataset.R"),  local = TRUE)$value
-source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleStaticDataTable.R"),  local = environment())$value
-source(file.path(".", "modules/moduleSettings.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleHomepage.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleReleaseNotes.R"),  local = TRUE)$value
-source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
+# files <-list.files('src',full.name = TRUE, pattern='*.R$', recursive=TRUE)
+# 
+# for (f in files){
+#   print(paste0('sourcing ', f))
+#   if (f != 'src/core.R')
+#   source(f, local=TRUE)$value
+# }
+# 
+
+source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
 
 
-## Generic modules, usefull everywhere
-source(file.path(".", "modules/moduleStaticDataTable.R"),  local = TRUE)$value
-source(file.path(".", "modules/DataManager/moduleInfoDataset.R"),  local = TRUE)$value
+theme = shinythemes::shinytheme("cerulean")
+#---------------------------------------------------------------------------------------------------------
+timeoutSeconds <- 30*60
+
+inactivity <- sprintf("function idleTimer() {
+var t = setTimeout(logout, %s);
+window.onmousemove = resetTimer; // catches mouse movements
+window.onmousedown = resetTimer; // catches mouse movements
+window.onclick = resetTimer;     // catches mouse clicks
+window.onscroll = resetTimer;    // catches scrolling
+window.onkeypress = resetTimer;  //catches keyboard actions
+function logout() {
+Shiny.setInputValue('timeOut', '%ss')
+}
+function resetTimer() {
+clearTimeout(t);
+t = setTimeout(logout, %s);  // time is in milliseconds (1000 is 1 second)
+}
+}
+idleTimer();", timeoutSeconds*1000, timeoutSeconds, timeoutSeconds*1000)
 
 
-######
-source(file.path(".", "modules/modulePopover.R"), local = TRUE)$value
+
+
+jsResetCode <- "shinyjs.reset = function() {history.go(0)}"
 
 
 
+shinyUI <- fluidPage(
+  tags$script(inactivity),    
   
-  
-          
- ################################ header ####################################
- header <- dashboardHeaderPlus(
-  fixed = TRUE,
-  title = "Prostar",
-  titleWidth = 150,
-  enable_rightsidebar = TRUE,
-  
-  rightSidebarIcon = "gears",
-  tags$li(class = "dropdown",
-        tags$style(".main-header {max-height: 10px}"),
-        tags$style(".main-header .logo {height: 40px;}"),
-        tags$style(".sidebar-toggle {height: 30px; padding-top: 1px !important;}"),
-        tags$style(".navbar {min-height:10px !important}")
-        ),
-      left_menu = tagList(
-              uiOutput('header')
-            )
-  )
-          
-          
- rightsidebar <- rightSidebar(
-  #background = "grey",
-  rightSidebarTabContent(
-    id = 1,
-    title = "Descr. stats",
-    icon = "desktop",
-    active = TRUE
-    #modulePlotsUI('showPlots')
-    )
-  )
-          
-            ################################# sidebar ###################################
-  sidebar <- dashboardSidebar(
-    width = 150,
-    sidebarMenu(id = 'sidebar_left',
-                menuItem("Home" , tabName = "prostar", selected = T),
-                menuItem("Misc.",
-                         menuSubItem("Settings",tabName = "settings"),
-                         menuSubItem("Release notes",tabName = "releaseNotes"),
-                         menuSubItem("Check for updates",tabName = "checkUpdates")
-                        ),
-                menuItem("Data manager", tabName = "dataManager"),
-                menuItemOutput("menuItem_dataAnalysis"),
-                menuItem("Help" , tabname = "my_table",
-                         menuSubItem("Useful links",tabName = "links"),
-                         menuSubItem("FAQ",tabName = "FAQ"),
-                         menuSubItem("Bug report",tabName = "bugReport")
-                        )
-            )
-            
-    )
-          
-          
-          
-  ################################ body ######################################
-  body <- dashboardBody(
-    tags$script(HTML("$('body').addClass('fixed');")),
-    tags$style(HTML(".content {padding-top: 0px; padding-left: 20px;}")),
-    tags$style(HTML(".main-sidebar {padding-top: 40px;}")),
-    tags$head(tags$style(HTML('
-                          /* logo */
-                                      .skin-blue .main-header .logo {
-                                      
-                                      }
-                                      
-                                      /* logo when hovered */
-                                      /*.skin-blue .main-header .logo:hover {
-                                      background-color: #ffffff;
-                                      }*/
-                                      
-                                      /* navbar (rest of the header) */
-                                      .skin-blue .main-header .navbar {
-                                      background-color: lightgrey;
-                                      
-                                      }
-                                      
-                                      /* main sidebar */
-                                      /*.skin-blue .main-sidebar {
-                                      background-color: #f0f0f0;
-                                      }*/
-                                      
-                                      /* active selected tab in the sidebarmenu */
-                                      /*.skin-blue .main-sidebar .sidebar .sidebar-menu .active a{
-                                      background-color: red;
-                                      }*/
-                                      
-                                      /* other links in the sidebarmenu */
-                                      /*.skin-blue .main-sidebar .sidebar .sidebar-menu a{
-                                      background-color: blue;
-                                      color: #000000;
-                                      }*/
-                                      
-                                      /* other links in the sidebarmenu when hovered */
-                                      /*.skin-blue .main-sidebar .sidebar .sidebar-menu a:hover{
-                                      background-color: green;
-                                      }*/
-                                      
-                                      /* toggle button when hovered  */
-                                      .skin-blue .main-header .navbar .sidebar-toggle:hover{
-                                      background-color: grey;
-                                      }
-                                      
-                                      /* toggle button  */
-                                      .skin-blue .main-header .navbar .sidebar-toggle{
-                                      background-color: grey;
-                                      }
-                                      
-                                      /* body */
-                                      .content-wrapper, .right-side {
-                                      background-color: #ffffff;
-                                      }
-                                      
-                                      
-                                      ')
-                         )
-              ),
-            ###### DIV LOADING PAGE  #######
-    #         div(
-    #           id = "loading_page",
-    #           modalDialog(
-    #             tagList(
-    #               tags$h1(style='text-align: center; color: black', "Prostar is loading, please wait..."),
-    #               br(),
-    #               tags$div(class="progress",
-    #                        tags$div(class="indeterminate")
-    #               )
-    #             ),
-    #             easyClose = FALSE,
-    #             size='s',
-    #             footer = NULL
-    #           )
-    #         ),
-    #         
-    #         ###### DIV MAIN CONTENT  #######
-    # hidden(
-    #    div(
-    #        id = "main_content",
+  #theme = "css/ceruleanProstar.css",
+  theme = shinythemes::shinytheme("cerulean"),
+  tagList(
+    
     shinyjs::useShinyjs(),
+    extendShinyjs(text = jsResetCode, functions = c("reset")),
     includeCSS("www/progressBar/progressBar.css"),
     tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
                               sass_options(output_style = "expanded")))),
-    tags$head(includeCSS("www/css/css-progress-wizard/css/progress-wizard.min.css")),
-    tags$head(includeCSS('http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css')),
-    launchGA(),
     
     titlePanel("", windowTitle = "Prostar"),
-    #rclipboardSetup(),
-    modulePlotsUI('showPlots'),
-    tabItems(
-      tabItem(tabName = "prostar", moduleHomepageUI("homepage") ),
     
-      tabItem(tabName = "dataManager",
-                moduleOpenDatasetUI("moduleOpenDataset"),
-                uiOutput('btn_launch')
-              ),
-      tabItem(tabName = "dataAnalysis",
-                      h3('data analysis'),
-                      uiOutput('UI_dataAnalysis')
-              ),
-      tabItem(tabName = "settings", moduleSettingsUI("modSettings")),
+    ###### DIV LOADING PAGE  #######
+    div(
+      id = "loading_page",
+      absolutePanel(
+        id  = "AbsolutePanel",
+        class = "panel panel-default",
+        style= "text-align: center; background-color: #25949A;",
+        top = '30%',
+        left = '25%',
+        width = "50%",
+        height = "150px",
+        draggable = FALSE,
+        fixed = TRUE,
+        tagList(
+          tags$h1(style='text-align: center; color: white', "Prostar is loading, please wait..."),
+          br(),
+          tags$div(class="progress",
+                   tags$div(class="indeterminate")
+          )
+        )
+      )
+    ),
     
-      tabItem(tabName = "releaseNotes", moduleReleaseNotesUI("modReleaseNotes")),
-      tabItem(tabName = "checkUpdates",
-                      uiOutput("baseVersions"),
-                      DT::dataTableOutput("tab_versions", width = '600px'),
-                      br(), br(),
-                      uiOutput("infoForNewVersions")
-                      ),
-    
-    
-      tabItem(tabName = "links", shinyBS::bsModal("modallinks", "Links", NULL, size = "large", moduleInsertMarkdownUI('links_MD'))),
-      tabItem(tabName = "FAQ",shinyBS::bsModal("modalFAQ", "FAQ", NULL, size = "large", moduleInsertMarkdownUI('FAQ_MD'))),
-      tabItem(tabName = "bugReport", shinyBS::bsModal("modalbugreport", "Bug report", NULL, size = "large", moduleBugReportUI('bugreport')))
-              )
+    ###### DIV MAIN CONTENT  #######
+    hidden(
+      div(
+        id = "main_content",
+        
+        shinyjs::useShinyjs(),
+        includeCSS("www/progressBar/progressBar.css"),
+        tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
+                                  sass_options(output_style = "expanded")))),
+        tags$head(includeCSS("www/css/css-progress-wizard/css/progress-wizard.min.css")),
+        tags$head(includeCSS('http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css')),
+        tags$head(includeCSS("www/css/arrow.css")),
+        launchGA(),
+        tags$head(HTML("<script type='text/javascript' src='sbs/shinyBS.js'></script>")),
+        tags$head(tags$style(".modal-dialog{ width:200px}")),
+        tags$head( tags$style(HTML("hr {border-top: 1px solid #000000;}"))),
+        tags$style(HTML(".tab-content {padding-top: 40px; }"))
+        
+        #sidebarPanelWidth()
+        ,includeCSS("www/css/prostar.css")
+        , inlineCSS(".body { font-size:14px;}")
+        , inlineCSS(".rect {float: left;
+                  width: 100px;
+                  height: 20px;
+                  margin: 2px;
+                  border: 1px solid rgba(0, 0, 0, .2);}")
+        , inlineCSS(".green {background: #06AB27}")
+        , inlineCSS(".red {background: #C90404}")
+        , inlineCSS(".grey {background:lightgrey;}"),
+        
+        
+        div(
+          id = "header",
+          navbarPage(
+             position = "fixed-top",
+            id = "navPage",
+            
+            inverse = TRUE,
+            
+            absolutePanel(
+              id  = "#AbsolutePanel",
+              top = 0, right = 50, width = "500px",height = "50px",
+              draggable = FALSE,fixed = FALSE,
+              cursor = "default"
+              ,uiOutput("datasetAbsPanel" )
+            ),
+            #modulePlotsUI('showPlots')
+            navbarMenu("Prostar",
+                       tabPanel(title="Home",
+                                value="HomeTab",moduleHomepageUI("homepage")),
+                       tabPanel(title="Global settings",
+                                value="GlobalSettingsTab", moduleSettingsUI("modSettings")),
+                       tabPanel("Release notes",
+                                value="ReleaseNotesTab",moduleReleaseNotesUI("modReleaseNotes")),
+                       tabPanel("Check for updates",
+                                value="CheckUpdatesTab",moduleReleaseNotesUI("modCheckUpdates"))
+                       
+            ),
+            #,navbarMenu("Data manager",
+            #            moduleOpenDatasetUI("moduleOpenDataset"),
+            #            uiOutput('btn_launch')
+            
+            
+          #,navbarMenu("Data analysis",
+            #          uiOutput('UI_dataAnalysis'))
+          
+             navbarMenu("Help",
+                         tabPanel("Links",value="usefulLinksTab",  moduleInsertMarkdownUI('links_MD')),
+                         tabPanel("FAQ", value="faqTab",  moduleInsertMarkdownUI('FAQ_MD')),
+                         tabPanel("Bug report",value="bugReportTab",  moduleBugReportUI('bugreport'))
             )
-
-
-ui <- dashboardPagePlus(
-    enable_preloader = TRUE,
+            
+          ) ## end navbarPage
+        )  ## end div for main content 2
+      ) ## end div for main content 1
+      
+    ) ## end hidden
     
-  
-  
-  # skin = "black",
-  header,
-  sidebar,
-  body,
-  rightsidebar
-)
-
+  )
+) ## end fluid
 

@@ -45,11 +45,3 @@ button.Prostar_tooltip_white {
     
 }
 
-
-.inactiveLink {
-    pointer-events: none;
-    cursor: not-allowed;
-}
-
-
-
