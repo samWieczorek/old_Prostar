@@ -50,6 +50,7 @@ server <- function(input, output, session){
  #  }
   
   
+  source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
@@ -137,7 +138,7 @@ server <- function(input, output, session){
           bugReportTab =toggleModal(session, "modalbugreport"),
           
           HomeTab = callModule(moduleHomepage, "homepage"),
-          checkForUpdatesTab =  source(file.path("server", "srv_CheckForUpdates.R"),  local = TRUE)$value,
+          CheckUpdatesTab =  callModule(moduleCheckUpdates, "modCheckUpdates"),
           ReleaseNotesTab =  callModule(moduleReleaseNotes, "modReleaseNotes"),
           GlobalSettingsTab = rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
           

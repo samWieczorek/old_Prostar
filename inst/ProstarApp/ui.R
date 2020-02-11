@@ -16,6 +16,7 @@ library(shinyBS)
 # 
 
 source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
 
 
 theme = shinythemes::shinytheme("cerulean")
@@ -139,7 +140,7 @@ shinyUI <- fluidPage(
                        tabPanel("Release notes",
                                 value="ReleaseNotesTab",moduleReleaseNotesUI("modReleaseNotes")),
                        tabPanel("Check for updates",
-                                value="CheckUpdatesTab",moduleReleaseNotesUI("modCheckUpdates"))
+                                value="CheckUpdatesTab",moduleCheckUpdatesUI("modCheckUpdates"))
                        
             ),
             #,navbarMenu("Data manager",
