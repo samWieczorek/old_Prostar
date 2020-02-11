@@ -1,0 +1,26 @@
+# GO enrichment analysis
+
+Parameters used for the GO analysis :
+    
+* Ontology : `r params$listGOEnrichmentAnalysis$ontology` 
+* Organism : `r params$listGOEnrichmentAnalysis$organism`
+* Universe used : `r params$listGOEnrichmentAnalysis$universe` 
+* p-value cutoff : `r params$listGOEnrichmentAnalysis$pval`
+
+
+
+
+```{r enrichGO_barplot,  out.width = "75%", echo=FALSE, result = 'asis'}
+knitr::include_graphics(paste(tempdir(), gGraphicsFilenames$GOEnrichBarplot, sep="/"))
+```
+
+```{r enrichGO_dotplot,  out.width = "75%", echo=FALSE, result = 'asis'}
+knitr::include_graphics(paste(tempdir(), gGraphicsFilenames$GOEnrichDotplot, sep="/"))
+```
+
+
+```{r enrichGO_table,  out.width = "75%", echo=FALSE, result = 'asis'}
+library(knitr)
+kable(params$listGOEnrichmentAnalysis$df)
+```
+

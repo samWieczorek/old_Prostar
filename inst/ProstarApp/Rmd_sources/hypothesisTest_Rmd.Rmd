@@ -1,0 +1,16 @@
+# Hypohtesis testing
+
+Parameters used for the hypothesis test :
+  
+* Design : `r params$listHypothesisTest$design`
+* Method : `r params$listHypothesisTest$method`
+* T-test option = `r params$listHypothesisTest$ttest_options`
+* logFC threshold : `r params$listHypothesisTest$th_logFC`
+
+
+
+```{r fig_logFCDistr,out.width = "100%", echo=FALSE}
+knitr::include_graphics(normalizePath(paste(tempdir(), gGraphicsFilenames$logFCDistr, sep="/")))
+```
+
+
