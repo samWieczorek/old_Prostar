@@ -54,6 +54,14 @@ server <- function(input, output, session){
   source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
+
+  source(file.path("./src", "srv_ReloadProstar.R"),  local = TRUE)$value
+  
   ## L'appel a core.R permet d'attendre le chargement d'un dataset et de créer ensuite le pipeline correspondant
   source(file.path("./src", "core.R"),  local = TRUE)$value
   
@@ -94,13 +102,8 @@ server <- function(input, output, session){
    print(paste0('input$navPage = ',input$navPage))
    switch(input$navPage,
           # DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
-          # openMSnsetTab = {
-          #   source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
-          # },
           # #SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
-          # demoTab =  
           #   source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,
-          # convertTab = {
           #   source(file.path("server", "srv_ConvertData.R"),  local = TRUE)$value
           #   source(file.path("server", "srv_BuildDesign.R"),  local = TRUE)$value
           # },
@@ -133,10 +136,19 @@ server <- function(input, output, session){
           #   },
           # GoTab  = source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
           # 
+          #Menu Data manager
+          convertTab =  pipeline$obj <- callModule(module=moduleConvertData, 'moduleProcess_Convert'),
+          demoTab = pipeline$obj <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset'), 
+          openMSnsetTab  =  pipeline$obj <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet'),
+          
+          
+          
+          # Menu Help
           faqTab =  toggleModal(session, "modalFAQ"),
           usefulLinksTab =  toggleModal(session, "modallinks"),
           bugReportTab =toggleModal(session, "modalbugreport"),
           
+          ## Menu Home
           HomeTab = callModule(moduleHomepage, "homepage"),
           CheckUpdatesTab =  callModule(moduleCheckUpdates, "modCheckUpdates"),
           ReleaseNotesTab =  callModule(moduleReleaseNotes, "modReleaseNotes"),

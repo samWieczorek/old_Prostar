@@ -9,15 +9,15 @@ source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  loca
 moduleOpenDatasetUI  <- function(id){
   ns <- NS(id)
   
-  tagList(
-    shinyjs::disabled(actionButton(ns('btn_launch'), "Launch pipeline",class = actionBtnClass)),
-    tabsetPanel(
-      tabPanel("Open MSnset",moduleOpenMSnSetUI(ns("moduleOpenMSnSet"))),
-      tabPanel("Convert",value = "convertTab",moduleConvertDataUI(ns("moduleProcess_Convert"))),
+ #tagList(
+    #shinyjs::disabled(actionButton(ns('btn_launch'), "Launch pipeline",class = actionBtnClass)),
+    #tabsetPanel(
+      tabPanel("Open MSnset",moduleOpenMSnSetUI(ns("moduleOpenMSnSet")))
+      tabPanel("Convert",value = "convertTab",moduleConvertDataUI(ns("moduleProcess_Convert")))
       tabPanel("Demo data",  moduleOpenDemoDatasetUI(ns("moduleOpenDemoDataset")))
-  )
+  #)
   
-  )
+  #)
 }
 
 

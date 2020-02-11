@@ -17,6 +17,11 @@ library(shinyBS)
 
 source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
 source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
 
 theme = shinythemes::shinytheme("cerulean")
@@ -143,10 +148,12 @@ shinyUI <- fluidPage(
                                 value="CheckUpdatesTab",moduleCheckUpdatesUI("modCheckUpdates"))
                        
             ),
-            #,navbarMenu("Data manager",
-            #            moduleOpenDatasetUI("moduleOpenDataset"),
-            #            uiOutput('btn_launch')
-            
+            navbarMenu("Data manager",
+                       tabPanel("Open MSnset",moduleOpenMSnSetUI("moduleOpenMSnSet")),
+                       tabPanel("Convert",value = "convertTab",moduleConvertDataUI("moduleProcess_Convert")),
+                       tabPanel("Demo data",  moduleOpenDemoDatasetUI("moduleOpenDemoDataset")),
+                       source(file.path("./src", "ui_ReloadProstar.R"),  local = TRUE)$value
+            ),
             
           #,navbarMenu("Data analysis",
             #          uiOutput('UI_dataAnalysis'))
