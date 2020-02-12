@@ -23,6 +23,12 @@ source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local
 source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
 source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
+source(file.path("./src", "modules/Menu_Home/moduleHomepage.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
+
+source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
 
 theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
@@ -149,9 +155,9 @@ shinyUI <- fluidPage(
                        
             ),
             navbarMenu("Data manager",
-                       tabPanel("Open MSnset",moduleOpenMSnSetUI("moduleOpenMSnSet")),
+                       tabPanel("Open MSnset",value = 'openMSnsetTab',moduleOpenMSnSetUI("moduleOpenMSnSet")),
                        tabPanel("Convert",value = "convertTab",moduleConvertDataUI("moduleProcess_Convert")),
-                       tabPanel("Demo data",  moduleOpenDemoDatasetUI("moduleOpenDemoDataset")),
+                       tabPanel("Demo data",  value='demoTab', moduleOpenDemoDatasetUI("mod_OpenDemoDataset")),
                        source(file.path("./src", "ui_ReloadProstar.R"),  local = TRUE)$value
             ),
             

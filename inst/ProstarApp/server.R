@@ -18,6 +18,9 @@ onStart = function() {
   })
 }
 
+source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
 
 
 library(shinyBS)
@@ -49,6 +52,7 @@ server <- function(input, output, session){
  #      source(f, local=TRUE)$value
  #  }
   
+ # source(file.path("./src", "core.R"),  local = TRUE)$value
   
   source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
@@ -59,11 +63,19 @@ server <- function(input, output, session){
   source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
   source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
+  
+  source(file.path("./src", "modules/Menu_Home/moduleHomepage.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
+  source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
+  
+  source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
+  
+  
 
   source(file.path("./src", "srv_ReloadProstar.R"),  local = TRUE)$value
   
   ## L'appel a core.R permet d'attendre le chargement d'un dataset et de créer ensuite le pipeline correspondant
-  source(file.path("./src", "core.R"),  local = TRUE)$value
   
 
   plan(multiprocess)
@@ -75,7 +87,31 @@ server <- function(input, output, session){
       settings = NULL
       )
  
+    
+    ## definition des variables globales liees a un pipeline
+    pipeline <- reactiveValues(
+      # current working data from current pipeline
+      type = NULL,
+      
+      ## indice du dataset courant dans la liste ll.process.
+      current.indice = 1,
+      
+      ## liste qui contiendra les noms des différents datasets enregsitres au cours 
+      ## de l'execution sdu module. Il est initialisé à Original car dans tous les cas,
+      ## on démarre avec un dataset intitule original
+      ll.process = c('original'),
+      
+      # object returned by demode, openmode and convertmode
+      #object that is used for modules in pipeline. C'st une instance d'une classe Pipeline
+      obj = NULL,
+      
+      tempplot = NULL,
+      loadData = NULL
+      
+    )
  
+    source(file.path("./src", "core.R"),  local = TRUE)$value
+    
  #Set up writing file for log
  logfilename <- tempfile(fileext=".log")
  print(paste0('logfilename = ',logfilename))
@@ -95,9 +131,13 @@ server <- function(input, output, session){
  callModule(moduleInsertMarkdown, "links_MD",URL_links)
  callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
  
+ pipeline$loadData <- callModule(module=moduleOpenDemoDataset, 'mod_OpenDemoDataset')
+ pipeline$loadData <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
+ pipeline$loadData <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
  
- observe({
-   req(input$navPage)
+ 
+ observeEvent( req(input$navPage),{
+  
    shinyjs::toggle('tete', condition=!(input$navPage %in% c('graphTab', 'bugReportTab', 'checkForUpdatesTab', 'faqTab')))
    print(paste0('input$navPage = ',input$navPage))
    switch(input$navPage,
@@ -136,10 +176,6 @@ server <- function(input, output, session){
           #   },
           # GoTab  = source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
           # 
-          #Menu Data manager
-          convertTab =  pipeline$obj <- callModule(module=moduleConvertData, 'moduleProcess_Convert'),
-          demoTab = pipeline$obj <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset'), 
-          openMSnsetTab  =  pipeline$obj <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet'),
           
           
           
@@ -160,7 +196,6 @@ server <- function(input, output, session){
    )
    
  })
- 
 
  
  
