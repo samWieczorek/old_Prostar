@@ -30,23 +30,21 @@ moduleOpenDemoDatasetUI  <- function(id){
 
 
 
-moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
+moduleOpenDemoDataset  <- function(input, output, session){
   ns <- session$ns
   
-  
   rv.openDemo <- reactiveValues(
-    current.obj = NULL,
     dataOut = NULL
   )
   
   
   callModule(moduleStaticDataTable,"overview_DemoMode", 
-             table2show=reactive({req(rv.openDemo$current.obj)
-                                GetDatasetOverview2(dataset(rv.openDemo$current.obj, 'original'))}))
+             table2show=reactive({req(rv.openDemo$dataOut)
+                                GetDatasetOverview2(dataset(rv.openDemo$dataOut, 'original'))}))
   
   callModule(moduleInfoDataset, "infoAboutMSnset",
-              obj = reactive({req(rv.openDemo$current.obj)
-                dataset(rv.openDemo$current.obj, 'original')}))
+              obj = reactive({req(rv.openDemo$dataOut)
+                dataset(rv.openDemo$dataOut, 'original')}))
     
 
 
@@ -100,12 +98,12 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
           ll.process <- type <- NULL
           switch(typeOfData,
                  peptide = {
-                   rv.openDemo$current.obj <- pepPipeline()
+                   rv.openDemo$dataOut <- pepPipeline()
                    ll.process <- pipeline.def$peptide
                    type <- 'Peptide'
                    },
                  protein = {
-                   rv.openDemo$current.obj <- PipelineProtein(analysis= input$demoDataset, 
+                   rv.openDemo$dataOut <- PipelineProtein(analysis= input$demoDataset, 
                                                               pipelineType = "protein", 
                                                               processes=pipeline.def$protein, 
                                                               experiments=list(original=data), 
@@ -115,7 +113,7 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
                    
                  }, 
                  p2p = {
-                   rv.openDemo$current.obj <- p2pPipeline()
+                   rv.openDemo$dataOut <- p2pPipeline()
                    ll.process <- pipeline.def$p2p
                    type <- 'p2p'
                    
@@ -132,19 +130,21 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
       } else {
         
         ## The dataset is already in the new format 
-        rv.openDemo$current.obj <- data
+        #rv.openDemo$current.obj <- data
       }
       
-      print(class( rv.openDemo$current.obj))
-      incProgress(1/nSteps, detail = def.progress.loadDataset[2])
-      l.params <- list(filename = input$demoDataset)
-      incProgress(1/nSteps, detail = def.progress.loadDataset[3])
+      #print(class( rv.openDemo$current.obj))
+      #incProgress(1/nSteps, detail = def.progress.loadDataset[2])
+      #l.params <- list(filename = input$demoDataset)
+      #incProgress(1/nSteps, detail = def.progress.loadDataset[3])
       
-      incProgress(1/nSteps, detail = def.progress.loadDataset[4])
+      #incProgress(1/nSteps, detail = def.progress.loadDataset[4])
       
     })
-    rv.openDemo$dataOut <- rv.openDemo$current.obj
     
+   # print(rv.openDemo$current.obj)
+   # rv.openDemo$dataOut <- rv.openDemo$current.obj
+    #print(rv.openDemo$dataOut)
   })
   
   

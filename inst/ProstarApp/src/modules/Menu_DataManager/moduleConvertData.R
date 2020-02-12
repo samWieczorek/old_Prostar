@@ -1,6 +1,6 @@
 source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
 source(file.path("./src", "modules/Misc/moduleNavigation2.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Menu_DataManager/srv_BuildDesign.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Menu_DataManager/srv_BuildDesign.R"),  local = TRUE)$value
 
 moduleConvertDataUI <- function(id){
   ns <- NS(id)
