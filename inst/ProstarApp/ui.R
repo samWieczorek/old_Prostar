@@ -15,6 +15,13 @@ library(shinyBS)
 # }
 # 
 
+source(file.path("./src", "commonFunc.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleHomePage.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Misc/moduleInsertMarkdown.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
+
 source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
 source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
 
@@ -119,7 +126,7 @@ shinyUI <- fluidPage(
         div(
           id = "header",
           navbarPage(
-             position = "fixed-top",
+            position = "fixed-top",
             id = "navPage",
             
             inverse = TRUE,
@@ -148,13 +155,13 @@ shinyUI <- fluidPage(
             #            uiOutput('btn_launch')
             
             
-          #,navbarMenu("Data analysis",
+            #,navbarMenu("Data analysis",
             #          uiOutput('UI_dataAnalysis'))
-          
-             navbarMenu("Help",
-                         tabPanel("Links",value="usefulLinksTab",  moduleInsertMarkdownUI('links_MD')),
-                         tabPanel("FAQ", value="faqTab",  moduleInsertMarkdownUI('FAQ_MD')),
-                         tabPanel("Bug report",value="bugReportTab",  moduleBugReportUI('bugreport'))
+            
+            navbarMenu("Help",
+                       tabPanel("Links",value="usefulLinksTab",  moduleInsertMarkdownUI('links_MD')),
+                       tabPanel("FAQ", value="faqTab",  moduleInsertMarkdownUI('FAQ_MD')),
+                       tabPanel("Bug report",value="bugReportTab",  moduleBugReportUI('bugreport'))
             )
             
           ) ## end navbarPage
@@ -165,4 +172,3 @@ shinyUI <- fluidPage(
     
   )
 ) ## end fluid
-
