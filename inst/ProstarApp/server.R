@@ -5,6 +5,12 @@ require(compiler)
 enableJIT(3)
 
 
+source(file.path("./src", "commonFunc.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Misc/moduleInsertMarkdown.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleHomePage.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
 
 
 onStart = function() {
