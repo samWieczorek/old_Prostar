@@ -15,14 +15,14 @@ WatchmoduleNormalization <- callModule(module=moduleNormalization,'moduleNormali
 
 
 observeEvent(req(WatchmoduleNormalization()),{
-  print(names(pipeline$current.obj@datasets))
-  pipeline$current.obj@datasets$moduleNormalization <- WatchmoduleNormalization()
-  print(str((pipeline$current.obj@datasets)))
+  print(names(rv.core$current.obj@datasets))
+  rv.core$current.obj@datasets$moduleNormalization <- WatchmoduleNormalization()
+  print(str((rv.core$current.obj@datasets)))
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleNormalization')
+  rv.core$current.indice <- which(rv.core$current.obj@processes == 'moduleNormalization')
   DeleteDatasetsAfter('moduleNormalization')
-  rvNav$Done[pipeline$current.indice-1] <- TRUE
+  rvNav$Done[rv.core$current.indice-1] <- TRUE
 })
 
 ######################################

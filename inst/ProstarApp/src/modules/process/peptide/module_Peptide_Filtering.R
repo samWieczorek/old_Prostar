@@ -1,6 +1,6 @@
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
-source(file.path("./src", "modules/process/common/moduleFilterStringBasedOptions.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/process/common/moduleFilterStringBasedOptions.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Plots/moduleGroupMVPlots.R"),  local = TRUE)$value
 
 
 

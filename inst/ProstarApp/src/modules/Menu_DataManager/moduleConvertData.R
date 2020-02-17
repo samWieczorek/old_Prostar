@@ -1,5 +1,5 @@
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Misc/moduleNavigation2.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation2.R"),  local = TRUE)$value
 #source(file.path("./src", "modules/Menu_DataManager/srv_BuildDesign.R"),  local = TRUE)$value
 
 moduleConvertDataUI <- function(id){
@@ -20,7 +20,11 @@ moduleConvertDataUI <- function(id){
 
 moduleConvertData <- function(input, output, session){
   ns <- session$ns
-  source(file.path("./src", "modules/Menu_DataManager/srv_BuildDesign.R"),  local = TRUE)$value
+  #######################################################
+  ################# integration du code source de srv_BuildDesign.R
+  ##############################################################################
+  #############################################################################
+  #source(file.path("./src", "modules/Menu_DataManager/srv_BuildDesign.R"),  local = TRUE)$value
   
   callModule(modulePopover,"modulePopover_convertChooseDatafile", 
              data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 

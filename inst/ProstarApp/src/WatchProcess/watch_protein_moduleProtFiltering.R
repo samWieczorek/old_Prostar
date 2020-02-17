@@ -15,13 +15,13 @@ WatchmoduleProtFiltering <- callModule(module=moduleProtFiltering,'moduleProtFil
 
 observeEvent(req(WatchmoduleProtFiltering()),{
   
-  pipeline$current.obj@datasets$moduleProtFiltering <- WatchmoduleProtFiltering()$obj
+  rv.core$current.obj@datasets$moduleProtFiltering <- WatchmoduleProtFiltering()$obj
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleProtFiltering')
+  rv.core$current.indice <- which(pipeline$current.obj@processes == 'moduleProtFiltering')
   DeleteDatasetsAfter('moduleProtFiltering')
-  rvNav$Done[pipeline$current.indice-1] <- TRUE
+  rvNav$Done[rv.core$current.indice-1] <- TRUE
   
 })
 

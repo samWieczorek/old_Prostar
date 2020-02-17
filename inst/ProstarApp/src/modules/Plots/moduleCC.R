@@ -155,10 +155,10 @@ output$visNet_CC <- renderVisNetwork({
         clickFun <-
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
 
-          pipeline$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
+        rv.core$tempplot$plotCC <-  plotJitter_rCharts(df,clickFunction=clickFun)
 
       })
-   pipeline$tempplot$plotCC
+   rv.core$tempplot$plotCC
 
   })
   

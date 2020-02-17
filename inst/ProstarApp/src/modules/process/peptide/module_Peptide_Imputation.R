@@ -1,8 +1,8 @@
 require(imp4p)
 
 
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Plots/moduleMVPlots.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Plots/moduleMVPlots.R"),  local = TRUE)$value
 source(file.path("./src", "modules/process/common/moduleDetQuantImpValues.R"),  local = TRUE)$value
 
 

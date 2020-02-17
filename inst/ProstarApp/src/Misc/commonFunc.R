@@ -4,10 +4,10 @@
 # 
 # GetDatasetOverview <- reactive({
 #   print("In GetDatasetOverview")
-#   print(pipeline$current.obj)
-#   req(pipeline$current.obj)
+#   print(rv.core$current.obj)
+#   req(rv.core$current.obj)
 #   
-#   obj <- pipeline$current.dataset[[pipeline$current.indice]]
+#   obj <- pipeline$current.dataset[[rv.core$current.indice]]
 #   
 #   columns <- c("Number of samples","Number of conditions",
 #                "Number of lines", "Number of missing values", "% of missing values", 

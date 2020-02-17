@@ -1,4 +1,4 @@
-source(file.path("./src", "modules/Menu_DataManager/funcs.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Menu_DataManager/funcs.R"),  local = TRUE)$value
 
 
 moduleOpenDemoDatasetUI  <- function(id){
@@ -6,11 +6,12 @@ moduleOpenDemoDatasetUI  <- function(id){
   
   
   tagList(
+    moduleChoosePipelineUI(ns("choosePipe")),
+    
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 uiOutput(ns("chooseDemoDataset"))
       ),
-      
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 p(""),
                 actionButton(ns("loadDemoDataset"), "Load demo dataset",class = actionBtnClass)
@@ -20,7 +21,7 @@ moduleOpenDemoDatasetUI  <- function(id){
                 uiOutput(ns("linktoDemoPdf"))
       )
     ),
-    
+     
     moduleInfoDatasetUI(ns("infoAboutMSnset")),
     div( style="display:inline-block; vertical-align: top;",
          moduleStaticDataTableUI(ns("overview_DemoMode"))
@@ -34,17 +35,20 @@ moduleOpenDemoDataset  <- function(input, output, session){
   ns <- session$ns
   
   rv.openDemo <- reactiveValues(
-    dataOut = NULL
+    dataOut = NULL,
+    pipe = NULL
   )
   
   
-  callModule(moduleStaticDataTable,"overview_DemoMode", 
+  rv.openDemo$pipe <- callModule(moduleChoosePipeline, "choosePipe", reactive({G_path_to_pipeline_conf}))
+  
+  callModule(moduleStaticDataTable,"overview_DemoMode",
              table2show=reactive({req(rv.openDemo$dataOut)
-                                GetDatasetOverview2(dataset(rv.openDemo$dataOut, 'original'))}))
+                                GetDatasetOverview2(rv.openDemo$dataOut[['original']])}))
   
   callModule(moduleInfoDataset, "infoAboutMSnset",
               obj = reactive({req(rv.openDemo$dataOut)
-                dataset(rv.openDemo$dataOut, 'original')}))
+                rv.openDemo$dataOut[['original']]}))
     
 
 
@@ -78,78 +82,48 @@ moduleOpenDemoDataset  <- function(input, output, session){
   
   
   
-  observeEvent(input$loadDemoDataset, {
+  observeEvent(req(input$loadDemoDataset), {
+    
     
     nSteps <- length(def.progress.loadDataset)
-    print(paste0("nSteps = ", nSteps))
-    withProgress(message = '',detail = '', value = 0, {
+     withProgress(message = '',detail = '', value = 0, {
       #ClearMemory()
       #ClearUI()
       incProgress(1/nSteps, detail = def.progress.loadDataset[1])
       utils::data(list = input$demoDataset)
-      print(input$demoDataset)
       data <- get(input$demoDataset)
-      print("#################################")
-      print(paste0("class(data) = ", class(data)[1]))
-      if(!(class(data)[1] %in% c("pepPipeline", "protPipeline", "p2pPipeline"))) {
-        
-        if (class(data)[1]=="MSnSet") {
-          typeOfData <- data@experimentData@other$typeOfData
-          ll.process <- type <- NULL
-          switch(typeOfData,
-                 peptide = {
-                   rv.openDemo$dataOut <- pepPipeline()
-                   ll.process <- pipeline.def$peptide
-                   type <- 'Peptide'
-                   },
-                 protein = {
+      if (class(data)[1]!="MSnSet") {
+        shinyjs::info("Warning : this file is not a MSnSet file ! 
+                      Please choose another one.")
+        return(NULL)
+      }
+      proteinID <- data@experimentData@other$proteinId
+      typeOfData <- data@experimentData@other$typeOfData
+      ll.pipeline <- rv.openDemo$pipe
+      switch(typeOfData,
+             protein = {
                    rv.openDemo$dataOut <- PipelineProtein(analysis= input$demoDataset, 
-                                                              pipelineType = "protein", 
-                                                              processes=pipeline.def$protein, 
+                                                              pipelineType = name(ll.pipeline), 
+                                                              dataType ='protein',
+                                                              processes=unlist(ll.pipeline), 
                                                               experiments=list(original=data), 
                                                               colData=Biobase::pData(data))
-                   ll.process <- pipeline.def$protein
-                   type <- 'protein'
-                   
-                 }, 
-                 p2p = {
-                   rv.openDemo$dataOut <- p2pPipeline()
-                   ll.process <- pipeline.def$p2p
-                   type <- 'p2p'
-                   
+                  },
+             peptide = {
+                   rv.openDemo$dataOut <- PipelinePeptide(analysis= input$demoDataset, 
+                                                          pipelineType = name(ll.pipeline), 
+                                                          dataType ='peptide',
+                                                          processes=unlist(ll.pipeline),
+                                                          proteinID = proteinID,
+                                                          experiments=list(original=data), 
+                                                          colData=Biobase::pData(data))
                  }
-          )
-          
+          ) # end swith
 
-          
-        } else {
-          shinyjs::info("Warning : this file is not a MSnset file ! 
-                      Please choose another one.")
-          return(NULL)
-        }
-      } else {
-        
-        ## The dataset is already in the new format 
-        #rv.openDemo$current.obj <- data
-      }
-      
-      #print(class( rv.openDemo$current.obj))
-      #incProgress(1/nSteps, detail = def.progress.loadDataset[2])
-      #l.params <- list(filename = input$demoDataset)
-      #incProgress(1/nSteps, detail = def.progress.loadDataset[3])
-      
-      #incProgress(1/nSteps, detail = def.progress.loadDataset[4])
-      
-    })
-    
-   # print(rv.openDemo$current.obj)
-   # rv.openDemo$dataOut <- rv.openDemo$current.obj
-    #print(rv.openDemo$dataOut)
-  })
-  
-  
-  
-  
+  }) # End withProgress
+     
+  }) # End observeEvent
+
   
   output$linktoDemoPdf <- renderUI({
     req(input$demoDataset)

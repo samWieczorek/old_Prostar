@@ -1,5 +1,5 @@
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Misc/moduleNotaNumeric.R"), local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNotaNumeric.R"), local = TRUE)$value
 
 
 

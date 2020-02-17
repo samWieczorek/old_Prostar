@@ -13,15 +13,15 @@ WatchmoduleProtHypothesisTest <- callModule(module=moduleProtHypothesisTest,'mod
 
 
 observeEvent(req(WatchmoduleProtHypothesisTest()),{
-  pipeline$current.obj@datasets$moduleProtHypothesisTest <- WatchmoduleProtHypothesisTest()$obj
-  pipeline$current.obj@res_AllPairwiseComparisons <- WatchmoduleProtHypothesisTest()$res_AllPairwiseComparisons
+  rv.core$current.obj@datasets$moduleProtHypothesisTest <- WatchmoduleProtHypothesisTest()$obj
+  rv.core$current.obj@res_AllPairwiseComparisons <- WatchmoduleProtHypothesisTest()$res_AllPairwiseComparisons
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleProtHypothesisTest')
+  rv.core$current.indice <- which(rv.core$current.obj@processes == 'moduleProtHypothesisTest')
   
   DeleteDatasetsAfter('moduleProtHypothesisTest')
-  rvNav$Done[pipeline$current.indice-1] <- TRUE
+  rvNav$Done[rv.core$current.indice-1] <- TRUE
 })
 
 ######################################

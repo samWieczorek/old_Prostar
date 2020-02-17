@@ -18,9 +18,8 @@ onStart = function() {
   })
 }
 
-source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
+
+
 
 
 library(shinyBS)
@@ -39,44 +38,9 @@ server <- function(input, output, session){
   env <- environment()
   loadLibraries()
   
-  pipeline.def <- ReadPipelineConfig("src/modules/process/pipeline.conf")
+  pipeline.def <- ReadPipelineConfig(G_path_to_pipeline_conf)
   print(pipeline.def)
-  
-  #####
-  ## Launch modules
- # files <-list.files('src',full.name = TRUE, pattern='*.R$', recursive=TRUE)
- # 
- #  for (f in files){
- #    print(paste0('sourcing ', f))
- #    if (f != 'src/core.R')
- #      source(f, local=TRUE)$value
- #  }
-  
- # source(file.path("./src", "core.R"),  local = TRUE)$value
-  
-  source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
-  
-  source(file.path("./src", "modules/Menu_Home/moduleHomepage.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
-  source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
-  
-  source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
-  
-  
-
-  source(file.path("./src", "srv_ReloadProstar.R"),  local = TRUE)$value
-  
-  ## L'appel a core.R permet d'attendre le chargement d'un dataset et de créer ensuite le pipeline correspondant
-  
+   
 
   plan(multiprocess)
   
@@ -89,7 +53,7 @@ server <- function(input, output, session){
  
     
     ## definition des variables globales liees a un pipeline
-    pipeline <- reactiveValues(
+    rv.core <- reactiveValues(
       # current working data from current pipeline
       type = NULL,
       
@@ -103,7 +67,7 @@ server <- function(input, output, session){
       
       # object returned by demode, openmode and convertmode
       #object that is used for modules in pipeline. C'st une instance d'une classe Pipeline
-      obj = NULL,
+      current.obj = NULL,
       
       tempplot = NULL,
       loadData = NULL
@@ -113,10 +77,11 @@ server <- function(input, output, session){
     source(file.path("./src", "core.R"),  local = TRUE)$value
     
  #Set up writing file for log
+ 
  logfilename <- tempfile(fileext=".log")
  print(paste0('logfilename = ',logfilename))
  con <- file(logfilename,open="wt")
- if(!interactive()){
+ #if(!interactive()){
    sink(con, append=TRUE)
   sink(con, append=TRUE, type="message")
  }
@@ -131,16 +96,23 @@ server <- function(input, output, session){
  callModule(moduleInsertMarkdown, "links_MD",URL_links)
  callModule(module = moduleBugReport, 'bugreport', logfile=reactive({logfilename}))
  
- pipeline$loadData <- callModule(module=moduleOpenDemoDataset, 'mod_OpenDemoDataset')
- pipeline$loadData <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
- pipeline$loadData <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
+ rv.core$loadData <- callModule(module=moduleOpenDemoDataset, 'mod_OpenDemoDataset')
+ rv.core$loadData <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
+ rv.core$loadData <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
+ callModule(moduleReleaseNotes, "modReleaseNotes")
+ #rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
  
+ callModule(moduleHomepage, "homepage")
+ callModule(moduleCheckUpdates, "modCheckUpdates")
+ toggleModal(session, "modalFAQ")
+ toggleModal(session, "modallinks")
+ toggleModal(session, "modalbugreport")
  
  observeEvent( req(input$navPage),{
   
    shinyjs::toggle('tete', condition=!(input$navPage %in% c('graphTab', 'bugReportTab', 'checkForUpdatesTab', 'faqTab')))
    print(paste0('input$navPage = ',input$navPage))
-   switch(input$navPage,
+   #switch(input$navPage,
           # DescriptiveStatisticsTab = source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value,
           # #SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
           #   source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,
@@ -180,20 +152,20 @@ server <- function(input, output, session){
           
           
           # Menu Help
-          faqTab =  toggleModal(session, "modalFAQ"),
-          usefulLinksTab =  toggleModal(session, "modallinks"),
-          bugReportTab =toggleModal(session, "modalbugreport"),
+          #fa#qTab =  toggleModal(session, "modalFAQ"),
+          #usefulLinksTab =  toggleModal(session, "modallinks"),
+          #bugReportTab =toggleModal(session, "modalbugreport"),
           
           ## Menu Home
-          HomeTab = callModule(moduleHomepage, "homepage"),
-          CheckUpdatesTab =  callModule(moduleCheckUpdates, "modCheckUpdates"),
-          ReleaseNotesTab =  callModule(moduleReleaseNotes, "modReleaseNotes"),
-          GlobalSettingsTab = rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
+          #HomeTab = callModule(moduleHomepage, "homepage"),
+          #CheckUpdatesTab =  callModule(moduleCheckUpdates, "modCheckUpdates"),
+          #ReleaseNotesTab =  callModule(moduleReleaseNotes, "modReleaseNotes"),
+          #GlobalSettingsTab = rv.prostar$settings <- callModule(moduleSettings, "modSettings",dataIn=reactive({GetCurrentMSnSet()}))
           
           #testTab = source(file.path("server", "srv_HypothesisTest.R"),  local = TRUE)$value
           #testPeptideTab = source(file.path("server", "srv_AggregateTest_Peptide.R"),  local = TRUE)$value,
           #testProteinTab = source(file.path("server", "srv_HypothesisTestProtein.R"),  local = TRUE)$value
-   )
+   #)
    
  })
 

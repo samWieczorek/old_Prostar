@@ -2,7 +2,19 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
 
+SourceFiles <- function(){
+  
+  ll.files <- readLines('src/AllSources.R')
+  for (f in ll.files){
+    print(paste0('sourcing ', f))
+    if (f != 'src/core.R')
+      source(f, local=TRUE)$value
+  }
 
+}
+
+
+G_path_to_pipeline_conf <- 'src/modules/process/pipeline.conf'
 
 #5lstDescPlots <- c("intensity", "mv")
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
@@ -38,6 +50,8 @@ loadLibraries <- function(){
   
   library(future)
   library(promises)
+  
+  library(MultiAssayExperiment)
   
 }
 

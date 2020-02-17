@@ -1,128 +1,31 @@
 
-## CHargement des modules generaux
-source(file.path("./src", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)$value
-source(file.path("./src", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
-source(file.path("./src", "modules/Plots/moduleCC.R"),  local = TRUE)$value
-
-source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
-
-
-
-
-
-# rv.opendataset <- reactiveValues(
-#   
-#   ## variables temporaires servant à stocker les datasets qui sont charges par l'utilisateur
-#   ## Ces variables servent de tampon entre la sortie des modules appelés et la variable
-#   ## obj qui va récupérer le seul dataset chargé
-#   tmp.convert = NULL,
-#   tmp.demo = NULL,
-#   tmp.file = NULL
-# )
-# 
-# ## Chargement en memoire des structure renvoyees 
-# rv.opendataset$tmp.convert <- callModule(module=moduleConvertData, 'moduleProcess_Convert')
-# rv.opendataset$tmp.demo <- callModule(module=moduleOpenDemoDataset, 'moduleOpenDemoDataset')
-# rv.opendataset$tmp.file <- callModule(module=moduleOpenMSnSet, 'moduleOpenMSnSet')
-# 
-
-# ## Mise a jour de la variable obj avec le dataset charge
-# observe({
-#   req(rv.opendataset$tmp.file())
-#   rv.opendataset <- rv.opendataset$tmp.file()
-# })
-# 
-# observe({
-#   req(rv.opendataset$tmp.convert())
-#   rv.opendataset <- rv.opendataset$tmp.convert()
-# })
-# 
-# 
-# observe({
-#   req(rv.opendataset$tmp.demo())
-#   rv.opendataset <- rv.opendataset$tmp.demo()
-# })
-
-################################################################################
-#instanciation du premier dataset. 
-#obj.openDataset <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
-#pipeline$current.obj <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
-
-
-## Lorsqu'un dataset est charge, On opere un certain nombre de traitements preparatifs
-## au cas ou des informations manqueraient
-## Lorsque c'est fait, on rend disponible le bouton de chargement
-# observeEvent(req(rv.opendataset$obj),{
-#   print("PASS dedans")
-#   
-#   ## Cette partie sur les compo
-#   if ( pipelineType(rv.opendataset$obj) == 'peptide') {
-#     if (length(rv.opendataset$obj@AdjacencyMat)==0){
-#       rv.opendataset$obj@AdjacencyMat <- ComputeAdjacencyMatrices(rv.opendataset$obj@datasets[[1]])
-#       pipeline$current.obj@ConnexComp <- ComputeConnexComposants(pipeline$current.obj@AdjacencyMat)
-#     }
-#   }
-#   shinyjs::enable('btn_launch')
-# })
-
-
-###############################################################################
-## Declaration des variables gloables su pipeline qui vont gerer la navigation 
-## entre les differents modules de traitement dans le pipeline courant
-# ###############################################################################
-# rvNav <- reactiveValues(
-#   Done = NULL,
-#   def = list(name = NULL,
-#              stepsNames = NULL,
-#              isMandatory = NULL,
-#              ll.UI = NULL
-#              ),
-#              rstFunc = reactive({resetNavPipeline()})
-# )
-# 
-# resetNavPipeline <- reactive({  
-#   
-#   rvNav$Done <- NULL
-#   rvNav$def <- list(name = NULL,
-#                     stepsNames = NULL,
-#                     isMandatory = NULL,
-#                     ll.UI = NULL
-#                   )
-#   
-# })
-
-
-
-observeEvent(req(pipeline$loadData()),{ 
-  print('------- DANS observeEvent(req(loadData()) --------------')
-  show(pipeline$loadData())
-  pipeline$obj <- pipeline$loadData()
-  show(pipeline$obj)
+## Lorsqu'un dataset est charge, on met à jour la variable de travail
+## On ne peut pas travailler directment sur la variable retour d'un module
+observeEvent(req(rv.core$loadData()),{ 
+  rv.core$current.obj <- rv.core$loadData()
 })
 
 ################################################################################
 #instanciation du premier dataset. 
 # obj.openDataset <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
-# #pipeline$current.obj <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
+# #rv.core$current.obj <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
 
 ## Attente d'une valeur. Lorsqu'il y en a une, Initialization of the pipeline 
 observe({
-  print('------- DANS observe pipeline$obj --------------')
-  req(pipeline$obj)
+  print('------- DANS observe rv.core$current.obj --------------')
+  req(rv.core$current.obj)
   
-  print("pipeline$obj = ")
-  pipeline$obj
-  print("class(pipeline$obj) = ")
-  print(class(pipeline$obj))
+  print("rv.core$current.obj = ")
+  rv.core$current.obj
+  print("class(rv.core$current.obj) = ")
+  print(class(rv.core$current.obj))
 
                           
   ## Sourcing the code for corresponding modules. le nom de l'item dans la liste
   ## doit correspondre au nom du fichier source prefixé par 'module' 
   # errors <- character()
-  # for(p in processes(pipeline$obj)[-1]){
-  #   path <- file.path("./src", paste0('modules/process/', pipelineType(pipeline$obj), "/",p, ".R"))
+  # for(p in processes(rv.core$current.obj)[-1]){
+  #   path <- file.path("./src", paste0('modules/process/', pipelineType(rv.core$current.obj), "/",p, ".R"))
   #   if (!file.exists(path)) {
   #     msg <- paste0( path, ' was not found.')
   #     errors <- c(errors, msg)
@@ -133,9 +36,9 @@ observe({
   # 
   
   #   
-  #   print(paste0("IN observeEvent(req(obj()$initialData : ", pipeline$obj@pipeline))
+  #   print(paste0("IN observeEvent(req(obj()$initialData : ", rv.core$current.obj@pipeline))
   #   def <- name <- NULL
-  #   type.pipeline <- pipeline$obj@pipeline
+  #   type.pipeline <- rv.core$current.obj@pipeline
   #   
   #   ## Get liste des process du pipeline
   #   def <- pipeline.def[[type.pipeline]]
@@ -155,12 +58,12 @@ observe({
   #                  ll.UI = LoadModulesUI(def)
   #                  )
   # 
-  # pipeline$current.indice <- 1
-  # pipeline$current.obj <- obj.openDataset()
+  # rv.core$current.indice <- 1
+  # rv.core$current.obj <- obj.openDataset()
   # 
   # ## Lancement du module de navigation du pipeline pour suivre les différents process
   # ## de traitement liés au pipeline
-  # pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
+  # rv.core$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
   #                             isDone = reactive({rvNav$Done}),
   #                             pages = reactive({rvNav$def}),
   #                             rstFunc = resetNavPipeline,
@@ -175,16 +78,16 @@ observe({
 ###############################################################################
 ##  Recupere le nom du process courant
 # GetCurrentProcess <- reactive({
-#   req(pipeline$obj)
-#   pipeline$obj@processes[[pipeline$current.indice]]
+#   req(rv.core$current.obj)
+#   rv.core$current.obj@processes[[rv.core$current.indice]]
 # })
 
 
 ###############################################################################
 ## Recupere le dataset (MSnset) courant
 # GetCurrentMSnSet <- reactive({
-#   req(pipeline$obj)
-#   pipeline$obj@datasets[[pipeline$current.indice]]
+#   req(rv.core$current.obj)
+#   rv.core$current.obj@datasets[[rv.core$current.indice]]
 #   })
 
 
@@ -228,8 +131,8 @@ observe({
 #                                                         currentProcess = GetCurrentProcess())}))
 #   
 #   callModule(module = moduleCC, "CC_Multi_Any", 
-#              cc = reactive({pipeline$obj@ConnexComp$allPep}),
-#              matAdj = reactive({pipeline$obj@AdjacencyMat$matWithSharedPeptides}), 
+#              cc = reactive({rv.core$current.obj@ConnexComp$allPep}),
+#              matAdj = reactive({rv.core$current.obj@AdjacencyMat$matWithSharedPeptides}), 
 #              dataIn = reactive({GetCurrentMSnSet()})
 #              )
 #                                    
@@ -250,11 +153,11 @@ observe({
 
 # GetScreenId <- reactive({
 #   input$navPage
-#   req(pipeline$obj)
+#   req(rv.core$current.obj)
 #   
 #   screen <- NULL
-#   m <-  which(names(pipeline$obj@datasets)==input$navPage)
-#   n <-  which(unlist(lapply(GetCurrentMSnSet(), function(x) length(which(x==pipeline$obj@datasets))))==1)
+#   m <-  which(names(rv.core$current.obj@datasets)==input$navPage)
+#   n <-  which(unlist(lapply(GetCurrentMSnSet(), function(x) length(which(x==rv.core$current.obj@datasets))))==1)
 #   ## test if the navPage is one of a process one
 #   if (length(m) ==0 || length(n) ==0) {return(NULL)}
 #   
@@ -267,11 +170,11 @@ observe({
 
 
 # DeleteDatasetsAfter <- function(txt){
-#   names <- names(pipeline$obj@datasets)
+#   names <- names(rv.core$current.obj@datasets)
 #   indice <- which(names == txt)
 #   if (indice < length(names)) {
 #     for (i in (indice+1):length(names)){
-#       pipeline$obj@datasets[i] <- list(NULL)
+#       rv.core$current.obj@datasets[i] <- list(NULL)
 #     }
 #   }
 # }
@@ -279,15 +182,15 @@ observe({
 # 
 # output$header <- renderUI({
 #   req(obj.openDataset())
-#   req(pipeline$current.obj)
-#   req(pipeline$current.indice)
+#   req(rv.core$current.obj)
+#   req(rv.core$current.indice)
 #   
 #   
 #   tagList(
 #     div(
 #       div(
 #         style="display:inline-block; vertical-align: middle; margin:0px",
-#         pipeline$nav2()$bars
+#         rv.core$nav2()$bars
 #       ),
 #       div(
 #         style="display:inline-block; vertical-align: middle; margin:0px",
@@ -296,8 +199,8 @@ observe({
 #       div(
 #         style="display:inline-block; vertical-align: middle; margin:0px",
 #         selectInput('currentDataset', '',
-#                     choices = names(pipeline$current.obj@datasets[!sapply(pipeline$current.obj@datasets,is.null)]),
-#                     selected = names(pipeline$current.obj@datasets)[pipeline$current.indice],
+#                     choices = names(rv.core$current.obj@datasets[!sapply(rv.core$current.obj@datasets,is.null)]),
+#                     selected = names(rv.core$current.obj@datasets)[rv.core$current.indice],
 #                     width='200px')
 #       )
 #     )
@@ -310,11 +213,11 @@ observe({
 ## manual change of current dataset
 # observeEvent(input$currentDataset,{
 #   print('!!!!! Manual change of current dataset')
-#   n <- which(names(pipeline$obj@datasets)==input$currentDataset)
+#   n <- which(names(rv.core$current.obj@datasets)==input$currentDataset)
 #   if (length(n)==0){
-#     pipeline$current.indice <- 1
+#     rv.core$current.indice <- 1
 #   } else {
-#     pipeline$current.indice <- n
+#     rv.core$current.indice <- n
 #   }
 # })
 
@@ -333,16 +236,16 @@ observe({
 #   
 #   for (p in process){
 #   txt <- paste0("Watch",p," <- callModule(module=",p,",'", p,"',  
-#                               dataIn=reactive({pipeline$current.obj}),
+#                               dataIn=reactive({rv.core$current.obj}),
 #                               screen.id = reactive({GetScreenId()}))")
 #   writeLines(txt, con)
 #   
 #   txt <- paste0(
 #     "observeEvent(Watch",p,"(),{
 #     print(paste0('observeEvent(",p,"() : ', Watch",p,"()))
-#     pipeline$current.obj <- Watch",p,"()
-#     pipeline$current.indice <- 1 + which(pipeline$ll.process == '",p,"')
-#     pipeline$current.dataset$",p," <- Watch",p,"()
+#     rv.core$current.obj <- Watch",p,"()
+#     rv.core$current.indice <- 1 + which(rv.core$ll.process == '",p,"')
+#     rv.core$current.dataset$",p," <- Watch",p,"()
 #     DeleteDatasetsAfter('",p,"')
 #     printStatus()
 #   })")

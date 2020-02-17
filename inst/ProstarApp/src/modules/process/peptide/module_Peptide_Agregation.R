@@ -1,5 +1,5 @@
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
-source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
 
 
 ############# Definition of the module   #########################

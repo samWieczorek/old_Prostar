@@ -13,14 +13,14 @@ WatchmoduleAgregation <- callModule(module=moduleAgregation,'moduleAgregation',
 
 
 observeEvent(req(WatchmoduleAgregation()),{
-  pipeline$current.obj@datasets$moduleAgregation <- WatchmoduleAgregation()
+  rv.core$current.obj@datasets$moduleAgregation <- WatchmoduleAgregation()
   
   ## doit avoir le meme nom que celui qui est indique dans la definition des modules pour le pipeline
   ## (fichier pipelineDefinition.R)
-  pipeline$current.indice <- which(pipeline$current.obj@processes == 'moduleAgregation')
+  rv.core$current.indice <- which(pipeline$current.obj@processes == 'moduleAgregation')
   
   DeleteDatasetsAfter('moduleAgregation')
-  rvNav$Done[pipeline$current.indice-1] <- TRUE
+  rvNav$Done[rv.core$current.indice-1] <- TRUE
 })
 
 ######################################

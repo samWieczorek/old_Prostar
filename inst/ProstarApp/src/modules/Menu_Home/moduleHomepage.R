@@ -50,7 +50,7 @@ output$citationText <- renderUI({
 
 
 output$versionsText <- renderUI({
-  t <- sessionInfo()
+  #t <- sessionInfo()
   daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
   ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
   print(daparVersion)

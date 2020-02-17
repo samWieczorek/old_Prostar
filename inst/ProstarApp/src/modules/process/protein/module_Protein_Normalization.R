@@ -1,7 +1,7 @@
-source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNavigation.R"),  local = TRUE)$value
 source(file.path("./src", "modules/Plots/moduleIntensityPlots.R"), local = TRUE)$value
 source(file.path("./src", "modules/Plots/moduleDensityPlot.R"), local = TRUE)$value
-source(file.path("./src", "modules/Misc/moduleNotaNumeric.R"), local = TRUE)$value
+#source(file.path("./src", "modules/Misc/moduleNotaNumeric.R"), local = TRUE)$value
 
 
 moduleProtNormalizationUI <- function(id){
