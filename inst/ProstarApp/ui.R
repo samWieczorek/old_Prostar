@@ -5,27 +5,37 @@ library(sass)
 library(shinyBS)
 
 
-print(list.files('src',full.name = TRUE, pattern='*.R$', recursive=TRUE))
-###--------------------------------------------
-SourceFiles <- function(ll.files){
-  
-  for (f in ll.files){
-    print(paste0('sourcing ', f))
-    if (f != 'src/core.R')
-      source(file.path(".",f), local=TRUE)$value
-  }
-}
+## Load of modules that are to be imbedded in the sidebar
+# files <-list.files('src',full.name = TRUE, pattern='*.R$', recursive=TRUE)
+# 
+# for (f in files){
+#   print(paste0('sourcing ', f))
+#   if (f != 'src/core.R')
+#   source(f, local=TRUE)$value
+# }
+# 
 
+source(file.path("./src", "commonFunc.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleHomePage.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Misc/moduleInsertMarkdown.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
 
-## Launch modules
-SourceFiles(list.files('src/Misc',full.name = TRUE, pattern='*.R$', recursive=TRUE))
-SourceFiles(list.files('src/modules/Menu_Home',full.name = TRUE, pattern='*.R$', recursive=TRUE))
-SourceFiles(list.files('src/modules/Menu_DataManager',full.name = TRUE, pattern='*.R$', recursive=TRUE))
-SourceFiles(list.files('src/modules/Menu_Help',full.name = TRUE, pattern='*.R$', recursive=TRUE))
-print("End fo sourcing code files")
-###--------------------------------------------
+source(file.path("./src", "modules/Misc/modulePopover.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Misc/moduleStaticDataTable.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleConvertData.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenMSnSet.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleOpenDemoDataset.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_DataManager/moduleInfoDataset.R"),  local = TRUE)$value
 
+source(file.path("./src", "modules/Menu_Home/moduleHomepage.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleCheckUpdates.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleReleaseNotes.R"),  local = TRUE)$value
+source(file.path("./src", "modules/Menu_Home/moduleSettings.R"),  local = TRUE)$value
 
+source(file.path("./src", "modules/Menu_Help/moduleBugReport.R"),  local = TRUE)$value
 
 theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
@@ -127,7 +137,7 @@ shinyUI <- fluidPage(
         div(
           id = "header",
           navbarPage(
-             position = "fixed-top",
+            position = "fixed-top",
             id = "navPage",
             
             inverse = TRUE,
@@ -158,13 +168,13 @@ shinyUI <- fluidPage(
                        source(file.path("./src", "ui_ReloadProstar.R"),  local = TRUE)$value
             ),
             
-          #,navbarMenu("Data analysis",
+            #,navbarMenu("Data analysis",
             #          uiOutput('UI_dataAnalysis'))
-          
-             navbarMenu("Help",
-                         tabPanel("Links",value="usefulLinksTab",  moduleInsertMarkdownUI('links_MD')),
-                         tabPanel("FAQ", value="faqTab",  moduleInsertMarkdownUI('FAQ_MD')),
-                         tabPanel("Bug report",value="bugReportTab",  moduleBugReportUI('bugreport'))
+            
+            navbarMenu("Help",
+                       tabPanel("Links",value="usefulLinksTab",  moduleInsertMarkdownUI('links_MD')),
+                       tabPanel("FAQ", value="faqTab",  moduleInsertMarkdownUI('FAQ_MD')),
+                       tabPanel("Bug report",value="bugReportTab",  moduleBugReportUI('bugreport'))
             )
             
           ) ## end navbarPage
@@ -175,4 +185,3 @@ shinyUI <- fluidPage(
     
   )
 ) ## end fluid
-
