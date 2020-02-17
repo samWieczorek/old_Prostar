@@ -103,7 +103,7 @@ moduleOpenDemoDataset  <- function(input, output, session){
       switch(typeOfData,
              protein = {
                    rv.openDemo$dataOut <- PipelineProtein(analysis= input$demoDataset, 
-                                                              pipelineType = name(ll.pipeline), 
+                                                              pipelineType = names(ll.pipeline), 
                                                               dataType ='protein',
                                                               processes=unlist(ll.pipeline), 
                                                               experiments=list(original=data), 
@@ -111,7 +111,7 @@ moduleOpenDemoDataset  <- function(input, output, session){
                   },
              peptide = {
                    rv.openDemo$dataOut <- PipelinePeptide(analysis= input$demoDataset, 
-                                                          pipelineType = name(ll.pipeline), 
+                                                          pipelineType = names(ll.pipeline), 
                                                           dataType ='peptide',
                                                           processes=unlist(ll.pipeline),
                                                           proteinID = proteinID,

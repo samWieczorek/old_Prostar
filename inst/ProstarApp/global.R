@@ -202,8 +202,7 @@ GetExtension <- function(name){
 
 
 #--------------------------------------------------------
-DeleteFileExtension <- function(name){
-  return(strsplit(name,'.', fixed=T)[[1]][1])}
+
 
 #--------------------------------------------------------
 GetExtension <- function(name){
