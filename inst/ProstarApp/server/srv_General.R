@@ -1285,7 +1285,9 @@ Get_ParamValue <- function(pp, key){
 
 
 GetBioconductorVersions <- function(){
-  ll.versions <- list()
+  ll.versions <- list(Prostar = "NA",
+                      DAPAR = "NA",
+                      DAPARdata = "NA")
   
   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
   tryCatch({
