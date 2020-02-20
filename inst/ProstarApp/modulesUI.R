@@ -150,9 +150,7 @@ moduleBoxplotUI <- function(id) {
                selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
       ),
       
-      tags$div(style="display:inline-block; vertical-align: middle;",
-               moduleTrackProtUI(ns('widgets'))
-      )
+      uiOutput(ns('showTrackProt'))
       
     )         
     

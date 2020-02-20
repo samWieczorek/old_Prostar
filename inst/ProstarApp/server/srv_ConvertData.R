@@ -223,7 +223,7 @@ observe({
   req(rv$tab1)
   test1 <- test2 <- TRUE
   
-  test1 <- (input$typeOfData == "peptide") && !(input$convert_proteinId == "")
+  if(input$typeOfData == "peptide"){test1 <- !(input$convert_proteinId == "") && !is.null(input$convert_proteinId)}
  
   
   if (input$idBox =="Auto ID") {
@@ -234,6 +234,8 @@ observe({
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
   }
    
+  print(test1)
+  print(test2)
   rvModProcess$moduleConvertDone[2] <- test1 && test2
 })
 
@@ -671,6 +673,14 @@ output$convertFinalStep <- renderUI({
 #######################################
 observeEvent(input$createMSnsetButton,{
      if(!is.null(rv$current.obj)){return(NULL)}
+  
+  
+  allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
+  if (allDone !=4){
+    shinyjs::info('At least one of the previous step has not been done.')
+    return(NULL)
+  }
+  
     print("In observeEvent(input$createMSnsetButton")
     colNamesForOriginofValues <- NULL
     if (isTRUE(rv$widgets$Convert$selectIdent)) {

@@ -711,14 +711,20 @@ moduleBoxplot <- function(input, output, session, data, params, reset) {
   rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({reset()}))
   
   
+  output$showTrackProt <- renderUI({
+    req(rv$current.obj)
+    if (rv$typeOfDataset=='protein'){
+    tags$div(style="display:inline-block; vertical-align: middle;",
+             moduleTrackProtUI(ns('widgets'))
+    ) } else { return(NULL)}
+  })
+  
   observeEvent(req(rv.modboxplot$var()),{
     print("In observe rv.modboxplot$var")
     print(rv.modboxplot$var())
     
     
     if (is.null(rv.modboxplot$var()$type)){return(NULL)}
-    
-    
     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
     
     
