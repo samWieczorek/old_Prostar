@@ -273,69 +273,71 @@ GetIndicesOfSelectedProteins <- reactive({
 ##' Reactive behavior : Normalization of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.normalization,{
-   
+  
+  print("BOUCLE INFINIE ?")
+  
   rv$widgets$normalization$method
   rv$dataset[[input$datasets]]
   
-     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-     
-     print("param de wrapper.normalizeD")
-     print(head(rv$dataset[[input$datasets]]))
-     print(rv$widgets$normalization$method)
-     print(rv$widgets$normalization$type)
-     print(rv$widgets$normalization$varReduction)
-     print(as.numeric(rv$widgets$normalization$quantile))
-     print(as.numeric(input$spanLOESS))
-     print(GetIndicesOfSelectedProteins())
-     
-
-     switch(rv$widgets$normalization$method, 
-           G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
-           GlobalQuantileAlignment = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method)
-           },
-           QuantileCentering = {
-             quant <-NA
-             if (!is.null(rv$widgets$normalization$quantile))
-             {quant <- as.numeric(rv$widgets$normalization$quantile)}
-             
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type, 
-                                                  quantile = quant,
-                                                  subset.norm=GetIndicesOfSelectedProteins()
-                                                  )
-             
-           } ,  
-           MeanCentering = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type, 
-                                                  scaling=rv$widgets$normalization$varReduction,
-                                                  subset.norm=GetIndicesOfSelectedProteins()
-                                                  )
-           }, 
-           SumByColumns = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type,
-                                                  subset.norm=GetIndicesOfSelectedProteins()
-                                                  )
-             
-           },
-           LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                          rv$widgets$normalization$method, 
-                                                          rv$widgets$normalization$type,
-                                                          span=as.numeric(input$spanLOESS))
-           },
-           vsn = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type)
-           }
-          )
-
+  ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+  
+  print("param de wrapper.normalizeD")
+  print(head(rv$dataset[[input$datasets]]))
+  print(rv$widgets$normalization$method)
+  print(rv$widgets$normalization$type)
+  print(rv$widgets$normalization$varReduction)
+  print(as.numeric(rv$widgets$normalization$quantile))
+  print(as.numeric(input$spanLOESS))
+  print(GetIndicesOfSelectedProteins())
+  
+  
+  switch(rv$widgets$normalization$method, 
+         G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
+         GlobalQuantileAlignment = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method)
+         },
+         QuantileCentering = {
+           quant <-NA
+           if (!is.null(rv$widgets$normalization$quantile))
+           {quant <- as.numeric(rv$widgets$normalization$quantile)}
+           
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type, 
+                                                quantile = quant,
+                                                subset.norm=GetIndicesOfSelectedProteins()
+           )
+           
+         } ,  
+         MeanCentering = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type, 
+                                                scaling=rv$widgets$normalization$varReduction,
+                                                subset.norm=GetIndicesOfSelectedProteins()
+           )
+         }, 
+         SumByColumns = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type,
+                                                subset.norm=GetIndicesOfSelectedProteins()
+           )
+           
+         },
+         LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                        rv$widgets$normalization$method, 
+                                                        rv$widgets$normalization$type,
+                                                        span=as.numeric(input$spanLOESS))
+         },
+         vsn = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type)
+         }
+  )
+  
   rvModProcess$moduleNormalizationDone[1] <- TRUE
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })

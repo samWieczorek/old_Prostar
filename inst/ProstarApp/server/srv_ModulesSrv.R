@@ -18,7 +18,6 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
   
   ns <- session$ns
   
-  
   observe({
     reset()
     print("In track module =RESET observe")
@@ -39,65 +38,54 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
     updateSelectInput(session, "colSelect", selected=params()$col)
   })
   
-  ######################################################
-  if (length(rv$current.obj@experimentData@other$proteinId) == 0) {
-    
-    observeEvent(input$typeSelect, {
-      shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
-    })
-    
-    output$isProteinID <- renderUI({
-      selectInput(ns("typeSelect"), "Type of selection",
-                  choices=c("None" = "None", "Column"="Column"),
-                  width=('130px'))
-    })
-    
-    output$columnSelect_UI <- renderUI({
-      isolate({
-        ll <-  colnames(Biobase::fData(rv$current.obj))
-        hidden(selectInput(ns("colSelect"), "Column", choices=ll))
-      })
-    })
-  }
   
-  else {
-    
-    observeEvent(input$typeSelect, {
-      shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList")&&(input$typeSelect!="None"))
-      shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random")&&(input$typeSelect!="None"))
-      shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
-    })
-    
-    output$isProteinID <- renderUI({
-      selectInput(ns("typeSelect"), "Type of selection",
-                  choices=c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
-                  width=('130px'))
-    })
-    
-    output$listSelect_UI <- renderUI({
-      isolate({
-        ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-        hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
-      })
-    })
-    
-    output$randomSelect_UI <- renderUI({
-      isolate({
-        ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-        hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
-      })
-    })
-    
-    output$columnSelect_UI <- renderUI({
-      isolate({
-        ll <-  colnames(Biobase::fData(rv$current.obj))
-        hidden(selectInput(ns("colSelect"), "Column", choices=ll))
-      })
-    })
-    
-  }
-  ######################################################
   
+  output$typeSelect_UI <- renderUI({
+  #output$typeSelect <- renderUI({
+    if (length(rv$current.obj@experimentData@other$proteinId) == 0) {
+      x <- c("None" = "None", "Column"="Column")
+    }
+    else {
+      x <- c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column")
+    }
+    
+    print("choice")
+    print(x)
+    isolate({
+      selectInput(ns("typeSelect"), label = "Type of selection",
+                choices = x,width=('130px'))
+      })
+  })
+  
+
+  observeEvent(input$typeSelect, {
+    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList")&&(input$typeSelect!="None"))
+    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random")&&(input$typeSelect!="None"))
+    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
+  })
+  
+  output$listSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+    })
+  })
+  
+  output$randomSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
+    })
+  })
+  
+  output$columnSelect_UI <- renderUI({
+    isolate({
+      ll <-  colnames(Biobase::fData(rv$current.obj))
+      hidden(selectInput(ns("colSelect"), "Column", choices=ll))
+    })
+  })
+    
+    
   
   BuildResult <- reactive({
     
@@ -719,6 +707,7 @@ moduleBoxplot <- function(input, output, session, data, params, reset) {
     indices = NULL
   )
   
+  
   rv.modboxplot$var <- callModule(moduleTrackProt, "widgets", params=reactive({params()}), reset=reactive({reset()}))
   
   
@@ -726,12 +715,12 @@ moduleBoxplot <- function(input, output, session, data, params, reset) {
     print("In observe rv.modboxplot$var")
     print(rv.modboxplot$var())
     
-   
+    
     if (is.null(rv.modboxplot$var()$type)){return(NULL)}
     
     
     ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-   
+    
     
     switch(rv.modboxplot$var()$type,
            #ProteinList = rv.modboxplot$ind <- rv.modboxplot$var()$list,
