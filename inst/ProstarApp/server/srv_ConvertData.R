@@ -121,12 +121,12 @@ tags$div(
   tags$div( style="display:inline-block; vertical-align: top;",
             uiOutput("convertChooseProteinID_UI"),
             uiOutput("previewProteinID_UI")
+            , uiOutput("sepProteinID_UI")
+            
   )
 )
 )
 })
-
-
 
 
 output$Convert_ExpFeatData <- renderUI({
@@ -303,8 +303,63 @@ output$previewProteinID_UI <- renderUI({
 output$previewProtID <- renderTable(
   # req(input$convert_proteinId),
   head(rv$tab1[,rv$widgets$Convert$convert_proteinId]),
- colnames = FALSE
+  colnames = FALSE
 )
+
+
+output$sepProteinID_UI <- renderUI({
+  if (input$typeOfData == "protein") {return(NULL)}
+  
+    tagList(
+      textInput("sepProteinID", label = "Separator in Protein ID (' ' . , ; -)", width = '300px'),
+      uiOutput("sepProteinID_output")
+      )
+  })
+
+observeEvent(input$sepProteinID, {
+  req(rv$tab1)
+  req(input$convert_proteinId)
+  req(input$sepProteinID)
+  
+  output$sepProteinID_output <- renderUI({
+    txt <- checkSep(input$sepProteinID)
+    
+    paste0("The separator is '", input$sepProteinID, "'. Checking for other separators...")
+    HTML(txt)
+    
+    
+  })
+})
+
+
+checkSep <- function(sepUser){
+  inputUser <- sepUser
+  separators <- c(' ', '.', ",", ";", "-",'')
+  if (length(which(inputUser == separators))>=1) {
+    separators <- separators[-which(inputUser == separators)]
+  }
+  
+  sepToCheck <- character()
+  for (i in separators) {
+    sepToCheck <- paste0( sepToCheck, gsub('"',"",i),"|" )
+  }
+  sepToCheck <- substr(sepToCheck,1,nchar(sepToCheck)-1)
+  sepToCheck <- gsub("\\.", "\\\\.", sepToCheck)
+  liste <- sapply(rv$tab1[,rv$widgets$Convert$convert_proteinId], function(x) strsplit(x, sepToCheck))
+  subliste <- liste[lengths(liste)>1]
+  listeSepPLus <- c()
+  for (i in 1:length(subliste)){
+    listeSepPLus <- c(listeSepPLus, intersect(unlist(strsplit(separators,"")),unlist(strsplit(names(subliste)[i],""))))
+  }
+  
+  if (length(listeSepPLus)>0) {
+    text <- paste0("<font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
+  }
+  else { 
+    text <- "OK, no others separators detected."
+  }
+  return(text)
+}
 
 
 #########################################################
