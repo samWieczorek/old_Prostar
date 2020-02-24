@@ -329,31 +329,6 @@ getPackagesVersions <- reactive({
 
 
 
-ComputeAdjacencyMatrices <- function(obj){
-  req(obj@experimentData@other$proteinId)
-  if (obj@experimentData@other$typeOfData != 'peptide') {return (NULL)}
-  
-  pId <- obj@experimentData@other$proteinId
-  print(pId)
-  print(paste0("class of obj : ", class(obj)))
-  
-  matAdj <- NULL
-  matSharedPeptides <- Prostar::BuildAdjacencyMatrix(obj, pId, FALSE)
-  matUniquePeptides <- Prostar::BuildAdjacencyMatrix(obj, pId, TRUE)
-  matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
-  
-  return(matAdj)
-}
-
-ComputeConnexComposants <- function(X){
-  req(X)
-  CC <- NULL
-  CC <- list(allPep = get.pep.prot.cc(as.matrix(X$matWithSharedPeptides)),
-                onlyUniquePep = get.pep.prot.cc(as.matrix(X$matWithUniquePeptides)))
-  
-  CC
-}
-
 
 ###-------------------------------------
 

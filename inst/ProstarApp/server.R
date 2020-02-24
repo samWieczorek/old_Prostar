@@ -100,7 +100,6 @@ server <- function(input, output, session){
 
   ## Select submenu in sidebar
  observeEvent(input$sidebar_left, {
-    print(input$sidebar_left)
     switch(input$sidebar_left,
            FAQ =  toggleModal(session, "modalFAQ"),
            links = toggleModal(session, "modallinks"),
@@ -109,10 +108,5 @@ server <- function(input, output, session){
     )
   })
 
-  
-  
-  #shinyjs::hide(id = "loading_page", anim = FALSE)
-  
-  #shinyjs::show("main_content", anim = TRUE, animType = "fade")
   
    }

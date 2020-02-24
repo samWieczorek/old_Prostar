@@ -4,12 +4,12 @@ source(file.path(".", "modules/Plots/moduleLegendColoredExprs.R"), local = TRUE)
 source(file.path(".", "modules/DataManager/moduleOpenDataset.R"), local = TRUE)$value
 source(file.path(".", "modules/moduleDescriptiveStats.R"), local = TRUE)$value
 source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
+#source(file.path(".", "modules/moduleNavigation2.R"),  local = TRUE)$value
 
 
 ## Chargement des modules specifiques au traitement des données
 #source(file.path(".", "Classes/ClassPepPipeline.R"), local = TRUE)$value
-source(file.path(".", "Classes/ProteinPipeline-class.R"), local = TRUE)$value
+source(file.path(".", "Classes/protein-pipeline-class.R"), local = TRUE)$value
 
 
 # source(file.path(".", "modules/process/peptide/moduleFiltering.R"), local = TRUE)$value
@@ -22,8 +22,8 @@ source(file.path(".", "Classes/ProteinPipeline-class.R"), local = TRUE)$value
 #source(file.path(".", "modules/process/protein/moduleProtImputation.R"), local = TRUE)$value
 #source(file.path(".", "modules/process/protein/moduleProtHypothesisTest.R"), local = TRUE)$value
 
-source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
-source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
+#source(file.path(".", "modules/process/p2p/moduleH.R"), local = TRUE)$value
+#source(file.path(".", "modules/process/p2p/moduleI.R"), local = TRUE)$value
 
 
 
@@ -55,33 +55,34 @@ pipeline <- reactiveValues(
 ###############################################################################
 ## Declaration des variables gloables su pipeline qui vont gerer la navigation 
 ## entre les differents modules de traitement dans le pipeline courant
-###############################################################################
-rvNav <- reactiveValues(
-  Done = NULL,
-  def = list(name = NULL,
-             stepsNames = NULL,
-             isMandatory = NULL,
-             ll.UI = NULL
-             ),
-             rstFunc = reactive({resetNavPipeline()})
-)
-
-resetNavPipeline <- reactive({  
-  
-  rvNav$Done <- NULL
-  rvNav$def <- list(name = NULL,
-                    stepsNames = NULL,
-                    isMandatory = NULL,
-                    ll.UI = NULL
-                  )
-  
-})
+# ###############################################################################
+# rvNav <- reactiveValues(
+#   Done = NULL,
+#   def = list(name = NULL,
+#              stepsNames = NULL,
+#              isMandatory = NULL,
+#              ll.UI = NULL
+#              ),
+#              rstFunc = reactive({resetNavPipeline()})
+# )
+# 
+# resetNavPipeline <- reactive({  
+#   
+#   rvNav$Done <- NULL
+#   rvNav$def <- list(name = NULL,
+#                     stepsNames = NULL,
+#                     isMandatory = NULL,
+#                     ll.UI = NULL
+#                   )
+#   
+# })
 
 
 
 ################################################################################
 #instanciation du premier dataset. 
 obj.openDataset <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
+#pipeline$current.obj <- callModule(module=moduleOpenDataset, 'moduleOpenDataset', selectedPanel = reactive({input$navPage}))
 
 
 
@@ -150,25 +151,27 @@ observeEvent(req(obj.openDataset()),{
        }
    
   
-  # Load UI code for modules
-  rvNav$Done = rep(FALSE,length(def))
-  rvNav$def = list(name = type.pipeline,
-                   stepsNames = def,
-                   isMandatory = rep(TRUE,length(def)),
-                   ll.UI = LoadModulesUI(def)
-                   )
   
-  pipeline$current.indice <- 1
-  pipeline$current.obj <- obj.openDataset()
-  
-  ## Lancement du module de navigation du pipeline pour suivre les différents process
-  ## de traitement liés au pipeline
-  pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
-                              isDone = reactive({rvNav$Done}),
-                              pages = reactive({rvNav$def}),
-                              rstFunc = resetNavPipeline,
-                              type = reactive({'rectangle'})
-                              )
+  # BuildSidebarMenu()
+  # # Load UI code for modules
+  # rvNav$Done = rep(FALSE,length(def))
+  # rvNav$def = list(name = type.pipeline,
+  #                  stepsNames = def,
+  #                  isMandatory = rep(TRUE,length(def)),
+  #                  ll.UI = LoadModulesUI(def)
+  #                  )
+  # 
+  # pipeline$current.indice <- 1
+  # pipeline$current.obj <- obj.openDataset()
+  # 
+  # ## Lancement du module de navigation du pipeline pour suivre les différents process
+  # ## de traitement liés au pipeline
+  # pipeline$nav2 <- callModule(moduleNavigation2, "moduleGeneral",
+  #                             isDone = reactive({rvNav$Done}),
+  #                             pages = reactive({rvNav$def}),
+  #                             rstFunc = resetNavPipeline,
+  #                             type = reactive({'rectangle'})
+  #                             )
   #BuildDataminingMenu("Data mining")
 })
 

@@ -102,10 +102,10 @@ moduleOpenDemoDataset  <- function(input, output, session, selectedPanel){
                  peptide = {
                    rv.openDemo$current.obj <- pepPipeline()
                    ll.process <- pipeline.def$peptide
-                   type <- 'peptide'
+                   type <- 'Peptide'
                    },
                  protein = {
-                   rv.openDemo$current.obj <- PipelineProtein(datasetName= input$demoDataset, 
+                   rv.openDemo$current.obj <- PipelineProtein(analysis= input$demoDataset, 
                                                               pipelineType = "protein", 
                                                               processes=pipeline.def$protein, 
                                                               experiments=list(original=data), 
