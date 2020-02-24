@@ -12,6 +12,10 @@ callModule(modulePopover,"modulePopover_convertProteinID",
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
                                 content="Select the column containing the parent protein IDs.")))
 
+callModule(modulePopover,"modulePopover_sepProteinID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"3\">Delimiter in Protein IDs</font></strong>")), 
+                                content="Select one (\" \", \".\", \",\", \";\", \"-\") separator.")))
+
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
@@ -69,7 +73,7 @@ observeEvent(input$idBox,{ rv$widgets$Convert$idBox <- input$idBox})
 observeEvent(input$eDatabox,{ rv$widgets$Convert$eDatabox <- input$eDatabox})
 observeEvent(input$typeOfData,{ rv$widgets$Convert$typeOfData <- input$typeOfData})
 observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
-observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
+#observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
 observeEvent(input$replaceAllZeros,{ rv$widgets$Convert$replaceAllZeros <- input$replaceAllZeros})
 observeEvent(input$convert_reorder,{ rv$widgets$Convert$convert_reorder <- input$convert_reorder})
 observeEvent(input$XLSsheets,{ rv$widgets$Convert$XLSsheets <- input$XLSsheets})
@@ -306,16 +310,19 @@ output$previewProtID <- renderTable(
   colnames = FALSE
 )
 
-
+############################################################################
 output$sepProteinID_UI <- renderUI({
   if (input$typeOfData == "protein") {return(NULL)}
   
     tagList(
-      textInput("sepProteinID", label = "Separator in Protein ID (' ' . , ; -)", width = '300px'),
-      uiOutput("sepProteinID_output")
+      modulePopoverUI("modulePopover_sepProteinID"),
+      textInput("sepProteinID", label = "", width = '300px'),
+      uiOutput("sepProteinID_output"),
+      uiOutput("replaceOrphanPept")
       )
   })
 
+############################################################################
 observeEvent(input$sepProteinID, {
   req(rv$tab1)
   req(input$convert_proteinId)
@@ -329,8 +336,31 @@ observeEvent(input$sepProteinID, {
     
     
   })
+  
 })
 
+observeEvent(input$sepProteinID, {
+  output$replaceOrphanPept <- renderUI({
+    req(rv$tab1)
+    req(input$convert_proteinId)
+    
+    index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
+    
+    print("index")
+    print(index)
+    
+    #if () {
+      checkboxInput("removeOrphanPept", 
+                    paste0("Do you want to remove ", length(index)," peptide(s) without parent protein?"))
+      
+    #}
+    
+    
+  })
+  #print(input$removeOrphanPept)
+})
+
+############################################################################
 
 checkSep <- function(sepUser){
   inputUser <- sepUser
@@ -353,10 +383,10 @@ checkSep <- function(sepUser){
   }
   
   if (length(listeSepPLus)>0) {
-    text <- paste0("<font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
+    text <- paste0("<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
   }
   else { 
-    text <- "OK, no others separators detected."
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img> OK, no others separators detected."
   }
   return(text)
 }
@@ -440,8 +470,8 @@ observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
   input$XLSsheets
   if (((GetExtension(rv$widgets$Convert$datafile$name)== "xls")
        || (GetExtension(rv$widgets$Convert$datafile$name) == "xlsx") )
-      && is.null(rv$widgets$Convert$XLSsheets)) {return(NULL)  }
-
+      && is.null(rv$widgets$Convert$XLSsheets)) { return(NULL) }
+  
   authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
   if( is.na(match(GetExtension(rv$widgets$Convert$datafile$name), authorizedExts))) {
     shinyjs::info("Warning : this file is not a text nor an Excel file ! 
@@ -461,6 +491,7 @@ observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
              xls = { rv$tab1 <- readExcel(rv$widgets$Convert$datafile$datapath, ext, sheet=rv$widgets$Convert$XLSsheets)},
              xlsx = {rv$tab1 <- readExcel(rv$widgets$Convert$datafile$datapath, ext, sheet=rv$widgets$Convert$XLSsheets)}
       )
+      
   #   }
   #   , warning = function(w) {
   #     shinyjs::info(conditionMessage(w))
@@ -474,10 +505,6 @@ observeEvent(req(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
    }
   #shinyjs::disable('file1')
 })
-
-
-
-
 
 
 output$conversionDone <- renderUI({
@@ -609,26 +636,26 @@ output$checkIdentificationTab <- renderUI({
 # reactive dataset
 quantiDataTable <- reactive({
   req(rv$widgets$Convert$eDatabox)
-    req(rv$tab1)
+  req(rv$tab1)
+  
+  session$sendCustomMessage('unbind-DT', 'x1')
+  df <- NULL
+  choices <- c("None",colnames(rv$tab1))
+  names(choices) <- c("None",colnames(rv$tab1))
+  
+  if (isTRUE(rv$widgets$Convert$selectIdent)) {
     
-    session$sendCustomMessage('unbind-DT', 'x1')
-    df <- NULL
-    choices <- c("None",colnames(rv$tab1))
-    names(choices) <- c("None",colnames(rv$tab1))
-    
-    if (isTRUE(rv$widgets$Convert$selectIdent)) {
-        
-      df <- data.frame(as.data.frame(rv$widgets$Convert$eDatabox),
-                         shinyInput(selectInput,
-                                    "colForOriginValue_",
-                                    nrow(as.data.frame(rv$widgets$Convert$eDatabox)),
-                                    choices=choices))
-        colnames(df) <- c("Sample", "Identification method")
-    } else {
-      df <- data.frame(Sample = as.data.frame(rv$widgets$Convert$eDatabox))
-        colnames(df) <- c("Sample")
-    }
-    df
+    df <- data.frame(as.data.frame(rv$widgets$Convert$eDatabox),
+                     shinyInput(selectInput,
+                                "colForOriginValue_",
+                                nrow(as.data.frame(rv$widgets$Convert$eDatabox)),
+                                choices=choices))
+    colnames(df) <- c("Sample", "Identification method")
+  } else {
+    df <- data.frame(Sample = as.data.frame(rv$widgets$Convert$eDatabox))
+    colnames(df) <- c("Sample")
+  }
+  df
 })
 
 observeEvent(rv$widgets$Convert$selectIdent, {
@@ -727,7 +754,7 @@ output$convertFinalStep <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-     if(!is.null(rv$current.obj)){return(NULL)}
+  if(!is.null(rv$current.obj)){return(NULL)}
   
   
   allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
@@ -736,112 +763,111 @@ observeEvent(input$createMSnsetButton,{
     return(NULL)
   }
   
-    print("In observeEvent(input$createMSnsetButton")
-    colNamesForOriginofValues <- NULL
-    if (isTRUE(rv$widgets$Convert$selectIdent)) {
-        colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-        if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
-    } 
-    
-
-        result = tryCatch(
-            {
-              isolate({
-              ext <- GetExtension(rv$widgets$Convert$datafile$name)
-              txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
-                               "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-              txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
-                               ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
-                switch(ext,
-                       txt = writeToCommandLogFile(txtTab),
-                       csv = writeToCommandLogFile(txtTab),
-                       tsv = writeToCommandLogFile(txtTab),
-                       xls= writeToCommandLogFile(txtXls),
-                       xlsx = writeToCommandLogFile(txtXls)
-                )
-                
-                tmp.eData.box <- rv$widgets$Convert$eDatabox
-                indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
-                if (!is.null(rv$newOrder)){
-                    tmp.eData.box <- tmp.eData.box[rv$newOrder]
-                    indexForEData <- indexForEData[rv$newOrder]
-                }
-                
-                indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
-                
-                indexForIDBox <- NULL
-                if (rv$widgets$Convert$idBox !="Auto ID") {
-                  indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
-                }
-                
-                
-                metadata <- hot_to_r(input$hot)
-                logData <- (rv$widgets$Convert$checkDataLogged == "no")
-                
-                
-                indexForOriginOfValue <- NULL
-                if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
-                    for (i in 1:length(tmp.eData.box)){
-                        indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
-                    }
-                }
-                
-                
-                versions <- list(Prostar_Version = 
-                                   installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
-                                 DAPAR_Version = 
-                                   installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-                )
-                rv$current.obj <- DAPAR::createMSnset(rv$tab1, 
-                                    metadata, 
-                                    indexForEData, 
-                                    indexForFData, 
-                                    indexForIDBox,
-                                    indexForOriginOfValue,
-                                    (rv$widgets$Convert$checkDataLogged == "no"), 
-                                    rv$widgets$Convert$replaceAllZeros,
-                                    pep_prot_data = rv$widgets$Convert$typeOfData,
-                                    proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
-                                    versions
-                )
-
-                
-                rv$current.obj.name <- input$filenameToCreate
-                rv$indexNA <- which(is.na(exprs(rv$current.obj)))
-                rv$typeOfDataset <- rv$widgets$Convert$typeOfData
-                rv$current.obj <- addOriginOfValue(rv$current.obj)
-                
-                rvModProcess$moduleConvertDone[5] <- TRUE
-                loadObjectInMemoryFromConverter()
-                
-                print("after loadObjectInMemoryFromConverter")
-                print(rv$current.obj)
-                #updateTabsetPanel(session, "tabImport", selected = "Convert")
-              }) ## end of isolate
-            }
-            , warning = function(w) {
-                if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
-                    shinyjs::info(paste("Warning : Your original dataset may contain negative values",
-                                        "so that they cannot be logged. Please check back the dataset or", 
-                                        "the log option in the first tab.",
-                                        sep=" "))
-                } 
-              # else {
-              #       shinyjs::info(paste("Warning in CreateMSnSet",":",
-              #                           conditionMessage(w), 
-              #                           sep=" "))
-              #   }
-            }, error = function(e) {
-                shinyjs::info(paste("Error :","CreateMSnSet",":",
-                                    conditionMessage(e), 
-                                    sep=" "))
-            }, finally = {
-                #cleanup-code 
-            })
+  print("In observeEvent(input$createMSnsetButton")
+  colNamesForOriginofValues <- NULL
+  if (isTRUE(rv$widgets$Convert$selectIdent)) {
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+  } 
+  
+  
+  result = tryCatch({
+      isolate({
+        ext <- GetExtension(rv$widgets$Convert$datafile$name)
+        txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
+                         "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
+        txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
+                         ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
+        switch(ext,
+               txt = writeToCommandLogFile(txtTab),
+               csv = writeToCommandLogFile(txtTab),
+               tsv = writeToCommandLogFile(txtTab),
+               xls= writeToCommandLogFile(txtXls),
+               xlsx = writeToCommandLogFile(txtXls)
+        )
+        
+        tmp.eData.box <- rv$widgets$Convert$eDatabox
+        indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
+        if (!is.null(rv$newOrder)){
+          tmp.eData.box <- tmp.eData.box[rv$newOrder]
+          indexForEData <- indexForEData[rv$newOrder]
+        }
+        
+        indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
+        
+        indexForIDBox <- NULL
+        if (rv$widgets$Convert$idBox !="Auto ID") {
+          indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
+        }
         
         
+        metadata <- hot_to_r(input$hot)
+        logData <- (rv$widgets$Convert$checkDataLogged == "no")
         
-    #})
+        
+        indexForOriginOfValue <- NULL
+        if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
+          for (i in 1:length(tmp.eData.box)){
+            indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
+          }
+        }
+        
+        
+        versions <- list(Prostar_Version = 
+                           installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
+                         DAPAR_Version = 
+                           installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+        )
+        rv$current.obj <- DAPAR::createMSnset(rv$tab1, 
+                                              metadata, 
+                                              indexForEData, 
+                                              indexForFData, 
+                                              indexForIDBox,
+                                              indexForOriginOfValue,
+                                              (rv$widgets$Convert$checkDataLogged == "no"), 
+                                              rv$widgets$Convert$replaceAllZeros,
+                                              pep_prot_data = rv$widgets$Convert$typeOfData,
+                                              proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
+                                              versions
+        )
+        
+        
+        rv$current.obj.name <- input$filenameToCreate
+        rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+        rv$typeOfDataset <- rv$widgets$Convert$typeOfData
+        rv$current.obj <- addOriginOfValue(rv$current.obj)
+        
+        rvModProcess$moduleConvertDone[5] <- TRUE
+        loadObjectInMemoryFromConverter()
+        
+        print("after loadObjectInMemoryFromConverter")
+        print(rv$current.obj)
+        #updateTabsetPanel(session, "tabImport", selected = "Convert")
+      }) ## end of isolate
+    }
+    , warning = function(w) {
+      if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
+        shinyjs::info(paste("Warning : Your original dataset may contain negative values",
+                            "so that they cannot be logged. Please check back the dataset or", 
+                            "the log option in the first tab.",
+                            sep=" "))
+      } 
+      # else {
+      #       shinyjs::info(paste("Warning in CreateMSnSet",":",
+      #                           conditionMessage(w), 
+      #                           sep=" "))
+      #   }
+    }, error = function(e) {
+      shinyjs::info(paste("Error :","CreateMSnSet",":",
+                          conditionMessage(e), 
+                          sep=" "))
+    }, finally = {
+      #cleanup-code 
+    })
+  
+  
+  
+  #})
 })
 
 
