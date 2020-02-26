@@ -1432,3 +1432,35 @@ buildWritableVector <- function(v){
   }
   return(t)
 }
+
+
+
+checkSep <- function(sepUser){
+  inputUser <- sepUser
+  separators <- c(' ', '.', ",", ";", "-",'')
+  if (length(which(inputUser == separators))>=1) {
+    separators <- separators[-which(inputUser == separators)]
+  }
+  
+  sepToCheck <- character()
+  for (i in separators) {
+    sepToCheck <- paste0( sepToCheck, gsub('"',"",i),"|" )
+  }
+  sepToCheck <- substr(sepToCheck,1,nchar(sepToCheck)-1)
+  sepToCheck <- gsub("\\.", "\\\\.", sepToCheck)
+  liste <- sapply(rv$tab1[,rv$widgets$Convert$convert_proteinId], function(x) strsplit(x, sepToCheck))
+  subliste <- liste[lengths(liste)>1]
+  listeSepPLus <- c()
+  for (i in 1:length(subliste)){
+    listeSepPLus <- c(listeSepPLus, intersect(unlist(strsplit(separators,"")),unlist(strsplit(names(subliste)[i],""))))
+  }
+  
+  if (length(listeSepPLus)>0) {
+    text <- paste0("<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
+  }
+  else { 
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img> No others separators detected."
+  }
+  return(text)
+}
+

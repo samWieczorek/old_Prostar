@@ -227,14 +227,11 @@ output$Convert_DataId <- renderUI({
                 uiOutput("sepProteinID_UI")
       ),
       tags$div(style="display:inline-block; vertical-align: top;",
-               uiOutput("replaceOrphanPept"),
-               shinyjs::hidden(prettyToggle( inputId = "removeOrphanPept",
-                                             label_on = "Yes", 
-                                             icon_on = icon("check"),
-                                             label_off = "No",
-                                             icon_off = icon("remove")
-               )),
-               uiOutput("previewOrphanPept_UI")
+               uiOutput("removeOrphanPept"),
+               shinyjs::hidden(checkboxInput( inputId = "removeButtonOrphanPept",
+                                              "Do you want to remove them?",
+                                              value = FALSE)
+               )
       )
       
     )
@@ -326,25 +323,52 @@ output$sepProteinID_UI <- renderUI({
   
   tagList(
     modulePopoverUI("modulePopover_sepProteinID"),
-    checkboxInput("noSepProteinID", paste0("Click if separator(s)")),
+    checkboxInput("noSepProteinID", paste0("Click if separator"), value = FALSE),
     uiOutput("sepProteinID"),
     uiOutput("sepProteinID_output")
   )
 })
 
-
-observeEvent(req(input$noSepProteinID), {
-  output$sepProteinID <- renderUI({
-    textInput("sepProteinID", label = "Choose a delimiter", width = '300px')
-    
-  })
-  
+observeEvent(req(rv$widgets$Convert$convert_proteinId), {
   output$sepProteinID_output <- renderUI({
-    print(input$sepProteinID)
-    if (input$sepProteinID == "" || is.null(input$sepProteinID)) {
+    input$noSepProteinID
+    
+    print("input$noSepProteinID")
+    print(input$noSepProteinID)
+    
+    if (input$noSepProteinID == FALSE) {
       txt <- "<img src=\"images/Ok.png\" height=\"24\"></img> No separators"
     }
     else {
+      txt <- NULL
+    }
+    HTML(txt)
+  })
+})
+
+observeEvent(req(input$noSepProteinID), {
+  output$sepProteinID_output <- renderUI({
+    
+    print("input$noSepProteinID")
+    print(input$noSepProteinID)
+    
+    if (input$noSepProteinID == FALSE) {
+      txt <- "<img src=\"images/Ok.png\" height=\"24\"></img> No separators"
+    }
+    else {
+      txt <- NULL
+    }
+    HTML(txt)
+  })
+})
+
+observeEvent(req(input$sepProteinID), {
+  
+  output$sepProteinID_output <- renderUI({
+    
+    #req(input$noSepProteinID)
+    print(input$sepProteinID)
+    if (input$sepProteinID != "" || !is.null(input$sepProteinID)) {
       txt <- checkSep(input$sepProteinID)
     }
     HTML(txt)
@@ -352,82 +376,63 @@ observeEvent(req(input$noSepProteinID), {
 })
 
 
-checkSep <- function(sepUser){
-  inputUser <- sepUser
-  separators <- c(' ', '.', ",", ";", "-",'')
-  if (length(which(inputUser == separators))>=1) {
-    separators <- separators[-which(inputUser == separators)]
-  }
-  
-  sepToCheck <- character()
-  for (i in separators) {
-    sepToCheck <- paste0( sepToCheck, gsub('"',"",i),"|" )
-  }
-  sepToCheck <- substr(sepToCheck,1,nchar(sepToCheck)-1)
-  sepToCheck <- gsub("\\.", "\\\\.", sepToCheck)
-  liste <- sapply(rv$tab1[,rv$widgets$Convert$convert_proteinId], function(x) strsplit(x, sepToCheck))
-  subliste <- liste[lengths(liste)>1]
-  listeSepPLus <- c()
-  for (i in 1:length(subliste)){
-    listeSepPLus <- c(listeSepPLus, intersect(unlist(strsplit(separators,"")),unlist(strsplit(names(subliste)[i],""))))
-  }
-  
-  if (length(listeSepPLus)>0) {
-    text <- paste0("<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
-  }
-  else { 
-    text <- "<img src=\"images/Ok.png\" height=\"24\"></img> OK, no others separators detected."
-  }
-  return(text)
-}
+
+output$sepProteinID <- renderUI({
+  req(input$noSepProteinID)
+  textInput("sepProteinID", label = "Choose a delimiter", width = '300px')
+})
 
 
 observeEvent(input$noSepProteinID, {
   shinyjs::toggle('sepProteinID', condition=isTRUE(input$noSepProteinID))
-  shinyjs::toggle('sepProteinID_output', condition=isTRUE(input$noSepProteinID))
 })
+#########################################
 
-
-observeEvent(req(rv$widgets$Convert$convert_proteinId), {
-  output$replaceOrphanPept <- renderUI({
-    req(rv$tab1)
-    req(input$convert_proteinId)
-    
-    index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
-    
-    if (length(index) > 0) {
-      txt <- paste0(length(index), " peptide(s) don't have parent protein. Do you want to remove them?")
-      
-      
-    }
-    HTML(txt)
-    
-  })
+output$removeOrphanPept <- renderUI({
+  req(rv$widgets$Convert$convert_proteinId)
+  #rv$tab1)
   
-  # output$previewOrphanPept_UI <- renderUI({
-  #   tagList(
-  #     p(style="color: black;", 'Preview'),
-  #     tableOutput("previewOrphanPept")
-  #   )
-  # })
-  #print(input$removeOrphanPept)
+  txt <- NULL
+  index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
+  print("length(index)")
+  print(length(index))
+  if (length(index) > 0) {
+    shinyjs::show('removeButtonOrphanPept')
+    txt <- paste0(length(index), " peptide(s) don't have parent protein.")
+  }
+  else {
+    txt <- "No orphan peptides detected."
+  }
+  HTML(txt)
 })
 
-#removeOrphanPept
+
+### *** ###
+observeEvent(input$removeButtonOrphanPept, {
+  
+  print("input$removeButtonOrphanPept")
+  print(input$removeButtonOrphanPept)
+  print("dim(rv$tab1)")
+  print(dim(rv$tab1))
+  index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
+  
+  if (input$removeButtonOrphanPept){
+    print("ici")
+    rv$tab1 <- rv$tab1[-index,]
+  }
+  print("dim(rv$tab1)")
+  print(dim(rv$tab1))
+  
+})
 
 
 
-# output$previewOrphanPept <- renderTable(
-#   index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId])),
-#   head(rv$tab1[index,]),
-#   colnames = FALSE
-# )
 ### *** ###
 
-
-observeEvent(rv$widgets$Convert$convert_proteinId, {
-  shinyjs::toggle('removeOrphanPept', condition=req(rv$widgets$Convert$convert_proteinId))
-})
+# 
+# observeEvent(rv$widgets$Convert$convert_proteinId, {
+#   shinyjs::toggle('removeButtonOrphanPept', condition=req(rv$widgets$Convert$convert_proteinId))
+# })
 
 
 
