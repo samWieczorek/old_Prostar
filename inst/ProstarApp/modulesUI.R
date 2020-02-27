@@ -40,7 +40,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
   ns <- NS(id)
   
   tagList(
-    tags$p(tags$b(moduleLegendColoredExprsUI_text)),
+    tags$p(tags$b("Legend of colors")),
     
     fluidRow(
       column(width=2, 
@@ -48,7 +48,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                       tags$input(type="text", value=""),
                       tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
              )),
-      column(width=10, tags$p(moduleLegendColoredExprsUI_POV_text))
+      column(width=10, tags$p("Partially Observed Value (POV)"))
     ),
     
     fluidRow(
@@ -57,7 +57,7 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
                       tags$input(type="text", value=""),
                       tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
              )),
-      column(width=10, tags$p(moduleLegendColoredExprsUI_MEC_text))
+      column(width=10, tags$p("Missing in Entire Condition (MEC)"))
     )
   )
 }
