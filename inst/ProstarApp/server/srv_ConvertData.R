@@ -236,14 +236,10 @@ output$Convert_DataId <- renderUI({
       ),
       tags$div(style="display:inline-block; vertical-align: top;",
                uiOutput("removeOrphanPept_UI"),
-               shinyjs::hidden(checkboxInput( inputId = "checkBoxRemoveOrphanPept",
-                                              "Do you want to remove them?",
-                                              value = rv$widgets$Convert$checkBoxRemoveOrphanPept)
+               uiOutput("checkBoxRemoveOrphanPept_UI")
                )
       )
-      
     )
-  )
 })
 
 
@@ -319,7 +315,6 @@ output$previewProteinID_UI <- renderUI({
 
 
 output$previewProtID <- renderTable(
-  # req(input$convert_proteinId),
   head(rv$tab1[,rv$widgets$Convert$convert_proteinId]),
   colnames = FALSE
 )
@@ -392,20 +387,31 @@ observeEvent(req(rv$widgets$Convert$sepProteinID), {
 })
 
 
-#########################################
+################################################
+output$checkBoxRemoveOrphanPept_UI <- renderUI({
+  req(rv$widgets$Convert$convert_proteinId)
+  index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
+  
+  if (length(index) > 0) {
+  checkboxInput( inputId = "checkBoxRemoveOrphanPept",
+                 "Do you want to remove them?",
+                 value = rv$widgets$Convert$checkBoxRemoveOrphanPept)
+  }
+  else{
+    HTML("Orphan peptides removed.")
+  }
+  
+}) 
 
 observeEvent(req(rv$widgets$Convert$convert_proteinId), {
   
   output$removeOrphanPept_UI <- renderUI({
-    #rv$tab1)
     
-    #txt <- NULL
+    txt <- NULL
     index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
     
     if (length(index) > 0) {
-      
-      shinyjs::showElement('checkBoxRemoveOrphanPept')
-      txt <- paste0(length(index), " peptide(s) don't have parent protein.")
+          txt <- paste0(length(index), " peptide(s) don't have parent protein.")
       
     }
     else {
