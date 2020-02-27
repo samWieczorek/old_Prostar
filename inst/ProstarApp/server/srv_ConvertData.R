@@ -49,6 +49,7 @@ resetModuleConvert<- reactive({
   rv$widgets$Convert$noSepProteinID <- FALSE
   rv$widgets$Convert$sepProteinID <- NULL
   rv$widgets$Convert$checkBoxRemoveOrphanPept <- FALSE
+  rv$widgets$Convert$convert_confirmSep <- FALSE
   
   rv$hot <- NULL
   rv$tab1 <- NULL
@@ -95,8 +96,7 @@ observeEvent(input$XLSsheets,{ rv$widgets$Convert$XLSsheets <- input$XLSsheets})
 observeEvent(input$noSepProteinID,{ rv$widgets$Convert$noSepProteinID <- input$noSepProteinID})
 observeEvent(input$sepProteinID,{ rv$widgets$Convert$sepProteinID <- input$sepProteinID})
 observeEvent(input$checkBoxRemoveOrphanPept,{ rv$widgets$Convert$checkBoxRemoveOrphanPept <- input$checkBoxRemoveOrphanPept})
-
-
+observeEvent(input$convert_confirmSep,{ rv$widgets$Convert$convert_confirmSep <- input$convert_confirmSep})
 
 
 
@@ -223,20 +223,19 @@ output$Convert_DataId <- renderUI({
     
     br(), br(),
     #uiOutput("helpTextDataID"),
-    
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 50px;",
-                uiOutput("id"),
-                uiOutput("warningNonUniqueID")
+    fluidRow(
+      column(width=4,
+             uiOutput("id"),
+             uiOutput("warningNonUniqueID")
       ),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 50px;",
+      column(width=4,
                 uiOutput("convertChooseProteinID_UI"),
                 uiOutput("previewProteinID_UI"),
-                uiOutput("sepProteinID_UI")
+                #uiOutput("sepProteinID_UI")
+                uiOutput("noteForProteinID")
       ),
-      tags$div(style="display:inline-block; vertical-align: top;",
-               uiOutput("removeOrphanPept_UI"),
-               uiOutput("checkBoxRemoveOrphanPept_UI")
+      column(width=4,
+               uiOutput("RemoveOrphanPept_UI")
                )
       )
     )
@@ -320,6 +319,21 @@ output$previewProtID <- renderTable(
 )
 
 
+
+output$noteForProteinID <- renderUI({
+  req(rv$widgets$Convert$convert_proteinId)
+  if (input$typeOfData == "protein") {return(NULL)}
+  
+  tagList(
+  p("Please note that in case of multiple parent protein for one peptide, their IDs must be
+    separated by a semi-colon. If not, the agregation tool and peptide-protein graphs 
+    cannot be run."),
+  checkboxInput('convert_confirmSep', 
+                'I confirm that the separator is correct',
+                value = rv$widgets$Convert$convert_confirmSep)
+  )
+})
+
 output$sepProteinID_UI <- renderUI({
   req(rv$widgets$Convert$convert_proteinId)
   if (input$typeOfData == "protein") {return(NULL)}
@@ -388,51 +402,32 @@ observeEvent(req(rv$widgets$Convert$sepProteinID), {
 
 
 ################################################
-output$checkBoxRemoveOrphanPept_UI <- renderUI({
+output$RemoveOrphanPept_UI <- renderUI({
   req(rv$widgets$Convert$convert_proteinId)
   index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
   
-  if (length(index) > 0) {
-  checkboxInput( inputId = "checkBoxRemoveOrphanPept",
-                 "Do you want to remove them?",
-                 value = rv$widgets$Convert$checkBoxRemoveOrphanPept)
-  }
-  else{
-    HTML("Orphan peptides removed.")
-  }
   
+  if (length(index) > 0) {
+    
+    ifelse (length(index)==1, 
+            txt <-"One peptide doesn't have any parent protein.",
+            txt <- paste0(length(index), " peptides don't have any parent protein.")
+    )
+    tagList(
+      p(txt),
+    actionButton('RemoveOrphanPept_btn', 'Remove orphan peptides')
+    )
+  } else {
+    p("No orphan peptides were detected.")
+  }
+
 }) 
 
-observeEvent(req(rv$widgets$Convert$convert_proteinId), {
-  
-  output$removeOrphanPept_UI <- renderUI({
-    
-    txt <- NULL
-    index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
-    
-    if (length(index) > 0) {
-          txt <- paste0(length(index), " peptide(s) don't have parent protein.")
-      
-    }
-    else {
-      txt <- "No orphan peptides detected."
-    }
-    HTML(txt)
-  })
-  
-})
-
-
-
-observeEvent(req(rv$widgets$Convert$checkBoxRemoveOrphanPept), {
-  head(rv$tab1[,rv$widgets$Convert$convert_proteinId])
+observeEvent(input$RemoveOrphanPept_btn, {
+  req(rv$widgets$Convert$convert_proteinId)
   index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
-  
-  if (rv$widgets$Convert$checkBoxRemoveOrphanPept){
     rv$tab1 <- rv$tab1[-index,]
-  }
 })
-
 
 
 
@@ -819,7 +814,10 @@ observe({
   req(rv$tab1)
   test1 <- test2 <- TRUE
   
-  if(input$typeOfData == "peptide"){test1 <- !(input$convert_proteinId == "") && !is.null(input$convert_proteinId)}
+  if(input$typeOfData == "peptide"){
+    test1 <- !(input$convert_proteinId == "") && !is.null(input$convert_proteinId) && isTRUE(rv$widgets$Convert$convert_confirmSep)
+    
+    }
  
   
   if (input$idBox =="Auto ID") {
