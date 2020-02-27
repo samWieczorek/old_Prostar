@@ -79,14 +79,12 @@ observeEvent(rvModProcess$moduleConvertForceReset,{
 observeEvent(input$selectIdent,{ rv$widgets$Convert$selectIdent <- input$selectIdent})
 observeEvent(input$convert_proteinId,{ rv$widgets$Convert$convert_proteinId <- input$convert_proteinId})
 observeEvent(input$idBox,{ rv$widgets$Convert$idBox <- input$idBox})
-observeEvent(input$eDatabox,{ rv$widgets$Convert$eDatabox <- input$eDatabox})
+observeEvent(input$eData.box,{ rv$widgets$Convert$eDatabox <- input$eData.box})
 observeEvent(input$typeOfData,{ rv$widgets$Convert$typeOfData <- input$typeOfData})
 observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
 observeEvent(input$replaceAllZeros,{ rv$widgets$Convert$replaceAllZeros <- input$replaceAllZeros})
 observeEvent(input$convert_reorder,{ rv$widgets$Convert$convert_reorder <- input$convert_reorder})
 observeEvent(input$XLSsheets,{ rv$widgets$Convert$XLSsheets <- input$XLSsheets})
-
-observeEvent(input$eData.box, { rv$widgets$Convert$eDatabox <- input$eData.box})
 
 
 
@@ -451,7 +449,7 @@ output$Convert_ExpFeatData <- renderUI({
                tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })")),
-               shinyjs::hidden(DT::dataTableOutput("x1", width='500px'))
+               uiOutput('showX1')
              )
       )
     )
@@ -491,11 +489,12 @@ output$eData <- renderUI({
 
 output$checkIdentificationTab <- renderUI({
   req(rv$widgets$Convert$selectIdent)
-  if (!isTRUE(rv$widgets$Convert$selectIdent)){return(NULL)}
+  req(rv$widgets$Convert$eDatabox)
+  #if (!isTRUE(rv$widgets$Convert$selectIdent)){return(NULL)}
   
   shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
   temp <- shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
-  
+  print(temp)
   if ((length(which(temp == "None")) == length(temp)))
   {
     img <- "images/Ok.png"
@@ -526,6 +525,7 @@ output$checkIdentificationTab <- renderUI({
 #####################
 
 observeEvent(req(rv$widgets$Convert$eDatabox), {
+  print(rv$widgets$Convert$eDatabox)
   shinyjs::toggle('selectIdent', condition= length(rv$widgets$Convert$eDatabox)>0)
   })
 
@@ -544,9 +544,25 @@ observeEvent(input$fData.box,ignoreInit = TRUE,{
 
 
 
-observeEvent(rv$widgets$Convert$selectIdent, {
-  shinyjs::toggle('x1', condition=isTRUE(rv$widgets$Convert$selectIdent))
+output$showX1 <- renderUI({
+  req(rv$widgets$Convert$eDatabox)
+  req(rv$widgets$Convert$selectIdent)
+  
+  if (length(rv$widgets$Convert$eDatabox) == 0 || !isTRUE(rv$widgets$Convert$selectIdent)){
+    return(NULL)
+  }
+  DT::dataTableOutput("x1", width='500px')
 })
+
+
+# observeEvent(rv$widgets$Convert$selectIdent, {
+#   print("in observeEvent(rv$widgets$Convert$selectIdent")
+#   print(rv$widgets$Convert$selectIdent)
+#   print(rv$widgets$Convert$eDatabox)
+#   print('condition = ')
+#   #length(rv$widgets$Convert$eDatabox) > 0 && isTRUE(rv$widgets$Convert$selectIdent)
+#   shinyjs::toggle('x1', condition=TRUE)
+# })
 
 
 
@@ -833,11 +849,11 @@ observe({
 # })
 
 
-observe({
-  rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
-  rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
-  rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
-})
+# observe({
+#   rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
+#   rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
+#   rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
+# })
 
 
 observe({
@@ -857,6 +873,7 @@ observe({
 
 # reactive dataset
 quantiDataTable <- reactive({
+  
   req(rv$widgets$Convert$eDatabox)
   req(rv$tab1)
   
@@ -871,12 +888,14 @@ quantiDataTable <- reactive({
                      shinyInput(selectInput,
                                 "colForOriginValue_",
                                 nrow(as.data.frame(rv$widgets$Convert$eDatabox)),
-                                choices=choices))
+                                choices=choices)
+                     )
     colnames(df) <- c("Sample", "Identification method")
   } else {
     df <- data.frame(Sample = as.data.frame(rv$widgets$Convert$eDatabox))
     colnames(df) <- c("Sample")
   }
+  
   df
 })
 
