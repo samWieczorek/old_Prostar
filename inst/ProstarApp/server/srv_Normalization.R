@@ -245,8 +245,8 @@ observeEvent(rv$widgets$normalization$method,{
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
   
    cond <-  input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns")
-   shinyjs::toggle('DivProtSelection', condition= cond)
-   shinyjs::toggle('SynctForNorm', condition= cond)
+   shinyjs::toggle('DivProtSelection', condition= rv$typeOfDataset=='protein')
+   shinyjs::toggle('SynctForNorm', condition= rv$typeOfDataset=='protein')
   })
 
 
