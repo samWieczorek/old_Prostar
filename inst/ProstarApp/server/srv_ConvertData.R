@@ -326,12 +326,12 @@ output$previewProtID <- renderTable(
 
 
 output$sepProteinID_UI <- renderUI({
-  #req(rv$widgets$Convert$convert_proteinId)
+  req(rv$widgets$Convert$convert_proteinId)
   if (input$typeOfData == "protein") {return(NULL)}
   
   tagList(
-    modulePopoverUI("modulePopover_sepProteinID"),
-    checkboxInput("noSepProteinID", paste0("Click if separator"), value = rv$widgets$Convert$noSepProteinID),
+    #modulePopoverUI("modulePopover_sepProteinID"),
+    checkboxInput("noSepProteinID", paste0("Check separator"), value = rv$widgets$Convert$noSepProteinID),
     uiOutput("sepProteinID_select"),
     uiOutput("sepProteinID_output")
   )
