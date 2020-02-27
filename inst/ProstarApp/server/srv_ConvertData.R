@@ -678,7 +678,7 @@ output$conversionDone <- renderUI({
 
 #######################################
 observeEvent(input$createMSnsetButton,{
-  if(!is.null(rv$current.obj)){return(NULL)}
+  #if(!is.null(rv$current.obj)){return(NULL)}
   
   
   allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
