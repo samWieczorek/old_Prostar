@@ -86,7 +86,7 @@ moduleVolcanoplotUI <- function(id){
 moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
   tagList(
-    h5(moduleDetQuantImpValuesUI_text),
+    h5("The missing values will be imputed by the following values :"),
     
     DT::dataTableOutput(ns("detQuantValues_DT"))
   )

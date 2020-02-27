@@ -116,6 +116,10 @@ output$screenFiltering3 <- renderUI({
   req(rv$current.obj)
   
   ll <- lapply(fData(rv$current.obj), function(x){is.numeric(x)})
+  print("ll")
+  print(ll)
+  print("colnames(fData(rv$current.obj))")
+  print(head(colnames(fData(rv$current.obj))))
   choice <- c("None", colnames(fData(rv$current.obj))[which(ll == TRUE)])
   
   tagList(

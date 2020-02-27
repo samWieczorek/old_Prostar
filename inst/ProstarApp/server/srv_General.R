@@ -445,11 +445,9 @@ resetModuleProcess <- function(moduleName){
                                                                                     Condition=NULL,
                                                                                     nbDeleted=NULL, 
                                                                                     Total=NULL, 
-                                                                                    stringsAsFactors=F)
-          )
+                                                                                    stringsAsFactors=F))
           updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
           updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
-          
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
                                               stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
@@ -694,7 +692,11 @@ resetModuleProcess <- function(moduleName){
                                       replaceAllZeros =TRUE,
                                       convert_reorder = "no",
                                       XLSsheets = character(0),
-                                      design = NULL)
+                                      design = NULL,
+                                      noSepProteinID = FALSE,
+                                      sepProteinID = NULL,
+                                      checkBoxRemoveOrphanPept = FALSE
+                                      )
             
             
             rvModProcess$moduleConvert = list(name = "Convert",
@@ -716,6 +718,9 @@ resetModuleProcess <- function(moduleName){
             updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
             updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
             updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
+            updateCheckboxInput(session,"noSepProteinID", value= rv$widgets$Convert$noSepProteinID)
+            updateSelectInput(session,"sepProteinID", selected= rv$widgets$Convert$sepProteinID)
+            updateCheckboxInput(session,"checkBoxRemoveOrphanPept", value= rv$widgets$Convert$checkBoxRemoveOrphanPept)
             
             rvModProcess$moduleConvertDone =  rep(FALSE,5)
           },
@@ -1089,6 +1094,21 @@ rv <- reactiveValues(
                    nBinsHistpval = 80,
                    downloadAnaDiff = "All",
                    tooltipInfo=NULL),
+    Convert = list(datafile = NULL,
+                   selectIdent = FALSE,
+                   convert_proteinId = character(0),
+                   idBox = "Auto ID",
+                   eDatabox = character(0),
+                   typeOfData = "peptide",
+                   checkDataLogged = "no",
+                   replaceAllZeros =TRUE,
+                   convert_reorder = "no",
+                   XLSsheets = character(0),
+                   design = NULL,
+                   noSepProteinID = FALSE,
+                   sepProteinID = NULL,
+                   checkBoxRemoveOrphanPept = FALSE
+                   ),
     go = list(
       sourceOfProtID = NULL,
       idFrom = "UNIPROT",
