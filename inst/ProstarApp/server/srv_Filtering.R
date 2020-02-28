@@ -264,25 +264,31 @@ observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
 ### ------------------------------------------------------------
 output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
   
-  #browser()
-  req(rv$current.obj)
-  req(rv$widgets$filtering$DT_numfilterSummary)
-  print('IN output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{')
   
-  print(nrow(rv$widgets$filtering$DT_numfilterSummary) )
-  print(rv$widgets$filtering$DT_numfilterSummary)
+  df <-data.frame(Filter='-',
+                  Condition='-',
+                  nbDeleted=0,
+                  Total=nrow(rv$current.obj),
+                  stringsAsFactors = FALSE)
   #browser()
-  isolate({
-  if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
-    rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter='-',
-                                                           Condition='-',
-                                                           nbDeleted=0,
-                                                           Total=nrow(rv$current.obj),
-                                                           stringsAsFactors = FALSE)
-  }
+  # req(rv$current.obj)
+  # req(rv$widgets$filtering$DT_numfilterSummary)
+  # print('IN output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{')
+  # 
+  # print(nrow(rv$widgets$filtering$DT_numfilterSummary) )
+  # print(rv$widgets$filtering$DT_numfilterSummary)
+  # #browser()
+  # isolate({
+  # if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
+  #   rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter='-',
+  #                                                          Condition='-',
+  #                                                          nbDeleted=0,
+  #                                                          Total=nrow(rv$current.obj),
+  #                                                          stringsAsFactors = FALSE)
+  # }
 
  
-  DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
+  DT::datatable(df,
                 extensions = c('Scroller', 'Buttons'),
                 rownames = FALSE,
                 
@@ -297,7 +303,7 @@ output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
                              bLengthChange = FALSE
                 )
                 )
-})
+#})
 
 })
 
