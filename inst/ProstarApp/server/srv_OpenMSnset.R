@@ -116,7 +116,7 @@ output$infoAboutAggregationTool <- renderUI({
 observeEvent(input$loadMSnset,ignoreInit =TRUE,{ 
   input$file 
   ClearMemory()
-  ClearUI()
+  #ClearUI()
   authorizedExtension <- "msnset"
   
   tryCatch({

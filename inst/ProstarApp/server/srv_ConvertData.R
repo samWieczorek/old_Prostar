@@ -761,6 +761,13 @@ observeEvent(input$createMSnsetButton,{
       rv$indexNA <- which(is.na(exprs(rv$current.obj)))
       rv$typeOfDataset <- rv$widgets$Convert$typeOfData
       rv$current.obj <- addOriginOfValue(rv$current.obj)
+      colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+      names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+      rv$current.obj <- addOriginOfValue(rv$current.obj)
+      
+      rv$widgets$aggregation$proteinId <- rv$current.obj@experimentData@other$proteinId
+      rv$proteinId <- rv$current.obj@experimentData@other$proteinId
+      
       
       rvModProcess$moduleConvertDone[5] <- TRUE
       loadObjectInMemoryFromConverter()

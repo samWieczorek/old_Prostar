@@ -162,10 +162,11 @@ output$downloadMSnSet <- downloadHandler(
   #input$chooseDatasetToExportToMSnset,
   filename = function() { 
     #input$nameExport
+   #browser()
     if (input$fileformatExport == gFileFormatExport$excel) {
       paste(input$nameExport,gFileExtension$excel,  sep=".")}
     else if (input$fileformatExport == gFileFormatExport$msnset)
-    {.
+    {
       paste(input$nameExport,gFileExtension$msnset,  sep="")}
     else if (input$fileformatExport == gFileFormatExport$zip)
     {

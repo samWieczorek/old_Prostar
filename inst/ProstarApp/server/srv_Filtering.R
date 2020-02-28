@@ -48,9 +48,6 @@ resetModuleFiltering <- reactive({
 
 output$screenFiltering1 <- renderUI({
   
-  print("In output$screenFiltering1 <- renderUI")
-  print(rv$widgets$filtering$ChooseFilters)
-  
   isolate({
     tagList(
     
@@ -85,10 +82,8 @@ output$screenFiltering1 <- renderUI({
 
 
 output$screenFiltering2 <- renderUI({
-  print("In output$screenFiltering2 <- renderUI")
   tagList(
-    
-    #   id = "screen2Filtering",
+   #   id = "screen2Filtering",
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                 selectInput("symFilter_cname", "Column name", choices = Get_symFilter_cname_choice())
@@ -101,27 +96,20 @@ output$screenFiltering2 <- renderUI({
       )
     ),
     hr(),
-    div(
-      div( style="display:inline-block; vertical-align: middle; align: center;",
+    div( style="display:inline-block; vertical-align: middle; align: center;",
            DT::dataTableOutput("FilterSummaryData")
       )
-    )
-    
   )
 })
 
 
 
 output$screenFiltering3 <- renderUI({
-  req(rv$current.obj)
+ # req(rv$current.obj)
   
   ll <- lapply(fData(rv$current.obj), function(x){is.numeric(x)})
-  print("ll")
-  print(ll)
-  print("colnames(fData(rv$current.obj))")
-  print(head(colnames(fData(rv$current.obj))))
-  choice <- c("None", colnames(fData(rv$current.obj))[which(ll == TRUE)])
-  
+   choice <- c("None", colnames(fData(rv$current.obj))[which(ll == TRUE)])
+  names(choice) <- choice
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
@@ -146,12 +134,9 @@ output$screenFiltering3 <- renderUI({
       )
     ),
     tags$hr(),
-    tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
                 DT::dataTableOutput("numericalFilterSummaryData")
       )
-    )
-    
   )
 })
 
@@ -246,14 +231,13 @@ observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
 ## ----------------------------------------------
 # Perform numerical filtering
 observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
+  req(input$numericFilter_cname)
   temp <- rv$current.obj
   
   if (input$numericFilter_cname=="None"){return()}
   cname <- input$numericFilter_cname
   tagValue <- input$numericFilter_value
   
-  print(input$numericFilter_value)
-  print(input$numericFilter_operator)
   res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
   nbDeleted <- 0
   
@@ -279,44 +263,55 @@ observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
 
 ### ------------------------------------------------------------
 output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
+  
+  #browser()
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
+  print('IN output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{')
+  
+  print(nrow(rv$widgets$filtering$DT_numfilterSummary) )
+  print(rv$widgets$filtering$DT_numfilterSummary)
+  #browser()
   isolate({
   if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
-    df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
-    rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
+    rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter='-',
+                                                           Condition='-',
+                                                           nbDeleted=0,
+                                                           Total=nrow(rv$current.obj),
+                                                           stringsAsFactors = FALSE)
   }
-  
-  
+
+ 
   DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
                 extensions = c('Scroller', 'Buttons'),
                 rownames = FALSE,
                 
-                options=list(initComplete = initComplete(),
-                             buttons = list('copy',
+                options=list(buttons = list('copy',
                                             list(
                                               extend = 'csv',
                                               filename = 'NumericalFiltering_summary'
                                             ),'print'),
                              dom='Brt',
+                             initComplete = initComplete(),
                              deferRender = TRUE,
                              bLengthChange = FALSE
-                ))
+                )
+                )
 })
 
 })
-
-
 
 
 output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
-  req(rv$widgets$filtering$DT_numfilterSummary)
+  req(rv$widgets$filtering$DT_filterSummary)
   isolate({
   if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
-    df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
-    #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-    rv$widgets$filtering$DT_filterSummary <- df
+    rv$widgets$filtering$DT_filterSummary <- data.frame(Filter="-", 
+                                                        Prefix="-", 
+                                                        nbDeleted=0, 
+                                                        Total=nrow(rv$current.obj), 
+                                                        stringsAsFactors = FALSE)
   }
   
   
