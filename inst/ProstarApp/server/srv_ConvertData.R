@@ -8,9 +8,6 @@ callModule(modulePopover,"modulePopover_convertIdType",
 
 
 
-callModule(modulePopover,"modulePopover_convertProteinID", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
-                                content="Select the column containing the parent protein IDs.")))
 
 callModule(modulePopover,"modulePopover_sepProteinID", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"3\">Delimiter in Protein IDs</font></strong>")), 
@@ -286,10 +283,21 @@ output$warningNonUniqueID <- renderUI({
 output$convertChooseProteinID_UI <- renderUI({
   req(rv$tab1)
   
-  if (input$typeOfData == "protein") {return(NULL)}
+  #if (input$typeOfData == "protein") {return(NULL)}
   
   .choices <- c("",colnames(rv$tab1))
   names(.choices) <- c("",colnames(rv$tab1))
+  if (input$typeOfData == "protein") {
+    txt <- "Select the column containing the unique ID of the proteins."
+    title <-paste0("<strong><font size=\"4\">Select unique ID of the proteins</font></strong>")
+  } else if (input$typeOfData == "peptide"){
+    txt <- "Select the column containing the parent protein IDs."
+    title <- paste0("<strong><font size=\"4\">Select IDs of the parent proteins</font></strong>")
+  }
+  callModule(modulePopover,"modulePopover_convertProteinID", 
+             data = reactive(list(title = HTML(title), 
+                                  content=txt)))
+  
   tagList(
     modulePopoverUI("modulePopover_convertProteinID"),
     selectInput("convert_proteinId","",choices =  .choices , selected = rv$widgets$Convert$convert_proteinId )
@@ -300,7 +308,6 @@ output$convertChooseProteinID_UI <- renderUI({
 
 output$previewProteinID_UI <- renderUI({
   req(rv$widgets$Convert$convert_proteinId)
-  if (rv$widgets$Convert$convert_proteinId == "") {return (NULL)}
   
   tagList(
     p(style="color: black;", 'Preview'),

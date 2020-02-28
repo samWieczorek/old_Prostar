@@ -58,10 +58,11 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
   })
   
 
-  observeEvent(input$typeSelect, {
-    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList")&&(input$typeSelect!="None"))
-    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random")&&(input$typeSelect!="None"))
-    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column")&&(input$typeSelect!="None"))
+  observeEvent(req(input$typeSelect), {
+    print('in typeSelect')
+    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList"))
+    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random"))
+    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column"))
   })
   
   output$listSelect_UI <- renderUI({

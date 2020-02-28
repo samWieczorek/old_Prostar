@@ -147,10 +147,9 @@ moduleBoxplotUI <- function(id) {
                imageOutput(ns("viewViolinPlot"))
       ),
       tags$div(style="display:inline-block; vertical-align: middle;",
-               selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
-      ),
-      
-      uiOutput(ns('showTrackProt'))
+               selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px'),
+               uiOutput(ns('showTrackProt'))
+      )
       
     )         
     
