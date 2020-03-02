@@ -48,9 +48,6 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
     else {
       x <- c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column")
     }
-    
-    print("choice")
-    print(x)
     isolate({
       selectInput(ns("typeSelect"), label = "Type of selection",
                 choices = x,width=('130px'))
@@ -59,7 +56,6 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
   
 
   observeEvent(req(input$typeSelect), {
-    print('in typeSelect')
     shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList"))
     shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random"))
     shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column"))
@@ -89,18 +85,18 @@ moduleTrackProt <- function(input, output, session, params, reset=FALSE){
     
   
   BuildResult <- reactive({
-    
+    req(input$typeSelect)
     #isolate({
     
     ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    
+    #browser()
     res <- list(type= input$typeSelect,
                 list = input$listSelect,
                 rand = as.numeric(input$randSelect),
                 col = input$colSelect,
-                list.indices = if (length(input$listSelect)==0){NULL} else match(input$listSelect, ll),
-                rand.indices = if (length(input$randSelect)==0){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
-                col.indices =  if (length(input$colSelect)==0){NULL} else which(input$colSelect == 1)
+                list.indices = if (length(input$listSelect)==0 || input$listSelect==""){NULL} else match(input$listSelect, ll),
+                rand.indices = if (input$randSelect==""){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
+                col.indices =  if (length(input$colSelect)==0 || input$colSelect==""){NULL} else which(input$colSelect == 1)
     )
     
     # })

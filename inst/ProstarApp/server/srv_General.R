@@ -494,7 +494,8 @@ resetModuleProcess <- function(moduleName){
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
-                                             spanLOESS = 0.7)
+                                             spanLOESS = 0.7,
+                                             SynctForNorm = FALSE)
             
             
             rvModProcess$moduleNormalization = list(name = "Normalization",
@@ -508,6 +509,7 @@ resetModuleProcess <- function(moduleName){
             updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
             updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
             updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
+            updateCheckboxInput(session, "SynctForNorm", value = rv$widgets$normalization$SynctForNorm)
             
             
             rvModProcess$moduleNormalizationDone =  rep(FALSE,2)

@@ -227,12 +227,12 @@ output$Convert_DataId <- renderUI({
       ),
       column(width=4,
                 uiOutput("convertChooseProteinID_UI"),
-                uiOutput("previewProteinID_UI"),
+                uiOutput("RemoveOrphanPept_UI")
                 #uiOutput("sepProteinID_UI")
-                uiOutput("noteForProteinID")
       ),
       column(width=4,
-               uiOutput("RemoveOrphanPept_UI")
+             uiOutput("noteForProteinID"),
+             uiOutput("previewProteinID_UI")
                )
       )
     )
@@ -706,17 +706,17 @@ observeEvent(input$createMSnsetButton,{
     isolate({
       ext <- GetExtension(rv$widgets$Convert$datafile$name)
       
-      txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
-                       "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-      txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
-                       ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
-      switch(ext,
-             txt = writeToCommandLogFile(txtTab),
-             csv = writeToCommandLogFile(txtTab),
-             tsv = writeToCommandLogFile(txtTab),
-             xls= writeToCommandLogFile(txtXls),
-             xlsx = writeToCommandLogFile(txtXls)
-      )
+      # txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
+      #                  "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
+      # txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
+      #                  ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
+      # switch(ext,
+      #        txt = writeToCommandLogFile(txtTab),
+      #        csv = writeToCommandLogFile(txtTab),
+      #        tsv = writeToCommandLogFile(txtTab),
+      #        xls= writeToCommandLogFile(txtXls),
+      #        xlsx = writeToCommandLogFile(txtXls)
+      # )
       
       tmp.eData.box <- rv$widgets$Convert$eDatabox
       indexForEData <- match(tmp.eData.box, colnames(rv$tab1))

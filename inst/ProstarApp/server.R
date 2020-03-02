@@ -4,8 +4,8 @@ rm(list=ls())
 options(shiny.maxRequestSize=300*1024^2)
 options(encoding = "UTF-8")
 options(shiny.fullstacktrace=TRUE)
-options(shiny.error = recover)
-options(shiny.reactlog=TRUE) 
+#options(shiny.error = recover)
+#options(shiny.reactlog=TRUE) 
 
 
 require(compiler)

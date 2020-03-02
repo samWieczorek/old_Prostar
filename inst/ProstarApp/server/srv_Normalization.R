@@ -58,6 +58,7 @@ resetModuleNormalization <- reactive({
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
   print("update reset value")
   rv.norm$resetTracking <- TRUE
+  rv$widgets$normalization$SynctForNorm <- FALSE
   rv$current.obj <- rv$dataset[[input$datasets]] 
 })
 
@@ -115,7 +116,7 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-           hidden(div(id='DivProtSelection',moduleTrackProtUI('ProtSelection')))
+           shinyjs::hidden(div(id='DivProtSelection',moduleTrackProtUI('ProtSelection')))
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
@@ -127,7 +128,7 @@ output$screenNormalization1 <- renderUI({
       tags$hr(),
       
      tagList(
-       hidden(checkboxInput("SynctForNorm", "Synchronise with selection above", value=FALSE)),
+       hidden(checkboxInput("SynctForNorm", "Synchronise with selection above", value=rv$widgets$normalization$SynctForNorm)),
        withProgress(message = 'Building plot',detail = '', value = 0, {
          moduleBoxplotUI("boxPlot_Norm")
        })
@@ -245,15 +246,15 @@ observeEvent(rv$widgets$normalization$method,{
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
   
    cond <-  input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns")
-   shinyjs::toggle('DivProtSelection', condition= rv$typeOfDataset=='protein')
-   shinyjs::toggle('SynctForNorm', condition= rv$typeOfDataset=='protein')
+   shinyjs::toggle('DivProtSelection', condition= (rv$typeOfDataset=='protein' && rv$widgets$normalization$method != "None"))
+   shinyjs::toggle('SynctForNorm', condition= rv$typeOfDataset=='protein'&& rv$widgets$normalization$method != "None")
   })
 
 
 
 GetIndicesOfSelectedProteins <- reactive({
   rv.norm$trackFromBoxplot()
-  if(is.null(rv.norm$trackFromBoxplot()$type)){return(NULL)}
+  req(rv.norm$trackFromBoxplot()$type)
  
   ind <- NULL
   ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
