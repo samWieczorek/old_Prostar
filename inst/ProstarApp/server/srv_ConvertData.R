@@ -1,3 +1,5 @@
+
+
 callModule(modulePopover,"modulePopover_convertChooseDatafile", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
                                 content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
@@ -8,103 +10,85 @@ callModule(modulePopover,"modulePopover_convertIdType",
 
 
 
-
-callModule(modulePopover,"modulePopover_sepProteinID", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"3\">Delimiter in Protein IDs</font></strong>")), 
-                                content="Select one (\" \", \".\", \",\", \";\", \"-\") separator.")))
+callModule(modulePopover,"modulePopover_convertProteinID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
+                                content="Select the column containing the parent protein IDs.")))
 
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
            data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}),
-           filename='ConvertData_overview')
+
+callModule(modulePopover,"modulePopover_sepProteinID", 
+           data = reactive(list(title = HTML(paste0("<strong><font size=\"3\">Delimiter in Protein IDs</font></strong>")), 
+                                content="Select one (\" \", \".\", \",\", \";\", \"-\") separator.")))
 
 
-callModule(moduleProcess, "moduleProcess_Convert", 
-           isDone = reactive({rvModProcess$moduleConvertDone}), 
-           pages = reactive({rvModProcess$moduleConvert}),
-           rstFunc = resetModuleConvert,
-           forceReset = reactive({rvModProcess$moduleConvertForceReset}))
+callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
 
 
-resetModuleConvert<- reactive({  
-  resetModuleProcess("Convert")
-  
-  rv$widgets$Convert$datafile <- NULL
-  rv$widgets$Convert$selectIdent <- FALSE
-  rv$widgets$Convert$convert_proteinId <- character(0)
-  rv$widgets$Convert$idBox <- "Auto ID"
-  rv$widgets$Convert$eDatabox <- character(0)
-  rv$widgets$Convert$typeOfData <- "peptide"
-  rv$widgets$Convert$checkDataLogged <- "no"
-  rv$widgets$Convert$replaceAllZeros <- TRUE
-  rv$widgets$Convert$convert_reorder <- "no"
-  rv$widgets$Convert$XLSsheets <- character(0)
-  
-  rv$widgets$Convert$noSepProteinID <- FALSE
-  rv$widgets$Convert$sepProteinID <- NULL
-  rv$widgets$Convert$checkBoxRemoveOrphanPept <- FALSE
-  rv$widgets$Convert$convert_confirmSep <- FALSE
-  
-  rv$hot <- NULL
-  rv$tab1 <- NULL
-  rv$designChecked <- NULL
-  
-  rvModProcess$moduleConvertDone <- rep(FALSE, 5)
-  
+
+observeEvent(input$selectIdent,{ rv.convert$selectIdent <- input$selectIdent})
+observeEvent(input$convert_proteinId,{ rv.convert$convert_proteinId <- input$convert_proteinId})
+observeEvent(input$idBox,{ rv.convert$idBox <- input$idBox})
+observeEvent(input$eData.box,{ rv.convert$eDatabox <- input$eData.box})
+observeEvent(input$typeOfData,{ rv.convert$typeOfData <- input$typeOfData})
+observeEvent(input$checkDataLogged,{ rv.convert$checkDataLogged <- input$checkDataLogged})
+observeEvent(input$replaceAllZeros,{ rv.convert$replaceAllZeros <- input$replaceAllZeros})
+observeEvent(input$convert_reorder,{ rv.convert$convert_reorder <- input$convert_reorder})
+observeEvent(input$XLSsheets,{ rv.convert$XLSsheets <- input$XLSsheets})
+observeEvent(input$noSepProteinID,{ rv.convert$noSepProteinID <- input$noSepProteinID})
+observeEvent(input$sepProteinID,{ rv.convert$sepProteinID <- input$sepProteinID})
+observeEvent(input$checkBoxRemoveOrphanPept,{ rv.convert$checkBoxRemoveOrphanPept <- input$checkBoxRemoveOrphanPept})
+observeEvent(input$convert_confirmSep,{ rv.convert$convert_confirmSep <- input$convert_confirmSep})
+
+observeEvent(input$file1,{  
+  print("update de rv.convert$tab1")
+  isolate({
+    rv.convert$datafile <- input$file1
+    })
 })
 
-rv.importFrom <- reactiveValues(
+
+
+
+rv.convert <- reactiveValues(
   extension = NULL,
-  out = NULL,
-  params = list(
-    typeOfFile = 'None'
-  )
+  datafile = NULL,
+  convert_confirmSep = NULL,
+  selectIdent = NULL,
+  convert_proteinId = NULL,
+  idBox = NULL,
+  eData.box = NULL,
+  typeOfData = NULL,
+  checkDataLogged = NULL,
+  replaceAllZeros = NULL,
+  convert_reorder = NULL,
+  XLSsheets = NULL,
+  noSepProteinID = NULL,
+  sepProteinID = NULL,
+  checkBoxRemoveOrphanPept = NULL,
+  datafile = NULL,
+  
+  designChecked = NULL,
+  conditionsChecked = NULL
+  
 )
 
 
-
-observeEvent(req(input$file1),{
-  rv$widgets$Convert$datafile <- input$file1
-  rvModProcess$moduleConvertDone[1] <- TRUE
-})
-
-
-observeEvent(rvModProcess$moduleConvertForceReset,{
-  rv$widgets$Convert$datafile <- NULL
-  
-})
-
-
-
-observeEvent(input$selectIdent,{ rv$widgets$Convert$selectIdent <- input$selectIdent})
-observeEvent(input$convert_proteinId,{ rv$widgets$Convert$convert_proteinId <- input$convert_proteinId})
-observeEvent(input$idBox,{ rv$widgets$Convert$idBox <- input$idBox})
-observeEvent(input$eData.box,{ rv$widgets$Convert$eDatabox <- input$eData.box})
-
-observeEvent(input$typeOfData,{ rv$widgets$Convert$typeOfData <- input$typeOfData})
-observeEvent(input$checkDataLogged,{ rv$widgets$Convert$checkDataLogged <- input$checkDataLogged})
-observeEvent(input$replaceAllZeros,{ rv$widgets$Convert$replaceAllZeros <- input$replaceAllZeros})
-observeEvent(input$convert_reorder,{ rv$widgets$Convert$convert_reorder <- input$convert_reorder})
-observeEvent(input$XLSsheets,{ rv$widgets$Convert$XLSsheets <- input$XLSsheets})
-
-observeEvent(input$noSepProteinID,{ rv$widgets$Convert$noSepProteinID <- input$noSepProteinID})
-observeEvent(input$sepProteinID,{ rv$widgets$Convert$sepProteinID <- input$sepProteinID})
-observeEvent(input$checkBoxRemoveOrphanPept,{ rv$widgets$Convert$checkBoxRemoveOrphanPept <- input$checkBoxRemoveOrphanPept})
-observeEvent(input$convert_confirmSep,{ rv$widgets$Convert$convert_confirmSep <- input$convert_confirmSep})
-
-
-
-
-
+###
 ### SCREEN 1
+###
 output$Convert_SelectFile <- renderUI({
   tagList(br(), br(),
           fluidRow(
             column(width=2, modulePopoverUI("modulePopover_convertChooseDatafile")),
-            column(width = 10, uiOutput('resettableInput') )),
+            column(width = 10, fileInput("file1", rv.convert$datafile$name, 
+                                         multiple=FALSE, 
+                                         accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx"))
+                   )
+            ),
           #actionButton("loadData2Convert", "Load data file",class = actionBtnClass),
           uiOutput("ManageXlsFiles"),
           # helpText("Hint : before importing quantification 
@@ -116,181 +100,170 @@ output$Convert_SelectFile <- renderUI({
 })
 
 
-output$resettableInput <- renderUI({
-  rv$widgets$Convert$datafile
-  fileInput("file1", rv$widgets$Convert$datafile$name, 
-            multiple=FALSE, 
-            accept=c(".txt", ".tsv", ".csv",".xls", ".xlsx"))
-})
 
 
-output$ManageXlsFiles <- renderUI({
-  req(rv$widgets$Convert$datafile)
-  
-  .ext <- GetExtension(rv$widgets$Convert$datafile$name)
-  if ((.ext == "xls") || (.ext == "xlsx")){ 
-    sheets <- listSheets(rv$widgets$Convert$datafile$datapath)
-    selectInput("XLSsheets", "sheets", choices = as.list(sheets),
-                selected=rv$widgets$Convert$XLSsheets,
-                width='200px')
-  }
-  
-})
-
-
-output$ConvertOptions <- renderUI({
-  
-  tagList(
-    radioButtons("typeOfData", 
-                 "Is it a peptide or protein dataset ?", 
-                 choices=c("peptide dataset" = "peptide", 
-                           "protein dataset" = "protein"),
-                 selected=rv$widgets$Convert$typeOfData
-    )
-    
-    ,radioButtons("checkDataLogged", 
-                  "Are your data already log-transformed ?", 
-                  #width = widthWellPanel, 
-                  choices=c("yes (they stay unchanged)" = "yes", 
-                            "no (they wil be automatically transformed)"="no"), 
-                  selected=rv$widgets$Convert$checkDataLogged)
-    ,br()
-    ,checkboxInput("replaceAllZeros", 
-                   "Replace all 0 and NaN by NA", 
-                   value= rv$widgets$Convert$replaceAllZeros)
-  )
-})
-
-
-
-
-observeEvent(req(input$file1), {
-  authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
-  .ext <- strsplit(input$file1$name, '.', fixed=TRUE)[[1]][2]
-  if( is.na(match(.ext, authorizedExts))) {
-    shinyjs::info("Warning : this file is not a text nor an Excel file !
-                   Please choose another one.")
-    return(NULL)
-  } else {
-    rv.importFrom$extension <- .ext
-  }
-})
-
-
-############ Read text file to be imported ######################
-observeEvent(c(rv$widgets$Convert$datafile,rv$widgets$Convert$XLSsheets),{
-  req(rv.importFrom$extension)
-  
-  tryCatch(
-    {
-      if (rv.importFrom$extension %in% c("xls","xlsx")){
-        if (is.null(input$XLSsheets)) {
-          return(NULL)
-        } else {
-          rv$tab1 <- readExcel(rv$widgets$Convert$datafile$datapath, ext, sheet=input$XLSsheets)
-        } 
-      } else {
-        rv$tab1 <- read.csv(rv$widgets$Convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)
-      }
-    },
-    warning = function(w) {
-      shinyjs::info(conditionMessage(w))
-    }, 
-    error = function(e) {
-      shinyjs::info(paste("Read text file to convert",":",
-                          conditionMessage(e),
-                          sep=" "))
-    }, 
-    finally = {
-      #cleanup-code
-    }
-  )
-
-})
-
-
-
-
-
-
+###
 ### SCREEN 2
+###
 output$Convert_DataId <- renderUI({
   
   tagList(
     
     br(), br(),
     #uiOutput("helpTextDataID"),
-    fluidRow(
-      column(width=4,
-             uiOutput("id"),
-             uiOutput("warningNonUniqueID")
+    
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
+                uiOutput("id"),
+                uiOutput("warningNonUniqueID")
       ),
-      column(width=4,
+      tags$div( style="display:inline-block; vertical-align: top;",
                 uiOutput("convertChooseProteinID_UI"),
-                uiOutput("RemoveOrphanPept_UI")
-                #uiOutput("sepProteinID_UI")
-      ),
-      column(width=4,
-             uiOutput("noteForProteinID"),
-             uiOutput("previewProteinID_UI")
-               )
+                uiOutput("previewProteinID_UI")
       )
+    )
+  )
+})
+
+
+###
+### SCREEN 3
+###
+output$Convert_ExpFeatData <- renderUI({
+ 
+    fluidRow(
+      column(width=4,uiOutput("eData",width = "400px")),
+      column(width=8,
+             tagList(
+               uiOutput("checkIdentificationTab"),
+               checkboxInput("selectIdent", 
+                             "Select columns for identification method", 
+                             value = rv.convert$selectIdent),
+               tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+                                   })")),
+               uiOutput("showX1", width='500px')
+               )
+     
+    )
     )
 })
 
 
-output$id <- renderUI({
-  req(rv$tab1)
-  
-  .choices <- c("Auto ID",colnames(rv$tab1))
-  names(.choices) <- c("Auto ID",colnames(rv$tab1))
+###
+### SCREEN 5
+###
+output$convertFinalStep <- renderUI({
+  req(rv$designChecked)
+  if (!(rv$designChecked$valid)){return(NULL)}
+  tagList(
+    uiOutput("checkAll_convert", width="50"),
+    htmlOutput("msgAlertCreateMSnset"),
+    hr(),
+    textInput("filenameToCreate","Enter the name of the study"),
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
+    uiOutput("warningCreateMSnset")
+    
+  )
+})
+
+
+
+
+
+output$Convert_BuildDesign <- renderUI({
+  req(rv.convert$datafile)
   
   tagList(
-    modulePopoverUI("modulePopover_convertIdType"),
-    selectInput("idBox", label = "", choices = .choices, selected=rv$widgets$Convert$idBox)
+    tags$p("If you do not know how to fill the experimental design, you can click
+                                  on the '?' next to each design in the list that appear once the conditions 
+                                  are checked or got to the ", 
+           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+           " page."),
+    fluidRow(
+      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
+      column(width=6,uiOutput("UI_checkConditions")  )
+    ),
+    fluidRow(
+      column(width=6,uiOutput("UI_hierarchicalExp")),
+      column(width=6,uiOutput("checkDesign") )
+    ),
+    hr(),
+    selectInput("convert_reorder", "Order by conditions ?",
+                selected=rv.convert_reorder,
+                choices=c("No"="No", "Yes"="Yes"),
+                width="100px"),
+    tags$div(
+      
+      tags$div(style="display:inline-block; vertical-align: top;",
+               uiOutput("viewDesign",width="100%")
+      ),
+      tags$div(style="display:inline-block; vertical-align: top;",
+               shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
+      )
+    )
+    
   )
   
 })
 
 
+
+
+output$Convert_Convert <- renderUI({
+  #if (rv$pageConvert != 5){return()}
+  
+  tagList(
+    br(), br(),
+    
+    uiOutput("convertFinalStep"),
+    moduleStaticDataTableUI("overview_convertData"),
+    uiOutput("conversionDone"),
+    p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
+    interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
+    (because successive dataset loading can make Prostar unstable). To work on another dataset, use first the 'Reload Prostar' functionality from 
+    the 'Dataset manager' menu: it will make Prostar restart with a fresh R session where import functions are enabled.")
+    
+  )
+})
+
 output$warningNonUniqueID <- renderUI({
-  req(input$idBox)
-  req(rv$tab1)
+  req(rv.convert$idBox)
+  req(rv.convert$tab1)
   
   isolate({
-    if (input$idBox =="Auto ID") {
-      text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-    }
-    else {
-      t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-            == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-      
-      if (!t){
-        text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
+    if (rv.convert$idBox =="Auto ID") {
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img>" }
+  else {
+  t <- (length(as.data.frame(rv.convert$tab1)[, rv.convert$idBox])
+        == length(unique(as.data.frame(rv.convert$tab1)[, rv.convert$idBox])))
+  
+  if (!t){
+    text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
         Warning ! Your ID contains duplicate data.
         Please choose another one."
-      }
-      else {
-        text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-      }
-    }
-    HTML(text)
     
+  }
+  else {
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
+  }
+  }
+  HTML(text)
   })
 })
 
 
+
+
 output$convertChooseProteinID_UI <- renderUI({
-  req(rv$tab1)
+  req(rv.convert$tab1)
   
-  #if (input$typeOfData == "protein") {return(NULL)}
-  
-  .choices <- c("",colnames(rv$tab1))
-  names(.choices) <- c("",colnames(rv$tab1))
-  if (input$typeOfData == "protein") {
+  .choices <- c("",colnames(rv.convert$tab1))
+  names(.choices) <- c("",colnames(rv.convert$tab1))
+  if (rv.convert$typeOfData == "protein") {
     txt <- "Select the column containing the unique ID of the proteins."
     title <-paste0("<strong><font size=\"4\">Select unique ID of the proteins</font></strong>")
-  } else if (input$typeOfData == "peptide"){
+  } else if (rv.convert$typeOfData == "peptide"){
     txt <- "Select the column containing the parent protein IDs."
     title <- paste0("<strong><font size=\"4\">Select IDs of the parent proteins</font></strong>")
   }
@@ -300,165 +273,193 @@ output$convertChooseProteinID_UI <- renderUI({
   
   tagList(
     modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId","",choices =  .choices , selected = rv$widgets$Convert$convert_proteinId )
+    selectInput("convert_proteinId","",choices =  .choices , selected = rv.convert$convert_proteinId )
   )
 })
 
 
 
-output$previewProteinID_UI <- renderUI({
-  req(rv$widgets$Convert$convert_proteinId)
+#########################################################
+output$id <- renderUI({
+  print(rv.convert$tab1)
+  #req(rv.convert$tab1)
+  
+  .choices <- c("Auto ID",colnames(rv.convert$tab1))
+  names(.choices) <- c("Auto ID",colnames(rv.convert$tab1))
   
   tagList(
-    p(style="color: black;", 'Preview'),
-    tableOutput("previewProtID")
+    modulePopoverUI("modulePopover_convertIdType"),
+    selectInput("idBox", label = "", 
+                selected = rv.convert$idBox,
+                choices = .choices)
   )
-  # tags$head(tags$style("#previewProtID{color:red; font-size:12px; font-style:italic; 
-  #                      overflow-y:scroll; width: 100px; max-height: 200px; background: ghostwhite;}"))
   
 })
 
 
 
-output$previewProtID <- renderTable(
-  head(rv$tab1[,rv$widgets$Convert$convert_proteinId]),
-  colnames = FALSE
-)
-
-
-
-output$noteForProteinID <- renderUI({
-  req(rv$widgets$Convert$convert_proteinId)
-  if (input$typeOfData == "protein") {return(NULL)}
+output$ConvertOptions <- renderUI({
+  req(rv.convert$datafile)
   
   tagList(
-  p("Please note that in case of multiple parent protein for one peptide, their IDs must be
-    separated by a semi-colon. If not, the agregation tool and peptide-protein graphs 
-    cannot be run."),
-  checkboxInput('convert_confirmSep', 
-                'I confirm that the separator is correct',
-                value = rv$widgets$Convert$convert_confirmSep)
-  )
-})
-
-output$sepProteinID_UI <- renderUI({
-  req(rv$widgets$Convert$convert_proteinId)
-  if (input$typeOfData == "protein") {return(NULL)}
-  
-  tagList(
-    #modulePopoverUI("modulePopover_sepProteinID"),
-    checkboxInput("noSepProteinID", paste0("Check separator"), value = rv$widgets$Convert$noSepProteinID),
-    uiOutput("sepProteinID_select"),
-    uiOutput("sepProteinID_output")
-  )
-})
-
-
-observeEvent(rv$widgets$Convert$noSepProteinID, {
-  shinyjs::toggle('sepProteinID_select', condition=isTRUE(rv$widgets$Convert$noSepProteinID))
-})
-
-output$sepProteinID_select <- renderUI({
-  req(rv$widgets$Convert$noSepProteinID)
-  textInput("sepProteinID", label = "Choose a delimiter", width = '300px', value = rv$widgets$Convert$sepProteinID)
-})
-
-observeEvent(req(rv$widgets$Convert$convert_proteinId), {
-  
-  output$sepProteinID_output <- renderUI({
-    
-    if (rv$widgets$Convert$noSepProteinID == FALSE) {
-      txt <- "<img src=\"images/Ok.png\" height=\"24\"></img> No separators"
-    }
-    else {
-      txt <- NULL
-    }
-    HTML(txt)
-  })
-  
-})
-
-
-observeEvent(req(rv$widgets$Convert$noSepProteinID), {
-  
-  output$sepProteinID_output <- renderUI({
-    
-    if (rv$widgets$Convert$noSepProteinID == FALSE) {
-      txt <- "<img src=\"images/Ok.png\" height=\"24\"></img> No separators"
-    }
-    else {
-      txt <- NULL
-    }
-    HTML(txt)
-  })
-  
-})
-
-
-observeEvent(req(rv$widgets$Convert$sepProteinID), {
-  
-  output$sepProteinID_output <- renderUI({
-    
-    if (rv$widgets$Convert$sepProteinID != "" || !is.null(rv$widgets$Convert$sepProteinID)) {
-      txt <- checkSep(rv$widgets$Convert$sepProteinID)
-    }
-    HTML(txt)
-  })
-  
-})
-
-
-################################################
-output$RemoveOrphanPept_UI <- renderUI({
-  req(rv$widgets$Convert$convert_proteinId)
-  index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
-  
-  
-  if (length(index) > 0) {
-    
-    ifelse (length(index)==1, 
-            txt <-"One peptide doesn't have any parent protein.",
-            txt <- paste0(length(index), " peptides don't have any parent protein.")
+    radioButtons("typeOfData", 
+                 "Is it a peptide or protein dataset ?", 
+                 choices=c("peptide dataset" = "peptide", 
+                           "protein dataset" = "protein"),
+                 selected = rv.convert$typeOfData
     )
-    tagList(
-      p(txt),
-    actionButton('RemoveOrphanPept_btn', 'Remove orphan peptides')
-    )
-  } else {
-    p("No orphan peptides were detected.")
+    
+    ,radioButtons("checkDataLogged", 
+                  "Are your data already log-transformed ?", 
+                  #width = widthWellPanel, 
+                  choices=c("yes (they stay unchanged)" = "yes", 
+                            "no (they wil be automatically transformed)"="no"), 
+                  selected=rv.convert$checkDataLogged)
+    ,br()
+    ,checkboxInput("replaceAllZeros", 
+                   "Replace all 0 and NaN by NA", 
+                   value= rv.convert$replaceAllZeros)
+  )
+})
+
+
+observeEvent(rv.convert$fData.box,ignoreInit = TRUE,{
+  
+  choices = colnames(rv.convert$tab1)[-which(colnames(rv.convert$tab1) %in% rv.convert$fData.box)]
+  names(choices) = 
+    colnames(rv.convert$tab1)[-which(colnames(rv.convert$tab1) %in% rv.convert$fData.box)]
+  updateSelectInput(session, "eData.box", 
+                    label = "",
+                    choices = choices,
+                    selected = rv.convert$eDatabox)
+  
+})
+
+
+
+output$showX1 <- renderUI({
+  req(rv.convert$eDatabox)
+  req(rv.convert$selectIdent)
+  
+  if (length(rv.convert$eDatabox) == 0 || !isTRUE(rv.convert$selectIdent)){
+    return(NULL)
   }
+  DT::dataTableOutput("x1", width='500px')
+})
 
-}) 
 
-observeEvent(input$RemoveOrphanPept_btn, {
-  req(rv$widgets$Convert$convert_proteinId)
-  index <- which(is.na(rv$tab1[,rv$widgets$Convert$convert_proteinId]))
-    rv$tab1 <- rv$tab1[-index,]
+output$helpTextDataID <- renderUI({
+  req(rv.convert$typeOfData)
+
+  t <- ""
+  switch(rv.convert$typeOfData,
+         protein = {t <- "proteins"},
+         peptide = {t <- "peptides"}
+  )
+  txt <- paste ("Please select among the columns of your data the one that 
+                corresponds to a unique ID of the ", t, ".", sep=" ")
+  helpText(txt)
+  
 })
 
 
 
-### SCREEN 3
-output$Convert_ExpFeatData <- renderUI({
 
-    
-    fluidRow(
-      column(width=4,uiOutput("eData",width = "400px")),
-      column(width=8,
-             tagList(
-               uiOutput("checkIdentificationTab"),
-               checkboxInput("selectIdent", 
-                                    "Select columns for identification method", 
-                                    value = rv$widgets$Convert$selectIdent),
-               tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
-                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
-                                   })")),
-               uiOutput('showX1')
-             )
-      )
+observeEvent(req(rv.convert$datafile), {
+  authorizedExts <- c("txt", "csv", "tsv", "xls", "xlsx")
+  .ext <- strsplit(rv.convert$datafile$name, '.', fixed=TRUE)[[1]][2]
+  if( is.na(match(.ext, authorizedExts))) {
+    shinyjs::info("Warning : this file is not a text nor an Excel file !
+                   Please choose another one.")
+    return(NULL)
+  } else {
+    rv.convert$extension <- .ext
+  }
+})
+
+
+############ Read text file to be imported ######################
+observeEvent(rv.convert$datafile,ignoreInit = TRUE,{
+  
+  # rv.convert$XLSsheets
+  if (rv.convert$extension %in% c("xls", "xlsx") && is.null(rv.convert$XLSsheets)) {
+    return(NULL)
+    }
+
+  authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
+  if( is.na(match(rv.convert$extension, authorizedExts))) {
+    shinyjs::info("Warning : this file is not a text nor an Excel file !
+                  Please choose another one.")
+  }
+  print(rv.convert$datafile)
+ 
+   tryCatch(
+     {
+    #shinyjs::disable("file1")
+       isolate({
+         switch(rv.convert$extension,
+           txt = { rv.convert$tab1 <- read.csv(rv.convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+           csv = { rv.convert$tab1 <- read.csv(rv.convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+           tsv = { rv.convert$tab1 <- read.csv(rv.convert$datafile$datapath,  header=TRUE, sep="\t", as.is=T)},
+           xls = { rv.convert$tab1 <- readExcel(rv.convert$datafile$datapath, rv.convert$extension, sheet=rv.convert$XLSsheets)},
+           xlsx = {rv.convert$tab1 <- readExcel(rv.convert$datafile$datapath, rv.convert$extension, sheet=rv.convert$XLSsheets)}
     )
+      })
+     }
+      , warning = function(w) {
+        shinyjs::info(conditionMessage(w))
+      }, error = function(e) {
+        shinyjs::info(paste("Read text file to convert",":",
+                            conditionMessage(e),
+                            sep=" "))
+      }, finally = {
+        #cleanup-code
+      })
+  
+  #shinyjs::disable('file1')
+  
 
+  print(rv.convert$tab1)
 })
+
+
+
+
+
+
+output$conversionDone <- renderUI({
+  req(rv$current.obj)
+
+  h4("The conversion is done. Your dataset has been automatically loaded 
+       in memory. Now, you can switch to the Descriptive statistics panel to 
+       vizualize your data.")
+  
+})
+
+
+
+
+
+
+
+
+#####-------------------------------------------------------
+output$ManageXlsFiles <- renderUI({
+  req(rv.convert$datafile)
+  
+  if (rv.convert$extension %in% c("xls","xlsx")){ 
+    sheets <- listSheets(rv.convert$datafile$datapath)
+    selectInput("XLSsheets", "sheets", choices = as.list(sheets),
+                selected=rv.convert$XLSsheets,
+                width='200px')
+  }
+  
+})
+
+
+
+
+
 
 
 ###########################################
@@ -471,19 +472,19 @@ output$Convert_ExpFeatData <- renderUI({
 ##
 ##############################################
 output$eData <- renderUI({
+  req(rv.convert$tab1)
   
-  req(rv$tab1)
-  
-  choices <- colnames(rv$tab1)
-  names(choices) <- colnames(rv$tab1)
+  choices <- colnames(rv.convert$tab1)
+  names(choices) <- colnames(rv.convert$tab1)
   
   tagList(
     modulePopoverUI("modulePopover_convertDataQuanti"),
     selectInput("eData.box",
                 label = "",
                 choices = choices,
-                selected = rv$widgets$Convert$eDatabox,
-                multiple = TRUE, width='200px',
+                selected = rv.convert$eDatabox,
+                multiple = TRUE, 
+                width='200px',
                 size = 20,
                 selectize = FALSE)
   )
@@ -491,14 +492,27 @@ output$eData <- renderUI({
 
 
 
+
+
+# updateInputs <- function(id, n){
+#     for (i in seq_len(n)) {
+#         updateSelectInput(paste0(id,i),label=NULL,selected = input[[paste0(id,i)]])
+#     }
+# }
+
+
+
+
+
+
+
 output$checkIdentificationTab <- renderUI({
-  req(rv$widgets$Convert$selectIdent)
-  req(rv$widgets$Convert$eDatabox)
-  #if (!isTRUE(rv$widgets$Convert$selectIdent)){return(NULL)}
+  req(rv.convert$selectIdent)
+  req(rv.convert$eDatabox)
   
-  shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
-  temp <- shinyValue("colForOriginValue_",length(rv$widgets$Convert$eDatabox))
-  print(temp)
+  shinyValue("colForOriginValue_",length(rv.convert$eData.box))
+  temp <- shinyValue("colForOriginValue_",length(rv.convert$eData.box))
+  
   if ((length(which(temp == "None")) == length(temp)))
   {
     img <- "images/Ok.png"
@@ -524,49 +538,45 @@ output$checkIdentificationTab <- renderUI({
       tags$div(style="display:inline-block;",tags$p(txt))
     )
   )
-})
-
-#####################
-
-observeEvent(req(rv$widgets$Convert$eDatabox), {
-  print(rv$widgets$Convert$eDatabox)
-  shinyjs::toggle('selectIdent', condition= length(rv$widgets$Convert$eDatabox)>0)
-  })
-
-
-
-observeEvent(input$fData.box,ignoreInit = TRUE,{
   
-  choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
-  names(choices) = 
-    colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
-  updateSelectInput(session, "eData.box", 
-                    label = "",
-                    choices = choices,
-                    selected = rv$widgets$Convert$eDatabox)
+  
 })
 
 
 
-output$showX1 <- renderUI({
-  req(rv$widgets$Convert$eDatabox)
-  req(rv$widgets$Convert$selectIdent)
+# reactive dataset
+quantiDataTable <- reactive({
+  req(rv.convert$eData.box)
+  req(rv.convert$tab1)
   
-  if (length(rv$widgets$Convert$eDatabox) == 0 || !isTRUE(rv$widgets$Convert$selectIdent)){
-    return(NULL)
+  session$sendCustomMessage('unbind-DT', 'x1')
+  df <- NULL
+  choices <- c("None",colnames(rv.convert$tab1))
+  names(choices) <- c("None",colnames(rv.convert$tab1))
+  
+  if (isTRUE(rv.convert$selectIdent)) {
+    
+    df <- data.frame(as.data.frame(rv.convert$eData.box),
+                     shinyInput(selectInput,
+                                "colForOriginValue_",
+                                nrow(as.data.frame(rv.convert$eData.box)),
+                                choices=choices))
+    colnames(df) <- c("Sample", "Identification method")
+  } else {
+    df <- data.frame(Sample = as.data.frame(rv.convert$eData.box))
+    colnames(df) <- c("Sample")
   }
-  DT::dataTableOutput("x1", width='500px')
+  df
 })
 
 
-# observeEvent(rv$widgets$Convert$selectIdent, {
-#   print("in observeEvent(rv$widgets$Convert$selectIdent")
-#   print(rv$widgets$Convert$selectIdent)
-#   print(rv$widgets$Convert$eDatabox)
-#   print('condition = ')
-#   #length(rv$widgets$Convert$eDatabox) > 0 && isTRUE(rv$widgets$Convert$selectIdent)
-#   shinyjs::toggle('x1', condition=TRUE)
-# })
+observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
+
+
+observeEvent(req(rv.convert$eDatabox), {
+  print(rv.convert$eDatabox)
+  shinyjs::toggle('selectIdent', condition= length(rv.convert$eDatabox)>0)
+})
 
 
 
@@ -574,7 +584,7 @@ output$x1 <- renderDataTable(
   quantiDataTable(),
   escape=FALSE,
   rownames = FALSE,
-  extensions = c('Scroller'),
+  extensions = c('Scroller', 'Buttons'),
   server=FALSE,
   selection='none', 
   class = 'compact',
@@ -600,218 +610,71 @@ output$x1 <- renderDataTable(
 )
 
 
-### SCREEN 4
-output$Convert_BuildDesign <- renderUI({
-  req(rv$widgets$Convert$datafile)
-  req(input$file1)
-  tagList(
-    tags$p("If you do not know how to fill the experimental design, you can click
-                                  on the '?' next to each design in the list that appear once the conditions 
-                                  are checked or got to the ", 
-           tags$a(href="http://prostar-proteomics.org/#how-to-build-a-valid-experimental-design", target='_blank', 'FAQ'), 
-           " page."),
-    fluidRow(
-      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
-      column(width=6,uiOutput("UI_checkConditions")  )
-    ),
-    fluidRow(
-      column(width=6,uiOutput("UI_hierarchicalExp")),
-      column(width=6,uiOutput("checkDesign") )
-  ),
-  hr(),
-  selectInput("convert_reorder", "Order by conditions ?",
-              selected=rv$widgets$Convert$convert_reorder,
-              choices=c("No"="No", "Yes"="Yes"),
-              width="100px"),
-  tags$div(
-    
-    tags$div(style="display:inline-block; vertical-align: top;",
-             uiOutput("viewDesign",width="100%")
-    ),
-    tags$div(style="display:inline-block; vertical-align: top;",
-             shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
-    )
-    
-    
-  ))
-  
-})
+observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
 
 
-
-### SCREEN 5
-output$Convert_Convert <- renderUI({
-  tagList(
-    br(), br(),
-  
-  uiOutput("convertFinalStep"),
-  moduleStaticDataTableUI("overview_convertData"),
-  uiOutput("conversionDone"),
-  p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
-    interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
-    (because successive dataset loading can make Prostar unstable). To work on another dataset, use first the 'Reload Prostar' functionality from 
-    the 'Dataset manager' menu: it will make Prostar restart with a fresh R session where import functions are enabled.")
-  
-  
-  )
-})
-
-
-output$convertFinalStep <- renderUI({
-  req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
-    uiOutput("warningCreateMSnset")
-    
-  )
-})
-
-
-
-output$conversionDone <- renderUI({
-  req(rv$current.obj)
-  
-  h4("The conversion is done. Your dataset has been automatically loaded 
-       in memory. Now, you can switch to the Descriptive statistics panel to 
-       vizualize your data.")
-})
-
-
-
-#######################################
-observeEvent(input$createMSnsetButton,{
-  #if(!is.null(rv$current.obj)){return(NULL)}
-  
-  
-  allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
-  if (allDone !=4){
-    shinyjs::info('At least one of the previous step has not been done.')
-    return(NULL)
-  }
-  
-  print("In observeEvent(input$createMSnsetButton")
-  colNamesForOriginofValues <- NULL
-  if (isTRUE(rv$widgets$Convert$selectIdent)) {
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+checkIdentificationMethod_Ok <- reactive({
+  #req(rv.convert$selectIdent)
+  res <- TRUE
+  tmp <- NULL
+  if (isTRUE(rv.convert$selectIdent)) {
+    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
   } 
+  res
   
-  
-  result = tryCatch({
-    isolate({
-      ext <- GetExtension(rv$widgets$Convert$datafile$name)
-      
-      # txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
-      #                  "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-      # txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
-      #                  ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
-      # switch(ext,
-      #        txt = writeToCommandLogFile(txtTab),
-      #        csv = writeToCommandLogFile(txtTab),
-      #        tsv = writeToCommandLogFile(txtTab),
-      #        xls= writeToCommandLogFile(txtXls),
-      #        xlsx = writeToCommandLogFile(txtXls)
-      # )
-      
-      tmp.eData.box <- rv$widgets$Convert$eDatabox
-      indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
-      if (!is.null(rv$newOrder)){
-        tmp.eData.box <- tmp.eData.box[rv$newOrder]
-        indexForEData <- indexForEData[rv$newOrder]
-      }
-      
-      indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
-      
-      indexForIDBox <- NULL
-      if (rv$widgets$Convert$idBox !="Auto ID") {
-        indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
-      }
-      
-      
-      metadata <- hot_to_r(input$hot)
-      logData <- (rv$widgets$Convert$checkDataLogged == "no")
-      
-      
-      indexForOriginOfValue <- NULL
-      if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
-        for (i in 1:length(tmp.eData.box)){
-          indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
-        }
-      }
-      
-      
-      versions <- list(Prostar_Version = 
-                         installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
-                       DAPAR_Version = 
-                         installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-      )
-      rv$current.obj <- DAPAR::createMSnset(rv$tab1, 
-                                            metadata, 
-                                            indexForEData, 
-                                            indexForFData, 
-                                            indexForIDBox,
-                                            indexForOriginOfValue,
-                                            (rv$widgets$Convert$checkDataLogged == "no"), 
-                                            rv$widgets$Convert$replaceAllZeros,
-                                            pep_prot_data = rv$widgets$Convert$typeOfData,
-                                            proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
-                                            versions
-      )
-      
-      
-      rv$current.obj.name <- input$filenameToCreate
-      rv$indexNA <- which(is.na(exprs(rv$current.obj)))
-      rv$typeOfDataset <- rv$widgets$Convert$typeOfData
-      rv$current.obj <- addOriginOfValue(rv$current.obj)
-      colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-      names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-      rv$current.obj <- addOriginOfValue(rv$current.obj)
-      
-      rv$widgets$aggregation$proteinId <- rv$current.obj@experimentData@other$proteinId
-      rv$proteinId <- rv$current.obj@experimentData@other$proteinId
-      
-      
-      rvModProcess$moduleConvertDone[5] <- TRUE
-      loadObjectInMemoryFromConverter()
-      
-      print("after loadObjectInMemoryFromConverter")
-      print(rv$current.obj)
-      #updateTabsetPanel(session, "tabImport", selected = "Convert")
-    }) ## end of isolate
-  }
-  , warning = function(w) {
-    if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
-      shinyjs::info(paste("Warning : Your original dataset may contain negative values",
-                          "so that they cannot be logged. Please check back the dataset or", 
-                          "the log option in the first tab.",
-                          sep=" "))
-    } 
-    # else {
-    #       shinyjs::info(paste("Warning in CreateMSnSet",":",
-    #                           conditionMessage(w), 
-    #                           sep=" "))
-    #   }
-  }, error = function(e) {
-    shinyjs::info(paste("Error :","CreateMSnSet",":",
-                        conditionMessage(e), 
-                        sep=" "))
-  }, finally = {
-    #cleanup-code 
-  })
-  
-  
-  
-  #})
 })
+
+
+datasetID_Ok <- reactive({
+  req(rv.convert$idBox)
+  req(rv.convert$tab1)
+  test1 <- test2 <- TRUE
+  
+  if(rv.convert$typeOfData == "peptide"){
+    test1 <- !(rv.convert$convert_proteinId == "") && !is.null(rv.convert$convert_proteinId) && isTRUE(rv.convert$convert_confirmSep)
+    
+  }
+  
+  if (rv.convert$idBox =="Auto ID") {
+    test2 <- TRUE
+  }
+  else {
+    test2 <- (length(as.data.frame(rv.convert$tab1)[, rv.convert$idBox])
+              == length(unique(as.data.frame(rv.convert$tab1)[, rv.convert$idBox])))
+  }
+  
+ 
+  t <-  test1 && test2
+  
+  t
+})
+
+
+
+output$previewProteinID_UI <- renderUI({
+  req(rv.convert$convert_proteinId)
+  
+  tagList(
+    p(style="color: black;", 'Preview'),
+    tableOutput("previewProtID")
+  )
+  
+})
+
+
+
+output$previewProtID <- renderTable(
+  req(rv.convert$convert_proteinId),
+  head(rv.convert$tab1[,rv.convert$convert_proteinId]),
+  colnames = FALSE
+)
+
+
 
 
 output$warningCreateMSnset <- renderUI({
-  if (isTRUE(rv$widgets$Convert$selectIdent)){
+  if (isTRUE(rv.convert$selectIdent)){
     colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if (length(which(colNamesForOriginofValues == "None")) >0){
       text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
@@ -822,122 +685,144 @@ output$warningCreateMSnset <- renderUI({
 })
 
 
-#########################################################################################
-observe({
-  req(input$idBox)
-  req(rv$tab1)
-  test1 <- test2 <- TRUE
+
+
+
+
+#######################################
+observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
+  allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
+  if (allDone !=4){
+    shinyjs::info('At least one of the previous step has not been done.')
+    return(NULL)
+  }
   
-  if(input$typeOfData == "peptide"){
-    test1 <- !(input$convert_proteinId == "") && !is.null(input$convert_proteinId) && isTRUE(rv$widgets$Convert$convert_confirmSep)
-    
-    }
+  colNamesForOriginofValues <- NULL
+  if (isTRUE(rv.convert$selectIdent)) {
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+  } 
+  
  
-  
-  if (input$idBox =="Auto ID") {
-    test2 <- TRUE
-  }
-  else {
-    test2 <- (length(as.data.frame(rv$tab1)[, input$idBox])
-          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-  }
-   
-  print(test1)
-  print(test2)
-  rvModProcess$moduleConvertDone[2] <- test1 && test2
-})
-
-
-
-
-# output$helpTextDataID <- renderUI({
-#   rv$widgets$Convert$typeOfData
-#   if (is.null(rv$widgets$Convert$typeOfData)){return(NULL)}
-#   t <- ""
-#   switch(rv$widgets$Convert$typeOfData,
-#          protein = {t <- "proteins"},
-#          peptide = {t <- "peptides"}
-#   )
-#   txt <- paste ("Please select among the columns of your data the one that
-#                 corresponds to a unique ID of the ", t, ".", sep=" ")
-#   helpText(txt) 
-# })
-
-
-# observe({
-#   rvModProcess$moduleConvertDone[1] <- !is.null(input$file1)
-#   rvModProcess$moduleConvertDone[3] <- length(input$eData.box)>0
-#   rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
-# })
-
-
-observe({
-  rvModProcess$moduleConvertDone[1] <- !is.null(rv$widgets$Convert$datafile)
-  rvModProcess$moduleConvertDone[3] <- length(rv$widgets$Convert$eDatabox)>0
-  rvModProcess$moduleConvertDone[4] <- rvModProcess$moduleConvertDone[4] || (!is.null(rv$designChecked$valid) && isTRUE(rv$designChecked$valid))
-  
-})
-
-
-# updateInputs <- function(id, n){
-#     for (i in seq_len(n)) {
-#         updateSelectInput(paste0(id,i),label=NULL,selected = input[[paste0(id,i)]])
-#     }
-# }
-
-
-# reactive dataset
-quantiDataTable <- reactive({
-  
-  req(rv$widgets$Convert$eDatabox)
-  req(rv$tab1)
-  
-  session$sendCustomMessage('unbind-DT', 'x1')
-  df <- NULL
-  choices <- c("None",colnames(rv$tab1))
-  names(choices) <- c("None",colnames(rv$tab1))
-  
-  if (isTRUE(rv$widgets$Convert$selectIdent)) {
+    result = tryCatch(
+      {
+        isolate({
+          
+        tmp.eData.box <- rv.convert$eData.box
+        indexForEData <- match(tmp.eData.box, colnames(rv.convert$tab1))
+        if (!is.null(rv.convert$newOrder)){
+          tmp.eData.box <- tmp.eData.box[rv.convert$newOrder]
+          indexForEData <- indexForEData[rv.convert$newOrder]
+        }
+        
+        indexForFData <- seq(1,ncol(rv.convert$tab1))[-indexForEData]
+        
+        indexForIDBox <- NULL
+        if (rv.convert$idBox !="Auto ID") {
+          indexForIDBox <- match(rv.convert$idBox, colnames(rv.convert$tab1))
+        }
+        
+        
+        metadata <- hot_to_r(input$hot)
+        logData <- (rv.convert$checkDataLogged == "no")
+        
+        
+        indexForOriginOfValue <- NULL
+        if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
+          for (i in 1:length(tmp.eData.box)){
+            indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv.convert$tab1) == input[[paste0("colForOriginValue_", i)]]))
+          }
+        }
+        
+        
+        versions <- list(Prostar_Version = 
+                           installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
+                         DAPAR_Version = 
+                           installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+        )
+        options(digits=15)
+        rv$current.obj  <- DAPAR::createMSnset(rv.convert$tab1, 
+                                   metadata, 
+                                   indexForEData, 
+                                   indexForFData, 
+                                   indexForIDBox,
+                                   indexForOriginOfValue,
+                                   (rv.convert$checkDataLogged == "no"), 
+                                   rv.convert$replaceAllZeros,
+                                   pep_prot_data = rv.convert$typeOfData,
+                                   proteinId =  gsub(".", "_", rv.convert$convert_proteinId, fixed=TRUE),
+                                   versions
+        )
+        
+        rv$current.obj.name <- input$filenameToCreate
+        rv$indexNA <- which(is.na(exprs(rv$current.obj)))
+        
+        rv$typeOfDataset <- rv.convert$typeOfData
+        rv$current.obj <- addOriginOfValue(rv$current.obj)
+        colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+        names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+        rv$current.obj <- addOriginOfValue(rv$current.obj)
+        
+        rv$widgets$aggregation$proteinId <- rv$current.obj@experimentData@other$proteinId
+        rv$proteinId <- rv$current.obj@experimentData@other$proteinId
+        
+        loadObjectInMemoryFromConverter()
+        
+      }
+      , warning = function(w) {
+        if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
+          shinyjs::info(paste("Warning : Your original dataset may contain negative values",
+                              "so that they cannot be logged. Please check back the dataset or", 
+                              "the log option in the first tab.",
+                              sep=" "))
+        } else {
+          shinyjs::info(paste("Warning in CreateMSnSet",":",
+                              conditionMessage(w), 
+                              sep=" "))
+        }
+      }, error = function(e) {
+        shinyjs::info(paste("Error :","CreateMSnSet",":",
+                            conditionMessage(e), 
+                            sep=" "))
+      }, finally = {
+        #cleanup-code 
+      })
     
-    df <- data.frame(as.data.frame(rv$widgets$Convert$eDatabox),
-                     shinyInput(selectInput,
-                                "colForOriginValue_",
-                                nrow(as.data.frame(rv$widgets$Convert$eDatabox)),
-                                choices=choices)
-                     )
-    colnames(df) <- c("Sample", "Identification method")
-  } else {
-    df <- data.frame(Sample = as.data.frame(rv$widgets$Convert$eDatabox))
-    colnames(df) <- c("Sample")
+    
+    
+  })
+})
+
+
+
+
+checkSep <- function(sepUser){
+  inputUser <- sepUser
+  separators <- c(' ', '.', ",", ";", "-",'')
+  if (length(which(inputUser == separators))>=1) {
+    separators <- separators[-which(inputUser == separators)]
   }
   
-  df
-})
-
-
-
-
-observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
-
-
-checkIdentificationMethod_Ok <- reactive({
-  #req(input$selectIdent)
-  res <- TRUE
-  tmp <- NULL
-  if (isTRUE(rv$widgets$Convert$selectIdent)) {
-    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
+  sepToCheck <- character()
+  for (i in separators) {
+    sepToCheck <- paste0( sepToCheck, gsub('"',"",i),"|" )
   }
-  res
-})
-
-datasetID_Ok <- reactive({
-  req(rv$widgets$Convert$idBox)
-  req(rv$tab1)
-  if (rv$widgets$Convert$idBox == "Auto ID") {t <- TRUE}
-  else {
-    t <- (length(as.data.frame(rv$tab1)[, rv$widgets$Convert$idBox])
-          == length(unique(as.data.frame(rv$tab1)[, rv$widgets$Convert$idBox])))
+  sepToCheck <- substr(sepToCheck,1,nchar(sepToCheck)-1)
+  sepToCheck <- gsub("\\.", "\\\\.", sepToCheck)
+  liste <- sapply(rv.convert$tab1[,rv.convert$convert_proteinId], function(x) strsplit(x, sepToCheck))
+  subliste <- liste[lengths(liste)>1]
+  listeSepPLus <- c()
+  for (i in 1:length(subliste)){
+    listeSepPLus <- c(listeSepPLus, intersect(unlist(strsplit(separators,"")),unlist(strsplit(names(subliste)[i],""))))
   }
-  t
-})
+  
+  if (length(listeSepPLus)>0) {
+    text <- paste0("<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
+  }
+  else { 
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img> No others separators detected."
+  }
+  return(text)
+}
+
+

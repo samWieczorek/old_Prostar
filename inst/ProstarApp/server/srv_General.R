@@ -1,31 +1,4 @@
 
-shinyOutput <- function(FUN,id,num,...) {
-  inputs <- character(num)
-  for (i in seq_len(num)) {
-    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
-  }
-  inputs
-}
-
-
-# function for dynamic inputs in DT
-shinyInput <- function(FUN,id,num,...) {
-  inputs <- character(num)
-  for (i in seq_len(num)) {
-    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
-  }
-  inputs
-}
-
-
-# function to read DT inputs
-shinyValue <- function(id,num) {
-  unlist(lapply(seq_len(num),function(i) {
-    value <- input[[paste0(id,i)]]
-    if (is.null(value)) NA else value
-  }))
-}
-
 
 
 GetCurrentDatasetName <- reactive({
@@ -683,50 +656,50 @@ resetModuleProcess <- function(moduleName){
           
           
           
-          Convert ={
-            rv$widgets$Convert = list(datafile = NULL,
-                                      selectIdent = FALSE,
-                                      convert_proteinId = character(0),
-                                      idBox = "Auto ID",
-                                      eDatabox = character(0),
-                                      typeOfData = "peptide",
-                                      checkDataLogged = "no",
-                                      replaceAllZeros =TRUE,
-                                      convert_reorder = "no",
-                                      XLSsheets = character(0),
-                                      design = NULL,
-                                      noSepProteinID = FALSE,
-                                      sepProteinID = NULL,
-                                      checkBoxRemoveOrphanPept = FALSE
-                                      )
-            
-            
-            rvModProcess$moduleConvert = list(name = "Convert",
-                                              stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
-                                              isMandatory = rep(TRUE,5),
-                                              ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
-                                                            screenStep2 = uiOutput("Convert_DataId"),
-                                                            screenStep3 = uiOutput("Convert_ExpFeatData"),
-                                                            screenStep2 = uiOutput("Convert_BuildDesign"),
-                                                            screenStep3 = uiOutput("Convert_Convert")
-                                              ))
-            
-            ## update widgets in UI
-            updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)
-            updateSelectInput(session,"convert_proteinId",selected = rv$widgets$convert_proteinId)
-            updateSelectInput(session,"idBox", selected = rv$widgets$Convert$idBox)
-            updateRadioButtons(session, "typeOfData", selected=rv$widgets$Convert$typeOfData)
-            updateRadioButtons(session, "checkDataLogged", selected=rv$widgets$Convert$checkDataLogged)
-            updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
-            updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
-            updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
-            updateCheckboxInput(session,"noSepProteinID", value= rv$widgets$Convert$noSepProteinID)
-            updateSelectInput(session,"sepProteinID", selected= rv$widgets$Convert$sepProteinID)
-            updateCheckboxInput(session,"checkBoxRemoveOrphanPept", value= rv$widgets$Convert$checkBoxRemoveOrphanPept)
-            
-            rvModProcess$moduleConvertDone =  rep(FALSE,5)
-          },
-          
+          # Convert ={
+          #   rv$widgets$Convert = list(datafile = NULL,
+          #                             selectIdent = FALSE,
+          #                             convert_proteinId = character(0),
+          #                             idBox = "Auto ID",
+          #                             eDatabox = character(0),
+          #                             typeOfData = "peptide",
+          #                             checkDataLogged = "no",
+          #                             replaceAllZeros =TRUE,
+          #                             convert_reorder = "no",
+          #                             XLSsheets = character(0),
+          #                             design = NULL,
+          #                             noSepProteinID = FALSE,
+          #                             sepProteinID = NULL,
+          #                             checkBoxRemoveOrphanPept = FALSE
+          #                             )
+          #   
+          #   
+          #   rvModProcess$moduleConvert = list(name = "Convert",
+          #                                     stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
+          #                                     isMandatory = rep(TRUE,5),
+          #                                     ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
+          #                                                   screenStep2 = uiOutput("Convert_DataId"),
+          #                                                   screenStep3 = uiOutput("Convert_ExpFeatData"),
+          #                                                   screenStep2 = uiOutput("Convert_BuildDesign"),
+          #                                                   screenStep3 = uiOutput("Convert_Convert")
+          #                                     ))
+          #   
+          #   ## update widgets in UI
+          #   updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)
+          #   updateSelectInput(session,"convert_proteinId",selected = rv$widgets$convert_proteinId)
+          #   updateSelectInput(session,"idBox", selected = rv$widgets$Convert$idBox)
+          #   updateRadioButtons(session, "typeOfData", selected=rv$widgets$Convert$typeOfData)
+          #   updateRadioButtons(session, "checkDataLogged", selected=rv$widgets$Convert$checkDataLogged)
+          #   updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
+          #   updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
+          #   updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
+          #   updateCheckboxInput(session,"noSepProteinID", value= rv$widgets$Convert$noSepProteinID)
+          #   updateSelectInput(session,"sepProteinID", selected= rv$widgets$Convert$sepProteinID)
+          #   updateCheckboxInput(session,"checkBoxRemoveOrphanPept", value= rv$widgets$Convert$checkBoxRemoveOrphanPept)
+          #   
+          #   rvModProcess$moduleConvertDone =  rep(FALSE,5)
+          # },
+          # 
           
           
           AnaDiff = {
@@ -867,7 +840,7 @@ ClearMemory <- function(){
                            stringsAsFactors=F)
   rv$tableVersions = NULL
   
-  rv$tab1 = NULL
+  #rv$tab1 = NULL
   rv$dirname = ""
   rv$dirnameforlink = ""
   rv$temp.aggregate = NULL
@@ -1096,21 +1069,21 @@ rv <- reactiveValues(
                    nBinsHistpval = 80,
                    downloadAnaDiff = "All",
                    tooltipInfo=NULL),
-    Convert = list(datafile = NULL,
-                   selectIdent = FALSE,
-                   convert_proteinId = character(0),
-                   idBox = "Auto ID",
-                   eDatabox = character(0),
-                   typeOfData = "peptide",
-                   checkDataLogged = "no",
-                   replaceAllZeros =TRUE,
-                   convert_reorder = "no",
-                   XLSsheets = character(0),
-                   design = NULL,
-                   noSepProteinID = FALSE,
-                   sepProteinID = NULL,
-                   checkBoxRemoveOrphanPept = FALSE
-                   ),
+    # Convert = list(datafile = NULL,
+    #                selectIdent = FALSE,
+    #                convert_proteinId = character(0),
+    #                idBox = "Auto ID",
+    #                eDatabox = character(0),
+    #                typeOfData = "peptide",
+    #                checkDataLogged = "no",
+    #                replaceAllZeros =TRUE,
+    #                convert_reorder = "no",
+    #                XLSsheets = character(0),
+    #                design = NULL,
+    #                noSepProteinID = FALSE,
+    #                sepProteinID = NULL,
+    #                checkBoxRemoveOrphanPept = FALSE
+    #                ),
     go = list(
       sourceOfProtID = NULL,
       idFrom = "UNIPROT",
@@ -1456,33 +1429,4 @@ buildWritableVector <- function(v){
 }
 
 
-
-checkSep <- function(sepUser){
-  inputUser <- sepUser
-  separators <- c(' ', '.', ",", ";", "-",'')
-  if (length(which(inputUser == separators))>=1) {
-    separators <- separators[-which(inputUser == separators)]
-  }
-  
-  sepToCheck <- character()
-  for (i in separators) {
-    sepToCheck <- paste0( sepToCheck, gsub('"',"",i),"|" )
-  }
-  sepToCheck <- substr(sepToCheck,1,nchar(sepToCheck)-1)
-  sepToCheck <- gsub("\\.", "\\\\.", sepToCheck)
-  liste <- sapply(rv$tab1[,rv$widgets$Convert$convert_proteinId], function(x) strsplit(x, sepToCheck))
-  subliste <- liste[lengths(liste)>1]
-  listeSepPLus <- c()
-  for (i in 1:length(subliste)){
-    listeSepPLus <- c(listeSepPLus, intersect(unlist(strsplit(separators,"")),unlist(strsplit(names(subliste)[i],""))))
-  }
-  
-  if (length(listeSepPLus)>0) {
-    text <- paste0("<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">Others separators (",c(unlist(unique(listeSepPLus))), ") found!")
-  }
-  else { 
-    text <- "<img src=\"images/Ok.png\" height=\"24\"></img> No others separators detected."
-  }
-  return(text)
-}
 

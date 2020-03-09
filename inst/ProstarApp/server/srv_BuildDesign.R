@@ -26,26 +26,25 @@ color_renderer <- reactive({
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
-  input$file1
-  input$convert_reorder
+  rv.convert$convert_reorder
   
   if (length(grep("Bio.Rep", colnames(rv$hot))) > 0)  { return(NULL)}
   
-  if (input$convert_reorder== "Yes") {
-    rv$newOrder <- order(rv$hot["Condition"])
-    rv$hot <- rv$hot[rv$newOrder,]
+  if (rv.convert$convert_reorder== "Yes") {
+    rv.convert$newOrder <- order(rv$hot["Condition"])
+    rv$hot <- rv$hot[rv.convert$newOrder,]
   }
   
-  rv$conditionsChecked <- DAPAR::check.conditions(rv$hot$Condition)
+  rv.convert$conditionsChecked <- DAPAR::check.conditions(rv$hot$Condition)
   
 })
 
 
 
 #----------------------------------------------------------
-observeEvent(input$eData.box,{
-  rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
-                        Condition = rep("",length(input$eData.box)),
+observeEvent(rv.convert$eData.box,{
+  rv$hot  <- data.frame(Sample.name = as.character(rv.convert$eData.box),
+                        Condition = rep("",length(rv.convert$eData.box)),
                         stringsAsFactors = FALSE)
   
  
@@ -54,11 +53,11 @@ observeEvent(input$eData.box,{
 #-------------------------------------------------------------
 output$hot <- renderRHandsontable({
   rv$hot
-  input$chooseExpDesign
+  rv.convert$chooseExpDesign
   
   if (is.null(rv$hot)){
-    rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
-                          Condition = rep("",length(input$eData.box)),
+    rv$hot  <- data.frame(Sample.name = as.character(rv.convert$eData.box),
+                          Condition = rep("",length(rv.convert$eData.box)),
                           stringsAsFactors = FALSE)
   }
   
@@ -77,8 +76,8 @@ output$hot <- renderRHandsontable({
     rhandsontable:: hot_cols(renderer = color_renderer()) %>%
     rhandsontable::hot_col(col = "Sample.name", readOnly = TRUE)
   
-  if (!is.null(input$chooseExpDesign)) {
-    switch(input$chooseExpDesign,
+  if (!is.null(rv.convert$chooseExpDesign)) {
+    switch(rv.convert$chooseExpDesign,
            FlatDesign = {
                if ("Bio.Rep" %in% colnames(rv$hot))
                    hot <- hot %>% rhandsontable::hot_col(col = "Bio.Rep", readOnly = TRUE)
@@ -106,9 +105,9 @@ output$UI_checkConditions  <- renderUI({
 
   req(rv$hot)
   rv$conditionsChecked
-  input$convert_reorder
+  rv.convert$convert_reorder
   
-  if ((sum(rv$hot$Condition == "")==0) && (input$convert_reorder != "None")){
+  if ((sum(rv$hot$Condition == "")==0) && (rv.convert$convert_reorder != "None")){
     tags$div(
       tags$div(style="display:inline-block;",
                actionButton("btn_checkConds", "Check conditions", class = actionBtnClass)
@@ -200,9 +199,9 @@ callModule(moduleDesignExample,"buildDesignExampleTwo", 2)
 
 #------------------------------------------------------------------------------
 output$designExamples <- renderUI({
-  input$chooseExpDesign
-  print(input$chooseExpDesign)
-  switch(input$chooseExpDesign,
+  rv.convert$chooseExpDesign
+  print(rv.convert$chooseExpDesign)
+  switch(rv.convert$chooseExpDesign,
          FlatDesign = 
            {
              tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")
@@ -230,10 +229,10 @@ observe({
 })
 
 #------------------------------------------------------------------------------
-observeEvent(input$chooseExpDesign, {
+observeEvent(rv.convert$chooseExpDesign, {
   req(rv$hot)
   rv$designChecked <- NULL
-  switch(input$chooseExpDesign,
+  switch(rv.convert$chooseExpDesign,
          FlatDesign = {
                       rv$hot  <- data.frame(rv$hot[,1:2],
                                  Bio.Rep = seq(1:nrow(rv$hot)),
@@ -268,13 +267,13 @@ observeEvent(input$btn_checkDesign,{ rv$designChecked <- DAPAR::check.design(rv$
 
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
-  req(input$chooseExpDesign)
-  req(rv$widgets$Convert$datafile)
-  rv$designChecked
-  req(rv$conditionsChecked)
+  req(rv.convert$chooseExpDesign)
+  req(rv.convert$datafile)
+  rv.convert$designChecked
+  req(rv.convert$conditionsChecked)
   
-  if(!isTRUE(rv$conditionsChecked$valid)){return(NULL)}
-  switch(isolate({input$chooseExpDesign}),
+  if(!isTRUE(rv.convert$conditionsChecked$valid)){return(NULL)}
+  switch(isolate({rv.convert$chooseExpDesign}),
          FlatDesign = {},
          twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
          threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}
@@ -289,9 +288,9 @@ output$checkDesign <- renderUI({
     
     tags$div(
       style="display:inline-block;",
-      if(!is.null(rv$designChecked)){
+      if(!is.null(rv.convert$designChecked)){
         
-        if (isTRUE(rv$designChecked$valid)){
+        if (isTRUE(rv.convert$designChecked$valid)){
           shinyjs::enable("createMSnsetButton")
           img <- "images/Ok.png"
           txt <- "Correct design"
@@ -304,9 +303,9 @@ output$checkDesign <- renderUI({
             tags$div(style="display:inline-block;",tags$img(src = img, height=25)),
             tags$div(style="display:inline-block;",tags$p(txt))
           ),
-          if(!isTRUE(rv$designChecked$valid)){
+          if(!isTRUE(rv.convert$designChecked$valid)){
             shinyjs::disable("createMSnsetButton")
-            tags$p(rv$designChecked$warn)
+            tags$p(rv.convert$designChecked$warn)
           } else {
             shinyjs::enable("createMSnsetButton")
           }
