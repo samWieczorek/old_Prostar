@@ -1,9 +1,20 @@
 DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 
-source(file.path(".", "commonFunc.R"),  local = TRUE)$value
+
+SourceFiles <- function(){
+  
+  ll.files <- readLines('src/AllSources.R')
+  for (f in ll.files){
+    print(paste0('sourcing ', f))
+    if (f != 'src/core.R')
+      source(f, local=TRUE)$value
+  }
+
+}
 
 
+G_path_to_pipeline_conf <- 'src/modules/process/pipeline.conf'
 
 #5lstDescPlots <- c("intensity", "mv")
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
@@ -39,6 +50,8 @@ loadLibraries <- function(){
   
   library(future)
   library(promises)
+  
+  library(MultiAssayExperiment)
   
 }
 
@@ -141,9 +154,6 @@ G_heatmapLinkage_Choices <- list("Complete" = "complete",
                                  "Median" = "median")
 
 
-source(file.path(".", "modules/moduleInsertMarkdown.R"),  local = TRUE)$value
-source(file.path(".", "modules/moduleBugReport.R"),  local = TRUE)$value
-
 
 ## URLs for the .md files stored in the website github directory
 base_URL <- "http://www.prostar-proteomics.org/md/"
@@ -192,8 +202,7 @@ GetExtension <- function(name){
 
 
 #--------------------------------------------------------
-DeleteFileExtension <- function(name){
-  return(strsplit(name,'.', fixed=T)[[1]][1])}
+
 
 #--------------------------------------------------------
 GetExtension <- function(name){

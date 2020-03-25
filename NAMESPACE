@@ -1,4 +1,4 @@
-
+import(MultiAssayExperiment)
 import(rhandsontable)
 import(data.table)
 import(sass)
@@ -93,7 +93,7 @@ importFrom(shiny,
 
 
 exportPattern("^[[:alpha:]]+")
-importFrom(MSnbase, pData, exprs, fData, MSnSet-class, readMSnSet)
+importFrom(MSnbase, MSnSet-class, readMSnSet)
 import(DAPARdata)
 import(RColorBrewer)
 import(Cairo)
