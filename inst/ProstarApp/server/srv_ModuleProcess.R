@@ -2,12 +2,11 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
   ns <- session$ns
   
   current <- reactiveVal(1)
-   nbSteps <- length(pages()$stepsNames)
+  nbSteps <- length(pages()$stepsNames)
    
    ##--------------------------------------------------------------
   ## Gestion des couleurs du slideshow
   ##--------------------------------------------------------------
-  
    
   output$checkPanel <- renderUI({
     current()
@@ -28,27 +27,24 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
   
 
    observeEvent(c(forceReset(),input$rstBtn),{
-     req(input$rstBtn)
      current()
-   
      if (forceReset()>0 || input$rstBtn > 0){
        print("ON FAIT LE RESET EFFECTIF")
        rstFunc()
        current(1)
      }
-     
-   })
+     })
    
-   
-  observeEvent(current(),{
+  observe({
+    current()
+     toggle(id = "prevBtn", condition = (nbSteps >1))
+    toggle(id = "nextBtn", condition = (nbSteps >1) )
     
-    
-    toggle(id = "prevBtn", condition = (nbSteps > 1))
-    toggle(id = "nextBtn", condition = (nbSteps > 1) )
+   # toggle(id = "rstBtn", condition = !(isDone()[nbSteps])) 
     
     toggleState(id = "prevBtn", condition = current() > 1)
     toggleState(id = "nextBtn", condition = current() < nbSteps)
-    #hide(selector = ".page")
+    hide(selector = ".page")
   })
   
   ##--------------------------------------------------------------
@@ -62,6 +58,7 @@ moduleProcess <- function(input, output, session, isDone, pages, rstFunc, forceR
   
   observeEvent(input$prevBtn,ignoreInit = TRUE,{navPage(-1)})
   observeEvent(input$nextBtn,ignoreInit = TRUE,{navPage(1)})
+  
  
   
   output$screens <- renderUI({

@@ -31,6 +31,8 @@ callModule(moduleProcess, "moduleProcess_ProtImputation",
            rstFunc = resetModuleProtImputation,
            forceReset = reactive({rvModProcess$moduleProtImputationForceReset })  )
 
+
+
 resetModuleProtImputation <- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("ProtImputation")
@@ -44,9 +46,10 @@ resetModuleProtImputation <- reactive({
   rv$widgets$proteinImput$MEC_detQuant_factor <-  1
   rv$widgets$proteinImput$MEC_fixedValue <- 0
   
-  rv$current.obj <- rv$dataset[[input$datasets]]
-  rv$imputePlotsSteps[["step0"]] <- rv$current.obj 
-  rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
+  
+   rv$current.obj <- rv$dataset[[input$datasets]]
+   rv$imputePlotsSteps[["step0"]] <- rv$current.obj 
+   rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   
 })
 
@@ -98,24 +101,23 @@ output$screenProtImput1 <- renderUI({
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               uiOutput("POV_showDetQuantValues"))
     ),
-    tagList(
+    
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                          actionButton("perform.imputationClassical.button",
                                      "Perform imputation", class = actionBtnClass)),
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
-                uiOutput("ImputationStep1Done"))),
+                uiOutput("ImputationStep1Done")),
     
     htmlOutput("helpForImputation"),
     tags$hr(),
+    print("lacement du MVplots"),
     moduleMVPlotsUI("mvImputationPlots_MV")
-              )
-
+)
 })
 
 
 
 output$screenProtImput2 <- renderUI({
-  
  
   tagList(
     uiOutput("warningMECImputation"),
@@ -132,7 +134,6 @@ output$screenProtImput2 <- renderUI({
                 actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)),
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
                 uiOutput("ImputationStep2Done"))),
-    
     tags$hr(),
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.5, detail = 'Building plots...')
@@ -264,7 +265,7 @@ output$POV_Params <- renderUI({
 output$MEC_Params <- renderUI({
   req(rv$widgets$proteinImput$MEC_algorithm)
   isolate({
-    switch (rv$widgets$proteinImput$MEC_algorithm,
+  switch (rv$widgets$proteinImput$MEC_algorithm,
           detQuantile = {
             tagList(
               tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
@@ -304,28 +305,27 @@ observeEvent(input$perform.imputationClassical.button,{
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Find MEC blocks')
       
-    
-   
     incProgress(0.5, detail = 'POV Imputation')
     switch(rv$widgets$proteinImput$POV_algorithm,
            slsa = {
              rv$MECIndex <- findMECBlock(rv$current.obj)
              rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
              rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-             },
+             
+           },
            detQuantile = {
              rv$MECIndex <- findMECBlock(rv$current.obj)
-           rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
-                                                     qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
-                                                     factor = rv$widgets$proteinImput$POV_detQuant_factor)
+             rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+                                                       qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
+                                                       factor = rv$widgets$proteinImput$POV_detQuant_factor)
            rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+           
            },
            KNN = {
              rv$current.obj <- wrapper.impute.KNN(rv$current.obj , rv$widgets$proteinImput$POV_KNN_n)
            }
     )
     incProgress(0.75, detail = 'Reintroduce MEC blocks')
- 
     incProgress(1, detail = 'Finalize POV imputation')
     nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
     rv$nbPOVimputed <-  nbMVBefore - nbMVAfter
@@ -394,7 +394,8 @@ observeEvent(input$ValidImputation,{
     rv$current.obj <- saveParameters(rv$current.obj, name,"proteinImputation",build_ParamsList_ProteinImputation())
     UpdateDatasetWidget(rv$current.obj, name)
     
-    rv$ValidImputationClicked <- TRUE
+    
+       rv$ValidImputationClicked <- TRUE
     rvModProcess$moduleProtImputationDone[3] <- TRUE
    })
 })
@@ -414,26 +415,26 @@ output$ImputationSaved <- renderUI({
 
 output$ImputationStep1Done <- renderUI({
   #isolate({
-  if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
+    if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
       tagList(
         h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
         # br(),
         h5("Updated graphs can be seen on step \"2 - Missing on the Entire Condition\".")
       )
     }
-
+ # })
 })
 
 
 output$ImputationStep2Done <- renderUI({
   #isolate({
-  if (isTRUE(rvModProcess$moduleProtImputationDone[2])) {
+    if (isTRUE(rvModProcess$moduleProtImputationDone[2])) {
       tagList(
         h5("MEC imputation done.", rv$nbMECimputed, " were imputed"),
-        h5("Updated graphs cans be seen on step \"3 - Validate and save\"."))
+        h5("Updated graphs cans be seen on step \"3 - Save\"."))
     }
-  })
-
+  #})
+})
 
 output$warningMECImputation<- renderUI({
   
@@ -441,6 +442,10 @@ output$warningMECImputation<- renderUI({
   is a real issue as, in the given condition, there is no observed value to rely on.
    Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.")
 })
+
+
+
+
 
 
 

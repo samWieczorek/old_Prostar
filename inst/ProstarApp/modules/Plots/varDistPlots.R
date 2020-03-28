@@ -17,7 +17,7 @@ output$plotvarDistlarge <- renderUI({
     withProgress(message = '',detail = '', value = 1, {
       highchartOutput(ns("viewDistCV"),width = plotWidth, height = plotHeight)
     })
-    )
+  )
 })
 
 

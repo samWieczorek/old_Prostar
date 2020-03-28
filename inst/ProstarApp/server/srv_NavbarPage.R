@@ -1,37 +1,37 @@
+
 # IF the dataset is changed par the user, the current process step is reset
 #observeEvent(input$datasets,ignoreInit = TRUE,{ isolate({  ResetActivePage()}) })
 
 
 
 observeEvent(rv$current.obj,{  
-  print("---- changement de dataset par mise a jour de rv$current.obj !!!!-----")
-  
   BuildNavbarPage()  
-})
+  })
 
 
 
 observeEvent( req(input$datasets),ignoreInit = TRUE,{ 
   
-  # isolate({
-  
-  if (rv$processSaved== TRUE) {
-    print("---- changement de dataset par mise a jour de input$datasets !!!!-----")
-    rv$processSaved <- FALSE
-  } else {
-    print("---- changement de dataset par le menu - Utilisateur !!!!-----")
-    print("---- => On fait un reset de l'interface -----")
-    rv$current.obj <- rv$dataset[[input$datasets]]
-    if (!is.null( rv$current.obj)){
-      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      ## remettre les logFC s'ils existent
-      rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
-      
+ # isolate({
+    
+    if (rv$processSaved== TRUE) {
+      print("---- changement de dataset par mise à jour de input$datasets !!!!-----")
+      rv$processSaved <- FALSE
+    } else {
+      print("---- changement de dataset par le menu - Utilisateur !!!!-----")
+      print("---- => On fait un reset de l'interface -----")
+      rv$current.obj <- rv$dataset[[input$datasets]]
+      if (!is.null( rv$current.obj)){
+        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        
+        ## remettre les logFC s'ils existent
+          rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
+        
+      }
+      ClearCurrentNavPage(input$navPage)
     }
-    ClearCurrentNavPage(input$navPage)
-  }
-  
-  # })
+    
+# })
   
 })
 
@@ -44,7 +44,7 @@ ClearCurrentNavPage <- function(page){
          },
          NormalizationTab = {
            resetModuleProcess("Normalization")
-           rvModProcess$moduleNormalizationgForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
+           rvModProcess$moduleNormalizationForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
          },
          imputationProteinLevelTabs = {
            resetModuleProcess("ProtImputation")
@@ -62,18 +62,6 @@ ClearCurrentNavPage <- function(page){
            resetModuleProcess("Aggregation")
            rvModProcess$moduleAggregationForceReset <-  1 + rvModProcess$moduleAggregationForceReset  
          },
-         # testPeptideTab = {
-         #   resetModuleProcess("HypothesisTestPeptide")
-         #   rvModProcess$moduleHypothesisTestPeptideForceReset <-  1 + rvModProcess$moduleHypothesisTestPeptideForceReset  
-         # } ,
-         # testPeptidomicTab = {
-         #   resetModuleProcess("HypothesisTestPeptidomic")
-         #   rvModProcess$moduleHypothesisTestPeptidomicForceReset <-  1 + rvModProcess$moduleHypothesisTestPeptidomicForceReset  
-         # } ,
-         # testProteinTab = {
-         #   resetModuleProcess("HypothesisTestProtein")
-         #   rvModProcess$moduleHypothesisTestProteinForceReset <-  1 + rvModProcess$moduleHypothesisTestProteinForceReset  
-         # } ,
          diffAnalysisTab = {
            resetModuleProcess("AnaDiff")
            rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset
@@ -81,32 +69,31 @@ ClearCurrentNavPage <- function(page){
          convertTab = {
            resetModuleProcess("Convert")
            rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
-         } ,
+         },
          
          GoTab = {
            resetModuleProcess("GO")
            rvModProcess$moduleGOForceReset <- 1 + rvModProcess$moduleGOForceReset
          }
+         
   )
 }
 
 ## Change of page
 observeEvent(input$navPage,{ 
-  print("---- changement de page !!!!-----")
-  print(paste0("La nouvelle page est :", input$navPage))
-  ClearCurrentNavPage(input$navPage) 
-})
+  # print("---- changement de page !!!!-----")
+  # print(paste0("La nouvelle page est :", input$navPage))
+ ClearCurrentNavPage(input$navPage) 
+
+  })
+
+
+
 
 
 ClearNavbarPage <- reactive({
   
-  
-  # if ("UpdateDesign" %in% rv$UI_TabsList){
-  #   removeTab(inputId = "navPage",target="updateDesignTab")
-  #   isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "UpdateDesign")})
-  # }
-  
-  if ("dataProcessPeptTab" %in% rv$UI_TabsList){
+    if ("dataProcessPeptTab" %in% rv$UI_TabsList){
     removeTab(inputId = "navPage", target = "Data processing (peptide)")
     isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
     }
@@ -125,16 +112,19 @@ ClearNavbarPage <- reactive({
 })
 
 
-
+################################################################################################
 BuildNavbarPage <- reactive({   
 rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
+   
+   
    ## if a dataset is in memory (ie rv$current.obj is not null
    ## remove menus to import new dataset
    removeTab(inputId = "navPage", target = "demoTab")
    removeTab(inputId = "navPage", target = "convertTab")
    removeTab(inputId = "navPage", target = "openMSnsetTab")
+   
 
     if (!is.null(rv$typeOfDataset)){
 
@@ -153,7 +143,6 @@ rv$current.obj
                          ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
                          ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
-                         #,source(file.path("ui", "ui_HypothesisTestProtein.R"),  local = TRUE)$value
                          ),
               target = "Data manager",
               position="after")
@@ -176,10 +165,7 @@ rv$current.obj
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-                     #source(file.path("ui", "ui_AggregateTest_Peptide.R"),  local = TRUE)$value),
-                     #source(file.path("ui", "ui_AggregatePeptide.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value),
-                    
           target = "Data manager",
           position="after"
           )
@@ -190,7 +176,6 @@ rv$current.obj
     }
    
    
-  ### CReation des menus pour la partie Data Mining
    if (("DataMiningTab" %in% rv$UI_TabsList)){
      removeTab(inputId = "navPage", target = "Data mining")
    }

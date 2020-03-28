@@ -247,7 +247,6 @@ JSCSSTags <- function()
 list(
   tags$script(src="////code.highcharts.com/highcharts.js",type="text/javascript"),
   
-  
   tags$script(src="js/jquery.js",type="text/javascript"),
     tags$script(src="js/jquery.dataTables.js",type="text/javascript"),
     tags$link(href='css/jquery.dataTables.css', rel="stylesheet", 
@@ -621,7 +620,7 @@ G_exportFileFormat_Choices <- c( "msnset","Excel", "zip")
 gFileFormatExport <- list(msnset = "msnset",excel = "Excel", zip="zip")
 gFileExtension <- list(txt = ".txt",
                        tsv = ".tsv",
-                       msnset = ".msnset",
+                       msnset = "msnset",
                        excel = ".xlsx",
                        zip = ".zip")
 
@@ -662,5 +661,4 @@ navbarPageWithInputs <- function(..., inputs) {
 
 
 lstDescPlots <- c("intensity", "pca", "varDist", "corrMatrix", "heatmap", "mv", "quantiTable")
-
 MSG_WARNING_SIZE_DT <- "The size of the table is too big to be exported with the buttons below (only the first 154 rows will be exported). It is advised to use the Export tool of Prostar."

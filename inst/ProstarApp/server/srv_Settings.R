@@ -82,6 +82,7 @@ output$defineColorsForConditionsUI <- renderUI({
   )
 })
 
+
 output$choosePalette_UI <- renderUI({
   rv$typeOfPalette
   if (rv$typeOfPalette !="predefined") {return(NULL)}
@@ -89,8 +90,6 @@ output$choosePalette_UI <- renderUI({
   
 })
 
-
-GetDefaultPalette <- reactive({ rv$choosePalette})
 observeEvent(input$choosePalette, {rv$choosePalette <-input$choosePalette })
 
 
@@ -206,8 +205,6 @@ GetExamplePalette <- reactive({
 })
 
 observeEvent(input$typeOfPalette,{rv$typeOfPalette <- input$typeOfPalette})
-
-
 
 output$customPaletteUI <- renderUI({
   rv$typeOfPalette
