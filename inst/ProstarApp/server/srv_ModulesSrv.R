@@ -11,7 +11,67 @@ module_Not_a_numeric <- function(input, output, session, n){
     if (is.na(as.numeric(n()))){
       tags$p("Please choose a number")
     }
+<<<<<<< HEAD
   })
+=======
+    isolate({
+      selectInput(ns("typeSelect"), label = "Type of selection",
+                choices = x,width=('130px'))
+      })
+  })
+  
+
+  observeEvent(req(input$typeSelect), {
+    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList"))
+    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random"))
+    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column"))
+  })
+  
+  output$listSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
+    })
+  })
+  
+  output$randomSelect_UI <- renderUI({
+    isolate({
+      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
+    })
+  })
+  
+  output$columnSelect_UI <- renderUI({
+    isolate({
+      ll <-  colnames(Biobase::fData(rv$current.obj))
+      hidden(selectInput(ns("colSelect"), "Column", choices=ll))
+    })
+  })
+    
+    
+  
+  BuildResult <- reactive({
+    req(input$typeSelect)
+    #isolate({
+    
+    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+    #browser()
+    res <- list(type= input$typeSelect,
+                list = input$listSelect,
+                rand = as.numeric(input$randSelect),
+                col = input$colSelect,
+                list.indices = if (length(input$listSelect)==0 || input$listSelect==""){NULL} else match(input$listSelect, ll),
+                rand.indices = if (input$randSelect==""){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
+                col.indices =  if (length(input$colSelect)==0 || input$colSelect==""){NULL} else which(input$colSelect == 1)
+    )
+    
+    # })
+    print("res")
+    res
+  })
+  
+  return(reactive({BuildResult()}))
+>>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
 }
 
 

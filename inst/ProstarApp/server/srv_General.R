@@ -496,6 +496,7 @@ resetModuleProcess <- function(moduleName){
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
+<<<<<<< HEAD
                                              spanLOESS = 0.7)
                              
           
@@ -514,6 +515,28 @@ resetModuleProcess <- function(moduleName){
                           
                           rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
                         },
+=======
+                                             spanLOESS = 0.7,
+                                             SynctForNorm = FALSE)
+            
+            
+            rvModProcess$moduleNormalization = list(name = "Normalization",
+                                                    stepsNames = c("Normalization", "Validate"),
+                                                    isMandatory = rep(FALSE,2),
+                                                    ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
+                                                                  screenStep2 = uiOutput("screenNormalization2")))
+            ## update widgets in UI
+            updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
+            updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
+            updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
+            updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
+            updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
+            updateCheckboxInput(session, "SynctForNorm", value = rv$widgets$normalization$SynctForNorm)
+            
+            
+            rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+          },
+>>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
           
           
           
