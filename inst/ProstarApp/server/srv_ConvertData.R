@@ -965,7 +965,6 @@ output$Convert_BuildDesign <- renderUI({
            actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
            " page."),
     fluidRow(
-<<<<<<< HEAD
       column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
       column(width=6,uiOutput("UI_checkConditions")  )
     ),
@@ -973,35 +972,19 @@ output$Convert_BuildDesign <- renderUI({
       column(width=6,uiOutput("UI_hierarchicalExp")),
       column(width=6,uiOutput("checkDesign") )
     ),
-  hr(),
-  selectInput("convert_reorder", "Order by conditions ?",
-              choices=c("No"="No", "Yes"="Yes"),
-              width="100px"),
-  tags$div(
-    
-    tags$div(style="display:inline-block; vertical-align: top;",
-             uiOutput("viewDesign",width="100%")
-    ),
-    tags$div(style="display:inline-block; vertical-align: top;",
-             shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
-=======
-      column(width=4,
-             uiOutput("id"),
-             uiOutput("warningNonUniqueID")
+    hr(),
+    selectInput("convert_reorder", "Order by conditions ?",
+                choices=c("No"="No", "Yes"="Yes"),
+                width="100px"),
+    tags$div(
+      
+      tags$div(style="display:inline-block; vertical-align: top;",
+               uiOutput("viewDesign",width="100%")
       ),
-      column(width=4,
-                uiOutput("convertChooseProteinID_UI"),
-                uiOutput("RemoveOrphanPept_UI")
-                #uiOutput("sepProteinID_UI")
-      ),
-      column(width=4,
-             uiOutput("noteForProteinID"),
-             uiOutput("previewProteinID_UI")
-               )
+      tags$div(style="display:inline-block; vertical-align: top;",
+               shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
       )
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
     )
-  )
     
   )
   
@@ -1393,151 +1376,23 @@ datasetID_Ok <- reactive({
 output$previewProteinID_UI <- renderUI({
   req(input$convert_proteinId)
   if (input$convert_proteinId == "") {return (NULL)}
-
+  
   tagList(
     p(style="color: black;", 'Preview'),
     tableOutput("previewProtID")
   )
   
-  })
+})
 
 
 
-<<<<<<< HEAD
 output$previewProtID <- renderTable(
- # req(input$convert_proteinId),
+  # req(input$convert_proteinId),
   head(rv$tab1[,input$convert_proteinId]),
- colnames = FALSE
+  colnames = FALSE
 )
 
 
-=======
-#######################################
-observeEvent(input$createMSnsetButton,{
-  #if(!is.null(rv$current.obj)){return(NULL)}
-  
-  
-  allDone <- sum(rvModProcess$moduleConvertDone[1:4]) 
-  if (allDone !=4){
-    shinyjs::info('At least one of the previous step has not been done.')
-    return(NULL)
-  }
-  
-  print("In observeEvent(input$createMSnsetButton")
-  colNamesForOriginofValues <- NULL
-  if (isTRUE(rv$widgets$Convert$selectIdent)) {
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
-  } 
-  
-  
-  result = tryCatch({
-    isolate({
-      ext <- GetExtension(rv$widgets$Convert$datafile$name)
-      
-      # txtTab <-  paste("tab1 <- read.csv(\"", rv$widgets$Convert$datafile$name,
-      #                  "\",header=TRUE, sep=\"\t\", as.is=T)",  sep="")
-      # txtXls <-  paste("tab1 <- read.xlsx(",rv$widgets$Convert$datafile$name,
-      #                  ",sheet=", rv$widgets$Convert$XLSsheets,")",sep="")
-      # switch(ext,
-      #        txt = writeToCommandLogFile(txtTab),
-      #        csv = writeToCommandLogFile(txtTab),
-      #        tsv = writeToCommandLogFile(txtTab),
-      #        xls= writeToCommandLogFile(txtXls),
-      #        xlsx = writeToCommandLogFile(txtXls)
-      # )
-      
-      tmp.eData.box <- rv$widgets$Convert$eDatabox
-      indexForEData <- match(tmp.eData.box, colnames(rv$tab1))
-      if (!is.null(rv$newOrder)){
-        tmp.eData.box <- tmp.eData.box[rv$newOrder]
-        indexForEData <- indexForEData[rv$newOrder]
-      }
-      
-      indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
-      
-      indexForIDBox <- NULL
-      if (rv$widgets$Convert$idBox !="Auto ID") {
-        indexForIDBox <- match(rv$widgets$Convert$idBox, colnames(rv$tab1))
-      }
-      
-      
-      metadata <- hot_to_r(input$hot)
-      logData <- (rv$widgets$Convert$checkDataLogged == "no")
-      
-      
-      indexForOriginOfValue <- NULL
-      if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
-        for (i in 1:length(tmp.eData.box)){
-          indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
-        }
-      }
-      
-      
-      versions <- list(Prostar_Version = 
-                         installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
-                       DAPAR_Version = 
-                         installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-      )
-      rv$current.obj <- DAPAR::createMSnset(rv$tab1, 
-                                            metadata, 
-                                            indexForEData, 
-                                            indexForFData, 
-                                            indexForIDBox,
-                                            indexForOriginOfValue,
-                                            (rv$widgets$Convert$checkDataLogged == "no"), 
-                                            rv$widgets$Convert$replaceAllZeros,
-                                            pep_prot_data = rv$widgets$Convert$typeOfData,
-                                            proteinId =  gsub(".", "_", rv$widgets$Convert$convert_proteinId, fixed=TRUE),
-                                            versions
-      )
-      
-      
-      rv$current.obj.name <- input$filenameToCreate
-      rv$indexNA <- which(is.na(exprs(rv$current.obj)))
-      rv$typeOfDataset <- rv$widgets$Convert$typeOfData
-      rv$current.obj <- addOriginOfValue(rv$current.obj)
-      colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-      names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-      rv$current.obj <- addOriginOfValue(rv$current.obj)
-      
-      rv$widgets$aggregation$proteinId <- rv$current.obj@experimentData@other$proteinId
-      rv$proteinId <- rv$current.obj@experimentData@other$proteinId
-      
-      
-      rvModProcess$moduleConvertDone[5] <- TRUE
-      loadObjectInMemoryFromConverter()
-      
-      print("after loadObjectInMemoryFromConverter")
-      print(rv$current.obj)
-      #updateTabsetPanel(session, "tabImport", selected = "Convert")
-    }) ## end of isolate
-  }
-  , warning = function(w) {
-    if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
-      shinyjs::info(paste("Warning : Your original dataset may contain negative values",
-                          "so that they cannot be logged. Please check back the dataset or", 
-                          "the log option in the first tab.",
-                          sep=" "))
-    } 
-    # else {
-    #       shinyjs::info(paste("Warning in CreateMSnSet",":",
-    #                           conditionMessage(w), 
-    #                           sep=" "))
-    #   }
-  }, error = function(e) {
-    shinyjs::info(paste("Error :","CreateMSnSet",":",
-                        conditionMessage(e), 
-                        sep=" "))
-  }, finally = {
-    #cleanup-code 
-  })
-  
-  
-  
-  #})
-})
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
 
 
 output$warningCreateMSnset <- renderUI({
@@ -1592,7 +1447,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           tmp.eData.box <- tmp.eData.box[rv$newOrder]
           indexForEData <- indexForEData[rv$newOrder]
         }
-
+        
         indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
         
         indexForIDBox <- NULL
@@ -1668,4 +1523,3 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
     
   })
 })
-

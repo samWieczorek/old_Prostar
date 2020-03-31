@@ -38,22 +38,22 @@ GetCurrentDatasetName <- reactive({
 
 
 getDataForExprs <- function(obj){
- 
+  
   
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
- # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
+  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
   if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
-   test.table <- cbind(test.table, 
+    test.table <- cbind(test.table, 
                         Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
-  # print(paste0("tutu:",head(test.table)))
-   
+    # print(paste0("tutu:",head(test.table)))
+    
   } else {
     test.table <- cbind(test.table, 
                         as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
     #print(paste0("tata:",head(test.table)))
-    }
+  }
   return(test.table)
-
+  
 }
 
 
@@ -73,26 +73,26 @@ GetDatasetOverview <- reactive({
   req(rv$current.obj)
   
   
-    columns <- c("Number of samples","Number of conditions",
-                 "Number of lines", "Number of missing values", "% of missing values", 
-                 "Number of empty lines")
-    
-    do <- data.frame(Definition= columns,
-                     Value=rep(0,length(columns)))
-    
-    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-    pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
-    nb.empty.lines <- sum(apply(
-      is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
-    
-    
-    val <- c(ncol((Biobase::exprs(rv$current.obj))),
-             length(unique(Biobase::pData(rv$current.obj)$Condition)),
-             nrow((Biobase::exprs(rv$current.obj))),
-             NA.count,
-             pourcentage,
-             nb.empty.lines)
-    do$Value <- val
+  columns <- c("Number of samples","Number of conditions",
+               "Number of lines", "Number of missing values", "% of missing values", 
+               "Number of empty lines")
+  
+  do <- data.frame(Definition= columns,
+                   Value=rep(0,length(columns)))
+  
+  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+  pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
+  nb.empty.lines <- sum(apply(
+    is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+  
+  
+  val <- c(ncol((Biobase::exprs(rv$current.obj))),
+           length(unique(Biobase::pData(rv$current.obj)$Condition)),
+           nrow((Biobase::exprs(rv$current.obj))),
+           NA.count,
+           pourcentage,
+           nb.empty.lines)
+  do$Value <- val
   
   do
 })
@@ -132,23 +132,23 @@ BuildParamDataProcessingDT <- reactive({
 BuildParamDataMiningDT <- reactive({
   req(rv$current.obj)
   
-    nbLines <- sum((as.character(input$selectComparison) != "None"), !is.null(rv$params.GO))
+  nbLines <- sum((as.character(input$selectComparison) != "None"), !is.null(rv$params.GO))
   if (nbLines ==0) {
     df <- NULL
   } else {
-  df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
-                   Process = rep("",length(names(nbLines))),
-                   Parameters = rep("",length(names(nbLines))),
-                   stringsAsFactors = FALSE)
- 
-  if (!is.null(as.character(input$selectComparison))){
-    df[1,"Dataset"]<- input$datasets
-    df[1,"Process"]<- "Differential analysis"
-    #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
-    df[1,"Parameters"]<- getTextForAnaDiff(rv$widgets$anaDiff)
+    df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
+                     Process = rep("",length(names(nbLines))),
+                     Parameters = rep("",length(names(nbLines))),
+                     stringsAsFactors = FALSE)
+    
+    if (!is.null(as.character(input$selectComparison))){
+      df[1,"Dataset"]<- input$datasets
+      df[1,"Process"]<- "Differential analysis"
+      #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
+      df[1,"Parameters"]<- getTextForAnaDiff(rv$widgets$anaDiff)
     } else {}
-  
-    }
+    
+  }
   df
 })
 
@@ -174,19 +174,19 @@ data <- eventReactive(rv$current$obj, {
 
 callModule(modulePopover,"modulePopover_dataset", 
            data = reactive(list(title = p(if(is.null(rv$current.obj.name)) "No dataset" else paste0(rv$current.obj.name)),
-
+                                
                                 content="Before each processing step, a backup of the current dataset is stored. It is possible to reload one of them at any time.",
                                 color = 'white')))
 
 
 observeEvent(input$navbar,{
-    if (input$navbar=="stop")
-        stopApp()
+  if (input$navbar=="stop")
+    stopApp()
 })
 
 getDatasetName <- reactive({
-    req(rv$current.obj.name)
-    rv$current.obj.name
+  req(rv$current.obj.name)
+  rv$current.obj.name
 })
 
 
@@ -214,17 +214,17 @@ getDatasetName <- reactive({
 
 
 output$datasetAbsPanel <- renderUI({
-    req(rv$current.obj.name)
-     div(
-         div(
-             style="display:inline-block; vertical-align: middle;",
-             modulePopoverUI("modulePopover_dataset")
-             ),
-         div(
-             style="display:inline-block; vertical-align: middle;",
-             selectInput("datasets", "", choices = list("None"="None"),width = '200px')
-         )
-     )
+  req(rv$current.obj.name)
+  div(
+    div(
+      style="display:inline-block; vertical-align: middle;",
+      modulePopoverUI("modulePopover_dataset")
+    ),
+    div(
+      style="display:inline-block; vertical-align: middle;",
+      selectInput("datasets", "", choices = list("None"="None"),width = '200px')
+    )
+  )
 })
 
 ###-------------------------------------------------------------------
@@ -233,49 +233,49 @@ onStop(function() cat("Session stopped.\n"))
 
 
 session$onSessionEnded(function() {
-    #setwd(tempdir())
-    graphics.off()
-    unlink(sessionID, recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), "*Rmd", sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), "*html", sep="/"))
-    unlink(paste(tempdir(), "*log", sep="/"))
-    unlink("www/*pdf")
-    
-    #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
-    #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
-    #rm(rv$current.obj, rv$matAdj) 
-    gc()
-    cat("Session stopped. Temporary files cleaned up\n")
+  #setwd(tempdir())
+  graphics.off()
+  unlink(sessionID, recursive = TRUE)
+  unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
+  unlink(paste(tempdir(), sessionID, sep="/"),recursive = TRUE)
+  unlink(paste(tempdir(), "*Rmd", sep="/"),recursive = TRUE)
+  unlink(paste(tempdir(), "*html", sep="/"))
+  unlink(paste(tempdir(), "*log", sep="/"))
+  unlink("www/*pdf")
   
-    
-    #rm(list= list(myListOfThings))
-    #stopApp()
+  #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
+  #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
+  #rm(rv$current.obj, rv$matAdj) 
+  gc()
+  cat("Session stopped. Temporary files cleaned up\n")
+  
+  
+  #rm(list= list(myListOfThings))
+  #stopApp()
 })
 
 
 ###-------------------------------------------------------------------
 ClearUI <- reactive({
-        
-        updateSelectInput(session, 
-                          "datasets",  
-                          choices = G_noneStr)
-        updateRadioButtons(session,"typeOfData",selected = typePeptide )
-        updateRadioButtons(session, "checkDataLogged", selected="no")
-        
-        updateSelectInput(session, "idBox", selected = NULL)
-        
-        updateSelectizeInput(session,"eData.box",choices = NULL, selected=NULL)
-        updateTextInput(session,"filenameToCreate",value= "")
-        updateTextInput(session,"nameExport",value= "")
-        
-        updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
-        updateRadioButtons(session,
-                           inputId = "ChooseFilters", 
-                           selected = gFilterNone)
-        
-    })
+  
+  updateSelectInput(session, 
+                    "datasets",  
+                    choices = G_noneStr)
+  updateRadioButtons(session,"typeOfData",selected = typePeptide )
+  updateRadioButtons(session, "checkDataLogged", selected="no")
+  
+  updateSelectInput(session, "idBox", selected = NULL)
+  
+  updateSelectizeInput(session,"eData.box",choices = NULL, selected=NULL)
+  updateTextInput(session,"filenameToCreate",value= "")
+  updateTextInput(session,"nameExport",value= "")
+  
+  updateCheckboxInput(session, "replaceAllZeros",value = TRUE)
+  updateRadioButtons(session,
+                     inputId = "ChooseFilters", 
+                     selected = gFilterNone)
+  
+})
 
 
 
@@ -298,7 +298,7 @@ ComputeConnexComposants <- reactive({
   print(dim(rv$matAdj$matWithSharedPeptides))
   ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
   ll2 <- get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
-    
+  
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
   print("end ComputeConnexComposants")
@@ -334,21 +334,21 @@ Compute_PCA_nbDimensions <- reactive({
 ######################################
 loadObjectInMemoryFromConverter <- function(){
   # req(rv$current.obj)
-   
+  
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
   if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
     rv$typeOfDataset <- ""
-    } else {
-      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-    }
-
-
+  } else {
+    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+  }
+  
+  
   withProgress(message = 'Loading memory',detail = '', value = 0, {
     incProgress(0.5, detail = 'Miscellaneous updates')
-  colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
-  names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
-  pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
-
+    colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
+    names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
+    pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
+    
     #If there are already pVal values, then do no compute them
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
     #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
@@ -356,36 +356,36 @@ loadObjectInMemoryFromConverter <- function(){
     #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
     #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
     # }
-
-  if (is.null(rv$current.obj@experimentData@other$RawPValues ))
-    rv$current.obj@experimentData@other$RawPValues <- FALSE
-
+    
+    if (is.null(rv$current.obj@experimentData@other$RawPValues ))
+      rv$current.obj@experimentData@other$RawPValues <- FALSE
+    
     rv$PlotParams$paletteConditions <- GetExamplePalette()
-
+    
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
-     print("begin compute adjacency matrix")
-        incProgress(0.6, detail = 'Compute Adjacency Matrices')
-        ComputeAdjacencyMatrices()
+      print("begin compute adjacency matrix")
+      incProgress(0.6, detail = 'Compute Adjacency Matrices')
+      ComputeAdjacencyMatrices()
       incProgress(0.7, detail = 'Compute Connex Composants')
       ComputeConnexComposants()
     }
-
-      if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
-        {
-          rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
-      }
-   
+    
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
+    {
+      rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+    }
+    
     name <- paste0("Original", ".", rv$typeOfDataset)
     if (is.null(rv$current.obj@experimentData@other$Params))
-       rv$current.obj <- saveParameters(rv$current.obj, name,"-")
-     else {
-       names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
-     }
-
-  UpdateDatasetWidget(rv$current.obj, name)
-  incProgress(0.9, detail = 'Build UI') 
-  ClearNavbarPage()
-  BuildNavbarPage()
+      rv$current.obj <- saveParameters(rv$current.obj, name,"-")
+    else {
+      names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
+    }
+    
+    UpdateDatasetWidget(rv$current.obj, name)
+    incProgress(0.9, detail = 'Build UI') 
+    ClearNavbarPage()
+    BuildNavbarPage()
   })
   
   shinyjs::disable("file1")
@@ -395,7 +395,7 @@ loadObjectInMemoryFromConverter <- function(){
   shinyjs::disable("loadMSnset")
   shinyjs::disable("file")
   shinyjs::disable("loadData2Convert")
- 
+  
 }
 
 
@@ -409,7 +409,7 @@ UpdateDatasetWidget <- function(obj, name){
 
 ###-------------------------------------------------------------------
 writeToCommandLogFile <- function(txt, verbose = FALSE){
-    rv$commandLog <- c(rv$commandLog, txt)
+  rv$commandLog <- c(rv$commandLog, txt)
 }
 
 ###-------------------------------------------------------------------
@@ -435,89 +435,68 @@ resetModuleProcess <- function(moduleName){
   
   switch (moduleName,
           Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
-                                                         seuilNA = 0,
-                                                         DT_filterSummary = data.frame(Filter=NULL, 
-                                                                                       Prefix=NULL,
-                                                                                       nbDeleted=NULL, 
-                                                                                       Total=NULL, 
-                                                                                       stringsAsFactors=F),
-                                                         DT_numfilterSummary = data.frame(Filter=NULL, 
-                                                                                          Condition=NULL,
-                                                                                          nbDeleted=NULL, 
-                                                                                          Total=NULL, 
-                                                                                          stringsAsFactors=F)
-                                                         )
-
+                                                   seuilNA = 0,
+                                                   DT_filterSummary = data.frame(Filter=NULL, 
+                                                                                 Prefix=NULL,
+                                                                                 nbDeleted=NULL, 
+                                                                                 Total=NULL, 
+                                                                                 stringsAsFactors=F),
+                                                   DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                                                    Condition=NULL,
+                                                                                    nbDeleted=NULL, 
+                                                                                    Total=NULL, 
+                                                                                    stringsAsFactors=F)
+          )
+          
           updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
           updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
-                                                  stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
-                                                  isMandatory = rep(FALSE,5),
-                                                  ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
-                                                                screenStep2 = uiOutput("screenFiltering2"),
-                                                                screenStep3 = uiOutput("screenFiltering3"),
-                                                                screenStep4 = uiOutput("screenFiltering4"),
-                                                                screenStep5 = uiOutput("screenFiltering5")))
+                                              stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
+                                              isMandatory = rep(FALSE,5),
+                                              ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
+                                                            screenStep2 = uiOutput("screenFiltering2"),
+                                                            screenStep3 = uiOutput("screenFiltering3"),
+                                                            screenStep4 = uiOutput("screenFiltering4"),
+                                                            screenStep5 = uiOutput("screenFiltering5")))
           rvModProcess$moduleFilteringDone =  rep(FALSE,5)
           },
           
           
           Aggregation ={
             rv$widgets$aggregation = list(includeSharedPeptides = "Yes2",
-                                           operator = "Mean",
-                                           considerPeptides = 'allPeptides',
-                                           proteinId = "None",
-                                           topN = 3,
-                                           filterProtAfterAgregation = NULL,
-                                           columnsForProteinDataset.box = NULL,
-                                           nbPeptides = 0
-                                          )
+                                          operator = "Mean",
+                                          considerPeptides = 'allPeptides',
+                                          proteinId = "None",
+                                          topN = 3,
+                                          filterProtAfterAgregation = NULL,
+                                          columnsForProteinDataset.box = NULL,
+                                          nbPeptides = 0
+            )
             
-                        rvModProcess$moduleAggregation = list(name = "Aggregation",
-                                                stepsNames = c("Aggregation", "Add metadata", "Save"),
-                                                isMandatory = c(TRUE, FALSE, TRUE),
-                                                ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
-                                                              screenStep2 = uiOutput("screenAggregation2"),
-                                                              screenStep3 = uiOutput("screenAggregation3")))
-                        ## update widgets in UI
-                        updateSelectInput(session, "proteinId", selected = rv$widgets$aggregation$proteinId)
-                        updateRadioButtons(session, "radioBtn_includeShared", selected = rv$widgets$aggregation$includeSharedPeptides)
-                        updateRadioButtons(session, "AggregationConsider", selected = rv$widgets$aggregation$considerPeptides)
-                        updateNumericInput(session, "nTopn", value=rv$widgets$aggregation$topN)
-                        updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
-                        
-                        
-                        rvModProcess$moduleAggregationDone =  rep(FALSE,3)
-                        },
+            rvModProcess$moduleAggregation = list(name = "Aggregation",
+                                                  stepsNames = c("Aggregation", "Add metadata", "Save"),
+                                                  isMandatory = c(TRUE, FALSE, TRUE),
+                                                  ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
+                                                                screenStep2 = uiOutput("screenAggregation2"),
+                                                                screenStep3 = uiOutput("screenAggregation3")))
+            ## update widgets in UI
+            updateSelectInput(session, "proteinId", selected = rv$widgets$aggregation$proteinId)
+            updateRadioButtons(session, "radioBtn_includeShared", selected = rv$widgets$aggregation$includeSharedPeptides)
+            updateRadioButtons(session, "AggregationConsider", selected = rv$widgets$aggregation$considerPeptides)
+            updateNumericInput(session, "nTopn", value=rv$widgets$aggregation$topN)
+            updateRadioButtons(session, "AggregationOperator", selected = rv$widgets$aggregation$operator)
+            
+            
+            rvModProcess$moduleAggregationDone =  rep(FALSE,3)
+          },
           
           Normalization ={
             rv$widgets$normalization <- list(method = "None",
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
-<<<<<<< HEAD
                                              spanLOESS = 0.7)
-                             
-          
-                          rvModProcess$moduleNormalization = list(name = "Normalization",
-                                                  stepsNames = c("Normalization", "Validate"),
-                                                  isMandatory = rep(FALSE,2),
-                                                  ll.UI = list( screenStep1 = uiOutput("screenNormalization1"),
-                                                                screenStep2 = uiOutput("screenNormalization2")))
-                          ## update widgets in UI
-                          updateSelectInput(session, "normalization.method", selected = rv$widgets$normalization$method)
-                          updateSelectInput(session, "normalization.type", selected = rv$widgets$normalization$type)
-                          updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
-                          updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
-                          updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
-
-                          
-                          rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
-                        },
-=======
-                                             spanLOESS = 0.7,
-                                             SynctForNorm = FALSE)
             
             
             rvModProcess$moduleNormalization = list(name = "Normalization",
@@ -531,24 +510,22 @@ resetModuleProcess <- function(moduleName){
             updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
             updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
             updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
-            updateCheckboxInput(session, "SynctForNorm", value = rv$widgets$normalization$SynctForNorm)
             
             
             rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
           },
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
           
           
           
           PepImputation ={rv$widgets$peptideImput <- list( pepLevel_algorithm = "None",
-                                               pepLevel_basicAlgorithm = "None",
-                                               pepLevel_detQuantile = 2.5,
-                                               pepLevel_detQuant_factor = 1,
-                                               pepLevel_imp4p_nbiter = 10,
-                                               pepLevel_imp4p_withLapala = FALSE,
-                                               pepLevel_imp4p_qmin = 2.5,
-                                               pepLevel_imp4pLAPALA_distrib = "beta",
-                                               pepLevel_KNN_n = 10)
+                                                           pepLevel_basicAlgorithm = "None",
+                                                           pepLevel_detQuantile = 2.5,
+                                                           pepLevel_detQuant_factor = 1,
+                                                           pepLevel_imp4p_nbiter = 10,
+                                                           pepLevel_imp4p_withLapala = FALSE,
+                                                           pepLevel_imp4p_qmin = 2.5,
+                                                           pepLevel_imp4pLAPALA_distrib = "beta",
+                                                           pepLevel_KNN_n = 10)
           rvModProcess$modulePepImputation = list(name = "PepImputation",
                                                   stepsNames = c("Imputation", "Save"),
                                                   isMandatory = c(TRUE, TRUE),
@@ -572,13 +549,13 @@ resetModuleProcess <- function(moduleName){
           
           
           ProtImputation ={rv$widgets$proteinImput <- list(POV_algorithm = "None",
-                                               POV_detQuant_quantile = 2.5,
-                                               POV_detQuant_factor = 1,
-                                               POV_KNN_n = 10,
-                                               MEC_algorithm = "None",
-                                               MEC_detQuant_quantile = 2.5,
-                                               MEC_detQuant_factor = 1,
-                                               MEC_fixedValue= 0)
+                                                           POV_detQuant_quantile = 2.5,
+                                                           POV_detQuant_factor = 1,
+                                                           POV_KNN_n = 10,
+                                                           MEC_algorithm = "None",
+                                                           MEC_detQuant_quantile = 2.5,
+                                                           MEC_detQuant_factor = 1,
+                                                           MEC_fixedValue= 0)
           rvModProcess$moduleProtImputation = list(name = "ProtImputation",
                                                    stepsNames = c("Partially Observed Values", "Missing on Entire Condition", "Save"),
                                                    isMandatory = c(TRUE, FALSE, TRUE),
@@ -608,26 +585,26 @@ resetModuleProcess <- function(moduleName){
           
           HypothesisTest ={
             rv$widgets$hypothesisTest = list(design = "None",
-                                                 method = "None",
-                                                 ttest_options = "Student",
-                                                 th_logFC = 0,
-                                                 listNomsComparaison = NULL)
+                                             method = "None",
+                                             ttest_options = "Student",
+                                             th_logFC = 0,
+                                             listNomsComparaison = NULL)
             
-          rvModProcess$moduleHypothesisTest = list(name = "HypothesisTest",
-                                                   stepsNames = c("HypothesisTest", "Save"),
-                                                   isMandatory = c(TRUE, TRUE),
-                                                   ll.UI = list( screenStep1 = uiOutput("screenHypoTest1"),
-                                                                 screenStep2 = uiOutput("screenHypoTest2")))
-          ## update widgets in UI
-          updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
-          updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
-          updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
-          updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
-          
-          rv$res_AllPairwiseComparisons <- NULL
-          rv$tempplot$logFCDistr <- NULL
-          
-          rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
+            rvModProcess$moduleHypothesisTest = list(name = "HypothesisTest",
+                                                     stepsNames = c("HypothesisTest", "Save"),
+                                                     isMandatory = c(TRUE, TRUE),
+                                                     ll.UI = list( screenStep1 = uiOutput("screenHypoTest1"),
+                                                                   screenStep2 = uiOutput("screenHypoTest2")))
+            ## update widgets in UI
+            updateSelectInput(session,"anaDiff_Design", selected = rv$widgets$hypothesisTest$design)
+            updateSelectInput(session,"diffAnaMethod", selected = rv$widgets$hypothesisTest$method)
+            updateRadioButtons(session,"ttest_options", selected = rv$widgets$hypothesisTest$ttest_options)
+            updateTextInput(session, "seuilLogFC", value= rv$widgets$hypothesisTest$th_logFC)
+            
+            rv$res_AllPairwiseComparisons <- NULL
+            rv$tempplot$logFCDistr <- NULL
+            
+            rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
           },
           
           
@@ -635,15 +612,15 @@ resetModuleProcess <- function(moduleName){
           Convert ={
             rv$widgets$Convert = list(datafile = NULL,
                                       selectIdent = FALSE,
-                                             convert_proteinId = character(0),
-                                             idBox = "Auto ID",
-                                             eDatabox = character(0),
-                                             typeOfData = "peptide",
-                                             checkDataLogged = "no",
-                                             replaceAllZeros =TRUE,
-                                             convert_reorder = "no",
-                                            XLSsheets = character(0),
-                                            design = NULL)
+                                      convert_proteinId = character(0),
+                                      idBox = "Auto ID",
+                                      eDatabox = character(0),
+                                      typeOfData = "peptide",
+                                      checkDataLogged = "no",
+                                      replaceAllZeros =TRUE,
+                                      convert_reorder = "no",
+                                      XLSsheets = character(0),
+                                      design = NULL)
             
             
             rvModProcess$moduleConvert = list(name = "Convert",
@@ -683,19 +660,19 @@ resetModuleProcess <- function(moduleName){
             rv$pi0 <- NULL
             
             rv$widgets$anaDiff <- list(Comparison = "None",
-                                    Condition1 = "",
-                                    Condition2 = "",
-                                    swapVolcano = FALSE,
-                                    filterType = "None",
-                                    filter_th_NA = 0,
-                                    calibMethod = 'None',
-                                    numValCalibMethod = 0,
-                                    th_pval = 0,
-                                    FDR = 0,
-                                    NbSelected = 0,
-                                    nBinsHistpval = 80,
-                                    downloadAnaDiff = "All",
-                                    tooltipInfo=NULL)
+                                       Condition1 = "",
+                                       Condition2 = "",
+                                       swapVolcano = FALSE,
+                                       filterType = "None",
+                                       filter_th_NA = 0,
+                                       calibMethod = 'None',
+                                       numValCalibMethod = 0,
+                                       th_pval = 0,
+                                       FDR = 0,
+                                       NbSelected = 0,
+                                       nBinsHistpval = 80,
+                                       downloadAnaDiff = "All",
+                                       tooltipInfo=NULL)
             
             rvModProcess$moduleAnaDiff = list(name = "AnaDiff",
                                               stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
@@ -745,21 +722,21 @@ resetModuleProcess <- function(moduleName){
               groupGO_data=NULL
             )
             
-  
+            
             
             rvModProcess$moduleGO = list(name = "GO",
-                                              stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
-                                              isMandatory = c(TRUE, FALSE, FALSE, FALSE),
-                                              ll.UI = list( screenStep1 = uiOutput("screenGO1"),
-                                                            screenStep2 = uiOutput("screenGO2"),
-                                                            screenStep3 = uiOutput("screenGO3"),
-                                                            screenStep2 = uiOutput("screenGO4")
-                                              ))
+                                         stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                                         isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                                         ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                                       screenStep2 = uiOutput("screenGO2"),
+                                                       screenStep3 = uiOutput("screenGO3"),
+                                                       screenStep2 = uiOutput("screenGO4")
+                                         ))
             
             rvModProcess$moduleGODone =  rep(FALSE,4)
             
           }
-          )
+  )
 }
 
 
@@ -788,128 +765,128 @@ ClearMemory <- function(){
   ######## 
   rv$dataset = list()
   rv$current.obj = NULL
-    rv$current.obj.name = NULL
-    rv$deleted.mvLines = NULL
-    rv$deleted.stringBased.exprsData = NULL
-    rv$deleted.stringBased.fData = NULL
-    rv$deleted.stringBased = NULL
-    rv$deleted.numeric.exprsData = NULL
-    rv$deleted.numeric = NULL
-    rv$deleted.numeric.fData = NULL
-    
-    rv$listLogFC <- list()
-    
-    # variable to keep memory of previous datasets before 
-    # transformation of the data
-    # Variable that contains the log for the current R session
-    rv$text.log = data.frame(Date="", 
-                             Dataset="", 
-                             History="", 
-                             stringsAsFactors=F)
-    rv$tableVersions = NULL
-    
-    rv$tab1 = NULL
-    rv$dirname = ""
-    rv$dirnameforlink = ""
-    rv$temp.aggregate = NULL
-    
-    rv$typeOfDataset = ""
-    rv$proteinId = NULL
-    rv$commandLog =  "" 
-    rv$matAdj = NULL
-    rv$CC = NULL
-    rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
-    rv$res_AllPairwiseComparisons = data.frame()
-    rv$indexNA = NULL
-    rv$pourcentageNA = 0
-    rv$nb.empty.lines = 0
-    rv$nbDeleted = 0
-    rv$nbDeletedInfos = NULL
-    rv$fdr = NULL
-    #rv$ValidFilteringClicked = FALSE
-    rv$ValidImputationClicked = FALSE
-    
-
-    rv$impute_Step = 0
-    
-    rv$settings_nDigits = 10
-    rv$hot = NULL
-    rv$newOrder = NULL
-    rv$designChecked = NULL
-    rv$designSaved = FALSE
-    rv$conditionsChecked = NULL
-    
-    rv$newOrder = NULL
-    rv$designChecked = NULL
-    rv$designSaved = FALSE
-    rv$conditionsChecked = NULL
-    rv$nbPOVimputed = 0
-    rv$nbMVimputed = 0
-    
-    rv$updateDesign_designSaved=FALSE
-    rv$updateDesign_designChecked=NULL
-    rv$updateDesign_hot=NULL
-    rv$updateDesign_newOrder=NULL
-    rv$updateDesign_conditionsChecked=NULL
-    
-    rv$outfile = NULL
-    rv$designIsValid = FALSE
-    rv$MECIndex = NULL
-    rv$tempDatasetImputation = NULL
-    rv$text.log <- data.frame(Date="", 
-                              Dataset="", 
-                              History="", 
-                              stringsAsFactors=F)
-    rv$GOWarningMessage = NULL
-    
-    rv$iDat = NULL
-    
-    
-    
-    rv$tempplot = list(Density = NULL,
-                       corrMatrix = NULL,
-                       varDist = NULL,
-                       mvHisto_HC = NULL,
-                       mvHisto_perLines_HC = NULL,
-                       histo_missvalues_per_lines_per_conditions = NULL)
-    rv$PlotParams = list(legDS = NULL,
-                         corrMatrixGradient = defaultGradientRate,
-                         legDS_Violinplot = NULL,
-                         heatmap.linkage = 'complete',
-                          heatmap.distance = "euclidean",
-                        paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
-                      legendForSamples = NULL
-                      )
-    rv$indProgressDemomode = 0
-    rv$AggregProtStats = data.frame(name = c("Number of peptides",
-                                              "Number of specific peptides",
-                                              "Number of shared peptides", 
-                                              "Number of proteins",
-                                              "Number of proteins only defined by specific peptides",
-                                              "Number of proteins only defined by shared peptides",
-                                              "Number of proteins defined both by shared and specific peptides"),
-                                     nb = rep(0,7))
-    rv$distance = "euclidean"
-    
-    
-    
-    
-    
-    unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
-    unlink("www/*pdf")
-    
-    
-    resetModuleProcess("Aggregation")
-    resetModuleProcess("Normalization")
-    resetModuleProcess("Filtering")
-    resetModuleProcess("PepImputation")
-    resetModuleProcess("ProtImputation")
-    resetModuleProcess("HypothesisTest")
-    #resetModuleProcess("Convert")
-    resetModuleProcess("AnaDiff")
-    
-    
-    
+  rv$current.obj.name = NULL
+  rv$deleted.mvLines = NULL
+  rv$deleted.stringBased.exprsData = NULL
+  rv$deleted.stringBased.fData = NULL
+  rv$deleted.stringBased = NULL
+  rv$deleted.numeric.exprsData = NULL
+  rv$deleted.numeric = NULL
+  rv$deleted.numeric.fData = NULL
+  
+  rv$listLogFC <- list()
+  
+  # variable to keep memory of previous datasets before 
+  # transformation of the data
+  # Variable that contains the log for the current R session
+  rv$text.log = data.frame(Date="", 
+                           Dataset="", 
+                           History="", 
+                           stringsAsFactors=F)
+  rv$tableVersions = NULL
+  
+  rv$tab1 = NULL
+  rv$dirname = ""
+  rv$dirnameforlink = ""
+  rv$temp.aggregate = NULL
+  
+  rv$typeOfDataset = ""
+  rv$proteinId = NULL
+  rv$commandLog =  "" 
+  rv$matAdj = NULL
+  rv$CC = NULL
+  rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
+  rv$res_AllPairwiseComparisons = data.frame()
+  rv$indexNA = NULL
+  rv$pourcentageNA = 0
+  rv$nb.empty.lines = 0
+  rv$nbDeleted = 0
+  rv$nbDeletedInfos = NULL
+  rv$fdr = NULL
+  #rv$ValidFilteringClicked = FALSE
+  rv$ValidImputationClicked = FALSE
+  
+  
+  rv$impute_Step = 0
+  
+  rv$settings_nDigits = 10
+  rv$hot = NULL
+  rv$newOrder = NULL
+  rv$designChecked = NULL
+  rv$designSaved = FALSE
+  rv$conditionsChecked = NULL
+  
+  rv$newOrder = NULL
+  rv$designChecked = NULL
+  rv$designSaved = FALSE
+  rv$conditionsChecked = NULL
+  rv$nbPOVimputed = 0
+  rv$nbMVimputed = 0
+  
+  rv$updateDesign_designSaved=FALSE
+  rv$updateDesign_designChecked=NULL
+  rv$updateDesign_hot=NULL
+  rv$updateDesign_newOrder=NULL
+  rv$updateDesign_conditionsChecked=NULL
+  
+  rv$outfile = NULL
+  rv$designIsValid = FALSE
+  rv$MECIndex = NULL
+  rv$tempDatasetImputation = NULL
+  rv$text.log <- data.frame(Date="", 
+                            Dataset="", 
+                            History="", 
+                            stringsAsFactors=F)
+  rv$GOWarningMessage = NULL
+  
+  rv$iDat = NULL
+  
+  
+  
+  rv$tempplot = list(Density = NULL,
+                     corrMatrix = NULL,
+                     varDist = NULL,
+                     mvHisto_HC = NULL,
+                     mvHisto_perLines_HC = NULL,
+                     histo_missvalues_per_lines_per_conditions = NULL)
+  rv$PlotParams = list(legDS = NULL,
+                       corrMatrixGradient = defaultGradientRate,
+                       legDS_Violinplot = NULL,
+                       heatmap.linkage = 'complete',
+                       heatmap.distance = "euclidean",
+                       paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                       legendForSamples = NULL
+  )
+  rv$indProgressDemomode = 0
+  rv$AggregProtStats = data.frame(name = c("Number of peptides",
+                                           "Number of specific peptides",
+                                           "Number of shared peptides", 
+                                           "Number of proteins",
+                                           "Number of proteins only defined by specific peptides",
+                                           "Number of proteins only defined by shared peptides",
+                                           "Number of proteins defined both by shared and specific peptides"),
+                                  nb = rep(0,7))
+  rv$distance = "euclidean"
+  
+  
+  
+  
+  
+  unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
+  unlink("www/*pdf")
+  
+  
+  resetModuleProcess("Aggregation")
+  resetModuleProcess("Normalization")
+  resetModuleProcess("Filtering")
+  resetModuleProcess("PepImputation")
+  resetModuleProcess("ProtImputation")
+  resetModuleProcess("HypothesisTest")
+  #resetModuleProcess("Convert")
+  resetModuleProcess("AnaDiff")
+  
+  
+  
 }
 
 
@@ -927,17 +904,17 @@ rv <- reactiveValues(
   
   current.navPage = NULL,
   # variable to handle the current object that will be showed
-    current.comp = NULL,
-    current.obj = NULL,
-    current.obj.name = NULL,
-    deleted.mvLines = NULL,
-    deleted.stringBased.exprsData = NULL,
-    deleted.stringBased.fData = NULL,
-    deleted.stringBased = NULL,
-    deleted.numeric.exprsData = NULL,
-    deleted.numeric = NULL,
-    deleted.numeric.fData = NULL,
-
+  current.comp = NULL,
+  current.obj = NULL,
+  current.obj.name = NULL,
+  deleted.mvLines = NULL,
+  deleted.stringBased.exprsData = NULL,
+  deleted.stringBased.fData = NULL,
+  deleted.stringBased = NULL,
+  deleted.numeric.exprsData = NULL,
+  deleted.numeric = NULL,
+  deleted.numeric.fData = NULL,
+  
   pi0 = NULL,
   typeOfPalette = 'predefined',
   whichGroup2Color = 'Condition',
@@ -947,180 +924,180 @@ rv <- reactiveValues(
   res.pca = NULL,
   
   init.distance = "euclidean",
-   outfile = NULL,
+  outfile = NULL,
   tableVersions = NULL,
   
   colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey'),
   colorsTypeMV = list(MEC=orangeProstar, POV='lightblue'),
-    # variable to keep memory of previous datasets before 
-    # transformation of the data
-    dataset = list(),
-    # Variable that contains the log for the current R session
-    text.log = data.frame(Date="", 
-                          Dataset="", 
-                          History="", 
-                          stringsAsFactors=F),
-    listLogFC = list(),
-    
-    tab1 = NULL,
-    dirname = "",
-    dirnameforlink = "",
-    conditions = list(cond1 = NULL, cond2 = NULL),
-    temp.aggregate = NULL,
-    #params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
-    #                            value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
-    #                            stringsAsFactors = FALSE ),
- 
-    # design = list(designChecked=NULL,
-    #                  hot=NULL,
-    #                  newOrder=NULL,
-    #                  conditionsChecked=NULL,
-    #                  designSaved=FALSE),
+  # variable to keep memory of previous datasets before 
+  # transformation of the data
+  dataset = list(),
+  # Variable that contains the log for the current R session
+  text.log = data.frame(Date="", 
+                        Dataset="", 
+                        History="", 
+                        stringsAsFactors=F),
+  listLogFC = list(),
+  
+  tab1 = NULL,
+  dirname = "",
+  dirnameforlink = "",
+  conditions = list(cond1 = NULL, cond2 = NULL),
+  temp.aggregate = NULL,
+  #params.anaDiff = data.frame(param = c('Condition1', 'Condition2', 'Comparison', 'swapVolcano','filterType', 'filter_th_NA', 'calibMethod', 'numValCalibMethod', 'th_pval', 'FDR', 'NbSelected'),
+  #                            value = c("", "", "", 'FALSE', "", '0', "", '','1e-60', 0, '0'),
+  #                            stringsAsFactors = FALSE ),
+  
+  # design = list(designChecked=NULL,
+  #                  hot=NULL,
+  #                  newOrder=NULL,
+  #                  conditionsChecked=NULL,
+  #                  designSaved=FALSE),
   widgets = list(
-                  filtering = list(ChooseFilters = "None",
-                                    seuilNA = 0,
-                                    DT_filterSummary = data.frame(Filter=NULL, 
-                                                                  Prefix=NULL,
-                                                                  nbDeleted=NULL, 
-                                                                  Total=NULL, 
-                                                                  stringsAsFactors=F),
-                                    DT_numfilterSummary = data.frame(Filter=NULL, 
-                                                                     Condition=NULL,
-                                                                     nbDeleted=NULL, 
-                                                                     Total=NULL, 
-                                                                    stringsAsFactors=F)
-                                   ),
-  normalization=list(method = "None",
-                                      type = "None",
-                                      varReduction = FALSE,
-                                      quantile = 0.15,
-                                      spanLOESS = 0.7),
-   aggregation = list(includeSharedPeptides = "Yes2",
-                                    operator = "Mean",
-                                    considerPeptides = 'allPeptides',
-                                    proteinId = "None",
-                                    topN = 3),
-       hypothesisTest = list(design = "None",
-                            method = "None",
-                            ttest_options = "Student",
-                            th_logFC = 0,
-                            listNomsComparaison = NULL),
-       peptideImput = list( pepLevel_algorithm = "None",
-                            pepLevel_basicAlgorithm = "detQuantile",
-                            pepLevel_detQuantile = 2.5,
-                            pepLevel_detQuant_factor = 1,
-                            pepLevel_imp4p_nbiter = 10,
-                            pepLevel_imp4p_withLapala = FALSE,
-                            pepLevel_imp4p_qmin = 2.5,
-                            pepLevel_imp4pLAPALA_distrib = "beta",
-                            pepLevel_KNN_n = 10),
-       proteinImput = list(POV_algorithm = "None",
-                           POV_detQuant_quantile = 2.5,
-                           POV_detQuant_factor = 1,
-                           POV_KNN_n = 10,
-                           MEC_algorithm = "None",
-                           MEC_detQuant_quantile = 2.5,
-                           MEC_detQuant_factor = 1,
-                           MEC_fixedValue= 0),
-       anaDiff = list(Comparison = "None",
-                      Condition1 = "",
-                      Condition2 = "",
-                      swapVolcano = FALSE,
-                      filterType = "None",
-                      filter_th_NA = 0,
-                      calibMethod = 'None',
-                      numValCalibMethod = 0,
-                      th_pval = 0,
-                      FDR = 0,
-                      NbSelected = 0,
-                      nBinsHistpval = 80,
-                      downloadAnaDiff = "All",
-                      tooltipInfo=NULL),
-        go = list(
-          sourceOfProtID = NULL,
-          idFrom = "UNIPROT",
-          Organism = character(0),
-          Ontology = character(0),
-          UniprotIDCol = character(0),
-          UNIPROTID_File = NULL,
-          GO_level = 2,
-          universe =NULL,
-          UniverseFile = NULL,
-          pvalueCutoff = 0.01
-        )
-  ),
-    hot = NULL,
-    newOrder = NULL,
-    designChecked = NULL,
-    designSaved = FALSE,
-    conditionsChecked = NULL,
-    
-    
-    settings_nDigits = 10,
-    calibrationRes = NULL,
-    errMsgcalibrationPlot = NULL,
-    errMsgcalibrationPlotALL = NULL,
-    typeOfDataset = "",
-  proteinId = NULL,
-    #ValidFilteringClicked = FALSE,
-    ValidImputationClicked = FALSE,
-    commandLog = "", 
-    normalizationFamily = NULL,
-    normalizationMethod = NULL, 
-    matAdj = NULL,
-    CC = NULL,
-    resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
-    res_AllPairwiseComparisons = data.frame(),
-    progressImputation = 0,
-    indexNA = NULL,
-    IP_Client= "",
-    pourcentageNA = 0,
-    nb.empty.lines = 0,
-    nbDeleted = 0,
-    nbDeletedInfos = NULL,
-    fdr = NULL,
-    nbSelectedAnaDiff = NULL,
-    nbTotalAnaDiff = NULL,
-    nbSelectedTotal_Step3 = NULL,
-    nbSelected_Step3 = NULL,
-
-
-    GOWarningMessage = NULL,
-
-    impute_Step = 0,
-
-    iDat = NULL,
-    tempDatasetImputation = NULL,
-    MECIndex = NULL,
-     nbPOVimputed = 0,
-    nbMVimputed = 0,
-  imputePlotsSteps = list(step0 = NULL,
-                            step1 = NULL,
-                            step2 = NULL),
-    tempplot = list(Density = NULL,
-                    corrMatrix = NULL,
-                    mvHisto_HC = NULL,
-                    mvHisto_perLines_HC = NULL,
-                    histo_missvalues_per_lines_per_conditions = NULL),
-    PlotParams = list(legDS = NULL,
-                      corrMatrixGradient = defaultGradientRate,
-                      legDS_Violinplot = NULL,
-                      heatmap.linkage = 'complete',
-                      heatmap.distance = "euclidean",
-                      paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
-                      legendForSamples = NULL
-                      ),
-    indProgressDemomode = 0,
-    AggregProtStats = data.frame(name = c("Number of peptides",
-                                              "Number of specific peptides",
-                                              "Number of shared peptides", 
-                                              "Number of proteins",
-                                              "Number of proteins only defined by specific peptides",
-                                              "Number of proteins only defined by shared peptides",
-                                              "Number of proteins defined both by shared and specific peptides"),
-                                     nb = rep(0,7))
-    
+    filtering = list(ChooseFilters = "None",
+                     seuilNA = 0,
+                     DT_filterSummary = data.frame(Filter=NULL, 
+                                                   Prefix=NULL,
+                                                   nbDeleted=NULL, 
+                                                   Total=NULL, 
+                                                   stringsAsFactors=F),
+                     DT_numfilterSummary = data.frame(Filter=NULL, 
+                                                      Condition=NULL,
+                                                      nbDeleted=NULL, 
+                                                      Total=NULL, 
+                                                      stringsAsFactors=F)
+    ),
+    normalization=list(method = "None",
+                       type = "None",
+                       varReduction = FALSE,
+                       quantile = 0.15,
+                       spanLOESS = 0.7),
+    aggregation = list(includeSharedPeptides = "Yes2",
+                       operator = "Mean",
+                       considerPeptides = 'allPeptides',
+                       proteinId = "None",
+                       topN = 3),
+    hypothesisTest = list(design = "None",
+                          method = "None",
+                          ttest_options = "Student",
+                          th_logFC = 0,
+                          listNomsComparaison = NULL),
+    peptideImput = list( pepLevel_algorithm = "None",
+                         pepLevel_basicAlgorithm = "detQuantile",
+                         pepLevel_detQuantile = 2.5,
+                         pepLevel_detQuant_factor = 1,
+                         pepLevel_imp4p_nbiter = 10,
+                         pepLevel_imp4p_withLapala = FALSE,
+                         pepLevel_imp4p_qmin = 2.5,
+                         pepLevel_imp4pLAPALA_distrib = "beta",
+                         pepLevel_KNN_n = 10),
+    proteinImput = list(POV_algorithm = "None",
+                        POV_detQuant_quantile = 2.5,
+                        POV_detQuant_factor = 1,
+                        POV_KNN_n = 10,
+                        MEC_algorithm = "None",
+                        MEC_detQuant_quantile = 2.5,
+                        MEC_detQuant_factor = 1,
+                        MEC_fixedValue= 0),
+    anaDiff = list(Comparison = "None",
+                   Condition1 = "",
+                   Condition2 = "",
+                   swapVolcano = FALSE,
+                   filterType = "None",
+                   filter_th_NA = 0,
+                   calibMethod = 'None',
+                   numValCalibMethod = 0,
+                   th_pval = 0,
+                   FDR = 0,
+                   NbSelected = 0,
+                   nBinsHistpval = 80,
+                   downloadAnaDiff = "All",
+                   tooltipInfo=NULL),
+    go = list(
+      sourceOfProtID = NULL,
+      idFrom = "UNIPROT",
+      Organism = character(0),
+      Ontology = character(0),
+      UniprotIDCol = character(0),
+      UNIPROTID_File = NULL,
+      GO_level = 2,
+      universe =NULL,
+      UniverseFile = NULL,
+      pvalueCutoff = 0.01
     )
+  ),
+  hot = NULL,
+  newOrder = NULL,
+  designChecked = NULL,
+  designSaved = FALSE,
+  conditionsChecked = NULL,
+  
+  
+  settings_nDigits = 10,
+  calibrationRes = NULL,
+  errMsgcalibrationPlot = NULL,
+  errMsgcalibrationPlotALL = NULL,
+  typeOfDataset = "",
+  proteinId = NULL,
+  #ValidFilteringClicked = FALSE,
+  ValidImputationClicked = FALSE,
+  commandLog = "", 
+  normalizationFamily = NULL,
+  normalizationMethod = NULL, 
+  matAdj = NULL,
+  CC = NULL,
+  resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL),
+  res_AllPairwiseComparisons = data.frame(),
+  progressImputation = 0,
+  indexNA = NULL,
+  IP_Client= "",
+  pourcentageNA = 0,
+  nb.empty.lines = 0,
+  nbDeleted = 0,
+  nbDeletedInfos = NULL,
+  fdr = NULL,
+  nbSelectedAnaDiff = NULL,
+  nbTotalAnaDiff = NULL,
+  nbSelectedTotal_Step3 = NULL,
+  nbSelected_Step3 = NULL,
+  
+  
+  GOWarningMessage = NULL,
+  
+  impute_Step = 0,
+  
+  iDat = NULL,
+  tempDatasetImputation = NULL,
+  MECIndex = NULL,
+  nbPOVimputed = 0,
+  nbMVimputed = 0,
+  imputePlotsSteps = list(step0 = NULL,
+                          step1 = NULL,
+                          step2 = NULL),
+  tempplot = list(Density = NULL,
+                  corrMatrix = NULL,
+                  mvHisto_HC = NULL,
+                  mvHisto_perLines_HC = NULL,
+                  histo_missvalues_per_lines_per_conditions = NULL),
+  PlotParams = list(legDS = NULL,
+                    corrMatrixGradient = defaultGradientRate,
+                    legDS_Violinplot = NULL,
+                    heatmap.linkage = 'complete',
+                    heatmap.distance = "euclidean",
+                    paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                    legendForSamples = NULL
+  ),
+  indProgressDemomode = 0,
+  AggregProtStats = data.frame(name = c("Number of peptides",
+                                        "Number of specific peptides",
+                                        "Number of shared peptides", 
+                                        "Number of proteins",
+                                        "Number of proteins only defined by specific peptides",
+                                        "Number of proteins only defined by shared peptides",
+                                        "Number of proteins defined both by shared and specific peptides"),
+                               nb = rep(0,7))
+  
+)
 
 
 
@@ -1130,21 +1107,21 @@ rv <- reactiveValues(
 
 ###-------------------------------------------------------------------
 catchToList <- function(expr) {
-    val <- NULL
-    myWarnings <- NULL
-    myErrors <- NULL
-    wHandler <- function(w) {
-        myWarnings <<- c(myWarnings, w$message)
-        invokeRestart("muffleWarning")
-    }
-    myError <- NULL
-    eHandler <- function(e) {
-        myError <<- c(myErrors, e$message)
-        NULL
-    }
-    val <- tryCatch(withCallingHandlers(expr, warning = wHandler), 
-                    error = eHandler)
-    list(value = val, warnings = myWarnings, error=myError)
+  val <- NULL
+  myWarnings <- NULL
+  myErrors <- NULL
+  wHandler <- function(w) {
+    myWarnings <<- c(myWarnings, w$message)
+    invokeRestart("muffleWarning")
+  }
+  myError <- NULL
+  eHandler <- function(e) {
+    myError <<- c(myErrors, e$message)
+    NULL
+  }
+  val <- tryCatch(withCallingHandlers(expr, warning = wHandler), 
+                  error = eHandler)
+  list(value = val, warnings = myWarnings, error=myError)
 } 
 
 
@@ -1265,8 +1242,8 @@ GetLocalVersions <- function(){
   local.version <- list()
   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
   local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
-                   DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
-                   DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+                        DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+                        DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
   
   
   return(local.version)
@@ -1281,7 +1258,7 @@ getPackagesVersions2 <- reactive({
   
   bioconductor.version <-GetBioconductorVersions()
   local.version <- GetLocalVersions()
-
+  
   names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
@@ -1298,13 +1275,13 @@ getPackagesVersions2 <- reactive({
       if (compare.prostar == 0){}
       if (compare.prostar == 1){
         df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")
-        }
+      }
       if (compare.prostar==-1){
         df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
-        }
+      }
       
       compare.dapar <- compareVersion(local.version$DAPAR,bioconductor.version$DAPAR)
-        if (compare.dapar == 0){}
+      if (compare.dapar == 0){}
       if (compare.dapar == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
       if (compare.dapar ==-1){
         df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
@@ -1313,7 +1290,7 @@ getPackagesVersions2 <- reactive({
       if (compareVersion(local.version$DAPARdata,bioconductor.version$DAPARdata) == 0){}
       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata) == 1){
         df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")
-        }
+      }
       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata)==-1){
         df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
       }
@@ -1364,4 +1341,3 @@ GetOnlineZipVersion <- function(){
   
   return(onlineZipVersion)
 }
-

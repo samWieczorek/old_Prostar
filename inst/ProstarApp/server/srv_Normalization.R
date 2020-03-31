@@ -37,14 +37,7 @@ resetModuleNormalization <- reactive({
   rv$widgets$normalization$varReduction <- FALSE
   rv$widgets$normalization$quantile <- 0.15
   rv$widgets$normalization$spanLOESS <- 0.7
-<<<<<<< HEAD
   
-=======
-  rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
-  print("update reset value")
-  rv.norm$resetTracking <- TRUE
-  rv$widgets$normalization$SynctForNorm <- FALSE
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
   rv$current.obj <- rv$dataset[[input$datasets]] 
   rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
   
@@ -95,49 +88,21 @@ output$screenNormalization1 <- renderUI({
         ),
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-<<<<<<< HEAD
-=======
-           shinyjs::hidden(div(id='DivProtSelection',moduleTrackProtUI('ProtSelection')))
-        ),
-        div(
-          style="display:inline-block; vertical-align: middle; padding-right: 20px;",
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
           hidden(actionButton("perform.normalization", "Perform normalization", class = actionBtnClass, width="170px"))
         )
       ),
       uiOutput("helpForNormalizationMethods"),
       tags$hr(),
-<<<<<<< HEAD
       fluidRow(
         column(width=4, moduleDensityplotUI("densityPlot_Norm")),
         column(width=4,
                withProgress(message = 'Building plot',detail = '', value = 0, {
                  moduleBoxplotUI("boxPlot_Norm")
-                 })),
+               })),
         column(width=4,withProgress(message = 'Building plot',detail = '', value = 0, {
           imageOutput("viewComparisonNorm_DS")
         })
         )
-=======
-      
-     tagList(
-       hidden(checkboxInput("SynctForNorm", "Synchronise with selection above", value=rv$widgets$normalization$SynctForNorm)),
-       withProgress(message = 'Building plot',detail = '', value = 0, {
-         moduleBoxplotUI("boxPlot_Norm")
-       })
-       ),
-     div(
-    div(
-      style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-      withProgress(message = 'Building plot',detail = '', value = 0, {
-        moduleDensityplotUI("densityPlot_Norm")}
-      )
-    ),
-    div(
-      style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-      withProgress(message = 'Building plot',detail = '', value = 0, {
-        imageOutput("viewComparisonNorm_DS")})
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
       )
     )
   })
@@ -184,7 +149,7 @@ output$helpForNormalizationMethods <- renderUI({
          the fit more, while a lower span captures more trends).",
          vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization [Other ref. 6] to the 
          data (either all of them at once, or on each condition independently). No specific parameters required."
-)
+  )
   
   tags$p(txt)
 })
@@ -231,31 +196,6 @@ observeEvent(rv$widgets$normalization$method,{
   
   shinyjs::toggle("normalization.type", 
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
-<<<<<<< HEAD
-=======
-  
-   cond <-  input$normalization.method %in% c("QuantileCentering", "MeanCentering", "SumByColumns")
-   shinyjs::toggle('DivProtSelection', condition= (rv$typeOfDataset=='protein' && rv$widgets$normalization$method != "None"))
-   shinyjs::toggle('SynctForNorm', condition= rv$typeOfDataset=='protein'&& rv$widgets$normalization$method != "None")
-  })
-
-
-
-GetIndicesOfSelectedProteins <- reactive({
-  rv.norm$trackFromBoxplot()
-  req(rv.norm$trackFromBoxplot()$type)
- 
-  ind <- NULL
-  ll <- Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-  tt <- rv.norm$trackFromBoxplot()$type
-  switch(tt,
-         ProteinList = ind <- rv.norm$trackFromBoxplot()$list.indices,
-         Random = ind <- rv.norm$trackFromBoxplot()$rand.indices,
-         Column = ind <- rv.norm$trackFromBoxplot()$col.indices
-         )
-  if (length(ind)==0){ind <- NULL}
-  ind
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
 })
 
 
@@ -264,48 +204,48 @@ GetIndicesOfSelectedProteins <- reactive({
 observeEvent(input$perform.normalization,{
   rv$widgets$normalization$method
   rv$dataset[[input$datasets]]
- # isolate({
-    
-    switch(rv$widgets$normalization$method, 
-           G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
-           GlobalQuantileAlignment = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], rv$widgets$normalization$method)
-           },
-           QuantileCentering = {
-             quant <-NA
-             if (!is.null(rv$widgets$normalization$quantile))
-             {quant <- as.numeric(rv$widgets$normalization$quantile)}
-             
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type, 
-                                                  quantile = quant)
-             
-           } ,  
-           MeanCentering = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type, 
-                                                  scaling=rv$widgets$normalization$varReduction)
-           }, 
-           SumByColumns = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type)
-             
-           },
-           LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                          rv$widgets$normalization$method, 
-                                                          rv$widgets$normalization$type,
-                                                          span=as.numeric(rv$widgets$normalization$spanLOESS))
-           },
-           vsn = {
-             rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
-                                                  rv$widgets$normalization$method, 
-                                                  rv$widgets$normalization$type)
-           }
-    )
- # })
+  # isolate({
+  
+  switch(rv$widgets$normalization$method, 
+         G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
+         GlobalQuantileAlignment = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], rv$widgets$normalization$method)
+         },
+         QuantileCentering = {
+           quant <-NA
+           if (!is.null(rv$widgets$normalization$quantile))
+           {quant <- as.numeric(rv$widgets$normalization$quantile)}
+           
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type, 
+                                                quantile = quant)
+           
+         } ,  
+         MeanCentering = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type, 
+                                                scaling=rv$widgets$normalization$varReduction)
+         }, 
+         SumByColumns = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type)
+           
+         },
+         LOESS = { rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                        rv$widgets$normalization$method, 
+                                                        rv$widgets$normalization$type,
+                                                        span=as.numeric(rv$widgets$normalization$spanLOESS))
+         },
+         vsn = {
+           rv$current.obj <- wrapper.normalizeD(rv$dataset[[input$datasets]], 
+                                                rv$widgets$normalization$method, 
+                                                rv$widgets$normalization$type)
+         }
+  )
+  # })
   rvModProcess$moduleNormalizationDone[1] <- TRUE
   shinyjs::toggle("valid.normalization", condition=input$perform.normalization >= 1)
 })

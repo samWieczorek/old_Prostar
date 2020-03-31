@@ -1,8 +1,6 @@
 
 
 
-
-
 #################### MODULES DEFINITION #################################
 module_Not_a_numeric <- function(input, output, session, n){
   
@@ -11,67 +9,7 @@ module_Not_a_numeric <- function(input, output, session, n){
     if (is.na(as.numeric(n()))){
       tags$p("Please choose a number")
     }
-<<<<<<< HEAD
   })
-=======
-    isolate({
-      selectInput(ns("typeSelect"), label = "Type of selection",
-                choices = x,width=('130px'))
-      })
-  })
-  
-
-  observeEvent(req(input$typeSelect), {
-    shinyjs::toggle("listSelect", condition=(input$typeSelect=="ProteinList"))
-    shinyjs::toggle("randSelect", condition=(input$typeSelect=="Random"))
-    shinyjs::toggle("colSelect", condition=(input$typeSelect=="Column"))
-  })
-  
-  output$listSelect_UI <- renderUI({
-    isolate({
-      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-      hidden(selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px'))
-    })
-  })
-  
-  output$randomSelect_UI <- renderUI({
-    isolate({
-      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-      hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
-    })
-  })
-  
-  output$columnSelect_UI <- renderUI({
-    isolate({
-      ll <-  colnames(Biobase::fData(rv$current.obj))
-      hidden(selectInput(ns("colSelect"), "Column", choices=ll))
-    })
-  })
-    
-    
-  
-  BuildResult <- reactive({
-    req(input$typeSelect)
-    #isolate({
-    
-    ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
-    #browser()
-    res <- list(type= input$typeSelect,
-                list = input$listSelect,
-                rand = as.numeric(input$randSelect),
-                col = input$colSelect,
-                list.indices = if (length(input$listSelect)==0 || input$listSelect==""){NULL} else match(input$listSelect, ll),
-                rand.indices = if (input$randSelect==""){NULL} else sample(1:length(ll), as.numeric(input$randSelect), replace=FALSE),
-                col.indices =  if (length(input$colSelect)==0 || input$colSelect==""){NULL} else which(input$colSelect == 1)
-    )
-    
-    # })
-    print("res")
-    res
-  })
-  
-  return(reactive({BuildResult()}))
->>>>>>> 0481af209957bd1c89e7d437205618f1ebe4e496
 }
 
 
@@ -80,18 +18,18 @@ moduleDesignExample <- function(input, output, session, n){
   
   
   output$nlevelsExample <- renderRHandsontable({
-   
+    
     
     if (n == 2){
-                df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
-                     Condition = c(rep("A", 4), rep("B", 4), rep("C", 6)),
-                     Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
-                     Tech.Rep = c(1:14),
-                     stringsAsFactors = FALSE)
-    
-    
-                pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])
-                color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
+      df <- data.frame(Sample.name= paste0("Sample ",as.character(1:14)),
+                       Condition = c(rep("A", 4), rep("B", 4), rep("C", 6)),
+                       Bio.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7)),
+                       Tech.Rep = c(1:14),
+                       stringsAsFactors = FALSE)
+      
+      
+      pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])
+      color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
                          Handsontable.renderers.TextRenderer.apply(this, arguments);
                          
                          if(col==1 && (row>=0 && row<=3)) {td.style.background = '",pal[1], "';}
@@ -105,9 +43,9 @@ moduleDesignExample <- function(input, output, session, n){
                          if(col==3 && (row==0||row==2||row==4||row==6||row==8||row==10||row==12)) 
                          {td.style.background = 'lightgrey';}
                     }")
-
+      
     } else if (n == 3){
-              df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
+      df <- data.frame(Sample.name= paste0("Sample ",as.character(1:16)),
                        Condition = c(rep( "A", 8), rep("B", 8)),
                        Bio.Rep = as.integer(c(rep(1,4),rep(2,4),rep(3,4),rep(4,4))),
                        Tech.Rep = as.integer(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8)),
@@ -115,9 +53,9 @@ moduleDesignExample <- function(input, output, session, n){
                        stringsAsFactors = FALSE)
       
       
-            pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])[1:2]
+      pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])[1:2]
       
-            color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
+      color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
                            Handsontable.renderers.TextRenderer.apply(this, arguments);
                            
                            if(col==1 && (row>=0 && row<=7)) {td.style.background = '",pal[1], "';}
@@ -134,8 +72,8 @@ moduleDesignExample <- function(input, output, session, n){
                            if(col==4 && (row==0||row==2||row==4||row==6|| row==8||row==10||row==12||row==14)) 
                            {td.style.background = 'lightgrey';}
                             }")
-  
-          }
+      
+    }
     
     rhandsontable::rhandsontable(df,rowHeaders=NULL,fillHandle = list(direction='vertical', autoInsertRow=FALSE,
                                                                       maxRows=nrow(rv$hot))) %>%
@@ -147,8 +85,8 @@ moduleDesignExample <- function(input, output, session, n){
       rhandsontable::hot_cols(readOnly = TRUE,renderer = color_rend)
     
     
-   
-})
+    
+  })
   
   
 }
@@ -165,47 +103,47 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor)
     req(rv$current.obj, quant(), factor())
     
     values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
-      DT::datatable(as.data.frame(t(values$shiftedImpVal)),
-                    rownames = FALSE,
-                    options = list(initComplete = initComplete(),
-                                   dom = 't',
-                                   bLengthChange = FALSE))
- })
+    DT::datatable(as.data.frame(t(values$shiftedImpVal)),
+                  rownames = FALSE,
+                  options = list(initComplete = initComplete(),
+                                 dom = 't',
+                                 bLengthChange = FALSE))
+  })
 }
 
 
 modulePopover <- function(input, output, session, data){
+  
+  ns <- session$ns
+  
+  output$customPopover <- renderUI({
+    req(data())
     
-    ns <- session$ns
+    div(
+      div(
+        # edit1
+        style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
+        data()$title
+      ),
+      div(
+        # edit2
+        style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
+        if (!is.null(data()$color) && ('white' == data()$color)) {
+          tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
+        } else {
+          tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
+        },
+        shinyBS::bsPopover(id = ns("q1"), title = "",
+                           content = data()$content,
+                           placement = "right", 
+                           trigger = "hover", 
+                           options = list(container = "body")
+        )
+      )
+    )
     
-    output$customPopover <- renderUI({
-          req(data())
-        
-          div(
-            div(
-                # edit1
-                style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
-                    data()$title
-            ),
-            div(
-            # edit2
-            style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
-            if (!is.null(data()$color) && ('white' == data()$color)) {
-              tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
-              } else {
-                tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
-                },
-            shinyBS::bsPopover(id = ns("q1"), title = "",
-                      content = data()$content,
-                      placement = "right", 
-                      trigger = "hover", 
-                      options = list(container = "body")
-            )
-        )
-        )
- 
-        
-    })
+    
+  })
 }
 
 
@@ -220,7 +158,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   ns <- session$ns
   
- 
+  
   output$quantiDT <- renderUI({
     req(input$eventPointClicked)
     
@@ -231,15 +169,15 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                             DT::dataTableOutput(ns("Infos"))),style = "info"))
     } else {
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), open = "Protein",multiple = TRUE,
-                 shinyBS::bsCollapsePanel("Protein", tagList(
-                   uiOutput(ns("Warning_Infos")),
-                   DT::dataTableOutput(ns("Infos"))),style = "info"),
-                 shinyBS::bsCollapsePanel("Specific peptides",tagList(
-                   uiOutput(ns("Warning_specificPeptidesInfos")),
-                   DT::dataTableOutput(ns("specificPeptidesInfos"))), style = "primary"),
-                 shinyBS::bsCollapsePanel("Shared peptides", tagList(
-                   uiOutput(ns("Warning_sharedPeptidesInfos")),
-                   DT::dataTableOutput(ns("sharedPeptidesInfos"))), style = "primary"))
+                          shinyBS::bsCollapsePanel("Protein", tagList(
+                            uiOutput(ns("Warning_Infos")),
+                            DT::dataTableOutput(ns("Infos"))),style = "info"),
+                          shinyBS::bsCollapsePanel("Specific peptides",tagList(
+                            uiOutput(ns("Warning_specificPeptidesInfos")),
+                            DT::dataTableOutput(ns("specificPeptidesInfos"))), style = "primary"),
+                          shinyBS::bsCollapsePanel("Shared peptides", tagList(
+                            uiOutput(ns("Warning_sharedPeptidesInfos")),
+                            DT::dataTableOutput(ns("sharedPeptidesInfos"))), style = "primary"))
     }
   })
   
@@ -253,7 +191,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     
     if(is.null(data()$logFC) || is.null(data()$P_Value)){return(NULL)}
-   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
+    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
     p <- NULL
     p <- data()
     upItemsPVal <- NULL
@@ -286,7 +224,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                  "Number of non selected ",rv$typeOfDataset, "(s) = ",
                  (rv$nbTotalAnaDiff -rv$nbSelectedAnaDiff), sep="")
     HTML(txt)
-    })
+  })
   
   
   GetSortingIndices <- reactive({
@@ -352,21 +290,21 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
     data <-  GetDataFor_sharedPeptidesInfos()
     dt <- DT::datatable(data,
-                     #colnames=NULL,
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'sharedPeptidesInfos'
-                                                   ),'print'),
-                                    dom='Bfrtip',
-                                    blengthChange = FALSE,
-                                    displayLength = 20,
-                                    ordering=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
-                     )) %>%
+                        #colnames=NULL,
+                        extensions = c('Scroller', 'Buttons'),
+                        options = list(initComplete = initComplete(),
+                                       buttons = list('copy',
+                                                      list(
+                                                        extend = 'csv',
+                                                        filename = 'sharedPeptidesInfos'
+                                                      ),'print'),
+                                       dom='Bfrtip',
+                                       blengthChange = FALSE,
+                                       displayLength = 20,
+                                       ordering=FALSE,
+                                       server = FALSE,
+                                       columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                        )) %>%
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
@@ -414,20 +352,20 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     data <- GetDataFor_specificPeptidesInfos()
     dt <- DT::datatable( data, 
-                     #colnames=NULL,
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'specific peptides infos'
-                                                   ),'print'),
-                                    dom='Bfrtip',
-                                    blengthChange = FALSE,
-                                    displayLength = 20,
-                                    ordering=FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
-                     )) %>%
+                         #colnames=NULL,
+                         extensions = c('Scroller', 'Buttons'),
+                         options = list(initComplete = initComplete(),
+                                        buttons = list('copy',
+                                                       list(
+                                                         extend = 'csv',
+                                                         filename = 'specific peptides infos'
+                                                       ),'print'),
+                                        dom='Bfrtip',
+                                        blengthChange = FALSE,
+                                        displayLength = 20,
+                                        ordering=FALSE,
+                                        columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                         )) %>%
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
@@ -489,7 +427,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   GetDataFor_Infos <- reactive({
     req(comp())
     
-   
+    
     data <- GetExprsClickedProtein()
     
     print('################### Dans Infos  #################')
@@ -504,20 +442,20 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     borders_index <- GetBorderIndices()
     data <- GetExprsClickedProtein()
     dt <- DT::datatable(data,
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Infos'
-                                                   ),'print'),
-                                    dom='Bfrtip',
-                                    blengthChange = FALSE,
-                                    displayLength = 20,
-                                    ordering=FALSE,
-                                    header=FALSE,
-                                    columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
-                     )) %>%
+                        extensions = c('Scroller', 'Buttons'),
+                        options = list(initComplete = initComplete(),
+                                       buttons = list('copy',
+                                                      list(
+                                                        extend = 'csv',
+                                                        filename = 'Infos'
+                                                      ),'print'),
+                                       dom='Bfrtip',
+                                       blengthChange = FALSE,
+                                       displayLength = 20,
+                                       ordering=FALSE,
+                                       header=FALSE,
+                                       columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
+                        )) %>%
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
@@ -540,41 +478,41 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
     isolate({
-    #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
-    if ((length(data()$logFC) == 0)  ){return()}
-    print("in volcanoplot")
-    print(head(data()))
-    withProgress(message = 'Building plot...',detail = '', value = 0, {
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
-    
-    
-      df <-  data.frame(x=data()$logFC, 
-                       y = -log10(data()$P_Value),
-                       index = 1:nrow(fData(rv$current.obj)))
-      if (length( tooltip()) > 0){
-        df <- cbind(df,fData(rv$current.obj)[ tooltip()])
-      }
-      colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-      if (ncol(df) > 3){
-        colnames(df)[4:ncol(df)] <- 
-          paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-      }
-      clickFun <-   
-        JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+      #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
+      if ((length(data()$logFC) == 0)  ){return()}
+      print("in volcanoplot")
+      print(head(data()))
+      withProgress(message = 'Building plot...',detail = '', value = 0, {
+        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+        
+        
+        df <-  data.frame(x=data()$logFC, 
+                          y = -log10(data()$P_Value),
+                          index = 1:nrow(fData(rv$current.obj)))
+        if (length( tooltip()) > 0){
+          df <- cbind(df,fData(rv$current.obj)[ tooltip()])
+        }
+        colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
+        if (ncol(df) > 3){
+          colnames(df)[4:ncol(df)] <- 
+            paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
+        }
+        clickFun <-   
+          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+        
+        cond <- c(data()$condition1, data()$condition2)
+        rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
+                                                           threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
+                                                           threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
+                                                           conditions = cond,
+                                                           clickFunction=clickFun,
+                                                           palette = rv$colorsVolcanoplot,
+                                                           swap = isSwaped()
+        )
+        
+      })
       
-      cond <- c(data()$condition1, data()$condition2)
-       rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
-                                                         threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
-                                                         threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
-                                                         conditions = cond,
-                                                         clickFunction=clickFun,
-                                                         palette = rv$colorsVolcanoplot,
-                                                         swap = isSwaped()
-                                                         )
-      
-    })
-    
-    rv$tempplot$volcano
+      rv$tempplot$volcano
     })
   })
   
@@ -586,7 +524,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
 
 #------------------------------------------------------------
 missingValuesPlots <- function(input, output, session, data, palette) {
-    
+  
   output$histo_MV <- renderHighchart({
     data()
     
@@ -599,132 +537,132 @@ missingValuesPlots <- function(input, output, session, data, palette) {
     #  })
     tmp
   })
-    
-    
-    
-    output$histo_MV_per_lines <- renderHighchart({
-        data()
-      tmp <- NULL
-      isolate({
-        pattern <- paste0(GetCurrentObjName(),".MVplot2")
-       tmp <- 
-         wrapper.mvPerLinesHisto_HC(data(), 
+  
+  
+  
+  output$histo_MV_per_lines <- renderHighchart({
+    data()
+    tmp <- NULL
+    isolate({
+      pattern <- paste0(GetCurrentObjName(),".MVplot2")
+      tmp <- 
+        wrapper.mvPerLinesHisto_HC(data(), 
                                    c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-       #future(createPNGFromWidget(tmp,pattern))
-      })
-      tmp
+      #future(createPNGFromWidget(tmp,pattern))
     })
-    
-    
-    
-    output$histo_MV_per_lines_per_conditions <- renderHighchart({
-        data()
-      palette()
-      tmp <- NULL
-      isolate({
-        pattern <- paste0(GetCurrentObjName(),".MVplot2")
-        tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                      palette=palette())
-        #future(createPNGFromWidget(tmp,pattern))
-      })
-      tmp
+    tmp
+  })
+  
+  
+  
+  output$histo_MV_per_lines_per_conditions <- renderHighchart({
+    data()
+    palette()
+    tmp <- NULL
+    isolate({
+      pattern <- paste0(GetCurrentObjName(),".MVplot2")
+      tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
+                                                    palette=palette())
+      #future(createPNGFromWidget(tmp,pattern))
     })
+    tmp
+  })
 }
 
 
 #------------------------------------------------------------
 moduleDensityplot <- function(input, output, session, data) {
-    
+  
   #outputOptions(output, 'Densityplot', suspendWhenHidden=FALSE)
   
-    output$Densityplot <- renderHighchart({
-      #req(rv$current.obj)
-      data()
-      print("data() in densityPlot module")
-      print(data())
-      print(GetCurrentObjName())
-      rv$PlotParams$paletteConditions
-      rv$PlotParams$legendForSamples
-      tmp <- NULL
-      isolate({
+  output$Densityplot <- renderHighchart({
+    #req(rv$current.obj)
+    data()
+    print("data() in densityPlot module")
+    print(data())
+    print(GetCurrentObjName())
+    rv$PlotParams$paletteConditions
+    rv$PlotParams$legendForSamples
+    tmp <- NULL
+    isolate({
       
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
-          tmp <- DAPAR::densityPlotD_HC(data(), 
-                                        rv$PlotParams$legendForSamples,
-                                        rv$PlotParams$paletteConditions)
-          future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
-        })
+        tmp <- DAPAR::densityPlotD_HC(data(), 
+                                      rv$PlotParams$legendForSamples,
+                                      rv$PlotParams$paletteConditions)
+        future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })
-      tmp
     })
+    tmp
+  })
 }
 
 
 #------------------------------------------------------------
 moduleBoxplot <- function(input, output, session, data) {
-    
+  
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
-    boxplot={
-      shinyjs::hide('viewViolinPlot')
-      shinyjs::show('BoxPlot')
-      },
-    violinplot={
-      shinyjs::hide('BoxPlot')
-      shinyjs::show('viewViolinPlot')
-      }
+           boxplot={
+             shinyjs::hide('viewViolinPlot')
+             shinyjs::show('BoxPlot')
+           },
+           violinplot={
+             shinyjs::hide('BoxPlot')
+             shinyjs::show('viewViolinPlot')
+           }
     )
   })
   
   
-    output$BoxPlot <- renderHighchart({
-      #req(rv$current.obj)
-      data()
-      rv$current.obj.name
-      rv$PlotParams$paletteConditions
-      rv$PlotParams$legendForSamples
-      tmp <- NULL
-      isolate({
-        pattern <- paste0(GetCurrentObjName(),".boxplot")
-        print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
-        print(ncol(exprs(data())))
-        print(str(exprs(data())))
-        tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
-        #future(createPNGFromWidget(tmp,pattern))
-          
-        
-      })
-      tmp
-    })
-    
-    output$viewViolinPlot<- renderImage({
-      #req(rv$current.obj)
-      data()
-      rv$PlotParams$legendForSamples
-      rv$PlotParams$paletteConditions
-      tmp <- NULL
+  output$BoxPlot <- renderHighchart({
+    #req(rv$current.obj)
+    data()
+    rv$current.obj.name
+    rv$PlotParams$paletteConditions
+    rv$PlotParams$legendForSamples
+    tmp <- NULL
+    isolate({
+      pattern <- paste0(GetCurrentObjName(),".boxplot")
+      print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
+      print(ncol(exprs(data())))
+      print(str(exprs(data())))
+      tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      #future(createPNGFromWidget(tmp,pattern))
       
-      isolate({
-        
-        # A temp file to save the output. It will be deleted after renderImage
+      
+    })
+    tmp
+  })
+  
+  output$viewViolinPlot<- renderImage({
+    #req(rv$current.obj)
+    data()
+    rv$PlotParams$legendForSamples
+    rv$PlotParams$paletteConditions
+    tmp <- NULL
+    
+    isolate({
+      
+      # A temp file to save the output. It will be deleted after renderImage
       # sends it, because deleteFile=TRUE.
       outfile <- tempfile(fileext='.png')
       
       # Generate a png
-     # png(outfile, width = 640, height = 480, units = "px")
+      # png(outfile, width = 640, height = 480, units = "px")
       png(outfile)
       pattern <- paste0(GetCurrentObjName(),".violinplot")
       tmp <- DAPAR::violinPlotD(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()
-      })
-      # Return a list
-      list(src = outfile,
-           alt = "This is alternate text")
-    }, deleteFile = TRUE)
-    
- 
+    })
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = TRUE)
+  
+  
   
 }
 
@@ -737,7 +675,7 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
   })
   
-
+  
   
   
   output$WarnForImageNA <- renderUI({
@@ -745,26 +683,26 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     tryCatch(
       {
         wrapper.mvImage(data())
-  },
-  warning = function(w) { p(conditionMessage(w))},
-  error = function(e) {p(conditionMessage(e))},
-  finally = {
-    #cleanup-code 
-  })
-
+      },
+      warning = function(w) { p(conditionMessage(w))},
+      error = function(e) {p(conditionMessage(e))},
+      finally = {
+        #cleanup-code 
+      })
+    
   })
   
   output$plot_showImageNA <- renderImage({
-     #req(wrapper.mvImage(data()))
+    #req(wrapper.mvImage(data()))
     
     # A temp file to save the output. It will be deleted after renderImage
     # sends it, because deleteFile=TRUE.
     outfile <- tempfile(fileext='.png')
-
+    
     png(outfile)
     wrapper.mvImage(data())
     dev.off()
-     
+    
     # Return a list
     list(src = outfile,
          alt = "This is alternate text")
@@ -773,47 +711,47 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
 
 
 moduleFilterStringbasedOptions <- function(input, output, session) {
+  
+  output$FilterStringbasedOptions <- renderUI({
+    rv$current.obj
+    if (is.null(rv$current.obj)){return()}
     
-    output$FilterStringbasedOptions <- renderUI({
-        rv$current.obj
-        if (is.null(rv$current.obj)){return()}
-        
-        tagList(
-            h4("String based filtering options")
-            ,hr()
-            ,h4("Filter contaminants"),
-            uiOutput("id_Contaminants"),
-            uiOutput("choosePrefixContaminants"),
-            br(),
-            h4("Filter reverse"),
-            uiOutput("id_Reverse"),
-            uiOutput("choosePrefixReverse"),
-            br(),
-            #actionButton("resetFilterParamsButton","Reset parameters"),
-            actionButton("performFilteringContaminants",
-                         "Perform string-based filtering", class = actionBtnClass)
-        )
-        
-        
-        
-        
-        
-        
-    })
+    tagList(
+      h4("String based filtering options")
+      ,hr()
+      ,h4("Filter contaminants"),
+      uiOutput("id_Contaminants"),
+      uiOutput("choosePrefixContaminants"),
+      br(),
+      h4("Filter reverse"),
+      uiOutput("id_Reverse"),
+      uiOutput("choosePrefixReverse"),
+      br(),
+      #actionButton("resetFilterParamsButton","Reset parameters"),
+      actionButton("performFilteringContaminants",
+                   "Perform string-based filtering", class = actionBtnClass)
+    )
+    
+    
+    
+    
+    
+    
+  })
 }
 
 
 
 
 moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt', filename='Prostar_export') {
-    
+  
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)
   
   
   observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
   
-
+  
   output$warningOnSize <- renderUI({
     if (length(table2show())==0){return(NULL)}
     if (nrow(table2show())>153) 
@@ -821,38 +759,38 @@ moduleStaticDataTable <- function(input, output, session,table2show, withBtns, s
     
   })
   
-    output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
-      req(rv$current.obj)
-      #table2show
-      if (length(table2show())==0){return(NULL)}
-      
-      print(table2show())
-      isolate({
-           DT::datatable(table2show(), 
-                         extensions = 'Buttons',
-                         escape = FALSE,
-                         # rownames= showRownames,
-                          options=list(
-                            buttons = list(
-                              list(
-                                extend = 'csv',
-                                filename = filename
-                              ),
-                              list(
-                                extend = 'pdf',
-                                filename = filename
-                              ),'print'),
-                            #initComplete = initComplete(),
-                                dom = dom
-                            #    server = FALSE,
-                            #    autoWidth=TRUE,
-                          #columnDefs = list(list(width='150px',targets= "_all")),
-                          #ordering = FALSE
-              )
-            )
-      })
-
+  output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
+    req(rv$current.obj)
+    #table2show
+    if (length(table2show())==0){return(NULL)}
+    
+    print(table2show())
+    isolate({
+      DT::datatable(table2show(), 
+                    extensions = 'Buttons',
+                    escape = FALSE,
+                    # rownames= showRownames,
+                    options=list(
+                      buttons = list(
+                        list(
+                          extend = 'csv',
+                          filename = filename
+                        ),
+                        list(
+                          extend = 'pdf',
+                          filename = filename
+                        ),'print'),
+                      #initComplete = initComplete(),
+                      dom = dom
+                      #    server = FALSE,
+                      #    autoWidth=TRUE,
+                      #columnDefs = list(list(width='150px',targets= "_all")),
+                      #ordering = FALSE
+                    )
+      )
     })
+    
+  })
 }
 
 
