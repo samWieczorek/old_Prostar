@@ -102,10 +102,10 @@ output$infoAboutAggregationTool <- renderUI({
                prior to proceed to the analysis of the data.")
       }
       
-        )
+    )
     
-      }
-      })
+  }
+})
 
 
 
@@ -125,20 +125,20 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     
     if (length(grep(GetExtension(input$file$datapath),authorizedExtension,ignore.case=TRUE) )==0)
     {
-     # shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
+      # shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
     rv$current.obj <- readRDS(input$file$datapath)
     
     if( class(rv$current.obj)[1] != "MSnSet") {
-     # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
+      # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
- 
-  
-  
-  
-     rv$current.obj.name <- DeleteFileExtension(input$file$name)
+    
+    
+    
+    
+    rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
     rv$updateDesign_designChecked <- check.design(Biobase::pData(rv$current.obj))
@@ -150,29 +150,29 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     {
       rv$current.obj@experimentData@other$RawPValues <- FALSE
-      } else if(isTRUE(rv$current.obj@experimentData@other$RawPValues )){
+    } else if(isTRUE(rv$current.obj@experimentData@other$RawPValues )){
       
       #   nn <- names(rv$current.obj@experimentData@other$Params)
       #    ind <-  grep("HypothesisTest",nn)
       # names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
       # names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       # 
-      # .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
-      # .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
+      # .logFC <- as_tibbleframe[m(Biobase::fData(rv$current.obj)[,names.logFC])
+      # .P_Value <- as_tibbleframe[m(Biobase::fData(rv$current.obj)[,names.P_Value])
       # names(.logFC) <- names.logFC
       # names(.P_Value) <- names.P_Value
       # 
       
       #rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
       rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
-      }
+    }
     nn <- names(rv$current.obj@experimentData@other$Params)
     ind <-  grep("HypothesisTest",nn)
     #params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
     if (length(ind)>0){
-      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
+      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(tibbleframe[m(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
       #                                                      params.tmp$AllPairwiseCompNames$logFC),
-      #                                     P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
+      #                                     P_Value = setNames(tibbleframe[m(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
       #                                                        params.tmp$AllPairwiseCompNames$P_Value
       #                                     ))
       rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
@@ -197,5 +197,4 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     #cleanup-code 
   })
   
-  })
-
+})
