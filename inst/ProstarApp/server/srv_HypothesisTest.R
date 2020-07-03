@@ -10,7 +10,7 @@ callModule(moduleProcess, "moduleProcess_HypothesisTest",
 resetModuleHypothesisTest <- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("HypothesisTest")
-    
+  
   rv$widgets$hypothesisTest$design <- "None"
   rv$widgets$hypothesisTest$method <- "None"
   rv$widgets$hypothesisTest$ttest_options <- "Student"
@@ -38,7 +38,7 @@ observeEvent(input$diffAnaMethod, {
 
 observeEvent(input$PerformLogFCPlot, {
   rv$widgets$hypothesisTest$design<- input$anaDiff_Design
-
+  
   rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)
   rv$widgets$hypothesisTest$ttest_options <- input$ttest_options                                                
 })
@@ -47,57 +47,57 @@ observeEvent(input$PerformLogFCPlot, {
 
 output$screenHypoTest1 <- renderUI({
   
-   rv$current.obj
+  rv$current.obj
   isolate({
     NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-
-     
-  if (NA.count > 0){
-    tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-  } else {
-    tagList(
-      
-      tags$div(
-        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                  selectInput("anaDiff_Design", "Contrast", 
-                              choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
-                              selected=rv$widgets$hypothesisTest$design,
-                              width='150px')
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
-                  selectInput("diffAnaMethod","Statistical test",
-                              choices = anaDiffMethod_Choices,
-                              selected=rv$widgets$hypothesisTest$method,
-                              width='150px')
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  hidden( radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"),
-                                       selected=rv$widgets$hypothesisTest$ttest_options,
-                                       width='150px'))
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  textInput("seuilLogFC", "log(FC) threshold",  
-                               value=rv$widgets$hypothesisTest$th_logFC,
-                               width='150px'),
-                  module_Not_a_numericUI("test_seuillogFC")
-                  
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  uiOutput("correspondingRatio")
-                  
-        ),
-        tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  actionButton("PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
-                  
-        )
-        
-        )
-      ,
-      tags$hr(),
-      highchartOutput("FoldChangePlot", height="100%")
-    )
     
-  }
+    
+    if (NA.count > 0){
+      tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
+    } else {
+      tagList(
+        
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                    selectInput("anaDiff_Design", "Contrast", 
+                                choices=c("None"="None", "One vs One"="OnevsOne", "One vs All"="OnevsAll"),
+                                selected=rv$widgets$hypothesisTest$design,
+                                width='150px')
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
+                    selectInput("diffAnaMethod","Statistical test",
+                                choices = anaDiffMethod_Choices,
+                                selected=rv$widgets$hypothesisTest$method,
+                                width='150px')
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    hidden( radioButtons("ttest_options", "t-tests options",choices=c("Student", "Welch"),
+                                         selected=rv$widgets$hypothesisTest$ttest_options,
+                                         width='150px'))
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    textInput("seuilLogFC", "log(FC) threshold",  
+                              value=rv$widgets$hypothesisTest$th_logFC,
+                              width='150px'),
+                    module_Not_a_numericUI("test_seuillogFC")
+                    
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    uiOutput("correspondingRatio")
+                    
+          ),
+          tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+                    actionButton("PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
+                    
+          )
+          
+        )
+        ,
+        tags$hr(),
+        highchartOutput("FoldChangePlot", height="100%")
+      )
+      
+    }
   })
 })
 
@@ -115,8 +115,8 @@ output$screenHypoTest2 <- renderUI({
 output$correspondingRatio <- renderUI({
   
   ratio <- as.numeric(rv$widgets$hypothesisTest$th_logFC)
-    
-p("(FC = ", 2^(ratio), ")")
+  
+  p("(FC = ", 2^(ratio), ")")
   
 })
 
@@ -141,9 +141,9 @@ output$FoldChangePlot <- renderHighchart({
   req(rv$widgets$hypothesisTest$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$hypothesisTest$th_logFC))
- # rv$tempplot$logFCDistr
-  
+    rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$hypothesisTest$th_logFC))
+    # rv$tempplot$logFCDistr
+    
   })
 })
 
@@ -161,7 +161,7 @@ ComputeComparisons <- reactive({
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
   
   rv$res_AllPairwiseComparisons <- NULL
-#isolate({
+  #isolate({
   #if (is.null(rv$current.obj@experimentData@other$Params[["HypothesisTest"]])){
   withProgress(message = 'Computing comparisons ...',detail = '', value = 0.5, {
     
@@ -177,11 +177,11 @@ ComputeComparisons <- reactive({
                                                                       contrast=rv$widgets$hypothesisTest$design,
                                                                       type=rv$widgets$hypothesisTest$ttest_options)
            })
-  rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
+    rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
-  
-  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
-  
+    
+    rvModProcess$moduleHypothesisTestDone[1] <- TRUE
+    
   })
   rv$res_AllPairwiseComparisons
 })
@@ -197,7 +197,7 @@ ComputeComparisons <- reactive({
 observeEvent(input$ValidTest,{ 
   #req(rv$res_AllPairwiseComparisons)
   
-#isolate({
+  #isolate({
   rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj, allComp = rv$res_AllPairwiseComparisons)
   
   name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
@@ -205,7 +205,7 @@ observeEvent(input$ValidTest,{
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)
-
-#})
+  
+  #})
   
 })

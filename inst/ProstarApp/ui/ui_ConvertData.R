@@ -1,12 +1,3 @@
-# tabPanel("Convert data",
-# 
-#          value = "convertTab",
-#          moduleProcessUI("moduleProcess_Convert")
-# 
-# )
-# 
-
-
 
 
 tabPanel("Convert data",
@@ -25,4 +16,4 @@ tabPanel("Convert data",
            tabPanel("5 - Convert",value = "Convert",
                     uiOutput("Convert_Convert"))
          )
-)# end tabsetPanel
+)

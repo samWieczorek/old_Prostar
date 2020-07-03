@@ -10,7 +10,7 @@ enableJIT(3)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 
 # initialize data with colnames
-df <- tibble(matrix(c("0","0"), 1, 2))
+df <- data.frame(matrix(c("0","0"), 1, 2))
 colnames(df) <- c("Input1", "Input2")
 
 onStart = function() {

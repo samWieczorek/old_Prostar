@@ -94,7 +94,7 @@ gAgregateMethod <- list("none" = "none",
 
 limitHeatmap <- 20000
 
-list_org_db <- tibble(
+list_org_db <- data.frame(
   shortName = c("org.Ag.eg.db",
                 "org.At.tair.db",
                 "org.Bt.eg.db",

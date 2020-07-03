@@ -157,8 +157,8 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
       # names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
       # names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       # 
-      # .logFC <- as_tibbleframe[m(Biobase::fData(rv$current.obj)[,names.logFC])
-      # .P_Value <- as_tibbleframe[m(Biobase::fData(rv$current.obj)[,names.P_Value])
+      # .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
+      # .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
       # names(.logFC) <- names.logFC
       # names(.P_Value) <- names.P_Value
       # 
@@ -170,9 +170,9 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     ind <-  grep("HypothesisTest",nn)
     #params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
     if (length(ind)>0){
-      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(tibbleframe[m(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
+      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
       #                                                      params.tmp$AllPairwiseCompNames$logFC),
-      #                                     P_Value = setNames(tibbleframe[m(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
+      #                                     P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
       #                                                        params.tmp$AllPairwiseCompNames$P_Value
       #                                     ))
       rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
