@@ -586,7 +586,8 @@ moduleDensityplot <- function(input, output, session, data) {
     tmp <- NULL
     isolate({
       
-      withProgress(message = 'Making plot', value = 100, {
+      withProgress(message = 'Making plot', value = 0, {
+        incProgress(0.5, detail = '')
         pattern <- paste0(GetCurrentObjName(),".densityplot")
         tmp <- DAPAR::densityPlotD_HC(data(), 
                                       rv$PlotParams$legendForSamples,
@@ -667,12 +668,18 @@ moduleBoxplot <- function(input, output, session, data) {
 }
 
 
-
+#withProgress
 moduleMVPlots <- function(input, output, session, data, title, palette) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
+    
+    isolate({
+      withProgress(message = 'Making plot', value = 0, {
+        incProgress(0.5, detail = '')
+        wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
+      })
+    })
   })
   
   
@@ -682,7 +689,12 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     
     tryCatch(
       {
-        wrapper.mvImage(data())
+        isolate({
+          withProgress(message = 'Making plot', value = 0, {
+            incProgress(0.5, detail = '')
+            wrapper.mvImage(data())
+          })
+        })
       },
       warning = function(w) { p(conditionMessage(w))},
       error = function(e) {p(conditionMessage(e))},
@@ -694,14 +706,19 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
   
   output$plot_showImageNA <- renderImage({
     #req(wrapper.mvImage(data()))
-    
-    # A temp file to save the output. It will be deleted after renderImage
-    # sends it, because deleteFile=TRUE.
-    outfile <- tempfile(fileext='.png')
-    
-    png(outfile)
-    wrapper.mvImage(data())
-    dev.off()
+    isolate({
+      withProgress(message = 'Making plot', value = 0, {
+        incProgress(0.5, detail = '')
+        
+        # A temp file to save the output. It will be deleted after renderImage
+        # sends it, because deleteFile=TRUE.
+        outfile <- tempfile(fileext='.png')
+        
+        png(outfile)
+        wrapper.mvImage(data())
+        dev.off()
+      })
+    })
     
     # Return a list
     list(src = outfile,

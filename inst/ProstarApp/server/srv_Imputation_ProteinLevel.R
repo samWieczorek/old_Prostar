@@ -352,7 +352,7 @@ observeEvent(input$perform.imputationMEC.button,{
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Reintroduce MEC')
       
-      rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+      #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
       nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
       incProgress(0.75, detail = 'MEC Imputation')
       switch(rv$widgets$proteinImput$MEC_algorithm,

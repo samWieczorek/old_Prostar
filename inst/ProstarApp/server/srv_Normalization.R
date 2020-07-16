@@ -104,11 +104,52 @@ output$screenNormalization1 <- renderUI({
         })
         )
       )
+      # uiOutput("displayPlotsUI"),
+      # fluidRow(
+      #   useShinyjs(),
+      #   column(width=4, hidden(moduleDensityplotUI("densityPlot_Norm")) ),
+      #   column(width=4, hidden(moduleBoxplotUI("boxPlot_Norm")) ),
+      #   column(width=4, hidden(imageOutput("viewComparisonNorm_DS")) )
+      # )
     )
   })
   
 })
 
+# observe({
+#   print("la")
+#   if ( ncol(Biobase::exprs(rv$current.obj)) < 10 )  {
+#     print("show")
+#     shinyjs::show("densityPlot_Norm")
+#     show("boxPlot_Norm")
+#     show("viewComparisonNorm_DS")
+#   }
+#   else {
+#     print("too many col")
+#     output$displayPlotsUI <- renderUI ({
+#       checkboxInput("displayPlots", "Charge plots?",value = FALSE)
+#     })
+#   }
+#   
+# })
+# 
+# 
+# observeEvent(input$displayPlots, {
+#   if (isTRUE(input$displayPlots)) {
+#     print("1")
+#     print(input$displayPlots)
+#     shinyjs::show("densityPlot_Norm")
+#     show("boxPlot_Norm")
+#     show("viewComparisonNorm_DS")
+#   }
+#   else {
+#     print("2")
+#     print(input$displayPlots)
+#     shinyjs::hide("densityPlot_Norm")
+#     hide("boxPlot_Norm")
+#     hide("viewComparisonNorm_DS")
+#   }
+# })
 
 
 
