@@ -482,6 +482,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       if ((length(data()$logFC) == 0)  ){return()}
       print("in volcanoplot")
       print(head(data()))
+
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
         
@@ -498,9 +499,11 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
         }
         clickFun <-   
-          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+         JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
         cond <- c(data()$condition1, data()$condition2)
+        
+        
         rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                                            threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                            threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
