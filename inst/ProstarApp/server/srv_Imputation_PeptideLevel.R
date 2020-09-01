@@ -26,7 +26,7 @@ callModule(moduleProcess, "moduleProcess_PepImputation",
 resetModulePepImputation <- reactive({  
   ## update widgets values (reactive values)
   resetModuleProcess("PepImputation")
-    
+  
   rv$widgets$peptideImput$pepLevel_algorithm <- "None"
   rv$widgets$peptideImput$pepLevel_basicAlgorithm <- "None"
   rv$widgets$peptideImput$pepLevel_detQuantile <- 2.5
@@ -36,7 +36,7 @@ resetModulePepImputation <- reactive({
   rv$widgets$peptideImput$pepLevel_imp4p_qmin <- 2.5
   rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib <- "beta"
   rv$widgets$peptideImput$pepLevel_KNN_n <- 10
-    
+  
   rvModProcess$modulePepImputationDone = rep(FALSE, 2)
   rv$current.obj <- rv$dataset[[input$datasets]] 
 })
@@ -78,64 +78,64 @@ observeEvent(input$peptideLevel_imp4pLAPALA_distrib,{
 ##########
 output$screenPepImputation1 <- renderUI({
   #req(rv$current.obj)
- # isolate({
-   nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
-    
-    if (nbEmptyLines > 0) {
-      tags$p("Your dataset contains empty lines (fully filled with missing values). In order to use
+  # isolate({
+  nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+  
+  if (nbEmptyLines > 0) {
+    tags$p("Your dataset contains empty lines (fully filled with missing values). In order to use
              the imputation tool, you must delete them by using the filter tool.")
-      
-    }
-    else { 
-      tabPanel("Miss. values imputation",
-               id = "tabPanelImputation",
-               value = "imputation",
-              tags$div(
-                tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                          modulePopoverUI("modulePopover_HelpImputationPeptide"),
-                          selectInput("peptideLevel_missing.value.algorithm",
-                                                 NULL,
-                                                 choices = imputationAlgorithms, 
-                                                 selected = rv$widgets$peptideImput$pepLevel_algorithm,
-                                                 width='150px')
-                          ),
-                
-                tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                                     uiOutput("basicAlgoUI")),
-                tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                          uiOutput("detQuantOptsUI"),
-                          uiOutput("KNNOptsUI"),
-                          uiOutput("imp4pOptsUI")),
-                tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                          uiOutput("imp4pOpts2UI")),
-                tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                          uiOutput("peptideLevel_detQuant_impValues"))
-                
-                ),
-                tags$div(
-                  tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                           actionButton("peptideLevel_perform.imputation.button", "Perform imputation", class = actionBtnClass))
-                ),
-              br(), br(), br(),
-               uiOutput("warningImputationMethod"),
-                                     
-                                     ## progress bar
-                                     #br(),
-                                     #br(),
-                                     #uiOutput(outputId = "progressOne")
-                           tagList(
-                             tags$hr(),
-                             withProgress(message = '',detail = '', value = 0, {
-                               incProgress(0.5, detail = 'Aggregation in progress')
-                             moduleMVPlotsUI("mvImputationPlots_PeptideLevel")
-                             })
-                           )      
-                           
-               )
-      
-    }
+    
+  }
+  else { 
+    tabPanel("Miss. values imputation",
+             id = "tabPanelImputation",
+             value = "imputation",
+             tags$div(
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         modulePopoverUI("modulePopover_HelpImputationPeptide"),
+                         selectInput("peptideLevel_missing.value.algorithm",
+                                     NULL,
+                                     choices = imputationAlgorithms, 
+                                     selected = rv$widgets$peptideImput$pepLevel_algorithm,
+                                     width='150px')
+               ),
+               
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         uiOutput("basicAlgoUI")),
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         uiOutput("detQuantOptsUI"),
+                         uiOutput("KNNOptsUI"),
+                         uiOutput("imp4pOptsUI")),
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         uiOutput("imp4pOpts2UI")),
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         uiOutput("peptideLevel_detQuant_impValues"))
+               
+             ),
+             tags$div(
+               tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                         actionButton("peptideLevel_perform.imputation.button", "Perform imputation", class = actionBtnClass))
+             ),
+             br(), br(), br(),
+             uiOutput("warningImputationMethod"),
+             
+             ## progress bar
+             #br(),
+             #br(),
+             #uiOutput(outputId = "progressOne")
+             tagList(
+               tags$hr(),
+               withProgress(message = '',detail = '', value = 0, {
+                 incProgress(0.5, detail = 'Aggregation in progress')
+                 moduleMVPlotsUI("mvImputationPlots_PeptideLevel")
+               })
+             )      
+             
+    )
+    
+  }
   #})
-  })
+})
 
 
 
@@ -166,15 +166,15 @@ output$detQuantOptsUI <- renderUI({
   
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-    numericInput("peptideLevel_detQuant_quantile", "Quantile", 
-                 value = rv$widgets$peptideImput$pepLevel_detQuantile
-                 , step=1, min=0, max=100,
-                 width='100px')),
+              numericInput("peptideLevel_detQuant_quantile", "Quantile", 
+                           value = rv$widgets$peptideImput$pepLevel_detQuantile
+                           , step=1, min=0, max=100,
+                           width='100px')),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               numericInput("peptideLevel_detQuant_factor", "Factor", 
-                 value = rv$widgets$peptideImput$pepLevel_detQuant_factor,
-                 step=1, min=0, max=10,
-                 width='100px')
+                           value = rv$widgets$peptideImput$pepLevel_detQuant_factor,
+                           step=1, min=0, max=10,
+                           width='100px')
     )
   )
   
@@ -204,12 +204,12 @@ output$imp4pOptsUI <- renderUI({
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
               numericInput("peptideLevel_imp4p_nbiter", "Iterations", 
-                 value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter,
-                 step=1, min=1, width='100px')),
+                           value = rv$widgets$peptideImput$pepLevel_imp4p_nbiter,
+                           step=1, min=1, width='100px')),
     
     tags$div( style="display:inline-block; vertical-align: bottom; padding-right: 20px;",
-              checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also", 
-                  value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala ))
+              checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also",
+                            value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala ))
   )
 })
 
@@ -220,14 +220,14 @@ output$imp4pOpts2UI <- renderUI({
   
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-    numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound", 
-                 value = rv$widgets$peptideImput$pepLevel_imp4p_qmin,
-                 step=0.1, min=0, max=100,
-                 width='100px')),
+              numericInput("peptideLevel_imp4p_qmin", "Upper lapala bound", 
+                           value = rv$widgets$peptideImput$pepLevel_imp4p_qmin,
+                           step=0.1, min=0, max=100,
+                           width='100px')),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               radioButtons("peptideLevel_imp4pLAPALA_distrib", "Distribution type", 
-                 choices = G_imp4PDistributionType_Choices,
-                 selected = rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib) 
+                           choices = G_imp4PDistributionType_Choices,
+                           selected = rv$widgets$peptideImput$pepLevel_imp4pLAPALA_distrib) 
     )
   )
 })
@@ -297,18 +297,18 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
         
       } else if (algo == "BasicMethods"){
         algoBasic <- rv$widgets$peptideImput$pepLevel_basicAlgorithm
-          switch(algoBasic,
+        switch(algoBasic,
                KNN={  
                  rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],K=rv$widgets$peptideImput$pepLevel_KNN_n)
                },
                MLE={
                  rv$current.obj <- wrapper.impute.mle(rv$dataset[[input$datasets]])},
                detQuantile=
-               {
-                 rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
-                                                           qval = (rv$widgets$peptideImput$pepLevel_detQuantile/100),
-                                                           factor = rv$widgets$peptideImput$pepLevel_detQuant_factor)
-               }
+                 {
+                   rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
+                                                             qval = (rv$widgets$peptideImput$pepLevel_detQuantile/100),
+                                                             factor = rv$widgets$peptideImput$pepLevel_detQuant_factor)
+                 }
         )
       }
       incProgress(1, detail = 'Finalize imputation')
