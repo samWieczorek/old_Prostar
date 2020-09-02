@@ -269,7 +269,6 @@ observeEvent(input$valid.aggregation,{
       
       rv$current.obj@experimentData@other$DAPAR_Version <- 
         installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-      print('4')
       rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
       rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj,NULL)
       
@@ -278,7 +277,6 @@ observeEvent(input$valid.aggregation,{
       
       rv$dataset[[name]] <- rv$current.obj
       rvModProcess$moduleAggregationDone[3] <- TRUE
-      print('5')
       updateSelectInput(session, "datasets",  choices = names(rv$dataset), selected = name)
       
     })
