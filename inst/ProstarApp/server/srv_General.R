@@ -9,7 +9,7 @@ shinyOutput <- function(FUN,id,num,...) {
 
 
 # function for dynamic inputs in DT
-shinyInput <- function(FUN,id,num,...) {
+shinyInput <- function(FUN, id, num,...) {
   inputs <- character(num)
   for (i in seq_len(num)) {
     inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
@@ -19,7 +19,7 @@ shinyInput <- function(FUN,id,num,...) {
 
 
 # function to read DT inputs
-shinyValue <- function(id,num) {
+shinyValue <- function(id, num) {
   unlist(lapply(seq_len(num),function(i) {
     value <- input[[paste0(id,i)]]
     if (is.null(value)) NA else value
@@ -1206,71 +1206,108 @@ buildWritableVector <- function(v){
   return(t)
 }
 
-
-
-GetBioconductorVersions <- function(){
+GetBioconductorVersions <- reactive({
   ll.versions <- list(Prostar = "NA",
                       DAPAR = "NA",
                       DAPARdata = "NA")
   
   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
   tryCatch({
-    require(XML)
-    Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
-    DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
-    DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
-    ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
-    ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
-    ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
+    bioc <-available.packages(contrib.url("http://www.bioconductor.org/packages/release/bioc/"))
+    ll.versions$Prostar <-bioc['Prostar', "Version"]
+    ll.versions$DAPAR <-bioc['DAPAR', "Version"]
     
+    biocExperiment <- available.packages(contrib.url("http://www.bioconductor.org/packages/release/data/experiment"))
+    ll.versions$DAPARdata <- biocExperiment['DAPARdata', "Version"]
   }, warning = function(w) {
+    warning(e)
     return()
   }, error = function(e) {
+    print(e)
     return()
   }, finally = {
-    #cleanup-code 
-    
-    
+    #cleanup-code
   })
   
+  ll.versions
   
-  return (ll.versions)
-}
+})
+
+# GetBioconductorVersions <- function(){
+#   ll.versions <- list(Prostar = "NA",
+#                       DAPAR = "NA",
+#                       DAPARdata = "NA")
+#   
+#   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
+#   tryCatch({
+#     require(XML)
+#     Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
+#     DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
+#     DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
+#     ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
+#     ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
+#     ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
+#     
+#   }, warning = function(w) {
+#     return()
+#   }, error = function(e) {
+#     return()
+#   }, finally = {
+#     #cleanup-code 
+#     
+#     
+#   })
+#   
+#   
+#   return (ll.versions)
+# }
 
 
-GetLocalVersions <- function(){
+
+GetLocalVersions <- reactive({
   local.version <- list()
   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
-  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar2","Version"],
                         DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
                         DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
   
-  
-  return(local.version)
-}
+  local.version
+})
 
 
 
-getPackagesVersions2 <- reactive({
+# GetLocalVersions <- function(){
+#   local.version <- list()
+#   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+#   local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+#                         DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+#                         DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+#   
+#   
+#   return(local.version)
+# }
+
+
+getPackagesVersions <- reactive({
   
   outOfDate <- "(Out of date)"
   dev <- "(Devel)"
   
-  bioconductor.version <-GetBioconductorVersions()
+  bioconductor.version <- GetBioconductorVersions()
   local.version <- GetLocalVersions()
-  
-  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
-             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")),
+             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")),
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
   
   
   df <- data.frame("Name" = names,
-                   "Installed packages"= unlist(local.version), 
+                   "Installed packages"= unlist(local.version),
                    "Bioc release" =  unlist(bioconductor.version),
                    stringsAsFactors = FALSE)
   
   if (!is.null(local.version$Prostar) && !is.null(local.version$DAPAR)) {
     tryCatch({
+      
       compare.prostar <- compareVersion(local.version$Prostar,bioconductor.version$Prostar)
       if (compare.prostar == 0){}
       if (compare.prostar == 1){
@@ -1294,18 +1331,77 @@ getPackagesVersions2 <- reactive({
       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata)==-1){
         df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
       }
+      df[, "Bioc.release"] <- unlist(biocPkgs)
     }, warning = function(w) {
       return()
     }, error = function(e) {
       return()
     }, finally = {
-      #cleanup-code 
+      #cleanup-code
     })
     
   }
   
   df
+  
 })
+
+
+# getPackagesVersions2 <- reactive({
+#   
+#   outOfDate <- "(Out of date)"
+#   dev <- "(Devel)"
+#   
+#   bioconductor.version <-GetBioconductorVersions()
+#   local.version <- GetLocalVersions()
+#   
+#   names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
+#              as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+#              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
+#   
+#   
+#   df <- data.frame("Name" = names,
+#                    "Installed packages"= unlist(local.version), 
+#                    "Bioc release" =  unlist(bioconductor.version),
+#                    stringsAsFactors = FALSE)
+#   
+#   if (!is.null(local.version$Prostar) && !is.null(local.version$DAPAR)) {
+#     tryCatch({
+#       compare.prostar <- compareVersion(local.version$Prostar,bioconductor.version$Prostar)
+#       if (compare.prostar == 0){}
+#       if (compare.prostar == 1){
+#         df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")
+#       }
+#       if (compare.prostar==-1){
+#         df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
+#       }
+#       
+#       compare.dapar <- compareVersion(local.version$DAPAR,bioconductor.version$DAPAR)
+#       if (compare.dapar == 0){}
+#       if (compare.dapar == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+#       if (compare.dapar ==-1){
+#         df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
+#       }
+#       
+#       if (compareVersion(local.version$DAPARdata,bioconductor.version$DAPARdata) == 0){}
+#       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata) == 1){
+#         df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")
+#       }
+#       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata)==-1){
+#         df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
+#       }
+#     }, warning = function(w) {
+#       return()
+#     }, error = function(e) {
+#       return()
+#     }, finally = {
+#       #cleanup-code 
+#     })
+#     
+#   }
+#   
+#   df
+# })
 
 
 buildTable <- function(text, color, colorCurrentPos){

@@ -1289,11 +1289,12 @@ output$checkIdentificationTab <- renderUI({
 
 # reactive dataset
 quantiDataTable <- reactive({
-  req(input$eData.box)
+  df <- NULL
+  if (is.null(input$eData.box)) return(NULL)
+  #req(input$eData.box)
   req(rv$tab1)
   
   session$sendCustomMessage('unbind-DT', 'x1')
-  df <- NULL
   choices <- c("None",colnames(rv$tab1))
   names(choices) <- c("None",colnames(rv$tab1))
   
@@ -1302,7 +1303,7 @@ quantiDataTable <- reactive({
     df <- data.frame(as.data.frame(input$eData.box),
                      shinyInput(selectInput,
                                 "colForOriginValue_",
-                                nrow(as.data.frame(input$eData.box)),
+                                nrow(input$eData.box),
                                 choices=choices))
     colnames(df) <- c("Sample", "Identification method")
   } else {
@@ -1344,7 +1345,8 @@ output$x1 <- renderDataTable(
 )
 
 
-observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
+observeEvent(shinyValue("colForOriginValue_",
+                        nrow(as.data.frame(quantiDataTable()))),{})
 
 
 checkIdentificationMethod_Ok <- reactive({
