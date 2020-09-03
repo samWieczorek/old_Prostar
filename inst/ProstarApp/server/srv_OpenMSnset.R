@@ -1,4 +1,5 @@
-callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}))
+callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}),
+           filename='openMSnset_View')
 
 
 
@@ -114,26 +115,30 @@ output$infoAboutAggregationTool <- renderUI({
 
 ##-- Open a MSnset File --------------------------------------------
 observeEvent(input$loadMSnset,ignoreInit =TRUE,{ 
-  input$file 
+  input$file
   ClearMemory()
-  #ClearUI()
+  ClearUI()
+  
   authorizedExtension <- "msnset"
   
   tryCatch({
     
     if (length(grep(GetExtension(input$file$datapath),authorizedExtension,ignore.case=TRUE) )==0)
     {
-      # shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
+     # shinyjs::info("Warning : this file is not a MSnset file ! Please choose another one.")
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
     rv$current.obj <- readRDS(input$file$datapath)
     
     if( class(rv$current.obj)[1] != "MSnSet") {
-      # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
+     # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
-    
-    rv$current.obj.name <- DeleteFileExtension(input$file$name)
+ 
+  
+  
+  
+     rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
     rv$updateDesign_designChecked <- check.design(Biobase::pData(rv$current.obj))
@@ -145,7 +150,7 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
     {
       rv$current.obj@experimentData@other$RawPValues <- FALSE
-    } else if(isTRUE(rv$current.obj@experimentData@other$RawPValues )){
+      } else if(isTRUE(rv$current.obj@experimentData@other$RawPValues )){
       
       #   nn <- names(rv$current.obj@experimentData@other$Params)
       #    ind <-  grep("HypothesisTest",nn)
@@ -157,13 +162,10 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
       # names(.logFC) <- names.logFC
       # names(.P_Value) <- names.P_Value
       # 
-      # rv$res_AllPairwiseComparisons <- list(logFC= .logFC,
-      #                                       P_Value = .P_Value)
       
       #rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$th_logFC
       rv$method <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]$method
       }
-    
     nn <- names(rv$current.obj@experimentData@other$Params)
     ind <-  grep("HypothesisTest",nn)
     #params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
@@ -179,12 +181,13 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     
     
     rv$current.obj <- addOriginOfValue(rv$current.obj)
-    l.params <- list(filename = rv$current.obj.name)
     
+    
+    l.params <- list(filename = rv$current.obj.name)
     retroCompatibility()
     loadObjectInMemoryFromConverter()
-
-  }, warning = function(w) {
+  }
+  , warning = function(w) {
     shinyjs::info( conditionMessage(w))
     return(NULL)
   }, error = function(e) {

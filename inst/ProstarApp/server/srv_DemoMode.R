@@ -1,8 +1,9 @@
 callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}),
            filename = 'Demomode_Overview')
 
+
 output$chooseDataset <- renderUI({
-  
+ 
   if(require("DAPARdata", lib.loc=DAPARdata.loc)){
     print("DAPARdata is loaded correctly")
     selectInput("demoDataset",
@@ -23,7 +24,7 @@ output$chooseDataset <- renderUI({
     }
   }
   
-  
+
 })
 
 
@@ -37,7 +38,7 @@ output$linktoDemoPdf <- renderUI({
     system(cmd)
   filename <-paste0(input$demoDataset,".pdf", sep="")
   tags$p("Dataset documentation ",
-         tags$a(href=filename, target='_blank', paste0("(",filename,")")))
+  tags$a(href=filename, target='_blank', paste0("(",filename,")")))
  })
 
 
@@ -47,6 +48,7 @@ output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
   isolate({ 
+    
     NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
   
   nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
@@ -84,16 +86,16 @@ output$infoAboutDemoDataset <- renderUI({
 
 
 
-
 observeEvent(input$loadDemoDataset,{
   if (input$loadDemoDataset == "None"){return(NULL)}
   
   isolate({
     ntotal <- 4
   withProgress(message = '',detail = '', value = 0, {
+    
     ClearUI()
     ClearMemory()
-    incProgress(1/ntotal, detail = 'Clear memory ')
+   incProgress(1/ntotal, detail = 'Clear memory ')
   utils::data(list = input$demoDataset)
   rv$current.obj <- get(input$demoDataset)
   incProgress(1/ntotal, detail = 'Load dataset ')
@@ -107,7 +109,7 @@ observeEvent(input$loadDemoDataset,{
   
   loadObjectInMemoryFromConverter()
   incProgress(1/ntotal, detail = 'Load memory ')
-   })
+  })
   })
   # shinyjs::disable("loadDemoDataset")
   # shinyjs::disable("chooseDataset")

@@ -1,5 +1,32 @@
 
 
+shinyOutput <- function(FUN,id,num,...) {
+  inputs <- character(num)
+  for (i in seq_len(num)) {
+    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+  }
+  inputs
+}
+
+
+# function for dynamic inputs in DT
+shinyInput <- function(FUN, id, num,...) {
+  inputs <- character(num)
+  for (i in seq_len(num)) {
+    inputs[i] <- as.character(FUN(paste0(id,i),label=NULL,...))
+  }
+  inputs
+}
+
+
+# function to read DT inputs
+shinyValue <- function(id, num) {
+  unlist(lapply(seq_len(num),function(i) {
+    value <- input[[paste0(id,i)]]
+    if (is.null(value)) NA else value
+  }))
+}
+
 
 GetCurrentDatasetName <- reactive({
   name <- last(names(rv$dataset))
@@ -306,7 +333,7 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function(){
-  #req(rv$current.obj)
+  # req(rv$current.obj)
   
   rv$proteinId <-rv$current.obj@experimentData@other$proteinId
   if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
@@ -322,7 +349,7 @@ loadObjectInMemoryFromConverter <- function(){
     names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
     
-    #If there are already pVal values, then do no compute them 
+    #If there are already pVal values, then do no compute them
     # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
     #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
     #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
@@ -335,11 +362,11 @@ loadObjectInMemoryFromConverter <- function(){
     
     rv$PlotParams$paletteConditions <- GetExamplePalette()
     
-    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){ 
+    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
       print("begin compute adjacency matrix")
-      incProgress(0.6, detail = 'Compute Adjacency Matrices')  
+      incProgress(0.6, detail = 'Compute Adjacency Matrices')
       ComputeAdjacencyMatrices()
-      incProgress(0.7, detail = 'Compute Connex Composants')  
+      incProgress(0.7, detail = 'Compute Connex Composants')
       ComputeConnexComposants()
     }
     
@@ -418,7 +445,9 @@ resetModuleProcess <- function(moduleName){
                                                                                     Condition=NULL,
                                                                                     nbDeleted=NULL, 
                                                                                     Total=NULL, 
-                                                                                    stringsAsFactors=F))
+                                                                                    stringsAsFactors=F)
+          )
+          
           updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
           updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
           
@@ -447,7 +476,7 @@ resetModuleProcess <- function(moduleName){
             
             rvModProcess$moduleAggregation = list(name = "Aggregation",
                                                   stepsNames = c("Aggregation", "Add metadata", "Save"),
-                                                  isMandatory = rep(TRUE, 3),
+                                                  isMandatory = c(TRUE, FALSE, TRUE),
                                                   ll.UI = list( screenStep1 = uiOutput("screenAggregation1"),
                                                                 screenStep2 = uiOutput("screenAggregation2"),
                                                                 screenStep3 = uiOutput("screenAggregation3")))
@@ -467,8 +496,7 @@ resetModuleProcess <- function(moduleName){
                                              type = "None",
                                              varReduction = FALSE,
                                              quantile = 0.15,
-                                             spanLOESS = 0.7,
-                                             SynctForNorm = FALSE)
+                                             spanLOESS = 0.7)
             
             
             rvModProcess$moduleNormalization = list(name = "Normalization",
@@ -482,7 +510,6 @@ resetModuleProcess <- function(moduleName){
             updateTextInput(session,"spanLOESS", value = rv$widgets$normalization$spanLOESS)
             updateTextInput(session, "normalization.quantile", value = rv$widgets$normalization$quantile)
             updateCheckboxInput(session, "normalization.variance.reduction", value = rv$widgets$normalization$varReduction)
-            updateCheckboxInput(session, "SynctForNorm", value = rv$widgets$normalization$SynctForNorm)
             
             
             rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
@@ -580,82 +607,9 @@ resetModuleProcess <- function(moduleName){
             rvModProcess$moduleHypothesisTestDone =  rep(FALSE,2)
           },
           
-          # 
-          # HypothesisTestProtein ={
-          #   rv$widgets$hypothesisTestProtein = list(design = "None",
-          #                                        method = "None",
-          #                                        ttest_options = "Student",
-          #                                        th_logFC = 0,
-          #                                        listNomsComparaison = NULL)
-          # rvModProcess$HypothesisTestProtein = list(name = "HypothesisTestProtein",
-          #                                          stepsNames = c("HypothesisTestProtein", "Save"),
-          #                                          isMandatory = c(TRUE, TRUE),
-          #                                          ll.UI = list( screenStep1 = uiOutput("screenHypoTestProtein1"),
-          #                                                        screenStep2 = uiOutput("screenHypoTestProtein2")))
-          # ## update widgets in UI
-          # updateSelectInput(session,"HypoTestProt_anaDiff_Design", selected = rv$widgets$hypothesisTestProtein$design)
-          # updateSelectInput(session,"HypoTestProt_diffAnaMethod", selected = rv$widgets$hypothesisTestProtein$method)
-          # updateRadioButtons(session,"HypoTestProt_ttest_options", selected = rv$widgets$hypothesisTestProtein$ttest_options)
-          # updateTextInput(session, "HypoTestProt_seuilLogFC", value= rv$widgets$hypothesisTestProtein$th_logFC)
-          # 
-          # 
-          # rv$res_AllPairwiseComparisons <- NULL
-          # rv$tempplot$logFCDistr <- NULL
-          # rvModProcess$moduleHypothesisTestProteinDone =  rep(FALSE,2)
-          # },
-          
-          # 
-          # 
-          # 
-          # HypothesisTestPeptide ={
-          #   rv$widgets$hypothesisTestPeptide = list(design = "None",
-          #                                    method = "None",
-          #                                    ttest_options = "Student",
-          #                                    th_logFC = 0,
-          #                                    listNomsComparaison = NULL)
-          #   rvModProcess$moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
-          #                                            stepsNames = c("HypothesisTestPeptide", "Save"),
-          #                                            isMandatory = c(TRUE, TRUE),
-          #                                            ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptide1"),
-          #                                                          screenStep2 = uiOutput("screenHypoTestPeptide2")))
-          #   
-          #   updateSelectInput(session,"HypoTestPept_anaDiff_Design", selected = rv$widgets$hypothesisTestPeptide$design)
-          #   updateSelectInput(session,"HypoTestPept_diffAnaMethod", selected = rv$widgets$hypothesisTestPeptide$method)
-          #   updateRadioButtons(session,"HypoTestPept_ttest_options", selected = rv$widgets$hypothesisTestPeptide$ttest_options)
-          #   updateTextInput(session, "HypoTestPept_seuilLogFC", value= rv$widgets$hypothesisTestPeptide$th_logFC)
-          #   
-          #   rv$res_AllPairwiseComparisons <- NULL
-          #   rv$tempplot$logFCDistr <- NULL
-          #   rvModProcess$moduleHypothesisTestPeptideDone =  rep(FALSE,2)
-          # },
-          # 
-          # 
-          # 
-          # 
-          # HypothesisTestPeptidomic ={
-          #   rv$widgets$hypothesisTestPeptidomic = list(design = "None",
-          #                                           method = "None",
-          #                                           ttest_options = "Student",
-          #                                           th_logFC = 0,
-          #                                           listNomsComparaison = NULL)
-          #   rvModProcess$moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
-          #                                                   stepsNames = c("HypothesisTestPeptidomic", "Save"),
-          #                                                   isMandatory = c(TRUE, TRUE),
-          #                                                   ll.UI = list( screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
-          #                                                                 screenStep2 = uiOutput("screenHypoTestPeptidomic2")))
-          #   ## update widgets in UI
-          #   updateSelectInput(session,"HypoTestPeptidomic_anaDiff_Design", selected = rv$widgets$hypothesisTestPeptidomic$design)
-          #   updateSelectInput(session,"HypoTestPeptidomic_diffAnaMethod", selected = rv$widgets$hypothesisTestPeptidomic$method)
-          #   updateRadioButtons(session,"HypoTestPeptidomic_ttest_options", selected = rv$widgets$hypothesisTestPeptidomic$ttest_options)
-          #   updateTextInput(session, "HypoTestPeptidomic_seuilLogFC", value= rv$widgets$hypothesisTestPeptidomic$th_logFC)
-          # 
-          # 
-          #   rvModProcess$moduleHypothesisTestPeptidomicDone =  rep(FALSE,2)
-          # },
-          # 
           
           
-          
+
           # Convert ={
           #   rv$widgets$Convert = list(datafile = NULL,
           #                             selectIdent = FALSE,
@@ -700,6 +654,45 @@ resetModuleProcess <- function(moduleName){
           #   rvModProcess$moduleConvertDone =  rep(FALSE,5)
           # },
           # 
+
+          Convert ={
+            rv$widgets$Convert = list(datafile = NULL,
+                                      selectIdent = FALSE,
+                                      convert_proteinId = character(0),
+                                      idBox = "Auto ID",
+                                      eDatabox = character(0),
+                                      typeOfData = "peptide",
+                                      checkDataLogged = "no",
+                                      replaceAllZeros =TRUE,
+                                      convert_reorder = "no",
+                                      XLSsheets = character(0),
+                                      design = NULL)
+            
+            
+            rvModProcess$moduleConvert = list(name = "Convert",
+                                              stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
+                                              isMandatory = rep(TRUE,5),
+                                              ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
+                                                            screenStep2 = uiOutput("Convert_DataId"),
+                                                            screenStep3 = uiOutput("Convert_ExpFeatData"),
+                                                            screenStep2 = uiOutput("Convert_BuildDesign"),
+                                                            screenStep3 = uiOutput("Convert_Convert")
+                                              ))
+            ## update widgets in UI
+            updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)
+            updateSelectInput(session,"convert_proteinId",selected = rv$widgets$convert_proteinId)
+            updateSelectInput(session,"idBox", selected = rv$widgets$Convert$idBox)
+            updateRadioButtons(session, "typeOfData", selected=rv$widgets$Convert$typeOfData)
+            updateRadioButtons(session, "checkDataLogged", selected=rv$widgets$Convert$checkDataLogged)
+            updateCheckboxInput(session,"replaceAllZeros", value= rv$widgets$Convert$replaceAllZeros)
+            updateCheckboxInput(session,"convert_reorder", value= rv$widgets$Convert$convert_reorder)
+            updateSelectInput(session,"XLSsheets", selected= rv$widgets$Convert$XLSsheets)
+            
+            rvModProcess$moduleConvertDone =  rep(FALSE,5)
+            
+          },
+          
+
           
           
           AnaDiff = {
@@ -745,7 +738,6 @@ resetModuleProcess <- function(moduleName){
             updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
             updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
             updateSelectInput(session,"nBinsHistpval",selected=rv$widgets$anaDiff$nBinsHistpval)
-            
             updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
             updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
@@ -754,6 +746,7 @@ resetModuleProcess <- function(moduleName){
           },
           
           GO = {
+            
             rv$widgets$go <- list(
               sourceOfProtID = NULL,
               idFrom = "UNIPROT",
@@ -789,8 +782,6 @@ resetModuleProcess <- function(moduleName){
             
             rvModProcess$moduleGODone =  rep(FALSE,4)
             
-            
-            
           }
   )
 }
@@ -800,10 +791,10 @@ resetModuleProcess <- function(moduleName){
 ###-------------------------------------------------------------------
 ClearMemory <- function(){
   
-  
   ########
   ### Settings
   ########
+  
   rv$processSaved = FALSE
   rv$current.navPage = NULL
   rv$current.comp = NULL
@@ -832,7 +823,8 @@ ClearMemory <- function(){
   
   rv$listLogFC <- list()
   
-  
+  # variable to keep memory of previous datasets before 
+  # transformation of the data
   # Variable that contains the log for the current R session
   rv$text.log = data.frame(Date="", 
                            Dataset="", 
@@ -866,6 +858,11 @@ ClearMemory <- function(){
   
   rv$settings_nDigits = 10
   rv$hot = NULL
+  rv$newOrder = NULL
+  rv$designChecked = NULL
+  rv$designSaved = FALSE
+  rv$conditionsChecked = NULL
+  
   rv$newOrder = NULL
   rv$designChecked = NULL
   rv$designSaved = FALSE
@@ -919,8 +916,12 @@ ClearMemory <- function(){
   rv$distance = "euclidean"
   
   
+  
+  
+  
   unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"))
   unlink("www/*pdf")
+  
   
   resetModuleProcess("Aggregation")
   resetModuleProcess("Normalization")
@@ -928,13 +929,13 @@ ClearMemory <- function(){
   resetModuleProcess("PepImputation")
   resetModuleProcess("ProtImputation")
   resetModuleProcess("HypothesisTest")
-  #resetModuleProcess("HypothesisTestPeptide")
-  #resetModuleProcess("HypothesisTestProtein")
-  #resetModuleProcess("HypothesisTestPeptidomic")
   #resetModuleProcess("Convert")
   resetModuleProcess("AnaDiff")
   
+  
+  
 }
+
 
 
 
@@ -947,8 +948,8 @@ rv <- reactiveValues(
   SRV_fileSourced = NULL,
   
   processSaved = FALSE,
-  current.navPage = NULL,
   
+  current.navPage = NULL,
   # variable to handle the current object that will be showed
   current.comp = NULL,
   current.obj = NULL,
@@ -1028,16 +1029,6 @@ rv <- reactiveValues(
                           ttest_options = "Student",
                           th_logFC = 0,
                           listNomsComparaison = NULL),
-    # hypothesisTestProtein = list(design = "None",
-    #                              method = "None",
-    #                              ttest_options = "Student",
-    #                              th_logFC = 0,
-    #                              listNomsComparaison = NULL),
-    # hypothesisTestPeptide = list(design = "None",
-    #                              method = "None",
-    #                              ttest_options = "Student",
-    #                              th_logFC = 0,
-    #                              listNomsComparaison = NULL),
     peptideImput = list( pepLevel_algorithm = "None",
                          pepLevel_basicAlgorithm = "detQuantile",
                          pepLevel_detQuantile = 2.5,
@@ -1069,6 +1060,7 @@ rv <- reactiveValues(
                    nBinsHistpval = 80,
                    downloadAnaDiff = "All",
                    tooltipInfo=NULL),
+
     # Convert = list(datafile = NULL,
     #                selectIdent = FALSE,
     #                convert_proteinId = character(0),
@@ -1084,6 +1076,7 @@ rv <- reactiveValues(
     #                sepProteinID = NULL,
     #                checkBoxRemoveOrphanPept = FALSE
     #                ),
+
     go = list(
       sourceOfProtID = NULL,
       idFrom = "UNIPROT",
@@ -1103,19 +1096,6 @@ rv <- reactiveValues(
   designSaved = FALSE,
   conditionsChecked = NULL,
   
-  
-  
-  # updateDesign = list(designChecked=NULL,
-  #                        hot=NULL,
-  #                        newOrder=NULL,
-  #                        conditionsChecked=NULL,
-  #                     designSaved=FALSE),
-  
-  updateDesign_designChecked=NULL,
-  updateDesign_hot=NULL,
-  updateDesign_newOrder=NULL,
-  updateDesign_conditionsChecked=NULL,
-  updateDesign_designSaved=FALSE,
   
   settings_nDigits = 10,
   calibrationRes = NULL,
@@ -1279,62 +1259,115 @@ Get_ParamValue <- function(pp, key){
 
 
 
-GetBioconductorVersions <- function(){
+
+buildWritableVector <- function(v){
+  t <- "c("
+  for (i in v){
+    t <- paste(t, "\"", as.character(i), "\"", sep="")
+    if (i == last(v)) {t <- paste(t, ")", sep="")}
+    else {t <- paste(t, ",", sep="")}
+  }
+  return(t)
+}
+
+GetBioconductorVersions <- reactive({
   ll.versions <- list(Prostar = "NA",
                       DAPAR = "NA",
                       DAPARdata = "NA")
   
   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
   tryCatch({
-    require(XML)
-    Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
-    DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
-    DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
-    ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
-    ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
-    ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
+    bioc <-available.packages(contrib.url("http://www.bioconductor.org/packages/release/bioc/"))
+    ll.versions$Prostar <-bioc['Prostar', "Version"]
+    ll.versions$DAPAR <-bioc['DAPAR', "Version"]
+    
+    biocExperiment <- available.packages(contrib.url("http://www.bioconductor.org/packages/release/data/experiment"))
+    ll.versions$DAPARdata <- biocExperiment['DAPARdata', "Version"]
   }, warning = function(w) {
+    warning(e)
     return()
   }, error = function(e) {
+    print(e)
     return()
   }, finally = {
-    #cleanup-code 
+    #cleanup-code
   })
   
+  ll.versions
   
-  return (ll.versions)
-}
+})
+
+# GetBioconductorVersions <- function(){
+#   ll.versions <- list(Prostar = "NA",
+#                       DAPAR = "NA",
+#                       DAPARdata = "NA")
+#   
+#   DAPARdata.version <- Prostar.version <- DAPAR.version <- NULL
+#   tryCatch({
+#     require(XML)
+#     Prostar.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/Prostar.html")
+#     DAPAR.html <- readHTMLTable("http://bioconductor.org/packages/release/bioc/html/DAPAR.html")
+#     DAPARdata.html <- readHTMLTable("http://bioconductor.org/packages/release/data/experiment/html/DAPARdata.html")
+#     ll.versions$Prostar <-as.character(Prostar.html[[3]][2][1,])
+#     ll.versions$DAPAR <-as.character(DAPAR.html[[3]][2][1,])
+#     ll.versions$DAPARdata <- as.character(DAPARdata.html[[3]][2][1,])
+#     
+#   }, warning = function(w) {
+#     return()
+#   }, error = function(e) {
+#     return()
+#   }, finally = {
+#     #cleanup-code 
+#     
+#     
+#   })
+#   
+#   
+#   return (ll.versions)
+# }
 
 
-GetLocalVersions <- function(){
+
+GetLocalVersions <- reactive({
   local.version <- list()
   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
-  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar2","Version"],
                         DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
                         DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
   
-  return(local.version)
-}
+  local.version
+})
 
 
 
-getPackagesVersions2 <- reactive({
+# GetLocalVersions <- function(){
+#   local.version <- list()
+#   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
+#   local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
+#                         DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
+#                         DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
+#   
+#   
+#   return(local.version)
+# }
+
+
+getPackagesVersions <- reactive({
   
   outOfDate <- "(Out of date)"
   dev <- "(Devel)"
   
-  bioconductor.version <-GetBioconductorVersions()
+  bioconductor.version <- GetBioconductorVersions()
   local.version <- GetLocalVersions()
-  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
-             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+  names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")),
+             as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")),
              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
   
   
   df <- data.frame("Name" = names,
-                   "Installed packages"= unlist(local.version), 
+                   "Installed packages"= unlist(local.version),
                    "Bioc release" =  unlist(bioconductor.version),
                    stringsAsFactors = FALSE)
-  
   
   if (!is.null(local.version$Prostar) && !is.null(local.version$DAPAR)) {
     tryCatch({
@@ -1368,17 +1401,71 @@ getPackagesVersions2 <- reactive({
     }, error = function(e) {
       return()
     }, finally = {
-      #cleanup-code 
+      #cleanup-code
     })
     
   }
-  
   
   df
   
 })
 
 
+# getPackagesVersions2 <- reactive({
+#   
+#   outOfDate <- "(Out of date)"
+#   dev <- "(Devel)"
+#   
+#   bioconductor.version <-GetBioconductorVersions()
+#   local.version <- GetLocalVersions()
+#   
+#   names <- c(as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/Prostar.html", "Prostar")), 
+#              as.character(tags$a(href="http://www.bioconductor.org/packages/release/bioc/html/DAPAR.html", "DAPAR")), 
+#              as.character(tags$a(href="http://www.bioconductor.org/packages/release/data/experiment/html/DAPARdata.html", "DAPARdata")))
+#   
+#   
+#   df <- data.frame("Name" = names,
+#                    "Installed packages"= unlist(local.version), 
+#                    "Bioc release" =  unlist(bioconductor.version),
+#                    stringsAsFactors = FALSE)
+#   
+#   if (!is.null(local.version$Prostar) && !is.null(local.version$DAPAR)) {
+#     tryCatch({
+#       compare.prostar <- compareVersion(local.version$Prostar,bioconductor.version$Prostar)
+#       if (compare.prostar == 0){}
+#       if (compare.prostar == 1){
+#         df[1,"Name"] <-   paste(names[1],  "<strong>",dev, "</strong>", sep=" ")
+#       }
+#       if (compare.prostar==-1){
+#         df[1,"Name"] <-   paste(names[1], "<strong>", outOfDate, "</strong>", sep=" ")
+#       }
+#       
+#       compare.dapar <- compareVersion(local.version$DAPAR,bioconductor.version$DAPAR)
+#       if (compare.dapar == 0){}
+#       if (compare.dapar == 1){df[2,"Name"] <-   paste(names[2],  "<strong>",dev, "</strong>", sep=" ")}
+#       if (compare.dapar ==-1){
+#         df[2,"Name"] <-   paste(names[2],  "<strong>",outOfDate, "</strong>", sep=" ")
+#       }
+#       
+#       if (compareVersion(local.version$DAPARdata,bioconductor.version$DAPARdata) == 0){}
+#       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata) == 1){
+#         df[3,"Name"] <-   paste(names[3],  "<strong>",dev, "</strong>", sep=" ")
+#       }
+#       if (compareVersion(local.version$DAPARdata , bioconductor.version$DAPARdata)==-1){
+#         df[3,"Name"] <-   paste(names[3],  "<strong>",outOfDate, "</strong>", sep=" ")
+#       }
+#     }, warning = function(w) {
+#       return()
+#     }, error = function(e) {
+#       return()
+#     }, finally = {
+#       #cleanup-code 
+#     })
+#     
+#   }
+#   
+#   df
+# })
 
 
 buildTable <- function(text, color, colorCurrentPos){
@@ -1418,6 +1505,7 @@ GetOnlineZipVersion <- function(){
 
 
 
+
 buildWritableVector <- function(v){
   t <- "c("
   for (i in v){
@@ -1427,6 +1515,4 @@ buildWritableVector <- function(v){
   }
   return(t)
 }
-
-
 

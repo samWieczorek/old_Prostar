@@ -1,12 +1,8 @@
-
 rm(list=ls())
 
 options(shiny.maxRequestSize=300*1024^2)
 options(encoding = "UTF-8")
 options(shiny.fullstacktrace=TRUE)
-#options(shiny.error = recover)
-#options(shiny.reactlog=TRUE) 
-
 
 require(compiler)
 enableJIT(3)
@@ -43,15 +39,7 @@ shinyServer(function(input, output, session) {
   #Sys.setenv(LANG = "fr")
   print(Sys.getlocale())
   
-  observeEvent(input$timeOut, { 
-    print(paste0("Session (", session$token, ") timed out at: ", Sys.time()))
-    showModal(modalDialog(
-      title = "Timeout",
-      paste("Session timeout due to", input$timeOut, "inactivity -", Sys.time()),
-      footer = NULL
-    ))
-    session$close()
-  })
+  
   
   Sys.setenv("R_ZIPCMD"= Sys.which("zip"))
   sessionID <- Sys.getpid()
@@ -65,7 +53,17 @@ shinyServer(function(input, output, session) {
     sink(con, append=TRUE, type="message")
   }
   
-  print(tempdir())
+  message(tempdir())
+  
+  message(tempdir())
+  message(normalizePath(tempdir()))
+  message(getwd())
+  message("TEST=")
+  message(Sys.getenv('TEST'))
+  
+  message(Sys.getenv('TMP'))
+  message(Sys.getenv('TMPDIR'))
+  message(Sys.getenv('TEMP'))
   
   # unsuspendAll(session)
   
@@ -128,7 +126,8 @@ shinyServer(function(input, output, session) {
              source(file.path("server", "srv_OpenMSnset.R"),  local = TRUE)$value
            },
            #SessionLogsTab = source(file.path("server", "srv_LogSession.R"),  local = TRUE)$value,
-           demoTab =  
+           
+           demoTab = 
              source(file.path("server", "srv_DemoMode.R"),  local = TRUE)$value,
            convertTab = {
              source(file.path("server", "srv_ConvertData.R"),  local = TRUE)$value
@@ -141,10 +140,13 @@ shinyServer(function(input, output, session) {
            ReloadTab = {
              source(file.path("server", "srv_ReloadProstar.R"),  local = TRUE)$value
            },
-           FilteringTab  = 
+           
+           FilteringTab =
              source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value,
-           NormalizationTab  = 
+           
+           NormalizationTab = 
              source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value,
+           
            imputationProteinLevelTabs = {
              source(file.path("server", "srv_Imputation_ProteinLevel.R"),  local = TRUE)$value
            },
@@ -153,23 +155,37 @@ shinyServer(function(input, output, session) {
            },
            AggregationTab =
              source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
+           
            diffAnalysisTab = 
              {
                source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
              },
+           
            graphTab = 
              {
                callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
+               
              },
-           GoTab  = source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
-           faqTab = source(file.path("server", "srv_FAQ.R"),  local = TRUE)$value,
-           checkForUpdatesTab =  source(file.path("server", "srv_CheckForUpdates.R"),  local = TRUE)$value,
-           usefulLinksTab =  source(file.path("server", "srv_UsefulLinks.R"),  local = TRUE)$value,
-           ReleaseNotesTab =  source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value,
+           
+           GoTab = 
+             source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
+           
+           # updateDesignTab = 
+           #   source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value,
+           # 
+           faqTab = 
+             source(file.path("server", "srv_FAQ.R"),  local = TRUE)$value,
+           checkForUpdatesTab = 
+             source(file.path("server", "srv_CheckForUpdates.R"),  local = TRUE)$value,
+           usefulLinksTab = 
+             source(file.path("server", "srv_UsefulLinks.R"),  local = TRUE)$value,
+           
+           ReleaseNotesTab = 
+             source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value,
+           
            bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value,
+           
            testTab = source(file.path("server", "srv_HypothesisTest.R"),  local = TRUE)$value
-           #testPeptideTab = source(file.path("server", "srv_AggregateTest_Peptide.R"),  local = TRUE)$value,
-           #testProteinTab = source(file.path("server", "srv_HypothesisTestProtein.R"),  local = TRUE)$value
     )
     
   })
@@ -178,4 +194,6 @@ shinyServer(function(input, output, session) {
   shinyjs::hide(id = "loading_page", anim = FALSE)
   
   shinyjs::show("main_content", anim = TRUE, animType = "fade")
+  
+  print(ls())
 })

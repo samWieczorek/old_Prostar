@@ -13,7 +13,8 @@ rvModProcess <- reactiveValues(
   moduleFilteringForceReset = 0,
   
   
-  ###################
+  
+  
   moduleNormalization = list(name = "Normalization",
                              stepsNames = c("Normalization", "Save"),
                              isMandatory = rep(TRUE,2),
@@ -25,10 +26,10 @@ rvModProcess <- reactiveValues(
   moduleNormalizationForceReset = 0,
   
   
-  ###################
+  
   moduleAggregation = list(name = "Aggregation",
                            stepsNames = c("Aggregation", "Add metadata", "Save"),
-                           isMandatory = rep(TRUE, 3),
+                           isMandatory = c(TRUE, FALSE, TRUE),
                            forceReset = FALSE,
                            ll.UI = list(screenStep1 = uiOutput("screenAggregation1"),
                                         screenStep2 = uiOutput("screenAggregation2"),
@@ -41,7 +42,7 @@ rvModProcess <- reactiveValues(
   
   
   
-  ###################
+  
   moduleProtImputation = list(name = "ProtImputation",
                               stepsNames = c("Partially Observed Values", "Missing on Entire Condition", "Save"),
                               isMandatory = c(TRUE, FALSE, TRUE),
@@ -55,11 +56,6 @@ rvModProcess <- reactiveValues(
   moduleProtImputationForceReset = 0,
   
   
-  
-  
-  
-  
-  ###################
   modulePepImputation = list(name = "PepImputation",
                              stepsNames = c("Imputation", "Save"),
                              isMandatory = rep(TRUE, 2),
@@ -70,56 +66,19 @@ rvModProcess <- reactiveValues(
   modulePepImputationDone =  rep(FALSE,2),
   modulePepImputationForceReset = 0,
   
- 
-   ###################
+  
   moduleHypothesisTest = list(name = "HypothesisTest",
                               stepsNames = c("HypothesisTest", "Save"),
                               isMandatory = rep(TRUE, 2),
                               forceReset = FALSE,
                               ll.UI = list(screenStep1 = uiOutput("screenHypoTest1"),
-                                           screenStep2 = uiOutput("screenHypoTest2")),
+                                          screenStep2 = uiOutput("screenHypoTest2")),
                               rstFunc = reactive({resetModuleHypothesisTest()})),
   moduleHypothesisTestDone =  rep(FALSE,2),
   moduleHypothesisTestForceReset = 0,
   
-  # ###################
-  moduleHypothesisTestProtein = list(name = "HypothesisTestProtein",
-                              stepsNames = c("HypothesisTestProtein", "Save"),
-                              isMandatory = rep(TRUE, 2),
-                              ll.UI = list(screenStep1 = uiOutput("screenHypoTestProtein1"),
-                                          screenStep2 = uiOutput("screenHypoTestProtein2")),
-                              rstFunc = reactive({resetModuleHypothesisTestProtein()})),
-  moduleHypothesisTestProteinDone =  rep(FALSE,2),
-  moduleHypothesisTestProteinForceReset = 0,
-  # 
-  # 
-  # 
-  # 
-  # ###########################################################################################
-  # moduleHypothesisTestPeptide = list(name = "HypothesisTestPeptide",
-  #                             stepsNames = c("HypothesisTestPeptide", "Save"),
-  #                             isMandatory = rep(TRUE, 2),
-  #                             ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptide1"),
-  #                                          screenStep2 = uiOutput("screenHypoTestPeptide2")),
-  #                             rstFunc = reactive({resetModuleHypothesisTestPeptide()})),
-  # moduleHypothesisTestPeptideDone =  rep(FALSE,2),
-  # moduleHypothesisTestPeptideForceReset = 0,
-  # 
-  # 
-  # 
-  # 
-  # ###########################################################################################
-  moduleHypothesisTestPeptidomic = list(name = "HypothesisTestPeptidomic",
-                                     stepsNames = c("HypothesisTestPeptidomic", "Save"),
-                                     isMandatory = rep(TRUE, 2),
-                                     ll.UI = list(screenStep1 = uiOutput("screenHypoTestPeptidomic1"),
-                                                  screenStep2 = uiOutput("screenHypoTestPeptidomic2")),
-                                     rstFunc = reactive({resetModuleHypothesisTestPeptidomic()})),
-  moduleHypothesisTestPeptidomicDone =  rep(FALSE,2),
-  moduleHypothesisTestPeptidomicForceReset = 0,
   
   
-  ###########################################################################################
   moduleConvert = list(name = "Convert",
                        stepsNames = c("Select file", "Data Id", "Exp. & feat. data", "Build design", "Convert"),
                        isMandatory = rep(TRUE,5),
@@ -134,7 +93,6 @@ rvModProcess <- reactiveValues(
   moduleConvertForceReset = 0,
   moduleConvertDone =  rep(FALSE,5),
   
-  ###########################################################################################
   moduleAnaDiff = list(name = "AnaDiff",
                        stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
                        isMandatory = rep(TRUE,4),
@@ -148,17 +106,16 @@ rvModProcess <- reactiveValues(
   moduleAnaDiffForceReset = 0,
   moduleAnaDiffDone =  rep(FALSE,4),
   
-  ###########################################################################################
   moduleGO = list(name = "GO",
-                  stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
-                  isMandatory = c(TRUE, FALSE, FALSE, FALSE),
-                  forceReset = FALSE,
-                  ll.UI = list( screenStep1 = uiOutput("screenGO1"),
-                                screenStep2 = uiOutput("screenGO2"),
-                                screenStep3 = uiOutput("screenGO3"),
-                                screenStep4 = uiOutput("screenGO4")
-                  ),
-                  rstFunc = reactive({resetModuleGO()})),
+                       stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                       isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                       forceReset = FALSE,
+                       ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                     screenStep2 = uiOutput("screenGO2"),
+                                     screenStep3 = uiOutput("screenGO3"),
+                                     screenStep4 = uiOutput("screenGO4")
+                       ),
+                       rstFunc = reactive({resetModuleGO()})),
   moduleGOForceReset = 0,
   moduleGODone =  rep(FALSE,4)
 )

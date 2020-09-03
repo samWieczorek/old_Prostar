@@ -5,12 +5,14 @@
 
 
 output$tab_versions <- DT::renderDataTable(server=TRUE,{
-  dt <- DT::datatable(getPackagesVersions2(), 
+  dt <- DT::datatable(getPackagesVersions(),
+  # dt <- DT::datatable(getPackagesVersions2(), 
                       escape = FALSE,
                       rownames= FALSE,
                       extensions = c('Scroller', 'Buttons'),
                       option=list(initComplete = initComplete(),
-                                  dom = 'Brt',
+                                  
+                                  dom='Brt',
                                   autoWidth=TRUE,
                                   ordering = F
                       )
@@ -20,9 +22,11 @@ output$tab_versions <- DT::renderDataTable(server=TRUE,{
 
 
 output$infoForNewVersions <- renderUI({
-  df <- getPackagesVersions2()
+  
+  df <- getPackagesVersions()
+  #df <- getPackagesVersions2()
   if (sum(grepl("(Out of date)",df[,1])) >= 1) {
-   
+    
   tagList(
     p(style="font-size: 16px", "Even though it remains possible to work with the current package versions, updates are advised. 
          If you use the server or the stand-alone versions, please proceed via the Bioconductor."),

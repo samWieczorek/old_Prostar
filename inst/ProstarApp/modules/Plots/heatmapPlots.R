@@ -22,12 +22,13 @@ output$heatmap <- renderImage({
   # Generate a png
   png(outfile, width=900, height=600)
   heatmap()
-dev.off()
-
-# Return a list
-list(src = outfile,
-     alt = "This is alternate text")
+  dev.off()
+  
+  # Return a list
+  list(src = outfile,
+       alt = "This is alternate text")
 }, deleteFile = TRUE)
+
 
 
 
@@ -69,6 +70,7 @@ output$DS_PlotHeatmap <- renderUI({
       withProgress(message = '',detail = '', value = 1, {
         imageOutput(ns("heatmap"), width = "900px", height = "600px")
       })
+      
     )
   }
 })

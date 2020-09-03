@@ -6,17 +6,15 @@ callModule(missingValuesPlots, "MVPlots_DS",
            palette = reactive({rv$PlotParams$paletteConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS",data=reactive({rv$current.obj}))
-callModule(moduleBoxplot, "boxPlot_DS",data=reactive({rv$current.obj}),
-           params = reactive({NULL}),
-           reset=reactive({FALSE}))
-
-
+callModule(moduleBoxplot, "boxPlot_DS",data=reactive({rv$current.obj}))
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
            filename='DescriptiveStats_Overview')
+
 callModule(moduleStaticDataTable,"PCAvarCoord", 
            table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), 
            showRownames=TRUE,
            filename = 'PCA_Var_Coords')
+
 
 
 # outs <- outputOptions(output)
@@ -67,7 +65,7 @@ output$plotsCorM <- renderUI({
                               )
                             ),
                             tooltip="Plots parameters",
-                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                            icon = icon("gear"), status = optionsBtnClass
                           ))
                )
                
@@ -76,7 +74,7 @@ output$plotsCorM <- renderUI({
     withProgress(message = '',detail = '', value = 1, {
       highchartOutput("corrMatrix",width = plotWidth,height = plotHeight)
     })
-)
+  )
 })
 
 
@@ -113,9 +111,9 @@ output$IntensityStatsPlots <- renderUI({
       )),
     
     
-    tagList(
-      moduleDensityplotUI("densityPlot_DS"),
-      moduleBoxplotUI("boxPlot_DS")
+    fluidRow(
+      column(width=6,moduleDensityplotUI("densityPlot_DS")),
+      column(width=6, moduleBoxplotUI("boxPlot_DS"))
     )
   )
   
@@ -172,10 +170,9 @@ output$plotsPCA <- renderUI({
   tagList(
     uiOutput("WarningNA_PCA"),
     uiOutput("pcaOptions"),
-    
     fluidRow(
-      column(width=6,  imageOutput("pcaPlotVar")),
-      column(width=6, imageOutput("pcaPlotInd"))
+      column(width=6,  imageOutput("pcaPlotVar", width='auto', height='auto')),
+      column(width=6,  imageOutput("pcaPlotInd", width='auto', height='auto'))
     ),
     fluidRow(
       column(width=6,  highchartOutput("pcaPlotEigen")),
@@ -185,39 +182,44 @@ output$plotsPCA <- renderUI({
 })
 
 
+
+
 output$pcaPlotInd <- renderImage({
-  req(rv$PCA_axes)
-  req(rv$res.pca)
+  #req(rv$PCA_axes)
+  # req(rv$res.pca)
   
   outfile <- tempfile(fileext='.png')
+  print(paste0("Outfile = ", outfile))
   # Generate a png
   png(outfile)
-  image <- plotPCA_Ind(rv$res.pca, rv$PCA_axes)
+  image <- DAPAR::plotPCA_Ind(rv$res.pca, rv$PCA_axes)
   print(image)
   dev.off()
   
   # Return a list
   list(src = outfile,
        alt = "This is alternate text")
-}, deleteFile = TRUE)
-
+}, deleteFile = FALSE)
 
 
 output$pcaPlotVar <- renderImage({
+  print("IN ####output$pcaPlotVar <- renderImage" )
+  
   req(rv$PCA_axes)
   req(rv$res.pca)
   
   outfile <- tempfile(fileext='.png')
   # Generate a png
   png(outfile)
-  image <- plotPCA_Var(rv$res.pca, rv$PCA_axes)
+  image <- DAPAR::plotPCA_Var(rv$res.pca, rv$PCA_axes)
   print(image)
   dev.off()
   
   # Return a list
   list(src = outfile,
        alt = "This is alternate text")
-}, deleteFile = TRUE)
+}, deleteFile = FALSE)
+
 
 
 output$pcaPlotEigen <- renderHighchart({
@@ -342,6 +344,10 @@ output$tabToShow <- renderUI({
              if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
              DT::dataTableOutput("viewpData"))
          }
+         # processingData = {
+         #             helpText("Previous operations made on the original dataset :")
+         #             DT::dataTableOutput("viewProcessingData")
+         #             }
   )
   
 })
@@ -397,25 +403,26 @@ output$viewfData <- DT::renderDataTable(server=TRUE,{
     dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
                          rownames = TRUE,
                          extensions = c('Scroller', 'Buttons','FixedColumns'),
-                         options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'feature metadata'
-                                                     ),'print'),
-                                      dom='Bfrtip',
-                                      pageLength=DT_pagelength,
-                                      orderClasses = TRUE,
-                                      autoWidth=FALSE,
-                                      deferRender = TRUE,
-                                      bLengthChange = FALSE,
-                                      scrollX = 200,
-                                      scrollY = 200,
-                                      scroller = TRUE,
-                                      columns.searchable=F,
-                                      fixedColumns = list(leftColumns = 1),
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
+                         options=list(
+                           initComplete = initComplete(),
+                           buttons = list('copy',
+                                          list(
+                                            extend = 'csv',
+                                            filename = 'feature metadata'
+                                          ),'print'),
+                           dom='Bfrtip',
+                           pageLength=DT_pagelength,
+                           orderClasses = TRUE,
+                           autoWidth=FALSE,
+                           deferRender = TRUE,
+                           bLengthChange = FALSE,
+                           scrollX = 200,
+                           scrollY = 200,
+                           scroller = TRUE,
+                           columns.searchable=F,
+                           fixedColumns = list(leftColumns = 1),
+                           columnDefs = list(list(columns.width=c("60px"),
+                                                  columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
       formatStyle(columns = 'Significant',
                   target = 'row',
                   background = styleEqual(1, 'lightblue'))
@@ -424,6 +431,11 @@ output$viewfData <- DT::renderDataTable(server=TRUE,{
                          rownames=TRUE,
                          extensions = c('Scroller', 'Buttons', 'FixedColumns'),
                          options=list(initComplete = initComplete(),
+                                      buttons = list('copy',
+                                                     list(
+                                                       extend = 'csv',
+                                                       filename = 'feature metadata'
+                                                     ),'print'),
                                       dom='Bfrtip',
                                       pageLength=DT_pagelength,
                                       deferRender = TRUE,
@@ -450,7 +462,7 @@ output$viewfData <- DT::renderDataTable(server=TRUE,{
 
 ##' Visualisation of missing values table
 ##' @author Samuel Wieczorek
-output$viewExprsMissValues <- DT::renderDataTable(server=TRUE,{
+output$viewExprsMissValues <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
                                           Biobase::exprs(rv$current.obj))),
@@ -458,12 +470,12 @@ output$viewExprsMissValues <- DT::renderDataTable(server=TRUE,{
                       rownames = FALSE,
                       
                       options=list(
-                        dom = 'Bfrtip',
                         buttons = list('copy',
                                        list(
                                          extend = 'csv',
                                          filename = 'missing values'
                                        ),'print'),
+                        dom='Bfrtip',
                         orderClasses = TRUE,
                         autoWidth=FALSE,
                         bLengthChange = FALSE,
@@ -503,7 +515,6 @@ corrMatrix <- reactive({
   
   gradient <- NULL
   if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-  
   else{gradient <- input$expGradientRate }
   
   isolate({
@@ -526,7 +537,6 @@ heatmap <- reactive({
   isolate({  wrapper.heatmapD(rv$current.obj,
                               input$distance, 
                               input$linkage,
-                              
                               TRUE)
   })
   
@@ -546,8 +556,9 @@ output$DS_PlotHeatmap <- renderUI({
   }else {
     tagList(
       withProgress(message = 'Building plot',detail = '', value = 1, {
-        imageOutput("heatmap", width = "900px", height = "600px") %>% withSpinner(type=spinnerType)
+        plotOutput("heatmap", width = "900px", height = "600px")
       })
+      
     )
   }
 })
@@ -555,20 +566,19 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 #################
-output$table <- DT::renderDataTable(server=TRUE,{
+output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj)
   print(head(df))
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
-                     dom = 'Bfrtip',
-                     initComplete = initComplete(),
                      buttons = list('copy',
                                     list(
                                       extend = 'csv',
                                       filename = 'quantitation data'
                                     ),'print'),
+                     dom='Bfrtip',initComplete = initComplete(),
                      displayLength = 20,
                      deferRender = TRUE,
                      bLengthChange = FALSE,
@@ -576,6 +586,7 @@ output$table <- DT::renderDataTable(server=TRUE,{
                      scrollY = 600,
                      scroller = TRUE,
                      ordering=FALSE,
+                     server = TRUE,
                      columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
     formatStyle(
       colnames(df)[1:(ncol(df)/2)],
@@ -638,8 +649,6 @@ output$heatmap <- renderImage({
 }, deleteFile = TRUE)
 
 
-
-
 ##' distribution of the variance in current.obj
 ##' 
 ##' @author Samuel Wieczorek
@@ -668,5 +677,10 @@ output$legendForExprsData <- renderUI({
   moduleLegendColoredExprsUI("ExprsColorLegend_DS",rv$colorsTypeMV)
   
 })
+
+
+
+
+
 
 

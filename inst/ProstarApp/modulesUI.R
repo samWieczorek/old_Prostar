@@ -5,8 +5,8 @@ NUM_PAGES_FILTERING <- 3
 
 
 modulePopoverUI <- function(id){
-  ns <- NS(id)
-  uiOutput(ns("customPopover"))
+    ns <- NS(id)
+    uiOutput(ns("customPopover"))
 }
 
 
@@ -18,48 +18,32 @@ module_Not_a_numericUI <- function(id){
 }
 
 
-#####################################
-moduleTrackProtUI <- function(id){
-  ns <- NS(id)
-  tagList(
-    
-    #uiOutput(ns("typeSelect")),
-    uiOutput(ns("typeSelect_UI")),
-    # selectInput(ns("typeSelect"), "Type of selection",
-    #             choices=c("None" = "None", "Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
-    #             width=('130px')),
-    
-    uiOutput(ns("listSelect_UI")),
-    uiOutput(ns("randomSelect_UI")),
-    uiOutput(ns("columnSelect_UI"))
-  )
-}
 
 
 moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
-  ns <- NS(id)
-  
-  tagList(
-    tags$p(tags$b("Legend of colors")),
+    ns <- NS(id)
     
-    fluidRow(
-      column(width=2, 
-             tags$div(class="input-color", checked=NA,
-                      tags$input(type="text", value=""),
-                      tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
-             )),
-      column(width=10, tags$p("Partially Observed Value (POV)"))
-    ),
-    
-    fluidRow(
-      column(width=2, 
-             tags$div(class="input-color", checked=NA,
-                      tags$input(type="text", value=""),
-                      tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
-             )),
-      column(width=10, tags$p("Missing in Entire Condition (MEC)"))
+    tagList(
+        tags$p(tags$b("Legend of colors")),
+        
+        fluidRow(
+            column(width=2, 
+                   tags$div(class="input-color", checked=NA,
+                            tags$input(type="text", value=""),
+                            tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$POV, ";"))
+                   )),
+            column(width=10, tags$p("Partially Observed Value (POV)"))
+        ),
+        
+        fluidRow(
+            column(width=2, 
+                   tags$div(class="input-color", checked=NA,
+                            tags$input(type="text", value=""),
+                            tags$div(class="color-box", style=paste0("background-color: ",colorsTypeMV$MEC, ";"))
+                   )),
+            column(width=10, tags$p("Missing in Entire Condition (MEC)"))
+        )
     )
-  )
 }
 
 
@@ -68,9 +52,9 @@ moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
 moduleVolcanoplotUI <- function(id){
   ns <- NS(id)
   tagList(
-    uiOutput(ns("nbSelectedItems")),
-    highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
-    
+          uiOutput(ns("nbSelectedItems")),
+          highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
+
     uiOutput(ns("quantiDT"))
   )
 }
@@ -87,7 +71,6 @@ moduleDetQuantImpValuesUI <- function(id){
   ns <- NS(id)
   tagList(
     h5("The missing values will be imputed by the following values :"),
-    
     DT::dataTableOutput(ns("detQuantValues_DT"))
   )
 }
@@ -96,85 +79,74 @@ moduleDetQuantImpValuesUI <- function(id){
 
 
 missingValuesPlotsUI <- function(id) {
-  ns <- NS(id)
-  fluidRow(
-    column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
-    column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
-    column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
-  )
-  
+    ns <- NS(id)
+    fluidRow(
+        column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
+        column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
+    )
+    
 }
 
 
 moduleDensityplotUI <- function(id) {
-  ns <- NS(id)
-  highchartOutput(ns("Densityplot"))
+    ns <- NS(id)
+    highchartOutput(ns("Densityplot"))
 }
 
 
 
 moduleMVPlotsUI <- function(id) {
-  ns <- NS(id)
-  tagList( 
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                uiOutput(ns("WarnForImageNA")),
-                imageOutput(ns("plot_showImageNA"), width='600px'))
-    )
-  )
+    ns <- NS(id)
+      tagList( 
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    highchartOutput(ns("plot_viewNAbyMean"), width='600px')),
+          tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                    uiOutput(ns("WarnForImageNA")),
+                    imageOutput(ns("plot_showImageNA"), width='600px'))
+       )
+      )
 }
+
 
 
 moduleDesignExampleUI <- function(id){
   ns <- NS(id)
   tagList(
-    rHandsontableOutput(ns("nlevelsExample"))
+     rHandsontableOutput(ns("nlevelsExample"))
   )
   
 }
 
 
 moduleBoxplotUI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    
-    br(), br(),
-    tags$div(
-      tags$div(style="display:inline-block; vertical-align: middle;",
-               highchartOutput(ns("BoxPlot")),
-               imageOutput(ns("viewViolinPlot"))
-      ),
-      tags$div(style="display:inline-block; vertical-align: middle;",
-               selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px'),
-               uiOutput(ns('showTrackProt'))
+    ns <- NS(id)
+    tagList(
+      highchartOutput(ns("BoxPlot")),
+      imageOutput(ns("viewViolinPlot")),
+      selectInput(ns("choosePlot"), "Choose plot", choices=c( "violinplot"="violinplot","boxplot"="boxplot"), width='100px')
       )
-      
-    )         
-    
-    
-  )
 }
 
 
 moduleStaticDataTableUI <- function(id) {
-  ns <- NS(id)
-  tags$div(
-    tags$div( style="display:inline-block; vertical-align: middle; align: center;",
-              uiOutput(ns("warningOnSize")),
-              DT::dataTableOutput(ns("StaticDataTable"))
+    ns <- NS(id)
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
+                uiOutput(ns("warningOnSize")),
+                DT::dataTableOutput(ns("StaticDataTable"))
+      )
     )
-  )
-  
-  
-  
+    
+     
+
 }
 
 
 moduleFilterStringbasedOptionsUI <- function(id) {
-  ns <- NS(id)
-  uiOutput(ns("FilterStringbasedOptions"))
+    ns <- NS(id)
+    uiOutput(ns("FilterStringbasedOptions"))
 }
 
 

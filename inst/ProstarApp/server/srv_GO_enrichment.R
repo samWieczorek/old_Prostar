@@ -1,10 +1,9 @@
+
 callModule(moduleProcess, "moduleProcess_GO", 
            isDone = reactive({rvModProcess$moduleGODone}), 
            pages = reactive({rvModProcess$moduleGO}),
            rstFunc = resetModuleGO,
            forceReset = reactive({rvModProcess$moduleGOForceReset })  )
-
-
 
 
 
@@ -36,7 +35,8 @@ resetModuleGO <- reactive({
   rvModProcess$moduleGODone =  rep(FALSE,4)
 })
 
-
+##--------------------------------------------------------
+##---------------------------------------------------------
 
 observeEvent(input$sourceOfProtID,{  rv$widgets$go$sourceOfProtID <- input$sourceOfProtID})
 observeEvent(input$idFrom,{  rv$widgets$go$idFrom <- input$idFrom})
@@ -59,7 +59,7 @@ output$resettableUniprotidFile <- renderUI({
   rv$widgets$go$UNIPROTID_File
   tagList(
     p("Select file containing protein IDs"),
-    fileInput("uniprotFile", rv$widgets$go$UNIPROTID_File$name)
+  fileInput("uniprotFile", rv$widgets$go$UNIPROTID_File$name)
   )
 })
 
@@ -67,35 +67,31 @@ output$resettableUniverseFile <- renderUI({
   req(c(rv$widgets$go$UniverseFile, rv$widgets$go$universe))
   if (rv$widgets$go$universe == "Custom"){
     fileInput("UniverseFile", rv$widgets$go$UniverseFile$name, 
-              multiple=FALSE) 
+            multiple=FALSE) 
   }
 })
 
 
-
-
-##--------------------------------------------------------
-##---------------------------------------------------------
 output$screenGO1 <- renderUI({
-  
+  print("output$screenGO1 <- renderUI")
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 radioButtons("sourceOfProtID", "Source of protein ID",
-                             choices = G_sourceOfProtID_Choices,
-                             selected = rv$widgets$go$sourceOfProtID_Choices)),
+               choices = G_sourceOfProtID_Choices,
+               selected = rv$widgets$go$sourceOfProtID_Choices)),
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 uiOutput("chooseSourceForProtID")),
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"),
-                            selected = rv$widgets$go$idFrom), width="200px"),
+              selectInput("idFrom", "Id From", choices = c("UNIPROT", "ENTREZID"),
+                          selected = rv$widgets$go$idFrom), width="200px"),
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
               modulePopoverUI("modulePopover_GenomeWide"),
               selectInput("Organism", NULL, choices = GetListInstalledOrgdDB(),
                           selected=rv$widgets$go$Organism), width="200px"),
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                selectInput("Ontology", "Ontology",choices = G_ontology_Choices,
-                            selected = rv$widgets$go$Ontology), width="150px")
+              selectInput("Ontology", "Ontology",choices = G_ontology_Choices,
+                          selected = rv$widgets$go$Ontology), width="150px")
     ),
   actionButton("mapProtein.GO.button","Map proteins IDs", class = actionBtnClass),
   uiOutput("warnDifferentSizeID"),
@@ -104,12 +100,15 @@ output$screenGO1 <- renderUI({
   br(), br(),
   uiOutput("GeneMappedRatio"),
   br(), br(),
-  uiOutput('Warning_nonIdentifiedProteins'),
+  if (nrow(pData(rv$current.obj))>153) p("The size of the table is too big to be exported with the buttons below (only the first 154 rows will be exported). It is advised to use the Export tool of Prostar."),
   DT::dataTableOutput("nonIdentifiedProteins", width = "80%")
   
 )
 
 })
+
+
+
 
 output$screenGO2 <- renderUI({
   
@@ -127,22 +126,24 @@ output$screenGO2 <- renderUI({
     incProgress(1/3, detail = 'Goup level 2')
     highchartOutput("GOplotGroup_level2",  width = "80%")
     incProgress(2/3, detail = 'Goup level 3')
-    highchartOutput("GOplotGroup_level3",  width = "80%")
-    incProgress(3/3, detail = 'Goup level 4')
-    highchartOutput("GOplotGroup_level4",  width = "80%")
+  highchartOutput("GOplotGroup_level3",  width = "80%")
+  incProgress(3/3, detail = 'Goup level 4')
+  highchartOutput("GOplotGroup_level4",  width = "80%")
   })
+  
 )
 })
 
+
+
 output$screenGO3 <- renderUI({
-  
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 modulePopoverUI("modulePopover_GOuniverse"),
                 radioButtons("universe", NULL, choices = G_universe_Choices,
                              selected = rv$widgets$go$universe)
-      ),
+                ),
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
                 uiOutput("resettableUniverseFile")),
   # selectInput("PAdjustMethod", "P Adjust Method",choices = G_pAdjustMethod_Choices),
@@ -160,11 +161,14 @@ output$screenGO3 <- renderUI({
     incProgress(1/3, detail = 'Dotplot')
     highchartOutput("GOdotplotEnrich", width = "80%")
   })
-  )
+)
 })
 
+
 output$screenGO4 <- renderUI({
+  
   DT::dataTableOutput("GO_resumeParams")
+  
 })
 
 
@@ -221,37 +225,41 @@ GetDataIndexForAnalysis <- reactive({
 
 output$chooseSourceForProtID <- renderUI({
     req(rv$current.obj)
-  req(rv$widgets$go$sourceOfProtID)
+    req(rv$widgets$go$sourceOfProtID)
     
-  if (rv$widgets$go$sourceOfProtID == "colInDataset"){
+    if (rv$widgets$go$sourceOfProtID == "colInDataset"){
         selectInput("UniprotIDCol", "Protein IDs",
                     choices = c("", colnames(Biobase::fData(rv$current.obj))),
                     selected = rv$widgets$go$UniprotIDCol)
     }
-  else  if (rv$widgets$go$sourceOfProtID == "extFile"){
-    uiOutput("resettableUniprotidFile")
-        
+    else  if (rv$widgets$go$sourceOfProtID == "extFile"){
+      uiOutput("resettableUniprotidFile")
     }
 })
 
 
 
+
+
+
+
+
 observeEvent(req(rv$widgets$go$UniprotIDCol),ignoreInit =  TRUE,{ 
-  if((rv$widgets$go$UniprotIDCol == "")) {  rv$widgets$go$ProtIDList <- return (NULL)}
-  else {
-    rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
+    if((rv$widgets$go$UniprotIDCol == "")) {  rv$widgets$go$ProtIDList <- return (NULL)}
+    else {
+        rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
     }
 })
 
 
 observeEvent(rv$widgets$go$UNIPROTID_File,ignoreInit =  TRUE,{ 
-  rv$widgets$go$ProtIDList <- read.table(rv$widgets$go$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
+    rv$widgets$go$ProtIDList <- read.table(rv$widgets$go$UNIPROTID_File$datapath, header = FALSE, stringsAsFactors = FALSE)$V1
 })
 
 
 output$warnDifferentSizeID <- renderUI({
-  req(rv$widgets$go$ProtIDList)
-  if (length(rv$widgets$go$ProtIDList) != nrow(rv$current.obj)){
+    req(rv$widgets$go$ProtIDList)
+     if (length(rv$widgets$go$ProtIDList) != nrow(rv$current.obj)){
         h4("Warning : the protein ID list has not the same number of entites as the dataset.")
         br()
         h4("Please select another list of ID")
@@ -261,35 +269,36 @@ output$warnDifferentSizeID <- renderUI({
 
 observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
   print("IN MAP button")
-  req(rv$widgets$go$UniprotIDCol)
-  rv$widgets$go$Organism
-  rv$widgets$go$idFrom
+    req(rv$widgets$go$UniprotIDCol)
+    rv$widgets$go$Organism
+    rv$widgets$go$idFrom
     
-  if(rv$widgets$go$UniprotIDCol == "") {  
-    print("toto")
-    rv$widgets$go$ProtIDList <- NULL
+    if(rv$widgets$go$UniprotIDCol == "") {  
+        print("toto")
+      rv$widgets$go$ProtIDList <- NULL
         return (NULL)}
     
     require(clusterProfiler)
     isolate({
-      rv$widgets$go$gene <- NULL
-      rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
-      index <- GetDataIndexForAnalysis()
+        rv$widgets$go$gene <- NULL
+        rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
+        index <- GetDataIndexForAnalysis()
         
         tryCatch({
-          rv$widgets$go$gene <- bitr(rv$widgets$go$ProtIDList[index], fromType=rv$widgets$go$idFrom, toType="ENTREZID", OrgDb=rv$widgets$go$Organism)
-          rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
-          rv$widgets$go$ratio <- 100*length(rv$widgets$go$proteinsNotMapped) / length(index)
-          
-          rvModProcess$moduleGODone[1] <- TRUE
-            }, warning = function(w) {
-              rv$widgets$go$gene <- bitr(rv$widgets$go$ProtIDList[index], fromType=rv$widgets$go$idFrom, toType="ENTREZID", OrgDb=rv$widgets$go$Organism)
-              rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
-              rv$widgets$go$ratio <- 100*length(rv$widgets$go$proteinsNotMapped) / length(index)
-              rvModProcess$moduleGODone[1] <- TRUE
+            
+             rv$widgets$go$gene <- bitr(rv$widgets$go$ProtIDList[index], fromType=rv$widgets$go$idFrom, toType="ENTREZID", OrgDb=rv$widgets$go$Organism)
+            rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
+            rv$widgets$go$ratio <- 100*length(rv$widgets$go$proteinsNotMapped) / length(index)
+            rvModProcess$moduleGODone[1] <- TRUE
+        }, warning = function(w) {
+            rv$widgets$go$gene <- bitr(rv$widgets$go$ProtIDList[index], fromType=rv$widgets$go$idFrom, toType="ENTREZID", OrgDb=rv$widgets$go$Organism)
+            rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
+            rv$widgets$go$ratio <- 100*length(rv$widgets$go$proteinsNotMapped) / length(index)
+            rvModProcess$moduleGODone[1] <- TRUE
+            
         }, error = function(e) {
             # shinyjs::info(paste("Perform GO enrichment",":",conditionMessage(e), sep=" "))
-          rv$widgets$go$ratio <- 100
+            rv$widgets$go$ratio <- 100
         }, finally = {    
         }
         )
@@ -302,40 +311,41 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
 ##' Reactive behavior : GO analysis of data
 ##' @author Samuel Wieczorek
 observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
-  rv$widgets$go$universe
-  rv$widgets$go$Organism
-  rv$widgets$go$Ontology
-  rv$widgets$go$pvalueCutoff
-  req(rv$widgets$go$ProtIDList)
-  rv$widgets$go$idFrom
-  rv$widgets$go$uniprotID
-  # req(rv$widgets$go$perform.GO.button)
+    rv$widgets$go$universe
+    rv$widgets$go$Organism
+    rv$widgets$go$Ontology
+    rv$widgets$go$pvalueCutoff
+    req(rv$widgets$go$ProtIDList)
+    rv$widgets$go$idFrom
+    rv$widgets$go$uniprotID
+   # req(rv$widgets$go$perform.GO.button)
   req(rv$widgets$go$ratio)
   
   print(rv$widgets$go$ratio)
-  if (rv$widgets$go$ratio == 100){return(NULL)}
-  
+    if (rv$widgets$go$ratio == 100){return(NULL)}
+    
     require(clusterProfiler)
     
   withProgress(message = '',detail = '', value = 0, {
     incProgress(0.2, detail = 'Get universe data')
+    
     if (rv$widgets$go$universe == "Entire dataset") {
-      rv$widgets$go$universeData  <- rv$widgets$go$ProtIDList
+        rv$widgets$go$universeData  <- rv$widgets$go$ProtIDList
     } else if (rv$widgets$go$universe == "Entire organism") {
-      rv$widgets$go$universeData = DAPAR::univ_AnnotDbPkg(rv$widgets$go$Organism)
-      rv$GO$universeData = DAPAR::univ_AnnotDbPkg(input$Organism)
+        rv$widgets$go$universeData = DAPAR::univ_AnnotDbPkg(rv$widgets$go$Organism)
     } else {
-      rv$widgets$go$universeData <- read.table(rv$widgets$go$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
+        rv$widgets$go$universeData <- read.table(rv$widgets$go$UniverseFile$datapath, header = FALSE, stringsAsFactors = FALSE)
     }
+    
     incProgress(0.4, detail = 'Get data to analyze')
     index <- GetDataIndexForAnalysis()
     incProgress(1, detail = 'Computing enrichment')
     rv$widgets$go$enrichGO_data <- enrich_GO(rv$widgets$go$ProtIDList[index],
-                                             idFrom = rv$widgets$go$idFrom, 
-                                             orgdb = rv$widgets$go$Organism, 
-                                             ont = rv$widgets$go$Ontology, 
-                                             pval = rv$widgets$go$pvalueCutoff, 
-                                             universe = rv$widgets$go$universeData )
+                                  idFrom = rv$widgets$go$idFrom, 
+                                  orgdb = rv$widgets$go$Organism, 
+                                  ont = rv$widgets$go$Ontology, 
+                                  pval = rv$widgets$go$pvalueCutoff, 
+                                  universe = rv$widgets$go$universeData )
   })
   rvModProcess$moduleGODone[3] <- TRUE
 })
@@ -345,18 +355,17 @@ observeEvent(input$perform.GO.button,ignoreInit =  TRUE,{
 
 
 observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
-  rv$widgets$go$Organism
-  rv$widgets$go$Ontology
-  req(rv$widgets$go$ProtIDList)
-  rv$widgets$go$uniprotID
-  rv$widgets$go$idFrom
-  rv$widgets$go$GO_level
-  req(rv$widgets$go$ratio)
-  
-  if (rv$widgets$go$ratio == 100){return(NULL)}
-  levelIndex <- sort(rv$widgets$go$GO_level)
-  
-  
+    rv$widgets$go$Organism
+    rv$widgets$go$Ontology
+    req(rv$widgets$go$ProtIDList)
+    rv$widgets$go$uniprotID
+    rv$widgets$go$idFrom
+    rv$widgets$go$GO_level
+    req(rv$widgets$go$ratio)
+    
+    if (rv$widgets$go$ratio == 100){return(NULL)}
+    levelIndex <- sort(rv$widgets$go$GO_level)
+    
     withProgress(message = '',detail = '', value = 0, {
       incProgress(1/(1+length(levelIndex)), detail = 'Get data for analysis')
       
@@ -365,11 +374,11 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
     for (i in 1:length(levelIndex)){
       incProgress(1/(1+i), detail = paste0('Building plot for level ', i))
       rv$widgets$go$groupGO_data[[i]] <- list(level = as.numeric(levelIndex[i]),
-                                              ggo_res = group_GO(rv$widgets$go$ProtIDList[index],
-                                                                 idFrom = rv$widgets$go$idFrom,
-                                                                 orgdb = rv$widgets$go$Organism,
-                                                                 ont=rv$widgets$go$Ontology,
-                                                                 level=as.numeric(levelIndex[i])))
+                                     ggo_res = group_GO(rv$widgets$go$ProtIDList[index],
+                                                        idFrom = rv$widgets$go$idFrom,
+                                                        orgdb = rv$widgets$go$Organism,
+                                                        ont=rv$widgets$go$Ontology,
+                                                        level=as.numeric(levelIndex[i])))
     }
     })
     rvModProcess$moduleGODone[2] <- TRUE
@@ -379,12 +388,12 @@ observeEvent(input$group.GO.perform.button, ignoreInit =  TRUE,{
 
 ##########################################
 GOplotGroup_level2 <- reactive({
-  req(rv$widgets$go$groupGO_data)
+    req(rv$widgets$go$groupGO_data)
     
     isolate({
-      if (length(rv$widgets$go$groupGO_data) >=1){
-        barplotGroupGO_HC(rv$widgets$go$groupGO_data[[1]]$ggo_res, 
-                          title = paste("Groups at level ", rv$widgets$go$groupGO_data[[1]]$level, sep=""))}
+        if (length(rv$widgets$go$groupGO_data) >=1){
+            barplotGroupGO_HC(rv$widgets$go$groupGO_data[[1]]$ggo_res, 
+                              title = paste("Groups at level ", rv$widgets$go$groupGO_data[[1]]$level, sep=""))}
     })
 })
 
@@ -396,11 +405,11 @@ output$GOplotGroup_level2 <- renderHighchart({
 
 ##########################################
 GOplotGroup_level3 <- reactive({
-  req(rv$widgets$go$groupGO_data)
+    req(rv$widgets$go$groupGO_data)
     
-  if ((length(rv$widgets$go$groupGO_data) < 2)){return(NULL)}
+    if ((length(rv$widgets$go$groupGO_data) < 2)){return(NULL)}
     isolate({
-      barplotGroupGO_HC(rv$widgets$go$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$widgets$go$groupGO_data[[2]]$level))
+        barplotGroupGO_HC(rv$widgets$go$groupGO_data[[2]]$ggo_res, title = paste("Groups at level ",  rv$widgets$go$groupGO_data[[2]]$level))
     })
 })
 
@@ -410,11 +419,11 @@ output$GOplotGroup_level3 <- renderHighchart({
 })
 
 GOplotGroup_level4 <- reactive({
-  req(rv$widgets$go$groupGO_data)
+    req(rv$widgets$go$groupGO_data)
     
-  if ((length(rv$widgets$go$groupGO_data) != 3)){return(NULL)}
+    if ((length(rv$widgets$go$groupGO_data) != 3)){return(NULL)}
     isolate({
-      barplotGroupGO_HC(rv$widgets$go$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$widgets$go$groupGO_data[[3]]$level))
+            barplotGroupGO_HC(rv$widgets$go$groupGO_data[[3]]$ggo_res, title = paste("Groups at level ",  rv$widgets$go$groupGO_data[[3]]$level))
     })
 })
 
@@ -424,8 +433,8 @@ output$GOplotGroup_level4 <- renderHighchart({
 })
 
 GObarplotEnrich <- reactive({
-  req(rv$widgets$go$enrichGO_data)
-  barplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
+    req(rv$widgets$go$enrichGO_data)
+     barplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
    
 })
 
@@ -435,8 +444,9 @@ output$GObarplotEnrich <- renderHighchart({
 })
 
 GOdotplotEnrich <- reactive({
-  req(rv$widgets$go$enrichGO_data)
-  scatterplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
+    req(rv$widgets$go$enrichGO_data)
+    
+    scatterplotEnrichGO_HC(rv$widgets$go$enrichGO_data)
 })
 
 output$GOdotplotEnrich <- renderHighchart({
@@ -445,18 +455,19 @@ output$GOdotplotEnrich <- renderHighchart({
 })
 
 
-output$GODatatable <- renderDataTable({
-  req(rv$widgets$go$enrichGO_data)
-  req(rv$widgets$go$groupGO_data)
-  
-  dt <- DT::datatable( as.data.frame(rv$widgets$go$groupGO_data@result),
+output$GODatatable <- renderDataTable(server=TRUE,{
+    req(rv$widgets$go$enrichGO_data)
+    req(rv$widgets$go$groupGO_data)
+    
+    
+    dt <- DT::datatable( as.data.frame(rv$widgets$go$groupGO_data@result),
                      extensions = c('Scroller', 'Buttons'),
-                     options = list(dom = 'Bfrtip',
-                                    buttons = list('copy',
+                     options = list(buttons = list('copy',
                                                    list(
                                                      extend = 'csv',
                                                      filename = 'GO_datatable'
                                                    ),'print'),
+                                    dom='Bfrtip',
                                     initComplete = initComplete(),
                                     displayLength = 20,
                                     deferRender = TRUE,
@@ -473,7 +484,7 @@ output$GODatatable <- renderDataTable({
 
 
 output$GeneMappedRatio <- renderUI({
-  req(rv$widgets$go$ProtIDList)
+    req(rv$widgets$go$ProtIDList)
     req(rv$current.obj)
     req(rv$widgets$go$gene)
     rv$widgets$go$idFrom
@@ -486,9 +497,9 @@ output$GeneMappedRatio <- renderUI({
     nProtTotal <-length(index)
     
     tagList(
-      h5(paste(round(rv$widgets$go$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
-      helpText("These proteins are listed in the table below."),
-      if (rv$widgets$go$ratio == 100){
+        h5(paste(round(rv$widgets$go$ratio, digits=2), " % of the proteins have not been mapped (",nProtMapped," / ",nProtTotal,").", sep="")),
+        helpText("These proteins are listed in the table below."),
+        if (rv$widgets$go$ratio == 100){
             h3(paste("Tip: You should check the organism which has been selected.", sep=""))
         }
     )
@@ -506,36 +517,36 @@ output$Warning_nonIdentifiedProteins <- renderUI({
 
 GetDataFor_nonIdentifiedProteins <- reactive({
   req(rv$widgets$go$ProtIDList)
-  req(rv$current.obj)
-  req(rv$widgets$go$gene)
-  rv$widgets$go$idFrom
-  
-  index <- GetDataIndexForAnalysis()
-  rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
-  data <- as.data.frame(fData(rv$current.obj)[index[rv$widgets$go$proteinsNotMapped],])
-  
-  data
+req(rv$current.obj)
+req(rv$widgets$go$gene)
+rv$widgets$go$idFrom
+
+index <- GetDataIndexForAnalysis()
+rv$widgets$go$proteinsNotMapped <- which((rv$widgets$go$ProtIDList[index] %in% rv$widgets$go$gene[,rv$widgets$go$idFrom]) == FALSE)
+data <- as.data.frame(fData(rv$current.obj)[index[rv$widgets$go$proteinsNotMapped],])
+
+data
 }
 )
 
 output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
-  req(rv$widgets$go$ProtIDList)
+    req(rv$widgets$go$ProtIDList)
     req(rv$current.obj)
     req(rv$widgets$go$gene)
     rv$widgets$go$idFrom
     
+    i
     data <- GetDataFor_nonIdentifiedProteins()
-    
     if( nrow(data) != 0){
       
-      dt <- datatable( data,
+      dt <- DT::datatable( data,
                        extensions = c('Scroller', 'Buttons'),
-                       options = list(dom = 'Bfrtip',
-                                      buttons = list('copy',
+                       options = list(buttons = list('copy',
                                                      list(
                                                        extend = 'csv',
                                                        filename = 'nonIdentifiedProteins'
                                                      ),'print'),
+                                      dom='Bfrtip',
                                       initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
@@ -543,7 +554,8 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
                                       scrollX = 400,
                                       scrollY = 600,
                                       scroller = TRUE,
-                                      ordering=FALSE)
+                                      ordering=FALSE,
+                                      server = TRUE)
       )
       
       dt
@@ -564,7 +576,6 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
 #     
 #     radioButtons("whichGO2Save", "GO analysis to save", choices = .choices)
 # })
-
 
 
 ## Validation of the GO analysis
@@ -745,21 +756,23 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
 # })
 
 
-output$GO_resumeParams <- DT::renderDataTable({
+
+
+output$GO_resumeParams <- DT::renderDataTable(server=TRUE,{
   req(c(rv$widgets$go$sourceOfProtID,
         rv$widgets$go$idFrom,
         rv$widgets$go$Organism,
         rv$widgets$go$Ontology))
   
-  
   if (length(rv$widgets$go$sourceOfProtID)==0){return(NULL)}
+  
+  
   rvModProcess$moduleGODone[4] <- TRUE
   
   l.params <- data.frame(param="sourceOfProtID", value=rv$widgets$go$sourceOfProtID)
   l.params <- rbind(l.params,data.frame(param="idFrom", value=as.character(rv$widgets$go$idFrom)))
   l.params <- rbind(l.params,data.frame(param="Organism", value=rv$widgets$go$Organism))
   l.params <- rbind(l.params,data.frame(param="Ontology", value=rv$widgets$go$Ontology))
-  
   
   DT::datatable(l.params,
                 escape = FALSE,
@@ -771,7 +784,8 @@ output$GO_resumeParams <- DT::renderDataTable({
                                                 extend = 'csv',
                                                 filename = 'GO_paramsUsed'
                                               ),'print'),
-                               dom = 'Brt',
+                               dom='Brt',
+                               buttons = c('copy','excel', 'pdf', 'print'),
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = FALSE)
   )
