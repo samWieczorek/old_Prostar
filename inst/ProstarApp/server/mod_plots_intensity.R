@@ -33,8 +33,7 @@ mod_plots_intensity_ui <- function(id){
       ),
       tags$div(style="display:inline-block; vertical-align: middle;",
                selectInput(ns("choosePlot"), "Choose plot", 
-                           choices=c( "violinplot"="violinplot",
-                                      "boxplot"="boxplot"), 
+                           choices=setNames( c("violinplot", "boxplot"),c('violinplot', "boxplot")), 
                            width='100px'),
                uiOutput(ns('slave_tracking_ui'))
       )

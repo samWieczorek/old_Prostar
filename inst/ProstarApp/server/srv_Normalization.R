@@ -124,7 +124,7 @@ output$screenNormalization1 <- renderUI({
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
           hidden(selectInput("normalization.type", "Normalization type",  
-                             choices = c("overall", "within conditions"), 
+                             choices = setNames( c("overall", "within conditions"),c("overall", "within conditions")), 
                              selected = rv$widgets$normalization$type,
                              width='150px'))
         ),
@@ -137,8 +137,9 @@ output$screenNormalization1 <- renderUI({
         ),
         hidden(
           div(id = 'DivMasterProtSelection',
-              checkboxInput("SyncForNorm", "Synchronise with selection above", value=FALSE),
-              mod_plots_tracking_ui('master_tracking')
+              style="display:inline-block; vertical-align: middle; padding-right: 20px;",
+              mod_plots_tracking_ui('master_tracking'),
+              checkboxInput("SyncForNorm", "Synchronise with selection above", value=FALSE)
               )
         ),
         
@@ -245,6 +246,7 @@ observeEvent(rv$widgets$normalization$method,{
   #req(rv$widgets$normalization$method)
   if (rv$widgets$normalization$method == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
+    return(NULL)
   }
   
   shinyjs::toggle("perform.normalization", condition=rv$widgets$normalization$method != "None")
@@ -252,11 +254,11 @@ observeEvent(rv$widgets$normalization$method,{
   
   shinyjs::toggle("normalization.type", 
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
+browser()
 
   cond <- rv$current.obj@experimentData@other$typeOfData == 'peptide'
-  trackAvailable <- rv.norm$widgets$normalization$method %in% normalizeMethodsWithTracking.dapar()
+  trackAvailable <- rv$widgets$normalization$method %in% normalizeMethodsWithTracking.dapar()
   shinyjs::toggle('DivMasterProtSelection', condition= cond && trackAvailable)
-  shinyjs::toggle('SyncForNorm', condition= cond && trackAvailable)
 })
 
 
