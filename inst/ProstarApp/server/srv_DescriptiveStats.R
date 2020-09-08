@@ -1,7 +1,7 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
-callModule(missingValuesPlots, "MVPlots_DS", 
+callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
            palette = reactive({rv$PlotParams$paletteConditions})
 )
@@ -122,7 +122,7 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
   tagList(
     helpText("These barplots display the distribution of missing values in the dataset."),
-    missingValuesPlotsUI("MVPlots_DS")
+    mod_plots_mv_histo_ui("MVPlots_DS")
   )
 })
 
@@ -512,13 +512,14 @@ corrMatrix <- reactive({
   
   req(rv$current.obj)
   input$expGradientRate
+  input$showDataLabels
   
   gradient <- NULL
   if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
   else{gradient <- input$expGradientRate }
   
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showDataLabels= input$showDataLabels)
     rv$tempplot$corrMatrix
   })
   

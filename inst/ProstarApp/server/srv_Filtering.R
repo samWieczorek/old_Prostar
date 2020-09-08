@@ -55,7 +55,7 @@ resetModuleFiltering <- reactive({
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         ),
       hr(),
-      missingValuesPlotsUI("MVPlots_filtering"),
+     mod_plots_mv_histo_ui("MVPlots_filtering"),
       uiOutput("ObserverMVFilteringDone")
       )
 
@@ -65,7 +65,10 @@ resetModuleFiltering <- reactive({
 })
 
 
-
+callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
+           data = reactive({rv$current.obj}),
+           palette = reactive({unique(rv$PlotParams$paletteConditions)})
+)
 
 
 

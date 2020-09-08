@@ -30,6 +30,7 @@ tabPanel("Descriptive statistics",
                      
                      tabPanel("Corr. matrix",
                               value="DS_tabCorrMatrix",
+                              checkboxInput('showDataLabels', 'Show labels', value=FALSE),
                               uiOutput("plotsCorM")
                              ),
                      

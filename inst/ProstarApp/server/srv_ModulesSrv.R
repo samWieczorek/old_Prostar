@@ -523,51 +523,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data, palette) {
-  
-  output$histo_MV <- renderHighchart({
-    data()
-    
-    rv$PlotParams$paletteConditions
-    tmp <- NULL
-    #isolate({
-    pattern <- paste0(GetCurrentObjName(),".MVplot1")
-    tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
-    #future(createPNGFromWidget(tmp,pattern))
-    #  })
-    tmp
-  })
-  
-  
-  
-  output$histo_MV_per_lines <- renderHighchart({
-    data()
-    tmp <- NULL
-    isolate({
-      pattern <- paste0(GetCurrentObjName(),".MVplot2")
-      tmp <- 
-        wrapper.mvPerLinesHisto_HC(data(), 
-                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-      #future(createPNGFromWidget(tmp,pattern))
-    })
-    tmp
-  })
-  
-  
-  
-  output$histo_MV_per_lines_per_conditions <- renderHighchart({
-    data()
-    palette()
-    tmp <- NULL
-    isolate({
-      pattern <- paste0(GetCurrentObjName(),".MVplot2")
-      tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                    palette=palette())
-      #future(createPNGFromWidget(tmp,pattern))
-    })
-    tmp
-  })
-}
+
 
 
 #------------------------------------------------------------
