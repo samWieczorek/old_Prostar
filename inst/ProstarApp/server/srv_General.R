@@ -436,6 +436,8 @@ resetModuleProcess <- function(moduleName){
   switch (moduleName,
           Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
                                                    seuilNA = 0,
+                                                   seuilNA_percent = 0,
+                                                   val_vs_percent = 'Value',
                                                    DT_filterSummary = data.frame(Filter=NULL, 
                                                                                  Prefix=NULL,
                                                                                  nbDeleted=NULL, 
@@ -450,6 +452,8 @@ resetModuleProcess <- function(moduleName){
           
           updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
           updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
+          updateNumericInput(session, "seuilNA_percent", value = rv$widgets$filtering$seuilNA_percent)
+          updateRadioButtons(session, "val_vs_percent", selected = rv$widgets$filtering$val_vs_percent)
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
                                               stepsNames = c("MV filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
