@@ -13,6 +13,8 @@ resetModuleFiltering <- reactive({
 
   rv$widgets$filtering$ChooseFilters <- "None"
   rv$widgets$filtering$seuilNA <- 0
+  rv$widgets$filtering$seuilNA_percentage <- 0
+  rv$widgets$filtering$val_vs_percent <- 'Value'
   rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL,
                                 Prefix=NULL,
                                 nbDeleted=NULL,
@@ -35,6 +37,16 @@ resetModuleFiltering <- reactive({
 })
   
 
+
+
+
+
+#########################################################################################
+##
+##                    SCREEN 2
+## 
+###########################################################################################
+
   output$screenFiltering1 <- renderUI({
 
   isolate({
@@ -55,7 +67,7 @@ resetModuleFiltering <- reactive({
                   actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
         ),
       hr(),
-      missingValuesPlotsUI("MVPlots_filtering"),
+     mod_plots_mv_histo_ui("MVPlots_filtering"),
       uiOutput("ObserverMVFilteringDone")
       )
 
@@ -65,8 +77,150 @@ resetModuleFiltering <- reactive({
 })
 
 
+callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
+           data = reactive({rv$current.obj}),
+           palette = reactive({unique(rv$PlotParams$paletteConditions)})
+)
 
 
+
+
+#########################################################
+##' Show the widget (slider input) for filtering
+##' @author Samuel Wieczorek
+output$seuilNADelete <- renderUI({ 
+  req(rv$widgets$filtering$ChooseFilters)
+  
+  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {
+    return(NULL)   
+  }
+  
+  tagList(
+    shinyjs::useShinyjs(),
+    radioButtons('val_vs_percent', 'Value / percentage', 
+                 choices = c('Value'='Value', 'Percentage'='Percentage'),
+                 selected = rv$widgets$filtering$val_vs_percent
+                 ),
+    
+    uiOutput('keepVal_ui'),
+    uiOutput('keepVal_percent_ui')
+  )
+})
+
+
+
+output$keepVal_ui <- renderUI({
+  req(rv$widgets$filtering$val_vs_percent)
+if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
+
+  tagList(
+    modulePopoverUI("modulePopover_keepVal"),
+  selectInput("seuilNA", NULL,
+              choices =  getListNbValuesInLines(rv$current.obj, type=rv$widgets$filtering$ChooseFilters),
+              selected = rv$widgets$filtering$seuilNA,
+              width='150px')
+  )
+})
+
+output$keepVal_percent_ui <- renderUI({
+  req(rv$widgets$filtering$val_vs_percent)
+  if (rv$widgets$filtering$val_vs_percent != 'Percentage') {return(NULL)}
+  
+  tagList(
+  modulePopoverUI("modulePopover_keepVal_percent"),
+  numericInput("seuilNA_percent", NULL,
+               min = 0,
+               max = 100,
+               value = rv$widgets$filtering$seuilNA_percent,
+               width='150px')
+  )
+})
+
+
+observeEvent(input$val_vs_percent, {
+  
+  rv$widgets$filtering$val_vs_percent <- input$val_vs_percent
+  #shinyjs::toggle('keepVal', condition = rv$widgets$filtering$val_vs_percent == 'Value')
+  #shinyjs::toggle('keepVal_percent', condition = rv$widgets$filtering$val_vs_percent == 'Percentage')
+})
+
+
+
+observeEvent(input$ChooseFilters,{
+  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
+})
+
+observeEvent(input$seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
+  rv$widgets$filtering$seuilNA <- input$seuilNA
+})
+
+observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
+  rv$widgets$filtering$seuilNA_percent <- input$seuilNA_percent
+})
+
+
+##
+## Perform missing values filtering
+observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
+  print("In : observeEvent(input$perform.filtering.MV")
+  rv$widgets$filtering$ChooseFilters
+  rv$widgets$filtering$seuilNA
+  rv$widgets$filtering$seuilNA_percent
+  rv$widgets$filtering$val_vs_percent
+  
+ 
+  if (rv$widgets$filtering$ChooseFilters == gFilterNone){
+    #rv$current.obj <- rv$dataset[[input$datasets]]
+  } else if (rv$widgets$filtering$ChooseFilters == 'EmptyLines'){
+    keepThat <- mvFilterGetIndices(rv$current.obj,
+                                   rv$widgets$filtering$ChooseFilters,
+                                   as.integer(rv$widgets$filtering$seuilNA))
+    if (!is.null(keepThat))
+    {
+      rv$deleted.mvLines <- rv$current.obj[-keepThat]
+      rv$current.obj <- mvFilterFromIndices(rv$current.obj,
+                                            keepThat,
+                                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
+    }
+    
+    }
+  else {
+    switch(rv$widgets$filtering$val_vs_percent,
+           Value = {
+                      keepThat <- mvFilterGetIndices(rv$current.obj,
+                                   rv$widgets$filtering$ChooseFilters,
+                                   as.integer(rv$widgets$filtering$seuilNA))
+                      if (!is.null(keepThat))
+                            {
+                             rv$deleted.mvLines <- rv$current.obj[-keepThat]
+                            rv$current.obj <- mvFilterFromIndices(rv$current.obj,
+                                            keepThat,
+                                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
+                            }
+                    },
+           Percentage = {
+             rv$current.obj <- filterByProportion(obj = rv$current.obj,
+                                                  intensities_proportion = rv$widgets$filtering$seuilNA_percent,
+                                                  mode = rv$widgets$filtering$ChooseFilters
+                                                    )
+             
+           }
+  
+    )
+  }
+  rvModProcess$moduleFilteringDone[1] <- TRUE
+  #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
+  #updateSelectInput(session, "seuilNA", selected = input$seuilNA)
+})
+
+
+
+
+#########################################################################################
+##
+##                    SCREEN 2
+## 
+###########################################################################################
 
 
 
@@ -97,6 +251,40 @@ output$screenFiltering2 <- renderUI({
 })
 
 
+
+##  ---------------------------------------------------------
+## perform symbolic filter
+## ----------------------------------------------------------
+observeEvent(input$actionButtonFilter,{
+  req(input$symFilter_cname)
+  temp <- rv$current.obj
+  
+  if (input$symFilter_cname=="None"){return()}
+  cname <- input$symFilter_cname
+  tagName <- input$symFilter_tagName
+  res <- StringBasedFiltering2(temp,cname, input$symFilter_tagName)
+  nbDeleted <- 0
+  
+  if (!is.null(res[["deleted"]])){
+    rv$deleted.stringBased <- rbindMSnset(rv$deleted.stringBased, res[["deleted"]])
+    nbDeleted <-  nrow(res[["deleted"]])
+  } else {
+    nbDeleted <-  0
+  }
+  rv$current.obj <- res[["obj"]]
+  rvModProcess$moduleFilteringDone[2] <- TRUE
+  
+  df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
+  rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
+})
+
+
+
+#########################################################################################
+##
+##                    SCREEN 3
+## 
+###########################################################################################
 
 output$screenFiltering3 <- renderUI({
   req(rv$current.obj)
@@ -138,6 +326,14 @@ output$screenFiltering3 <- renderUI({
 })
 
 
+
+
+#########################################################################################
+##
+##                    SCREEN 4
+## 
+###########################################################################################
+
 output$screenFiltering4 <- renderUI({
 
   tagList(
@@ -162,6 +358,13 @@ output$screenFiltering4 <- renderUI({
 
 
 
+
+#########################################################################################
+##
+##                    SCREEN 5
+## 
+###########################################################################################
+
 output$screenFiltering5 <- renderUI({
 
   tagList(
@@ -170,60 +373,6 @@ output$screenFiltering5 <- renderUI({
 })
 
 
-##  ---------------------------------------------------------
-## perform symbolic filter
-## ----------------------------------------------------------
-observeEvent(input$actionButtonFilter,{
-  req(input$symFilter_cname)
-  temp <- rv$current.obj
-
-  if (input$symFilter_cname=="None"){return()}
-  cname <- input$symFilter_cname
-  tagName <- input$symFilter_tagName
-  res <- StringBasedFiltering2(temp,cname, input$symFilter_tagName)
-  nbDeleted <- 0
-
-  if (!is.null(res[["deleted"]])){
-    rv$deleted.stringBased <- rbindMSnset(rv$deleted.stringBased, res[["deleted"]])
-    nbDeleted <-  nrow(res[["deleted"]])
-  } else {
-    nbDeleted <-  0
-  }
-  rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[2] <- TRUE
-
-  df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
-  rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
-})
-
-
-
-##
-## Perform missing values filtering
-observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
-  print("In : observeEvent(input$perform.filtering.MV")
-  rv$widgets$filtering$ChooseFilters
-  input$seuilNA
-
-  if (rv$widgets$filtering$ChooseFilters == gFilterNone){
-    #rv$current.obj <- rv$dataset[[input$datasets]]
-  } else {
-    keepThat <- mvFilterGetIndices(rv$current.obj,
-                                   rv$widgets$filtering$ChooseFilters,
-                                   as.integer(input$seuilNA))
-    if (!is.null(keepThat))
-    {
-      rv$deleted.mvLines <- rv$current.obj[-keepThat]
-      rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-                            keepThat,
-                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
-
-      rvModProcess$moduleFilteringDone[1] <- TRUE
-    }
-  }
-  #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-  #updateSelectInput(session, "seuilNA", selected = input$seuilNA)
-})
 
 
 
@@ -323,14 +472,6 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
 })
 
 
-
-observeEvent(input$ChooseFilters,{
-  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
-})
-
-observeEvent(input$seuilNA, ignoreNULL = TRUE,ignoreInit = TRUE, {
-  rv$widgets$filtering$seuilNA <- input$seuilNA
-})
 
 
 output$ObserverNumericalFilteringDone <- renderUI({
@@ -510,26 +651,6 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
     }
  # }
     dt
-  
-})
-
-
-#########################################################
-##' Show the widget (slider input) for filtering
-##' @author Samuel Wieczorek
-output$seuilNADelete <- renderUI({ 
-  req(rv$widgets$filtering$ChooseFilters)
-  
-  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {return(NULL)   }
-  print(rv$current.obj)
-  choix <- getListNbValuesInLines(rv$current.obj, type=rv$widgets$filtering$ChooseFilters)
-  tagList(
-    modulePopoverUI("modulePopover_keepVal"),
-    
-    selectInput("seuilNA", NULL,
-                choices = choix,
-                selected = rv$widgets$filtering$seuilNA,
-                width='150px'))
   
 })
 

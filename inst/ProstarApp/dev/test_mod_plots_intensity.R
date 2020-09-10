@@ -4,8 +4,8 @@ library(MSnbase)
 
 
 
-source(file.path('../inst/ProstarApp/server', 'mod_plots_tracking.R'), local=TRUE)$value
-source(file.path("../inst/ProstarApp/server","mod_plots_intensity.R"), local=TRUE)$value
+source(file.path("../server", "mod_plots_tracking.R"), local=TRUE)$value
+source(file.path("../server","mod_plots_intensity.R"), local=TRUE)$value
 
 
 

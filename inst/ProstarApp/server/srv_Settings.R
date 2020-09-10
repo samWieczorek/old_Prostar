@@ -204,6 +204,9 @@ GetExamplePalette <- reactive({
   pal
 })
 
+
+
+
 observeEvent(input$typeOfPalette,{rv$typeOfPalette <- input$typeOfPalette})
 
 output$customPaletteUI <- renderUI({

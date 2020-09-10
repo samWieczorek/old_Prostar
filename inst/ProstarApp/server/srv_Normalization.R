@@ -8,7 +8,8 @@
 
 callModule(moduleDensityplot,"densityPlot_Norm",
            data=reactive({rv$current.obj}))
-
+callModule(moduleBoxplot,"boxPlot_Norm",
+           data=reactive({rv$current.obj}))
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
@@ -60,7 +61,7 @@ rv.norm$selectProt <- callModule(mod_plots_tracking_server,
 
 
 rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
-                                       "plots_boxplots",
+                                       "boxPlot_Norm",
                                        dataIn = reactive({rv$current.obj}),
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
@@ -139,7 +140,7 @@ output$screenNormalization1 <- renderUI({
               style="display:inline-block; vertical-align: middle; padding-right: 20px;",
               mod_plots_tracking_ui('master_tracking'),
               checkboxInput("SyncForNorm", "Synchronise with selection above", value=FALSE)
-              )
+          )
         ),
         
         div(
@@ -153,10 +154,10 @@ output$screenNormalization1 <- renderUI({
         column(width=4, moduleDensityplotUI("densityPlot_Norm")),
         column(width=4,
                withProgress(message = 'Building plot',detail = '', value = 0, {
-                 mod_plots_intensity_ui("plots_boxplots")
+                 mod_plots_intensity_ui("boxPlot_Norm")
                })),
         column(width=4,withProgress(message = 'Building plot',detail = '', value = 0, {
-          imageOutput("viewComparisonNorm_DS")
+          highchartOutput("viewComparisonNorm_HC")
         })
         )
       )
@@ -253,10 +254,8 @@ observeEvent(rv$widgets$normalization$method,{
   
   shinyjs::toggle("normalization.type", 
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
-  #browser()
-
-  cond <- rv$current.obj@experimentData@other$typeOfData == 'peptide'
- # browser()
+  
+  cond <- rv$current.obj@experimentData@other$typeOfData == 'protein'
   trackAvailable <- rv$widgets$normalization$method %in% normalizeMethods.dapar(withTracking=TRUE)
   shinyjs::toggle('DivMasterProtSelection', condition= cond && trackAvailable)
 })
@@ -387,79 +386,102 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 
 #######################
 
-viewComparisonNorm2 <- reactive({
-  rv$PlotParams$paletteConditions
-  leg <- NULL
-  grp <- NULL
-  
-  labelsNorm <- NULL
-  labelsToShowNorm <- NULL
-  gToColorNorm <- NULL
-  
-  labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-  
-  
-  
-  if (is.null(rv$whichGroup2Color) 
-      || (rv$whichGroup2Color == "Condition")){
-    labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-  }else {
-    labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-                        Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-                        Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-                        Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-                        sep= "_")
-  }
-  
-  
-  if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
-    obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-    obj2 <- rv$dataset[[input$datasets]]
-  }
-  else {
-    obj1 <-rv$dataset[[input$datasets]]
-    obj2 <- rv$current.obj
-    
-  }
-  
-  wrapper.compareNormalizationD(obj1, obj2,
-                                labelsNorm,
-                                as.numeric(labelsToShowNorm),
-                                palette = rv$PlotParams$paletteConditions)
-  
-})
+# viewComparisonNorm2 <- reactive({
+#   rv$PlotParams$paletteConditions
+#   leg <- NULL
+#   grp <- NULL
+#   
+#   labelsNorm <- NULL
+#   labelsToShowNorm <- NULL
+#   gToColorNorm <- NULL
+#   
+#   labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+#   
+#   
+#   
+#   if (is.null(rv$whichGroup2Color) 
+#       || (rv$whichGroup2Color == "Condition")){
+#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
+#   }else {
+#     labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
+#                         Biobase::pData(rv$current.obj)[,"Bio.Rep"],
+#                         Biobase::pData(rv$current.obj)[,"Tech.Rep"],
+#                         Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
+#                         sep= "_")
+#   }
+#   
+#   
+#   if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
+#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+#     obj2 <- rv$dataset[[input$datasets]]
+#   }
+#   else {
+#     obj1 <-rv$dataset[[input$datasets]]
+#     obj2 <- rv$current.obj
+#     
+#   }
+#   
+#   wrapper.compareNormalizationD(obj1, obj2,
+#                                 labelsNorm,
+#                                 as.numeric(labelsToShowNorm),
+#                                 palette = rv$PlotParams$paletteConditions)
+#   
+# })
+# 
 
 
+# viewComparisonNorm <- reactive({
+#   rv$PlotParams$paletteConditions
+#   req(rv$current.obj)
+#   
+#   leg <- NULL
+#   grp <- NULL
+#   
+#   labelsNorm <- NULL
+#   labelsToShowNorm <- NULL
+#   gToColorNorm <- NULL
+#   if (is.null(input$lab2Show)) { 
+#     labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
+#   }
+#   else { labelsToShowNorm <- input$lab2Show}
+#   
+#   if (is.null(rv$whichGroup2Color)){
+#     gToColorNorm <- "Condition"
+#   }else{gToColorNorm <- rv$whichGroup2Color}
+#   
+#   
+#   if (is.null(rv$whichGroup2Color) 
+#       || (rv$whichGroup2Color == "Condition")){
+#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
+#   }else {
+#     labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
+#     names(labelsNorm)<- NULL
+#     labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
+#   }
+#   
+#   
+#   dname <- paste0("Normalized.", rv$typeOfDataset)
+#   if (input$datasets == dname){
+#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
+#     obj2 <- rv$dataset[[input$datasets]]
+#   }
+#   else {
+#     obj1 <-rv$dataset[[input$datasets]]
+#     obj2 <- rv$current.obj
+#     
+#   }
+#   
+#   wrapper.compareNormalizationD(obj1, obj2,
+#                                 labelsNorm,
+#                                 as.numeric(labelsToShowNorm),
+#                                 palette = rv$PlotParams$paletteConditions)
+#   
+# })
 
-viewComparisonNorm <- reactive({
+
+output$viewComparisonNorm_HC <- renderHighchart({
   rv$PlotParams$paletteConditions
   req(rv$current.obj)
-  
-  leg <- NULL
-  grp <- NULL
-  
-  labelsNorm <- NULL
-  labelsToShowNorm <- NULL
-  gToColorNorm <- NULL
-  if (is.null(input$lab2Show)) { 
-    labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-  }
-  else { labelsToShowNorm <- input$lab2Show}
-  
-  if (is.null(rv$whichGroup2Color)){
-    gToColorNorm <- "Condition"
-  }else{gToColorNorm <- rv$whichGroup2Color}
-  
-  
-  if (is.null(rv$whichGroup2Color) 
-      || (rv$whichGroup2Color == "Condition")){
-    labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-  }else {
-    labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
-    names(labelsNorm)<- NULL
-    labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
-  }
-  
   
   dname <- paste0("Normalized.", rv$typeOfDataset)
   if (input$datasets == dname){
@@ -471,27 +493,28 @@ viewComparisonNorm <- reactive({
     obj2 <- rv$current.obj
     
   }
-  
-  wrapper.compareNormalizationD(obj1, obj2,
-                                labelsNorm,
-                                as.numeric(labelsToShowNorm),
-                                palette = rv$PlotParams$paletteConditions)
-  
+  browser() 
+  compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
+                           qDataAfter = Biobase::exprs(obj2),
+                           conds = Biobase::pData(obj1)$Condition,
+                           palette = unique(rv$PlotParams$paletteConditions),
+                           subset.view = NULL
+  )
 })
 
 #######################
-output$viewComparisonNorm_DS<- renderImage({
-  
-  #req(rv$PCA_axes)
-  # req(rv$res.pca)
-  
-  outfile <- tempfile(fileext='.png')
-  # Generate a png
-  png(outfile)
-  viewComparisonNorm()
-  dev.off()
-  
-  # Return a list
-  list(src = outfile,
-       alt = "This is alternate text")
-}, deleteFile = FALSE)
+# output$viewComparisonNorm_DS<- renderImage({
+#   
+#   #req(rv$PCA_axes)
+#   # req(rv$res.pca)
+#   
+#   outfile <- tempfile(fileext='.png')
+#   # Generate a png
+#   png(outfile)
+#   viewComparisonNorm()
+#   dev.off()
+#   
+#   # Return a list
+#   list(src = outfile,
+#        alt = "This is alternate text")
+# }, deleteFile = FALSE)
