@@ -493,7 +493,7 @@ output$viewComparisonNorm_HC <- renderHighchart({
     obj2 <- rv$current.obj
     
   }
-  browser() 
+
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
                            conds = Biobase::pData(obj1)$Condition,

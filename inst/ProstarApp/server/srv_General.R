@@ -1335,7 +1335,7 @@ GetBioconductorVersions <- reactive({
 GetLocalVersions <- reactive({
   local.version <- list()
   #loc.pkgs <-c("Prostar.loc", "DAPAR.loc", "DAPARdata.loc")
-  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar2","Version"],
+  local.version <- list(Prostar = installed.packages(lib.loc=Prostar.loc)["Prostar","Version"],
                         DAPAR = installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"],
                         DAPARdata = installed.packages(lib.loc=DAPARdata.loc)["DAPARdata","Version"])
   
