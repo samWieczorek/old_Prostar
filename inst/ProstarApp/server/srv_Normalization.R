@@ -8,8 +8,7 @@
 
 callModule(moduleDensityplot,"densityPlot_Norm",
            data=reactive({rv$current.obj}))
-callModule(moduleBoxplot,"boxPlot_Norm",
-           data=reactive({rv$current.obj}))
+
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
@@ -61,7 +60,7 @@ rv.norm$selectProt <- callModule(mod_plots_tracking_server,
 
 
 rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
-                                       "boxPlot_Norm",
+                                       "plots_boxplots",
                                        dataIn = reactive({rv$current.obj}),
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
@@ -154,7 +153,7 @@ output$screenNormalization1 <- renderUI({
         column(width=4, moduleDensityplotUI("densityPlot_Norm")),
         column(width=4,
                withProgress(message = 'Building plot',detail = '', value = 0, {
-                 mod_plots_intensity_ui("boxPlot_Norm")
+                 mod_plots_intensity_ui("plots_boxplots")
                })),
         column(width=4,withProgress(message = 'Building plot',detail = '', value = 0, {
           imageOutput("viewComparisonNorm_DS")
@@ -254,10 +253,11 @@ observeEvent(rv$widgets$normalization$method,{
   
   shinyjs::toggle("normalization.type", 
                   condition=( rv$widgets$normalization$method %in% c("QuantileCentering", "MeanCentering", "SumByColumns", "LOESS", "vsn")))
-browser()
+  #browser()
 
   cond <- rv$current.obj@experimentData@other$typeOfData == 'peptide'
-  trackAvailable <- rv$widgets$normalization$method %in% normalizeMethodsWithTracking.dapar()
+ # browser()
+  trackAvailable <- rv$widgets$normalization$method %in% normalizeMethods.dapar(withTracking=TRUE)
   shinyjs::toggle('DivMasterProtSelection', condition= cond && trackAvailable)
 })
 

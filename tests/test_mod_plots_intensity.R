@@ -20,7 +20,8 @@ ui <- fluidPage(
 server <- function(input, output, session) {
   
   utils::data(Exp1_R25_prot, package='DAPARdata')
-  keyId <- Exp1_R25_prot@experimentData@other[['proteinId']]
+  obj <- Exp1_R25_prot
+  keyId <- obj@experimentData@other$proteinId
   
   r <- reactiveValues(
     settings = NULL,
@@ -29,9 +30,8 @@ server <- function(input, output, session) {
   
   
   #metadata <- metadata(Exp1_R25_prot)
-  conds <- pData(Exp1_R25_prot)$Condition
-  obj <- Exp1_R25_prot
-  fData(obj) <- cbind(fData(obj), ProtOfInterest=rep(0,nrow(obj)))
+  conds <- pData(obj)$Condition
+   fData(obj) <- cbind(fData(obj), ProtOfInterest=rep(0,nrow(obj)))
   fData(obj)$ProtOfInterest[10:20] <- 1
   
   r$master <- callModule(mod_plots_tracking_server,'master_tracking', 
@@ -45,7 +45,7 @@ server <- function(input, output, session) {
   callModule(mod_plots_intensity_server,'plots_boxplots', 
              dataIn = reactive({obj}),
              meta = reactive({fData(obj)}),
-             keyId = reactive({Exp1_R25_prot@experimentData@other[['proteinId']]}),
+             keyId = reactive({keyId}),
              conds = reactive({conds}),
              base_palette = reactive({NULL}),
              params = reactive({if(input$sync) 

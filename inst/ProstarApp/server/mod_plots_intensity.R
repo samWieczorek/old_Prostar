@@ -19,7 +19,6 @@
 #' @export 
 #' 
 #' @importFrom shiny NS tagList 
-#' 
 #' @import shinyjs
 #' 
 mod_plots_intensity_ui <- function(id){
