@@ -5,7 +5,7 @@ callModule(moduleStaticDataTable,"viewProcessingData", table2show=reactive({Buil
 callModule(moduleStaticDataTable,"viewDataMining",  table2show=reactive({BuildParamDataMiningDT()}), showRownames=FALSE,
            filename='datamining_view')
 
-callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions2()[-3,]}), showRownames=FALSE,
+callModule(moduleStaticDataTable,"viewProstarVersions", table2show=reactive({getPackagesVersions()[-3,]}), showRownames=FALSE,
            filename='Prostar_Versions')
 
 

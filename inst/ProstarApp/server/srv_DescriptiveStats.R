@@ -519,7 +519,7 @@ corrMatrix <- reactive({
   else{gradient <- input$expGradientRate }
   
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showDataLabels= input$showDataLabels)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showValuess= input$showDataLabels)
     rv$tempplot$corrMatrix
   })
   

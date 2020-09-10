@@ -43,7 +43,7 @@ resetModuleFiltering <- reactive({
 
 #########################################################################################
 ##
-##                    SCREEN 2
+##                    SCREEN 1
 ## 
 ###########################################################################################
 
@@ -58,7 +58,8 @@ resetModuleFiltering <- reactive({
                   selectInput("ChooseFilters","Type",
                               choices = gFiltersList,
                               selected=rv$widgets$filtering$ChooseFilters,
-                              width='200px')
+                              width='200px'),
+            modulePopoverUI("modulePopover_Help_NA_Filtering")
         ),
         div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                   uiOutput("seuilNADelete")
@@ -81,6 +82,21 @@ callModule(mod_plots_mv_histo_server, "MVPlots_filtering",
            data = reactive({rv$current.obj}),
            palette = reactive({unique(rv$PlotParams$paletteConditions)})
 )
+
+callModule(modulePopover,"modulePopover_Help_NA_Filtering", 
+           data = reactive(list(title = HTML("<strong>Help</strong>"),
+                                content= HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
+                                                     ("<ul>"),
+                                                    ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
+                                                    ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
+                                                  ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted.</li>"),
+                                              ("</ul>")
+                                                    )
+                                              )
+                                )
+           )
 
 
 
