@@ -519,15 +519,15 @@ corrMatrix <- reactive({
   else{gradient <- input$expGradientRate }
   
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showValuess= input$showDataLabels)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showValues= input$showDataLabels)
     rv$tempplot$corrMatrix
   })
   
 })
 
 
-observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
-observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
+observeEvent(input$distance, { rv$PlotParams$heatmap.distance <- input$distance})
+observeEvent(input$linkage, { rv$PlotParams$heatmap.linkage <- input$linkage})
 
 heatmap <- reactive({
   
