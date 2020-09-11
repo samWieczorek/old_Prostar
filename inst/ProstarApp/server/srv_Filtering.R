@@ -55,11 +55,12 @@ resetModuleFiltering <- reactive({
       id = "screen1Filtering",
      # tags$div(
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-                  selectInput("ChooseFilters","Type",
+            modulePopoverUI("modulePopover_Help_NA_Filtering"),
+            selectInput("ChooseFilters","",
                               choices = gFiltersList,
                               selected=rv$widgets$filtering$ChooseFilters,
-                              width='200px'),
-            modulePopoverUI("modulePopover_Help_NA_Filtering")
+                              width='200px')
+            
         ),
         div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                   uiOutput("seuilNADelete")
@@ -84,12 +85,12 @@ callModule(mod_plots_mv_histo_server, "MVPlots_filtering",
 )
 
 callModule(modulePopover,"modulePopover_Help_NA_Filtering", 
-           data = reactive(list(title = HTML("<strong>Help</strong>"),
+           data = reactive(list(title = HTML("<strong>Type</strong>"),
                                 content= HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
                                                      ("<ul>"),
                                                     ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
                                                     ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
-                                                  ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are deleted;</li>"),
+                                                  ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are kept;</li>"),
                                               ("<li><strong>For every condition</strong>: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;</li>"),
                                               ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
@@ -113,22 +114,54 @@ output$seuilNADelete <- renderUI({
   
   tagList(
     shinyjs::useShinyjs(),
-    radioButtons('val_vs_percent', 'Value / percentage', 
+    radioButtons('val_vs_percent', '#/% of values to keep', 
                  choices = c('Value'='Value', 'Percentage'='Percentage'),
                  selected = rv$widgets$filtering$val_vs_percent
                  ),
     
     uiOutput('keepVal_ui'),
-    uiOutput('keepVal_percent_ui')
+    uiOutput('keepVal_percent_ui'),
+    uiOutput('keep_helptext')
   )
 })
 
 
 
+output$keep_helptext <- renderUI({
+  rv$widgets$filtering$ChooseFilters
+  txt <- NULL
+  switch(rv$widgets$filtering$ChooseFilters,
+         None = txt <-"All lines will be kept",
+         EmptyLines = txt <-"All lines containing only missing values will be removed.",
+         wholeMatrix = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+            txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+           },
+         atLeastOneCond = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+         },
+         allCond = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+         }
+         )
+  tagList(
+    tags$p(txt)
+  )
+})
+
 output$keepVal_ui <- renderUI({
   req(rv$widgets$filtering$val_vs_percent)
 if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
-
+  if (rv$widgets$filtering$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
+  
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
   selectInput("seuilNA", NULL,
