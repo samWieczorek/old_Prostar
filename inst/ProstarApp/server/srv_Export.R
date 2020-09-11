@@ -270,3 +270,59 @@ output$downloadReport <- downloadHandler(
   }
 )
 
+
+BuildParamDataProcessingDT <- reactive({
+  req(rv$current.obj)
+  req(input$datasets)
+  tmp.params <- rv$current.obj@experimentData@other$Params
+  #ind <- which(input$datasets == names(tmp.params))
+  df <- data.frame(Dataset = names(tmp.params),
+                   Process = rep("",length(names(tmp.params))),
+                   Parameters = rep("",length(names(tmp.params))),
+                   stringsAsFactors = FALSE)
+  
+  for (iData in 1:length(names(tmp.params))) {
+    p <- tmp.params[[iData]]
+    processName <- ifelse(is.null(names(tmp.params[[iData]])), "-",names(tmp.params[[iData]]))
+    # if (processName=='Imputation'){
+    #   processName <- paste0(processName,rv$typeOfData)
+    # }
+    df[iData, "Process"] <- processName
+    if (length(tmp.params[[iData]][[processName]])==0){
+      df[iData,"Parameters"]<- '-'
+    } else {
+      
+      
+      df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
+                                       list(l.params=tmp.params[[iData]][[processName]]))
+    }
+  }
+  
+  df
+})
+
+
+
+BuildParamDataMiningDT <- reactive({
+  req(rv$current.obj)
+  
+  nbLines <- sum((as.character(input$selectComparison) != "None"), !is.null(rv$params.GO))
+  if (nbLines ==0) {
+    df <- NULL
+  } else {
+    df <- data.frame(Dataset = rep(input$datasets,length(names(nbLines))),
+                     Process = rep("",length(names(nbLines))),
+                     Parameters = rep("",length(names(nbLines))),
+                     stringsAsFactors = FALSE)
+    
+    if (!is.null(as.character(input$selectComparison))){
+      df[1,"Dataset"]<- input$datasets
+      df[1,"Process"]<- "Differential analysis"
+      #ll <- setNames(split(rv$widgets$anaDiff[,2], seq(nrow(rv$widgets$anaDiff))), rv$widgets$anaDiff[,1])
+      df[1,"Parameters"]<- getTextForAnaDiff(rv$widgets$anaDiff)
+    } else {}
+    
+  }
+  df
+})
+

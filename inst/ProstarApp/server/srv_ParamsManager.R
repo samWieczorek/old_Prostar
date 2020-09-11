@@ -29,7 +29,9 @@ build_ParamsList_Filtering <- reactive({
     df.numeric <- rv$widgets$filtering$DT_numfilterSummary}
   
   l.params <- list(mvFilterType = input$ChooseFilters,
+                   val_vs_percent = input$val_vs_percent,
                    mvThNA = as.numeric(input$seuilNA), 
+                   mvThNA_percent = as.numeric(input$seuilNA_percent), 
                    stringFilter.df = df.string,
                    numericFilter.df = df.numeric)
   

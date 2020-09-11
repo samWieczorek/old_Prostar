@@ -132,24 +132,36 @@ output$keep_helptext <- renderUI({
   txt <- NULL
   switch(rv$widgets$filtering$ChooseFilters,
          None = txt <-"All lines will be kept",
-         EmptyLines = txt <-"All lines containing only missing values will be removed.",
+         EmptyLines = txt <-"All lines containing only missing values are removed.",
          wholeMatrix = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
-            txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+            txt <- paste0("Only the lines (across all conditions) which contain at least ",
+                          rv$widgets$filtering$seuilNA, 
+                          " non-missing value are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+             txt <- paste0("The lines (across all conditions) which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value are kept.")
            },
          atLeastOneCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
-             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA, 
+                           " non-missing value in, at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value in, at least one condition, are kept.")
          },
          allCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
-             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA, " non-missing value are kept")
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA, 
+                           " non-missing value in each condition are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines (across all conditions) which contain less non-missing value than ",rv$widgets$filtering$seuilNA_percent, "% of non-missing value are kept")
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value in each condition are kept.")
          }
          )
   tagList(
@@ -249,7 +261,7 @@ observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
                     },
            Percentage = {
              rv$current.obj <- filterByProportion(obj = rv$current.obj,
-                                                  intensities_proportion = rv$widgets$filtering$seuilNA_percent,
+                                                  intensities_proportion = as.numeric(rv$widgets$filtering$seuilNA_percent)/100,
                                                   mode = rv$widgets$filtering$ChooseFilters
                                                     )
              
@@ -263,6 +275,14 @@ observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
 })
 
 
+#########################################################
+##' Show the widget for filters
+##' @author Samuel Wieczorek
+output$choixFiltres <- renderUI({
+  req(input$file)
+  radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
+  
+})
 
 
 #########################################################################################
@@ -328,6 +348,34 @@ observeEvent(input$actionButtonFilter,{
 })
 
 
+output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
+  req(rv$current.obj)
+  req(rv$widgets$filtering$DT_numfilterSummary)
+  isolate({
+    
+    if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
+      df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
+      #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
+      rv$widgets$filtering$DT_filterSummary <- df
+    }
+    
+    
+    DT::datatable(rv$widgets$filtering$DT_filterSummary,
+                  extensions = c('Scroller', 'Buttons'),
+                  rownames = FALSE,
+                  options=list(buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'Filtering_summary'
+                                              ),'print'),
+                               dom='Brt',
+                               initComplete = initComplete(),
+                               deferRender = TRUE,
+                               bLengthChange = FALSE
+                  ))
+  })
+})
+
 
 #########################################################################################
 ##
@@ -376,6 +424,95 @@ output$screenFiltering3 <- renderUI({
 
 
 
+## ----------------------------------------------
+# Perform numerical filtering
+observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
+  temp <- rv$current.obj
+  
+  if (input$numericFilter_cname=="None"){return()}
+  cname <- input$numericFilter_cname
+  tagValue <- input$numericFilter_value
+  
+  print(input$numericFilter_value)
+  print(input$numericFilter_operator)
+  res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
+  nbDeleted <- 0
+  
+  
+  if (!is.null(res[["deleted"]])){
+    rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, res[["deleted"]])
+    nbDeleted <-  nrow(res[["deleted"]])
+  } else {
+    nbDeleted <-  0
+  }
+  rv$current.obj <- res[["obj"]]
+  rvModProcess$moduleFilteringDone[3] <- TRUE
+  
+  df <- data.frame(Filter=cname,
+                   Condition=paste0(input$numericFilter_operator,' ',tagValue),
+                   nbDeleted=nbDeleted,
+                   Total=nrow(rv$current.obj))
+  rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary, df)
+  
+})
+
+
+
+Get_symFilter_cname_choice <- reactive({
+  req(rv$current.obj)
+  choice <- c("None", colnames(fData(rv$current.obj)))
+  choice
+})
+
+
+
+### ------------------------------------------------------------
+output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
+  req(rv$current.obj)
+  req(rv$widgets$filtering$DT_numfilterSummary)
+  
+  isolate({
+    if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
+      df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
+      rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
+    }
+    
+    
+    DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
+                  extensions = c('Scroller', 'Buttons'),
+                  rownames = FALSE,
+                  
+                  options=list(initComplete = initComplete(),
+                               buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'NumericalFiltering_summary'
+                                              ),'print'),
+                               dom='Brt',
+                               deferRender = TRUE,
+                               bLengthChange = FALSE
+                  ))
+  })
+  
+})
+
+
+
+
+output$ObserverNumericalFilteringDone <- renderUI({
+  req(rv$current.obj)
+  rv$numericalFiltering_Done
+  
+  isolate({
+    if (!rv$numericalFiltering_Done)
+    {return(NULL)  }
+    else {
+      h3("Numerical filtering done")
+    }
+    
+  })
+})
+
 
 #########################################################################################
 ##
@@ -407,6 +544,25 @@ output$screenFiltering4 <- renderUI({
 
 
 
+getDataForNumericalFiltered <- reactive({
+  req(rv$settings_nDigits)
+  rv$deleted.numeric
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
+  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
+  
+  table
+})
+
+
+getDataForMVStringFiltered <- reactive({
+  req(rv$settings_nDigits)
+  rv$deleted.stringBased
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
+  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
+  
+  table
+})
+
 
 #########################################################################################
 ##
@@ -422,128 +578,47 @@ output$screenFiltering5 <- renderUI({
 })
 
 
-
-
-
-
-## ----------------------------------------------
-# Perform numerical filtering
-observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
-  temp <- rv$current.obj
-
-  if (input$numericFilter_cname=="None"){return()}
-  cname <- input$numericFilter_cname
-  tagValue <- input$numericFilter_value
-
-  print(input$numericFilter_value)
-  print(input$numericFilter_operator)
-  res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
-  nbDeleted <- 0
-
-
-  if (!is.null(res[["deleted"]])){
-    rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, res[["deleted"]])
-    nbDeleted <-  nrow(res[["deleted"]])
-  } else {
-    nbDeleted <-  0
-  }
-  rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[3] <- TRUE
-
-  df <- data.frame(Filter=cname,
-                   Condition=paste0(input$numericFilter_operator,' ',tagValue),
-                   nbDeleted=nbDeleted,
-                   Total=nrow(rv$current.obj))
-  rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary, df)
-
-})
-
-
-
-### ------------------------------------------------------------
-output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
-  req(rv$current.obj)
-  req(rv$widgets$filtering$DT_numfilterSummary)
-
+#########################################################
+##' Validation of the filters and modification on current object
+##' @author Samuel Wieczorek
+observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
+  
   isolate({
-  if (nrow(rv$widgets$filtering$DT_numfilterSummary) == 0){
-    df <- data.frame(Filter=NA, Condition=NA, nbDeleted=NA, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
-    rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-  }
-
-
-  DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
-                extensions = c('Scroller', 'Buttons'),
-                rownames = FALSE,
-
-                options=list(initComplete = initComplete(),
-                             buttons = list('copy',
-                                            list(
-                                              extend = 'csv',
-                                              filename = 'NumericalFiltering_summary'
-                                            ),'print'),
-                             dom='Brt',
-                             deferRender = TRUE,
-                             bLengthChange = FALSE
-                ))
-})
-
-})
-
-
-
-output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
-  req(rv$current.obj)
-  req(rv$widgets$filtering$DT_numfilterSummary)
-  isolate({
-
-  if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
-    df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
-    #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-    rv$widgets$filtering$DT_filterSummary <- df
-  }
-
-
-  DT::datatable(rv$widgets$filtering$DT_filterSummary,
-                extensions = c('Scroller', 'Buttons'),
-                rownames = FALSE,
-                options=list(buttons = list('copy',
-                                            list(
-                                              extend = 'csv',
-                                              filename = 'Filtering_summary'
-                                            ),'print'),
-                             dom='Brt',
-                             initComplete = initComplete(),
-                             deferRender = TRUE,
-                             bLengthChange = FALSE
-                ))
-  })
-})
-
-
-
-
-output$ObserverNumericalFilteringDone <- renderUI({
-  req(rv$current.obj)
-  rv$numericalFiltering_Done
-
-  isolate({
-    if (!rv$numericalFiltering_Done)
-    {return(NULL)  }
-    else {
-      h3("Numerical filtering done")
+    if((rv$widgets$filtering$ChooseFilters != gFilterNone) 
+       || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
+       || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
+      l.params <- build_ParamsList_Filtering()
+      
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+      name <- paste0("Filtered", ".", rv$typeOfDataset)
+      rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
+      
+      dataOut<- rv$current.obj
+      rvModProcess$moduleFilteringDone[5] <- TRUE
+      
+      if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
+        ComputeAdjacencyMatrices()
+        ComputeConnexComposants()
+      }
+      UpdateDatasetWidget(rv$current.obj, name)
     }
-
+    rvModProcess$moduleFilteringDone[5] <- TRUE
   })
+  
 })
 
 
 
-Get_symFilter_cname_choice <- reactive({
-  req(rv$current.obj)
-  choice <- c("None", colnames(fData(rv$current.obj)))
-  choice
-})
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -554,14 +629,7 @@ Get_symFilter_cname_choice <- reactive({
 
 
 
-getDataForNumericalFiltered <- reactive({
-  req(rv$settings_nDigits)
-  rv$deleted.numeric
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
-  
-  table
-})
+
 
 
 
@@ -577,15 +645,6 @@ getDataForMVFiltered <- reactive({
 
 
 
-
-getDataForMVStringFiltered <- reactive({
-  req(rv$settings_nDigits)
-  rv$deleted.stringBased
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
-  
-  table
-})
 
 
 output$legendForExprsData2 <- renderUI({
@@ -743,47 +802,9 @@ req(rv$deleted.mvLines)
 })
 
 
-#########################################################
-##' Validation of the filters and modification on current object
-##' @author Samuel Wieczorek
-observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
-  
-  isolate({
-    if((rv$widgets$filtering$ChooseFilters != gFilterNone) 
-       || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
-       || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
-      l.params <- build_ParamsList_Filtering()
-      
-      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      name <- paste0("Filtered", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
-      
-      dataOut<- rv$current.obj
-      rvModProcess$moduleFilteringDone[5] <- TRUE
-    
-      if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-        ComputeAdjacencyMatrices()
-        ComputeConnexComposants()
-      }
-      UpdateDatasetWidget(rv$current.obj, name)
-      }
-    rvModProcess$moduleFilteringDone[5] <- TRUE
-  })
-  
-})
 
 
 
-
-
-#########################################################
-##' Show the widget for filters
-##' @author Samuel Wieczorek
-output$choixFiltres <- renderUI({
-  req(input$file)
-  radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
-  
-})
 
 
 
