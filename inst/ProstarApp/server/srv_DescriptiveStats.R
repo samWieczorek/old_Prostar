@@ -52,15 +52,17 @@ output$plotsCorM <- renderUI({
       tags$div(style="display:inline-block; vertical-align: middle;",
                
                tags$div(
-                 tags$div(style="display:inline-block; vertical-align: top;",
+                 tags$div(style="display:inline-block; vertical-align: top; materiel-circle;",
                           shinyWidgets::dropdownButton(
                             tags$div(
                               tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       checkboxInput("showValues",
+                                                     'Show values?',
+                                                     value = TRUE),
                                        sliderInput("expGradientRate",
                                                    "Tune to modify the color gradient",
                                                    min = 0,max = 1,value = defaultGradientRate,step=0.01),
-                                       tooltip="Plots parameters",
-                                       icon = icon("gear"), status = optionsBtnClass
+                                       tooltip="Plots parameters"
                                        
                               )
                             ),
@@ -108,7 +110,8 @@ output$IntensityStatsPlots <- renderUI({
                             style = "material-circle", icon = icon("gear"), status = optionsBtnClass
                           )))
                
-      )),
+      )
+      ),
     
     
     fluidRow(
@@ -512,17 +515,19 @@ corrMatrix <- reactive({
   
   req(rv$current.obj)
   input$expGradientRate
+  input$showValues
   
   gradient <- NULL
   if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
-  else{gradient <- input$expGradientRate }
-  
+  else{
+    gradient <- input$expGradientRate}
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient,input$showValues)
     rv$tempplot$corrMatrix
   })
   
 })
+
 
 
 observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})

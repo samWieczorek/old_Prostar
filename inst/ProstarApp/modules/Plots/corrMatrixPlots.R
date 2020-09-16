@@ -20,20 +20,22 @@ output$plotcorrMatrixlarge <- renderUI({
       tags$div(style="display:inline-block; vertical-align: middle;",
                
                tags$div(
-                 tags$div(style="display:inline-block; vertical-align: top;",
+                 tags$div(style="display:inline-block; vertical-align: top; materiel-circle;",
                           shinyWidgets::dropdownButton(
                             tags$div(
                               tags$div(style="display:inline-block; vertical-align: bottom;",
+                                       checkboxInput(ns("showValues"),
+                                                     'Show values?',
+                                                     value = TRUE),
                                        sliderInput(ns("expGradientRate"),
                                                    "Tune to modify the color gradient",
-                                                   min = 0,max = 1,value = defaultGradientRate,step=0.01),
-                                       tooltip="Plots parameters",
-                                       style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                                                   min = 0,max = 2,value = defaultGradientRate,step=0.01),
+                                       tooltip="Plots parameters"
                                        
                               )
                             ),
                             tooltip="Plots parameters",
-                            style = "material-circle", icon = icon("gear"), status = optionsBtnClass
+                            icon = icon("gear"), status = optionsBtnClass
                           ))
                )
                
@@ -46,23 +48,22 @@ output$plotcorrMatrixlarge <- renderUI({
 })
 
 
-
 corrMatrix <- reactive({
   
   req(dataIn())
   input$expGradientRate
+  input$showValues
   
   gradient <- NULL
   if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
   else{
     gradient <- input$expGradientRate}
   isolate({
-    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn(),gradient)
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(dataIn(),gradient,input$showValues)
     rv$tempplot$corrMatrix
   })
   
 })
-
 
 output$corrMatrix <- renderHighchart({
   corrMatrix()

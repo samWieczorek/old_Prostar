@@ -296,8 +296,8 @@ ComputeAdjacencyMatrices <- reactive({
 ComputeConnexComposants <- reactive({
   req(rv$matAdj)
   print(dim(rv$matAdj$matWithSharedPeptides))
-  ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
-  ll2 <- get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
+  ll1 <- get.pep.prot.cc(as.matrix(rv$matAdj$matWithSharedPeptides))
+  ll2 <- get.pep.prot.cc(as.matrix(rv$matAdj$matWithUniquePeptides))
   
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
