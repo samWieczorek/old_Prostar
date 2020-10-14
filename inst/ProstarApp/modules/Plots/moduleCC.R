@@ -181,6 +181,7 @@ output$visNet_CC <- renderVisNetwork({
   
   
   output$Warning_CCMultiMulti <- renderUI({
+    req(GetDataFor_CCMultiMulti())
       if (nrow(GetDataFor_CCMultiMulti()) > 153) 
         p(MSG_WARNING_SIZE_DT)
     })
@@ -443,6 +444,7 @@ output$CCDetailed <- renderUI({
   
   output$Warning_OneMultiDT <- renderUI({
     req(rv$CC$allPep)
+    req(BuildOne2MultiTab())
     if (nrow(BuildOne2MultiTab()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
@@ -480,7 +482,7 @@ output$CCDetailed <- renderUI({
   
   
   output$Warning_OneMultiDTDetailed <- renderUI({
-    req(req(input$OneMultiDT_rows_selected))
+    req(input$OneMultiDT_rows_selected)
 
     if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
@@ -581,6 +583,8 @@ output$CCDetailed <- renderUI({
   
   
   output$Warning_OneOneDTDetailed <- reactive({
+    req(GetDataFor_OneOneDTDetailed())
+        browser()
     if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
     
@@ -590,16 +594,13 @@ output$CCDetailed <- renderUI({
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
     input$pepInfo
-    print(input$pepInfo)
     line <- input$OneOneDT_rows_selected
     
     ind <- 1:ncol(rv$current.obj)
-    print(ind)
     data <- getDataForExprs(rv$current.obj)
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
-    print("marqueur 1")
     if(!is.null(input$pepInfo))
     {
       data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
