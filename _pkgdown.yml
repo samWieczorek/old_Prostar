@@ -1,0 +1,28 @@
+template:  
+  params:
+    bootswatch: cerulean
+    
+    
+navbar:
+  structure:
+    left:  [home, reference, news]
+    right: [github, forum]
+  components:
+    home: ~
+    reference:
+      text: "Methods"
+      href: reference/index.html
+    news:
+      text: "News"
+      href: news/index.html
+    github:
+      icon: fa-github
+      href: https://github.com/samWieczorek/Prostar
+    forum:
+      icon: fa-users
+      href: https://support.bioconductor.org/
+
+home:
+  links:
+  - text: Current site
+    href: http://www.prostar-proteomics.org/#home
