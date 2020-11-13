@@ -1,8 +1,8 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
-Version: 1.22.1
-Date: 2020-11-04
+Version: 1.22.2
+Date: 2020-11-13
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -29,3 +29,5 @@ NeedsCompilation: no
 RoxygenNote: 7.1.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
 Encoding: UTF-8
+URL: http://www.prostar-proteomics.org/
+BugReports: https://github.com/samWieczorek/Prostar/issues
