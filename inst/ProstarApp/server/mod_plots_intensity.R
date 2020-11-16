@@ -79,17 +79,17 @@ mod_plots_intensity_server <- function(input, output, session,
   )
   
   
-  observe({
-    params()
-    print('params() = ')
-    print(params())
-  })
-  
-  observe({
-    slave()
-    print('slave() = ')
-    print(slave())
-  })
+  # observe({
+  #   params()
+  #   print('params() = ')
+  #   print(params())
+  # })
+  # 
+  # observe({
+  #   slave()
+  #   print('slave() = ')
+  #   print(slave())
+  # })
   
   
   output$slave_tracking_ui <- renderUI({

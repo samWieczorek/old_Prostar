@@ -575,6 +575,7 @@ moduleBoxplot <- function(input, output, session, data) {
   output$BoxPlot <- renderHighchart({
     #req(rv$current.obj)
     data()
+
     rv$current.obj.name
     rv$PlotParams$paletteConditions
     rv$PlotParams$legendForSamples
@@ -584,7 +585,9 @@ moduleBoxplot <- function(input, output, session, data) {
       print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
       print(ncol(exprs(data())))
       print(str(exprs(data())))
-      tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      tmp <- boxPlotD_HC(data(), 
+                         rv$PlotParams$legendForSamples, 
+                         palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       
       
