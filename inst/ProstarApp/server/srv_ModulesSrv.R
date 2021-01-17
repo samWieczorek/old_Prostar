@@ -28,7 +28,7 @@ moduleDesignExample <- function(input, output, session, n){
                        stringsAsFactors = FALSE)
       
       
-      pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])
+      pal <- RColorBrewer::brewer.pal(3, listBrewerPalettes[1])
       color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
                          Handsontable.renderers.TextRenderer.apply(this, arguments);
                          
@@ -584,7 +584,9 @@ moduleBoxplot <- function(input, output, session, data) {
       print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
       print(ncol(exprs(data())))
       print(str(exprs(data())))
-      tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      tmp <- boxPlotD_HC(data(), 
+                         rv$PlotParams$legendForSamples, 
+                         palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -609,7 +611,10 @@ moduleBoxplot <- function(input, output, session, data) {
       # png(outfile, width = 640, height = 480, units = "px")
       png(outfile)
       pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      tmp <- DAPAR::violinPlotD(data(), 
+                                rv$PlotParams$legendForSamples, 
+                                palette = rv$PlotParams$paletteConditions
+      )
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()
     })

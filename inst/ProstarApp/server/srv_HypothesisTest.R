@@ -141,7 +141,8 @@ output$FoldChangePlot <- renderHighchart({
   req(rv$widgets$hypothesisTest$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,as.numeric(rv$widgets$hypothesisTest$th_logFC))
+  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,
+                                                 as.numeric(rv$widgets$hypothesisTest$th_logFC))
  # rv$tempplot$logFCDistr
   
   })

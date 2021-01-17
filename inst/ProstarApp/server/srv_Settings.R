@@ -86,7 +86,10 @@ output$defineColorsForConditionsUI <- renderUI({
 output$choosePalette_UI <- renderUI({
   rv$typeOfPalette
   if (rv$typeOfPalette !="predefined") {return(NULL)}
-  selectInput("choosePalette", "Palette", choices=listBrewerPalettes,selected=rv$typeOfPalette,width='200px')
+  selectInput("choosePalette", "Palette", 
+              choices=listBrewerPalettes,
+              selected=rv$typeOfPalette,
+              width='200px')
   
 })
 
@@ -163,7 +166,7 @@ GetExamplePalette <- reactive({
       if ((rv$whichGroup2Color == "Condition") ){
        # nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
       nbColors <- max(3,nbConds)
-      palette <- RColorBrewer::brewer.pal(nbColors,rv$choosePalette)[1:nbConds]
+      palette <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbColors)
       temp <- NULL
       for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
         temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
@@ -171,7 +174,7 @@ GetExamplePalette <- reactive({
      
     }  else if (rv$whichGroup2Color == "Replicate"){
       nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
-      temp <- RColorBrewer::brewer.pal(nbConds,rv$choosePalette)
+      temp <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbConds)
     }
       
     },
@@ -185,7 +188,7 @@ GetExamplePalette <- reactive({
       if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color=="Condition")){
         nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
         nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
-        nbColors <- max(nbColors,nbConds)
+        nbColors <- max(nbColors, nbConds)
         palette <- NULL
         for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
         for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
@@ -239,7 +242,9 @@ output$customPaletteUI <- renderUI({
 
 
 
-observeEvent(c(rv$choosePalette,rv$typeOfPalette,rv$current.obj,GetTest(), rv$whichGroup2Color), {rv$PlotParams$paletteConditions <- GetExamplePalette()})
+observeEvent(c(rv$choosePalette,rv$typeOfPalette,rv$current.obj,GetTest(), rv$whichGroup2Color), {
+  rv$PlotParams$paletteConditions <- GetExamplePalette()
+  })
 
 observeEvent(input$colMEC, {rv$colorsTypeMV$MEC <- input$colMEC})
 observeEvent(input$colPOV, { rv$colorsTypeMV$POV <- input$colPOV})

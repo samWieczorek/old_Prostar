@@ -20,10 +20,13 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
   output$histo_MV <- renderHighchart({
     data()
     
+    print(palette())
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
-    tmp <- wrapper.mvHisto_HC(data(),palette=palette())
+    tmp <- wrapper.mvHisto_HC(data(),
+                              base_palette=palette()
+                              )
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp

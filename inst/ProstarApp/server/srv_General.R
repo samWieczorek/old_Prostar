@@ -306,9 +306,8 @@ loadObjectInMemoryFromConverter <- function(){
     
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
       rv$current.obj@experimentData@other$RawPValues <- FALSE
-    
     rv$PlotParams$paletteConditions <- GetExamplePalette()
-    
+    print(paste0('rv$PlotParams$paletteConditions = ', paste0(rv$PlotParams$paletteConditions, collapse=' ')))
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
       print("begin compute adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')
@@ -852,7 +851,8 @@ ClearMemory <- function(){
                        legDS_Violinplot = NULL,
                        heatmap.linkage = 'complete',
                        heatmap.distance = "euclidean",
-                       paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                       #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                       paletteConditions = NULL,
                        legendForSamples = NULL
   )
   rv$indProgressDemomode = 0
@@ -1099,7 +1099,8 @@ rv <- reactiveValues(
                     legDS_Violinplot = NULL,
                     heatmap.linkage = 'complete',
                     heatmap.distance = "euclidean",
-                    paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                    #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
+                    paletteConditions = NULL,
                     legendForSamples = NULL
   ),
   indProgressDemomode = 0,

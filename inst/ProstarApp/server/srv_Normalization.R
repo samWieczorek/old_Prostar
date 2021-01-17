@@ -260,6 +260,27 @@ observeEvent(rv$widgets$normalization$method,{
   shinyjs::toggle('DivMasterProtSelection', condition= cond && trackAvailable)
 })
 
+GetIndicesOfSelectedProteins_ForNorm <- reactive({
+  req(rv.norm$selectProt())
+  
+  
+  print('in GetIndicesOfSelectedProteins_ForNorm')
+  print(rv.norm$selectProt()())
+  ind <- NULL
+  ll <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+  tt <- rv.norm$selectProt()$type
+  switch(tt,
+         ProteinList = ind <- rv.norm$selectProt()$list.indices,
+         Random = ind <- rv.norm$selectProt()$rand.indices,
+         Column = ind <- rv.norm$selectProt()$col.indices
+  )
+  if (length(ind)==0)
+    ind <- NULL
+  
+  print('ind = ')
+  print(ind)
+  ind
+})
 
 GetIndicesOfSelectedProteins <- reactive({
   req(rv.norm$trackFromBoxplot())
@@ -306,7 +327,7 @@ observeEvent(input$perform.normalization,{
                                                 type = rv$widgets$normalization$type, 
                                                 cond = pData(rv$dataset[[input$datasets]])$Condition,
                                                 quantile = quant,
-                                                subset.norm = GetIndicesOfSelectedProteins())
+                                                subset.norm = GetIndicesOfSelectedProteins_ForNorm())
            
          } ,  
          MeanCentering = {
@@ -315,14 +336,14 @@ observeEvent(input$perform.normalization,{
                                                 conds = pData(rv$dataset[[input$datasets]])$Condition,
                                                 type = rv$widgets$normalization$type, 
                                                 scaling=  rv$widgets$normalization$varReduction,
-                                                subset.norm = GetIndicesOfSelectedProteins())
+                                                subset.norm = GetIndicesOfSelectedProteins_ForNorm())
          }, 
          SumByColumns = {
            rv$current.obj <- wrapper.normalizeD(obj = rv$dataset[[input$datasets]], 
                                                 method = rv$widgets$normalization$method, 
                                                 conds = pData(rv$dataset[[input$datasets]])$Condition,
                                                 type = rv$widgets$normalization$type,
-                                                subset.norm = GetIndicesOfSelectedProteins())
+                                                subset.norm = GetIndicesOfSelectedProteins_ForNorm())
            
          },
          LOESS = { rv$current.obj <- wrapper.normalizeD(obj = rv$dataset[[input$datasets]], 
