@@ -19,7 +19,7 @@ Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing, ImmunoOncology,  R.utils, GO, GUI
 License: Artistic-2.0
-Depends: R (>= 4.1.0)
+Depends: R (>= 4.0.3)
 Suggests: BiocStyle, testthat
 Imports: DAPAR (>= 1.22.0), DAPARdata (>= 1.16.0), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,

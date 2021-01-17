@@ -337,13 +337,13 @@ observeEvent(input$linkToFaq1, {
 color_renderer <- reactive({
   conds <- rv$hot$Condition
   pal <- rv$PlotParams$paletteConditions
-  
+  print("update color_renderer reactive function")
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"
   c <- 1
   for (i in 1:length(conds)){
     if (conds[i] != "")
-      txt <- paste0(txt, "if(row==",(i-1)," && col==",c, ") {td.style.background = '",pal[which(conds[i] == unique(conds))],"';}")
+      txt <- paste0(txt, "if(row==",(i-1)," && col==",c, ") {td.style.background = '", pal[which(conds[i] == unique(conds))],"';}")
   }
   txt <- paste0(txt,"}")
   

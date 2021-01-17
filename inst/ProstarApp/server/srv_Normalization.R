@@ -8,8 +8,12 @@
 
 callModule(moduleDensityplot,"densityPlot_Norm",
            data=reactive({rv$current.obj}))
-callModule(moduleBoxplot,"boxPlot_Norm",
-           data=reactive({rv$current.obj}))
+
+# callModule(moduleBoxplot,"boxPlot_Norm",
+#            data=reactive({rv$current.obj}),
+#            palette = reactive({rv$PlotParams$paletteConditions})
+# )
+
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
@@ -66,7 +70,7 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
                                        conds = reactive({pData(rv$current.obj)$Condition}),
-                                       base_palette = reactive({NULL}),
+                                       base_palette = reactive({rv$PlotParams$paletteConditions}),
                                        params = reactive({
                                          if(rv.norm$sync)
                                            rv.norm$selectProt()

@@ -556,7 +556,7 @@ moduleDensityplot <- function(input, output, session, data) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, data) {
+moduleBoxplot <- function(input, output, session, data, palette) {
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -581,12 +581,12 @@ moduleBoxplot <- function(input, output, session, data) {
     tmp <- NULL
     isolate({
       pattern <- paste0(GetCurrentObjName(),".boxplot")
-      print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
+      print(paste0("palette for boxplot : ", palette()) )
       print(ncol(exprs(data())))
       print(str(exprs(data())))
       tmp <- boxPlotD_HC(data(), 
                          rv$PlotParams$legendForSamples, 
-                         palette=rv$PlotParams$paletteConditions)
+                         palette = palette())
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -613,7 +613,7 @@ moduleBoxplot <- function(input, output, session, data) {
       pattern <- paste0(GetCurrentObjName(),".violinplot")
       tmp <- DAPAR::violinPlotD(data(), 
                                 rv$PlotParams$legendForSamples, 
-                                palette = rv$PlotParams$paletteConditions
+                                palette = palette()
       )
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()

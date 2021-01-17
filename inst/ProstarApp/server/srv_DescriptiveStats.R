@@ -5,15 +5,21 @@ callModule(mod_plots_mv_histo_server, "MVPlots_DS",
            data=reactive({rv$current.obj}),
            palette = reactive({unique(rv$PlotParams$paletteConditions)})
 )
-callModule(moduleDensityplot, "densityPlot_DS",data=reactive({rv$current.obj}))
+callModule(moduleDensityplot, "densityPlot_DS",
+           data=reactive({rv$current.obj}))
 
-callModule(moduleBoxplot, "boxPlot_DS",data=reactive({rv$current.obj}))
+callModule(moduleBoxplot, "boxPlot_DS",
+           data=reactive({rv$current.obj}),
+           palette = reactive({rv$PlotParams$paletteConditions})
+)
 
-callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
+callModule(moduleStaticDataTable,"overview_DS", 
+           table2show=reactive({GetDatasetOverview()}),
            filename='DescriptiveStats_Overview')
 
 callModule(moduleStaticDataTable,"PCAvarCoord", 
-           table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), 
+           table2show=reactive({if (!is.null(rv$res.pca)) 
+             round(rv$res.pca$var$coord, digits=7)}), 
            showRownames=TRUE,
            filename = 'PCA_Var_Coords')
 
