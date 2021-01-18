@@ -1,5 +1,4 @@
 launchGA <- function(){
-  print(paste0("In toto",system('hostname')))
   if (system('hostname')=="prabig-prostar"){
     tags$head(includeScript("www/google-analytics.js"))
   } else {

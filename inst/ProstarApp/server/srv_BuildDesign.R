@@ -328,23 +328,34 @@
 
 
 
-observeEvent(input$linkToFaq1, {
+observeEvent(req(input$linkToFaq1), {
   updateTabsetPanel(session, 'navPage', "faqTab")
 })
 
 
 
 color_renderer <- reactive({
+  rv$hot$Condition
   conds <- rv$hot$Condition
-  pal <- rv$PlotParams$paletteConditions
-  print("update color_renderer reactive function")
+  if (length(which(conds==""))==0)
+    uniqueConds <- unique(conds)
+  else
+    uniqueConds <- unique(conds[-which(conds=="")])
+  
+  nUniqueConds <- length(uniqueConds)
+  pal <- grDevices::colorRampPalette(brewer.pal(8, "Dark2"))(nUniqueConds)
+  #browser()
+  #pal <- rv$PlotParams$paletteConditions
+  #print("update color_renderer reactive function")
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"
   c <- 1
   for (i in 1:length(conds)){
     if (conds[i] != "")
-      txt <- paste0(txt, "if(row==",(i-1)," && col==",c, ") {td.style.background = '", pal[which(conds[i] == unique(conds))],"';}")
-  }
+      
+      txt <- paste0(txt, "if(row==",(i-1)," && col==",c, ") {td.style.background = '", 
+                    pal[which(conds[i] == uniqueConds)],"';}")
+}
   txt <- paste0(txt,"}")
   
   return (txt)
@@ -352,19 +363,7 @@ color_renderer <- reactive({
 
 
 
-output$convertFinalStep <- renderUI({
-  req(rv$designChecked)
-  if (!(rv$designChecked$valid)){return(NULL)}
-  tagList(
-    uiOutput("checkAll_convert", width="50"),
-    htmlOutput("msgAlertCreateMSnset"),
-    hr(),
-    textInput("filenameToCreate","Enter the name of the study"),
-    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
-    uiOutput("warningCreateMSnset")
-    
-  )
-})
+
 
 #----------------------------------------------------------
 observeEvent(input$btn_checkConds,{
@@ -544,8 +543,8 @@ callModule(moduleDesignExample,"buildDesignExampleTwo", 2)
 #------------------------------------------------------------------------------
 output$designExamples <- renderUI({
   input$chooseExpDesign
-  print(input$chooseExpDesign)
-  switch(input$chooseExpDesign,
+  
+   switch(input$chooseExpDesign,
          FlatDesign = 
            {
              tags$p("There is nothing to do for the flat design: the 'Bio.Rep' column is already filled.")

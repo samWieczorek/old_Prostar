@@ -625,8 +625,8 @@ resetModuleProcess <- function(moduleName){
                                               ll.UI = list( screenStep1 = uiOutput("Convert_SelectFile"),
                                                             screenStep2 = uiOutput("Convert_DataId"),
                                                             screenStep3 = uiOutput("Convert_ExpFeatData"),
-                                                            screenStep2 = uiOutput("Convert_BuildDesign"),
-                                                            screenStep3 = uiOutput("Convert_Convert")
+                                                            screenStep4 = uiOutput("Convert_BuildDesign"),
+                                                            screenStep5 = uiOutput("Convert_Convert")
                                               ))
             ## update widgets in UI
             updateCheckboxInput(session,"selectIdent", value = rv$widgets$Convert$selectIdent)

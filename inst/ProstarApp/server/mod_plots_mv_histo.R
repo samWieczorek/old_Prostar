@@ -20,7 +20,6 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
   output$histo_MV <- renderHighchart({
     data()
     
-    print(palette())
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")

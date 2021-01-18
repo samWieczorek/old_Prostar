@@ -223,7 +223,6 @@ observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
 ##
 ## Perform missing values filtering
 observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
-  print("In : observeEvent(input$perform.filtering.MV")
   rv$widgets$filtering$ChooseFilters
   rv$widgets$filtering$seuilNA
   rv$widgets$filtering$seuilNA_percent
@@ -433,9 +432,7 @@ observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
   cname <- input$numericFilter_cname
   tagValue <- input$numericFilter_value
   
-  print(input$numericFilter_value)
-  print(input$numericFilter_operator)
-  res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
+   res <- NumericalFiltering(temp,cname, input$numericFilter_value,input$numericFilter_operator)
   nbDeleted <- 0
   
   
