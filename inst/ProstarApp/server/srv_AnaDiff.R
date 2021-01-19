@@ -49,7 +49,10 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
   rv$widgets$anaDiff$swapVolcano = FALSE
-  rv$widgets$anaDiff$filterType = "None"
+   rv$widgets$anaDiff$val_vs_percent = "Value"
+  rv$widgets$anaDiff$ChooseFilters = "None"
+  rv$widgets$anaDiff$seuilNA_percent = 0
+  rv$widgets$anaDiff$seuilNA = 0
   rv$widgets$anaDiff$filter_th_NA = 0
   rv$widgets$anaDiff$calibMethod = 'None'
   rv$widgets$anaDiff$numValCalibMethod = 0
