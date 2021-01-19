@@ -215,7 +215,7 @@ output$AnaDiff_keep_helptext <- renderUI({
   txt <- NULL
   switch(rv$widgets$anaDiff$ChooseFilters,
          None = txt <-"All lines will be kept",
-         wholeMatrix = {
+         WholeMatrix = {
            if (rv$widgets$anaDiff$val_vs_percent == 'Value')
              txt <- paste0("Only the lines (across all conditions) which contain at least ",
                            rv$widgets$anaDiff$seuilNA, 
@@ -225,7 +225,7 @@ output$AnaDiff_keep_helptext <- renderUI({
                            rv$widgets$anaDiff$seuilNA_percent, 
                            "% of non-missing value are kept.")
          },
-         atLeastOneCond = {
+         AtLeastOneCond = {
            if (rv$widgets$anaDiff$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$anaDiff$seuilNA, 
@@ -235,7 +235,7 @@ output$AnaDiff_keep_helptext <- renderUI({
                            rv$widgets$anaDiff$seuilNA_percent, 
                            "% of non-missing value in, at least one condition, are kept.")
          },
-         allCond = {
+         AllCond = {
            if (rv$widgets$anaDiff$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$anaDiff$seuilNA, 
@@ -298,30 +298,18 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
   if (as.character(rv$widgets$anaDiff$ChooseFilters) == gFilterNone){
     GetBackToCurrentResAnaDiff()
   } else {
+   th <- NULL
+    if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
+      th <- as.numeric(rv$widgets$anaDiff$seuilNA_percent)/100
+    else
+      th <-  as.integer(rv$widgets$anaDiff$seuilNA)
     
-    switch(rv$widgets$anaDiff$val_vs_percent,
-           Value = {
-             keepThat <- mvFilterGetIndices(Get_Dataset_to_Analyze(),
-                                            rv$widgets$anaDiff$ChooseFilters,
-                                            as.integer(rv$widgets$anaDiff$seuilNA))
-           },
-           Percentage = {
-             datasetToAnalyze <- filterByProportion(obj = Get_Dataset_to_Analyze(),
-                                                  intensities_proportion = as.numeric(rv$widgets$anaDiff$seuilNA_percent)/100,
-                                                  mode = rv$widgets$anaDiff$ChooseFilters )
-             
-           }
-           
-    )
+    keepThat <- mvFilterGetIndices(obj = Get_Dataset_to_Analyze(),
+                                   percent = rv$widgets$anaDiff$val_vs_percent == 'Percentage',
+                                   condition = rv$widgets$anaDiff$ChooseFilters,
+                                   threshold = th)
     
-    # keepThat <- mvFilterGetIndices(obj = Get_Dataset_to_Analyze(),
-    #                                type.value = rv$widgets$anaDiff$val_vs_percent,
-    #                                condition = rv$widgets$anaDiff$ChooseFilters,
-    #                                threshold = as.integer(rv$widgets$anaDiff$seuilNA))
-    
-    browser()
-    if (!is.null(keepThat) && length(keepThat) < nrow(rv$current.obj))
-    {
+    if (!is.null(keepThat) && length(keepThat) < nrow(Get_Dataset_to_Analyze())){
       rv$resAnaDiff$P_Value[-keepThat] <- 1
     }
   }
