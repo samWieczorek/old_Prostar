@@ -263,7 +263,7 @@ observeEvent(rv$widgets$normalization$method,{
 })
 
 
-etIndicesOfSelectedProteins_ForNorm <- reactive({
+GetIndicesOfSelectedProteins_ForNorm <- reactive({
   req(rv.norm$selectProt())
   
   ind <- NULL

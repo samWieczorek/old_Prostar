@@ -133,7 +133,7 @@ output$keep_helptext <- renderUI({
   switch(rv$widgets$filtering$ChooseFilters,
          None = txt <-"All lines will be kept",
          EmptyLines = txt <-"All lines containing only missing values are removed.",
-         wholeMatrix = {
+         WholeMatrix = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
             txt <- paste0("Only the lines (across all conditions) which contain at least ",
                           rv$widgets$filtering$seuilNA, 
@@ -143,7 +143,7 @@ output$keep_helptext <- renderUI({
                            rv$widgets$filtering$seuilNA_percent, 
                            "% of non-missing value are kept.")
            },
-         atLeastOneCond = {
+         AtLeastOneCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA, 
@@ -153,7 +153,7 @@ output$keep_helptext <- renderUI({
                            rv$widgets$filtering$seuilNA_percent, 
                            "% of non-missing value in, at least one condition, are kept.")
          },
-         allCond = {
+         AllCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA, 
@@ -220,55 +220,40 @@ observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
 })
 
 
-##
 ## Perform missing values filtering
-observeEvent(input$perform.filtering.MV,ignoreInit=TRUE,{
-  print("In : observeEvent(input$perform.filtering.MV")
+observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
   rv$widgets$filtering$ChooseFilters
   rv$widgets$filtering$seuilNA
   rv$widgets$filtering$seuilNA_percent
   rv$widgets$filtering$val_vs_percent
   
- 
+  
   if (rv$widgets$filtering$ChooseFilters == gFilterNone){
     #rv$current.obj <- rv$dataset[[input$datasets]]
-  } else if (rv$widgets$filtering$ChooseFilters == 'EmptyLines'){
-    keepThat <- mvFilterGetIndices(rv$current.obj,
-                                   rv$widgets$filtering$ChooseFilters,
-                                   as.integer(rv$widgets$filtering$seuilNA))
+  } else {
+    
+    th <- NULL
+    if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+      th <- as.numeric(rv$widgets$filtering$seuilNA_percent)/100
+    else
+      th <-  as.integer(rv$widgets$filtering$seuilNA)
+    
+    keepThat <- mvFilterGetIndices(obj = rv$current.obj,
+                                   percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
+                                   condition = rv$widgets$filtering$ChooseFilters,
+                                   threshold = th)
+    
     if (!is.null(keepThat))
     {
       rv$deleted.mvLines <- rv$current.obj[-keepThat]
       rv$current.obj <- mvFilterFromIndices(rv$current.obj,
                                             keepThat,
-                                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
+                                            GetFilterText(rv$widgets$filtering$ChooseFilters, 
+                                                          th)
+      )
     }
-    
-    }
-  else {
-    switch(rv$widgets$filtering$val_vs_percent,
-           Value = {
-                      keepThat <- mvFilterGetIndices(rv$current.obj,
-                                   rv$widgets$filtering$ChooseFilters,
-                                   as.integer(rv$widgets$filtering$seuilNA))
-                      if (!is.null(keepThat))
-                            {
-                             rv$deleted.mvLines <- rv$current.obj[-keepThat]
-                            rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-                                            keepThat,
-                                            GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
-                            }
-                    },
-           Percentage = {
-             rv$current.obj <- filterByProportion(obj = rv$current.obj,
-                                                  intensities_proportion = as.numeric(rv$widgets$filtering$seuilNA_percent)/100,
-                                                  mode = rv$widgets$filtering$ChooseFilters
-                                                    )
-             
-           }
-  
-    )
   }
+  
   rvModProcess$moduleFilteringDone[1] <- TRUE
   #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
   #updateSelectInput(session, "seuilNA", selected = input$seuilNA)

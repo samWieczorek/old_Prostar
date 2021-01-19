@@ -159,6 +159,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   ns <- session$ns
   
   
+  observeEvent(data(), {
+    print('############ NEW DATA on rv$resAnaDiff')
+  })
   output$quantiDT <- renderUI({
     req(input$eventPointClicked)
     
@@ -405,10 +408,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             g1=data <- data.g1[this.index+1,],
             g2 = data <- data.g2[this.index+1,] 
     )
-    
-    print("dans GetExprsClickedProtein")
-    print(data)
-    
+
     data
   })
   
@@ -426,12 +426,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   GetDataFor_Infos <- reactive({
     req(comp())
-    
-    
+
     data <- GetExprsClickedProtein()
-    
-    print('################### Dans Infos  #################')
-    print(colnames(data))
     data
   })
   
@@ -472,16 +468,15 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
+    data()$P_Value
     #data()$logFC
     tooltip()
     isSwaped()
     
-    print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
-    isolate({
+     isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
-      print("in volcanoplot")
-      print(head(data()))
+
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
         
