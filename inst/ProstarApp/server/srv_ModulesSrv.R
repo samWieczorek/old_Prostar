@@ -472,6 +472,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
+    data()$P_Value
     #data()$logFC
     tooltip()
     isSwaped()
