@@ -24,7 +24,7 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),
-                              base_palette=palette()
+                              palette=palette()
                               )
     #future(createPNGFromWidget(tmp,pattern))
     #  })

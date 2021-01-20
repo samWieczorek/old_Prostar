@@ -7,7 +7,7 @@
 # 
 # color_renderer <- reactive({
 #   conds <- rv$hot$Condition
-#   pal <- rv$PlotParams$paletteConditions
+#   pal <- rv$PlotParams$paletteForConditions
 #   
 #   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
 #   Handsontable.renderers.TextRenderer.apply(this, arguments);"
@@ -343,10 +343,8 @@ color_renderer <- reactive({
     uniqueConds <- unique(conds[-which(conds=="")])
   
   nUniqueConds <- length(uniqueConds)
-  pal <- grDevices::colorRampPalette(brewer.pal(8, "Dark2"))(nUniqueConds)
-  #browser()
-  #pal <- rv$PlotParams$paletteConditions
-  #print("update color_renderer reactive function")
+  pal <- DAPAR::ExtendPalette(nUniqueConds)
+  
   txt <- "function (instance, td, row, col, prop, value, cellProperties) {
   Handsontable.renderers.TextRenderer.apply(this, arguments);"
   c <- 1

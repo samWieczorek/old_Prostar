@@ -98,7 +98,7 @@ MSnSetExplorer <- function(input, output, session, data) {
     req(rv$current.obj)
     
     data <- as.data.frame(Biobase::pData(rv$current.obj))
-    pal <- unique(rv$PlotParams$paletteConditions)
+    pal <- rv$PlotParams$paletteForConditions
     dt <- DT::datatable(  data,
                            extensions = c('Scroller', 'Buttons'),
                           rownames=  FALSE,

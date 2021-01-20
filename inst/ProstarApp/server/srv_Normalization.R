@@ -11,7 +11,7 @@ callModule(moduleDensityplot,"densityPlot_Norm",
 
 # callModule(moduleBoxplot,"boxPlot_Norm",
 #            data=reactive({rv$current.obj}),
-#            palette = reactive({rv$PlotParams$paletteConditions})
+#            palette = reactive({rv$PlotParams$paletteForConditions})
 # )
 
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
@@ -70,7 +70,7 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
                                        conds = reactive({pData(rv$current.obj)$Condition}),
-                                       base_palette = reactive({rv$PlotParams$paletteConditions}),
+                                       palette = reactive({rv$PlotParams$paletteForConditions}),
                                        params = reactive({
                                          if(rv.norm$sync)
                                            rv.norm$selectProt()
@@ -412,7 +412,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #######################
 
 # viewComparisonNorm2 <- reactive({
-#   rv$PlotParams$paletteConditions
+#   rv$PlotParams$paletteForConditions
 #   leg <- NULL
 #   grp <- NULL
 #   
@@ -449,14 +449,14 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #   wrapper.compareNormalizationD(obj1, obj2,
 #                                 labelsNorm,
 #                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteConditions)
+#                                 palette = rv$PlotParams$paletteForConditions)
 #   
 # })
 # 
 
 
 # viewComparisonNorm <- reactive({
-#   rv$PlotParams$paletteConditions
+#   rv$PlotParams$paletteForConditions
 #   req(rv$current.obj)
 #   
 #   leg <- NULL
@@ -499,13 +499,13 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #   wrapper.compareNormalizationD(obj1, obj2,
 #                                 labelsNorm,
 #                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteConditions)
+#                                 palette = rv$PlotParams$paletteForConditions)
 #   
 # })
 
 
 output$viewComparisonNorm_HC <- renderHighchart({
-  rv$PlotParams$paletteConditions
+  rv$PlotParams$paletteForConditions
   req(rv$current.obj)
   
   dname <- paste0("Normalized.", rv$typeOfDataset)
@@ -522,7 +522,7 @@ output$viewComparisonNorm_HC <- renderHighchart({
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
                            conds = Biobase::pData(obj1)$Condition,
-                           palette = unique(rv$PlotParams$paletteConditions),
+                           palette = rv$PlotParams$paletteForConditions,
                            subset.view = NULL
   )
 })

@@ -137,7 +137,7 @@ observeEvent(rv$widgets$hypothesisTest$method,{
 
 output$FoldChangePlot <- renderHighchart({
   req(ComputeComparisons()$logFC)
-  req(rv$PlotParams$paletteConditions)
+  req(rv$PlotParams$paletteForConditions)
   req(rv$widgets$hypothesisTest$th_logFC)
   if (length(ComputeComparisons()$logFC)==0){return(NULL)}
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {

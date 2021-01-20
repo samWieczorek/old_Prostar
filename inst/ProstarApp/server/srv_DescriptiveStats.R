@@ -3,14 +3,14 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
-           palette = reactive({unique(rv$PlotParams$paletteConditions)})
+           palette = reactive({rv$PlotParams$paletteForConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS",
            data=reactive({rv$current.obj}))
 
 callModule(moduleBoxplot, "boxPlot_DS",
            data=reactive({rv$current.obj}),
-           palette = reactive({rv$PlotParams$paletteConditions})
+           palette = reactive({rv$PlotParams$paletteForConditions})
 )
 
 callModule(moduleStaticDataTable,"overview_DS", 
@@ -369,7 +369,7 @@ output$viewpData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   
   data <- as.data.frame(Biobase::pData(rv$current.obj))
-  pal <- unique(rv$PlotParams$paletteConditions)
+  pal <- rv$PlotParams$paletteForConditions
   dt <- DT::datatable(  data,
                         extensions = c('Scroller', 'Buttons'),
                         rownames=  FALSE,
@@ -506,9 +506,10 @@ output$viewExprsMissValues <- DT::renderDataTable(server=TRUE, {
 viewDistCV <- reactive({
   
   req(rv$current.obj)
-  rv$PlotParams$paletteConditions
+  rv$PlotParams$paletteForConditions
   
-  isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,rv$PlotParams$paletteConditions)})
+  isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,
+                                                     palette = rv$PlotParams$paletteForConditions)})
   rv$tempplot$varDist
   
   

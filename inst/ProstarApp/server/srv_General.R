@@ -306,8 +306,8 @@ loadObjectInMemoryFromConverter <- function(){
     
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
       rv$current.obj@experimentData@other$RawPValues <- FALSE
-    rv$PlotParams$paletteConditions <- GetExamplePalette()
-    print(paste0('rv$PlotParams$paletteConditions = ', paste0(rv$PlotParams$paletteConditions, collapse=' ')))
+    rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
+    print(paste0('rv$PlotParams$paletteForConditions = ', paste0(rv$PlotParams$paletteForConditions, collapse=' ')))
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
       print("begin compute adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')
@@ -754,7 +754,7 @@ ClearMemory <- function(){
   rv$whichGroup2Color = 'Condition'
   rv$PCA_axes = c(1,2)
   rv$PCA_varScale = TRUE
-  rv$choosePalette = 'Dark2'
+  rv$choosePalette = 'Set1'
   
   rv$res.pca = NULL
   ########
@@ -851,8 +851,7 @@ ClearMemory <- function(){
                        legDS_Violinplot = NULL,
                        heatmap.linkage = 'complete',
                        heatmap.distance = "euclidean",
-                       #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
-                       paletteConditions = NULL,
+                       paletteForConditions = NULL,
                        legendForSamples = NULL
   )
   rv$indProgressDemomode = 0
@@ -918,7 +917,7 @@ rv <- reactiveValues(
   whichGroup2Color = 'Condition',
   PCA_axes = c(1,2),
   PCA_varScale = TRUE,
-  choosePalette = 'Dark2',
+  choosePalette = 'Set1',
   res.pca = NULL,
   
   init.distance = "euclidean",
@@ -1099,8 +1098,7 @@ rv <- reactiveValues(
                     legDS_Violinplot = NULL,
                     heatmap.linkage = 'complete',
                     heatmap.distance = "euclidean",
-                    #paletteConditions = RColorBrewer::brewer.pal(8,"Dark2"),
-                    paletteConditions = NULL,
+                    paletteForConditions = NULL,
                     legendForSamples = NULL
   ),
   indProgressDemomode = 0,

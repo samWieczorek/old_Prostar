@@ -130,84 +130,95 @@ GetWhichGroup2Color <- reactive({rv$whichGroup2Color})
 
 observeEvent(input$whichGroup2Color,{
   rv$whichGroup2Color <- input$whichGroup2Color
-  rv$PlotParams$paletteConditions <- GetExamplePalette()
+  rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
 })
 
 
 ############
-GetExamplePalette <- reactive({
-  rv$whichGroup2Color
+# GetColorsForConditions <- reactive({
+#   rv$whichGroup2Color
+#   req(rv$current.obj)
+#   rv$typeOfPalette
+#    #req(input$typeOfPalette)
+#   pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
+#   
+#   nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+#   switch(rv$typeOfPalette,
+#     predefined={
+#       if ((rv$whichGroup2Color == "Condition") ){
+#         nbColors <- max(3,nbConds)
+#         palette <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbColors)
+#         temp <- NULL
+#         for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
+#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+#           }
+#         }  else if (rv$whichGroup2Color == "Replicate"){
+#           nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
+#           temp <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbConds)
+#           }
+#       },
+#     custom = {
+#       nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+#       pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
+#       
+#       
+#       nbColors <- NULL
+#       temp <- NULL
+#       if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color=="Condition")){
+#         nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+#         nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
+#         nbColors <- max(nbColors, nbConds)
+#         palette <- NULL
+#         for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
+#         for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
+#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+#         }
+#         
+#       } else if (rv$whichGroup2Color=="Replicate"){
+#         nbColors <- length((Biobase::pData(rv$current.obj)$Condition))
+#         for(i in 1:nbColors){temp <- c(temp,input[[paste0("customColorCondition_",i)]])}
+#       }
+#  
+#     }
+#   )
+# 
+#   if (!is.null(temp))
+#     pal[1:length(temp)] <- temp
+#   
+#   pal
+# })
+
+
+GetPaletteForConditions <- reactive({
   req(rv$current.obj)
   rv$typeOfPalette
-   #req(input$typeOfPalette)
-  pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
   
-  nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-  # if (is.null(rv$typeOfPalette)){
-  #   if (is.null(input$whichGroup2Color) || (input$whichGroup2Color == "Condition") ){
-  #     nbMinColors <-  3
-  #     nbColors <- max(3,nbConds)
-  #     palette <- RColorBrewer::brewer.pal(nbColors,listBrewerPalettes[1])[1:nbConds]
-  #     temp <- NULL
-  #     for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-  #       temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
-  #     }
-  #     
-  #   }  else if (input$whichGroup2Color == "Replicate"){
-  #     nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
-  #     temp <- RColorBrewer::brewer.pal(nbConds,listBrewerPalettes[1])
-  #     
-  #   }
-  #   pal[1:length(temp)] <- temp 
-  #   }
-  # else {
-    switch(rv$typeOfPalette,
-    predefined={
-      if ((rv$whichGroup2Color == "Condition") ){
-       # nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
-      nbColors <- max(3,nbConds)
-      palette <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbColors)
-      temp <- NULL
-      for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-        temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
-      }
-     
-    }  else if (rv$whichGroup2Color == "Replicate"){
-      nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
-      temp <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbConds)
-    }
-      
-    },
-    custom = {
-      nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-      pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
-      
-      
-      nbColors <- NULL
-      temp <- NULL
-      if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color=="Condition")){
-        nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-        nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
-        nbColors <- max(nbColors, nbConds)
-        palette <- NULL
-        for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
-        for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-          temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
-        }
-        
-      } else if (rv$whichGroup2Color=="Replicate"){
-        nbColors <- length((Biobase::pData(rv$current.obj)$Condition))
-        for(i in 1:nbColors){temp <- c(temp,input[[paste0("customColorCondition_",i)]])}
-      }
- 
-    }
+  nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
+  nbUniqueConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  
+  pal <- rep('#000000', nbUniqueConds)
+  
+  switch(rv$typeOfPalette,
+         predefined={
+            temp <-  DAPAR::ExtendPalette(nbUniqueConds, rv$choosePalette)
+         },
+         custom = {
+           # nbColors <- NULL
+           # temp <- NULL
+           # nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+           # nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
+           # nbColors <- max(nbColors, nbConds)
+           palette <- NULL
+           for(i in 1:nbUniqueConds)
+             palette <- c(palette, input[[paste0("customColorCondition_", i)]])
+         }
   )
-
-  if (!is.null(temp)) {pal[1:length(temp)] <- temp}
+  
+  if (!is.null(temp))
+    pal[1:length(temp)] <- temp
+  
   pal
 })
-
-
 
 
 observeEvent(input$typeOfPalette,{rv$typeOfPalette <- input$typeOfPalette})
@@ -243,7 +254,7 @@ output$customPaletteUI <- renderUI({
 
 
 observeEvent(c(rv$choosePalette,rv$typeOfPalette,rv$current.obj,GetTest(), rv$whichGroup2Color), {
-  rv$PlotParams$paletteConditions <- GetExamplePalette()
+  rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
   })
 
 observeEvent(input$colMEC, {rv$colorsTypeMV$MEC <- input$colMEC})
@@ -254,13 +265,13 @@ observeEvent(input$colVolcanoOut, {rv$colorsVolcanoplot$Out <- input$colVolcanoO
 output$displayPalette <- renderHighchart({
   #req(input$chooseNbColors)
   #GetTest()
-  rv$PlotParams$paletteConditions
+  rv$PlotParams$paletteForConditions
   nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
   
   highchart() %>%
     my_hc_chart(chartType = "column") %>%
     hc_add_series(data = data.frame(y= abs(1+rnorm(ncol(Biobase::exprs(rv$current.obj))))), type="column", colorByPoint = TRUE) %>%
-    hc_colors(rv$PlotParams$paletteConditions) %>%
+    hc_colors(rv$PlotParams$paletteForConditions) %>%
     hc_plotOptions( column = list(stacking = "normal"),
                     animation=list(duration = 1)) %>%
      hc_legend(enabled = FALSE) %>%
