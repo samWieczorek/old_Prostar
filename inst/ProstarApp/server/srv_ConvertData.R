@@ -1019,7 +1019,7 @@ output$Convert_DataId <- renderUI({
 output$id <- renderUI({
   req(rv$tab1)
   
-  .choices <- c("Auto ID",colnames(rv$tab1))
+  .choices <- c("AutoID",colnames(rv$tab1))
   names(.choices) <- c("Auto ID",colnames(rv$tab1))
   
   tagList(
@@ -1031,9 +1031,8 @@ output$id <- renderUI({
 
 
 output$warningNonUniqueID <- renderUI({
-  req(input$idBox)
+  req(input$idBo != 'AutoID')
   req(rv$tab1)
-  if (input$idBox =="Auto ID") {return(NULL)  }
   
   t <- (length(as.data.frame(rv$tab1)[, input$idBox])
         == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -1087,7 +1086,7 @@ output$helpTextDataID <- renderUI({
 datasetID_Ok <- reactive({
   req(input$idBox)
   req(rv$tab1)
-  if (input$idBox == "Auto ID") {t <- TRUE}
+  if (input$idBox == "AutoID") {t <- TRUE}
   else {
     t <- (length(as.data.frame(rv$tab1)[, input$idBox])
           == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
@@ -1419,7 +1418,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   #browser()
   colNamesForOriginofValues <- NULL
   if (isTRUE(input$selectIdent)) {
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
     if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
   } 
   
@@ -1449,10 +1448,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           indexForEData <- indexForEData[rv$newOrder]
         }
         
-        indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
+        indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
         
         indexForIDBox <- NULL
-        if (input$idBox !="Auto ID") {
+        if (input$idBox !="AutoID") {
           indexForIDBox <- match(input$idBox, colnames(rv$tab1))
         }
         
@@ -1475,18 +1474,20 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                            installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
         )
         options(digits=15)
-        tmp <- DAPAR::createMSnset(rv$tab1, 
-                                   metadata, 
-                                   indexForEData, 
-                                   indexForFData, 
-                                   indexForIDBox,
-                                   indexForOriginOfValue,
-                                   logData, 
-                                   input$replaceAllZeros,
+        
+        browser()
+        tmp <- DAPAR::createMSnset(file = rv$tab1, 
+                                   metadata = metadata, 
+                                   indExpData = indexForEData, 
+                                   indFData = indexForFData, 
+                                   indiceID = indexForIDBox,
+                                   indexForOriginOfValue = indexForOriginOfValue,
+                                   logData = logData, 
+                                   replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
                                    proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
-                                   versions
-        )
+                                   versions = versions
+                                   )
         ClearUI()
         ClearMemory()
         rv$current.obj <- tmp
