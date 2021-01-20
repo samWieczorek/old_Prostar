@@ -1475,7 +1475,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         )
         options(digits=15)
         
-        browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
