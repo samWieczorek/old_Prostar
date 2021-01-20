@@ -23,7 +23,8 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
-    tmp <- wrapper.mvHisto_HC(data(),palette=palette())
+    tmp <- wrapper.mvHisto_HC(data(),
+                              base_palette = unique(palette())) 
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp
@@ -53,7 +54,7 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
     isolate({
       #pattern <- paste0(GetCurrentObjName(),".MVplot2")
       tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                    palette=palette())
+                                                    palette=unique(palette()))
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp
