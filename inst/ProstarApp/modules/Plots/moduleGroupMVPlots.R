@@ -20,7 +20,8 @@ missingValuesPlots <- function(input, output, session, data) {
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
-    tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
+    tmp <- wrapper.mvHisto_HC(data(),
+                              base_palette=rv$PlotParams$paletteConditions)
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp
