@@ -55,9 +55,9 @@ mod_plots_intensity_server <- function(input, output, session,
                                        meta,
                                        keyId,
                                        conds,
-                                       base_palette=NULL,
-                                       params=NULL,
-                                       reset=NULL,
+                                       palette = NULL,
+                                       params = NULL,
+                                       reset = NULL,
                                        slave = FALSE){
   
   
@@ -78,6 +78,7 @@ mod_plots_intensity_server <- function(input, output, session,
                                        slave = reactive({slave()})
   )
   
+<<<<<<< HEAD
   
   # observe({
   #   params()
@@ -91,6 +92,9 @@ mod_plots_intensity_server <- function(input, output, session,
   #   print(slave())
   # })
   
+=======
+
+>>>>>>> origin
   
   output$slave_tracking_ui <- renderUI({
     slave()
@@ -147,7 +151,7 @@ mod_plots_intensity_server <- function(input, output, session,
       tmp <- DAPAR::boxPlotD_HC(obj = dataIn(),
                                  conds = conds(),
                                  keyId = keyId(),
-                                 palette = base_palette(),
+                                 palette = palette(),
                                  subset.view = rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
     })
@@ -171,7 +175,7 @@ mod_plots_intensity_server <- function(input, output, session,
       tmp <- DAPAR::violinPlotD(obj = dataIn(),
                                  keyId = keyId(),
                                  conds = conds(),
-                                 palette = base_palette(),
+                                 palette = palette(),
                                  subset.view =  rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()

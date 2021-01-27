@@ -33,59 +33,59 @@ output$checkConvertPanel <- renderUI({
   rv$tab1
   rv$pageConvert
   color <- rep("lightgrey",NUM_PAGES_CONVERT)
-  
-  ##Step 1
-  if (rv$pageConvert >= 1){
-    res <- !is.null(rv$tab1)
-    ifelse(res, color[1] <- "green", color[1] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
-  ##Step 2: Choose data ID
-  
-  if (rv$pageConvert >= 2){
-    res1 <- !is.null(input$idBox) && ((input$idBox == "Auto ID") || datasetID_Ok())
-    res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
-    
-    ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res1 && res2)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  } 
-  
-  ## Step 3: Choose quantitative data
-  if (rv$pageConvert >= 3){
-    res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
-    
-    ifelse(res, color[3] <- "green", color[3] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
-  if (rv$pageConvert >= 4){
-    res <- isTRUE(rv$designChecked$valid)
-    ifelse(res, color[4] <- "green", color[4] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
-  if (rv$pageConvert >= 5){
-    res <- TRUE
-    ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
-    toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
-    toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
-    hide(selector = ".page")
-  }
-  
+  # 
+  # ##Step 1
+  # if (rv$pageConvert >= 1){
+  #   res <- !is.null(rv$tab1)
+  #   ifelse(res, color[1] <- "green", color[1] <- "red")
+  #   toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+  #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  #   hide(selector = ".page")
+  # }
+  # 
+  # ##Step 2: Choose data ID
+  # 
+  # if (rv$pageConvert >= 2){
+  #   res1 <- !is.null(input$idBox) && ((input$idBox == "Auto ID") || datasetID_Ok())
+  #   res2 <- !is.null(input$convert_proteinId) && (input$convert_proteinId != "")
+  #   
+  #   ifelse(res1 && res2, color[2] <- "green", color[2] <- "red")
+  #   toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res1 && res2)
+  #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  #   hide(selector = ".page")
+  # } 
+  # 
+  # ## Step 3: Choose quantitative data
+  # if (rv$pageConvert >= 3){
+  #   res <- !is.null(input$eData.box) && checkIdentificationMethod_Ok()
+  #   
+  #   ifelse(res, color[3] <- "green", color[3] <- "red")
+  #   toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+  #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  #   hide(selector = ".page")
+  # }
+  # 
+  # if (rv$pageConvert >= 4){
+  #   res <- isTRUE(rv$designChecked$valid)
+  #   ifelse(res, color[4] <- "green", color[4] <- "red")
+  #   toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+  #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  #   hide(selector = ".page")
+  # }
+  # 
+  # if (rv$pageConvert >= 5){
+  #   res <- TRUE
+  #   ifelse(!is.null(rv$current.obj), color <- rep("green",NUM_PAGES_CONVERT), color[5] <- "red")
+  #   toggleState(id = "nextBtnConvert", condition = (rv$pageConvert < NUM_PAGES_CONVERT) && res)
+  #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
+  #   hide(selector = ".page")
+  # }
+  # 
   txt <- c("Select file", "Select ID", "Select quantitative data", "Build design", "Convert")
   buildTable(txt, color)
 })
 
-NUM_PAGES_CONVERT <- 5
+# NUM_PAGES_CONVERT <- 5
 
 # observe({
 #   toggleState(id = "prevBtnConvert", condition = rv$pageConvert > 1)
@@ -93,19 +93,19 @@ NUM_PAGES_CONVERT <- 5
 #   hide(selector = ".page")
 # })
 
-navPageConvert <- function(direction) {
-  rv$pageConvert <- rv$pageConvert + direction
-}
-
-observeEvent(input$prevBtnConvert, navPageConvert(-1))
-observeEvent(input$nextBtnConvert, navPageConvert(1))
+# navPageConvert <- function(direction) {
+#   rv$pageConvert <- rv$pageConvert + direction
+# }
+# 
+# observeEvent(input$prevBtnConvert, navPageConvert(-1))
+# observeEvent(input$nextBtnConvert, navPageConvert(1))
 
 ##---------------------------------------------------------------
 ##------------------------------------------------------------------
 
 
 
-#################################
+########### STEP 1 ############
 output$Convert_SelectFile <- renderUI({
   #if (rv$pageConvert != 1){return()}
   
@@ -127,168 +127,8 @@ output$Convert_SelectFile <- renderUI({
 })
 
 
-output$Convert_DataId <- renderUI({
-  #if (rv$pageConvert != 2){return()}
-  
-  tagList(
-    
-    br(), br(),
-    #uiOutput("helpTextDataID"),
-    
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
-                uiOutput("id"),
-                uiOutput("warningNonUniqueID")
-      ),
-      tags$div( style="display:inline-block; vertical-align: top;",
-                uiOutput("convertChooseProteinID_UI"),
-                uiOutput("previewProteinID_UI")
-      )
-    )
-  )
-})
-
-
-
-
-output$Convert_ExpFeatData <- renderUI({
-  #if (rv$pageConvert != 3){return()}
-  
-  tagList(
-    fluidRow(
-      column(width=4,checkboxInput("selectIdent", 
-                                   "Select columns for identification method", 
-                                   value = FALSE)),
-      column(width=4,uiOutput("checkIdentificationTab"))
-    ),
-    fluidRow(
-      column(width=4,uiOutput("eData",width = "400px")),
-      column(width=8,DT::dataTableOutput("x1", width='500px'))),
-    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
-                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
-                                   })"))
-  )
-})
-
-
-
-
-
-output$Convert_BuildDesign <- renderUI({
-  #if (rv$pageConvert != 4){return()}
-  req(input$file1)
-  tagList(
-    tags$p("If you do not know how to fill the experimental design, you can click
-                                  on the '?' next to each design in the list that appear once the conditions 
-                                  are checked or got to the ", 
-           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
-           " page."),
-    fluidRow(
-      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
-      column(width=6,uiOutput("UI_checkConditions")  )
-    ),
-    fluidRow(
-      column(width=6,uiOutput("UI_hierarchicalExp")),
-      column(width=6,uiOutput("checkDesign") )
-    ),
-    hr(),
-    selectInput("convert_reorder", "Order by conditions ?",
-                choices=c("No"="No", "Yes"="Yes"),
-                width="100px"),
-    tags$div(
-      
-      tags$div(style="display:inline-block; vertical-align: top;",
-               uiOutput("viewDesign",width="100%")
-      ),
-      tags$div(style="display:inline-block; vertical-align: top;",
-               shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
-      )
-    )
-    
-  )
-  
-})
-
-
-
-
-
-
-output$Convert_Convert <- renderUI({
-  #if (rv$pageConvert != 5){return()}
-  
-  tagList(
-    br(), br(),
-    
-    uiOutput("convertFinalStep"),
-    moduleStaticDataTableUI("overview_convertData"),
-    uiOutput("conversionDone"),
-    p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
-    interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
-    (because successive dataset loading can make Prostar unstable). To work on another dataset, use first the 'Reload Prostar' functionality from 
-    the 'Dataset manager' menu: it will make Prostar restart with a fresh R session where import functions are enabled.")
-    
-  )
-})
-
-output$warningNonUniqueID <- renderUI({
-  req(input$idBox)
-  req(rv$tab1)
-  if (input$idBox =="Auto ID") {return(NULL)  }
-  
-  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-  
-  if (!t){
-    text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
-        Warning ! Your ID contains duplicate data.
-        Please choose another one."
-    
-  }
-  else {
-    text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
-  }
-  HTML(text)
-})
-
-
-output$convertChooseProteinID_UI <- renderUI({
-  req(rv$tab1)
-  
-  if (input$typeOfData == "protein") {return(NULL)}
-  
-  .choices <- c("",colnames(rv$tab1))
-  names(.choices) <- c("",colnames(rv$tab1))
-  tagList(
-    modulePopoverUI("modulePopover_convertProteinID"),
-    selectInput("convert_proteinId", 
-                "",
-                choices =  .choices , selected = character(0))
-  )
-})
-
-
-
-
-#########################################################
-output$id <- renderUI({
-  req(rv$tab1)
-  
-  .choices <- c("Auto ID",colnames(rv$tab1))
-  names(.choices) <- c("Auto ID",colnames(rv$tab1))
-  
-  tagList(
-    modulePopoverUI("modulePopover_convertIdType"),
-    selectInput("idBox", label = "", choices = .choices)
-  )
-  
-})
-
-
-
 output$ConvertOptions <- renderUI({
-  input$file1
-  if (is.null(input$file1)){return(NULL)}
+  req(input$file1)
   
   tagList(
     radioButtons("typeOfData", 
@@ -311,34 +151,6 @@ output$ConvertOptions <- renderUI({
 })
 
 
-observeEvent(input$fData.box,ignoreInit = TRUE,{
-  
-  choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
-  names(choices) = 
-    colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
-  updateSelectInput(session, "eData.box", 
-                    label = "",
-                    choices = choices,
-                    selected = choices)
-  
-})
-
-
-
-
-output$helpTextDataID <- renderUI({
-  input$typeOfData
-  if (is.null(input$typeOfData)){return(NULL)}
-  t <- ""
-  switch(input$typeOfData,
-         protein = {t <- "proteins"},
-         peptide = {t <- "peptides"}
-  )
-  txt <- paste ("Please select among the columns of your data the one that 
-                corresponds to a unique ID of the ", t, ".", sep=" ")
-  helpText(txt)
-  
-})
 
 
 
@@ -363,7 +175,7 @@ observeEvent(c(input$file1,input$XLSsheets),{
     shinyjs::disable("file1")
     switch(ext,
            txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-           csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+           csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep=";", as.is=T)},
            tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
            xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
            xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
@@ -385,27 +197,6 @@ observeEvent(c(input$file1,input$XLSsheets),{
 
 
 
-
-
-
-output$conversionDone <- renderUI({
-  rv$current.obj
-  if (is.null(rv$current.obj)) { return(NULL)}
-  
-  h4("The conversion is done. Your dataset has been automatically loaded 
-       in memory. Now, you can switch to the Descriptive statistics panel to 
-       vizualize your data.")
-  
-})
-
-
-
-
-
-
-
-
-#####-------------------------------------------------------
 output$ManageXlsFiles <- renderUI({
   req(input$file1)
   
@@ -421,22 +212,197 @@ output$ManageXlsFiles <- renderUI({
 
 
 
+################## STEP 2 ###############################
+
+output$Convert_DataId <- renderUI({
+  
+  tagList(
+    
+    br(), br(),
+    #uiOutput("helpTextDataID"),
+    
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
+                uiOutput("id"),
+                uiOutput("warningNonUniqueID")
+      ),
+      tags$div( style="display:inline-block; vertical-align: top;",
+                uiOutput("convertChooseProteinID_UI"),
+                uiOutput("previewProteinID_UI")
+      )
+    )
+  )
+})
+
+
+output$id <- renderUI({
+  req(rv$tab1)
+  
+  .choices <- c("AutoID",colnames(rv$tab1))
+  names(.choices) <- c("Auto ID",colnames(rv$tab1))
+  
+  tagList(
+    modulePopoverUI("modulePopover_convertIdType"),
+    selectInput("idBox", label = "", choices = .choices)
+  )
+  
+})
+
+
+output$warningNonUniqueID <- renderUI({
+  req(input$idBo != 'AutoID')
+  req(rv$tab1)
+  
+  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  
+  if (!t){
+    text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
+        Warning ! Your ID contains duplicate data.
+        Please choose another one."
+    
+  }
+  else {
+    text <- "<img src=\"images/Ok.png\" height=\"24\"></img>"
+  }
+  HTML(text)
+})
+
+
+output$convertChooseProteinID_UI <- renderUI({
+  req(rv$tab1)
+  req(input$typeOfData != "protein")
+  
+  .choices <- c("",colnames(rv$tab1))
+  names(.choices) <- c("",colnames(rv$tab1))
+  tagList(
+    modulePopoverUI("modulePopover_convertProteinID"),
+    selectInput("convert_proteinId", 
+                "",
+                choices =  .choices , selected = character(0))
+  )
+})
 
 
 
-###########################################
 
-#
-#
-##   Quanti data table
+output$helpTextDataID <- renderUI({
+  input$typeOfData
+  if (is.null(input$typeOfData)){return(NULL)}
+  t <- ""
+  switch(input$typeOfData,
+         protein = {t <- "proteins"},
+         peptide = {t <- "peptides"}
+  )
+  txt <- paste ("Please select among the columns of your data the one that 
+                corresponds to a unique ID of the ", t, ".", sep=" ")
+  helpText(txt)
+  
+})
 
-##
-##
-##############################################
+
+
+datasetID_Ok <- reactive({
+  req(input$idBox)
+  req(rv$tab1)
+  if (input$idBox == "AutoID") {t <- TRUE}
+  else {
+<<<<<<< HEAD
+    # result = tryCatch(
+    #   {
+    ClearUI()
+    ClearMemory()
+    ext <- GetExtension(input$file1$name)
+    shinyjs::disable("file1")
+    switch(ext,
+           txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+           csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+           tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+           xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
+           xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
+    )
+    #   }
+    #   , warning = function(w) {
+    #     shinyjs::info(conditionMessage(w))
+    #   }, error = function(e) {
+    #     shinyjs::info(paste("Read text file to convert",":",
+    #                         conditionMessage(e), 
+    #                         sep=" "))
+    #   }, finally = {
+    #     #cleanup-code 
+    #   })
+=======
+    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
+          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+>>>>>>> origin
+  }
+  t
+})
+
+
+
+output$previewProteinID_UI <- renderUI({
+  req(input$convert_proteinId != "")
+  
+  tagList(
+    p(style="color: black;", 'Preview'),
+    tableOutput("previewProtID")
+  )
+  
+})
+
+
+
+output$previewProtID <- renderTable(
+  # req(input$convert_proteinId),
+  head(rv$tab1[,input$convert_proteinId]),
+  colnames = FALSE
+)
+
+ ##################### STEP 3 #######################################
+
+output$Convert_ExpFeatData <- renderUI({
+  
+  tagList(
+    shinyjs::useShinyjs(),
+    fluidRow(
+      column(width=4, shinyjs::hidden(
+        checkboxInput("selectIdent", 
+                      "Select columns for identification method", 
+                      value = FALSE))
+        ),
+      column(width=4,uiOutput("checkIdentificationTab")),
+      column(width = 4, shinyjs::hidden(
+        div(id = 'warning_neg_values',
+            p("Warning : Your original dataset may contain negative values",
+              "so that they cannot be logged. Please check back the dataset or", 
+              "the log option in the first tab."))
+      )
+      )
+    ),
+    fluidRow(
+      column(width=4, uiOutput("eData",width = "400px")),
+      column(width=8, shinyjs::hidden(
+        DT::dataTableOutput("x1", width='500px'))
+      )
+      ),
+    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+                                   })"))
+  )
+})
+
+
+observe({
+  #browser()
+  shinyjs::toggle('warning_neg_values', condition = !is.null(input$eData.box) && length(which(rv$tab1[,input$eData.box] < 0)) > 0)
+  shinyjs::toggle('selectIdent', condition = !is.null(rv$tab1))
+  shinyjs::toggle('x1', condition = isTRUE(input$selectIdent))
+})
+
 output$eData <- renderUI({
   input$file1
-  rv$tab1
-  if (is.null(rv$tab1)) {return(NULL)  }
+  req(rv$tab1)
   
   choices <- colnames(rv$tab1)
   names(choices) <- colnames(rv$tab1)
@@ -454,23 +420,9 @@ output$eData <- renderUI({
 
 
 
-
-
-# updateInputs <- function(id, n){
-#     for (i in seq_len(n)) {
-#         updateSelectInput(paste0(id,i),label=NULL,selected = input[[paste0(id,i)]])
-#     }
-# }
-
-
-
-
-
-
-
 output$checkIdentificationTab <- renderUI({
-  req(input$selectIdent)
-  if (!isTRUE(input$selectIdent)){return(NULL)}
+  req(input$selectIdent == TRUE)
+  #if (!isTRUE(input$selectIdent)){return(NULL)}
   
   shinyValue("colForOriginValue_",length(input$eData.box))
   temp <- shinyValue("colForOriginValue_",length(input$eData.box))
@@ -500,20 +452,32 @@ output$checkIdentificationTab <- renderUI({
       tags$div(style="display:inline-block;",tags$p(txt))
     )
   )
-  
-  
+
 })
 
 
 
 # reactive dataset
 quantiDataTable <- reactive({
+<<<<<<< HEAD
  
   req(input$eData.box)
   req(rv$tab1)
   session$sendCustomMessage('unbind-DT', 'x1')
   df <- NULL
   choices <- c("None",colnames(rv$tab1))
+=======
+  rv$tab1
+  input$eData.box
+  input$selectIdent
+  
+  #browser()
+  if (is.null(input$eData.box) || is.null(rv$tab1)) return(NULL)
+  
+  df <- NULL
+  session$sendCustomMessage('unbind-DT', 'x1')
+  choices <- c("None", colnames(rv$tab1))
+>>>>>>> origin
   names(choices) <- c("None",colnames(rv$tab1))
   
   if (isTRUE(input$selectIdent)) {
@@ -522,7 +486,11 @@ quantiDataTable <- reactive({
                      shinyInput(selectInput,
                                 "colForOriginValue_",
                                 nrow(as.data.frame(input$eData.box)),
+<<<<<<< HEAD
                                 choices=choices))
+=======
+                                choices = choices))
+>>>>>>> origin
     colnames(df) <- c("Sample", "Identification method")
   } else {
     df <- data.frame(Sample = as.data.frame(input$eData.box))
@@ -578,38 +546,98 @@ checkIdentificationMethod_Ok <- reactive({
   
 })
 
+############# STEP 4 ######################
 
-datasetID_Ok <- reactive({
-  req(input$idBox)
-  req(rv$tab1)
-  if (input$idBox == "Auto ID") {t <- TRUE}
-  else {
-    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
-  }
-  t
-})
-
-
-
-output$previewProteinID_UI <- renderUI({
-  req(input$convert_proteinId)
-  if (input$convert_proteinId == "") {return (NULL)}
-  
+output$Convert_BuildDesign <- renderUI({
+  # print('toto')
+ # browser()
+  req(input$file1)
   tagList(
-    p(style="color: black;", 'Preview'),
-    tableOutput("previewProtID")
+    tags$p("If you do not know how to fill the experimental design, you can click
+                                  on the '?' next to each design in the list that appear once the conditions 
+                                  are checked or got to the ", 
+           actionLink("linkToFaq1", "FAQ",style="background-color: white"), 
+           " page."),
+    fluidRow(
+      column(width=6,tags$b("1 - Fill the \"Condition\" column to identify the conditions to compare.")),
+      column(width=6,uiOutput("UI_checkConditions")  )
+    ),
+    fluidRow(
+      column(width=6,uiOutput("UI_hierarchicalExp")),
+      column(width=6,uiOutput("checkDesign") )
+    ),
+    hr(),
+    selectInput("convert_reorder", "Order by conditions ?",
+                choices=c("No"="No", "Yes"="Yes"),
+                width="100px"),
+    tags$div(
+      
+      tags$div(style="display:inline-block; vertical-align: top;",
+               uiOutput("viewDesign",width="100%")
+      ),
+      tags$div(style="display:inline-block; vertical-align: top;",
+               shinyjs::hidden(div(id = "showExamples", uiOutput("designExamples") ))
+      )
+    )
+    
   )
   
 })
 
 
 
-output$previewProtID <- renderTable(
-  # req(input$convert_proteinId),
-  head(rv$tab1[,input$convert_proteinId]),
-  colnames = FALSE
-)
+############# STEP 5 ########################
+
+
+output$Convert_Convert <- renderUI({
+  
+  tagList(
+    br(), br(),
+    
+    uiOutput("convertFinalStep"),
+    moduleStaticDataTableUI("overview_convertData"),
+    uiOutput("conversionDone"),
+    p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
+    interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
+    (because successive dataset loading can make Prostar unstable). To work on another dataset, use first the 'Reload Prostar' functionality from 
+    the 'Dataset manager' menu: it will make Prostar restart with a fresh R session where import functions are enabled.")
+    
+  )
+})
+
+
+
+output$convertFinalStep <- renderUI({
+  req(rv$designChecked)
+  if (!(rv$designChecked$valid)){return(NULL)}
+  tagList(
+    uiOutput("checkAll_convert", width="50"),
+    htmlOutput("msgAlertCreateMSnset"),
+    hr(),
+    textInput("filenameToCreate","Enter the name of the study"),
+    actionButton("createMSnsetButton","Convert data", class = actionBtnClass),
+    uiOutput("warningCreateMSnset")
+    
+  )
+})
+
+
+output$conversionDone <- renderUI({
+  rv$current.obj
+  if (is.null(rv$current.obj)) { return(NULL)}
+  
+  h4("The conversion is done. Your dataset has been automatically loaded 
+       in memory. Now, you can switch to the Descriptive statistics panel to 
+       vizualize your data.")
+  
+})
+
+
+# updateInputs <- function(id, n){
+#     for (i in seq_len(n)) {
+#         updateSelectInput(paste0(id,i),label=NULL,selected = input[[paste0(id,i)]])
+#     }
+# }
 
 
 
@@ -626,7 +654,17 @@ output$warningCreateMSnset <- renderUI({
 })
 
 
-
+# observeEvent(input$fData.box,ignoreInit = TRUE,{
+#   
+#   choices = colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
+#   names(choices) = 
+#     colnames(rv$tab1)[-which(colnames(rv$tab1) %in% input$fData.box)]
+#   updateSelectInput(session, "eData.box", 
+#                     label = "",
+#                     choices = choices,
+#                     selected = choices)
+#   
+# })
 
 
 
@@ -634,10 +672,10 @@ output$warningCreateMSnset <- renderUI({
 observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
-  
+  #browser()
   colNamesForOriginofValues <- NULL
   if (isTRUE(input$selectIdent)) {
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    colNamesForOriginofValues <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
     if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
   } 
   
@@ -667,10 +705,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           indexForEData <- indexForEData[rv$newOrder]
         }
         
-        indexForFData <- seq(1,ncol(rv$tab1))[-indexForEData]
+        indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
         
         indexForIDBox <- NULL
-        if (input$idBox !="Auto ID") {
+        if (input$idBox !="AutoID") {
           indexForIDBox <- match(input$idBox, colnames(rv$tab1))
         }
         
@@ -693,18 +731,19 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                            installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
         )
         options(digits=15)
-        tmp <- DAPAR::createMSnset(rv$tab1, 
-                                   metadata, 
-                                   indexForEData, 
-                                   indexForFData, 
-                                   indexForIDBox,
-                                   indexForOriginOfValue,
-                                   logData, 
-                                   input$replaceAllZeros,
+        
+        tmp <- DAPAR::createMSnset(file = rv$tab1, 
+                                   metadata = metadata, 
+                                   indExpData = indexForEData, 
+                                   indFData = indexForFData, 
+                                   indiceID = indexForIDBox,
+                                   indexForOriginOfValue = indexForOriginOfValue,
+                                   logData = logData, 
+                                   replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
                                    proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
-                                   versions
-        )
+                                   versions = versions
+                                   )
         ClearUI()
         ClearMemory()
         rv$current.obj <- tmp
@@ -717,20 +756,20 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         loadObjectInMemoryFromConverter()
         
         updateTabsetPanel(session, "tabImport", selected = "Convert")
-        rv$pageConvert <- 5
-      }
-      , warning = function(w) {
-        if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
-          shinyjs::info(paste("Warning : Your original dataset may contain negative values",
-                              "so that they cannot be logged. Please check back the dataset or", 
-                              "the log option in the first tab.",
-                              sep=" "))
-        } else {
-          shinyjs::info(paste("Warning in CreateMSnSet",":",
-                              conditionMessage(w), 
-                              sep=" "))
-        }
-      }, error = function(e) {
+      },
+      # warning = function(w) {
+      #   if (conditionMessage(w) %in% c("NaNs produced", "production de NaN")){
+      #     shinyjs::info(paste("Warning : Your original dataset may contain negative values",
+      #                         "so that they cannot be logged. Please check back the dataset or", 
+      #                         "the log option in the first tab.",
+      #                         sep=" "))
+      #   } else {
+      #     shinyjs::info(paste("Warning in CreateMSnSet",":",
+      #                         conditionMessage(w), 
+      #                         sep=" "))
+      #   }
+      # }, 
+      error = function(e) {
         shinyjs::info(paste("Error :","CreateMSnSet",":",
                             conditionMessage(e), 
                             sep=" "))

@@ -31,7 +31,11 @@ resetModuleAnaDiff <- reactive({
   if (rv$widgets$anaDiff$swapVolcano == TRUE){
     rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
   }
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> origin
   ## update widgets values (reactive values)
   resetModuleProcess("AnaDiff")
   
@@ -49,11 +53,18 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
   rv$widgets$anaDiff$swapVolcano = FALSE
+<<<<<<< HEAD
   rv$widgets$anaDiff$val_vs_percent = "Value"
   rv$widgets$anaDiff$ChooseFilters = "None"
   rv$widgets$anaDiff$seuilNA_percent = 0
   rv$widgets$anaDiff$seuilNA = 0
   
+=======
+   rv$widgets$anaDiff$val_vs_percent = "Value"
+  rv$widgets$anaDiff$ChooseFilters = "None"
+  rv$widgets$anaDiff$seuilNA_percent = 0
+  rv$widgets$anaDiff$seuilNA = 0
+>>>>>>> origin
   rv$widgets$anaDiff$filter_th_NA = 0
   rv$widgets$anaDiff$calibMethod = 'None'
   rv$widgets$anaDiff$numValCalibMethod = 0
@@ -111,12 +122,21 @@ output$screenAnaDiff1 <- renderUI({
                   #uiOutput("pushPValUI"),
                   div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
                        uiOutput("AnaDiff_seuilNADelete")
+<<<<<<< HEAD
                   ),
+=======
+                       ),
+>>>>>>> origin
                   div( style="display:inline-block; vertical-align: middle;",
                        hidden(actionButton("AnaDiff_perform.filtering.MV", 
                                            "Push p-value", 
                                            class = actionBtnClass))
+<<<<<<< HEAD
                   ),
+=======
+                       ),
+                  
+>>>>>>> origin
         )
       ),
       tags$hr(),
@@ -144,6 +164,7 @@ output$AnaDiff_seuilNADelete <- renderUI({
   if (as.character(rv$widgets$anaDiff$ChooseFilters)==gFilterNone){
     return(NULL)   }
   
+<<<<<<< HEAD
   # isolate({  
   tagList(
     div(
@@ -152,10 +173,21 @@ output$AnaDiff_seuilNADelete <- renderUI({
                         choices = c('Value'='Value', 'Percentage'='Percentage'),
                         selected = rv$widgets$anaDiff$val_vs_percent
            )
+=======
+ # isolate({  
+    tagList(
+     div(
+       div( style="display:inline-block; vertical-align: middle;",
+            radioButtons('AnaDiff_val_vs_percent', '#/% of values to keep', 
+                   choices = c('Value'='Value', 'Percentage'='Percentage'),
+                   selected = rv$widgets$anaDiff$val_vs_percent
+      )
+>>>>>>> origin
       ),
       div( style="display:inline-block; vertical-align: middle;",
            uiOutput('AnaDiff_keepVal_ui'),
            uiOutput('AnaDiff_keepVal_percent_ui')
+<<<<<<< HEAD
       )
     ),
     uiOutput('AnaDiff_keep_helptext')
@@ -277,6 +309,129 @@ observeEvent(input$AnaDiff_ChooseFilters, {
 # })
 
 
+=======
+           )
+      ),
+      uiOutput('AnaDiff_keep_helptext')
+    )
+ # })
+})
+
+Get_Dataset_to_Analyze <- reactive({
+  rv$widgets$anaDiff$Comparison
+  rv$current.obj
+  
+  condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+  condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+  ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
+            which(pData(rv$current.obj)$Condition==condition2))
+  
+  datasetToAnalyze <- rv$current.obj[,ind]
+  datasetToAnalyze@experimentData@other$OriginOfValues <-
+    rv$current.obj@experimentData@other$OriginOfValues[ind]
+  
+  datasetToAnalyze
+})
+
+output$AnaDiff_keepVal_ui <- renderUI({
+  req(rv$widgets$anaDiff$val_vs_percent)
+  if (rv$widgets$anaDiff$val_vs_percent != 'Value') {return(NULL)}
+  if (rv$widgets$anaDiff$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
+  
+    
+  choix <- getListNbValuesInLines(Get_Dataset_to_Analyze(), 
+                                  type = as.character(rv$widgets$anaDiff$ChooseFilters))
+  
+  tagList(
+    modulePopoverUI("modulePopover_anaDiff_keepVal"),
+    selectInput("AnaDiff_seuilNA", NULL,
+                choices =  choix,
+                selected = rv$widgets$anaDiff$seuilNA,
+                width='150px')
+  )
+})
+
+output$AnaDiff_keepVal_percent_ui <- renderUI({
+  req(rv$widgets$anaDiff$val_vs_percent=='Percentage')
+  #if (rv$widgets$anaDiff$val_vs_percent != 'Percentage') {return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_anaDiff_keepVal_percent"),
+    numericInput("AnaDiff_seuilNA_percent", NULL,
+                 min = 0,
+                 max = 100,
+                 value = rv$widgets$anaDiff$seuilNA_percent,
+                 width='150px')
+  )
+})
+
+
+
+output$AnaDiff_keep_helptext <- renderUI({
+  rv$widgets$anaDiff$ChooseFilters
+  txt <- NULL
+  switch(rv$widgets$anaDiff$ChooseFilters,
+         None = txt <-"All lines will be kept",
+         WholeMatrix = {
+           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
+             txt <- paste0("Only the lines (across all conditions) which contain at least ",
+                           rv$widgets$anaDiff$seuilNA, 
+                           " non-missing value are kept.")
+           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines (across all conditions) which contain at least ",
+                           rv$widgets$anaDiff$seuilNA_percent, 
+                           "% of non-missing value are kept.")
+         },
+         AtLeastOneCond = {
+           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$anaDiff$seuilNA, 
+                           " non-missing value in, at least one condition, are kept.")
+           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$anaDiff$seuilNA_percent, 
+                           "% of non-missing value in, at least one condition, are kept.")
+         },
+         AllCond = {
+           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$anaDiff$seuilNA, 
+                           " non-missing value in each condition are kept.")
+           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$anaDiff$seuilNA_percent, 
+                           "% of non-missing value in each condition are kept.")
+         }
+  )
+  tagList(
+    tags$p(txt)
+  )
+})
+
+
+
+observeEvent(input$AnaDiff_val_vs_percent, {
+  rv$widgets$anaDiff$val_vs_percent <- input$AnaDiff_val_vs_percent
+  })
+
+observeEvent(input$AnaDiff_seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
+  rv$widgets$anaDiff$seuilNA_percent <- input$AnaDiff_seuilNA_percent
+})
+
+observeEvent(input$AnaDiff_ChooseFilters, {
+  rv$widgets$anaDiff$ChooseFilters <-input$AnaDiff_ChooseFilters
+  shinyjs::toggle("AnaDiff_perform.filtering.MV", 
+                  condition=rv$widgets$anaDiff$ChooseFilters != "None")
+})
+
+# observe({
+#   rv$widgets$anaDiff$ChooseFilters
+#   shinyjs::toggle("AnaDiff_perform.filtering.MV", 
+#                   condition=rv$widgets$anaDiff$ChooseFilters != "None")
+# })
+
+
+>>>>>>> origin
 observeEvent(input$AnaDiff_seuilNA, {
   rv$widgets$anaDiff$seuilNA <-input$AnaDiff_seuilNA
   if (rv$widgets$anaDiff$seuilNA==gFilterNone) {
@@ -301,7 +456,11 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
   if (as.character(rv$widgets$anaDiff$ChooseFilters) == gFilterNone){
     GetBackToCurrentResAnaDiff()
   } else {
+<<<<<<< HEAD
     th <- NULL
+=======
+   th <- NULL
+>>>>>>> origin
     if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
       th <- as.numeric(rv$widgets$anaDiff$seuilNA_percent)/100
     else
@@ -319,6 +478,11 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
   #})
 })
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> origin
 observeEvent(req(input$swapVolcano),{
   req(rv$resAnaDiff$logFC)
   #isolate({
@@ -438,6 +602,7 @@ GetBackToCurrentResAnaDiff <- reactive({
                         condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
   )
   rv$resAnaDiff
+<<<<<<< HEAD
 })
 
 
@@ -509,7 +674,80 @@ output$screenAnaDiff2 <- renderUI({
 
 observeEvent(input$nBinsHistpval,{ 
   rv$widgets$anaDiff$nBinsHistpval <- as.numeric(input$nBinsHistpval)
+=======
+>>>>>>> origin
 })
+
+
+
+
+
+not_a_numeric <- function(input) {
+  if (is.na(as.numeric(input))) {
+    "Please input a number"
+  }  else {
+    NULL
+  }
+}
+
+# 
+# Get_seuilPVal <- reactive({
+#    shiny::validate(
+#     need(!is.na(rv$widgets$anaDiff$th_pval), "")
+#   )
+#   rv$widgets$anaDiff$th_pval
+# })
+
+
+
+###
+### ------------------- SCREEN 2 ------------------------------
+###
+
+
+
+output$screenAnaDiff2 <- renderUI({
+  req(as.character(rv$widgets$anaDiff$Comparison))
+  
+  tagList(
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+                selectInput("calibrationMethod","Calibration method",
+                            choices = calibMethod_Choices,
+                            selected = rv$widgets$anaDiff$calibMethod, width='200px')
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                uiOutput('numericalValForCalibrationPlot')
+                #hidden(numericInput( "numericValCalibration","Proportion of TRUE null hypohtesis", 
+                #                     value = rv$widgets$anaDiff$numValCalibMethod, 
+                #                     min=0, max=1, step=0.05, width='200px')
+                #      )
+      ),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                selectInput("nBinsHistpval", "n bins", 
+                            choices = c(1,seq(from = 0, to = 100, by = 10)[-1]),
+                            selected=rv$widgets$anaDiff$nBinsHistpval, width='80px'))
+      
+    ),
+    tags$hr(),
+    
+    fluidRow(
+      column(width=6,fluidRow(style = "height:800px;",imageOutput("calibrationPlotAll", height='800px'))),
+      column(width=6,fluidRow(style = "height:400px;",imageOutput("calibrationPlot", height='400px')),
+             fluidRow(style = "height:400px;",highchartOutput("histPValue"))
+      )
+    )
+  )
+  
+})    
+
+
+
+
+
+observeEvent(input$nBinsHistpval,{ 
+  rv$widgets$anaDiff$nBinsHistpval <- as.numeric(input$nBinsHistpval)
+  })
 
 
 observeEvent(input$calibrationMethod,{  
@@ -849,15 +1087,27 @@ observeEvent(input$valid_seuilPVal,{
 })
 
 
+<<<<<<< HEAD
+=======
+
+observeEvent(input$showpvalTable, {
+  print("show : anaDiff_selectedItems")
+  shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))
+})
+>>>>>>> origin
 
 observeEvent(input$showpvalTable, {
   print("show : anaDiff_selectedItems")
   shinyjs::toggle(id = "anaDiff_selectedItems", condition=isTRUE(input$showpvalTable))
 })
 
-
 observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
 
+<<<<<<< HEAD
+observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
+
+=======
+>>>>>>> origin
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
 
 # 
@@ -1134,3 +1384,7 @@ GetSelectedItems <- reactive({
 isContainedIn <- function(strA, strB){
   return (all(strA %in% strB))
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin

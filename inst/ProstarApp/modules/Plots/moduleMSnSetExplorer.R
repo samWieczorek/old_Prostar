@@ -74,8 +74,8 @@ MSnSetExplorer <- function(input, output, session, data) {
   output$tabToShow <- renderUI({
     req(input$DS_TabsChoice)
     req(rv$current.obj)
-    print(paste0('input$DS_TabsChoice', input$DS_TabsChoice))
-    switch(input$DS_TabsChoice,
+    
+     switch(input$DS_TabsChoice,
            None = {return(NULL)},
            tabExprs = tagList(
              if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
@@ -98,7 +98,7 @@ MSnSetExplorer <- function(input, output, session, data) {
     req(rv$current.obj)
     
     data <- as.data.frame(Biobase::pData(rv$current.obj))
-    pal <- unique(rv$PlotParams$paletteConditions)
+    pal <- rv$PlotParams$paletteForConditions
     dt <- DT::datatable(  data,
                            extensions = c('Scroller', 'Buttons'),
                           rownames=  FALSE,
@@ -201,7 +201,7 @@ MSnSetExplorer <- function(input, output, session, data) {
   output$table <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj)
-    print(head(df))
+    
     dt <- DT::datatable( df,
                      rownames=TRUE,
                      extensions = c('Scroller', 'Buttons', 'FixedColumns'),

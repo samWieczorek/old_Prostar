@@ -9,8 +9,15 @@
 callModule(moduleDensityplot,"densityPlot_Norm",
            data=reactive({rv$current.obj}))
 
+<<<<<<< HEAD
 callModule(moduleBoxplot,"boxPlot_Norm",
            data=reactive({rv$current.obj}))
+=======
+# callModule(moduleBoxplot,"boxPlot_Norm",
+#            data=reactive({rv$current.obj}),
+#            palette = reactive({rv$PlotParams$paletteForConditions})
+# )
+>>>>>>> origin
 
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
@@ -68,7 +75,11 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
                                        conds = reactive({pData(rv$current.obj)$Condition}),
+<<<<<<< HEAD
                                        base_palette = reactive({rv$PlotParams$paletteConditions}),
+=======
+                                       palette = reactive({rv$PlotParams$paletteForConditions}),
+>>>>>>> origin
                                        params = reactive({
                                          if(rv.norm$sync)
                                            rv.norm$selectProt()
@@ -262,6 +273,27 @@ observeEvent(rv$widgets$normalization$method,{
   shinyjs::toggle('DivMasterProtSelection', condition= cond && trackAvailable)
 })
 
+GetIndicesOfSelectedProteins_ForNorm <- reactive({
+  req(rv.norm$selectProt())
+  
+  
+  print('in GetIndicesOfSelectedProteins_ForNorm')
+  print(rv.norm$selectProt()())
+  ind <- NULL
+  ll <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+  tt <- rv.norm$selectProt()$type
+  switch(tt,
+         ProteinList = ind <- rv.norm$selectProt()$list.indices,
+         Random = ind <- rv.norm$selectProt()$rand.indices,
+         Column = ind <- rv.norm$selectProt()$col.indices
+  )
+  if (length(ind)==0)
+    ind <- NULL
+  
+  print('ind = ')
+  print(ind)
+  ind
+})
 
 GetIndicesOfSelectedProteins_ForNorm <- reactive({
   req(rv.norm$selectProt())
@@ -401,7 +433,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #######################
 
 # viewComparisonNorm2 <- reactive({
-#   rv$PlotParams$paletteConditions
+#   rv$PlotParams$paletteForConditions
 #   leg <- NULL
 #   grp <- NULL
 #   
@@ -438,14 +470,14 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #   wrapper.compareNormalizationD(obj1, obj2,
 #                                 labelsNorm,
 #                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteConditions)
+#                                 palette = rv$PlotParams$paletteForConditions)
 #   
 # })
 # 
 
 
 # viewComparisonNorm <- reactive({
-#   rv$PlotParams$paletteConditions
+#   rv$PlotParams$paletteForConditions
 #   req(rv$current.obj)
 #   
 #   leg <- NULL
@@ -488,13 +520,13 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 #   wrapper.compareNormalizationD(obj1, obj2,
 #                                 labelsNorm,
 #                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteConditions)
+#                                 palette = rv$PlotParams$paletteForConditions)
 #   
 # })
 
 
 output$viewComparisonNorm_HC <- renderHighchart({
-  rv$PlotParams$paletteConditions
+  rv$PlotParams$paletteForConditions
   req(rv$current.obj)
   
   dname <- paste0("Normalized.", rv$typeOfDataset)
@@ -511,7 +543,7 @@ output$viewComparisonNorm_HC <- renderHighchart({
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
                            conds = Biobase::pData(obj1)$Condition,
-                           palette = unique(rv$PlotParams$paletteConditions),
+                           palette = rv$PlotParams$paletteForConditions,
                            subset.view = NULL
   )
 })

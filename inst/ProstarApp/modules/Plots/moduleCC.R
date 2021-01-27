@@ -584,6 +584,10 @@ output$CCDetailed <- renderUI({
   
   output$Warning_OneOneDTDetailed <- reactive({
     req(GetDataFor_OneOneDTDetailed())
+<<<<<<< HEAD
+=======
+        #browser()
+>>>>>>> origin
     if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
     

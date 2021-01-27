@@ -3,8 +3,9 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
-           palette = reactive({rv$PlotParams$paletteConditions})
+           palette = reactive({rv$PlotParams$paletteForConditions})
 )
+<<<<<<< HEAD
 callModule(moduleDensityplot, "densityPlot_DS",data=reactive({rv$current.obj}))
 
 callModule(moduleBoxplot, "boxPlot_DS",
@@ -12,10 +13,23 @@ callModule(moduleBoxplot, "boxPlot_DS",
            )
 
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
+=======
+callModule(moduleDensityplot, "densityPlot_DS",
+           data=reactive({rv$current.obj}))
+
+callModule(moduleBoxplot, "boxPlot_DS",
+           data=reactive({rv$current.obj}),
+           palette = reactive({rv$PlotParams$paletteForConditions})
+)
+
+callModule(moduleStaticDataTable,"overview_DS", 
+           table2show=reactive({GetDatasetOverview()}),
+>>>>>>> origin
            filename='DescriptiveStats_Overview')
 
 callModule(moduleStaticDataTable,"PCAvarCoord", 
-           table2show=reactive({if (!is.null(rv$res.pca)) round(rv$res.pca$var$coord, digits=7)}), 
+           table2show=reactive({if (!is.null(rv$res.pca)) 
+             round(rv$res.pca$var$coord, digits=7)}), 
            showRownames=TRUE,
            filename = 'PCA_Var_Coords')
 
@@ -365,7 +379,7 @@ output$viewpData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   
   data <- as.data.frame(Biobase::pData(rv$current.obj))
-  pal <- unique(rv$PlotParams$paletteConditions)
+  pal <- rv$PlotParams$paletteForConditions
   dt <- DT::datatable(  data,
                         extensions = c('Scroller', 'Buttons'),
                         rownames=  FALSE,
@@ -502,9 +516,10 @@ output$viewExprsMissValues <- DT::renderDataTable(server=TRUE, {
 viewDistCV <- reactive({
   
   req(rv$current.obj)
-  rv$PlotParams$paletteConditions
+  rv$PlotParams$paletteForConditions
   
-  isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,rv$PlotParams$paletteConditions)})
+  isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,
+                                                     palette = rv$PlotParams$paletteForConditions)})
   rv$tempplot$varDist
   
   

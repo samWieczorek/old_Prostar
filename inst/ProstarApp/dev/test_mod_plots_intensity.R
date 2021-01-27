@@ -47,7 +47,7 @@ server <- function(input, output, session) {
              meta = reactive({fData(obj)}),
              keyId = reactive({keyId}),
              conds = reactive({conds}),
-             base_palette = reactive({NULL}),
+             palette = reactive({NULL}),
              params = reactive({if(input$sync) 
                r$master() else NULL
              }),
