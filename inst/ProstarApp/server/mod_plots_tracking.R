@@ -110,9 +110,8 @@ mod_plots_tracking_server <- function(input, output, session,
   
   
   
-  observe({
-    
-    reset()
+  observeEvent(req(reset()),{
+  
     if (reset() > 0) {
       updateSelectInput(session, "typeSelect", selected='None')
       updateSelectInput(session, "listSelect", NULL)
@@ -130,8 +129,7 @@ mod_plots_tracking_server <- function(input, output, session,
   
   
   
-  observe({
-    params()
+  observeEvent(params(), {
     
     if (rv.track$sync == TRUE && is.null(params())){
       updateSelectInput(session, "typeSelect", selected='None')
@@ -224,19 +222,16 @@ mod_plots_tracking_server <- function(input, output, session,
       rv.track$res$list.indices <-  match(rv.track$res$listSelect, Biobase::fData(obj())[,keyId()])
   })
   
-  
-  
-  
-  
-  observeEvent(input$randSelect,ignoreNULL = FALSE,{
+  observeEvent(input$randSelect, ignoreNULL = FALSE,{
     if (!is.null(params())) return(NULL)
+    #req(as.numeric(input$randSelect) > 0)
     rv.track$res$randSelect <- input$randSelect
-    
+    #browser()
     updateSelectInput(session, "listSelect", NULL)
     updateSelectInput(session, "colSelect", selected=NULL)
     
-    if (is.null(rv.track$res$randSelect) || rv.track$res$randSelect==''
-        || (as.numeric(rv.track$res$randSelect) < 0))
+    if (is.null(rv.track$res$randSelect) || is.na(rv.track$res$randSelect) || rv.track$res$randSelect==''
+        || (as.numeric(rv.track$res$randSelect) <= 0))
     {
       rv.track$res$rand.indices <- NULL
     } else { 
