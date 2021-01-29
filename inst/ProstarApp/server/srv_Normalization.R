@@ -508,10 +508,10 @@ output$viewComparisonNorm_HC <- renderHighchart({
     obj2 <- rv$current.obj
     
   }
-
+#browser()
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
-                           id =  Biobase::fData(obj1)[ ,obj1@experimentData@other$proteinId],
+                           keyId =  fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
                            conds = Biobase::pData(obj1)$Condition,
                            palette = unique(rv$PlotParams$paletteConditions),
                            subset.view =   if(rv.norm$sync)
