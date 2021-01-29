@@ -4,7 +4,7 @@ library(MSnbase)
 
 
 
-#source(file.path('../inst/ProstarApp/server', 'mod_plots_mv_histo.R'), local=TRUE)$value
+source(file.path('../inst/ProstarApp/server', 'mod_plots_mv_histo.R'), local=TRUE)$value
 
 
 

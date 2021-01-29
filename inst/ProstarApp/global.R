@@ -1,4 +1,5 @@
 launchGA <- function(){
+  print(paste0("In toto",system('hostname')))
   if (system('hostname')=="prabig-prostar"){
     tags$head(includeScript("www/google-analytics.js"))
   } else {
@@ -161,14 +162,14 @@ gFiltersListAnaDiff[["At least one condition"]] <- "AtLeastOneCond"
 
 group2ColorByDefault <- "Condition"
 
-listBrewerPalettes <- c("Set1 (qualit.)" = "Set1",
-                        "Set2 (qualit.)" = "Set2", 
-                        "Set3 (qualit.)" = "Set3",
-                        "Dark2 (qualit.)" = "Dark2",
+listBrewerPalettes <- c("Dark2 (qualit.)" = "Dark2",
                         "Accent (qualit.)"="Accent",
                         "Paired (qualit.)" = "Paired",
                         "Pastel1 (qualit.)" = "Pastel1",
                         "Pastel2 (qualit.)" = "Pastel2",
+                        "Set1 (qualit.)" = "Set1",
+                        "Set2 (qualit.)" = "Set2", 
+                        "Set3 (qualit.)" = "Set3",
                         "BrBG (diverging)"="BrBG",
                         "PiYG (diverging)"=  "PiYG",
                         "PRGn (diverging)" ="PRGn",

@@ -4,17 +4,17 @@ require(imp4p)
 callModule(moduleMVPlots,"mvImputationPlots_MV", 
            data=reactive({rv$imputePlotsSteps[["step0"]]}),
            title = reactive("POV distribution"),
-           palette =reactive(rv$PlotParams$paletteForConditions))
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleMVPlots,"mvImputationPlots_MEC", 
            data=reactive({rv$imputePlotsSteps[["step1"]]}),
            title = reactive("Distribution after POV imputation"),
-           palette =reactive(rv$PlotParams$paletteForConditions))
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleMVPlots,"mvImputationPlots_Valid", 
            data=reactive({rv$imputePlotsSteps[["step2"]]}),
            title = reactive("Distribution after POV and MEC imputation"),
-           palette =reactive(rv$PlotParams$paletteForConditions))
+           palette =reactive(unique(rv$PlotParams$paletteConditions)))
 
 callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
            reactive({rv$widgets$proteinImput$POV_detQuant_quantile}), 
@@ -110,8 +110,7 @@ output$screenProtImput1 <- renderUI({
     
     htmlOutput("helpForImputation"),
     tags$hr(),
-    print("lancement du MVplots"),
-    moduleMVPlotsUI("mvImputationPlots_MV")
+     moduleMVPlotsUI("mvImputationPlots_MV")
   )
 })
 

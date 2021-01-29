@@ -102,6 +102,8 @@ pcaPlots <- function(input, output, session, data) {
   
   
   output$pcaPlotVar <- renderImage({
+    print("pca_axes")
+    print(rv.pca$PCA_axes)
     
     req(rv.pca$PCA_axes)
     req(rv.pca$res.pca)

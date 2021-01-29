@@ -16,16 +16,12 @@ missingValuesPlots <- function(input, output, session, data) {
   
   output$histo_MV <- renderHighchart({
     req(data())
-    rv$PlotParams$myColorsConditions
+    rv$PlotParams$paletteConditions
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),
-<<<<<<< HEAD
                               base_palette=rv$PlotParams$paletteConditions)
-=======
-                              palette = rv$PlotParams$paletteForConditions)
->>>>>>> origin
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp
@@ -50,13 +46,13 @@ missingValuesPlots <- function(input, output, session, data) {
   
   output$histo_MV_per_lines_per_conditions <- renderHighchart({
     req(data())
-    rv$PlotParams$paletteForConditions
+    rv$PlotParams$paletteConditions
     tmp <- NULL
     isolate({
      # pattern <- paste0(GetCurrentObjName(),".MVplot2")
       tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
                                                     c(2:length(colnames(Biobase::pData(data()))))
-                                                    , palette = rv$PlotParams$paletteForConditions)
+                                                    ,rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

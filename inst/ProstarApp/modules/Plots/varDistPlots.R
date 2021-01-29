@@ -26,11 +26,10 @@ output$plotvarDistlarge <- renderUI({
 viewDistCV <- reactive({
   
   req(dataIn())
-  rv$PlotParams$paletteForConditions
+  rv$PlotParams$paletteConditions
   
   isolate({
-    rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), 
-                                              palette = rv$PlotParams$paletteForConditions)
+    rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(),rv$PlotParams$paletteConditions)
     })
   rv$tempplot$varDist
   

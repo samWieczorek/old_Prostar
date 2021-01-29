@@ -247,14 +247,16 @@ observeEvent(input$valid.aggregation,{
       total <- 60
       delta <- round(total / length(rv$widgets$aggregation$columnsForProteinDataset.box))
       cpt <- 10
-      
+      print(rv$widgets$aggregation$columnsForProteinDataset.box)
       for(c in rv$widgets$aggregation$columnsForProteinDataset.box){
         newCol <- BuildColumnToProteinDataset(
           Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate)))
         cnames <- colnames(Biobase::fData(rv$temp.aggregate))
         Biobase::fData(rv$temp.aggregate) <- 
           data.frame(Biobase::fData(rv$temp.aggregate), newCol)
-        
+        print("possibles colnames dupliques")
+        print(c)
+        print(cnames)
         colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
         
         cpt <- cpt + delta

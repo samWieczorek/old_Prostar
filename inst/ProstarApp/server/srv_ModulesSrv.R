@@ -28,7 +28,7 @@ moduleDesignExample <- function(input, output, session, n){
                        stringsAsFactors = FALSE)
       
       
-      pal <- DAPAR::ExtendPalette(3, listBrewerPalettes[1])
+      pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])
       color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
                          Handsontable.renderers.TextRenderer.apply(this, arguments);
                          
@@ -53,7 +53,7 @@ moduleDesignExample <- function(input, output, session, n){
                        stringsAsFactors = FALSE)
       
       
-      pal <-DAPAR::ExtendPalette(3, listBrewerPalettes[1])
+      pal <- RColorBrewer::brewer.pal(3,listBrewerPalettes[1])[1:2]
       
       color_rend <- paste0("function (instance, td, row, col, prop, value, cellProperties) {
                            Handsontable.renderers.TextRenderer.apply(this, arguments);
@@ -529,15 +529,19 @@ moduleDensityplot <- function(input, output, session, data) {
   output$Densityplot <- renderHighchart({
     #req(rv$current.obj)
     data()
-     rv$PlotParams$paletteForConditions
+    print("data() in densityPlot module")
+    print(data())
+    print(GetCurrentObjName())
+    rv$PlotParams$paletteConditions
     rv$PlotParams$legendForSamples
     tmp <- NULL
     isolate({
+      
       withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
         tmp <- DAPAR::densityPlotD_HC(data(), 
-                                      legend = rv$PlotParams$legendForSamples,
-                                      palette = rv$PlotParams$paletteForConditions)
+                                      rv$PlotParams$legendForSamples,
+                                      rv$PlotParams$paletteConditions)
         future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })
     })
@@ -547,7 +551,7 @@ moduleDensityplot <- function(input, output, session, data) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, data, palette) {
+moduleBoxplot <- function(input, output, session, data) {
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -568,25 +572,17 @@ moduleBoxplot <- function(input, output, session, data, palette) {
     data()
 
     rv$current.obj.name
-    rv$PlotParams$paletteForConditions
+    rv$PlotParams$paletteConditions
     rv$PlotParams$legendForSamples
-   #browser()
-   tmp <- NULL
+    tmp <- NULL
     isolate({
       pattern <- paste0(GetCurrentObjName(),".boxplot")
-<<<<<<< HEAD
       print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
       print(ncol(exprs(data())))
       print(str(exprs(data())))
       tmp <- boxPlotD_HC(data(), 
                          rv$PlotParams$legendForSamples, 
                          palette=rv$PlotParams$paletteConditions)
-=======
-      tmp <- boxPlotD_HC(data(), 
-                         conds = Biobase::pData(data())$Condition,
-                         legend = rv$PlotParams$legendForSamples, 
-                         palette = palette())
->>>>>>> origin
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -598,7 +594,7 @@ moduleBoxplot <- function(input, output, session, data, palette) {
     #req(rv$current.obj)
     data()
     rv$PlotParams$legendForSamples
-    rv$PlotParams$paletteForConditions
+    rv$PlotParams$paletteConditions
     tmp <- NULL
     
     isolate({
@@ -611,11 +607,7 @@ moduleBoxplot <- function(input, output, session, data, palette) {
       # png(outfile, width = 640, height = 480, units = "px")
       png(outfile)
       pattern <- paste0(GetCurrentObjName(),".violinplot")
-      tmp <- DAPAR::violinPlotD(data(), 
-                                conds = Biobase::pData(data())$Condition,
-                                legend = rv$PlotParams$legendForSamples, 
-                                palette = palette()
-      )
+      tmp <- DAPAR::violinPlotD(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()
     })
