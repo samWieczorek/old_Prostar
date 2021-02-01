@@ -55,7 +55,7 @@ mod_plots_intensity_server <- function(input, output, session,
                                        meta,
                                        keyId,
                                        conds,
-                                       palette = NULL,
+                                       pal = NULL,
                                        params = NULL,
                                        reset = NULL,
                                        slave = FALSE){
@@ -135,7 +135,7 @@ mod_plots_intensity_server <- function(input, output, session,
       tmp <- DAPAR::boxPlotD_HC(obj = dataIn(),
                                  conds = conds(),
                                  keyId = keyId(),
-                                 palette = palette(),
+                                 pal = pal(),
                                  subset.view = rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
     })
@@ -159,7 +159,7 @@ mod_plots_intensity_server <- function(input, output, session,
       tmp <- DAPAR::violinPlotD(obj = dataIn(),
                                  keyId = keyId(),
                                  conds = conds(),
-                                 palette = palette(),
+                                 pal = pal(),
                                  subset.view =  rv.modboxplot$indices)
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()

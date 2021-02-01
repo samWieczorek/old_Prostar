@@ -507,7 +507,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
                                                            threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                            conditions = cond,
                                                            clickFunction=clickFun,
-                                                           palette = rv$colorsVolcanoplot,
+                                                           pal = rv$colorsVolcanoplot,
                                                            swap = isSwaped()
         )
         
@@ -543,7 +543,7 @@ moduleDensityplot <- function(input, output, session, data) {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
         tmp <- DAPAR::densityPlotD_HC(data(), 
                                       legend = rv$PlotParams$legendForSamples,
-                                      palette = rv$PlotParams$paletteForConditions)
+                                      pal = rv$PlotParams$paletteForConditions)
         future(createPNGFromWidget(rv$tempplot$boxplot,pattern))
       })
     })
@@ -553,7 +553,7 @@ moduleDensityplot <- function(input, output, session, data) {
 
 
 #------------------------------------------------------------
-moduleBoxplot <- function(input, output, session, data, palette) {
+moduleBoxplot <- function(input, output, session, data, pal) {
   
   observeEvent(input$choosePlot, {
     switch(input$choosePlot,
@@ -582,7 +582,7 @@ moduleBoxplot <- function(input, output, session, data, palette) {
       tmp <- boxPlotD_HC(data(), 
                          conds = Biobase::pData(data())$Condition,
                          legend = rv$PlotParams$legendForSamples, 
-                         palette = palette())
+                         pal = pal())
       #future(createPNGFromWidget(tmp,pattern))
       
       
@@ -610,7 +610,7 @@ moduleBoxplot <- function(input, output, session, data, palette) {
       tmp <- DAPAR::violinPlotD(data(), 
                                 conds = Biobase::pData(data())$Condition,
                                 legend = rv$PlotParams$legendForSamples, 
-                                palette = palette()
+                                pal = pal()
       )
       #future(createPNGFromWidget(tmp,pattern))
       dev.off()
@@ -626,11 +626,11 @@ moduleBoxplot <- function(input, output, session, data, palette) {
 
 
 
-moduleMVPlots <- function(input, output, session, data, title, palette) {
+moduleMVPlots <- function(input, output, session, data, title, pal) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
+    wrapper.hc_mvTypePlot2(obj=data(), title=title(), pal = pal())
   })
   
   

@@ -3,7 +3,7 @@ require(imp4p)
 callModule(moduleMVPlots,"mvImputationPlots_PeptideLevel", 
            data=reactive(rv$current.obj),
            title = reactive("POV distribution"),
-           palette =reactive(rv$PlotParams$paletteForConditions))
+           pal =reactive(rv$PlotParams$paletteForConditions))
 
 
 callModule(moduleDetQuantImpValues, "peptide_DetQuantValues_DT", 

@@ -3,14 +3,14 @@ callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
 callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
-           palette = reactive({rv$PlotParams$paletteForConditions})
+           pal = reactive({rv$PlotParams$paletteForConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS",
            data=reactive({rv$current.obj}))
 
 callModule(moduleBoxplot, "boxPlot_DS",
            data=reactive({rv$current.obj}),
-           palette = reactive({rv$PlotParams$paletteForConditions})
+           pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
 callModule(moduleStaticDataTable,"overview_DS", 
@@ -509,7 +509,7 @@ viewDistCV <- reactive({
   rv$PlotParams$paletteForConditions
   
   isolate({rv$tempplot$varDist <- wrapper.CVDistD_HC(rv$current.obj,
-                                                     palette = rv$PlotParams$paletteForConditions)})
+                                                     pal = rv$PlotParams$paletteForConditions)})
   rv$tempplot$varDist
   
   

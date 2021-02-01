@@ -110,9 +110,9 @@ mod_plots_tracking_server <- function(input, output, session,
   
   
   
-  observe({
+  observeEvent(req(reset()),{
     
-    reset()
+ 
     if (reset() > 0) {
       updateSelectInput(session, "typeSelect", selected='None')
       updateSelectInput(session, "listSelect", NULL)
@@ -130,9 +130,8 @@ mod_plots_tracking_server <- function(input, output, session,
   
   
   
-  observe({
-    params()
-    
+  observeEvent(params(), {
+
     if (rv.track$sync == TRUE && is.null(params())){
       updateSelectInput(session, "typeSelect", selected='None')
       updateSelectInput(session, "listSelect", NULL)

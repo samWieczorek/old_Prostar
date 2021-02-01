@@ -15,7 +15,7 @@ mod_plots_mv_histo_ui <- function(id){
 
 
 
-mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
+mod_plots_mv_histo_server <- function(input, output, session, data, pal) {
   
   output$histo_MV <- renderHighchart({
     data()
@@ -24,7 +24,7 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),
-                              palette=palette()
+                              pal = pal()
                               )
     #future(createPNGFromWidget(tmp,pattern))
     #  })
@@ -50,12 +50,11 @@ mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
   
   output$histo_MV_per_lines_per_conditions <- renderHighchart({
     data()
-    #palette()
     tmp <- NULL
     isolate({
       #pattern <- paste0(GetCurrentObjName(),".MVplot2")
       tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                    palette=palette())
+                                                    pal=pal())
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

@@ -152,7 +152,7 @@ createPNG_BoxplotHC <- function(obj,params=NULL,basename = NULL){
   pngfile <- paste0(basename, ".png")
   if (!file.exists(pngfile)){
     tempplot <- DAPAR::boxPlotD_HC(obj,
-                                   palette=rv$PlotParams$paletteForConditions
+                                   pal=rv$PlotParams$paletteForConditions
                                    )
     createPNGFromWidget(tempplot,basename) 
   }
@@ -168,7 +168,7 @@ createPNG_boxplot <- function(obj,params=NULL,basename = NULL){
   if (!file.exists(pngfile)){
     tempplot <- DAPAR::boxPlotD_HC(obj, 
                                    legend = rv$PlotParams$legendForSamples, 
-                                   palette=rv$PlotParams$paletteForConditions)
+                                   pal=rv$PlotParams$paletteForConditions)
     createPNGFromWidget(tempplot,basename) 
   }
   return(pngfile)
@@ -183,7 +183,7 @@ createPNG_densityplot <- function(obj,params=NULL,basename = NULL){
   if (!file.exists(pngfile)){
     tempplot <- DAPAR::densityPlotD_HC(obj, 
                                        legend = rv$PlotParams$legendForSamples, 
-                                       palette=rv$PlotParams$paletteForConditions)
+                                       pal=rv$PlotParams$paletteForConditions)
     createPNGFromWidget(tempplot, basename)
     }
   return(pngfile)
@@ -197,7 +197,7 @@ createPNG_CVDistr <- function(obj,params=NULL,basename = NULL){
   
   if (!file.exists(pngfile)){
     tempplot <- wrapper.CVDistD_HC(obj,
-                                   palette=rv$PlotParams$paletteForConditions)
+                                   pal=rv$PlotParams$paletteForConditions)
     createPNGFromWidget(tempplot, basename)
     }
   return(pngfile)
@@ -213,7 +213,7 @@ createPNG_violinplot <- function(obj,params=NULL,basename = NULL){
     plotPNG(function(){
       DAPAR::violinPlotD(obj, 
                          legend = rv$PlotParams$legendForSamples,
-                         palette=rv$PlotParams$paletteForConditions)
+                         pal=rv$PlotParams$paletteForConditions)
     },
     filename=fullname
     #width = pngWidth,
@@ -315,7 +315,7 @@ createPNG_Normalization <- reactive({
     
     plotPNG(function(){wrapper.compareNormalizationD(obj1, 
                                                      obj2, 
-                                                     palette=rv$PlotParams$paletteForConditions)}, 
+                                                     pal=rv$PlotParams$paletteForConditions)}, 
             filename=paste(tempdir(), gGraphicsFilenames$compareNorm, sep="/"), 
             width = 1200, 
             height=800,
@@ -324,7 +324,7 @@ createPNG_Normalization <- reactive({
     
     if (is.null(rv$tempplot$Density)) {
         tempplot <- DAPAR::densityPlotD_HC(obj2, 
-                                           palette=rv$PlotParams$paletteForConditions)}
+                                           pal=rv$PlotParams$paletteForConditions)}
     else{ tempplot <- rv$tempplot$Density}
     createPNGFromWidget(tempplot, "tempplot_densityPlotAfterNorm.html", gGraphicsFilenames$densityPlotAfterNorm)
    
@@ -332,7 +332,7 @@ createPNG_Normalization <- reactive({
     if (is.null(rv$tempplot$boxplot)) {
       tempplot <- DAPAR::boxPlotD_HC(obj2,
                                      rv$PlotParams$legendForSamples,
-                                     palette=rv$PlotParams$paletteForConditions)
+                                     pal=rv$PlotParams$paletteForConditions)
     } else{ tempplot <- rv$tempplot$boxplot}
     
     createPNGFromWidget(tempplot, "temp_boxplot.html", gGraphicsFilenames$boxplotAfterNorm)

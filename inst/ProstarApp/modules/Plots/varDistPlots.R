@@ -30,7 +30,7 @@ viewDistCV <- reactive({
   
   isolate({
     rv$tempplot$varDist <- wrapper.CVDistD_HC(dataIn(), 
-                                              palette = rv$PlotParams$paletteForConditions)
+                                              pal = rv$PlotParams$paletteForConditions)
     })
   rv$tempplot$varDist
   
