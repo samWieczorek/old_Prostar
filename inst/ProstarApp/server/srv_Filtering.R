@@ -297,6 +297,227 @@ output$choixFiltres <- renderUI({
 })
 
 
+
+#########################################################################################
+##
+##                    SCREEN 1-2 - valeurs d'abondance par 'MS/MS'
+## 
+###########################################################################################
+
+output$screenFiltering12 <- renderUI({
+  
+  isolate({
+    tagList(
+      div(
+        id = "screen12Filtering",
+        div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+            modulePopoverUI("modulePopover_Help_NA_Filtering"),
+            selectInput("ChooseFilters","",
+                        choices = gFiltersList,
+                        selected=rv$widgets$filtering$ChooseFilters,
+                        width='200px')
+            
+        ),
+        div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
+             uiOutput("seuilNADelete")
+        ),
+        div( style="display:inline-block; vertical-align: middle;",
+             actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
+        ),
+        hr(),
+        mod_plots_mv_histo_ui("MVPlots_filtering"),
+        uiOutput("ObserverMVFilteringDone")
+      )
+      
+    )
+  })
+  
+})
+
+
+callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
+           data = reactive({rv$current.obj}),
+           palette = reactive({rv$PlotParams$paletteForConditions})
+)
+
+callModule(modulePopover,"modulePopover_Help_NA_Filtering", 
+           data = reactive(list(title = HTML("<strong>Type</strong>"),
+                                content= HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
+                                              ("<ul>"),
+                                              ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
+                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted.</li>"),
+                                              ("</ul>")
+                                )
+           )
+           )
+)
+
+
+
+
+output$seuilNADelete <- renderUI({ 
+  req(rv$widgets$filtering$ChooseFilters)
+  
+  if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {
+    return(NULL)   
+  }
+  
+  tagList(
+    shinyjs::useShinyjs(),
+    radioButtons('val_vs_percent', '#/% of values to keep', 
+                 choices = c('Value'='Value', 'Percentage'='Percentage'),
+                 selected = rv$widgets$filtering$val_vs_percent
+    ),
+    
+    uiOutput('keepVal_ui'),
+    uiOutput('keepVal_percent_ui'),
+    uiOutput('keep_helptext')
+  )
+})
+
+
+
+output$keep_helptext <- renderUI({
+  rv$widgets$filtering$ChooseFilters
+  txt <- NULL
+  switch(rv$widgets$filtering$ChooseFilters,
+         None = txt <-"All lines will be kept",
+         EmptyLines = txt <-"All lines containing only missing values are removed.",
+         WholeMatrix = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+             txt <- paste0("Only the lines (across all conditions) which contain at least ",
+                           rv$widgets$filtering$seuilNA, 
+                           " non-missing value are kept.")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines (across all conditions) which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value are kept.")
+         },
+         AtLeastOneCond = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA, 
+                           " non-missing value in, at least one condition, are kept.")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value in, at least one condition, are kept.")
+         },
+         AllCond = {
+           if (rv$widgets$filtering$val_vs_percent == 'Value')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA, 
+                           " non-missing value in each condition are kept.")
+           else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+             txt <- paste0("The lines which contain at least ",
+                           rv$widgets$filtering$seuilNA_percent, 
+                           "% of non-missing value in each condition are kept.")
+         }
+  )
+  tagList(
+    tags$p(txt)
+  )
+})
+
+output$keepVal_ui <- renderUI({
+  req(rv$widgets$filtering$val_vs_percent)
+  if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
+  if (rv$widgets$filtering$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
+  tagList(
+    modulePopoverUI("modulePopover_keepVal"),
+    selectInput("seuilNA", NULL,
+                choices =  getListNbValuesInLines(rv$current.obj, 
+                                                  type=rv$widgets$filtering$ChooseFilters),
+                selected = rv$widgets$filtering$seuilNA,
+                width='150px')
+  )
+})
+
+output$keepVal_percent_ui <- renderUI({
+  req(rv$widgets$filtering$val_vs_percent)
+  if (rv$widgets$filtering$val_vs_percent != 'Percentage') {return(NULL)}
+  
+  tagList(
+    modulePopoverUI("modulePopover_keepVal_percent"),
+    numericInput("seuilNA_percent", NULL,
+                 min = 0,
+                 max = 100,
+                 value = rv$widgets$filtering$seuilNA_percent,
+                 width='150px')
+  )
+})
+
+
+observeEvent(input$val_vs_percent, {
+  
+  rv$widgets$filtering$val_vs_percent <- input$val_vs_percent
+})
+
+
+
+observeEvent(input$ChooseFilters,{
+  rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
+})
+
+observeEvent(input$seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
+  rv$widgets$filtering$seuilNA <- input$seuilNA
+})
+
+observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
+  rv$widgets$filtering$seuilNA_percent <- input$seuilNA_percent
+})
+
+
+## Perform missing values filtering
+observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
+  rv$widgets$filtering$ChooseFilters
+  rv$widgets$filtering$seuilNA
+  rv$widgets$filtering$seuilNA_percent
+  rv$widgets$filtering$val_vs_percent
+  
+  
+  if (rv$widgets$filtering$ChooseFilters == gFilterNone){
+    #rv$current.obj <- rv$dataset[[input$datasets]]
+  } else {
+    
+    th <- NULL
+    if (rv$widgets$filtering$val_vs_percent == 'Percentage')
+      th <- as.numeric(rv$widgets$filtering$seuilNA_percent)/100
+    else
+      th <-  as.integer(rv$widgets$filtering$seuilNA)
+    
+    keepThat <- mvFilterGetIndices(obj = rv$current.obj,
+                                   percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
+                                   condition = rv$widgets$filtering$ChooseFilters,
+                                   threshold = th)
+    
+    if (!is.null(keepThat))
+    {
+      rv$deleted.mvLines <- rv$current.obj[-keepThat]
+      rv$current.obj <- mvFilterFromIndices(rv$current.obj,
+                                            keepThat,
+                                            GetFilterText(rv$widgets$filtering$ChooseFilters, 
+                                                          th)
+      )
+    }
+  }
+  
+  rvModProcess$moduleFilteringDone[1] <- TRUE
+  
+})
+
+output$choixFiltres <- renderUI({
+  req(input$file)
+  radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
+  
+})
+
+
+
+
 #########################################################################################
 ##
 ##                    SCREEN 2
@@ -574,45 +795,6 @@ getDataForMVStringFiltered <- reactive({
 })
 
 
-
-#-----------------------------------------------------------------------------------------
-
-#########################################################################################
-##
-##                    SCREEN 4-5 - valeurs d'abondance par 'MS/MS'
-## 
-###########################################################################################
-
-# output$screenFiltering45 <- renderUI({
-#   
-#   isolate({
-#     tagList(
-#       div(
-#         # div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-#         #     modulePopoverUI("modulePopover_Help_NA_Filtering"),
-#         #     selectInput("ChooseFilters","",
-#         #                 choices = gFiltersList,
-#         #                 selected=rv$widgets$filtering$ChooseFilters,
-#         #                 width='200px')
-#         #     
-#         # ),
-#         # div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-#         #      uiOutput("seuilNADelete")
-#         # ),
-#         # div( style="display:inline-block; vertical-align: middle;",
-#         #      actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
-#         # ),
-#         # hr(),
-#         # mod_plots_mv_histo_ui("MVPlots_filtering"),
-#         # uiOutput("ObserverMVFilteringDone")
-#       )
-#       
-#     )
-#   })
-#   
-# })
-
-#-----------------------------------------------------------------------------------------
 
 
 
