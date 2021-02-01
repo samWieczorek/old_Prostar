@@ -23,7 +23,7 @@ server <- function(input, output, session) {
   
 callModule(mod_plots_mv_histo_server,'plots_boxplots', 
                          data = reactive({obj}),
-                         palette=reactive({NULL})
+                         pal=reactive({NULL})
   )
   
   

@@ -1031,7 +1031,7 @@ output$id <- renderUI({
 
 
 output$warningNonUniqueID <- renderUI({
-  req(input$idBo != 'AutoID')
+  req(input$idBox != 'AutoID')
   req(rv$tab1)
   
   t <- (length(as.data.frame(rv$tab1)[, input$idBox])
@@ -1475,6 +1475,12 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         )
         options(digits=15)
         
+        protId <- NULL
+        if (input$typeOfData == 'protein')
+          protId <- input$idBox
+        else if(input$typeOfData == 'peptide') 
+          protId <- input$convert_proteinId
+        
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
@@ -1484,7 +1490,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                    logData = logData, 
                                    replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
-                                   proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
+                                   proteinId =  gsub(".", "_", protId, fixed=TRUE),
                                    versions = versions
                                    )
         ClearUI()

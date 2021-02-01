@@ -110,10 +110,10 @@ GetTest <- reactive({
            nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
            nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
            nbColors <- max(nbColors,nbConds)
-           palette <- NULL
-           for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
+           pal <- NULL
+           for(i in 1:nbConds){pal <- c(pal, input[[paste0("customColorCondition_",i)]])}
            for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-             temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+             temp[i] <- pal[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
            }
            
    } else if (rv$whichGroup2Color=="Replicate"){
@@ -208,9 +208,9 @@ GetPaletteForConditions <- reactive({
            # nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
            # nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
            # nbColors <- max(nbColors, nbConds)
-           palette <- NULL
+           pal <- NULL
            for(i in 1:nbUniqueConds)
-             palette <- c(palette, input[[paste0("customColorCondition_", i)]])
+             pal <- c(pal, input[[paste0("customColorCondition_", i)]])
          }
   )
   

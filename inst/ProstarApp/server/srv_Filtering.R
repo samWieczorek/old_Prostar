@@ -81,7 +81,7 @@ output$screenFiltering1 <- renderUI({
 
 callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
            data = reactive({rv$current.obj}),
-           palette = reactive({rv$PlotParams$paletteForConditions})
+           pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
 callModule(modulePopover,"modulePopover_Help_NA_Filtering", 

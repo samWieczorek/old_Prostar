@@ -21,7 +21,7 @@ missingValuesPlots <- function(input, output, session, data) {
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),
-                              palette = rv$PlotParams$paletteForConditions)
+                              pal = rv$PlotParams$paletteForConditions)
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp
@@ -52,7 +52,7 @@ missingValuesPlots <- function(input, output, session, data) {
      # pattern <- paste0(GetCurrentObjName(),".MVplot2")
       tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
                                                     c(2:length(colnames(Biobase::pData(data()))))
-                                                    , palette = rv$PlotParams$paletteForConditions)
+                                                    , pal = rv$PlotParams$paletteForConditions)
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

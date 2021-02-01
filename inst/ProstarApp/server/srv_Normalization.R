@@ -9,11 +9,6 @@
 callModule(moduleDensityplot,"densityPlot_Norm",
            data=reactive({rv$current.obj}))
 
-# callModule(moduleBoxplot,"boxPlot_Norm",
-#            data=reactive({rv$current.obj}),
-#            palette = reactive({rv$PlotParams$paletteForConditions})
-# )
-
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
@@ -70,7 +65,7 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
                                        meta = reactive({fData(rv$current.obj)}),
                                        keyId = reactive({rv$current.obj@experimentData@other$proteinId}),
                                        conds = reactive({pData(rv$current.obj)$Condition}),
-                                       palette = reactive({rv$PlotParams$paletteForConditions}),
+                                       pal = reactive({rv$PlotParams$paletteForConditions}),
                                        params = reactive({
                                          if(rv.norm$sync)
                                            rv.norm$selectProt()
@@ -267,11 +262,8 @@ observeEvent(rv$widgets$normalization$method,{
 GetIndicesOfSelectedProteins_ForNorm <- reactive({
   req(rv.norm$selectProt())
   
-  
-  print('in GetIndicesOfSelectedProteins_ForNorm')
-  print(rv.norm$selectProt()())
   ind <- NULL
-  ll <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+  ll <- fData(rv$current.obj)[ ,rv$current.obj@experimentData@other$proteinId]
   tt <- rv.norm$selectProt()$type
   switch(tt,
          ProteinList = ind <- rv.norm$selectProt()$list.indices,
@@ -280,9 +272,6 @@ GetIndicesOfSelectedProteins_ForNorm <- reactive({
   )
   if (length(ind)==0)
     ind <- NULL
-  
-  print('ind = ')
-  print(ind)
   ind
 })
 
@@ -521,9 +510,13 @@ output$viewComparisonNorm_HC <- renderHighchart({
 
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
+                           keyId = fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
                            conds = Biobase::pData(obj1)$Condition,
-                           palette = rv$PlotParams$paletteForConditions,
-                           subset.view = NULL
+                           pal = rv$PlotParams$paletteForConditions,
+                           subset.view =   if(rv.norm$sync)
+                             GetIndicesOfSelectedProteins_ForNorm()
+                           else
+                             GetIndicesOfSelectedProteins()
   )
 })
 
