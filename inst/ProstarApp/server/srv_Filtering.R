@@ -15,8 +15,8 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$ChooseFilters.byMSMS <- "None"
   rv$widgets$filtering$seuilNA <- 0
   rv$widgets$filtering$seuilNA_percent <- 0
-  rv$widgets$filtering$seuilNA.byMSMS <- 0
-  rv$widgets$filtering$seuilNA_percent.byMSMS <- 0
+  rv$widgets$filtering$seuil.byMSMS <- 0
+  rv$widgets$filtering$seuil_percent.byMSMS <- 0
   rv$widgets$filtering$val_vs_percent <- 'Value'
   rv$widgets$filtering$val_vs_percent.byMSMS <- 'Value'
   rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL,
@@ -36,7 +36,7 @@ resetModuleFiltering <- reactive({
   rv$deleted.numeric <- NULL
   
   rv$current.obj <- rv$dataset[[input$datasets]]
-  rvModProcess$moduleFilteringDone = rep(FALSE, 5)
+  rvModProcess$moduleFilteringDone = rep(FALSE, 6)
   
 })
 
@@ -517,7 +517,8 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
     }
   }
   
-  rvModProcess$moduleFilteringDone[1] <- TRUE
+  rvModProcess$moduleFilteringDone[2] <- TRUE
+  browser()
   
 })
 
@@ -580,7 +581,7 @@ observeEvent(input$actionButtonFilter,{
     nbDeleted <-  0
   }
   rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[2] <- TRUE
+  rvModProcess$moduleFilteringDone[3] <- TRUE
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
@@ -683,7 +684,7 @@ observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
     nbDeleted <-  0
   }
   rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[3] <- TRUE
+  rvModProcess$moduleFilteringDone[4] <- TRUE
   
   df <- data.frame(Filter=cname,
                    Condition=paste0(input$numericFilter_operator,' ',tagValue),
@@ -822,7 +823,7 @@ output$screenFiltering5 <- renderUI({
 #########################################################
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
-observeEvent(input$ValidateFilters,ignoreInit = TRUE,{ 
+observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
   
   isolate({
     if((rv$widgets$filtering$ChooseFilters != gFilterNone) 
@@ -835,7 +836,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
       
       dataOut<- rv$current.obj
-      rvModProcess$moduleFilteringDone[5] <- TRUE
+      rvModProcess$moduleFilteringDone[6] <- TRUE
       
       if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
         ComputeAdjacencyMatrices()
@@ -843,7 +844,7 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       }
       UpdateDatasetWidget(rv$current.obj, name)
     }
-    rvModProcess$moduleFilteringDone[5] <- TRUE
+    rvModProcess$moduleFilteringDone[6] <- TRUE
   })
   
 })
@@ -1049,7 +1050,7 @@ output$ObserverMVFilteringDone.byMSMS <- renderUI({
   
   n <- 0
   if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-  if (!rvModProcess$moduleFilteringDone[1])
+  if (!rvModProcess$moduleFilteringDone[2])
   {return(NULL)  }
   else {
     h5(paste0("Identification filtering done. ",n, " lines were deleted."))
