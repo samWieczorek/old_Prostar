@@ -321,7 +321,7 @@ output$screenFilteringxxx <- renderUI({
       div(
         id = "screenxxxFiltering",
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-            modulePopoverUI("modulePopover_Help_NA_Filtering.byMSMS"),
+            modulePopoverUI("modulePopover_Help_NA_Filtering_byMSMS"),
             selectInput("ChooseFilters.byMSMS","",
                         choices = gFiltersList,
                         selected=rv$widgets$filtering$ChooseFilters.byMSMS,
@@ -335,7 +335,7 @@ output$screenFilteringxxx <- renderUI({
              actionButton("perform.filtering.byMSMS", "Perform Identification filtering", class = actionBtnClass)
         ),
         hr(),
-        mod_plots_mv_histo_ui("MVPlots_filtering.byMSMS"),
+        mod_plots_mv_histo_ui("MVPlots_filtering_byMSMS"),
         uiOutput("ObserverMVFilteringDone.byMSMS")
       )
       
@@ -345,20 +345,20 @@ output$screenFilteringxxx <- renderUI({
 })
 
 
-callModule(mod_plots_mv_histo_server, "MVPlots_filtering.byMSMS", 
+callModule(mod_plots_mv_histo_server, "MVPlots_filtering_byMSMS", 
            data = reactive({rv$current.obj}),
            pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
-callModule(modulePopover,"modulePopover_Help_NA_Filtering.byMSMS", 
+callModule(modulePopover,"modulePopover_Help_NA_Filtering_byMSMS", 
            data = reactive(list(title = HTML("<strong>Type</strong>"),
-                                content= HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
+                                content= HTML(paste0("To filter the features according to their identification method (by MS/MS), the choice of the lines to be kept is made by different options:"),
                                               ("<ul>"),
                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted.</li>"),
+                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 0% of 'by MS/MS' are filtered out.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less no 'by MS/MS' value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less no 'by MS/MS' value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less no 'by MS/MS' value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
                                 )
            )
@@ -395,7 +395,7 @@ output$keepVal_ui.byMSMS <- renderUI({
   if (rv$widgets$filtering$val_vs_percent.byMSMS != 'Value') {return(NULL)}
   if (rv$widgets$filtering$ChooseFilters.byMSMS %in% c('None', 'Emptylines')) {return(NULL)}
   tagList(
-    modulePopoverUI("modulePopover_keepVal.byMSMS"),
+    modulePopoverUI("modulePopover_keepVal_byMSMS"),
     selectInput("seuil.byMSMS", NULL,
                 choices =  getListNbValuesInLines(rv$current.obj, 
                                                   type=rv$widgets$filtering$ChooseFilters.byMSMS),
@@ -409,7 +409,7 @@ output$keepVal_percent_ui.byMSMS <- renderUI({
   if (rv$widgets$filtering$val_vs_percent.byMSMS != 'Percentage') {return(NULL)}
   
   tagList(
-    modulePopoverUI("modulePopover_keepVal_percent.byMSMS"),
+    modulePopoverUI("modulePopover_keepVal_percent_byMSMS"),
     numericInput("seuil_percent.byMSMS", NULL,
                  min = 0,
                  max = 100,
@@ -425,36 +425,36 @@ output$keep_helptext.byMSMS <- renderUI({
   txt <- NULL
   switch(rv$widgets$filtering$ChooseFilters.byMSMS,
          None = txt <-"All lines will be kept",
-         EmptyLines = txt <-"All lines containing only missing values are removed.",
+         EmptyLines = txt <-"All lines containing no 'by MS/MS' are removed.",
          WholeMatrix = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("Only the lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " non-missing value are kept.")
+                           " no 'by MS/MS' value are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of non-missing value are kept.")
+                           "% of no 'by MS/MS' value are kept.")
          },
          AtLeastOneCond = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " non-missing value in, at least one condition, are kept.")
+                           " no 'by MS/MS' value in, at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of non-missing value in, at least one condition, are kept.")
+                           "% of no 'by MS/MS' value in, at least one condition, are kept.")
          },
          AllCond = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " non-missing value in each condition are kept.")
+                           " no 'by MS/MS' value in each condition are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of non-missing value in each condition are kept.")
+                           "% of no 'by MS/MS' value in each condition are kept.")
          }
   )
   tagList(
@@ -516,9 +516,10 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
       )
     }
   }
-  
-  rvModProcess$moduleFilteringDone[2] <- TRUE
+
   browser()
+  rvModProcess$moduleFilteringDone[2] <- TRUE
+  
   
 })
 
