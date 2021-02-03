@@ -321,7 +321,7 @@ output$screenFilteringxxx <- renderUI({
       div(
         id = "screenxxxFiltering",
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-            modulePopoverUI("modulePopover_Help_NA_Filtering_byMSMS"),
+            modulePopoverUI("modulePopover_Help_Filtering_byMSMS"),
             selectInput("ChooseFilters.byMSMS","",
                         choices = gFiltersList,
                         selected=rv$widgets$filtering$ChooseFilters.byMSMS,
@@ -350,7 +350,7 @@ callModule(mod_plots_mv_histo_server, "MVPlots_filtering_byMSMS",
            pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
-callModule(modulePopover,"modulePopover_Help_NA_Filtering_byMSMS", 
+callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS", 
            data = reactive(list(title = HTML("<strong>Type</strong>"),
                                 content= HTML(paste0("To filter the features according to their identification method (by MS/MS), the choice of the lines to be kept is made by different options:"),
                                               ("<ul>"),
@@ -490,6 +490,11 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
   rv$widgets$filtering$seuil_percent.byMSMS
   rv$widgets$filtering$val_vs_percent.byMSMS
   
+  print(rv$widgets$filtering$ChooseFilters.byMSMS)
+  print(rv$widgets$filtering$seuil.byMSMS)
+  print(rv$widgets$filtering$seuil_percent.byMSMS)
+  print(rv$widgets$filtering$val_vs_percent.byMSMS)
+  
   
   if (rv$widgets$filtering$ChooseFilters.byMSMS == gFilterNone){
     #rv$current.obj <- rv$dataset[[input$datasets]]
@@ -500,24 +505,23 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
       th <- as.numeric(rv$widgets$filtering$seuil_percent.byMSMS)/100
     else
       th <-  as.integer(rv$widgets$filtering$seuil.byMSMS)
-    ### ! ###
-    keepThat <- mvFilterGetIndices_Marianne(obj = rv$current.obj,
-                                            percent = rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage',
-                                            condition = rv$widgets$filtering$ChooseFilters.byMSMS,
-                                            threshold = th)
     
-    if (!is.null(keepThat))
-    {
+    keepThat <- DAPAR::mvFilterGetIndices_Marianne(obj = rv$current.obj,
+                                                   percent = rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage',
+                                                   condition = rv$widgets$filtering$ChooseFilters.byMSMS,
+                                                   threshold = th)
+    
+    if (!is.null(keepThat)) {
+      print('la')
       rv$deleted.mvLines <- rv$current.obj[-keepThat]
-      rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-                                            keepThat,
-                                            GetFilterText(rv$widgets$filtering$ChooseFilters.byMSMS, 
-                                                          th)
+      rv$current.obj <- mvFilterFromIndices(obj = rv$current.obj,
+                                            keepThat = keepThat,
+                                            processText = GetFilterText(rv$widgets$filtering$ChooseFilters.byMSMS, th)
       )
     }
   }
-
-  browser()
+  
+  browser() # View((fData(rv$current.obj[-keepThat]))[,36:41])
   rvModProcess$moduleFilteringDone[2] <- TRUE
   
   
