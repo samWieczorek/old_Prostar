@@ -321,6 +321,8 @@ output$screenFilteringxxx <- renderUI({
       div(
         id = "screenxxxFiltering",
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+            uiOutput("warning_byMSMS")),
+        div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
             modulePopoverUI("modulePopover_Help_Filtering_byMSMS"),
             selectInput("ChooseFilters.byMSMS","",
                         choices = gFiltersList,
@@ -366,6 +368,19 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
 )
 
 
+output$warning_byMSMS <- renderUI({
+
+  # library(DAPARdata)
+  # utils::data(Exp1_R25_prot, package='DAPARdata');obj<-Exp1_R25_pept
+  # IdentificationData <- DAPAR::is.byMSMS(fData(obj)[,obj@experimentData@other$OriginOfValues])
+  # plop <- table(IdentificationData)
+  # dimnames(plop)
+  
+  # if(){
+  #   
+  # }
+  
+})
 
 
 output$seuilDelete.byMSMS <- renderUI({
@@ -521,7 +536,7 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
     }
   }
   
-  browser() # View((fData(rv$current.obj[-keepThat]))[,36:41])
+  browser() # View(fData(rv$current.obj[-keepThat])))
   rvModProcess$moduleFilteringDone[2] <- TRUE
   
   
