@@ -1,7 +1,7 @@
 rvModProcess <- reactiveValues(
   
   moduleFiltering = list(name = "Filtering",
-                             stepsNames = c("MV filtering", "Identification filtering", "String-based filtering","Numerical filtering", "Summary", "Save"),
+                             stepsNames = c("MV Removal", "by MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Save"),
                              isMandatory = c(rep(FALSE,5),TRUE),
                              ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
                                            screenStepxxx = uiOutput("screenFilteringxxx"),

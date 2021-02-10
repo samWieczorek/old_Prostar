@@ -94,9 +94,9 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
                                               ("<ul>"),
                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
                                               ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less non-missing value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less non-missing value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less non-missing value than a user-defined threshold are deleted.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less quantitative value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less quantitative value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less quantitative value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
                                 )
            )
@@ -173,31 +173,31 @@ output$keep_helptext <- renderUI({
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("Only the lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuilNA, 
-                           " non-missing value are kept.")
+                           " quantitative value are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
              txt <- paste0("The lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuilNA_percent, 
-                           "% of non-missing value are kept.")
+                           "% of quantitative value are kept.")
          },
          AtLeastOneCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA, 
-                           " non-missing value in, at least one condition, are kept.")
+                           " quantitative value in, at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA_percent, 
-                           "% of non-missing value in, at least one condition, are kept.")
+                           "% of quantitativevalue in, at least one condition, are kept.")
          },
          AllCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA, 
-                           " non-missing value in each condition are kept.")
+                           " quantitative value in each condition are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA_percent, 
-                           "% of non-missing value in each condition are kept.")
+                           "% of quantitative value in each condition are kept.")
          }
   )
   tagList(
@@ -358,9 +358,9 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
                                               ("<ul>"),
                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
                                               ("<li><strong>(Remove) Empty lines</strong>: All the lines with 0% of 'by MS/MS' are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less no 'by MS/MS' value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less no 'by MS/MS' value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less no 'by MS/MS' value than a user-defined threshold are deleted.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less 'by MS/MS' value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less 'by MS/MS' value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less 'by MS/MS' value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
                                 )
            )
@@ -440,36 +440,36 @@ output$keep_helptext.byMSMS <- renderUI({
   txt <- NULL
   switch(rv$widgets$filtering$ChooseFilters.byMSMS,
          None = txt <-"All lines will be kept",
-         EmptyLines = txt <-"All lines containing no 'by MS/MS' are removed.",
+         EmptyLines = txt <-"All lines containing 'by MS/MS' are removed.",
          WholeMatrix = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("Only the lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " no 'by MS/MS' value are kept.")
+                           " 'by MS/MS' value are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines (across all conditions) which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of no 'by MS/MS' value are kept.")
+                           "% of 'by MS/MS' value are kept.")
          },
          AtLeastOneCond = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " no 'by MS/MS' value in, at least one condition, are kept.")
+                           " 'by MS/MS' value in, at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of no 'by MS/MS' value in, at least one condition, are kept.")
+                           "% of 'by MS/MS' value in, at least one condition, are kept.")
          },
          AllCond = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " no 'by MS/MS' value in each condition are kept.")
+                           " 'by MS/MS' value in each condition are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of no 'by MS/MS' value in each condition are kept.")
+                           "% of 'by MS/MS' value in each condition are kept.")
          }
   )
   tagList(

@@ -400,9 +400,13 @@ resetModuleProcess <- function(moduleName){
           updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
           updateNumericInput(session, "seuilNA_percent", value = rv$widgets$filtering$seuilNA_percent)
           updateRadioButtons(session, "val_vs_percent", selected = rv$widgets$filtering$val_vs_percent)
+          updateSelectInput(session, "ChooseFilters.byMSMS", selected = rv$widgets$filtering$ChooseFilters.byMSMS)
+          updateSelectInput(session, "seuil.byMSMS", selected = rv$widgets$filtering$seuil.byMSMS)
+          updateNumericInput(session, "seuil_percent.byMSMS", value = rv$widgets$filtering$seuil_percent.byMSMS)
+          updateRadioButtons(session, "val_vs_percent.byMSMS", selected = rv$widgets$filtering$val_vs_percent.byMSMS)
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
-                                              stepsNames = c("MV filtering", "Identification filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
+                                              stepsNames = c("MV Removal", "By MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Validate"),
                                               isMandatory = rep(FALSE,6),
                                               ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
                                                             screenStepxxx = uiOutput("screenFilteringxxx"),
