@@ -270,6 +270,24 @@ observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
   #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
   #updateSelectInput(session, "seuilNA", selected = input$seuilNA)
 })
+
+
+
+output$ObserverMVFilteringDone <- renderUI({
+  req(rv$deleted.mvLines)
+  #isolate({
+  
+  n <- 0
+  if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
+  if (!rvModProcess$moduleFilteringDone[1])
+  {return(NULL)  }
+  else {
+    h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
+  }
+  
+  # })
+})
+
 # switch(rv$widgets$filtering$val_vs_percent,
 #        Value = {
 #          keepThat <- mvFilterGetIndices(rv$current.obj,
@@ -320,8 +338,8 @@ output$screenFilteringxxx <- renderUI({
     tagList(
       div(
         id = "screenxxxFiltering",
-        div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-            uiOutput("warning_byMSMS")),
+        # div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+        #     uiOutput("warning_byMSMS")),
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
             modulePopoverUI("modulePopover_Help_Filtering_byMSMS"),
             selectInput("ChooseFilters.byMSMS","",
@@ -368,19 +386,19 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
 )
 
 
-output$warning_byMSMS <- renderUI({
-
-  # library(DAPARdata)
-  # utils::data(Exp1_R25_prot, package='DAPARdata');obj<-Exp1_R25_pept
-  # IdentificationData <- DAPAR::is.byMSMS(fData(obj)[,obj@experimentData@other$OriginOfValues])
-  # plop <- table(IdentificationData)
-  # dimnames(plop)
-  
-  # if(){
-  #   
-  # }
-  
-})
+# output$warning_byMSMS <- renderUI({
+# 
+#   # library(DAPARdata)
+#   # utils::data(Exp1_R25_prot, package='DAPARdata');obj<-Exp1_R25_pept
+#   # IdentificationData <- DAPAR::is.byMSMS(fData(obj)[,obj@experimentData@other$OriginOfValues])
+#   # plop <- table(IdentificationData)
+#   # dimnames(plop)
+#   
+#   # if(){
+#   #   
+#   # }
+#   
+# })
 
 
 output$seuilDelete.byMSMS <- renderUI({
@@ -534,6 +552,21 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
   rvModProcess$moduleFilteringDone[2] <- TRUE
   
   
+})
+
+output$ObserverMVFilteringDone.byMSMS <- renderUI({
+  req(rv$deleted.mvLines)
+  #isolate({
+  
+  n <- 0
+  if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
+  if (!rvModProcess$moduleFilteringDone[2])
+  {return(NULL)  }
+  else {
+    h5(paste0("Identification filtering done. ",n, " lines were deleted."))
+  }
+  
+  # })
 })
 
 
@@ -1041,38 +1074,6 @@ output$ObserverStringBasedFilteringDone <- renderUI({
     
   })
 })
-
-output$ObserverMVFilteringDone <- renderUI({
-  req(rv$deleted.mvLines)
-  #isolate({
-  
-  n <- 0
-  if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-  if (!rvModProcess$moduleFilteringDone[1])
-  {return(NULL)  }
-  else {
-    h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
-  }
-  
-  # })
-})
-
-
-output$ObserverMVFilteringDone.byMSMS <- renderUI({
-  req(rv$deleted.mvLines)
-  #isolate({
-  
-  n <- 0
-  if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-  if (!rvModProcess$moduleFilteringDone[2])
-  {return(NULL)  }
-  else {
-    h5(paste0("Identification filtering done. ",n, " lines were deleted."))
-  }
-  
-  # })
-})
-
 
 
 

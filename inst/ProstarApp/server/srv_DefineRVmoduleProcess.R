@@ -1,15 +1,15 @@
 rvModProcess <- reactiveValues(
   
   moduleFiltering = list(name = "Filtering",
-                             stepsNames = c("MV Removal", "By MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Save"),
-                             isMandatory = c(rep(FALSE,5),TRUE),
-                             ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
-                                           screenStepxxx = uiOutput("screenFilteringxxx"),
-                                           screenStep2 = uiOutput("screenFiltering2"),
-                                           screenStep3 = uiOutput("screenFiltering3"),
-                                           screenStep4 = uiOutput("screenFiltering4"),
-                                           screenStep5 = uiOutput("screenFiltering5")),
-                             rstFunc = reactive({resetModuleFiltering()})),
+                         stepsNames = c("MV Removal", "By MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Save"),
+                         isMandatory = c(rep(FALSE,6),TRUE),
+                         ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
+                                       screenStepxxx = uiOutput("screenFilteringxxx"),
+                                       screenStep2 = uiOutput("screenFiltering2"),
+                                       screenStep3 = uiOutput("screenFiltering3"),
+                                       screenStep4 = uiOutput("screenFiltering4"),
+                                       screenStep5 = uiOutput("screenFiltering5")),
+                         rstFunc = reactive({resetModuleFiltering()})),
   moduleFilteringDone =  rep(FALSE,6),
   moduleFilteringForceReset = 0,
   
@@ -35,8 +35,8 @@ rvModProcess <- reactiveValues(
                            ll.UI = list(screenStep1 = uiOutput("screenAggregation1"),
                                         screenStep2 = uiOutput("screenAggregation2"),
                                         screenStep3 = uiOutput("screenAggregation3")),
-                          rstFunc = reactive({resetModuleAggregation()})
-                          ),
+                           rstFunc = reactive({resetModuleAggregation()})
+  ),
   moduleAggregationForceReset = 0,
   moduleAggregationDone =  rep(FALSE,3),
   
@@ -52,7 +52,7 @@ rvModProcess <- reactiveValues(
                                            screenStep2 = uiOutput("screenProtImput2"),
                                            screenStep3 = uiOutput("screenProtImput3")),
                               rstFunc = reactive({resetModuleProtimputation()})
-                              ),
+  ),
   moduleProtImputationDone =  rep(FALSE,3),
   moduleProtImputationForceReset = 0,
   
@@ -73,7 +73,7 @@ rvModProcess <- reactiveValues(
                               isMandatory = rep(TRUE, 2),
                               forceReset = FALSE,
                               ll.UI = list(screenStep1 = uiOutput("screenHypoTest1"),
-                                          screenStep2 = uiOutput("screenHypoTest2")),
+                                           screenStep2 = uiOutput("screenHypoTest2")),
                               rstFunc = reactive({resetModuleHypothesisTest()})),
   moduleHypothesisTestDone =  rep(FALSE,2),
   moduleHypothesisTestForceReset = 0,
@@ -89,7 +89,7 @@ rvModProcess <- reactiveValues(
                                      screenStep3 = uiOutput("Convert_ExpFeatData"),
                                      screenStep4 = uiOutput("Convert_BuildDesign"),
                                      screenStep5 = uiOutput("Convert_Convert")
-                                    ),
+                       ),
                        rstFunc = reactive({resetModuleConvert()})),
   moduleConvertForceReset = 0,
   moduleConvertDone =  rep(FALSE,5),
@@ -108,15 +108,15 @@ rvModProcess <- reactiveValues(
   moduleAnaDiffDone =  rep(FALSE,4),
   
   moduleGO = list(name = "GO",
-                       stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
-                       isMandatory = c(TRUE, FALSE, FALSE, FALSE),
-                       forceReset = FALSE,
-                       ll.UI = list( screenStep1 = uiOutput("screenGO1"),
-                                     screenStep2 = uiOutput("screenGO2"),
-                                     screenStep3 = uiOutput("screenGO3"),
-                                     screenStep4 = uiOutput("screenGO4")
-                       ),
-                       rstFunc = reactive({resetModuleGO()})),
+                  stepsNames = c("GO setup", "GO classification", "GO enrichment", "Parameter summary"),
+                  isMandatory = c(TRUE, FALSE, FALSE, FALSE),
+                  forceReset = FALSE,
+                  ll.UI = list( screenStep1 = uiOutput("screenGO1"),
+                                screenStep2 = uiOutput("screenGO2"),
+                                screenStep3 = uiOutput("screenGO3"),
+                                screenStep4 = uiOutput("screenGO4")
+                  ),
+                  rstFunc = reactive({resetModuleGO()})),
   moduleGOForceReset = 0,
   moduleGODone =  rep(FALSE,4)
 )
