@@ -414,7 +414,7 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep3 = uiOutput("screenFiltering3"),
                                                             screenStep4 = uiOutput("screenFiltering4"),
                                                             screenStep5 = uiOutput("screenFiltering5")))
-          rvModProcess$moduleFilteringDone =  rep(FALSE,5)
+          rvModProcess$moduleFilteringDone =  rep(FALSE,6)
           },
           
           

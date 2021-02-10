@@ -183,11 +183,11 @@ output$keep_helptext <- renderUI({
            if (rv$widgets$filtering$val_vs_percent == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA, 
-                           " quantitative value in, at least one condition, are kept.")
+                           " quantitative value in at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuilNA_percent, 
-                           "% of quantitativevalue in, at least one condition, are kept.")
+                           "% of quantitative value in at least one condition, are kept.")
          },
          AllCond = {
            if (rv$widgets$filtering$val_vs_percent == 'Value')
@@ -455,11 +455,11 @@ output$keep_helptext.byMSMS <- renderUI({
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil.byMSMS, 
-                           " 'by MS/MS' value in, at least one condition, are kept.")
+                           " 'by MS/MS' value in at least one condition, are kept.")
            else if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Percentage')
              txt <- paste0("The lines which contain at least ",
                            rv$widgets$filtering$seuil_percent.byMSMS, 
-                           "% of 'by MS/MS' value in, at least one condition, are kept.")
+                           "% of 'by MS/MS' value in at least one condition, are kept.")
          },
          AllCond = {
            if (rv$widgets$filtering$val_vs_percent.byMSMS == 'Value')
@@ -505,11 +505,6 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
   rv$widgets$filtering$seuil_percent.byMSMS
   rv$widgets$filtering$val_vs_percent.byMSMS
   
-  print(rv$widgets$filtering$ChooseFilters.byMSMS)
-  print(rv$widgets$filtering$seuil.byMSMS)
-  print(rv$widgets$filtering$seuil_percent.byMSMS)
-  print(rv$widgets$filtering$val_vs_percent.byMSMS)
-  
   
   if (rv$widgets$filtering$ChooseFilters.byMSMS == gFilterNone){
     #rv$current.obj <- rv$dataset[[input$datasets]]
@@ -527,7 +522,6 @@ observeEvent(input$perform.filtering.byMSMS, ignoreInit=TRUE,{
                                                    threshold = th)
     
     if (!is.null(keepThat)) {
-      print('la')
       rv$deleted.mvLines <- rv$current.obj[-keepThat]
       rv$current.obj <- mvFilterFromIndices(obj = rv$current.obj,
                                             keepThat = keepThat,
