@@ -375,10 +375,10 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
                                 content= HTML(paste0("To filter the features according to their identification method (by MS/MS), the choice of the lines to be kept is made by different options:"),
                                               ("<ul>"),
                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 0% of by MS/MS are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less by MS/MS value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less by MS/MS value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less by MS/MS value than a user-defined threshold are deleted.</li>"),
+                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with no &quotby MS/MS&quot value are removed.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less &quotby MS/MS&quot value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less &quotby MS/MS&quot value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less &quotby MS/MS&quot value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
                                 )
            )
@@ -548,7 +548,9 @@ observeEvent(input$perform.filtering_byMSMS, ignoreInit=TRUE,{
                                             processText = GetFilterText(rv$widgets$filtering$ChooseFilters_byMSMS, th)
       )
     } else {
-      rv$deleted.byMSMSLines <- nrow(rv$current.obj)
+      browser()
+      rv$deleted.byMSMSLines <- rv$current.obj
+      rv$current.obj <- rv$current.obj[-(1:nrow(rv$current.obj))]
     }
   }
   
@@ -569,8 +571,8 @@ output$ObserverMVFilteringDone_byMSMS <- renderUI({
   if (!rvModProcess$moduleFilteringDone[2]) {
     return(NULL)
   } else {
-    if (rv$deleted.byMSMSLines == nrow(rv$current.obj)) {
-      p("Empty Dataset because no 'by MS/MS' information.", style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
+    if (nrow(rv$current.obj) == 0) {
+      p("Empty dataset because no 'by MS/MS' information.", style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
     }else{
       h5(paste0("Identification filtering done. ",n, " lines were deleted."))
     }
