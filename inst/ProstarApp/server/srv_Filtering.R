@@ -33,6 +33,7 @@ resetModuleFiltering <- reactive({
   
   rv$deleted.stringBased <- NULL
   rv$deleted.mvLines <- NULL
+  rv$deleted.byMSMSLines <- NULL
   rv$deleted.numeric <- NULL
   
   rv$current.obj <- rv$dataset[[input$datasets]]
@@ -374,10 +375,10 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
                                 content= HTML(paste0("To filter the features according to their identification method (by MS/MS), the choice of the lines to be kept is made by different options:"),
                                               ("<ul>"),
                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 0% of 'by MS/MS' are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less 'by MS/MS' value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less 'by MS/MS' value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less 'by MS/MS' value than a user-defined threshold are deleted.</li>"),
+                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 0% of by MS/MS are filtered out.</li>"),
+                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less by MS/MS value than a user-defined threshold are kept;</li>"),
+                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less by MS/MS value than a user-defined threshold are deleted;</li>"),
+                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less by MS/MS value than a user-defined threshold are deleted.</li>"),
                                               ("</ul>")
                                 )
            )
@@ -391,11 +392,11 @@ output$warning_byMSMS <- renderUI({
   IdentificationData <- fData[DAPAR::is.byMSMS(fData)]
   
   if(length(IdentificationData) == 0){
-    txt <- paste0("Warning ! Your dataset contains none 'by MS/MS' values. 
-                  If you remove lines without 'by MS/MS', your dataset will be blank.")
+    txt <- paste0("Warning ! Your dataset contains no 'by MS/MS' values. 
+                  If you filter the lines without 'by MS/MS', your dataset will be blank.")
     div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
         tagList(
-          tags$p(txt)
+          tags$p(txt, style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
         ))
   }
 })
@@ -540,13 +541,14 @@ observeEvent(input$perform.filtering_byMSMS, ignoreInit=TRUE,{
                                                    threshold = th)
     
     
-    if (!is.null(keepThat) 
-        || length(keepThat) != 0) {
-      rv$deleted.mvLines <- rv$current.obj[-keepThat]
+    if (length(keepThat) != 0) {
+      rv$deleted.byMSMSLines <- rv$current.obj[-keepThat]
       rv$current.obj <- mvFilterFromIndices(obj = rv$current.obj,
                                             keepThat = keepThat,
                                             processText = GetFilterText(rv$widgets$filtering$ChooseFilters_byMSMS, th)
       )
+    } else {
+      rv$deleted.byMSMSLines <- nrow(rv$current.obj)
     }
   }
   
@@ -557,16 +559,21 @@ observeEvent(input$perform.filtering_byMSMS, ignoreInit=TRUE,{
 })
 
 output$ObserverMVFilteringDone_byMSMS <- renderUI({
-  req(rv$deleted.mvLines)
+  req(rv$deleted.byMSMSLines)
   #isolate({
   
+  browser()
+  
   n <- 0
-  if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
+  if(!is.null(rv$deleted.byMSMSLines)){n <- nrow(rv$deleted.byMSMSLines)}
   if (!rvModProcess$moduleFilteringDone[2]) {
     return(NULL)
-  }
-  else {
-    h5(paste0("Identification filtering done. ",n, " lines were deleted."))
+  } else {
+    if (rv$deleted.byMSMSLines == nrow(rv$current.obj)) {
+      p("Empty Dataset because no 'by MS/MS' information.", style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
+    }else{
+      h5(paste0("Identification filtering done. ",n, " lines were deleted."))
+    }
   }
   
   # })
