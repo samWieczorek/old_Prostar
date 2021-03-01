@@ -1,10 +1,26 @@
 library(shiny)
 library(DT)
+library(DAPAR)
 
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string')) # to display NAs in DT, instead of blank square
 
+gFiltersList <- c("None" = "None",
+                  "Empty lines" = "EmptyLines",
+                  "Whole matrix" = "WholeMatrix",
+                  "For every condition" = "AllCond",
+                  "At least one condition" = "AtLeastOneCond")
+gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 
 ui <- fluidPage(
+  
+  div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+      selectInput("ChooseFilters","",
+                  choices = gFiltersList,
+                  width='200px')),
+  
+  div(style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
+      uiOutput("seuilNADelete")),
+  
   
   dataTableOutput("buildFiltrationExample")
   
@@ -12,6 +28,37 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session){
+  
+  
+  
+  output$seuilNADelete <- renderUI({
+    req(input$ChooseFilters)
+    
+    if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {
+      return(NULL)   
+    }
+    
+    tagList(
+      shinyjs::useShinyjs(),
+      
+      uiOutput('keepVal_ui')
+    )
+  })
+  
+  
+  output$keepVal_ui <- renderUI({
+    
+    if (input$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
+    
+    tagList(
+      selectInput("seuilNA", NULL,
+                  choices =  DAPAR::getListNbValuesInLines(rv$current.obj, 
+                                                           type=input$ChooseFilters),
+                  selected = input$seuilNA,
+                  width='150px')
+    )
+  })
+  
   
   output$buildFiltrationExample <- DT::renderDataTable({
     
@@ -50,7 +97,7 @@ server <- function(input, output, session){
     # l_atLeastOneCondition <- list("th1"=c(7),"th2"=c(6,7,11),"th3"=c(5:11))
     
     # Example with method=WholeMatrix/th=3 <=> at least 3 quanti values by entire row
-    # index <- c(5,6,7,10,11)
+    index <- c(5,6,7,10,11)
     
     
     
