@@ -58,6 +58,44 @@ output$screenFiltering1 <- renderUI({
     tagList(
       div(
         id = "screen1Filtering",
+        
+        ############################################################
+        div(style="border-style: 1px double ligthgrey; height: auto;",
+            #div(HTML("Empty Lines")),
+            fluidRow(
+              column(2,
+                     HTML("Part: Which data? <br> 
+                          Among Missing, Observed, Recovered, Imputed and Unknown")#,
+                     # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
+              ),
+              column(2,
+                     HTML("Part: Which data? <br> 
+                          Include or exclude")#,
+                     # 2) Include or exclude lines according to M or [O, R, I, U]
+              ),
+              column(2,
+                     HTML("Part: How filter picked data? <br> 
+                          According to conditions: Whole Matrix, All Cond or At Least One Cond")#,
+                     # 3) According to conditions: Whole Matrix, All Cond or At least one cond
+              ),
+              column(2,
+                     HTML("Part: How filter picked data? <br> Threshold")#,
+                     # 4.1) Threshold in percent or absolute ?
+              ),
+              column(2,
+                     HTML("Part: How filter picked data <br> Threshold Value")#,
+                     # 4.2) Value of the threshold
+              )
+              # ,
+              # column(2,
+              #        HTML("\'+\' if want supp filtration"))
+            )
+            
+        ),
+        
+        tags$hr(style="border-top: 3px double black;"),
+        
+        ############################################################
         # tags$div(
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
             modulePopoverUI("modulePopover_Help_NA_Filtering"),
