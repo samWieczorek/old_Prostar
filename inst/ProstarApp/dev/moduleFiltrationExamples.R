@@ -74,25 +74,28 @@ server <- function(input, output, session){
   output$methodInformation <- renderText({
     switch(input$ChooseFilters,
            None = {
-             txt <- "No lines are removed"
+             txt <- "No lines are removed."
            },
            EmptyLines = {
              txt <- "Lines with only NAs are removed."
            },
-           WholeMatrix = { 
-             txt <- paste("Lines containing at least",
-                          input$seuilNA,
-                          "quantitative values per row are kept.")
+           WholeMatrix = {
+             if(input$seuilNA=="0"){txt <- "No lines are removed."}
+             else{txt <- paste("Lines containing at least",
+                               input$seuilNA,
+                               "quantitative values per row are kept.")}
            },
            AllCond = {
-             txt <- paste("Lines containing at least",
-                          input$seuilNA,
-                          "quantitative values per row, in all condition, are kept.")
+             if(input$seuilNA=="0"){txt <- "No lines are removed."}
+             else{txt <- paste("Lines containing at least",
+                               input$seuilNA,
+                               "quantitative values per row, in all condition, are kept.")}
            },
            AtLeastOneCond = {
-             txt <- paste("Lines containing at least",
-                          input$seuilNA,
-                          "quantitative values per row, in at least one condition, are kept.")
+             if(input$seuilNA=="0"){txt <- "No lines are removed."}
+             else{txt <- paste("Lines containing at least",
+                               input$seuilNA,
+                               "quantitative values per row, in at least one condition, are kept.")}
            }
     )
     txt
@@ -110,19 +113,18 @@ server <- function(input, output, session){
     # 7  NA NA NA NA NA NA
     # 8  NA  1  1 NA  1  1
     # 9  NA  1  1 NA NA  1
-    # 10 NA  1  1 NA NA NA
-    # 11 NA NA  1 NA NA  1
+    # 10 NA NA  1 NA NA  1
     
     # Indices for filtered rows, to darken:
     # paramtype<-c("None", "EmptyLines", "WholeMatrix", "AllCond", "AtLeastOneCond")
     # none: nothing to darken, keep all row
     # emptyLines: 7
-    # wholeMatrix: list("th1"=c(7),"th2"=c(6,7),"th3"=c(5:7,10,11),"th4"=c(4:7,9,10,11),"th5"=c(3:11),"th6"=c(2:11))
-    # allCond: list("th1"=c(4:7,10),"th2"=c(3:7,9,10,11),"th3"=c(2:11))
-    # atLeastOneCondition: list("th1"=c(7),"th2"=c(6,7,11),"th3"=c(5:11))
+    # wholeMatrix: list("th1"=c(7),"th2"=c(6,7),"th3"=c(5:7,10),"th4"=c(4:7,9,10),"th5"=c(3:10),"th6"=c(2:10))
+    # allCond: list("th1"=c(4:7),"th2"=c(3:7,9,10),"th3"=c(2:10))
+    # atLeastOneCondition: list("th1"=c(7),"th2"=c(6,7,10),"th3"=c(5:10))
     
     # Example with method=WholeMatrix/th=3 <=> at least 3 quanti values by entire row
-    # index <- c(5,6,7,10,11)
+    # index <- c(5,6,7,10)
     ################################################################
     switch(input$ChooseFilters,
            None = {
@@ -135,22 +137,22 @@ server <- function(input, output, session){
                                   "0" = { index <- NULL },
                                   "1" = { index <- 7 },
                                   "2" = { index <- c(6,7) },
-                                  "3" = { index <- c(5:7,10,11) },
-                                  "4" = { index <- c(4:7,9,10,11) },
-                                  "5" = { index <- c(3:11)},
-                                  "6" = { index <- c(2:11)}
+                                  "3" = { index <- c(5:7,10) },
+                                  "4" = { index <- c(4:7,9,10) },
+                                  "5" = { index <- c(3:10)},
+                                  "6" = { index <- c(2:10)}
            )},
            AllCond = { switch(input$seuilNA,
                               "0" = { index <- NULL },
-                              "1" = { index <- c(4:7,10) },
-                              "2" = { index <- c(3:7,9,10,11) },
-                              "3" = { index <- c(2:11) }
+                              "1" = { index <- c(4:7) },
+                              "2" = { index <- c(3:7,9,10) },
+                              "3" = { index <- c(2:10) }
            )},
            AtLeastOneCond = { switch(input$seuilNA,
                                      "0" = { index <- NULL },
                                      "1" = { index <- 7 },
-                                     "2" = { index <- c(6,7,11) },
-                                     "3" = { index <- c(5:11) }
+                                     "2" = { index <- c(6,7,10) },
+                                     "3" = { index <- c(5:10) }
            )}
     )
     
