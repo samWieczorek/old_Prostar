@@ -60,31 +60,62 @@ output$screenFiltering1 <- renderUI({
         id = "screen1Filtering",
         
         ############################################################
-        div(style="border-style: 1px double ligthgrey; height: auto;",
+        div(style="border: 1px solid ligthgrey; height: auto;",
             #div(HTML("Empty Lines")),
             fluidRow(
               column(2,
-                     HTML("Part: Which data? <br> 
-                          Among Missing, Observed, Recovered, Imputed and Unknown")#,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("Which data?
+                            <br/>
+                            Among Missing, Observed, Recovered, Imputed and Unknown")),
                      # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
+                     selectInput("temp.dataClass",
+                                 "Choose the class of the quantitative data",
+                                 choices = c("Missing", "Observed", "Recovered", "Imputed", "Unknown"))
               ),
               column(2,
-                     HTML("Part: Which data? <br> 
-                          Include or exclude")#,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("Which data?
+                            <br/>
+                            Include or exclude")),
                      # 2) Include or exclude lines according to M or [O, R, I, U]
+                     radioButtons("temp.inOrExClude",
+                                  "Choose either to keep or removed lines containing:",
+                                  c("Include" = "temp.include",
+                                    "Exclude" = "temp.exclude"))
               ),
               column(2,
-                     HTML("Part: How filter picked data? <br> 
-                          According to conditions: Whole Matrix, All Cond or At Least One Cond")#,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("How filter picked data? 
+                            <br/>
+                            According to conditions: Whole Matrix, All Cond or At Least One Cond")),
                      # 3) According to conditions: Whole Matrix, All Cond or At least one cond
+                     selectInput("ChooseFilters","",
+                                 choices = gFiltersList,
+                                 selected=rv$widgets$filtering$ChooseFilters,
+                                 width='200px')
               ),
               column(2,
-                     HTML("Part: How filter picked data? <br> Threshold")#,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("How filter picked data? 
+                            <br/>
+                            Threshold")),
                      # 4.1) Threshold in percent or absolute ?
+                     radioButtons('val_vs_percent', '#/% of values to keep',
+                                  choices = c('Value'='Value', 'Percentage'='Percentage'),
+                                  selected = rv$widgets$filtering$val_vs_percent)
               ),
               column(2,
-                     HTML("Part: How filter picked data <br> Threshold Value")#,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("How filter picked data? 
+                            <br/>
+                            Threshold Value")),
                      # 4.2) Value of the threshold
+                     selectInput("seuilNA", NULL,
+                                 choices =  getListNbValuesInLines(rv$current.obj,
+                                                                   type=rv$widgets$filtering$ChooseFilters),
+                                 selected = rv$widgets$filtering$seuilNA,
+                                 width='150px')
               )
               # ,
               # column(2,
