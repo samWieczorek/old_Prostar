@@ -291,6 +291,44 @@ observeEvent(input$temp.seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
 observeEvent(input$temp.seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$temp.seuilNA_percent <- input$temp.seuilNA_percent
 })
+
+# 1)
+# Function to select lines containing any [M, O, R, I and U]
+# Already exists for byMS/MS and MV
+# => Create a unique function taking among [M, O, R, I and U] as parameter
+# Think about sets [M] vs [O, R, I and U] and other combinaisons
+
+# 2)
+# If exclude, keepThat <- !is.MV
+# If include, keepThat <- is.byMSMS
+
+# Next step already done, with filtration methods WM, ALOC... and threshold/th value
+
+############ what's necessary to filter ###########################
+# keepThat, rv$deleted.mvLines and new filtered rv$current.obj
+###################################################################
+# Dans output$temp.keepVal_ui
+# DAPAR, utils.R
+# getListNbValuesInLines(rv$current.obj, 
+#                        type=rv$widgets$filtering$temp.ChooseFilters)
+# Parameters: temp.ChooseFilters: 'WholeMatrix', 'AllCond', 'AtLeastOneCond' 
+# 
+# 
+# Dans observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
+# DAPAR, missingValuesFilter.R
+# keepThat <- mvFilterGetIndices(obj = rv$current.obj,
+#                                percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
+#                                condition = rv$widgets$filtering$ChooseFilters,
+#                                threshold = th)
+# Parameters: percent==TRUE, ChooseFilters: 'WholeMatrix', 'AllCond', 'AtLeastOneCond', threshold ]0;1[
+#     
+#     
+# DAPAR, missingValuesFilter.R and Prostar global.R
+# rv$current.obj <- mvFilterFromIndices(rv$current.obj,
+#                                       keepThat,
+#                                       GetFilterText(rv$widgets$filtering$ChooseFilters, 
+#                                                     th)
+# Parameters: line indices to keep, method filter, threshold
 #########################################################
 
 
