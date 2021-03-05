@@ -212,7 +212,7 @@ ClearUI <- reactive({
   
   updateSelectInput(session, "idBox", selected = NULL)
   
-  updateSelectizeInput(session,"eData.box",choices = NULL, selected=NULL)
+  updateSelectizeInput(session,"choose_quantitative_columns",choices = NULL, selected=NULL)
   updateTextInput(session,"filenameToCreate",value= "")
   updateTextInput(session,"nameExport",value= "")
   

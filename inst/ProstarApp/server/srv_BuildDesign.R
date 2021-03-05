@@ -382,9 +382,9 @@ observeEvent(input$btn_checkConds,{
 
 
 #----------------------------------------------------------
-observeEvent(input$eData.box,{
-  rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
-                        Condition = rep("",length(input$eData.box)),
+observeEvent(input$choose_quantitative_columns,{
+  rv$hot  <- data.frame(Sample.name = as.character(input$choose_quantitative_columns),
+                        Condition = rep("",length(input$choose_quantitative_columns)),
                         stringsAsFactors = FALSE)
   
   
@@ -396,8 +396,8 @@ output$hot <- renderRHandsontable({
   input$chooseExpDesign
   
   if (is.null(rv$hot)){
-    rv$hot  <- data.frame(Sample.name = as.character(input$eData.box),
-                          Condition = rep("",length(input$eData.box)),
+    rv$hot  <- data.frame(Sample.name = as.character(input$choose_quantitative_columns),
+                          Condition = rep("",length(input$choose_quantitative_columns)),
                           stringsAsFactors = FALSE)
   }
   
