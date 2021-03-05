@@ -64,68 +64,62 @@ output$screenFiltering1 <- renderUI({
         id = "screen1Filtering",
         
         ############################################################
-        div(style="border: 1px black solid; height: auto;",
+        div(style="border: 1px black solid; height: auto; padding: 5px",
             #div(HTML("Empty Lines")),
             fluidRow(
-              column(2,
+              column(1,
                      p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("Which data?
-                            <br/>
-                            Among Missing, Observed, Recovered, Imputed and Unknown")),
-                     # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
-                     selectInput("temp.dataClass",
-                                 "Choose the class of the quantitative data",
-                                 choices = c("Missing", "Observed", "Recovered", "Imputed", "Unknown"))
+                       HTML("Empty Lines"))
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("Which data?
-                            <br/>
-                            Include or exclude")),
+                       HTML("Among Missing, Observed, Recovered, Imputed and Unknown")),
+                     # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
+                     selectInput("temp.dataClass",
+                                 "Choose the class of the quantitative data",
+                                 choices = c("Missing", "Observed", "Recovered", "Imputed", "Unknown"),
+                                 width='200px')
+              ),
+              column(2,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("Include or exclude")),
                      # 2) Include or exclude lines according to M or [O, R, I, U]
                      radioButtons("temp.inOrExClude",
                                   "Choose either to keep or removed lines containing:",
-                                  c("Include" = "temp.include",
+                                  c("Enrich" = "temp.include",
                                     "Exclude" = "temp.exclude"))
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("How filter picked data? 
-                            <br/>
-                            According to conditions: Whole Matrix, All Cond or At Least One Cond")),
+                       HTML("According to conditions")),
                      # 3) According to conditions: Whole Matrix, All Cond or At least one cond
                      selectInput("temp.ChooseFilters","",
-                                 choices = gFiltersList,
+                                 choices = gFiltersList[-c(1,2)],
                                  selected=rv$widgets$filtering$temp.ChooseFilters,
                                  width='200px')
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("How filter picked data? 
-                            <br/>
-                            Threshold")),
+                       HTML("Threshold")),
                      # 4.1) Threshold in percent or absolute ?
-                     div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-                          uiOutput("temp.seuilNADelete"))
+                     radioButtons('temp.val_vs_percent', '#/% of values to keep', 
+                                  choices = c('Value'='Value', 'Percentage'='Percentage'),
+                                  selected = rv$widgets$filtering$temp.val_vs_percent)
               )
-              # ,
-              # column(2,
-              #        p(style = "font-size: xx-small ; text-align: center ;",
-              #          HTML("How filter picked data?
-              #               <br/>
-              #               Threshold Value")),
-              #        # 4.2) Value of the threshold
-              #        selectInput("seuilNA", NULL,
-              #                    choices =  getListNbValuesInLines(rv$current.obj,
-              #                                                      type=rv$widgets$filtering$temp.ChooseFilters),
-              #                    selected = rv$widgets$filtering$temp.seuilNA,
-              #                    width='150px')
-              # )
-              # ,
-              # column(2,
-              #        HTML("\'+\' if want supp filtration"))
+              ,
+              column(2,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("Threshold Value")),
+                     # 4.2) Value of the threshold
+                     uiOutput('temp.keepVal_ui'),
+                     uiOutput('temp.keepVal_percent_ui'),
+                     uiOutput('temp.keep_helptext')
+              ),
+              column(1,
+                     p(style = "font-size: xx-small ; text-align: center ;",
+                       HTML("\'+\' if want supp filtration"))
+              )
             )
-            
         ),
         
         tags$hr(style="border-top: 3px double black;"),
@@ -179,26 +173,6 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
 
 
 #########################################################
-output$temp.seuilNADelete <- renderUI({
-  req(rv$widgets$filtering$temp.ChooseFilters)
-  
-  if ((rv$widgets$filtering$temp.ChooseFilters=="None") || (rv$widgets$filtering$temp.ChooseFilters==gFilterEmptyLines)) {
-    return(NULL)   
-  }
-  
-  tagList(
-    shinyjs::useShinyjs(),
-    radioButtons('temp.val_vs_percent', '#/% of values to keep', 
-                 choices = c('Value'='Value', 'Percentage'='Percentage'),
-                 selected = rv$widgets$filtering$temp.val_vs_percent
-    ),
-    
-    uiOutput('temp.keepVal_ui'),
-    uiOutput('temp.keepVal_percent_ui'),
-    uiOutput('temp.keep_helptext')
-  )
-})
-
 
 output$temp.keepVal_ui <- renderUI({
   req(rv$widgets$filtering$temp.val_vs_percent)
@@ -214,7 +188,6 @@ output$temp.keepVal_ui <- renderUI({
                 width='150px')
   )
 })
-
 
 
 
@@ -271,8 +244,13 @@ output$temp.keep_helptext <- renderUI({
          }
   )
   tagList(
-    tags$p(txt)
+    tags$p(txt, style = "font-size: x-small ; text-align : center ;")
   )
+})
+
+
+observeEvent(input$temp.ChooseFilters,{
+  rv$widgets$filtering$temp.ChooseFilters <- input$temp.ChooseFilters
 })
 
 
@@ -280,17 +258,16 @@ observeEvent(input$temp.val_vs_percent, {
   rv$widgets$filtering$temp.val_vs_percent <- input$temp.val_vs_percent
 })
 
-observeEvent(input$temp.ChooseFilters,{
-  rv$widgets$filtering$temp.ChooseFilters <- input$temp.ChooseFilters
-})
 
 observeEvent(input$temp.seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$temp.seuilNA <- input$temp.seuilNA
 })
 
+
 observeEvent(input$temp.seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$temp.seuilNA_percent <- input$temp.seuilNA_percent
 })
+
 
 # 1)
 # Function to select lines containing any [M, O, R, I and U]
