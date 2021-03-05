@@ -11,18 +11,11 @@ resetModuleFiltering <- reactive({
   ## update rv$widgets values (reactive values)
   resetModuleProcess("Filtering")
   
+  
   rv$widgets$filtering$ChooseFilters <- "None"
-  rv$widgets$filtering$temp.ChooseFilters <- "None"
-  rv$widgets$filtering$ChooseFilters_byMSMS <- "None"
   rv$widgets$filtering$seuilNA <- 0
-  rv$widgets$filtering$temp.seuilNA <- 0
   rv$widgets$filtering$seuilNA_percent <- 0
-  rv$widgets$filtering$temp.seuilNA_percent <- 0
-  rv$widgets$filtering$seuil_byMSMS <- 0
-  rv$widgets$filtering$seuil_percent_byMSMS <- 0
   rv$widgets$filtering$val_vs_percent <- 'Value'
-  rv$widgets$filtering$val_vs_percent_byMSMS <- 'Value'
-  rv$widgets$filtering$temp.val_vs_percent <- 'Value'
   rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL,
                                                       Prefix=NULL,
                                                       nbDeleted=NULL,
@@ -33,6 +26,19 @@ resetModuleFiltering <- reactive({
                                                          nbDeleted=NULL,
                                                          Total=NULL,
                                                          stringsAsFactors=F)
+  
+  rv$widgets$filtering$ChooseFilters_byMSMS <- "None"
+  rv$widgets$filtering$seuil_byMSMS <- 0
+  rv$widgets$filtering$seuil_percent_byMSMS <- 0
+  rv$widgets$filtering$val_vs_percent_byMSMS <- 'Value'
+  
+  rv$widgets$filtering$temp.dataClass <- "Missing"
+  rv$widgets$filtering$temp.ChooseFilters <- "Whole Matrix"
+  rv$widgets$filtering$temp.enrichOrRemove <- "Enrich"
+  rv$widgets$filtering$temp.seuilNA <- 0
+  rv$widgets$filtering$temp.seuilNA_percent <- 0
+  rv$widgets$filtering$temp.val_vs_percent <- 'Value'
+  rv$widgets$filtering$temp.numericFilter_operator <- '<='
   
   
   rv$deleted.stringBased <- NULL
@@ -72,8 +78,6 @@ output$screenFiltering1 <- renderUI({
                        HTML("Empty Lines"))
               ),
               column(2,
-                     p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("Among Missing, Observed, Recovered, Imputed and Unknown")),
                      # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
                      selectInput("temp.dataClass",
                                  "Choose the class of the quantitative data",
@@ -84,10 +88,7 @@ output$screenFiltering1 <- renderUI({
                      p(style = "font-size: xx-small ; text-align: center ;",
                        HTML("Include or exclude")),
                      # 2) Include or exclude lines according to M or [O, R, I, U]
-                     radioButtons("temp.inOrExClude",
-                                  "Choose either to keep or removed lines containing:",
-                                  c("Enrich" = "temp.include",
-                                    "Exclude" = "temp.exclude"))
+                     uiOutput("temp.enrichOrRemove")
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
@@ -102,17 +103,25 @@ output$screenFiltering1 <- renderUI({
                      p(style = "font-size: xx-small ; text-align: center ;",
                        HTML("Threshold")),
                      # 4.1) Threshold in percent or absolute ?
-                     radioButtons('temp.val_vs_percent', '#/% of values to keep', 
-                                  choices = c('Value'='Value', 'Percentage'='Percentage'),
-                                  selected = rv$widgets$filtering$temp.val_vs_percent)
-              )
-              ,
+                     uiOutput("temp.seuilNADelete")
+              ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
                        HTML("Threshold Value")),
                      # 4.2) Value of the threshold
-                     uiOutput('temp.keepVal_ui'),
-                     uiOutput('temp.keepVal_percent_ui'),
+                     fluidRow(
+                       column(6,
+                              selectInput("temp.numericFilter_operator",
+                                          NULL,
+                                          choices = c('<=' = '<=',
+                                                      '<' = '<',
+                                                      '>=' = '>=',
+                                                      '>' = '>'),
+                                          width='100px')
+                       ),
+                       column(6,
+                              uiOutput('temp.keepVal_ui'),
+                              uiOutput('temp.keepVal_percent_ui'))),
                      uiOutput('temp.keep_helptext')
               ),
               column(1,
@@ -173,6 +182,28 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
 
 
 #########################################################
+output$temp.enrichOrRemove <- renderUI({
+  
+  text <- paste("Choose either to keep or removed lines containing: ",rv$widgets$filtering$temp.dataClass," data.")
+  radioButtons("temp.inOrExClude",
+               text,
+               choices = c("Enrich" = "keep", "Exclude" = "remove"),
+               selected = rv$widgets$filtering$temp.inOrExClude)
+  
+})
+
+
+output$temp.seuilNADelete <- renderUI({
+  
+  text <- paste("#/% of values to ",rv$widgets$filtering$temp.inOrExClude)
+  radioButtons('temp.val_vs_percent',
+               text, 
+               choices = c('Value'='Value', 'Percentage'='Percentage'),
+               selected = rv$widgets$filtering$temp.val_vs_percent
+  )
+  
+})
+
 
 output$temp.keepVal_ui <- renderUI({
   req(rv$widgets$filtering$temp.val_vs_percent)
@@ -206,51 +237,57 @@ output$temp.keepVal_percent_ui <- renderUI({
 })
 
 
+
 output$temp.keep_helptext <- renderUI({
   rv$widgets$filtering$temp.ChooseFilters
-  txt <- NULL
-  switch(rv$widgets$filtering$temp.ChooseFilters,
-         None = txt <-"All lines will be kept",
-         EmptyLines = txt <-"All lines containing only missing values are removed.",
-         WholeMatrix = {
-           if (rv$widgets$filtering$temp.val_vs_percent == 'Value')
-             txt <- paste0("Only the lines (across all conditions) which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA, 
-                           " quantitative value are kept.")
-           else if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-             txt <- paste0("The lines (across all conditions) which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA_percent, 
-                           "% of quantitative value are kept.")
-         },
-         AtLeastOneCond = {
-           if (rv$widgets$filtering$temp.val_vs_percent == 'Value')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA, 
-                           " quantitative value in at least one condition, are kept.")
-           else if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA_percent, 
-                           "% of quantitative value in at least one condition, are kept.")
-         },
-         AllCond = {
-           if (rv$widgets$filtering$temp.val_vs_percent == 'Value')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA, 
-                           " quantitative value in each condition are kept.")
-           else if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$filtering$temp.seuilNA_percent, 
-                           "% of quantitative value in each condition are kept.")
-         }
-  )
-  tagList(
-    tags$p(txt, style = "font-size: x-small ; text-align : center ;")
-  )
+  
+  if(rv$widgets$filtering$temp.numericFilter_operator == '<='){
+    text_operator <- "inferior or equal"
+  } else if (rv$widgets$filtering$temp.numericFilter_operator == '<'){
+    text_operator <- "inferior"
+  } else if (rv$widgets$filtering$temp.numericFilter_operator == '>='){
+    text_operator <- "superior or equal"
+  } else if (rv$widgets$filtering$temp.numericFilter_operator == '>'){
+    text_operator <- "superior"
+  }
+  
+  if(rv$widgets$filtering$temp.val_vs_percent == 'Value'){
+    text_threshold <- rv$widgets$filtering$temp.seuilNA
+  } else {
+    text_threshold <- paste(rv$widgets$filtering$temp.seuilNA_percent*100,"%", sep="")
+  }
+  
+  # Also bit of test specific to filtration method ...
+  
+  txt_summary <- paste("You are going to ",
+                       rv$widgets$filtering$temp.inOrExClude,
+                       " lines where number of ",
+                       rv$widgets$filtering$temp.dataClass,
+                       " data are ",
+                       text_operator,
+                       " to ",
+                       text_threshold,
+                       "in",
+                       rv$widgets$filtering$temp.ChooseFilters)
+  
+  tags$p(txt_summary, style = "font-size: small; text-align : center; color: purple;")
+
+})
+
+
+
+observeEvent(input$temp.dataClass,{
+  rv$widgets$filtering$temp.dataClass <- input$temp.dataClass
 })
 
 
 observeEvent(input$temp.ChooseFilters,{
   rv$widgets$filtering$temp.ChooseFilters <- input$temp.ChooseFilters
+})
+
+
+observeEvent(input$temp.inOrExClude, {
+  rv$widgets$filtering$temp.inOrExClude <- input$temp.inOrExClude
 })
 
 
@@ -268,6 +305,9 @@ observeEvent(input$temp.seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$temp.seuilNA_percent <- input$temp.seuilNA_percent
 })
 
+observeEvent(input$temp.numericFilter_operator,{
+  rv$widgets$filtering$temp.numericFilter_operator <- input$temp.numericFilter_operator
+})
 
 # 1)
 # Function to select lines containing any [M, O, R, I and U]
@@ -430,6 +470,7 @@ observeEvent(input$ChooseFilters,{
 observeEvent(input$seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$seuilNA <- input$seuilNA
 })
+
 
 observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$seuilNA_percent <- input$seuilNA_percent
