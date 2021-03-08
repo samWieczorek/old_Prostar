@@ -1,5 +1,3 @@
-source(file.path("server", "srv_ConvertData_MaxQuant.R"),  local = TRUE)$value
-source(file.path("server", "srv_ConvertData_Proline.R"),  local = TRUE)$value
 
 
 callModule(modulePopover,"modulePopover_convertChooseDatafile", 
@@ -47,7 +45,7 @@ output$Convert_SelectFile <- renderUI({
    
   tagList(br(), br(),
           radioButtons("choose_software", "Software to import from",
-                           choices = setNames(nm = c('MaxQuant', 'Proline')),
+                           choices = setNames(nm = c('maxquant', 'proline')),
                            selected = character(0)
                            ),
           uiOutput('choose_file_to_import'),
@@ -276,20 +274,68 @@ output$previewProtID <- renderTable(
   colnames = FALSE
 )
 
+
+
+
+
+
+
  ##################### STEP 3 #######################################
 
 # The code for MaxQuant import is in the file srv_ConvertData_MaxQuant.R
 # The code for Proline import is in the file srv_ConvertData_Proline.R
 
 
-output$select_quanti_data <- renderUI({
-  fluidRow(
-    column(width=4, uiOutput("eData",width = "400px")),
-    column(width=8, shinyjs::hidden(
-      DT::dataTableOutput("x1", width='500px'))
-    )
-  )
-})
+# output$select_quanti_data <- renderUI({
+#   fluidRow(
+#     column(width=4, uiOutput("eData",width = "400px")),
+#     column(width=8, shinyjs::hidden(
+#       DT::dataTableOutput("x1", width='500px'))
+#     )
+#   )
+# })
+# 
+# output$eData <- renderUI({
+#   input$file1
+#   req(rv$tab1)
+#   
+#   choices <- colnames(rv$tab1)
+#   names(choices) <- colnames(rv$tab1)
+#   
+#   tagList(
+#     modulePopoverUI("modulePopover_convertDataQuanti"),
+#     selectInput("choose_quantitative_columns",
+#                 label = "",
+#                 choices = choices,
+#                 multiple = TRUE, width='200px',
+#                 size = 20,
+#                 selectize = FALSE)
+#   )
+# })
+# 
+# 
+# output$Convert_ExpFeatData <- renderUI({
+#   
+#   tagList(
+#     shinyjs::useShinyjs(),
+#     fluidRow(
+#       column(width=4, shinyjs::hidden(
+#         checkboxInput("selectIdent", 
+#                       "Select columns for identification method", 
+#                       value = FALSE))
+#         )
+#     ),
+#     uiOutput('select_quanti_data'),
+#     tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+#                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+#                                    })"))
+#   )
+# })
+
+#--------------------------
+
+
+
 output$Convert_ExpFeatData <- renderUI({
   
   tagList(
@@ -299,17 +345,169 @@ output$Convert_ExpFeatData <- renderUI({
         checkboxInput("selectIdent", 
                       "Select columns for identification method", 
                       value = FALSE))
-        ),
-      column(width=8,
-             uiOutput('maxquant_metacell'),
-             uiOutput('proline_metacell'))
+      ),
+      column(width=4,uiOutput("checkIdentificationTab")),
+      column(width = 4, shinyjs::hidden(
+        div(id = 'warning_neg_values',
+            p("Warning : Your original dataset may contain negative values",
+              "so that they cannot be logged. Please check back the dataset or", 
+              "the log option in the first tab."))
+      )
+      )
     ),
-    uiOutput('select_quanti_data'),
+    fluidRow(
+      column(width=4, uiOutput("eData",width = "400px")),
+      column(width=8, shinyjs::hidden(
+        DT::dataTableOutput("x1", width='500px'))
+      )
+    ),
     tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
                                    Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
                                    })"))
   )
 })
+
+
+observe({
+  #browser()
+  shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
+  shinyjs::toggle('selectIdent', condition = !is.null(input$choose_quantitative_columns))
+  shinyjs::toggle('x1', condition = input$selectIdent == TRUE)
+})
+
+output$eData <- renderUI({
+  input$file1
+  req(rv$tab1)
+  
+  choices <- colnames(rv$tab1)
+  names(choices) <- colnames(rv$tab1)
+  
+  tagList(
+    modulePopoverUI("modulePopover_convertDataQuanti"),
+    selectInput("choose_quantitative_columns",
+                label = "",
+                choices = choices,
+                multiple = TRUE, width='200px',
+                size = 20,
+                selectize = FALSE)
+  )
+})
+
+
+
+output$checkIdentificationTab <- renderUI({
+  req(input$selectIdent == TRUE)
+  #if (!isTRUE(input$selectIdent)){return(NULL)}
+  
+  shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
+  temp <- shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
+  
+  if ((length(which(temp == "None")) == length(temp)))
+  {
+    img <- "images/Ok.png"
+    txt <- "Correct"
+  }  else {
+    if (length(which(temp == "None")) > 0)
+    {
+      img <- "images/Problem.png"
+      txt <- "The identification method is not appropriately defined for each sample."
+    } else {
+      if(length(temp) != length(unique(temp))){
+        img <- "images/Problem.png"
+        txt <- "There are duplicates in identification columns."
+      }else { 
+        img <- "images/Ok.png"
+        txt <- "Correct"
+      }
+    }
+  }
+  tags$div(
+    tags$div(
+      tags$div(style="display:inline-block;",tags$img(src = img, height=25)),
+      tags$div(style="display:inline-block;",tags$p(txt))
+    )
+  )
+  
+})
+
+
+
+# reactive dataset
+quantiDataTable <- reactive({
+  # req(c(input$eData.box,rv$tab1))
+  # input$selectIdent
+  
+  #browser()
+  if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
+  
+  df <- NULL
+  session$sendCustomMessage('unbind-DT', 'x1')
+  choices <- c("None", colnames(rv$tab1))
+  names(choices) <- c("None",colnames(rv$tab1))
+  
+  if (isTRUE(input$selectIdent)) {
+    
+    df <- data.frame(as.data.frame(input$choose_quantitative_columns),
+                     shinyInput(selectInput,
+                                "colForOriginValue_",
+                                nrow(as.data.frame(input$choose_quantitative_columns)),
+                                choices = choices))
+    colnames(df) <- c("Sample", "Identification method")
+  } else {
+    df <- data.frame(Sample = as.data.frame(input$choose_quantitative_columns))
+    colnames(df) <- c("Sample")
+  }
+  df
+})
+
+
+
+output$x1 <- renderDataTable(
+  quantiDataTable(),
+  escape=FALSE,
+  rownames = FALSE,
+  extensions = c('Scroller', 'Buttons'),
+  server=FALSE,
+  selection='none', 
+  class = 'compact',
+  options=list(
+    preDrawCallback=JS(
+      'function() {
+            Shiny.unbindAll(this.api().table().node());}'),
+    drawCallback= JS(
+      'function(settings) {
+            Shiny.bindAll(this.api().table().node());}'),
+    # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
+    dom = 'Bfrtip',
+    autoWidth=TRUE,
+    deferRender = TRUE,
+    bLengthChange = FALSE,
+    scrollX = 200,
+    scrollY = 500,
+    scroller = TRUE,
+    ajax = list(url = dataTableAjax(session, quantiDataTable()))
+    
+  )
+  
+)
+
+
+observeEvent(shinyValue("colForOriginValue_",
+                        nrow(as.data.frame(quantiDataTable()))),{})
+
+
+checkIdentificationMethod_Ok <- reactive({
+  res <- TRUE
+  tmp <- NULL
+  if (isTRUE(input$selectIdent)) {
+    tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
+  } 
+  res
+  
+})
+
+
 
 
 
@@ -411,8 +609,8 @@ output$conversionDone <- renderUI({
 
 output$warningCreateMSnset <- renderUI({
   if (isTRUE(input$selectIdent)){
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
-    if (length(which(colNamesForOriginofValues == "None")) >0){
+    colNamesForMetacell <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    if (length(which(colNamesForMetacell == "None")) >0){
       text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
             method are not fully filled.  <br>"
       HTML(text)
@@ -440,10 +638,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
   #browser()
-  colNamesForOriginofValues <- NULL
+  colNamesForMetacell <- NULL
   if (isTRUE(input$selectIdent)) {
-    colNamesForOriginofValues <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
-    if (length(which(colNamesForOriginofValues == "None")) >0){ return (NULL)   }
+    colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
+    if (length(which(colNamesForMetacell == "None")) > 0 ){ return (NULL)   }
   } 
   
   isolate({
@@ -484,10 +682,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         logData <- (input$checkDataLogged == "no")
         
         
-        indexForOriginOfValue <- NULL
-        if (!is.null(colNamesForOriginofValues) && (length(grep("None", colNamesForOriginofValues))==0)  && (sum(is.na(colNamesForOriginofValues)) == 0)){
+        indexForMetacell <- NULL
+        if (!is.null(colNamesForMetacell) && (length(grep("None", colNamesForMetacell))==0)  && (sum(is.na(colNamesForMetacell)) == 0)){
           for (i in 1:length(tmp.choose_quantitative_columns)){
-            indexForOriginOfValue <- c(indexForOriginOfValue, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
+            indexForMetacell <- c(indexForMetacell, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
           }
         }
         
@@ -504,18 +702,19 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           protId <- input$idBox
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
-        
+        #browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
                                    indFData = indexForFData, 
                                    indiceID = indexForIDBox,
-                                   indexForOriginOfValue = indexForOriginOfValue,
+                                   indexForMetacell = indexForMetacell,
                                    logData = logData, 
                                    replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
                                    proteinId =  gsub(".", "_", protId, fixed=TRUE),
-                                   versions = versions
+                                   versions = versions,
+                                   software = input$choose_software
                                    )
         ClearUI()
         ClearMemory()
