@@ -124,7 +124,7 @@ output$exportOptions <- renderUI({
 #   req(rv$current.obj)
 #   
 #   
-#   choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$OriginOfValues)
+#   choices <- setdiff(colnames(fData(rv$current.obj)), rv$current.obj@experimentData@other$names_metacell)
 #   names(choices) <- choices
 #   
 #   selectizeInput("colsToExport",
@@ -177,7 +177,7 @@ output$downloadMSnSet <- downloadHandler(
   },
   content = function(file) {
      dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    # addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$OriginOfValues)
+    # addColumns <- c(input$colsToExport, rv$current.obj@experimentData@other$names_metacell)
     # res <- Get_AllComparisons(dataToExport)
     # print(str(res))
     # if (!is.null(res)){

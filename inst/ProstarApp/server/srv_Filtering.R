@@ -316,8 +316,8 @@ observeEvent(input$temp.numericFilter_operator,{
 # Think about sets [M] vs [O, R, I and U] and other combinaisons
 
 # 2)
-# If exclude, keepThat <- !is.MV
-# If include, keepThat <- is.byMSMS
+# If exclude, keepThat <- !match.metacell(data, 'NA')
+# If include, keepThat <- match.metacell(data, 'direct')
 
 # Next step already done, with filtration methods WM, ALOC... and threshold/th value
 
@@ -633,8 +633,8 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
 
 output$warning_byMSMS <- renderUI({
   
-  fData <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues]
-  IdentificationData <- fData[DAPAR::is.byMSMS(fData)]
+  fData <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$names_metacell]
+  IdentificationData <- fData[DAPAR::match.metacell(fData, 'direct')]
   
   if(length(IdentificationData) == 0){
     txt <- paste0("Warning ! Your dataset contains no 'by MS/MS' values. 
@@ -1090,7 +1090,7 @@ getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
+  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$names_metacell])
   
   table
 })
@@ -1100,7 +1100,7 @@ getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
+  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$names_metacell])
   
   table
 })
@@ -1185,7 +1185,7 @@ getDataForMVFiltered <- reactive({
   rv$deleted.mvLines
   
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
+  table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$names_metacell])
   
   table
 })

@@ -579,7 +579,9 @@ output$DS_PlotHeatmap <- renderUI({
 output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj)
-  print(head(df))
+  #browser()
+  list_POV_tags <- search.metacell.tags('POV')
+  list_MEC_tags <- search.metacell.tags('MEC')
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
@@ -601,7 +603,11 @@ output$table <- DT::renderDataTable(server=TRUE, {
     formatStyle(
       colnames(df)[1:(ncol(df)/2)],
       colnames(df)[((ncol(df)/2)+1):ncol(df)],
-      backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)),
+      backgroundColor = styleEqual(c(list_POV_tags, 
+                                     list_MEC_tags), 
+                                    c(rep(rv$colorsTypeMV$POV, length(list_POV_tags)), 
+                                      rep(rv$colorsTypeMV$MEC, length(list_MEC_tags)))
+                                     ),
       backgroundSize = '98% 48%',
       backgroundRepeat = 'no-repeat',
       backgroundPosition = 'center'

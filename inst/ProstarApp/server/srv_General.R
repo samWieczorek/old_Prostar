@@ -39,12 +39,12 @@ GetCurrentDatasetName <- reactive({
 
 getDataForExprs <- function(obj){
   
-  
+  #browser()
   test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
-  # print(paste0("tutu:",obj@experimentData@other$OriginOfValues))
-  if (!is.null(obj@experimentData@other$OriginOfValues)){ #agregated dataset
+  # print(paste0("tutu:",obj@experimentData@other$names.metacell))
+  if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
     test.table <- cbind(test.table, 
-                        Biobase::fData(obj)[,obj@experimentData@other$OriginOfValues])
+                        Biobase::fData(obj)[,obj@experimentData@other$names_metacell])
     # print(paste0("tutu:",head(test.table)))
     
   } else {

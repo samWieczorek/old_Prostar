@@ -173,8 +173,8 @@ Get_Dataset_to_Analyze <- reactive({
             which(pData(rv$current.obj)$Condition==condition2))
   
   datasetToAnalyze <- rv$current.obj[,ind]
-  datasetToAnalyze@experimentData@other$OriginOfValues <-
-    rv$current.obj@experimentData@other$OriginOfValues[ind]
+  datasetToAnalyze@experimentData@other$names_metacell <-
+    rv$current.obj@experimentData@other$names_metacell[ind]
   
   datasetToAnalyze
 })
