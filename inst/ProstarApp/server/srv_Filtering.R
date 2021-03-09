@@ -116,7 +116,7 @@ output$screenFiltering1 <- renderUI({
                      # 4.2) Value of the threshold
                      fluidRow(
                        column(6,
-                              selectInput("temp.numericFilter_operator",
+                              selectInput("temp.numericFilter_operator", #btn_numFilter
                                           NULL,
                                           choices = c('<=' = '<=',
                                                       '<' = '<',
@@ -258,12 +258,12 @@ output$temp.keep_helptext <- renderUI({
          '<' = text_operator <- "inferior",
          '>=' = text_operator <- "superior or equal",
          '>' = text_operator <- "superior")
-
+  
   switch(rv$widgets$filtering$temp.ChooseFilters,
          "WholeMatrix" = text_method <- "all the matrix.",
          "AllCond" = text_method <- "every condition.",
          "AtLeastOneCond" = text_method <- "at least one condition.")
-
+  
   if(rv$widgets$filtering$temp.val_vs_percent == 'Value'){
     text_threshold <- rv$widgets$filtering$temp.seuilNA
   } else {
@@ -294,14 +294,16 @@ observeEvent(input$temp.perform.filtering.MV, ignoreInit=TRUE,{
   rv$widgets$filtering$temp.seuilNA_percent
   rv$widgets$filtering$temp.val_vs_percent
   
-  # Find how select Missing, Observed...
+  # * Find how select Missing, Observed... > Start with only NAs
+  # Also the in/exclude thing
+  # ** see Numerical filtering for operators > Instead of select one column, apply on all matrix
   
   th <- NULL
   if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
     th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)/100
   else
     th <-  as.integer(rv$widgets$filtering$temp.seuilNA)
- 
+  
   keepThat <- mvFilterGetIndices(obj = rv$current.obj,
                                  percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
                                  condition = rv$widgets$filtering$temp.ChooseFilters,
@@ -317,13 +319,70 @@ observeEvent(input$temp.perform.filtering.MV, ignoreInit=TRUE,{
     )
   }
   rvModProcess$moduleFilteringDone[1] <- TRUE
+  
+  ######
+  ######
+  ######
+  ######
+  ######
+  # ########################
+  # 
+  # observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
+  #   temp <- rv$current.obj
+  #   
+  #   cname <- colnames(exprs(temp))
+  #   print(cname)
+  #   print("cname")
+  #   tagValue <- th
+  #   print(th)
+  #   print("th")
+  #   
+  #   #############################
+  #   # moche, a changer dans DAPAR
+  #   ind <- vector()
+  #   for (i in 1:length(cname)) {
+  #     ind_col <- NumericalgetIndicesOfLinesToRemove(temp,cname[i], value, operator)
+  #     print(i)
+  #     print(cname[i])
+  #     print(ind_col)
+  #     ind[,ncol(ind)+1] <- ind_col
+  #   }
+  #   ind <- unique(ind)# lignes a supprimer de part la matrice
+  #   #############################
+  #   
+  #   deleted <- temp[ind]
+  #   
+  #   temp <- deleteLinesFromIndices(temp, ind,
+  #                                  paste("\"",
+  #                                        length(ind),
+  #                                        " lines were removed from dataset.\"",
+  #                                        sep=""))
+  #   nbDeleted <- 0
+  #   
+  #   
+  #   if (!is.null(deleted)){
+  #     rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, deleted)
+  #     nbDeleted <-  nrow(deleted)
+  #   } else {
+  #     nbDeleted <-  0
+  #   }
+  #   rv$current.obj <- telmp
+  #   
+  #   df <- data.frame(Filter=cname,
+  #                    Condition=paste0(input$numericFilter_operator,' ',tagValue),
+  #                    nbDeleted=nbDeleted,
+  #                    Total=nrow(rv$current.obj))
+  #   rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary, df)
+  #   
+  # })
+  
 })
 
 
 
 output$temp.ObserverMVFilteringDone <- renderUI({
   req(rv$temp.deleted.mvLines)
-
+  
   n <- 0
   if(!is.null(rv$temp.deleted.mvLines)){n <- nrow(rv$temp.deleted.mvLines)}
   if (!rvModProcess$moduleFilteringDone[1])
@@ -333,8 +392,11 @@ output$temp.ObserverMVFilteringDone <- renderUI({
   }
 })
 
-
-
+######
+######
+######
+######
+######
 # output$temp.FilterSummaryData <- DT::renderDataTable(server=TRUE,{
 #   req(rv$current.obj)
 #   req(rv$widgets$filtering$temp.DT_numfilterSummary)
@@ -401,6 +463,11 @@ observeEvent(input$temp.seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
 observeEvent(input$temp.numericFilter_operator,{
   rv$widgets$filtering$temp.numericFilter_operator <- input$temp.numericFilter_operator
 })
+
+
+
+
+
 
 ##############################################################################################
 
