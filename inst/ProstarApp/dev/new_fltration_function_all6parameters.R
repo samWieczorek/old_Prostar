@@ -12,8 +12,8 @@ filterGetIndices <- function(obj,
   
   keepThat <- NULL
   
-  data <- Biobase::exprs(obj)
-  
+  data <- (Biobase::fData(obj))[,1:6]
+  # for direct, indirect, NA, imputed, unknown, DAPAR function controled.vocable (inOuFiles.R)
   
   if (condition == "WholeMatrix") {
     if (isTRUE(percent)) {
@@ -105,13 +105,21 @@ summary_txt <- function(remove,
 
 ##############################################################################
 
-plop <- read.csv('dev/example_filtration_tab_NA.txt', sep='\t')
+# plop <- read.csv('dev/example_filtration_tab_NA.txt', sep='\t')
+# metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
+# colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
+# metadata_plop$Sample.name <- colnames(plop)
+# metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
+# metadata_plop$Bio.Rep <- c(1:6)
+# obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt', indExpData = c(1:6), metadata = metadata_plop)
+
+plop <- read.table('dev/example_filtration_tab_mix.txt', sep='\t', h=T)
 metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
 colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
 metadata_plop$Sample.name <- colnames(plop)
 metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
 metadata_plop$Bio.Rep <- c(1:6)
-obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt', indExpData = c(1:6), metadata = metadata_plop)
+obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_mix.txt', indExpData = c(1:6), metadata = metadata_plop)
 
 
 ##############################################################################
