@@ -87,6 +87,7 @@ output$screenFiltering1 <- renderUI({
                      selectInput("temp.dataClass",
                                  "Choose the class of the quantitative data",
                                  choices = c("Missing", "Observed", "Recovered", "Imputed", "Unknown"),
+                                 #choices = function de DAPAR contenant 'direct', 'indirect', 'NA' ...
                                  width='200px')
               ),
               column(2,
@@ -197,10 +198,10 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
 #########################################################
 output$temp.enrichOrRemove <- renderUI({
   
-  text <- paste("Choose either to keep or removed lines containing: ",rv$widgets$filtering$temp.dataClass," data.")
+  text <- paste("Choose either to keep or remove lines containing: ",rv$widgets$filtering$temp.dataClass," data.")
   radioButtons("temp.inOrExClude",
                text,
-               choices = c("Enrich" = "keep", "Exclude" = "remove"),
+               choices = c("Keep" = "keep", "Remove" = "remove"),
                selected = rv$widgets$filtering$temp.inOrExClude)
   
 })
@@ -221,7 +222,7 @@ output$temp.seuilNADelete <- renderUI({
 output$temp.keepVal_ui <- renderUI({
   req(rv$widgets$filtering$temp.val_vs_percent)
   if (rv$widgets$filtering$temp.val_vs_percent != 'Value') {return(NULL)}
-  #browser()
+  
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
     selectInput("temp.seuilNA", NULL,
