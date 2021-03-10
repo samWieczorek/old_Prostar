@@ -4,7 +4,7 @@ library(DAPAR)
 
 filterGetIndices <- function(obj,
                              #classData = NULL, 
-                             exclude = TRUE,
+                             remove = TRUE,
                              condition = "WholeMatrix", 
                              percent = FALSE,
                              operator = NULL,
@@ -60,11 +60,16 @@ filterGetIndices <- function(obj,
            AtLeastOneCond = keepThat <- which(rowSums(s) >= 1)
     )
   }
+  
+  if (isTRUE(remove)) {
+    keepThat <- c(1:nrow(data))[-keepThat]
+  }
+  
   return(keepThat)
 }
 
 
-summary_txt <- function(exclude,
+summary_txt <- function(remove,
                         percent,
                         condition, 
                         threshold,
@@ -86,8 +91,14 @@ summary_txt <- function(exclude,
     text_threshold <- paste(threshold*100,"%", sep="")
   }
   
+  if(isFALSE(remove)){
+    text_remove <- "keep"
+  } else {
+    text_remove <- "remove"
+  }
   
-  paste("You are going to ", "remove ", "lines where number of ", "NA",
+  
+  paste("You are going to ", text_remove, " lines where number of ", "NA",
         " data is ", text_operator, " to ", text_threshold, " in ", text_method,
         sep="")
 }
@@ -105,23 +116,25 @@ obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt', indExpDat
 
 ##############################################################################
 
-exclude = TRUE
-percent = TRUE
-# condition = "WholeMatrix"
-condition = "AtLeastOneCond"
+remove = FALSE
+percent = FALSE
+condition = "WholeMatrix"
+# condition = "AtLeastOneCond"
 # condition = "AllCond"
-threshold = 0.8
-operator = "<"
+threshold = 2
+operator = ">="
 
 
 res <- filterGetIndices(obj,
-                        exclude,
+                        remove,
                         condition, 
                         percent,
                         operator,
                         threshold
 )
+
 ##############################################################################
+
 plop
-summary_txt(exclude, percent, condition, threshold, operator)
+summary_txt(remove, percent, condition, threshold, operator)
 res
