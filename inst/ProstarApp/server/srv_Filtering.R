@@ -39,6 +39,11 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$temp.seuilNA_percent <- 0
   rv$widgets$filtering$temp.val_vs_percent <- 'Value'
   rv$widgets$filtering$temp.numericFilter_operator <- '<='
+  rv$widgets$filtering$temp.DT_numfilterSummary <- data.frame(Filter=NULL,
+                                                              Condition=NULL,
+                                                              nbDeleted=NULL,
+                                                              Total=NULL,
+                                                              stringsAsFactors=F)
   
   
   rv$deleted.stringBased <- NULL
@@ -96,7 +101,7 @@ output$screenFiltering1 <- renderUI({
                      # 3) According to conditions: Whole Matrix, All Cond or At least one cond
                      selectInput("temp.ChooseFilters","",
                                  choices = gFiltersList[-c(1,2)],
-                                 selected=rv$widgets$filtering$temp.ChooseFilters,
+                                 selected = rv$widgets$filtering$temp.ChooseFilters,
                                  width='200px')
               ),
               column(2,
@@ -111,7 +116,7 @@ output$screenFiltering1 <- renderUI({
                      # 4.2) Value of the threshold
                      fluidRow(
                        column(6,
-                              selectInput("temp.numericFilter_operator",
+                              selectInput("temp.numericFilter_operator", #btn_numFilter
                                           NULL,
                                           choices = c('<=' = '<=',
                                                       '<' = '<',
@@ -128,8 +133,16 @@ output$screenFiltering1 <- renderUI({
                      p(style = "font-size: xx-small ; text-align: center ;",
                        HTML("\'+\' if want supp filtration"))
               )
-            )
+            ),
+            div( style="display:inline-block; vertical-align: middle;",
+                 actionButton("temp.perform.filtering.MV", "temp Perform MV filtering", class = actionBtnClass)
+            ),
         ),
+        tags$hr(),
+        # div( style="display:inline-block; vertical-align: middle; align: center;",
+        #      DT::dataTableOutput("temp.FilterSummaryData")
+        # ),
+        uiOutput("temp.ObserverMVFilteringDone"),
         
         tags$hr(style="border-top: 3px double black;"),
         
@@ -208,13 +221,12 @@ output$temp.seuilNADelete <- renderUI({
 output$temp.keepVal_ui <- renderUI({
   req(rv$widgets$filtering$temp.val_vs_percent)
   if (rv$widgets$filtering$temp.val_vs_percent != 'Value') {return(NULL)}
-  if (rv$widgets$filtering$temp.ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
   #browser()
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
     selectInput("temp.seuilNA", NULL,
                 choices =  getListNbValuesInLines(rv$current.obj, 
-                                                  type=rv$widgets$filtering$temp.ChooseFilters),
+                                                  type = rv$widgets$filtering$temp.ChooseFilters),
                 selected = rv$widgets$filtering$temp.seuilNA,
                 width='150px')
   )
@@ -241,15 +253,16 @@ output$temp.keepVal_percent_ui <- renderUI({
 output$temp.keep_helptext <- renderUI({
   rv$widgets$filtering$temp.ChooseFilters
   
-  if(rv$widgets$filtering$temp.numericFilter_operator == '<='){
-    text_operator <- "inferior or equal"
-  } else if (rv$widgets$filtering$temp.numericFilter_operator == '<'){
-    text_operator <- "inferior"
-  } else if (rv$widgets$filtering$temp.numericFilter_operator == '>='){
-    text_operator <- "superior or equal"
-  } else if (rv$widgets$filtering$temp.numericFilter_operator == '>'){
-    text_operator <- "superior"
-  }
+  switch(rv$widgets$filtering$temp.numericFilter_operator,
+         '<=' = text_operator <- "inferior or equal",
+         '<' = text_operator <- "inferior",
+         '>=' = text_operator <- "superior or equal",
+         '>' = text_operator <- "superior")
+  
+  switch(rv$widgets$filtering$temp.ChooseFilters,
+         "WholeMatrix" = text_method <- "all the matrix.",
+         "AllCond" = text_method <- "every condition.",
+         "AtLeastOneCond" = text_method <- "at least one condition.")
   
   if(rv$widgets$filtering$temp.val_vs_percent == 'Value'){
     text_threshold <- rv$widgets$filtering$temp.seuilNA
@@ -257,7 +270,6 @@ output$temp.keep_helptext <- renderUI({
     text_threshold <- paste(rv$widgets$filtering$temp.seuilNA_percent*100,"%", sep="")
   }
   
-  # Also bit of test specific to filtration method ...
   
   txt_summary <- paste("You are going to ",
                        rv$widgets$filtering$temp.inOrExClude,
@@ -267,12 +279,155 @@ output$temp.keep_helptext <- renderUI({
                        text_operator,
                        " to ",
                        text_threshold,
-                       "in",
-                       rv$widgets$filtering$temp.ChooseFilters)
+                       " in ",
+                       text_method)
   
   tags$p(txt_summary, style = "font-size: small; text-align : center; color: purple;")
-
+  
 })
+
+
+## Perform filtration
+observeEvent(input$temp.perform.filtering.MV, ignoreInit=TRUE,{
+  rv$widgets$filtering$temp.ChooseFilters
+  rv$widgets$filtering$temp.seuilNA
+  rv$widgets$filtering$temp.seuilNA_percent
+  rv$widgets$filtering$temp.val_vs_percent
+  
+  # * Find how select Missing, Observed... > Start with only NAs
+  # Also the in/exclude thing
+  # ** see Numerical filtering for operators > Instead of select one column, apply on all matrix
+  
+  th <- NULL
+  if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
+    th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)/100
+  else
+    th <-  as.integer(rv$widgets$filtering$temp.seuilNA)
+  
+  keepThat <- mvFilterGetIndices(obj = rv$current.obj,
+                                 percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
+                                 condition = rv$widgets$filtering$temp.ChooseFilters,
+                                 threshold = th)
+  
+  if (!is.null(keepThat))
+  {
+    rv$temp.deleted.mvLines <- rv$current.obj[-keepThat]
+    rv$current.obj <- mvFilterFromIndices(rv$current.obj,
+                                          keepThat,
+                                          GetFilterText(rv$widgets$filtering$temp.ChooseFilters,
+                                                        th)
+    )
+  }
+  rvModProcess$moduleFilteringDone[1] <- TRUE
+  
+  ######
+  ######
+  ######
+  ######
+  ######
+  # ########################
+  # 
+  # observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
+  #   temp <- rv$current.obj
+  #   
+  #   cname <- colnames(exprs(temp))
+  #   print(cname)
+  #   print("cname")
+  #   tagValue <- th
+  #   print(th)
+  #   print("th")
+  #   
+  #   #############################
+  #   # moche, a changer dans DAPAR
+  #   ind <- vector()
+  #   for (i in 1:length(cname)) {
+  #     ind_col <- NumericalgetIndicesOfLinesToRemove(temp,cname[i], value, operator)
+  #     print(i)
+  #     print(cname[i])
+  #     print(ind_col)
+  #     ind[,ncol(ind)+1] <- ind_col
+  #   }
+  #   ind <- unique(ind)# lignes a supprimer de part la matrice
+  #   #############################
+  #   
+  #   deleted <- temp[ind]
+  #   
+  #   temp <- deleteLinesFromIndices(temp, ind,
+  #                                  paste("\"",
+  #                                        length(ind),
+  #                                        " lines were removed from dataset.\"",
+  #                                        sep=""))
+  #   nbDeleted <- 0
+  #   
+  #   
+  #   if (!is.null(deleted)){
+  #     rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, deleted)
+  #     nbDeleted <-  nrow(deleted)
+  #   } else {
+  #     nbDeleted <-  0
+  #   }
+  #   rv$current.obj <- telmp
+  #   
+  #   df <- data.frame(Filter=cname,
+  #                    Condition=paste0(input$numericFilter_operator,' ',tagValue),
+  #                    nbDeleted=nbDeleted,
+  #                    Total=nrow(rv$current.obj))
+  #   rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary, df)
+  #   
+  # })
+  
+})
+
+
+
+output$temp.ObserverMVFilteringDone <- renderUI({
+  req(rv$temp.deleted.mvLines)
+  
+  n <- 0
+  if(!is.null(rv$temp.deleted.mvLines)){n <- nrow(rv$temp.deleted.mvLines)}
+  if (!rvModProcess$moduleFilteringDone[1])
+  {return(NULL)  }
+  else {
+    h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
+  }
+})
+
+######
+######
+######
+######
+######
+# output$temp.FilterSummaryData <- DT::renderDataTable(server=TRUE,{
+#   req(rv$current.obj)
+#   req(rv$widgets$filtering$temp.DT_numfilterSummary)
+#   isolate({
+#     
+#     if (nrow(rv$widgets$filtering$temp.DT_filterSummary )==0){
+#       df <- data.frame(Filter="-",
+#                        Prefix="-",
+#                        nbDeleted=0,
+#                        Total=nrow(rv$current.obj),
+#                        stringsAsFactors = FALSE)
+#       rv$widgets$filtering$temp.DT_filterSummary <- df
+#     }
+#     
+#     
+#     DT::datatable(rv$widgets$filtering$temp.DT_filterSummary,
+#                   extensions = c('Scroller', 'Buttons'),
+#                   rownames = FALSE,
+#                   options=list(buttons = list('copy',
+#                                               list(
+#                                                 extend = 'csv',
+#                                                 filename = 'Filtering_summary'
+#                                               ),'print'),
+#                                dom='Brt',
+#                                initComplete = initComplete(),
+#                                deferRender = TRUE,
+#                                bLengthChange = FALSE
+#                   ))
+#   })
+# })
+
 
 
 
@@ -309,47 +464,12 @@ observeEvent(input$temp.numericFilter_operator,{
   rv$widgets$filtering$temp.numericFilter_operator <- input$temp.numericFilter_operator
 })
 
-# 1)
-# Function to select lines containing any [M, O, R, I and U]
-# Already exists for byMS/MS and MV
-# => Create a unique function taking among [M, O, R, I and U] as parameter
-# Think about sets [M] vs [O, R, I and U] and other combinaisons
-
-# 2)
-# If exclude, keepThat <- !match.metacell(data, 'NA')
-# If include, keepThat <- match.metacell(data, 'direct')
-
-# Next step already done, with filtration methods WM, ALOC... and threshold/th value
-
-############ what's necessary to filter ###########################
-# keepThat, rv$deleted.mvLines and new filtered rv$current.obj
-###################################################################
-# Dans output$temp.keepVal_ui
-# DAPAR, utils.R
-# getListNbValuesInLines(rv$current.obj, 
-#                        type=rv$widgets$filtering$temp.ChooseFilters)
-# Parameters: temp.ChooseFilters: 'WholeMatrix', 'AllCond', 'AtLeastOneCond' 
-# 
-# 
-# Dans observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
-# DAPAR, missingValuesFilter.R
-# keepThat <- mvFilterGetIndices(obj = rv$current.obj,
-#                                percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
-#                                condition = rv$widgets$filtering$ChooseFilters,
-#                                threshold = th)
-# Parameters: percent==TRUE, ChooseFilters: 'WholeMatrix', 'AllCond', 'AtLeastOneCond', threshold ]0;1[
-#     
-#     
-# DAPAR, missingValuesFilter.R and Prostar global.R
-# rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-#                                       keepThat,
-#                                       GetFilterText(rv$widgets$filtering$ChooseFilters, 
-#                                                     th)
-# Parameters: line indices to keep, method filter, threshold
-#########################################################
 
 
 
+
+
+##############################################################################################
 
 #########################################################
 ##' Show the widget (slider input) for filtering
@@ -633,8 +753,8 @@ callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS",
 
 output$warning_byMSMS <- renderUI({
   
-  fData <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$names_metacell]
-  IdentificationData <- fData[DAPAR::match.metacell(fData, 'direct')]
+  fData <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues]
+  IdentificationData <- fData[DAPAR::is.byMSMS(fData)]
   
   if(length(IdentificationData) == 0){
     txt <- paste0("Warning ! Your dataset contains no 'by MS/MS' values. 
@@ -1090,7 +1210,7 @@ getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$names_metacell])
+  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
   
   table
 })
@@ -1100,7 +1220,7 @@ getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$names_metacell])
+  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
   
   table
 })
@@ -1185,7 +1305,7 @@ getDataForMVFiltered <- reactive({
   rv$deleted.mvLines
   
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.mvLines),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$names_metacell])
+  table <- cbind(table, Biobase::fData(rv$deleted.mvLines)[,rv$deleted.mvLines@experimentData@other$OriginOfValues])
   
   table
 })
@@ -1345,5 +1465,3 @@ output$helpTextMV <- renderUI({
 # return(reactive({dataOut}))
 # 
 # }
-
-
