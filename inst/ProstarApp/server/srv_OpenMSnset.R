@@ -135,8 +135,17 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
  
-  
-  
+  # browser()
+  #   # Check versions for compatibilty
+  # if(rv$current.obj@experimentData@other$Prostar_Version != getPackagesVersions()['Prostar', 'Installed.packages']) {
+  #     # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
+  #     warning("The version of Prostar used to create this file is outdated. Please rebuild the MSnSet from original file.")
+  # }
+  # 
+  # if(rv$current.obj@experimentData@other$Prostar_Version != getPackagesVersions()['DAPAR', 'Installed.packages']) {
+  #   # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")
+  #   warning("The version of DAPAR used to create this file is outdated. Please rebuild the MSnSet from original file.")
+  # }
   
      rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
@@ -180,7 +189,7 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
     }
     
     
-    rv$current.obj <- addOriginOfValue(rv$current.obj)
+    #rv$current.obj <- addOriginOfValue(rv$current.obj)
     
     
     l.params <- list(filename = rv$current.obj.name)

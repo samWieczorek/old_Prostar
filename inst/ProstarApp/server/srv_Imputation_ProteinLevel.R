@@ -110,7 +110,6 @@ output$screenProtImput1 <- renderUI({
     
     htmlOutput("helpForImputation"),
     tags$hr(),
-    print("lancement du MVplots"),
     moduleMVPlotsUI("mvImputationPlots_MV")
   )
 })
@@ -306,23 +305,28 @@ observeEvent(input$perform.imputationClassical.button,{
       incProgress(0.25, detail = 'Find MEC blocks')
       
       incProgress(0.5, detail = 'POV Imputation')
+      
+      #browser()
       switch(rv$widgets$proteinImput$POV_algorithm,
              slsa = {
-               rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.slsa(rv$current.obj)
-               rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+               #rv$MECIndex <- findMECBlock(rv$current.obj)
+               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='POV')
+               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
              detQuantile = {
-               rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.detQuant(rv$current.obj,
+               #rv$MECIndex <- findMECBlock(rv$current.obj)
+               rv$current.obj <- wrapper.impute.detQuant(obj = rv$current.obj,
                                                          qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
-                                                         factor = rv$widgets$proteinImput$POV_detQuant_factor)
-               rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+                                                         factor = rv$widgets$proteinImput$POV_detQuant_factor,
+                                                         na.type='POV')
+               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
              KNN = {
-               rv$current.obj <- wrapper.impute.KNN(rv$current.obj , rv$widgets$proteinImput$POV_KNN_n)
+               rv$current.obj <- wrapper.impute.KNN(rv$current.obj , 
+                                                    rv$widgets$proteinImput$POV_KNN_n,
+                                                    na.type='POV')
              }
       )
       incProgress(0.75, detail = 'Reintroduce MEC blocks')
@@ -359,11 +363,13 @@ observeEvent(input$perform.imputationMEC.button,{
              detQuantile = {
                rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
                                                          qval = rv$widgets$proteinImput$MEC_detQuant_quantile/100,
-                                                         factor = rv$widgets$proteinImput$MEC_detQuant_factor)
+                                                         factor = rv$widgets$proteinImput$MEC_detQuant_factor,
+                                                         na.type='MEC')
              },
              fixedValue = {
                rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
-                                                           fixVal = rv$widgets$proteinImput$MEC_fixedValue)
+                                                           fixVal = rv$widgets$proteinImput$MEC_fixedValue,
+                                                           na.type='MEC')
              }
       )
       

@@ -103,7 +103,7 @@ observeEvent(input$loadDemoDataset,{
   rv$current.obj.name <- input$demoDataset
   rv$indexNA <- which(is.na(rv$current.obj))
   
-  rv$current.obj <- addOriginOfValue(rv$current.obj)
+  #rv$current.obj <- addOriginOfValue(rv$current.obj)
   l.params <- list(filename = input$demoDataset)
   incProgress(1/ntotal, detail = 'Configure dataset')
   

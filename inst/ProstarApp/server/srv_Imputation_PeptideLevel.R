@@ -299,15 +299,20 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
         algoBasic <- rv$widgets$peptideImput$pepLevel_basicAlgorithm
         switch(algoBasic,
                KNN={  
-                 rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],K=rv$widgets$peptideImput$pepLevel_KNN_n)
+                 rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],
+                                                      K=rv$widgets$peptideImput$pepLevel_KNN_n,
+                                                      na.type = 'NA')
                },
                MLE={
-                 rv$current.obj <- wrapper.impute.mle(rv$dataset[[input$datasets]])},
+                 rv$current.obj <- wrapper.impute.mle(obj = rv$dataset[[input$datasets]],
+                                                      na.type = 'NA')
+                 },
                detQuantile=
                  {
                    rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
                                                              qval = (rv$widgets$peptideImput$pepLevel_detQuantile/100),
-                                                             factor = rv$widgets$peptideImput$pepLevel_detQuant_factor)
+                                                             factor = rv$widgets$peptideImput$pepLevel_detQuant_factor,
+                                                             na.type = 'NA')
                  }
         )
       }
