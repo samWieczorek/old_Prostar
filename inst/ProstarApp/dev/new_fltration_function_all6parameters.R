@@ -1,3 +1,5 @@
+# go to DAPAR
+
 library(DAPAR)
 
 
@@ -57,7 +59,7 @@ filterGetIndices <- function(obj,
   
   if (condition == "WholeMatrix") {
     if (isTRUE(percent)) {
-      inter <- rowSums(match.metacell(data=data, type="quantiValue", level="peptide"))/ncol(data)
+      inter <- rowSums(match.metacell(data=data, type=metacell, level="peptide"))/ncol(data)
       keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
     } else {
       inter <- apply(match.metacell(data=data, type=metacell, level="peptide"), 1, sum)

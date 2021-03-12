@@ -34,7 +34,7 @@ resetModuleFiltering <- reactive({
   
   rv$widgets$filtering$temp.dataClass <- "Missing"
   rv$widgets$filtering$temp.ChooseFilters <- "Whole Matrix"
-  rv$widgets$filtering$temp.enrichOrRemove <- "Enrich"
+  rv$widgets$filtering$temp.remove <- 'Keep'
   rv$widgets$filtering$temp.seuilNA <- 0
   rv$widgets$filtering$temp.seuilNA_percent <- 0
   rv$widgets$filtering$temp.val_vs_percent <- 'Value'
@@ -86,15 +86,15 @@ output$screenFiltering1 <- renderUI({
                      # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
                      selectInput("temp.dataClass",
                                  "Choose the class of the quantitative data",
-                                 choices = c("Missing", "Observed", "Recovered", "Imputed", "Unknown"),
-                                 #choices = function de DAPAR contenant 'direct', 'indirect', 'NA' ...
+                                 choices = c("quantiValue", "missingValue", "imputedValue", "combinedValue"),
+                                 # get dynamic, see depth of the label tree, if pept or prot ...
                                  width='200px')
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
-                       HTML("Include or exclude")),
+                       HTML("Keep or remove")),
                      # 2) Include or exclude lines according to M or [O, R, I, U]
-                     uiOutput("temp.enrichOrRemove")
+                     uiOutput("temp.keepOrRemove_ui")
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
@@ -136,7 +136,7 @@ output$screenFiltering1 <- renderUI({
               )
             ),
             div( style="display:inline-block; vertical-align: middle;",
-                 actionButton("temp.perform.filtering.MV", "temp Perform MV filtering", class = actionBtnClass)
+                 actionButton("temp.perform.filtering", "temp Perform MV filtering", class = actionBtnClass)
             ),
         ),
         tags$hr(),
@@ -196,20 +196,20 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
 
 
 #########################################################
-output$temp.enrichOrRemove <- renderUI({
+output$temp.keepOrRemove_ui <- renderUI({
   
   text <- paste("Choose either to keep or remove lines containing: ",rv$widgets$filtering$temp.dataClass," data.")
-  radioButtons("temp.inOrExClude",
+  radioButtons("temp.remove",
                text,
-               choices = c("Keep" = "keep", "Remove" = "remove"),
-               selected = rv$widgets$filtering$temp.inOrExClude)
+               choices = c("Keep" = "Keep", "Remove" = "Remove"),
+               selected = rv$widgets$filtering$temp.remove)
   
 })
 
 
 output$temp.seuilNADelete <- renderUI({
   
-  text <- paste("#/% of values to ",rv$widgets$filtering$temp.inOrExClude)
+  text <- paste("#/% of values to ",rv$widgets$filtering$temp.remove)
   radioButtons('temp.val_vs_percent',
                text, 
                choices = c('Value'='Value', 'Percentage'='Percentage'),
@@ -273,7 +273,7 @@ output$temp.keep_helptext <- renderUI({
   
   
   txt_summary <- paste("You are going to ",
-                       rv$widgets$filtering$temp.inOrExClude,
+                       rv$widgets$filtering$temp.remove,
                        " lines where number of ",
                        rv$widgets$filtering$temp.dataClass,
                        " data are ",
@@ -289,29 +289,53 @@ output$temp.keep_helptext <- renderUI({
 
 
 ## Perform filtration
-observeEvent(input$temp.perform.filtering.MV, ignoreInit=TRUE,{
+observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
+  rv$widgets$filtering$temp.dataClass
+  rv$widgets$filtering$temp.remove
   rv$widgets$filtering$temp.ChooseFilters
   rv$widgets$filtering$temp.seuilNA
   rv$widgets$filtering$temp.seuilNA_percent
   rv$widgets$filtering$temp.val_vs_percent
   
-  # * Find how select Missing, Observed... > Start with only NAs
-  # Also the in/exclude thing
-  # ** see Numerical filtering for operators > Instead of select one column, apply on all matrix
   
   th <- NULL
   if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-    th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)/100
+    th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)
   else
-    th <-  as.integer(rv$widgets$filtering$temp.seuilNA)
+    th <- as.integer(rv$widgets$filtering$temp.seuilNA)
   
-  keepThat <- mvFilterGetIndices(obj = rv$current.obj,
-                                 percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
-                                 condition = rv$widgets$filtering$temp.ChooseFilters,
-                                 threshold = th)
   
-  if (!is.null(keepThat))
-  {
+  print("rv$current.obj")
+  print(rv$current.obj)
+  print("rv$widgets$filtering$temp.dataClass")
+  print(rv$widgets$filtering$temp.dataClass)
+  print("rv$widgets$filtering$temp.remove")
+  print(rv$widgets$filtering$temp.remove == 'Remove')
+  print("rv$widgets$filtering$temp.ChooseFilters")
+  print(rv$widgets$filtering$temp.ChooseFilters)
+  print("rv$widgets$filtering$temp.val_vs_percent")
+  print(rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
+  print("rv$widgets$filtering$temp.numericFilter_operator")
+  print(rv$widgets$filtering$temp.numericFilter_operator)
+  print("th")
+  print(th)
+  print("level")
+  print(rv$current.obj@experimentData@other$typeOfData)
+  
+  
+  keepThat <- #DAPAR::
+    filterGetIndices(obj = rv$current.obj,
+                     metacell = rv$widgets$filtering$temp.dataClass,
+                     remove = rv$widgets$filtering$temp.remove == 'Remove', ### ! ###
+                     condition = rv$widgets$filtering$temp.ChooseFilters,
+                     percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
+                     operator = rv$widgets$filtering$temp.numericFilter_operator,
+                     threshold = th,
+                     level = rv$current.obj@experimentData@other$typeOfData )
+  
+  
+  
+  if (!is.null(keepThat)) {
     rv$temp.deleted.mvLines <- rv$current.obj[-keepThat]
     rv$current.obj <- mvFilterFromIndices(rv$current.obj,
                                           keepThat,
@@ -442,8 +466,8 @@ observeEvent(input$temp.ChooseFilters,{
 })
 
 
-observeEvent(input$temp.inOrExClude, {
-  rv$widgets$filtering$temp.inOrExClude <- input$temp.inOrExClude
+observeEvent(input$temp.remove, {
+  rv$widgets$filtering$temp.remove <- input$temp.remove
 })
 
 

@@ -1,6 +1,7 @@
 library(shiny)
 library(DT)
 library(DAPAR)
+library(shinyBS)
 
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string')) # to display NAs in DT, instead of blank square
 
@@ -13,62 +14,38 @@ gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 
 
 # table example
-plop <- read.csv('dev/example_filtration_tab.txt', sep='\t')
+plop <- read.csv('dev/example_filtration_tab_NA.txt', sep='\t')
 # create the MSnset dataset to use DAPAR function getListNbValuesInLines
 metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
 colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
 metadata_plop$Sample.name <- colnames(plop)
 metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
 metadata_plop$Bio.Rep <- c(1:6)
-plop_msnset <- DAPAR::createMSnset(file = 'dev/example_filtration_tab.txt', indExpData = c(1:6), metadata = metadata_plop)
+plop_msnset <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt', indExpData = c(1:6), metadata = metadata_plop)
 
 
 ########################################################################
 
 ui <- fluidPage(
   
-  fluidRow(column(4,selectInput("ChooseFilters","",
+  fluidRow(column(6,selectInput("ChooseFilters","",
                                 choices = gFiltersList,
                                 selected = "None",
                                 width='200px')),
-           column(8,textOutput("methodInformation"))),
+           column(6,textOutput("methodInformation"))),
   
   uiOutput("seuilNADelete"),
   
-  dataTableOutput("buildFiltrationExample")
+  actionButton("show_modal", "Show modal dialog"),
+  
+  #dataTableOutput("buildFiltrationExample"),
+  
+  bsModal("example_modal", "", "show_modal", size ="medium", uiOutput("modal_content"))
   
 )
 
 
 server <- function(input, output, session){
-  
-  
-  output$seuilNADelete <- renderUI({
-    req(input$ChooseFilters)
-    
-    if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {
-      return(NULL)
-    }
-    
-    tagList(
-      shinyjs::useShinyjs(),
-      uiOutput('keepVal_ui')
-    )
-  })
-  
-  
-  output$keepVal_ui <- renderUI({
-    
-    if (input$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
-    
-    tagList(
-      selectInput("seuilNA", NULL,
-                  choices =  DAPAR::getListNbValuesInLines(plop_msnset,
-                                                           type=input$ChooseFilters),
-                  selected = "0",
-                  width='150px')
-    )
-  })
   
   
   output$methodInformation <- renderText({
@@ -100,6 +77,36 @@ server <- function(input, output, session){
     )
     txt
   })
+  
+  output$seuilNADelete <- renderUI({
+    req(input$ChooseFilters)
+    
+    if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {
+      return(NULL)
+    }
+    
+    tagList(
+      shinyjs::useShinyjs(),
+      uiOutput('keepVal_ui')
+    )
+  })
+  
+  
+  output$keepVal_ui <- renderUI({
+    
+    if (input$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
+    
+    tagList(
+      selectInput("seuilNA", NULL,
+                  choices =  DAPAR::getListNbValuesInLines(plop_msnset,
+                                                           type=input$ChooseFilters),
+                  selected = "0",
+                  width='150px')
+    )
+  })
+  
+  
+  
   
   output$buildFiltrationExample <- DT::renderDataTable({
     ################################################################
@@ -176,6 +183,78 @@ server <- function(input, output, session){
                   paging = FALSE,
                   searching = FALSE))
     }
+  })
+  
+  
+  
+  output$modal_content <- renderUI({
+    
+    p("Table example to filter:")
+    
+    fluidRow(column(6,
+             DT::datatable(plop,
+                  options = list(
+                    paging = FALSE,
+                    searching = FALSE))),
+             
+             column(6,
+                    actionButton("run_example", "Run Example"))
+    )
+    
+    observeEvent(input$run_example, {
+      
+      switch(input$ChooseFilters,
+             None = {
+               index <- NULL
+             },
+             EmptyLines = {
+               index <- 7
+             },
+             WholeMatrix = { switch(input$seuilNA,
+                                    "0" = { index <- NULL },
+                                    "1" = { index <- 7 },
+                                    "2" = { index <- c(6,7) },
+                                    "3" = { index <- c(5:7,10) },
+                                    "4" = { index <- c(4:7,9,10) },
+                                    "5" = { index <- c(3:10)},
+                                    "6" = { index <- c(2:10)}
+             )},
+             AllCond = { switch(input$seuilNA,
+                                "0" = { index <- NULL },
+                                "1" = { index <- c(4:7) },
+                                "2" = { index <- c(3:7,9,10) },
+                                "3" = { index <- c(2:10) }
+             )},
+             AtLeastOneCond = { switch(input$seuilNA,
+                                       "0" = { index <- NULL },
+                                       "1" = { index <- 7 },
+                                       "2" = { index <- c(6,7,10) },
+                                       "3" = { index <- c(5:10) }
+             )}
+      )
+      
+      
+      if (!is.null(index)){
+        datatable(plop,
+                  options = list(
+                    paging = FALSE,
+                    searching = FALSE)) %>%
+          formatStyle(
+            .,
+            columns = 1,
+            valueColumns = 0,
+            target = 'row',
+            backgroundColor = styleEqual(index, rep('grey', length(index)) )
+          )
+      } else {
+        p('No filtering from these parameters.')
+        datatable(dt,
+                  options = list(
+                    paging = FALSE,
+                    searching = FALSE))
+      }
+    })
+    
   })
   
 }
