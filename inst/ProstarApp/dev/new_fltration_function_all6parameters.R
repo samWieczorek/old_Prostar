@@ -12,7 +12,7 @@ filterGetIndices <- function(obj,
   
   keepThat <- NULL
   
-  data <- (Biobase::fData(obj))[,1:6]
+  data <- (Biobase::fData(obj))[,66:71]
   # for direct, indirect, NA, imputed, unknown, DAPAR function controled.vocable (inOuFiles.R)
   
   # if (condition == "WholeMatrix") {
@@ -57,7 +57,7 @@ filterGetIndices <- function(obj,
   
   if (condition == "WholeMatrix") {
     if (isTRUE(percent)) {
-      inter <- rowSums(match.metacell(data=data, type=metacell, level="peptide"))/ncol(data)
+      inter <- rowSums(match.metacell(data=data, type="quantiValue", level="peptide"))/ncol(data)
       keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
     } else {
       inter <- apply(match.metacell(data=data, type=metacell, level="peptide"), 1, sum)
@@ -109,7 +109,8 @@ filterGetIndices <- function(obj,
 }
 
 
-summary_txt <- function(remove,
+summary_txt <- function(metacell,
+                        remove,
                         percent,
                         condition, 
                         threshold,
@@ -138,7 +139,7 @@ summary_txt <- function(remove,
   }
   
   
-  paste("You are going to ", text_remove, " lines where number of ", "NA",
+  paste("You are going to ", text_remove, " lines where number of ", metacell,
         " data is ", text_operator, " to ", text_threshold, " in ", text_method,
         sep="")
 }
@@ -153,22 +154,25 @@ summary_txt <- function(remove,
 # metadata_plop$Bio.Rep <- c(1:6)
 # obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt', indExpData = c(1:6), metadata = metadata_plop)
 
-plop <- read.table('dev/example_filtration_tab_mix.txt', sep='\t', h=T)
-metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
-colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
-metadata_plop$Sample.name <- colnames(plop)
-metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
-metadata_plop$Bio.Rep <- c(1:6)
-obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_mix.txt', indExpData = c(1:6), metadata = metadata_plop)
+# plop <- read.table('dev/example_filtration_tab_mix.txt', sep='\t', h=T)
+# metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
+# colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
+# metadata_plop$Sample.name <- colnames(plop)
+# metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
+# metadata_plop$Bio.Rep <- c(1:6)
+# obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_mix.txt', indExpData = c(1:6), metadata = metadata_plop)
 
-
+# Try with metacell DAPARdata Exp1_R25_pept
+# charge Exp1_R25_pept.RData
+obj <- Exp1_R25_pept[1:25,]
+fData(obj)[,66:71]
 ##############################################################################
 
-metacell = 'direct'
+metacell = 'quanti'
 remove = FALSE
 percent = FALSE
 condition = "WholeMatrix" # AtLeastOneCond AllCond
-threshold = 2
+threshold = 6
 operator = ">="
 
 
@@ -183,6 +187,8 @@ res <- filterGetIndices(obj,
 
 ##############################################################################
 
-plop
-summary_txt(remove, percent, condition, threshold, operator)
+# plop
+fData(obj)[,66:71]
+summary_txt(metacell, remove, percent, condition, threshold, operator)
 res
+fData(obj)[res,66:71]
