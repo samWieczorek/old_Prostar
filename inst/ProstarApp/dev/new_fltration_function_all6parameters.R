@@ -3,7 +3,7 @@ library(DAPAR)
 
 
 filterGetIndices <- function(obj,
-                             #classData = NULL, 
+                             metacell = NULL, 
                              remove = TRUE,
                              condition = "WholeMatrix", 
                              percent = FALSE,
@@ -15,12 +15,52 @@ filterGetIndices <- function(obj,
   data <- (Biobase::fData(obj))[,1:6]
   # for direct, indirect, NA, imputed, unknown, DAPAR function controled.vocable (inOuFiles.R)
   
+  # if (condition == "WholeMatrix") {
+  #   if (isTRUE(percent)) {
+  #     inter <- rowSums(is.MV(data))/ncol(data)
+  #     keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
+  #   } else {
+  #     inter <- apply(is.MV(data), 1, sum)
+  #     keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
+  #   }
+  # } else if (condition == "AtLeastOneCond" || condition == "AllCond") {
+  #   
+  #   
+  #   conditions <- unique(Biobase::pData(obj)$Condition)
+  #   nbCond <- length(conditions)
+  #   keepThat <- NULL
+  #   s <- matrix(rep(0, nrow(data)*nbCond),
+  #               nrow=nrow(data),
+  #               ncol=nbCond)
+  #   
+  #   
+  #   if (isTRUE(percent)) {
+  #     for (c in 1:nbCond) {
+  #       ind <- which(Biobase::pData(obj)$Condition == conditions[c])
+  #       inter <- rowSums(is.MV(data[,ind]))/length(ind)
+  #       s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
+  #     }
+  #   } else {
+  #     for (c in 1:nbCond) {
+  #       ind <- which(Biobase::pData(obj)$Condition == conditions[c])
+  #       if (length(ind) == 1){
+  #         inter <- is.MV(data[,ind])
+  #         s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
+  #       }
+  #       else {
+  #         inter <- apply(is.MV(data[,ind]), 1, sum)
+  #         s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
+  #       }
+  #     }
+  #   }
+  
+  
   if (condition == "WholeMatrix") {
     if (isTRUE(percent)) {
-      inter <- rowSums(is.MV(data))/ncol(data)
+      inter <- rowSums(match.metacell(data=data, type=metacell, level="peptide"))/ncol(data)
       keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
     } else {
-      inter <- apply(is.MV(data), 1, sum)
+      inter <- apply(match.metacell(data=data, type=metacell, level="peptide"), 1, sum)
       keepThat <- which(eval(parse(text=paste0("inter", operator, threshold))))
     }
   } else if (condition == "AtLeastOneCond" || condition == "AllCond") {
@@ -37,18 +77,18 @@ filterGetIndices <- function(obj,
     if (isTRUE(percent)) {
       for (c in 1:nbCond) {
         ind <- which(Biobase::pData(obj)$Condition == conditions[c])
-        inter <- rowSums(is.MV(data[,ind]))/length(ind)
+        inter <- rowSums(match.metacell(data=data[,ind], type=metacell, level="peptide"))/length(ind)
         s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
       }
     } else {
       for (c in 1:nbCond) {
         ind <- which(Biobase::pData(obj)$Condition == conditions[c])
         if (length(ind) == 1){
-          inter <- is.MV(data[,ind])
+          inter <- match.metacell(data=data[,ind], type=metacell, level="peptide")
           s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
         }
         else {
-          inter <- apply(is.MV(data[,ind]), 1, sum)
+          inter <- apply(match.metacell(data=data[,ind], type=metacell, level="peptide"), 1, sum)
           s[,c] <- eval(parse(text=paste0("inter", operator, threshold)))
         }
       }
@@ -124,16 +164,16 @@ obj <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_mix.txt', indExpDa
 
 ##############################################################################
 
+metacell = 'direct'
 remove = FALSE
 percent = FALSE
-condition = "WholeMatrix"
-# condition = "AtLeastOneCond"
-# condition = "AllCond"
+condition = "WholeMatrix" # AtLeastOneCond AllCond
 threshold = 2
 operator = ">="
 
 
 res <- filterGetIndices(obj,
+                        metacell,
                         remove,
                         condition, 
                         percent,
