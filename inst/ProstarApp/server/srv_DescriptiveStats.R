@@ -573,15 +573,56 @@ output$DS_PlotHeatmap <- renderUI({
   }
 })
 
-
+BuildColorStyles <- reactive({
+  
+  browser()
+  level <- rv$current.obj@experimentData@other$typeOfData
+  list_POV_tags <- search.metacell.tags('POV', level = level)
+  list_MEC_tags <- search.metacell.tags('MEC', level = level)
+  list_Identified_tags <- search.metacell.tags('identified', level = level)
+  list_Recovered_tags <- search.metacell.tags('recovered', level = level)
+  list_Combined_tags <- search.metacell.tags('combined', level = level)
+  
+  styles <- list(tags = NULL,
+                 colors = NULL)
+  
+  if (length(list_POV_tags)>0){
+    styles$tags <- c(styles$tags, list_POV_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$POV, length(list_POV_tags)))
+  }
+  
+  if (length(list_MEC_tags)>0){
+    styles$tags <- c(styles$tags, list_MEC_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$MEC, length(list_MEC_tags)))
+  }
+  
+  if (length(list_Identified_tags)>0){
+    styles$tags <- c(styles$tags, list_Identified_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$identified, length(list_Identified_tags)))
+  }
+  
+  if (length(list_Recovered_tags)>0){
+    styles$tags <- c(styles$tags, list_Recovered_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$recovered, length(list_Recovered_tags)))
+  }
+  
+  
+  if (length(list_Combined_tags)>0){
+    styles$tags <- c(styles$tags, list_Combined_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$combined, length(list_Combined_tags)))
+  }
+  
+  styles
+})
 
 #################
 output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj)
   #browser()
-  list_POV_tags <- search.metacell.tags('POV')
-  list_MEC_tags <- search.metacell.tags('MEC')
+  
+  
+                       
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
@@ -603,11 +644,7 @@ output$table <- DT::renderDataTable(server=TRUE, {
     formatStyle(
       colnames(df)[1:(ncol(df)/2)],
       colnames(df)[((ncol(df)/2)+1):ncol(df)],
-      backgroundColor = styleEqual(c(list_POV_tags, 
-                                     list_MEC_tags), 
-                                    c(rep(rv$colorsTypeMV$POV, length(list_POV_tags)), 
-                                      rep(rv$colorsTypeMV$MEC, length(list_MEC_tags)))
-                                     ),
+      backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors),
       backgroundSize = '98% 48%',
       backgroundRepeat = 'no-repeat',
       backgroundPosition = 'center'

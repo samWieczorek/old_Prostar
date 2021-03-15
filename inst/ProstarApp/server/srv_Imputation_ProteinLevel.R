@@ -310,7 +310,7 @@ observeEvent(input$perform.imputationClassical.button,{
       switch(rv$widgets$proteinImput$POV_algorithm,
              slsa = {
                #rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='POV')
+               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='missing_POV')
                #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
@@ -319,14 +319,14 @@ observeEvent(input$perform.imputationClassical.button,{
                rv$current.obj <- wrapper.impute.detQuant(obj = rv$current.obj,
                                                          qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
                                                          factor = rv$widgets$proteinImput$POV_detQuant_factor,
-                                                         na.type='POV')
+                                                         na.type='missing_POV')
                #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
              KNN = {
                rv$current.obj <- wrapper.impute.KNN(rv$current.obj , 
                                                     rv$widgets$proteinImput$POV_KNN_n,
-                                                    na.type='POV')
+                                                    na.type='missing_POV')
              }
       )
       incProgress(0.75, detail = 'Reintroduce MEC blocks')
@@ -364,12 +364,12 @@ observeEvent(input$perform.imputationMEC.button,{
                rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
                                                          qval = rv$widgets$proteinImput$MEC_detQuant_quantile/100,
                                                          factor = rv$widgets$proteinImput$MEC_detQuant_factor,
-                                                         na.type='MEC')
+                                                         na.type='missing_MEC')
              },
              fixedValue = {
                rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
                                                            fixVal = rv$widgets$proteinImput$MEC_fixedValue,
-                                                           na.type='MEC')
+                                                           na.type='missing_MEC')
              }
       )
       

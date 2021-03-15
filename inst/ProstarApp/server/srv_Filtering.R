@@ -1435,7 +1435,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):ncol(data)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
       )
   } else {
     dt <- DT::datatable( data,

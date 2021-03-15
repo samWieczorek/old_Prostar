@@ -758,7 +758,11 @@ ClearMemory <- function(){
   rv$current.navPage = NULL
   rv$current.comp = NULL
   rv$colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey')
-  rv$colorsTypeMV = list(MEC=orangeProstar, POV='lightblue')
+  rv$colorsTypeMV = list(MEC=orangeProstar, 
+                         POV='lightblue',
+                         identified = 'white',
+                         recovered = 'lightgrey',
+                         combined = 'red')
   rv$typeOfPalette = 'predefined'
   rv$whichGroup2Color = 'Condition'
   rv$PCA_axes = c(1,2)
