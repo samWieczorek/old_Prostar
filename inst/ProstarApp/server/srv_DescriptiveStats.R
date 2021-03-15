@@ -620,9 +620,7 @@ output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj)
   #browser()
-  
-  
-                       
+
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
