@@ -580,8 +580,8 @@ output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj)
   #browser()
-  list_POV_tags <- search.metacell.tags('POV')
-  list_MEC_tags <- search.metacell.tags('MEC')
+  list_POV_tags <- search.metacell.tags('POV', level=rv$current.obj@experimentData@other$typeOfData)
+  list_MEC_tags <- search.metacell.tags('MEC', level=rv$current.obj@experimentData@other$typeOfData)
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
