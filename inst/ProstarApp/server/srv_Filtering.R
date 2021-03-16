@@ -33,7 +33,7 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$val_vs_percent_byMSMS <- 'Value'
   
   rv$widgets$filtering$temp.dataClass <- "Missing"
-  rv$widgets$filtering$temp.ChooseFilters <- "Whole Matrix"
+  rv$widgets$filtering$temp.ChooseFilters <- "WholeMatrix"
   rv$widgets$filtering$temp.remove <- 'Keep'
   rv$widgets$filtering$temp.seuilNA <- 0
   rv$widgets$filtering$temp.seuilNA_percent <- 0
@@ -86,7 +86,7 @@ output$screenFiltering1 <- renderUI({
                      # 1) Among M, O, R, I and U (last four can be combined or taken separatly)
                      selectInput("temp.dataClass",
                                  "Choose the class of the quantitative data",
-                                 choices = c("quantiValue", "missingValue", "imputedValue", "combinedValue"),
+                                 choices = c("quanti", "missing", "imputed", "combined"),
                                  # get dynamic, see depth of the label tree, if pept or prot ...
                                  width='200px')
               ),
@@ -109,7 +109,7 @@ output$screenFiltering1 <- renderUI({
                      p(style = "font-size: xx-small ; text-align: center ;",
                        HTML("Threshold")),
                      # 4.1) Threshold in percent or absolute ?
-                     uiOutput("temp.seuilNADelete")
+                     uiOutput("temp.seuilNADelete_ui")
               ),
               column(2,
                      p(style = "font-size: xx-small ; text-align: center ;",
@@ -143,11 +143,11 @@ output$screenFiltering1 <- renderUI({
         # div( style="display:inline-block; vertical-align: middle; align: center;",
         #      DT::dataTableOutput("temp.FilterSummaryData")
         # ),
-        uiOutput("temp.ObserverMVFilteringDone"),
+        uiOutput("temp.ObserverMVFilteringDone_ui"),
         
         tags$hr(style="border-top: 3px double black;"),
         
-        ############################################################
+        #####################################################################################################################
         # tags$div(
         div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
             modulePopoverUI("modulePopover_Help_NA_Filtering"),
@@ -195,7 +195,7 @@ callModule(modulePopover,"modulePopover_Help_NA_Filtering",
 )
 
 
-#########################################################
+#####################################################################################################################
 output$temp.keepOrRemove_ui <- renderUI({
   
   text <- paste("Choose either to keep or remove lines containing: ",rv$widgets$filtering$temp.dataClass," data.")
@@ -207,7 +207,7 @@ output$temp.keepOrRemove_ui <- renderUI({
 })
 
 
-output$temp.seuilNADelete <- renderUI({
+output$temp.seuilNADelete_ui <- renderUI({
   
   text <- paste("#/% of values to ",rv$widgets$filtering$temp.remove)
   radioButtons('temp.val_vs_percent',
@@ -296,7 +296,7 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
   rv$widgets$filtering$temp.seuilNA
   rv$widgets$filtering$temp.seuilNA_percent
   rv$widgets$filtering$temp.val_vs_percent
-  
+  rv$widgets$filtering$temp.numericFilter_operator
   
   th <- NULL
   if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
@@ -305,33 +305,31 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
     th <- as.integer(rv$widgets$filtering$temp.seuilNA)
   
   
-  print("rv$current.obj")
-  print(rv$current.obj)
-  print("rv$widgets$filtering$temp.dataClass")
-  print(rv$widgets$filtering$temp.dataClass)
-  print("rv$widgets$filtering$temp.remove")
-  print(rv$widgets$filtering$temp.remove == 'Remove')
-  print("rv$widgets$filtering$temp.ChooseFilters")
-  print(rv$widgets$filtering$temp.ChooseFilters)
-  print("rv$widgets$filtering$temp.val_vs_percent")
-  print(rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-  print("rv$widgets$filtering$temp.numericFilter_operator")
-  print(rv$widgets$filtering$temp.numericFilter_operator)
-  print("th")
-  print(th)
-  print("level")
-  print(rv$current.obj@experimentData@other$typeOfData)
+  # print("rv$current.obj")
+  # print(rv$current.obj)
+  # print("rv$widgets$filtering$temp.dataClass")
+  # print(rv$widgets$filtering$temp.dataClass)
+  # print("rv$widgets$filtering$temp.remove")
+  # print(rv$widgets$filtering$temp.remove == 'Remove')
+  # print("rv$widgets$filtering$temp.ChooseFilters")
+  # print(rv$widgets$filtering$temp.ChooseFilters)
+  # print("rv$widgets$filtering$temp.val_vs_percent")
+  # print(rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
+  # print("rv$widgets$filtering$temp.numericFilter_operator")
+  # print(rv$widgets$filtering$temp.numericFilter_operator)
+  # print("th")
+  # print(th)
+  # print("level")
+  # print(rv$current.obj@experimentData@other$typeOfData)
   
   
-  keepThat <- #DAPAR::
-    filterGetIndices(obj = rv$current.obj,
-                     metacell = rv$widgets$filtering$temp.dataClass,
-                     remove = rv$widgets$filtering$temp.remove == 'Remove', ### ! ###
-                     condition = rv$widgets$filtering$temp.ChooseFilters,
-                     percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
-                     operator = rv$widgets$filtering$temp.numericFilter_operator,
-                     threshold = th,
-                     level = rv$current.obj@experimentData@other$typeOfData )
+  keepThat <- DAPAR::filterGetIndices(obj = rv$current.obj,
+                                      metacell = rv$widgets$filtering$temp.dataClass,
+                                      remove = rv$widgets$filtering$temp.remove == 'Remove',
+                                      condition = rv$widgets$filtering$temp.ChooseFilters,
+                                      percent = rv$widgets$filtering$temp.val_vs_percent == 'Percentage',
+                                      operator = rv$widgets$filtering$temp.numericFilter_operator,
+                                      threshold = th)
   
   
   
@@ -343,6 +341,9 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
                                                         th)
     )
   }
+  
+  View(fData(rv$temp.deleted.mvLines))
+  View(fData(rv$current.obj))
   rvModProcess$moduleFilteringDone[1] <- TRUE
   
   ######
@@ -405,7 +406,7 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
 
 
 
-output$temp.ObserverMVFilteringDone <- renderUI({
+output$temp.ObserverMVFilteringDone_ui <- renderUI({
   req(rv$temp.deleted.mvLines)
   
   n <- 0
@@ -455,14 +456,8 @@ output$temp.ObserverMVFilteringDone <- renderUI({
 
 
 
-
 observeEvent(input$temp.dataClass,{
   rv$widgets$filtering$temp.dataClass <- input$temp.dataClass
-})
-
-
-observeEvent(input$temp.ChooseFilters,{
-  rv$widgets$filtering$temp.ChooseFilters <- input$temp.ChooseFilters
 })
 
 
@@ -471,8 +466,8 @@ observeEvent(input$temp.remove, {
 })
 
 
-observeEvent(input$temp.val_vs_percent, {
-  rv$widgets$filtering$temp.val_vs_percent <- input$temp.val_vs_percent
+observeEvent(input$temp.ChooseFilters,{
+  rv$widgets$filtering$temp.ChooseFilters <- input$temp.ChooseFilters
 })
 
 
@@ -485,16 +480,24 @@ observeEvent(input$temp.seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
   rv$widgets$filtering$temp.seuilNA_percent <- input$temp.seuilNA_percent
 })
 
+
+observeEvent(input$temp.val_vs_percent, {
+  rv$widgets$filtering$temp.val_vs_percent <- input$temp.val_vs_percent
+})
+
+
 observeEvent(input$temp.numericFilter_operator,{
   rv$widgets$filtering$temp.numericFilter_operator <- input$temp.numericFilter_operator
 })
 
 
 
-
-
-
 ##############################################################################################
+
+
+
+
+
 
 #########################################################
 ##' Show the widget (slider input) for filtering
