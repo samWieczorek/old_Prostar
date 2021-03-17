@@ -168,7 +168,6 @@ summary_txt <- function(metacell,
 # charge Exp1_R25_pept.RData
 obj <- Exp1_R25_pept[1:25,]
 fData(obj)[,66:71]
-##############################################################################
 
 metacell = 'quanti'
 remove = FALSE
