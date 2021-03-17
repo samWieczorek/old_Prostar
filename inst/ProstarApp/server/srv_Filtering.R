@@ -93,7 +93,9 @@ output$screenFiltering1 <- renderUI({
               ),
               column(2,
                      selectInput("temp.ChooseFilters","",
-                                 choices = c(gFiltersList[1],'Whole Line',gFiltersList[3:length(gFiltersList)]),
+                                 choices = c(gFiltersList[1],
+                                             "Whole Line"="WholeLine",
+                                             gFiltersList[3:length(gFiltersList)]),
                                  selected = rv$widgets$filtering$temp.ChooseFilters,
                                  width='200px')
               ),
@@ -178,7 +180,7 @@ output$temp.seuilNADelete_ui <- renderUI({
   req(rv$widgets$filtering$temp.ChooseFilters)
   
   if (rv$widgets$filtering$temp.ChooseFilters == "None" ||
-      rv$widgets$filtering$temp.ChooseFilters == "Whole Line") {return(NULL)}
+      rv$widgets$filtering$temp.ChooseFilters == "WholeLine") {return(NULL)}
   
   text <- paste("#/% of values to ",rv$widgets$filtering$temp.remove)
   
@@ -195,7 +197,9 @@ output$temp.seuilNADelete_ui <- renderUI({
                               choices = c('<=' = '<=',
                                           '<' = '<',
                                           '>=' = '>=',
-                                          '>' = '>'),
+                                          '>' = '>',
+                                          '=' = '=',
+                                          '!=' = '!='),
                               width='150px')
            ),
            column(4,
@@ -247,7 +251,7 @@ output$temp.keep_helptext <- renderUI({
   
   if (rv$widgets$filtering$temp.ChooseFilters == "None"){
     txt_summary <- "No filtering is processed on your dataset."
-  } else if (rv$widgets$filtering$temp.ChooseFilters == "Whole Line") {
+  } else if (rv$widgets$filtering$temp.ChooseFilters == "WholeLine") {
     txt_summary <- paste("You are going to ",
                          rv$widgets$filtering$temp.remove,
                          "lines that contain only",
@@ -299,6 +303,7 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
   rv$widgets$filtering$temp.val_vs_percent
   rv$widgets$filtering$temp.numericFilter_operator
   
+
   th <- NULL
   if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
     th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)
@@ -314,8 +319,6 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
                                       operator = rv$widgets$filtering$temp.numericFilter_operator,
                                       threshold = th)
   
-  
-  
   if (!is.null(keepThat)) {
     rv$temp.deleted.mvLines <- rv$current.obj[-keepThat]
     rv$current.obj <- mvFilterFromIndices(rv$current.obj,
@@ -325,18 +328,30 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
     )
   }
   
+  if (rv$widgets$filtering$temp.ChooseFilters == "WholeLine") {
+    df <- data.frame(Label=rv$widgets$filtering$temp.dataClass,
+                     Remove=rv$widgets$filtering$temp.remove == 'Remove',
+                     Condition=rv$widgets$filtering$temp.ChooseFilters,
+                     Threshold='- or == 100%?',
+                     nbDeleted=nrow(rv$temp.deleted.mvLines),
+                     Total=nrow(rv$current.obj))
+  } else {
+    df <- data.frame(Label=rv$widgets$filtering$temp.dataClass,
+                     Remove=rv$widgets$filtering$temp.remove == 'Remove',
+                     Condition=rv$widgets$filtering$temp.ChooseFilters,
+                     Threshold=paste(rv$widgets$filtering$temp.numericFilter_operator,
+                                     th),
+                     nbDeleted=nrow(rv$temp.deleted.mvLines),
+                     Total=nrow(rv$current.obj))
+  }
+  
+  rv$widgets$filtering$temp.DT_filterSummary <- rbind(rv$widgets$filtering$temp.DT_filterSummary , df)
+  
+  
   
   rvModProcess$moduleFilteringDone[1] <- TRUE
   
   
-  df <- data.frame(Label=rv$widgets$filtering$temp.dataClass,
-                   Remove=rv$widgets$filtering$temp.remove == 'Remove',
-                   Condition=rv$widgets$filtering$temp.ChooseFilters,
-                   Threshold=paste(rv$widgets$filtering$temp.numericFilter_operator,
-                                   th),
-                   nbDeleted=nrow(rv$temp.deleted.mvLines),
-                   Total=nrow(rv$current.obj))
-  rv$widgets$filtering$temp.DT_filterSummary <- rbind(rv$widgets$filtering$temp.DT_filterSummary , df)
 })
 
 
