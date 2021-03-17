@@ -39,11 +39,13 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$temp.seuilNA_percent <- 0
   rv$widgets$filtering$temp.val_vs_percent <- 'Value'
   rv$widgets$filtering$temp.numericFilter_operator <- '<='
-  rv$widgets$filtering$temp.DT_numfilterSummary <- data.frame(Filter=NULL,
-                                                              Condition=NULL,
-                                                              nbDeleted=NULL,
-                                                              Total=NULL,
-                                                              stringsAsFactors=F)
+  rv$widgets$filtering$temp.DT_filterSummary <- data.frame(Label=NULL,
+                                                           Remove=NULL,
+                                                           Condition=NULL,#condition
+                                                           Threshold=NULL,#operator+th
+                                                           nbDeleted=NULL,#nb line removed
+                                                           Total=NULL,# sum of lines deleted multiple filters
+                                                           stringsAsFactors=F)
   
   
   rv$deleted.stringBased <- NULL
@@ -140,9 +142,9 @@ output$screenFiltering1 <- renderUI({
             ),
         ),
         tags$hr(),
-        # div( style="display:inline-block; vertical-align: middle; align: center;",
-        #      DT::dataTableOutput("temp.FilterSummaryData")
-        # ),
+        div( style="display:inline-block; vertical-align: middle; align: center;",
+             DT::dataTableOutput("temp.FilterSummaryData")
+        ),
         uiOutput("temp.ObserverMVFilteringDone_ui"),
         
         tags$hr(style="border-top: 3px double black;"),
@@ -305,24 +307,6 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
     th <- as.integer(rv$widgets$filtering$temp.seuilNA)
   
   
-  # print("rv$current.obj")
-  # print(rv$current.obj)
-  # print("rv$widgets$filtering$temp.dataClass")
-  # print(rv$widgets$filtering$temp.dataClass)
-  # print("rv$widgets$filtering$temp.remove")
-  # print(rv$widgets$filtering$temp.remove == 'Remove')
-  # print("rv$widgets$filtering$temp.ChooseFilters")
-  # print(rv$widgets$filtering$temp.ChooseFilters)
-  # print("rv$widgets$filtering$temp.val_vs_percent")
-  # print(rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
-  # print("rv$widgets$filtering$temp.numericFilter_operator")
-  # print(rv$widgets$filtering$temp.numericFilter_operator)
-  # print("th")
-  # print(th)
-  # print("level")
-  # print(rv$current.obj@experimentData@other$typeOfData)
-  
-  
   keepThat <- DAPAR::filterGetIndices(obj = rv$current.obj,
                                       metacell = rv$widgets$filtering$temp.dataClass,
                                       remove = rv$widgets$filtering$temp.remove == 'Remove',
@@ -342,66 +326,18 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
     )
   }
   
-  View(fData(rv$temp.deleted.mvLines))
-  View(fData(rv$current.obj))
+  
   rvModProcess$moduleFilteringDone[1] <- TRUE
   
-  ######
-  ######
-  ######
-  ######
-  ######
-  # ########################
-  # 
-  # observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
-  #   temp <- rv$current.obj
-  #   
-  #   cname <- colnames(exprs(temp))
-  #   print(cname)
-  #   print("cname")
-  #   tagValue <- th
-  #   print(th)
-  #   print("th")
-  #   
-  #   #############################
-  #   # moche, a changer dans DAPAR
-  #   ind <- vector()
-  #   for (i in 1:length(cname)) {
-  #     ind_col <- NumericalgetIndicesOfLinesToRemove(temp,cname[i], value, operator)
-  #     print(i)
-  #     print(cname[i])
-  #     print(ind_col)
-  #     ind[,ncol(ind)+1] <- ind_col
-  #   }
-  #   ind <- unique(ind)# lignes a supprimer de part la matrice
-  #   #############################
-  #   
-  #   deleted <- temp[ind]
-  #   
-  #   temp <- deleteLinesFromIndices(temp, ind,
-  #                                  paste("\"",
-  #                                        length(ind),
-  #                                        " lines were removed from dataset.\"",
-  #                                        sep=""))
-  #   nbDeleted <- 0
-  #   
-  #   
-  #   if (!is.null(deleted)){
-  #     rv$deleted.numeric <- rbindMSnset(rv$deleted.numeric, deleted)
-  #     nbDeleted <-  nrow(deleted)
-  #   } else {
-  #     nbDeleted <-  0
-  #   }
-  #   rv$current.obj <- telmp
-  #   
-  #   df <- data.frame(Filter=cname,
-  #                    Condition=paste0(input$numericFilter_operator,' ',tagValue),
-  #                    nbDeleted=nbDeleted,
-  #                    Total=nrow(rv$current.obj))
-  #   rv$widgets$filtering$DT_numfilterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary, df)
-  #   
-  # })
   
+  df <- data.frame(Label=rv$widgets$filtering$temp.dataClass,
+                   Remove=rv$widgets$filtering$temp.remove == 'Remove',
+                   Condition=rv$widgets$filtering$temp.ChooseFilters,
+                   Threshold=paste(rv$widgets$filtering$temp.numericFilter_operator,
+                                   th),
+                   nbDeleted=nrow(rv$temp.deleted.mvLines),
+                   Total=nrow(rv$current.obj))
+  rv$widgets$filtering$temp.DT_filterSummary <- rbind(rv$widgets$filtering$temp.DT_filterSummary , df)
 })
 
 
@@ -418,41 +354,39 @@ output$temp.ObserverMVFilteringDone_ui <- renderUI({
   }
 })
 
-######
-######
-######
-######
-######
-# output$temp.FilterSummaryData <- DT::renderDataTable(server=TRUE,{
-#   req(rv$current.obj)
-#   req(rv$widgets$filtering$temp.DT_numfilterSummary)
-#   isolate({
-#     
-#     if (nrow(rv$widgets$filtering$temp.DT_filterSummary )==0){
-#       df <- data.frame(Filter="-",
-#                        Prefix="-",
-#                        nbDeleted=0,
-#                        Total=nrow(rv$current.obj),
-#                        stringsAsFactors = FALSE)
-#       rv$widgets$filtering$temp.DT_filterSummary <- df
-#     }
-#     
-#     
-#     DT::datatable(rv$widgets$filtering$temp.DT_filterSummary,
-#                   extensions = c('Scroller', 'Buttons'),
-#                   rownames = FALSE,
-#                   options=list(buttons = list('copy',
-#                                               list(
-#                                                 extend = 'csv',
-#                                                 filename = 'Filtering_summary'
-#                                               ),'print'),
-#                                dom='Brt',
-#                                initComplete = initComplete(),
-#                                deferRender = TRUE,
-#                                bLengthChange = FALSE
-#                   ))
-#   })
-# })
+
+output$temp.FilterSummaryData <- DT::renderDataTable(server=TRUE,{
+  req(rv$current.obj)
+  req(rv$widgets$filtering$temp.DT_filterSummary)
+  isolate({
+    
+    if (nrow(rv$widgets$filtering$temp.DT_filterSummary )==0){
+      df <- data.frame(Label="-",
+                       Remove="-",
+                       Condition="-",
+                       Threshold="-",
+                       nbDeleted=0,
+                       Total=nrow(rv$current.obj),
+                       stringsAsFactors = FALSE)
+      rv$widgets$filtering$temp.DT_filterSummary <- df
+    }
+    
+    
+    DT::datatable(rv$widgets$filtering$temp.DT_filterSummary,
+                  extensions = c('Scroller', 'Buttons'),
+                  rownames = FALSE,
+                  options=list(buttons = list('copy',
+                                              list(
+                                                extend = 'csv',
+                                                filename = 'Filtering_summary'
+                                              ),'print'),
+                               dom='Brt',
+                               initComplete = initComplete(),
+                               deferRender = TRUE,
+                               bLengthChange = FALSE
+                  ))
+  })
+})
 
 
 
