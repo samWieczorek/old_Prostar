@@ -83,9 +83,7 @@ output$screenFiltering1 <- renderUI({
               column(2,
                      selectInput("temp.dataClass",
                                  "Choose the class of the quantitative data",
-                                 choices = c("quanti", "missing", "imputed", "combined"),
-                                 # get dynamic, see depth of the label tree
-                                 # if pept or prot
+                                 choices = DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData),
                                  width='200px')
               ),
               column(2,
@@ -198,8 +196,9 @@ output$temp.seuilNADelete_ui <- renderUI({
                                           '<' = '<',
                                           '>=' = '>=',
                                           '>' = '>',
-                                          '=' = '=',
+                                          '=' = '==',
                                           '!=' = '!='),
+                              selected = rv$widgets$filtering$temp.numericFilter_operator,
                               width='150px')
            ),
            column(4,
@@ -262,7 +261,9 @@ output$temp.keep_helptext <- renderUI({
            '<=' = text_operator <- "inferior or equal",
            '<' = text_operator <- "inferior",
            '>=' = text_operator <- "superior or equal",
-           '>' = text_operator <- "superior")
+           '>' = text_operator <- "superior",
+           '==' = text_operator <- "equal",
+           '!=' = text_operator <- "different")
     
     switch(rv$widgets$filtering$temp.ChooseFilters,
            "WholeMatrix" = text_method <- "all the matrix.",
@@ -279,7 +280,7 @@ output$temp.keep_helptext <- renderUI({
                          rv$widgets$filtering$temp.remove,
                          " lines where number of ",
                          rv$widgets$filtering$temp.dataClass,
-                         " data are ",
+                         " data is ",
                          text_operator,
                          " to ",
                          text_threshold,
@@ -303,12 +304,13 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
   rv$widgets$filtering$temp.val_vs_percent
   rv$widgets$filtering$temp.numericFilter_operator
   
-
+  
   th <- NULL
-  if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage')
+  if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage') {
     th <- as.numeric(rv$widgets$filtering$temp.seuilNA_percent)
-  else
+  } else {
     th <- as.integer(rv$widgets$filtering$temp.seuilNA)
+  }
   
   
   keepThat <- DAPAR::filterGetIndices(obj = rv$current.obj,
@@ -328,11 +330,14 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
     )
   }
   
+  
+  rvModProcess$moduleFilteringDone[1] <- TRUE
+  
   if (rv$widgets$filtering$temp.ChooseFilters == "WholeLine") {
     df <- data.frame(Label=rv$widgets$filtering$temp.dataClass,
                      Remove=rv$widgets$filtering$temp.remove == 'Remove',
                      Condition=rv$widgets$filtering$temp.ChooseFilters,
-                     Threshold='- or == 100%?',
+                     Threshold='** \'-\' or \'== 100%\'? **',
                      nbDeleted=nrow(rv$temp.deleted.mvLines),
                      Total=nrow(rv$current.obj))
   } else {
@@ -340,19 +345,16 @@ observeEvent(input$temp.perform.filtering, ignoreInit=TRUE,{
                      Remove=rv$widgets$filtering$temp.remove == 'Remove',
                      Condition=rv$widgets$filtering$temp.ChooseFilters,
                      Threshold=paste(rv$widgets$filtering$temp.numericFilter_operator,
-                                     th),
+                                     if (rv$widgets$filtering$temp.val_vs_percent == 'Percentage') {paste0(th*100,"%")}
+                                     else {th}
+                                     ),
                      nbDeleted=nrow(rv$temp.deleted.mvLines),
                      Total=nrow(rv$current.obj))
   }
-  
   rv$widgets$filtering$temp.DT_filterSummary <- rbind(rv$widgets$filtering$temp.DT_filterSummary , df)
   
-  
-  
-  rvModProcess$moduleFilteringDone[1] <- TRUE
-  
-  
 })
+
 
 
 
