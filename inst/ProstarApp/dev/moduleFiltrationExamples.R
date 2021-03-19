@@ -23,11 +23,10 @@ path <- "~/Github/master/Prostar/inst/ProstarApp/"
 
 ui <- fluidPage(
   
-  fluidRow(column(4,selectInput("ChooseFilters","",
-                                choices = gFiltersList,
-                                selected = "None",
-                                width='200px')),
-           column(8,textOutput("methodInformation"))),
+  selectInput("ChooseFilters","",
+              choices = gFiltersList,
+              selected = "None",
+              width='200px'),
   
   uiOutput("seuilNADelete"),
   
@@ -54,6 +53,127 @@ server <- function(input, output, session){
   plop <- read.csv(paste0(path, 'dev/example_filtration_tab_NA.txt'), sep='\t')
   
   
+  
+  output$modal_content <- renderUI({
+    
+    tagList(
+      actionButton("run_example", "Run Example"),
+      dataTableOutput("example_tab")
+      # 1) vide
+      # 2) observeEvent(input$run_example,{
+      # 3)   calcul index
+      # 4)   tab avec ou sans lignes grises
+      # })
+    )
+    
+  })
+  
+  
+  
+  output$example_tab <- DT::renderDataTable({
+    
+    index <- NULL
+    switch(input$ChooseFilters,
+           None = { index <- NULL },
+           EmptyLines = { index <- 7 },
+           WholeMatrix = { switch(input$seuilNA,
+                                  "0" = { index <- NULL },
+                                  "1" = { index <- 7 },
+                                  "2" = { index <- c(6,7) },
+                                  "3" = { index <- c(5:7,10) },
+                                  "4" = { index <- c(4:7,9,10) },
+                                  "5" = { index <- c(3:10)},
+                                  "6" = { index <- c(2:10)}
+           )},
+           AllCond = { switch(input$seuilNA,
+                              "0" = { index <- NULL },
+                              "1" = { index <- c(4:7) },
+                              "2" = { index <- c(3:7,9,10) },
+                              "3" = { index <- c(2:10) }
+           )},
+           AtLeastOneCond = { switch(input$seuilNA,
+                                     "0" = { index <- NULL },
+                                     "1" = { index <- 7 },
+                                     "2" = { index <- c(6,7,10) },
+                                     "3" = { index <- c(5:10) }
+           )}
+    )
+    
+    
+    #DT::datatable(NULL)
+    
+    
+    if (!is.null(index)){
+      
+      DT::datatable(plop,
+                    options = list(
+                      paging = FALSE,
+                      searching = FALSE)) %>%
+        formatStyle(
+          .,
+          columns = 1,
+          valueColumns = 0,
+          target = 'row',
+          backgroundColor = styleEqual(index, rep('grey', length(index)) )
+        )
+    } else {
+      p('No filtering with these parameters.')
+      
+      DT::datatable(plop,
+                    options = list(
+                      paging = FALSE,
+                      searching = FALSE)
+      )              
+      
+    }
+  })
+  
+  
+  
+  
+  ##########################################################################
+  # library(shiny)
+  # library(DT)
+  # shinyApp(
+  #   ui = fluidPage(selectInput("select", "select", choices = unique(iris$Species), multiple = T),
+  #                  actionButton("go_button", "Search", 
+  #                               icon = icon("arrow-circle-o-right")),
+  #                  actionButton("reset_button", "Reset", 
+  #                               icon = icon("repeat")),
+  #                  DT::dataTableOutput('tbl')),
+  #   server = function(input, output) {
+  #     
+  #     values <- reactiveValues(matrix = NULL)
+  #     
+  #     
+  #     observeEvent(input$go_button, {
+  #       values$matrix <- iris[iris$Species %in% input$select, ]
+  #     })
+  #     
+  #     observeEvent(input$reset_button, {
+  #       values$matrix <- NULL
+  #     })
+  #     
+  #     
+  #     output$tbl = DT::renderDataTable({
+  #       print("input$go_button")
+  #       print(input$go_button)
+  #       print("input$reset_button")
+  #       print(input$reset_button)
+  #       datatable(values$matrix, options = list(lengthChange = FALSE))}
+  #     )
+  #   }
+  # )
+  ##########################################################################
+  
+  
+  
+  
+  
+  
+  
+  
+  
   output$seuilNADelete <- renderUI({
     req(input$ChooseFilters)
     
@@ -65,6 +185,7 @@ server <- function(input, output, session){
       uiOutput('keepVal_ui')
     )
   })
+  
   
   
   output$keepVal_ui <- renderUI({
@@ -94,120 +215,6 @@ server <- function(input, output, session){
     )
   })
   
-
-  
-  
-  
-  output$modal_content <- renderUI({
-    
-    tagList(
-      actionButton("run_example", "Run Example"),
-      dataTableOutput("example_tab")
-    )
-    
-  })
-  
- 
-  index <- eventReactive(input$run_example, {
-    
-    switch(input$ChooseFilters,
-           None = {
-             ind <- NULL
-           },
-           EmptyLines = {
-             ind <- 7
-           },
-           WholeMatrix = { switch(input$seuilNA,
-                                  "0" = { ind <- NULL },
-                                  "1" = { ind <- 7 },
-                                  "2" = { ind <- c(6,7) },
-                                  "3" = { ind <- c(5:7,10) },
-                                  "4" = { ind <- c(4:7,9,10) },
-                                  "5" = { ind <- c(3:10)},
-                                  "6" = { ind <- c(2:10)}
-           )},
-           AllCond = { switch(input$seuilNA,
-                              "0" = { ind <- NULL },
-                              "1" = { ind <- c(4:7) },
-                              "2" = { ind <- c(3:7,9,10) },
-                              "3" = { ind <- c(2:10) }
-           )},
-           AtLeastOneCond = { switch(input$seuilNA,
-                                     "0" = { ind <- NULL },
-                                     "1" = { ind <- 7 },
-                                     "2" = { ind <- c(6,7,10) },
-                                     "3" = { ind <- c(5:10) }
-           )}
-    )
-  })
-  
-  
-
-  output$example_tab <- DT::renderDataTable({
-    req(input$run_example)
-    print("index")
-    print(index())
-    
-    
-    
-    if (!is.null(index())){
-      
-      DT::datatable(plop,
-                    options = list(
-                      paging = FALSE,
-                      searching = FALSE)) %>%
-        formatStyle(
-          .,
-          columns = 1,
-          valueColumns = 0,
-          target = 'row',
-          backgroundColor = styleEqual(index(), rep('grey', length(index())) )
-        )
-    } else {
-      p('No filtering with these parameters.')
-      
-      DT::datatable(plop,
-                    options = list(
-                      paging = FALSE,
-                      searching = FALSE)
-                    
-      )              
-    }
-  })
-  
-  
-  
-  
-  # output$methodInformation <- renderText({
-  #   
-  #   switch(input$ChooseFilters,
-  #          None = {
-  #            txt <- "No lines are removed."
-  #          },
-  #          EmptyLines = {
-  #            txt <- "Lines with only NAs are removed."
-  #          },
-  #          WholeMatrix = {
-  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
-  #            else{txt <- paste("Lines containing at least",
-  #                              input$seuilNA,
-  #                              "quantitative values per row are kept.")}
-  #          },
-  #          AllCond = {
-  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
-  #            else{txt <- paste("Lines containing at least",
-  #                              input$seuilNA,
-  #                              "quantitative values per row, in all condition, are kept.")}
-  #          },
-  #          AtLeastOneCond = {
-  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
-  #            else{txt <- paste("Lines containing at least",
-  #                              input$seuilNA,
-  #                              "quantitative values per row, in at least one condition, are kept.")}
-  #          }
-  #   )
-  #   txt
-  # })
   
   
   
