@@ -28,10 +28,18 @@ build_ParamsList_Filtering <- reactive({
   } else {
     df.numeric <- rv$widgets$filtering$DT_numfilterSummary}
   
+  
+  if (nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) <=1) {
+    df.metacell <- NULL
+  } else {
+    df.metacell <- rv$widgets$filtering$metacell_Filter_SummaryDT}
+  
+  
   l.params <- list(mvFilterType = input$ChooseFilters,
                    val_vs_percent = input$val_vs_percent,
                    mvThNA = as.numeric(input$seuilNA), 
-                   mvThNA_percent = as.numeric(input$seuilNA_percent), 
+                   mvThNA_percent = as.numeric(input$seuilNA_percent),
+                   metacellFilter.df = df.metacell,
                    stringFilter.df = df.string,
                    numericFilter.df = df.numeric)
   
