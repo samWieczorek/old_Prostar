@@ -121,24 +121,24 @@ output$screenFiltering1 <- renderUI({
         
         ################## Initial section ###################################
         # tags$div(
-        div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-            modulePopoverUI("modulePopover_Help_NA_Filtering"),
-            selectInput("ChooseFilters","",
-                        choices = gFiltersList,
-                        selected=rv$widgets$filtering$ChooseFilters,
-                        width='200px')
-            
-        ),
-        div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-             uiOutput("seuilNADelete")
-        ),
-        div( style="display:inline-block; vertical-align: middle;",
-             actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
-        ),
+        # div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
+        #     modulePopoverUI("modulePopover_Help_NA_Filtering"),
+        #     selectInput("ChooseFilters","",
+        #                 choices = gFiltersList,
+        #                 selected=rv$widgets$filtering$ChooseFilters,
+        #                 width='200px')
+        #     
+        # ),
+        # div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
+        #      uiOutput("seuilNADelete")
+        # ),
+        # div( style="display:inline-block; vertical-align: middle;",
+        #      actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
+        # ),
         hr(),
         ################## PLots section ###################################
-        mod_plots_mv_histo_ui("MVPlots_filtering"),
-        uiOutput("ObserverMVFilteringDone")
+        mod_plots_mv_histo_ui("MVPlots_filtering")
+        #uiOutput("ObserverMVFilteringDone")
       )
       
     )
@@ -309,7 +309,7 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   rv$widgets$filtering$val_vs_percent
   rv$widgets$filtering$metacellFilter_operator
   
-  
+  browser()
   th <- NULL
   if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
     th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
