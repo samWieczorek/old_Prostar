@@ -1,16 +1,15 @@
 rvModProcess <- reactiveValues(
   
   moduleFiltering = list(name = "Filtering",
-                         stepsNames = c("MV Removal", "By MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Save"),
-                         isMandatory = c(rep(FALSE,6),TRUE),
+                         stepsNames = c("Metacell Removal", "String-based Removal","Numerical Removal", "Summary", "Save"),
+                         isMandatory = c(rep(FALSE,5),TRUE),
                          ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
-                                       screenStepxxx = uiOutput("screenFilteringxxx"),
                                        screenStep2 = uiOutput("screenFiltering2"),
                                        screenStep3 = uiOutput("screenFiltering3"),
                                        screenStep4 = uiOutput("screenFiltering4"),
                                        screenStep5 = uiOutput("screenFiltering5")),
                          rstFunc = reactive({resetModuleFiltering()})),
-  moduleFilteringDone =  rep(FALSE,6),
+  moduleFilteringDone =  rep(FALSE,5),
   moduleFilteringForceReset = 0,
   
   

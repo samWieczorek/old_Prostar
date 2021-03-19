@@ -308,7 +308,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
       ) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
@@ -369,7 +369,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
       ) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
@@ -459,7 +459,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC))) %>% 
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
     

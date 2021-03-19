@@ -226,7 +226,7 @@ MSnSetExplorer <- function(input, output, session, data) {
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)),
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors),
         backgroundSize = '98% 48%',
         backgroundRepeat = 'no-repeat',
         backgroundPosition = 'center'

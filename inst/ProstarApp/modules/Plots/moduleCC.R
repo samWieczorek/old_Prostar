@@ -335,7 +335,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
     
     dt
   })
@@ -382,7 +382,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
     
     dt
   })
@@ -540,7 +540,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
     
     dt
   })
@@ -635,7 +635,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c("POV", "MEC"), c(rv$colorsTypeMV$POV, rv$colorsTypeMV$MEC)))
+        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
     
     dt
   })

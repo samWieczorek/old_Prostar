@@ -410,15 +410,14 @@ resetModuleProcess <- function(moduleName){
           updateRadioButtons(session, "val_vs_percent.byMSMS", selected = rv$widgets$filtering$val_vs_percent.byMSMS)
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
-                                              stepsNames = c("MV Removal", "By MS/MS enrichment", "String-based Removal","Numerical Removal", "Summary", "Validate"),
-                                              isMandatory = rep(FALSE,6),
+                                              stepsNames = c("Metacell Removal", "String-based Removal","Numerical Removal", "Summary", "Validate"),
+                                              isMandatory = rep(FALSE, 5),
                                               ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
-                                                            screenStepxxx = uiOutput("screenFilteringxxx"),
                                                             screenStep2 = uiOutput("screenFiltering2"),
                                                             screenStep3 = uiOutput("screenFiltering3"),
                                                             screenStep4 = uiOutput("screenFiltering4"),
                                                             screenStep5 = uiOutput("screenFiltering5")))
-          rvModProcess$moduleFilteringDone =  rep(FALSE,6)
+          rvModProcess$moduleFilteringDone =  rep(FALSE, 5)
           },
           
           
