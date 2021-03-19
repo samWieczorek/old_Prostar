@@ -3,6 +3,7 @@ library(DT)
 library(DAPAR)
 library(shinyBS)
 library(shinyjqui)
+library(shinyjs)
 
 options(htmlwidgets.TOJSON_ARGS = list(na = 'string')) # to display NAs in DT, instead of blank square
 
@@ -13,21 +14,9 @@ gFiltersList <- c("None" = "None",
                   "At least one condition" = "AtLeastOneCond")
 gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 
+path <- "~/Github/master/Prostar/inst/ProstarApp/"
+#path <- "~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/"
 
-# # table example
-# plop <- read.csv('dev/example_filtration_tab_NA.txt', sep='\t')
-# # create the MSnset dataset to use DAPAR function getListNbValuesInLines
-# metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
-# colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
-# metadata_plop$Sample.name <- colnames(plop)
-# metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
-# metadata_plop$Bio.Rep <- c(1:6)
-# plop_msnset <- DAPAR::createMSnset(file = 'dev/example_filtration_tab_NA.txt',
-#                                    indExpData = c(1:6),
-#                                    indFData = c(1:6), 
-#                                    metadata = metadata_plop,
-#                                    pep_prot_data="peptide",
-#                                    software = 'maxquant')
 
 
 ########################################################################
@@ -45,61 +34,24 @@ ui <- fluidPage(
   actionButton("show_modal", "Open modal example"),
   
   shinyBS::bsModal("example_modal",
-                   title="modal",
+                   title="Modal",
                    size = "large",
                    trigger="show_modal",
-                   uiOutput("modal_content"))#,
+                   uiOutput("modal_content"),
+                   tags$head(tags$style("#example_modal .modal-footer{ display:none}"))#,
+                   # tags$head(tags$style("#example_modal .modal-header .close { display:none}"))
+  )# ,
   
-  #dataTableOutput("buildFiltrationExample")
+  # dataTableOutput("buildFiltrationExample")
   
 )
 
+
+
 server <- function(input, output, session){
   
-  # ###############
-  # # options modal
-  # jqui_resizable(paste0("#","example_modal"," .modal-content")
-  #                ,options = list(minHeight = 500, minWidth=500  ))
-  # 
-  # jqui_draggable(paste0("#","example_modal"," .modal-content")
-  #                , options = list(revert=TRUE) 
-  # )
-  # ###############
   
-  
-  plop <- read.csv('~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/dev/example_filtration_tab_NA.txt', sep='\t')
-  
-  
-  
-  output$methodInformation <- renderText({
-    switch(input$ChooseFilters,
-           None = {
-             txt <- "No lines are removed."
-           },
-           EmptyLines = {
-             txt <- "Lines with only NAs are removed."
-           },
-           WholeMatrix = {
-             if(input$seuilNA=="0"){txt <- "No lines are removed."}
-             else{txt <- paste("Lines containing at least",
-                               input$seuilNA,
-                               "quantitative values per row are kept.")}
-           },
-           AllCond = {
-             if(input$seuilNA=="0"){txt <- "No lines are removed."}
-             else{txt <- paste("Lines containing at least",
-                               input$seuilNA,
-                               "quantitative values per row, in all condition, are kept.")}
-           },
-           AtLeastOneCond = {
-             if(input$seuilNA=="0"){txt <- "No lines are removed."}
-             else{txt <- paste("Lines containing at least",
-                               input$seuilNA,
-                               "quantitative values per row, in at least one condition, are kept.")}
-           }
-    )
-    txt
-  })
+  plop <- read.csv(paste0(path, 'dev/example_filtration_tab_NA.txt'), sep='\t')
   
   
   output$seuilNADelete <- renderUI({
@@ -110,7 +62,6 @@ server <- function(input, output, session){
     }
     
     tagList(
-      shinyjs::useShinyjs(),
       uiOutput('keepVal_ui')
     )
   })
@@ -126,7 +77,7 @@ server <- function(input, output, session){
     metadata_plop$Sample.name <- colnames(plop)
     metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
     metadata_plop$Bio.Rep <- c(1:6)
-    plop_msnset <- DAPAR::createMSnset(file = '~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/dev/example_filtration_tab_NA.txt',
+    plop_msnset <- DAPAR::createMSnset(file = paste0(path, 'dev/example_filtration_tab_NA.txt'),
                                        indExpData = c(1:6),
                                        indFData = c(1:6), 
                                        metadata = metadata_plop,
@@ -143,58 +94,65 @@ server <- function(input, output, session){
     )
   })
   
+
+  
+  
   
   output$modal_content <- renderUI({
     
-    
     tagList(
-      p("Table example to filter:"),
-      
-      uiOutput("example_tab"),
-      
-      actionButton("run_example", "Run Example"))
+      actionButton("run_example", "Run Example"),
+      dataTableOutput("example_tab")
+    )
     
   })
   
-  
-  output$example_tab <- renderUI({
+ 
+  index <- eventReactive(input$run_example, {
     
     switch(input$ChooseFilters,
            None = {
-             index <- NULL
+             ind <- NULL
            },
            EmptyLines = {
-             index <- 7
+             ind <- 7
            },
            WholeMatrix = { switch(input$seuilNA,
-                                  "0" = { index <- NULL },
-                                  "1" = { index <- 7 },
-                                  "2" = { index <- c(6,7) },
-                                  "3" = { index <- c(5:7,10) },
-                                  "4" = { index <- c(4:7,9,10) },
-                                  "5" = { index <- c(3:10)},
-                                  "6" = { index <- c(2:10)}
+                                  "0" = { ind <- NULL },
+                                  "1" = { ind <- 7 },
+                                  "2" = { ind <- c(6,7) },
+                                  "3" = { ind <- c(5:7,10) },
+                                  "4" = { ind <- c(4:7,9,10) },
+                                  "5" = { ind <- c(3:10)},
+                                  "6" = { ind <- c(2:10)}
            )},
            AllCond = { switch(input$seuilNA,
-                              "0" = { index <- NULL },
-                              "1" = { index <- c(4:7) },
-                              "2" = { index <- c(3:7,9,10) },
-                              "3" = { index <- c(2:10) }
+                              "0" = { ind <- NULL },
+                              "1" = { ind <- c(4:7) },
+                              "2" = { ind <- c(3:7,9,10) },
+                              "3" = { ind <- c(2:10) }
            )},
            AtLeastOneCond = { switch(input$seuilNA,
-                                     "0" = { index <- NULL },
-                                     "1" = { index <- 7 },
-                                     "2" = { index <- c(6,7,10) },
-                                     "3" = { index <- c(5:10) }
+                                     "0" = { ind <- NULL },
+                                     "1" = { ind <- 7 },
+                                     "2" = { ind <- c(6,7,10) },
+                                     "3" = { ind <- c(5:10) }
            )}
     )
+  })
+  
+  
 
-    dt <- plop
+  output$example_tab <- DT::renderDataTable({
+    req(input$run_example)
+    print("index")
+    print(index())
     
-    if (!is.null(index)){
-      #Warning: Error in if: l'argument est de longueur nulle
+    
+    
+    if (!is.null(index())){
       
-      DT::datatable(dt,
+      DT::datatable(plop,
                     options = list(
                       paging = FALSE,
                       searching = FALSE)) %>%
@@ -203,24 +161,58 @@ server <- function(input, output, session){
           columns = 1,
           valueColumns = 0,
           target = 'row',
-          backgroundColor = styleEqual(index, rep('grey', length(index)) )
+          backgroundColor = styleEqual(index(), rep('grey', length(index())) )
         )
     } else {
       p('No filtering with these parameters.')
       
-      #Warning: Error in if: l'argument est de longueur nulle
-      
-      DT::datatable(dt,
+      DT::datatable(plop,
                     options = list(
                       paging = FALSE,
                       searching = FALSE)
-      )
+                    
+      )              
     }
-    
   })
   
   
+  
+  
+  # output$methodInformation <- renderText({
+  #   
+  #   switch(input$ChooseFilters,
+  #          None = {
+  #            txt <- "No lines are removed."
+  #          },
+  #          EmptyLines = {
+  #            txt <- "Lines with only NAs are removed."
+  #          },
+  #          WholeMatrix = {
+  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
+  #            else{txt <- paste("Lines containing at least",
+  #                              input$seuilNA,
+  #                              "quantitative values per row are kept.")}
+  #          },
+  #          AllCond = {
+  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
+  #            else{txt <- paste("Lines containing at least",
+  #                              input$seuilNA,
+  #                              "quantitative values per row, in all condition, are kept.")}
+  #          },
+  #          AtLeastOneCond = {
+  #            if(input$seuilNA=="0"){txt <- "No lines are removed."}
+  #            else{txt <- paste("Lines containing at least",
+  #                              input$seuilNA,
+  #                              "quantitative values per row, in at least one condition, are kept.")}
+  #          }
+  #   )
+  #   txt
+  # })
+  
+  
+  
   # output$buildFiltrationExample <- DT::renderDataTable({
+  #   
   #   ################################################################
   #   # A1 A2 A3 B1 B2 B3
   #   # 1   1  1  1  1  1  1
@@ -245,6 +237,8 @@ server <- function(input, output, session){
   #   # Example with method=WholeMatrix/th=3 <=> at least 3 quanti values by entire row
   #   # index <- c(5,6,7,10)
   #   ################################################################
+  #   
+  #   
   #   switch(input$ChooseFilters,
   #          None = {
   #            index <- NULL
