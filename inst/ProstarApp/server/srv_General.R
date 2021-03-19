@@ -380,14 +380,21 @@ createPNGFromWidget <- function(tempplot, pattern){
 resetModuleProcess <- function(moduleName){
   
   switch (moduleName,
-          Filtering ={rv$widgets$filtering <- list(ChooseFilters = "None",
-                                                   seuilNA = 0,
-                                                   seuilNA_percent = 0,
+          Filtering ={rv$widgets$filtering <- list(MetacellTag = "None",
+                                                   MetacellFilters = "None",
+                                                   KeepRemove = 'delete',
+                                                   metacell_value_th = 0,
+                                                   metacell_value_percent = 0,
                                                    val_vs_percent = 'Value',
-                                                   ChooseFilters.byMSMS = "None",
-                                                   seuil.byMSMS = 0,
-                                                   seuil_percent.byMSMS = 0,
-                                                   val_vs_percent.byMSMS = 'Value',
+                                                   metacellFilter_operator = NULL,
+                                                   metacell_Filter_SummaryDT = data.frame(Label=NULL,
+                                                                                          Remove=NULL,
+                                                                                          Condition=NULL,#condition
+                                                                                          Threshold=NULL,#operator+th
+                                                                                          nbDeleted=NULL,#nb line removed
+                                                                                          Total=NULL,# sum of lines deleted multiple filters
+                                                                                          stringsAsFactors=F),
+
                                                    DT_filterSummary = data.frame(Filter=NULL, 
                                                                                  Prefix=NULL,
                                                                                  nbDeleted=NULL, 
@@ -400,14 +407,15 @@ resetModuleProcess <- function(moduleName){
                                                                                     stringsAsFactors=F)
           )
           
-          updateSelectInput(session, "ChooseFilters", selected = rv$widgets$filtering$ChooseFilters)
-          updateSelectInput(session, "seuilNA", selected = rv$widgets$filtering$seuilNA)
-          updateNumericInput(session, "seuilNA_percent", value = rv$widgets$filtering$seuilNA_percent)
-          updateRadioButtons(session, "val_vs_percent", selected = rv$widgets$filtering$val_vs_percent)
-          updateSelectInput(session, "ChooseFilters.byMSMS", selected = rv$widgets$filtering$ChooseFilters.byMSMS)
-          updateSelectInput(session, "seuil.byMSMS", selected = rv$widgets$filtering$seuil.byMSMS)
-          updateNumericInput(session, "seuil_percent.byMSMS", value = rv$widgets$filtering$seuil_percent.byMSMS)
-          updateRadioButtons(session, "val_vs_percent.byMSMS", selected = rv$widgets$filtering$val_vs_percent.byMSMS)
+          updateSelectInput(session, "ChooseMetacellFilters", selected = rv$widgets$filtering$MetacellFilters)
+          updateSelectInput(session, "chooseMetacellTag", selected = rv$widgets$filtering$MetacellTag)
+          updateSelectInput(session, "choose_metacell_value_th", selected = rv$widgets$filtering$metacell_value_th)
+          updateNumericInput(session, "choose_metacell_percent_th", value = rv$widgets$filtering$metacell_value_percent)
+          updateRadioButtons(session, "choose_val_vs_percent", selected = rv$widgets$filtering$val_vs_percent)
+          updateRadioButtons(session, "ChooseKeepRemove", selected = rv$widgets$filtering$KeepRemove)
+          
+          updateSelectInput(session, "choose_metacellFilter_operator", selected = rv$widgets$filtering$metacellFilter_operator)
+          
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
                                               stepsNames = c("Metacell Removal", "String-based Removal","Numerical Removal", "Summary", "Validate"),
@@ -775,7 +783,7 @@ ClearMemory <- function(){
   rv$dataset = list()
   rv$current.obj = NULL
   rv$current.obj.name = NULL
-  rv$deleted.mvLines = NULL
+  rv$deleted.metacell = NULL
   rv$deleted.stringBased.exprsData = NULL
   rv$deleted.stringBased.fData = NULL
   rv$deleted.stringBased = NULL
@@ -916,7 +924,7 @@ rv <- reactiveValues(
   current.comp = NULL,
   current.obj = NULL,
   current.obj.name = NULL,
-  deleted.mvLines = NULL,
+  deleted.metacell = NULL,
   deleted.stringBased.exprsData = NULL,
   deleted.stringBased.fData = NULL,
   deleted.stringBased = NULL,
@@ -974,7 +982,15 @@ rv <- reactiveValues(
                                                       Condition=NULL,
                                                       nbDeleted=NULL, 
                                                       Total=NULL, 
-                                                      stringsAsFactors=F)
+                                                      stringsAsFactors=F),
+                     metacell_Filter_SummaryDT <- data.frame(Label=NULL,
+                                                             Remove=NULL,
+                                                             Condition=NULL,#condition
+                                                             Threshold=NULL,#operator+th
+                                                             nbDeleted=NULL,#nb line removed
+                                                             Total=NULL,# sum of lines deleted multiple filters
+                                                             stringsAsFactors=F)
+                     
     ),
     normalization=list(method = "None",
                        type = "None",

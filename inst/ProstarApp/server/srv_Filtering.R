@@ -11,30 +11,22 @@ resetModuleFiltering <- reactive({
   ## update rv$widgets values (reactive values)
   resetModuleProcess("Filtering")
   
+ 
+  rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL,
+                                                      Prefix=NULL,
+                                                      nbDeleted=NULL,
+                                                      Total=NULL,
+                                                      stringsAsFactors=F)
+  rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter=NULL,
+                                                         Condition=NULL,
+                                                         nbDeleted=NULL,
+                                                         Total=NULL,
+                                                         stringsAsFactors=F)
+
   
-  # rv$widgets$filtering$ChooseFilters <- "None"
-  # rv$widgets$filtering$seuilNA <- 0
-  # rv$widgets$filtering$seuilNA_percent <- 0
-  # rv$widgets$filtering$val_vs_percent <- 'Value'
-  # rv$widgets$filtering$DT_filterSummary <- data.frame(Filter=NULL,
-  #                                                     Prefix=NULL,
-  #                                                     nbDeleted=NULL,
-  #                                                     Total=NULL,
-  #                                                     stringsAsFactors=F)
-  # rv$widgets$filtering$DT_numfilterSummary <- data.frame(Filter=NULL,
-  #                                                        Condition=NULL,
-  #                                                        nbDeleted=NULL,
-  #                                                        Total=NULL,
-  #                                                        stringsAsFactors=F)
-  # 
-  # rv$widgets$filtering$ChooseFilters_byMSMS <- "None"
-  # rv$widgets$filtering$seuil_byMSMS <- 0
-  # rv$widgets$filtering$seuil_percent_byMSMS <- 0
-  # rv$widgets$filtering$val_vs_percent_byMSMS <- 'Value'
-  
-  rv$widgets$filtering$MetacellTag <- metacell.def(rv$current.obj@experimentData@other$typeOfData)['missing']
+  rv$widgets$filtering$MetacellTag <- "None"
   rv$widgets$filtering$MetacellFilters <- "None"
-  rv$widgets$filtering$KeepRemove <- 'Remove'
+  rv$widgets$filtering$KeepRemove <- 'delete'
   rv$widgets$filtering$metacell_value_th <- 0
   rv$widgets$filtering$metacell_value_percent <- 0
   rv$widgets$filtering$val_vs_percent <- 'Value'
@@ -119,22 +111,7 @@ output$screenFiltering1 <- renderUI({
         
         tags$hr(style="border-top: 3px double black;"),
         
-        ################## Initial section ###################################
-        # tags$div(
-        # div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-        #     modulePopoverUI("modulePopover_Help_NA_Filtering"),
-        #     selectInput("ChooseFilters","",
-        #                 choices = gFiltersList,
-        #                 selected=rv$widgets$filtering$ChooseFilters,
-        #                 width='200px')
-        #     
-        # ),
-        # div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-        #      uiOutput("seuilNADelete")
-        # ),
-        # div( style="display:inline-block; vertical-align: middle;",
-        #      actionButton("perform.filtering.MV", "Perform MV filtering", class = actionBtnClass)
-        # ),
+       
         hr(),
         ################## PLots section ###################################
         mod_plots_mv_histo_ui("MVPlots_filtering")
@@ -178,7 +155,7 @@ output$Choose_keepOrRemove_ui <- renderUI({
   #               " data.")
   radioButtons("ChooseKeepRemove",
                "Type of filter operation",
-               choices = setNames(nm = c("Remove", "Keep")),
+               choices = setNames(nm = c("delete", "keep")),
                selected = rv$widgets$filtering$KeepRemove)
   
 })
@@ -202,7 +179,7 @@ output$MetacellFilters_widgets_set2_ui <- renderUI({
     column(4,
            selectInput("choose_metacellFilter_operator",
                        "Choose operator",
-                       choices = setNames(nm=c('<=','<', '>=', '>', '=', '!=')),
+                       choices = setNames(nm=DAPAR::SymFilteringOperators()),
                        selected = rv$widgets$filtering$metacellFilter_operator,
                        width='150px')
            ),
@@ -309,7 +286,7 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   rv$widgets$filtering$val_vs_percent
   rv$widgets$filtering$metacellFilter_operator
   
-  browser()
+ 
   th <- NULL
   if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
     th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
@@ -318,21 +295,46 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   }
   
   
-  keepThat <- DAPAR::filterGetIndices(obj = rv$current.obj,
-                                      metacell = rv$widgets$filtering$MetacellTag,
-                                      remove = rv$widgets$filtering$KeepRemove == 'Remove',
-                                      condition = rv$widgets$filtering$MetacellFilters,
-                                      percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
-                                      operator = rv$widgets$filtering$metacellFilter_operator,
-                                      threshold = th)
+  level <- rv$current.obj@experimentData@other$typeOfData
+  pattern <- rv$widgets$filtering$MetacellTag
+  type <- rv$widgets$filtering$MetacellFilters
+  percent <- rv$widgets$filtering$val_vs_percent == 'Percentage'
+  op <- rv$widgets$filtering$metacellFilter_operator
+  conds <-  Biobase::pData(rv$current.obj)$Condition
   
-  if (!is.null(keepThat)) {
-    rv$metacellDeletedLines <- rv$current.obj[-keepThat]
-    rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-                                          keepThat,
-                                          GetFilterText(rv$widgets$filtering$MetacellFilters,
-                                                        th)
-    )
+  mask <- match.metacell(metadata=GetMetacell(rv$current.obj), 
+                                  pattern=pattern, 
+                                  level=level)
+
+  indices <- switch(rv$widgets$filtering$MetacellFilters,
+                    WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
+                                                         op = op, 
+                                                         percent = percentt, 
+                                                         th = th),
+                    WholeLine = GetIndices_WholeLine(metacell.mask = mask),
+                    AllCond = GetIndices_OnConditions(metacell.mask = mask, 
+                                                      type = type, 
+                                                      conds = conds, 
+                                                      percent = percentt, 
+                                                      op = op, 
+                                                      th = th),
+                    AtLeastOneCond = GetIndices_OnConditions(metacell.mask = mask, 
+                                                             type = type,
+                                                             conds = conds, 
+                                                             percent = percent,
+                                                             op = op, 
+                                                             th = th)
+  )
+
+  browser()
+  if (!is.null(indices)) {
+    if (rv$widgets$filtering$KeepRemove == 'delete'){
+      rv$deleted.metacell <- rv$current.obj[indices]
+      rv$current.obj <- rv$current.obj[-indices]
+    } else { 
+      rv$deleted.metacell <- rv$current.obj[-indices]
+      rv$current.obj <- rv$current.obj[indices]
+    }
   }
   
   
@@ -340,40 +342,26 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   
   if (rv$widgets$filtering$MetacellFilters == "WholeLine") {
     df <- data.frame(Label = rv$widgets$filtering$MetacellTag,
-                     Remove = rv$widgets$filtering$KeepRemove == 'Remove',
+                     Remove = rv$widgets$filtering$KeepRemove == 'delete',
                      Condition = rv$widgets$filtering$MetacellFilters,
                      Threshold ='** \'-\' or \'== 100%\'? **',
-                     nbDeleted = nrow(rv$metacellDeletedLines),
+                     nbDeleted = nrow(rv$deleted.metacell),
                      Total = nrow(rv$current.obj))
   } else {
     df <- data.frame(Label = rv$widgets$filtering$MetacellTag,
-                     Remove = rv$widgets$filtering$KeepRemove == 'Remove',
+                     Remove = rv$widgets$filtering$KeepRemove == 'delete',
                      Condition = rv$widgets$filtering$MetacellFilters,
                      Threshold = paste(rv$widgets$filtering$metacellFilter_operator,
                                      if (rv$widgets$filtering$val_vs_percent == 'Percentage') {paste0(th*100,"%")}
                                      else {th}
                                      ),
-                     nbDeleted = nrow(rv$metacellDeletedLines),
+                     nbDeleted = nrow(rv$deleted.metacell),
                      Total = nrow(rv$current.obj))
   }
   rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(rv$widgets$filtering$metacell_Filter_SummaryDT , df)
   
 })
 
-
-
-
-# output$temp.ObserverMVFilteringDone_ui <- renderUI({
-#   req(rv$metacellDeletedLines)
-#   
-#   n <- 0
-#   if(!is.null(rv$metacellDeletedLines)){n <- nrow(rv$metacellDeletedLines)}
-#   if (!rvModProcess$moduleFilteringDone[1])
-#   {return(NULL)  }
-#   else {
-#     h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
-#   }
-# })
 
 
 output$metacell_Filter_SummaryDT <- DT::renderDataTable(server=TRUE,{
@@ -449,488 +437,6 @@ observeEvent(input$choose_metacellFilter_operator,{
 
 
 
-# Commented by SW 19/03/2021
-# #########################################################
-# ##' Show the widget (slider input) for filtering
-# ##' @author Samuel Wieczorek
-# output$seuilNADelete <- renderUI({
-#   req(rv$widgets$filtering$ChooseFilters)
-#   
-#   if ((rv$widgets$filtering$ChooseFilters=="None") || (rv$widgets$filtering$ChooseFilters==gFilterEmptyLines)) {
-#     return(NULL)   
-#   }
-#   
-#   tagList(
-#     shinyjs::useShinyjs(),
-#     radioButtons('val_vs_percent', '#/% of values to keep', 
-#                  choices = c('Value'='Value', 'Percentage'='Percentage'),
-#                  selected = rv$widgets$filtering$val_vs_percent
-#     ),
-#     
-#     uiOutput('keepVal_ui'),
-#     uiOutput('keepVal_percent_ui'),
-#     uiOutput('keep_helptext')
-#   )
-# })
-
-# Commented by SW 19/03/2021
-# output$keepVal_ui <- renderUI({
-#   req(rv$widgets$filtering$val_vs_percent)
-#   if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
-#   if (rv$widgets$filtering$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
-#   #browser()
-#   tagList(
-#     modulePopoverUI("modulePopover_keepVal"),
-#     selectInput("seuilNA", NULL,
-#                 choices =  getListNbValuesInLines(rv$current.obj, 
-#                                                   type=rv$widgets$filtering$ChooseFilters),
-#                 selected = rv$widgets$filtering$seuilNA,
-#                 width='150px')
-#   )
-# })
-
-
-
-# Commented by SW 19/03/2021
-# output$keepVal_percent_ui <- renderUI({
-#   req(rv$widgets$filtering$val_vs_percent)
-#   if (rv$widgets$filtering$val_vs_percent != 'Percentage') {return(NULL)}
-#   
-#   tagList(
-#     modulePopoverUI("modulePopover_keepVal_percent"),
-#     numericInput("seuilNA_percent", NULL,
-#                  min = 0,
-#                  max = 100,
-#                  value = rv$widgets$filtering$seuilNA_percent,
-#                  width='150px')
-#   )
-# })
-
-
-# Commented by SW 19/03/2021
-# output$keep_helptext <- renderUI({
-#   rv$widgets$filtering$ChooseFilters
-#   txt <- NULL
-#   switch(rv$widgets$filtering$ChooseFilters,
-#          None = txt <-"All lines will be kept",
-#          EmptyLines = txt <-"All lines containing only missing values are removed.",
-#          WholeMatrix = {
-#            if (rv$widgets$filtering$val_vs_percent == 'Value')
-#              txt <- paste0("Only the lines (across all conditions) which contain at least ",
-#                            rv$widgets$filtering$seuilNA, 
-#                            " quantitative value are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-#              txt <- paste0("The lines (across all conditions) which contain at least ",
-#                            rv$widgets$filtering$seuilNA_percent, 
-#                            "% of quantitative value are kept.")
-#          },
-#          AtLeastOneCond = {
-#            if (rv$widgets$filtering$val_vs_percent == 'Value')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuilNA, 
-#                            " quantitative value in at least one condition, are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuilNA_percent, 
-#                            "% of quantitative value in at least one condition, are kept.")
-#          },
-#          AllCond = {
-#            if (rv$widgets$filtering$val_vs_percent == 'Value')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuilNA, 
-#                            " quantitative value in each condition are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuilNA_percent, 
-#                            "% of quantitative value in each condition are kept.")
-#          }
-#   )
-#   tagList(
-#     tags$p(txt)
-#   )
-# })
-
-
-
-
-# Commented by SW 19/03/2021
-# observeEvent(input$val_vs_percent, {
-#   
-#   rv$widgets$filtering$val_vs_percent <- input$val_vs_percent
-#   #shinyjs::toggle('keepVal', condition = rv$widgets$filtering$val_vs_percent == 'Value')
-#   #shinyjs::toggle('keepVal_percent', condition = rv$widgets$filtering$val_vs_percent == 'Percentage')
-# })
-
-
-
-# Commented by SW 19/03/2021
-# observeEvent(input$ChooseFilters,{
-#   rv$widgets$filtering$ChooseFilters <- input$ChooseFilters
-# })
-
-# Commented by SW 19/03/2021
-# observeEvent(input$seuilNA, ignoreNULL = TRUE, ignoreInit = TRUE, {
-#   rv$widgets$filtering$seuilNA <- input$seuilNA
-# })
-
-
-# Commented by SW 19/03/2021
-# observeEvent(input$seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
-#   rv$widgets$filtering$seuilNA_percent <- input$seuilNA_percent
-# })
-
-
-# Commented by SW 19/03/2021
-## Perform missing values filtering
-# observeEvent(input$perform.filtering.MV, ignoreInit=TRUE,{
-#   rv$widgets$filtering$ChooseFilters
-#   rv$widgets$filtering$seuilNA
-#   rv$widgets$filtering$seuilNA_percent
-#   rv$widgets$filtering$val_vs_percent
-#   
-#   
-#   if (rv$widgets$filtering$ChooseFilters == gFilterNone){
-#     #rv$current.obj <- rv$dataset[[input$datasets]]
-#   } else {
-#     
-#     th <- NULL
-#     if (rv$widgets$filtering$val_vs_percent == 'Percentage')
-#       th <- as.numeric(rv$widgets$filtering$seuilNA_percent)/100
-#     else
-#       th <-  as.integer(rv$widgets$filtering$seuilNA)
-#     
-#     keepThat <- mvFilterGetIndices(obj = rv$current.obj,
-#                                    percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
-#                                    condition = rv$widgets$filtering$ChooseFilters,
-#                                    threshold = th)
-#     
-#     if (!is.null(keepThat))
-#     {
-#       rv$deleted.mvLines <- rv$current.obj[-keepThat]
-#       rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-#                                             keepThat,
-#                                             GetFilterText(rv$widgets$filtering$ChooseFilters, 
-#                                                           th)
-#       )
-#     }
-#   }
-#   
-#   rvModProcess$moduleFilteringDone[1] <- TRUE
-#   #updateSelectInput(session, "ChooseFilters", selected = input$ChooseFilters)
-#   #updateSelectInput(session, "seuilNA", selected = input$seuilNA)
-# })
-
-
-# Commented by SW 19/03/2021
-# output$ObserverMVFilteringDone <- renderUI({
-#   req(rv$deleted.mvLines)
-#   #isolate({
-#   
-#   n <- 0
-#   if(!is.null(rv$deleted.mvLines)){n <- nrow(rv$deleted.mvLines)}
-#   if (!rvModProcess$moduleFilteringDone[1])
-#   {return(NULL)  }
-#   else {
-#     h5(paste0("Missing values filtering done. ",n, " lines were deleted."))
-#   }
-#   
-#   # })
-# })
-
-# switch(rv$widgets$filtering$val_vs_percent,
-#        Value = {
-#          keepThat <- mvFilterGetIndices(rv$current.obj,
-#                                         rv$widgets$filtering$ChooseFilters,
-#                                         as.integer(rv$widgets$filtering$seuilNA))
-#          if (!is.null(keepThat))
-#          {
-#            rv$deleted.mvLines <- rv$current.obj[-keepThat]
-#            rv$current.obj <- mvFilterFromIndices(rv$current.obj,
-#                                                  keepThat,
-#                                                  GetFilterText(rv$widgets$filtering$ChooseFilters, as.integer(input$seuilNA)))
-#          }
-#        },
-#        Percentage = {
-#          rv$current.obj <- filterByProportion(obj = rv$current.obj,
-#                                               intensities_proportion = as.numeric(rv$widgets$filtering$seuilNA_percent)/100,
-#                                               mode = rv$widgets$filtering$ChooseFilters
-#          )
-#          
-#        }
-#        
-# )
-#   }
-#   r
-# })
-
-
-# Commented by SW 19/03/2021
-#########################################################
-##' Show the widget for filters
-##' @author Samuel Wieczorek
-# output$choixFiltres <- renderUI({
-#   req(input$file)
-#   radioButtons("ChooseFilters","Filtering options",choices = gFiltersList)
-#   
-# })
-
-
-
-#########################################################################################
-##
-##                    SCREEN xxx - valeurs d'abondance par 'MS/MS'
-## 
-###########################################################################################
-
-# output$screenFilteringxxx <- renderUI({
-#   
-#   isolate({
-#     tagList(
-#       div(
-#         id = "screenxxxFiltering",
-#         uiOutput("warning_byMSMS"),
-#         div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-#              modulePopoverUI("modulePopover_Help_Filtering_byMSMS"),
-#              selectInput("ChooseFilters_byMSMS","",
-#                          choices = gFiltersList,
-#                          selected=rv$widgets$filtering$ChooseFilters_byMSMS,
-#                          width='200px')
-#              
-#         ),
-#         div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-#              uiOutput("seuilDelete_byMSMS")
-#         ),
-#         div( style="display:inline-block; vertical-align: middle;",
-#              actionButton("perform.filtering_byMSMS", "Perform Identification filtering", class = actionBtnClass)
-#         ),
-#         hr(),
-#         mod_plots_mv_histo_ui("MVPlots_filtering_byMSMS"),
-#         uiOutput("ObserverMVFilteringDone_byMSMS")
-#       )
-#       
-#     )
-#   })
-#   
-# })
-# 
-# 
-# callModule(mod_plots_mv_histo_server, "MVPlots_filtering_byMSMS", 
-#            data = reactive({rv$current.obj}),
-#            pal = reactive({rv$PlotParams$paletteForConditions})
-# )
-# 
-# callModule(modulePopover,"modulePopover_Help_Filtering_byMSMS", 
-#            data = reactive(list(title = HTML("<strong>Type</strong>"),
-#                                 content= HTML(paste0("To filter the features according to their identification method (by MS/MS), the choice of the lines to be kept is made by different options:"),
-#                                               ("<ul>"),
-#                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-#                                               ("<li><strong>(Remove) Empty lines</strong>: All the lines with no &quotby MS/MS&quot value are removed.</li>"),
-#                                               ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less &quotby MS/MS&quot value than a user-defined threshold are kept;</li>"),
-#                                               ("<li><strong>For every condition</strong>: The lines for which each condition contain less &quotby MS/MS&quot value than a user-defined threshold are deleted;</li>"),
-#                                               ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less &quotby MS/MS&quot value than a user-defined threshold are deleted.</li>"),
-#                                               ("</ul>")
-#                                 )
-#            )
-#            )
-# )
-# 
-# 
-# output$warning_byMSMS <- renderUI({
-#   
-#   fData <- fData(rv$current.obj)[,rv$current.obj@experimentData@other$OriginOfValues]
-#   IdentificationData <- fData[DAPAR::is.byMSMS(fData)]
-#   
-#   if(length(IdentificationData) == 0){
-#     txt <- paste0("Warning ! Your dataset contains no 'by MS/MS' values. 
-#                   If you filter the lines without 'by MS/MS', your dataset will be blank.")
-#     div(style="display:inline-block; vertical-align: middle; padding-right: 40px;",
-#         tagList(
-#           tags$p(txt, style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
-#         ))
-#   }
-# })
-# 
-# 
-# output$seuilDelete_byMSMS <- renderUI({
-#   req(rv$widgets$filtering$ChooseFilters_byMSMS)
-#   
-#   if ((rv$widgets$filtering$ChooseFilters_byMSMS=="None") || (rv$widgets$filtering$ChooseFilters_byMSMS==gFilterEmptyLines)) {
-#     return(NULL)   
-#   }
-#   
-#   tagList(
-#     shinyjs::useShinyjs(),
-#     radioButtons('val_vs_percent_byMSMS', '#/% of values to keep', 
-#                  choices = c('Value'='Value', 'Percentage'='Percentage'),
-#                  selected = rv$widgets$filtering$val_vs_percent_byMSMS
-#     ),
-#     
-#     uiOutput('keepVal_ui_byMSMS'),
-#     uiOutput('keepVal_percent_ui_byMSMS'),
-#     uiOutput('keep_helptext_byMSMS')
-#   )
-# })
-# 
-# 
-# 
-# output$keepVal_ui_byMSMS <- renderUI({
-#   req(rv$widgets$filtering$val_vs_percent_byMSMS)
-#   if (rv$widgets$filtering$val_vs_percent_byMSMS != 'Value') {return(NULL)}
-#   if (rv$widgets$filtering$ChooseFilters_byMSMS %in% c('None', 'Emptylines')) {return(NULL)}
-#   tagList(
-#     modulePopoverUI("modulePopover_keepVal_byMSMS"),
-#     selectInput("seuil_byMSMS", NULL,
-#                 choices =  getListNbValuesInLines(rv$current.obj, 
-#                                                   type=rv$widgets$filtering$ChooseFilters_byMSMS),
-#                 selected = rv$widgets$filtering$seuil_byMSMS,
-#                 width='150px')
-#   )
-# })
-# 
-# output$keepVal_percent_ui_byMSMS <- renderUI({
-#   req(rv$widgets$filtering$val_vs_percent_byMSMS)
-#   if (rv$widgets$filtering$val_vs_percent_byMSMS != 'Percentage') {return(NULL)}
-#   
-#   tagList(
-#     modulePopoverUI("modulePopover_keepVal_percent_byMSMS"),
-#     numericInput("seuil_percent_byMSMS", NULL,
-#                  min = 0,
-#                  max = 100,
-#                  value = rv$widgets$filtering$seuil_percent_byMSMS,
-#                  width='150px')
-#   )
-# })
-# 
-# 
-# 
-# output$keep_helptext_byMSMS <- renderUI({
-#   rv$widgets$filtering$ChooseFilters_byMSMS
-#   txt <- NULL
-#   switch(rv$widgets$filtering$ChooseFilters_byMSMS,
-#          None = txt <-"All lines will be kept",
-#          EmptyLines = txt <-"All lines containing 'by MS/MS' are removed.",
-#          WholeMatrix = {
-#            if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Value')
-#              txt <- paste0("Only the lines (across all conditions) which contain at least ",
-#                            rv$widgets$filtering$seuil_byMSMS, 
-#                            " 'by MS/MS' value are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Percentage')
-#              txt <- paste0("The lines (across all conditions) which contain at least ",
-#                            rv$widgets$filtering$seuil_percent_byMSMS, 
-#                            "% of 'by MS/MS' value are kept.")
-#          },
-#          AtLeastOneCond = {
-#            if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Value')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuil_byMSMS, 
-#                            " 'by MS/MS' value in at least one condition, are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Percentage')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuil_percent_byMSMS, 
-#                            "% of 'by MS/MS' value in at least one condition, are kept.")
-#          },
-#          AllCond = {
-#            if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Value')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuil_byMSMS, 
-#                            " 'by MS/MS' value in each condition are kept.")
-#            else if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Percentage')
-#              txt <- paste0("The lines which contain at least ",
-#                            rv$widgets$filtering$seuil_percent_byMSMS, 
-#                            "% of 'by MS/MS' value in each condition are kept.")
-#          }
-#   )
-#   tagList(
-#     tags$p(txt)
-#   )
-# })
-# 
-# 
-# observeEvent(input$val_vs_percent_byMSMS, {
-#   
-#   rv$widgets$filtering$val_vs_percent_byMSMS <- input$val_vs_percent_byMSMS
-# })
-# 
-# 
-# 
-# observeEvent(input$ChooseFilters_byMSMS,{
-#   rv$widgets$filtering$ChooseFilters_byMSMS <- input$ChooseFilters_byMSMS
-# })
-# 
-# observeEvent(input$seuil_byMSMS, ignoreNULL = TRUE, ignoreInit = TRUE, {
-#   rv$widgets$filtering$seuil_byMSMS <- input$seuil_byMSMS
-# })
-# 
-# observeEvent(input$seuil_percent_byMSMS, ignoreNULL = TRUE, ignoreInit = TRUE, {
-#   rv$widgets$filtering$seuil_percent_byMSMS <- input$seuil_percent_byMSMS
-# })
-# 
-# 
-# ## Perform missing values filtering
-# observeEvent(input$perform.filtering_byMSMS, ignoreInit=TRUE,{
-#   rv$widgets$filtering$ChooseFilters_byMSMS
-#   rv$widgets$filtering$seuil_byMSMS
-#   rv$widgets$filtering$seuil_percent_byMSMS
-#   rv$widgets$filtering$val_vs_percent_byMSMS
-#   
-#   
-#   if (rv$widgets$filtering$ChooseFilters_byMSMS == gFilterNone){
-#     #rv$current.obj <- rv$dataset[[input$datasets]]
-#   } else {
-#     
-#     th <- NULL
-#     if (rv$widgets$filtering$val_vs_percent_byMSMS == 'Percentage')
-#       th <- as.numeric(rv$widgets$filtering$seuil_percent_byMSMS)/100
-#     else
-#       th <-  as.integer(rv$widgets$filtering$seuil_byMSMS)
-#     
-#     keepThat <- DAPAR::mvFilterGetIndices_Marianne(obj = rv$current.obj,
-#                                                    percent = rv$widgets$filtering$val_vs_percent_byMSMS == 'Percentage',
-#                                                    condition = rv$widgets$filtering$ChooseFilters_byMSMS,
-#                                                    threshold = th)
-#     
-#     
-#     if (length(keepThat) != 0) {
-#       rv$deleted.byMSMSLines <- rv$current.obj[-keepThat]
-#       rv$current.obj <- mvFilterFromIndices(obj = rv$current.obj,
-#                                             keepThat = keepThat,
-#                                             processText = GetFilterText(rv$widgets$filtering$ChooseFilters_byMSMS, th)
-#       )
-#     } else {
-#       browser()
-#       rv$deleted.byMSMSLines <- rv$current.obj
-#       rv$current.obj <- rv$current.obj[-(1:nrow(rv$current.obj))]
-#     }
-#   }
-#   
-#   # browser()
-#   rvModProcess$moduleFilteringDone[2] <- TRUE
-#   
-#   
-# })
-# 
-# output$ObserverMVFilteringDone_byMSMS <- renderUI({
-#   req(rv$deleted.byMSMSLines)
-#   #isolate({
-#   
-#   browser()
-#   
-#   n <- 0
-#   if(!is.null(rv$deleted.byMSMSLines)){n <- nrow(rv$deleted.byMSMSLines)}
-#   if (!rvModProcess$moduleFilteringDone[2]) {
-#     return(NULL)
-#   } else {
-#     if (nrow(rv$current.obj) == 0) {
-#       p("Empty dataset because no 'by MS/MS' information.", style= 'color: red ; font-size: 1.2em ;font-weight: bold ;')
-#     }else{
-#       h5(paste0("Identification filtering done. ",n, " lines were deleted."))
-#     }
-#   }
-#   
-#   # })
-# })
-
-
 
 
 #########################################################################################
@@ -996,6 +502,9 @@ observeEvent(input$actionButtonFilter,{
 })
 
 
+
+
+
 output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
@@ -1045,13 +554,8 @@ output$screenFiltering3 <- renderUI({
       
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                 selectInput("numericFilter_operator", "Operator",
-                            choices = c('None' = '',
-                                        '==' = '==',
-                                        '<=' = '<=',
-                                        '<' = '<',
-                                        '>=' = '>=',
-                                        '>' = '>',
-                                        '!=' = '!='), width='100px')
+                            choices = setNames(nm=DAPAR::SymFilteringOperators()),
+                            width='100px')
       ),
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                 numericInput("numericFilter_value", "Value", value = "", width='100px')
@@ -1173,7 +677,7 @@ output$screenFiltering4 <- renderUI({
       column(width=3,radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
                                   choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))),
       column(width=3,radioButtons("ChooseViewAfterFiltering", "Type of filtered data",
-                                  choices= list("Deleted on missing values" = "MissingValues",
+                                  choices= list("Deleted on metacell" = "Metacell",
                                                 "Deleted string based" = "StringBased",
                                                 "Deleted numeric filter" = "Numerical"),
                                   selected=character(0))),
@@ -1188,13 +692,20 @@ output$screenFiltering4 <- renderUI({
 })
 
 
-
+getDataForMetacellFiltered <- reactive({
+  req(rv$settings_nDigits)
+  rv$deleted.metacell
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),digits=rv$settings_nDigits))
+  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.metacell)
+  )
+  table
+})
 
 getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.numeric)[,rv$deleted.numeric@experimentData@other$OriginOfValues])
+  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.numeric))
   
   table
 })
@@ -1204,112 +715,16 @@ getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.stringBased)[,rv$deleted.stringBased@experimentData@other$OriginOfValues])
+  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.stringBased))
   
   table
-})
-
-
-
-
-
-#########################################################################################
-##
-##                    SCREEN 5
-## 
-###########################################################################################
-
-output$screenFiltering5 <- renderUI({
-  
-  tagList(
-    actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass)
-  )
-})
-
-
-
-#########################################################
-##' Validation of the filters and modification on current object
-##' @author Samuel Wieczorek
-observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
-  
-  isolate({
-    if((rv$widgets$filtering$ChooseFilters != gFilterNone)
-       || (rv$widgets$filtering$ChooseFilters_byMSMS != gFilterNone)
-       || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
-       || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
-      l.params <- build_ParamsList_Filtering()
-      
-      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      name <- paste0("Filtered", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
-      
-      dataOut<- rv$current.obj
-      rvModProcess$moduleFilteringDone[6] <- TRUE
-      
-      if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-        ComputeAdjacencyMatrices()
-        ComputeConnexComposants()
-      }
-      UpdateDatasetWidget(rv$current.obj, name)
-    }
-    rvModProcess$moduleFilteringDone[6] <- TRUE
-  })
-  
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## symbolic filtering event
-
-
-
-
-
-
-
-
-
-
-getDataForMVFiltered <- reactive({
-  req(rv$settings_nDigits)
-  rv$deleted.metacell
-  
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),digits=rv$settings_nDigits))
-  table <- cbind(table, Biobase::fData(rv$deleted.metacell)[,rv$deleted.metacell@experimentData@other$OriginOfValues])
-  
-  table
-})
-
-
-
-
-
-output$legendForExprsData2 <- renderUI({
-  req(input$ChooseTabAfterFiltering)
-  
-  if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-  moduleLegendColoredExprsUI("FilterColorLegend_DS", rv$colorsTypeMV)
-  
 })
 
 
 
 output$Warning_VizualizeFilteredData <- renderUI({
-  if (length(GetDataFor_VizualizeFilteredData())==0){return(NULL)}
+  if (length(GetDataFor_VizualizeFilteredData())==0)
+  {return(NULL)}
   if (nrow(GetDataFor_VizualizeFilteredData())>153) 
     p(MSG_WARNING_SIZE_DT)
   
@@ -1318,7 +733,9 @@ output$Warning_VizualizeFilteredData <- renderUI({
 
 
 GetDataFor_VizualizeFilteredData <- reactive({
-  req(rv$settings_nDigits)
+ # req(rv$settings_nDigits)
+ print('toto')
+  browser()
   rv$deleted.metacell
   req(input$ChooseViewAfterFiltering)
   req(input$ChooseTabAfterFiltering)
@@ -1326,16 +743,13 @@ GetDataFor_VizualizeFilteredData <- reactive({
   rv$deleted.numeric
   #print("DANS REACTIVE : GetDataFor_VizualizeFilteredData")
   
-  
-  
-  
   data <- NULL
-  if ((input$ChooseViewAfterFiltering == "MissingValues") && !is.null(rv$deleted.metacell))
+  if ((input$ChooseViewAfterFiltering == "Metacell") && !is.null(rv$deleted.metacell))
   {
     #print("DANS REACTIVE : If 1")
     #print(dim(getDataForMVFiltered()))
     switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForMVFiltered(),
+           quantiData =  data <- getDataForMetacellFiltered(),
            metaData = data <- cbind(ID = rownames(Biobase::fData(rv$deleted.metacell)), 
                                     Biobase::fData(rv$deleted.metacell))
     )
@@ -1369,7 +783,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   req(GetDataFor_VizualizeFilteredData())
   dt <- NULL
   data <- GetDataFor_VizualizeFilteredData()
-  
+  browser()
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
@@ -1413,6 +827,68 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   dt
   
 })
+
+
+
+#########################################################################################
+##
+##                    SCREEN 5
+## 
+###########################################################################################
+
+output$screenFiltering5 <- renderUI({
+  
+  tagList(
+    actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass)
+  )
+})
+
+
+
+#########################################################
+##' Validation of the filters and modification on current object
+##' @author Samuel Wieczorek
+observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
+  
+  isolate({
+    if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
+       || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
+       || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
+      l.params <- build_ParamsList_Filtering()
+      
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+      name <- paste0("Filtered", ".", rv$typeOfDataset)
+      rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
+      
+      dataOut<- rv$current.obj
+      rvModProcess$moduleFilteringDone[6] <- TRUE
+      
+      if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
+        ComputeAdjacencyMatrices()
+        ComputeConnexComposants()
+      }
+      UpdateDatasetWidget(rv$current.obj, name)
+    }
+    rvModProcess$moduleFilteringDone[6] <- TRUE
+  })
+  
+})
+
+
+
+
+
+
+
+output$legendForExprsData2 <- renderUI({
+  req(input$ChooseTabAfterFiltering)
+  
+  if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
+  moduleLegendColoredExprsUI("FilterColorLegend_DS", rv$colorsTypeMV)
+  
+})
+
+
 
 
 
