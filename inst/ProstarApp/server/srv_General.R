@@ -35,6 +35,47 @@ GetCurrentDatasetName <- reactive({
 
 
 
+BuildColorStyles <- reactive({
+
+  level <- rv$current.obj@experimentData@other$typeOfData
+  list_POV_tags <- search.metacell.tags('POV', level = level)
+  list_MEC_tags <- search.metacell.tags('MEC', level = level)
+  list_Identified_tags <- search.metacell.tags('identified', level = level)
+  list_Recovered_tags <- search.metacell.tags('recovered', level = level)
+  list_Combined_tags <- search.metacell.tags('combined', level = level)
+  
+  styles <- list(tags = NULL,
+                 colors = NULL)
+  
+  if (length(list_POV_tags)>0){
+    styles$tags <- c(styles$tags, list_POV_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$POV, length(list_POV_tags)))
+  }
+  
+  if (length(list_MEC_tags)>0){
+    styles$tags <- c(styles$tags, list_MEC_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$MEC, length(list_MEC_tags)))
+  }
+  
+  if (length(list_Identified_tags)>0){
+    styles$tags <- c(styles$tags, list_Identified_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$identified, length(list_Identified_tags)))
+  }
+  
+  if (length(list_Recovered_tags)>0){
+    styles$tags <- c(styles$tags, list_Recovered_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$recovered, length(list_Recovered_tags)))
+  }
+  
+  
+  if (length(list_Combined_tags)>0){
+    styles$tags <- c(styles$tags, list_Combined_tags)
+    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$combined, length(list_Combined_tags)))
+  }
+  
+  styles
+})
+
 
 
 getDataForExprs <- function(obj){
@@ -387,10 +428,7 @@ resetModuleProcess <- function(moduleName){
                                                    metacell_value_percent = 0,
                                                    val_vs_percent = 'Value',
                                                    metacellFilter_operator = NULL,
-                                                   metacell_Filter_SummaryDT = data.frame(Label=NULL,
-                                                                                          Remove=NULL,
-                                                                                          Condition=NULL,#condition
-                                                                                          Threshold=NULL,#operator+th
+                                                   metacell_Filter_SummaryDT = data.frame(query = NULL,
                                                                                           nbDeleted=NULL,#nb line removed
                                                                                           Total=NULL,# sum of lines deleted multiple filters
                                                                                           stringsAsFactors=F),
@@ -425,7 +463,7 @@ resetModuleProcess <- function(moduleName){
                                                             screenStep3 = uiOutput("screenFiltering3"),
                                                             screenStep4 = uiOutput("screenFiltering4"),
                                                             screenStep5 = uiOutput("screenFiltering5")))
-          rvModProcess$moduleFilteringDone =  rep(FALSE, 5)
+          rvModProcess$moduleFilteringDone =  rep(FALSE, length(rvModProcess$moduleFiltering$stepsNames))
           },
           
           
@@ -983,10 +1021,7 @@ rv <- reactiveValues(
                                                       nbDeleted=NULL, 
                                                       Total=NULL, 
                                                       stringsAsFactors=F),
-                     metacell_Filter_SummaryDT <- data.frame(Label=NULL,
-                                                             Remove=NULL,
-                                                             Condition=NULL,#condition
-                                                             Threshold=NULL,#operator+th
+                     metacell_Filter_SummaryDT <- data.frame(query = NULL,
                                                              nbDeleted=NULL,#nb line removed
                                                              Total=NULL,# sum of lines deleted multiple filters
                                                              stringsAsFactors=F)

@@ -701,7 +701,12 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,table2show, withBtns, showRownames=FALSE, dom='Bt', filename='Prostar_export') {
+moduleStaticDataTable <- function(input, output, session,
+                                  table2show, 
+                                  withBtns, 
+                                  showRownames=FALSE, 
+                                  dom='Bt', 
+                                  filename='Prostar_export') {
   
   
   proxy = dataTableProxy(session$ns('StaticDataTable'), session)

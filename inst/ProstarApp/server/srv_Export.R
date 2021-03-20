@@ -258,7 +258,7 @@ output$downloadReport <- downloadHandler(
   content = function(file) {
     toto()
     filename <- rv$outfile
-    print(filename)
+    #print(filename)
     require(rmarkdown)
     #paramRmd <- list(current.obj=rv$current.obj)
     out <- rmarkdown::render(rv$outfile, 
@@ -292,7 +292,7 @@ BuildParamDataProcessingDT <- reactive({
       df[iData,"Parameters"]<- '-'
     } else {
       
-      
+      browser()
       df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
                                        list(l.params=tmp.params[[iData]][[processName]]))
     }

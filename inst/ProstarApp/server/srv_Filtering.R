@@ -22,7 +22,11 @@ resetModuleFiltering <- reactive({
                                                          nbDeleted=NULL,
                                                          Total=NULL,
                                                          stringsAsFactors=F)
-
+  
+  rv$widgets$filtering$metacell_Filter_SummaryDT <- data.frame(query = NULL,
+                                                               nbDeleted=NULL,#nb line removed
+                                                               Total=NULL,# sum of lines deleted multiple filters
+                                                               stringsAsFactors=F)
   
   rv$widgets$filtering$MetacellTag <- "None"
   rv$widgets$filtering$MetacellFilters <- "None"
@@ -31,13 +35,7 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$metacell_value_percent <- 0
   rv$widgets$filtering$val_vs_percent <- 'Value'
   rv$widgets$filtering$metacellFilter_operator <- '<='
-  rv$widgets$filtering$metacell_Filter_SummaryDT <- data.frame(Label=NULL,
-                                                           Remove=NULL,
-                                                           Condition=NULL,#condition
-                                                           Threshold=NULL,#operator+th
-                                                           nbDeleted=NULL,#nb line removed
-                                                           Total=NULL,# sum of lines deleted multiple filters
-                                                           stringsAsFactors=F)
+  
   
   
   rv$deleted.stringBased <- NULL
@@ -47,7 +45,7 @@ resetModuleFiltering <- reactive({
   rv$deleted.numeric <- NULL
   
   rv$current.obj <- rv$dataset[[input$datasets]]
-  rvModProcess$moduleFilteringDone = rep(FALSE, 6)
+  rvModProcess$moduleFilteringDone = rep(FALSE, length(rvModProcess$moduleFiltering$stepsNames))
   
 })
 
@@ -225,54 +223,46 @@ output$choose_percentage_ui <- renderUI({
 })
 
 
-
-output$metacellFilter_request_ui <- renderUI({
-  ###@ req ? ###
-  
+WriteQuery <- reactive({
   if (rv$widgets$filtering$MetacellFilters == "None"){
-    txt_summary <- "No filtering is processed on your dataset."
+    txt_summary <- "No filtering is processed."
   } else if (rv$widgets$filtering$MetacellFilters == "WholeLine") {
-    txt_summary <- paste("You are going to ",
-                         rv$widgets$filtering$KeepRemove,
+    txt_summary <- paste(rv$widgets$filtering$KeepRemove,
                          "lines that contain only",
-                         rv$widgets$filtering$MetacellTag,
-                         " data.")
+                         rv$widgets$filtering$MetacellTag)
   } else {
-    switch(rv$widgets$filtering$metacellFilter_operator,
-           '<=' = text_operator <- "less or equal than",
-           '<' = text_operator <- "less",
-           '>=' = text_operator <- "greater or equal than ",
-           '>' = text_operator <- "greater than",
-           '==' = text_operator <- "equal",
-           '!=' = text_operator <- "different")
     
     switch(rv$widgets$filtering$MetacellFilters,
-           "WholeMatrix" = text_method <- "all the matrix.",
-           "AllCond" = text_method <- "every condition.",
+           "WholeMatrix" = text_method <- "the whole matrix.",
+           "AllCond" = text_method <- "each condition.",
            "AtLeastOneCond" = text_method <- "at least one condition.")
     
     if(rv$widgets$filtering$val_vs_percent == 'Value'){
       text_threshold <- rv$widgets$filtering$metacell_value_th
     } else {
-      text_threshold <- paste(rv$widgets$filtering$metacell_percent_th*100,
-                              "%", sep="")
+      text_threshold <- paste(100 * rv$widgets$filtering$metacell_percent_th,
+                              " %", sep="")
     }
     
-    txt_summary <- paste("You are going to ",
-                         rv$widgets$filtering$KeepRemove,
+    txt_summary <- paste(rv$widgets$filtering$KeepRemove,
                          " lines where number of ",
                          rv$widgets$filtering$MetacellTag,
-                         " data is ",
-                         text_operator,
-                         " to ",
+                         " data ",
+                         rv$widgets$filtering$metacellFilter_operator,
+                         " ",
                          text_threshold,
                          " in ",
                          text_method)
   }
+  txt_summary
+})
+
+
+output$metacellFilter_request_ui <- renderUI({
+  ###@ req ? ###
   
-  
+  txt_summary <- paste("You are going to ", WriteQuery())
   tags$p(txt_summary, style = "font-size: small; text-align : center; color: purple;")
-  
 })
 
 
@@ -309,13 +299,13 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   indices <- switch(rv$widgets$filtering$MetacellFilters,
                     WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
                                                          op = op, 
-                                                         percent = percentt, 
+                                                         percent = percent, 
                                                          th = th),
                     WholeLine = GetIndices_WholeLine(metacell.mask = mask),
                     AllCond = GetIndices_OnConditions(metacell.mask = mask, 
                                                       type = type, 
                                                       conds = conds, 
-                                                      percent = percentt, 
+                                                      percent = percent, 
                                                       op = op, 
                                                       th = th),
                     AtLeastOneCond = GetIndices_OnConditions(metacell.mask = mask, 
@@ -326,7 +316,7 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
                                                              th = th)
   )
 
-  browser()
+  #browser()
   if (!is.null(indices)) {
     if (rv$widgets$filtering$KeepRemove == 'delete'){
       rv$deleted.metacell <- rv$current.obj[indices]
@@ -340,24 +330,10 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   
   rvModProcess$moduleFilteringDone[1] <- TRUE
   
-  if (rv$widgets$filtering$MetacellFilters == "WholeLine") {
-    df <- data.frame(Label = rv$widgets$filtering$MetacellTag,
-                     Remove = rv$widgets$filtering$KeepRemove == 'delete',
-                     Condition = rv$widgets$filtering$MetacellFilters,
-                     Threshold ='** \'-\' or \'== 100%\'? **',
-                     nbDeleted = nrow(rv$deleted.metacell),
-                     Total = nrow(rv$current.obj))
-  } else {
-    df <- data.frame(Label = rv$widgets$filtering$MetacellTag,
-                     Remove = rv$widgets$filtering$KeepRemove == 'delete',
-                     Condition = rv$widgets$filtering$MetacellFilters,
-                     Threshold = paste(rv$widgets$filtering$metacellFilter_operator,
-                                     if (rv$widgets$filtering$val_vs_percent == 'Percentage') {paste0(th*100,"%")}
-                                     else {th}
-                                     ),
-                     nbDeleted = nrow(rv$deleted.metacell),
-                     Total = nrow(rv$current.obj))
-  }
+  df <- data.frame(query = WriteQuery(),
+                   nbDeleted = nrow(rv$deleted.metacell),
+                   Total = nrow(rv$current.obj))
+
   rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(rv$widgets$filtering$metacell_Filter_SummaryDT , df)
   
 })
@@ -370,10 +346,7 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server=TRUE,{
   isolate({
     
     if (nrow(rv$widgets$filtering$metacell_Filter_SummaryDT )==0){
-      df <- data.frame(Label="-",
-                       Remove="-",
-                       Condition="-",
-                       Threshold="-",
+      df <- data.frame(query="-",
                        nbDeleted=0,
                        Total=nrow(rv$current.obj),
                        stringsAsFactors = FALSE)
@@ -511,7 +484,11 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   isolate({
     
     if (nrow(rv$widgets$filtering$DT_filterSummary )==0){
-      df <- data.frame(Filter="-", Prefix="-", nbDeleted=0, Total=nrow(rv$current.obj), stringsAsFactors = FALSE)
+      df <- data.frame(Filter="-", 
+                       Prefix="-", 
+                       nbDeleted=0, 
+                       Total=nrow(rv$current.obj), 
+                       stringsAsFactors = FALSE)
       #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
       rv$widgets$filtering$DT_filterSummary <- df
     }
@@ -733,15 +710,12 @@ output$Warning_VizualizeFilteredData <- renderUI({
 
 
 GetDataFor_VizualizeFilteredData <- reactive({
- # req(rv$settings_nDigits)
- print('toto')
-  browser()
+
   rv$deleted.metacell
   req(input$ChooseViewAfterFiltering)
   req(input$ChooseTabAfterFiltering)
   rv$deleted.stringBased
   rv$deleted.numeric
-  #print("DANS REACTIVE : GetDataFor_VizualizeFilteredData")
   
   data <- NULL
   if ((input$ChooseViewAfterFiltering == "Metacell") && !is.null(rv$deleted.metacell))
@@ -750,8 +724,7 @@ GetDataFor_VizualizeFilteredData <- reactive({
     #print(dim(getDataForMVFiltered()))
     switch(input$ChooseTabAfterFiltering,
            quantiData =  data <- getDataForMetacellFiltered(),
-           metaData = data <- cbind(ID = rownames(Biobase::fData(rv$deleted.metacell)), 
-                                    Biobase::fData(rv$deleted.metacell))
+           metaData = data <- Biobase::fData(rv$deleted.metacell)
     )
   } 
   
@@ -783,7 +756,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   req(GetDataFor_VizualizeFilteredData())
   dt <- NULL
   data <- GetDataFor_VizualizeFilteredData()
-  browser()
+  #browser()
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
@@ -849,19 +822,17 @@ output$screenFiltering5 <- renderUI({
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
-  
+  browser()
   isolate({
     if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
-       || (nrow(rv$widgets$filtering$DT_filterSummary )>1)
-       || (nrow(rv$widgets$filtering$DT_numfilterSummary )>1)){
+       || (nrow(rv$widgets$filtering$DT_filterSummary ) > 1)
+       || (nrow(rv$widgets$filtering$DT_numfilterSummary ) > 1)){
       l.params <- build_ParamsList_Filtering()
       
       rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Filtered", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
       
-      dataOut<- rv$current.obj
-      rvModProcess$moduleFilteringDone[6] <- TRUE
       
       if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
         ComputeAdjacencyMatrices()
@@ -869,7 +840,9 @@ observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
       }
       UpdateDatasetWidget(rv$current.obj, name)
     }
-    rvModProcess$moduleFilteringDone[6] <- TRUE
+    dataOut<- rv$current.obj
+    rvModProcess$moduleFilteringDone[5] <- TRUE
+    
   })
   
 })
