@@ -822,7 +822,7 @@ output$screenFiltering5 <- renderUI({
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
-  browser()
+  #browser()
   isolate({
     if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
        || (nrow(rv$widgets$filtering$DT_filterSummary ) > 1)

@@ -149,7 +149,26 @@ modulePopover <- function(input, output, session, data){
 
 
 #------------------------------------------------------------
-moduleLegendColoredExprs <- function(input, output, session){}
+moduleLegendColoredExprs <- function(input, output, session){
+  ns <- session$ns
+  
+  output$legend <- renderUI({
+
+    tagList(
+      lapply(1:length(rv$colorsTypeMV), function(x){
+        fluidRow(
+          column(width=2, 
+                 tags$div(class="input-color", checked=NA,
+                          tags$input(type="text", value=""),
+                          tags$div(class="color-box", 
+                                   style=paste0("border: 1px solid #000000; background-color: ", rv$colorsTypeMV[[x]] , ";"))
+                 )),
+          column(width=10, tags$p(rv$legendTypeMV[[x]]))
+          )
+        })
+        )
+  })
+}
 
 
 #------------------------------------------------------------
