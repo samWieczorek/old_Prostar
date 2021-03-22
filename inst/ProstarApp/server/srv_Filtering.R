@@ -24,8 +24,8 @@ resetModuleFiltering <- reactive({
                                                          stringsAsFactors=F)
   
   rv$widgets$filtering$metacell_Filter_SummaryDT <- data.frame(query = NULL,
-                                                               nbDeleted=NULL,#nb line removed
-                                                               Total=NULL,# sum of lines deleted multiple filters
+                                                               nbDeleted=NULL,
+                                                               Total=NULL,
                                                                stringsAsFactors=F)
   
   rv$widgets$filtering$MetacellTag <- "None"

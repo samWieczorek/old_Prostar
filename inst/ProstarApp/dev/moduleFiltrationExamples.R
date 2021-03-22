@@ -5,8 +5,6 @@ library(shinyBS)
 library(shinyjqui)
 library(shinyjs)
 
-options(htmlwidgets.TOJSON_ARGS = list(na = 'string')) # to display NAs in DT, instead of blank square
-
 gFiltersList <- c("None" = "None",
                   "Empty lines" = "EmptyLines",
                   "Whole matrix" = "WholeMatrix",
@@ -14,21 +12,58 @@ gFiltersList <- c("None" = "None",
                   "At least one condition" = "AtLeastOneCond")
 gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 
-path <- "~/Github/master/Prostar/inst/ProstarApp/"
-#path <- "~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/"
 
+#path <- "~/Github/master/Prostar/inst/ProstarApp/"
+path <- "~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/"
+
+
+
+plop <- read.csv(paste0(path, 'dev/example_filtration_tab.txt'), sep='\t')
+
+metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
+colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
+metadata_plop$Sample.name <- colnames(plop)
+metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
+metadata_plop$Bio.Rep <- c(1:6)
+plop_msnset <- DAPAR::createMSnset(file = paste0(path, 'dev/example_filtration_tab.txt'),
+                                   indExpData = c(1:6),
+                                   indFData = c(1:6), 
+                                   metadata = metadata_plop,
+                                   pep_prot_data="peptide",
+                                   software = 'maxquant')
+DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)
 
 
 ########################################################################
 
 ui <- fluidPage(
   
-  selectInput("ChooseFilters","",
-              choices = gFiltersList,
-              selected = "None",
-              width='200px'),
-  
-  uiOutput("seuilNADelete"),
+  fluidRow(
+    column(2,
+           
+           selectInput("chooseMetacellTag",
+                       "metacellTag",
+                       choices = c('None' = 'None',
+                                   DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)
+                       ),
+                       width='200px')
+    ),
+    column(2,
+           uiOutput("Choose_keepOrRemove_ui")
+    ),
+    column(2,
+           selectInput("ChooseMetacellFilters",
+                       "filterScope",
+                       choices = c(gFiltersList[1],
+                                   "Whole Line"="WholeLine",
+                                   gFiltersList[3:length(gFiltersList)]),
+                       selected = "None",
+                       width='200px')
+    ),
+    column(6,
+           uiOutput("MetacellFilters_widgets_set2_ui")
+    )
+  ),
   
   actionButton("show_modal", "Open modal example"),
   
@@ -49,8 +84,79 @@ ui <- fluidPage(
 
 server <- function(input, output, session){
   
+  output$Choose_keepOrRemove_ui <- renderUI({
+    
+    radioButtons("ChooseKeepRemove",
+                 "Type of filter operation",
+                 choices = setNames(nm = c("delete", "keep")),
+                 selected = "delete")
+    
+  })
   
-  plop <- read.csv(paste0(path, 'dev/example_filtration_tab_NA.txt'), sep='\t')
+  
+  output$MetacellFilters_widgets_set2_ui <- renderUI({
+    req(!(input$ChooseMetacellFilters %in% c("None", "WholeLine")))
+    
+    
+    fluidRow(
+      column(4,
+             radioButtons('choose_val_vs_percent',
+                          "choose_val_vs_percent",
+                          choices = setNames(nm=c('Value', 'Percentage')),
+                          selected = 'Value'
+             )
+      ),
+      column(4,
+             selectInput("choose_metacellFilter_operator",
+                         "Choose operator",
+                         choices = setNames(nm=DAPAR::SymFilteringOperators()),
+                         selected = "<=",
+                         width='150px')
+      ),
+      column(4,
+             uiOutput('choose_value_ui'),
+             uiOutput('choose_percentage_ui')
+      )
+    )
+  })
+  
+  
+  output$choose_value_ui <- renderUI({
+    req(input$choose_val_vs_percent == 'Value')
+    
+    
+    tagList(
+      selectInput("choose_metacell_value_th",
+                  "metacell_value_th",
+                  choices =  getListNbValuesInLines(plop_msnset, 
+                                                    type = input$ChooseMetacellFilters),
+                  selected = 0,
+                  width='150px')
+    )
+  })
+  
+  
+  
+  output$choose_percentage_ui <- renderUI({
+    req(input$choose_val_vs_percent == 'Percentage')
+  
+    
+    tagList(
+      numericInput("choose_metacell_percent_th", 
+                   "metacell_percent_th",
+                   min = 0,
+                   max = 100,
+                   value = 0,
+                   width='150px')
+    )
+  })
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -72,11 +178,18 @@ server <- function(input, output, session){
   
   output$example_tab <- DT::renderDataTable({
     
+    if (input$choose_val_vs_percent == 'Value'){
+      seuil <- input$choose_metacell_value_th
+    } else {
+      seuil <- input$choose_metacell_percent_th
+    }
+    
+    
     index <- NULL
-    switch(input$ChooseFilters,
+    switch(input$ChooseMetacellFilters,
            None = { index <- NULL },
            EmptyLines = { index <- 7 },
-           WholeMatrix = { switch(input$seuilNA,
+           WholeMatrix = { switch(seuil,
                                   "0" = { index <- NULL },
                                   "1" = { index <- 7 },
                                   "2" = { index <- c(6,7) },
@@ -85,13 +198,13 @@ server <- function(input, output, session){
                                   "5" = { index <- c(3:10)},
                                   "6" = { index <- c(2:10)}
            )},
-           AllCond = { switch(input$seuilNA,
+           AllCond = { switch(seuil,
                               "0" = { index <- NULL },
                               "1" = { index <- c(4:7) },
                               "2" = { index <- c(3:7,9,10) },
                               "3" = { index <- c(2:10) }
            )},
-           AtLeastOneCond = { switch(input$seuilNA,
+           AtLeastOneCond = { switch(seuil,
                                      "0" = { index <- NULL },
                                      "1" = { index <- 7 },
                                      "2" = { index <- c(6,7,10) },
@@ -101,6 +214,25 @@ server <- function(input, output, session){
     
     
     #DT::datatable(NULL)
+    
+    
+    print(index)
+    if(input$ChooseKeepRemove == "delete"){
+      if(!is.null(index)) {
+        index <- (1:nrow(plop))[-index]
+      } else {
+        index <- 1:nrow(plop)
+      }
+    }
+    print("deleted lines")
+    print(index)
+    
+    
+    # change example tab after chooseMetacellTag user choice
+    if (input$chooseMetacellTag != "None"){
+      plop[plop=="xxx"] <- input$chooseMetacellTag  
+    }
+    
     
     
     if (!is.null(index)){
@@ -167,54 +299,7 @@ server <- function(input, output, session){
   ##########################################################################
   
   
-  
-  
-  
-  
-  
-  
-  
-  output$seuilNADelete <- renderUI({
-    req(input$ChooseFilters)
-    
-    if ((input$ChooseFilters=="None") || (input$ChooseFilters==gFilterEmptyLines)) {
-      return(NULL)
-    }
-    
-    tagList(
-      uiOutput('keepVal_ui')
-    )
-  })
-  
-  
-  
-  output$keepVal_ui <- renderUI({
-    
-    if (input$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
-    
-    
-    metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
-    colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
-    metadata_plop$Sample.name <- colnames(plop)
-    metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
-    metadata_plop$Bio.Rep <- c(1:6)
-    plop_msnset <- DAPAR::createMSnset(file = paste0(path, 'dev/example_filtration_tab_NA.txt'),
-                                       indExpData = c(1:6),
-                                       indFData = c(1:6), 
-                                       metadata = metadata_plop,
-                                       pep_prot_data="peptide",
-                                       software = 'maxquant')
-    
-    
-    tagList(
-      selectInput("seuilNA", NULL,
-                  choices =  DAPAR::getListNbValuesInLines(plop_msnset,
-                                                           type=input$ChooseFilters),
-                  selected = "0",
-                  width='150px')
-    )
-  })
-  
+
   
   
   
@@ -253,7 +338,7 @@ server <- function(input, output, session){
   #          EmptyLines = {
   #            index <- 7
   #          },
-  #          WholeMatrix = { switch(input$seuilNA,
+  #          WholeMatrix = { switch(seuil,
   #                                 "0" = { index <- NULL },
   #                                 "1" = { index <- 7 },
   #                                 "2" = { index <- c(6,7) },
@@ -262,13 +347,13 @@ server <- function(input, output, session){
   #                                 "5" = { index <- c(3:10)},
   #                                 "6" = { index <- c(2:10)}
   #          )},
-  #          AllCond = { switch(input$seuilNA,
+  #          AllCond = { switch(seuil,
   #                             "0" = { index <- NULL },
   #                             "1" = { index <- c(4:7) },
   #                             "2" = { index <- c(3:7,9,10) },
   #                             "3" = { index <- c(2:10) }
   #          )},
-  #          AtLeastOneCond = { switch(input$seuilNA,
+  #          AtLeastOneCond = { switch(seuil,
   #                                    "0" = { index <- NULL },
   #                                    "1" = { index <- 7 },
   #                                    "2" = { index <- c(6,7,10) },
