@@ -12,7 +12,7 @@ callModule(moduleDensityplot,"densityPlot_Norm",
 callModule(module_Not_a_numeric,"test_spanLOESS", reactive({rv$widgets$normalization$spanLOESS}))
 
 callModule(modulePopover,"modulePopover_normQuanti", 
-           data = reactive(list(title = HTML(paste0("<strong>Normalization quantile</strong>")), 
+           data = reactive(list(title = "Normalization quantile", 
                                 content="lower limit/noise (quantile = 0.15), median (quantile = 0.5). Min value=0, max value=1")))
 
 

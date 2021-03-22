@@ -11,7 +11,7 @@ callModule(moduleProcess, "moduleProcess_Aggregation",
 
 
 callModule(modulePopover,"modulePopover_includeShared", 
-           data = reactive(list(title=HTML(paste0("<strong>Include shared peptides</strong>")),
+           data = reactive(list(title="Include shared peptides",
                                 content= HTML(paste0("<ul><li><strong>No:</strong> only protein-specific peptides</li><li><strong>Yes 1:</strong> shared peptides processed as protein specific</li><li><strong>Yes 2</strong>: proportional redistribution of shared peptides</li></ul>")
                                 )
            )
@@ -389,7 +389,7 @@ output$displayNbPeptides <- renderUI({
 
 
 callModule(modulePopover,"modulePopover_colsForAggreg", 
-           data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">Columns of the meta-data</font></strong>")),
+           data = reactive(list(title= "Columns of the meta-data",
                                 content= "Select the columns of the meta-data (related to proteins) that have to be recorded in the new protein dataset (e.g. the columns which contains the protein ID if you wish to perform a GO analysis.)")))
 
 

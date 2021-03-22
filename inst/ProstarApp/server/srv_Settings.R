@@ -1,4 +1,4 @@
-callModule(modulePopover,"modulePopover_numPrecision", data = reactive(list(title=HTML(paste0("<strong><font size=\"4\">Numerical precisions</font></strong>")),
+callModule(modulePopover,"modulePopover_numPrecision", data = reactive(list(title="Numerical precisions",
                                                                         content= "Set the number of decimals to display for numerical values.")))
 
 observe({

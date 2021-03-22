@@ -20,7 +20,7 @@ module_Not_a_numericUI <- function(id){
 
 
 
-moduleLegendColoredExprsUI <- function(id,colorsTypeMV){
+moduleLegendColoredExprsUI <- function(id){
     ns <- NS(id)
     
     tagList(

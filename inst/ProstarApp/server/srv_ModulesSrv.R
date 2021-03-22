@@ -123,7 +123,7 @@ modulePopover <- function(input, output, session, data){
       div(
         # edit1
         style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
-        data()$title
+        HTML(paste0("<strong>", data()$title, "</strong>"))
       ),
       div(
         # edit2
@@ -149,21 +149,24 @@ modulePopover <- function(input, output, session, data){
 
 
 #------------------------------------------------------------
-moduleLegendColoredExprs <- function(input, output, session){
+moduleLegendColoredExprs <- function(input, output, session, legend, colors){
   ns <- session$ns
+  
+ 
+  
   
   output$legend <- renderUI({
 
     tagList(
-      lapply(1:length(rv$colorsTypeMV), function(x){
+      lapply(1:length(colors), function(x){
         fluidRow(
           column(width=2, 
                  tags$div(class="input-color", checked=NA,
                           tags$input(type="text", value=""),
                           tags$div(class="color-box", 
-                                   style=paste0("border: 1px solid #000000; background-color: ", rv$colorsTypeMV[[x]] , ";"))
+                                   style=paste0("border: 1px solid #000000; background-color: ", colors[[x]] , ";"))
                  )),
-          column(width=10, tags$p(rv$legendTypeMV[[x]]))
+          column(width=10, tags$p(legend[[x]]))
           )
         })
         )
@@ -649,7 +652,7 @@ moduleMVPlots <- function(input, output, session, data, title, pal) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    wrapper.hc_mvTypePlot2(obj=data(), title=title(), pal = pal())
+    hc_mvTypePlot2(obj=data(), title=title(), pal = pal())
   })
   
   

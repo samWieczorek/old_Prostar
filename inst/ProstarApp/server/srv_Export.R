@@ -137,17 +137,17 @@ output$exportOptions <- renderUI({
 
 
 callModule(modulePopover,"modulePopover_exportMetaData", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Metadata</font></strong>")), 
+           data = reactive(list(title = "Metadata", 
                                 content="Select the columns you want to keep as metadata. By default, if any column is specified, all metadata in your dataset will be exported.")))
 
 callModule(modulePopover,"modulePopover_exportFileFormat", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">File format</font></strong>")), 
+           data = reactive(list(title = "File format", 
                                 content="File format")))
 
 
 
 callModule(modulePopover,"modulePopover_exportFilename", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Filename</font></strong>")), 
+           data = reactive(list(title = "Filename", 
                                 content="Enter the name of the files to be created")))
 
 

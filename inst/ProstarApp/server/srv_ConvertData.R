@@ -1,22 +1,22 @@
 
 
 callModule(modulePopover,"modulePopover_convertChooseDatafile", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Data file</font></strong>")), 
+           data = reactive(list(title = "Data file", 
                                 content="Select one (.txt, .csv, .tsv, .xls, .xlsx) file.")))
 
 callModule(modulePopover,"modulePopover_convertIdType", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">ID definition</font></strong>")), 
+           data = reactive(list(title = "ID definition", 
                                 content="If you choose the automatic ID, Prostar will build an index.")))
 
 
 
 callModule(modulePopover,"modulePopover_convertProteinID", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Select protein IDs</font></strong>")), 
+           data = reactive(list(title = "Select protein IDs", 
                                 content="Select the column containing the parent protein IDs.")))
 
 
 callModule(modulePopover,"modulePopover_convertDataQuanti", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Quantitative data</font></strong>")), 
+           data = reactive(list(title = "Quantitative data", 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
 callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))

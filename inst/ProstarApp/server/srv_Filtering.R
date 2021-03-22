@@ -60,7 +60,27 @@ resetModuleFiltering <- reactive({
 ## 
 ############################################################################
 
+
+
 output$screenFiltering1 <- renderUI({
+  
+  callModule(modulePopover,"metacellTag_help", 
+             data = reactive(list(title = "Nature of data to filter", 
+                                  content="Define xxx")))
+  
+  
+  callModule(modulePopover,"filterScope_help", 
+             data = reactive(list(title = "Scope", 
+                                  content=HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
+                                               ("<ul>"),
+                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
+                                               ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
+                                               ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less quantitative value than a user-defined threshold are kept;</li>"),
+                                               ("<li><strong>For every condition</strong>: The lines for which each condition contain less quantitative value than a user-defined threshold are deleted;</li>"),
+                                               ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less quantitative value than a user-defined threshold are deleted.</li>"),
+                                               ("</ul>")
+                                  )
+             )))
   
   isolate({
     tagList(
@@ -73,9 +93,12 @@ output$screenFiltering1 <- renderUI({
             #div(HTML("Empty Lines")),
             fluidRow(
               column(2,
+                     
                      selectInput("chooseMetacellTag",
-                                 "Nature of data to filter",
-                                 choices = DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData),
+                                 modulePopoverUI("metacellTag_help"),
+                                 choices = c('None' = 'None',
+                                             DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)
+                                             ),
                                  width='200px')
               ),
               column(2,
@@ -83,7 +106,7 @@ output$screenFiltering1 <- renderUI({
               ),
               column(2,
                      selectInput("ChooseMetacellFilters",
-                                 "Scope of filter operation.",
+                                 modulePopoverUI("filterScope_help"),
                                  choices = c(gFiltersList[1],
                                              "Whole Line"="WholeLine",
                                              gFiltersList[3:length(gFiltersList)]),
@@ -96,9 +119,9 @@ output$screenFiltering1 <- renderUI({
             ),
             uiOutput('metacellFilter_request_ui'),
             div( style="display:inline-block; vertical-align: middle;",
-                 actionButton("perform.metacell.filtering", 
+                 shinyjs::disabled(actionButton("perform.metacell.filtering", 
                               "Perform metacell filtering", 
-                              class = actionBtnClass)
+                              class = actionBtnClass))
             ),
         ),
         tags$hr(),
@@ -121,26 +144,18 @@ output$screenFiltering1 <- renderUI({
   
 })
 
+observe({
+  shinyjs::toggleState("perform.metacell.filtering",
+                       condition = !is.null(rv$widgets$filtering$MetacellTag) &&
+                         !(rv$widgets$filtering$MetacellTag %in% c('', 'None')))
+})
+
 
 callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
            data = reactive({rv$current.obj}),
            pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
-callModule(modulePopover,"modulePopover_Help_NA_Filtering", 
-           data = reactive(list(title = HTML("<strong>Type</strong>"),
-                                content= HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
-                                              ("<ul>"),
-                                              ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-                                              ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
-                                              ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less quantitative value than a user-defined threshold are kept;</li>"),
-                                              ("<li><strong>For every condition</strong>: The lines for which each condition contain less quantitative value than a user-defined threshold are deleted;</li>"),
-                                              ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less quantitative value than a user-defined threshold are deleted.</li>"),
-                                              ("</ul>")
-                                )
-           )
-           )
-)
 
 
 #####################################################################################################################
@@ -165,11 +180,14 @@ output$MetacellFilters_widgets_set2_ui <- renderUI({
   # if (rv$widgets$filtering$MetacellFilters %in% c("None", "WholeLine"))
   #   {return(NULL)}
   # 
+  callModule(modulePopover,"choose_val_vs_percent_help", 
+             data = reactive(list(title = paste("#/% of values to ", rv$widgets$filtering$KeepRemove),
+                                   content="Define xxx")))
   
   fluidRow(
     column(4,
            radioButtons('choose_val_vs_percent',
-                        paste("#/% of values to ", rv$widgets$filtering$KeepRemove),
+                        modulePopoverUI("choose_val_vs_percent_help"),
                         choices = setNames(nm=c('Value', 'Percentage')),
                         selected = rv$widgets$filtering$val_vs_percent
                         )
@@ -193,10 +211,15 @@ output$choose_value_ui <- renderUI({
   req(rv$widgets$filtering$val_vs_percent == 'Value')
   
   # if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
+  callModule(modulePopover,"metacell_value_th_help", 
+             data = reactive(list(title = "Value threshold", 
+                                  content="Define xxx")))
+  
   
   tagList(
     modulePopoverUI("modulePopover_keepVal"),
-    selectInput("choose_metacell_value_th", "Choose threshold",
+    selectInput("choose_metacell_value_th",
+                modulePopoverUI("metacell_value_th_help"),
                 choices =  getListNbValuesInLines(rv$current.obj, 
                                                   type = rv$widgets$filtering$MetacellFilters),
                 selected = rv$widgets$filtering$metacell_value_th,
@@ -208,13 +231,17 @@ output$choose_value_ui <- renderUI({
 
 output$choose_percentage_ui <- renderUI({
   req(rv$widgets$filtering$val_vs_percent == 'Percentage')
+  callModule(modulePopover,"metacell_percent_th_help", 
+             data = reactive(list(title = "Percentage threshold", 
+                                  content="Define xxx")))
+  
   
   #if (rv$widgets$filtering$temp.val_vs_percent != 'Percentage') {return(NULL)}
   
   tagList(
     modulePopoverUI("modulePopover_keepVal_percent"),
     numericInput("choose_metacell_percent_th", 
-                 "Choose percentage",
+                 modulePopoverUI("metacell_percent_th_help"),
                  min = 0,
                  max = 100,
                  value = rv$widgets$filtering$metacell_percent_th,
@@ -268,15 +295,18 @@ output$metacellFilter_request_ui <- renderUI({
 
 ## Perform filtration
 observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
-  rv$widgets$filtering$MetacellTag
-  rv$widgets$filtering$KeepRemove
-  rv$widgets$filtering$MetacellFilters
-  rv$widgets$filtering$metacell_value_th
-  rv$widgets$filtering$metacell_percent_th
-  rv$widgets$filtering$val_vs_percent
-  rv$widgets$filtering$metacellFilter_operator
+  # rv$widgets$filtering$MetacellTag
+  # rv$widgets$filtering$KeepRemove
+  # rv$widgets$filtering$MetacellFilters
+  # rv$widgets$filtering$metacell_value_th
+  # rv$widgets$filtering$metacell_percent_th
+  # rv$widgets$filtering$val_vs_percent
+  # rv$widgets$filtering$metacellFilter_operator
+  # rv$current.obj
+  # 
   
- 
+  #browser()
+  
   th <- NULL
   if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
     th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
@@ -302,13 +332,13 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
                                                          percent = percent, 
                                                          th = th),
                     WholeLine = GetIndices_WholeLine(metacell.mask = mask),
-                    AllCond = GetIndices_OnConditions(metacell.mask = mask, 
+                    AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
                                                       type = type, 
                                                       conds = conds, 
                                                       percent = percent, 
                                                       op = op, 
                                                       th = th),
-                    AtLeastOneCond = GetIndices_OnConditions(metacell.mask = mask, 
+                    AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
                                                              type = type,
                                                              conds = conds, 
                                                              percent = percent,
@@ -316,26 +346,30 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
                                                              th = th)
   )
 
+  nbDeleted <- 0
   #browser()
   if (!is.null(indices)) {
     if (rv$widgets$filtering$KeepRemove == 'delete'){
       rv$deleted.metacell <- rv$current.obj[indices]
       rv$current.obj <- rv$current.obj[-indices]
+      nbDeleted <- length(indices)
     } else { 
       rv$deleted.metacell <- rv$current.obj[-indices]
       rv$current.obj <- rv$current.obj[indices]
+      nbDeleted <- nrow(rv$current.obj)-length(indices)
     }
+    
+    
   }
   
   
-  rvModProcess$moduleFilteringDone[1] <- TRUE
-  
   df <- data.frame(query = WriteQuery(),
-                   nbDeleted = nrow(rv$deleted.metacell),
+                   nbDeleted = nbDeleted,
                    Total = nrow(rv$current.obj))
-
+  
   rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(rv$widgets$filtering$metacell_Filter_SummaryDT , df)
   
+  rvModProcess$moduleFilteringDone[1] <- TRUE
 })
 
 
@@ -736,15 +770,12 @@ GetDataFor_VizualizeFilteredData <- reactive({
            metaData = data <- Biobase::fData(rv$deleted.stringBased)
     )
   }  else if ((input$ChooseViewAfterFiltering == "Numerical") && !is.null(rv$deleted.numeric)) {
-    #print("DANS REACTIVE : If 3")
+    
     switch(input$ChooseTabAfterFiltering,
            quantiData =  data <- getDataForNumericalFiltered(),
            metaData = data <- Biobase::fData(rv$deleted.numeric)
     )
   }
-  
-  # print("END OF REACTIVE")
-  #print(data)
   data
 })
 
@@ -812,16 +843,23 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
 output$screenFiltering5 <- renderUI({
   
   tagList(
+    shinyjs::hidden(div(id = "msg_empty_dataset",
+                      p("Please note that the validate button is disabled because
+                      the dataset is empty. You should rerun the filtering tool."))),
     actionButton("ValidateFilters","Save filtered dataset",class = actionBtnClass)
   )
 })
 
-
+observe({
+  shinyjs::toggleState("ValidateFilters",
+                       condition = nrow(rv$current.obj) >0)
+  shinyjs::toggle("msg_empty_dataset", condition = nrow(rv$current.obj) == 0)
+})
 
 #########################################################
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
-observeEvent(input$ValidateFilters,ignoreInit = TRUE,{
+observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
   #browser()
   isolate({
     if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
@@ -857,7 +895,7 @@ output$legendForExprsData2 <- renderUI({
   req(input$ChooseTabAfterFiltering)
   
   if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-  moduleLegendColoredExprsUI("FilterColorLegend_DS", rv$colorsTypeMV)
+  moduleLegendColoredExprsUI("FilterColorLegend_DS")
   
 })
 

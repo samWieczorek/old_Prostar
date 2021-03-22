@@ -175,21 +175,21 @@ output$screenGO4 <- renderUI({
 
 
 callModule(modulePopover,"modulePopover_GOlevel", 
-           data = reactive(list(title = HTML(paste0("<strong>Level</strong>")), 
+           data = reactive(list(title = "Level", 
                                 content="Level")))
 
 
 callModule(modulePopover,"modulePopover_GOuniverse", 
-           data = reactive(list(title = HTML(paste0("<strong>Universe</strong>")), 
+           data = reactive(list(title = "Universe" 
                                 content="universe")))
 callModule(modulePopover,"modulePopover_GOfdr", 
-           data = reactive(list(title = HTML(paste0("<strong>FDR</strong>")), 
+           data = reactive(list(title = "FDR", 
                                 content="BH Adjusted P-value cutoff")))
 
 
 
 callModule(modulePopover,"modulePopover_GenomeWide", 
-           data = reactive(list(title = HTML(paste0("<strong>Genome Wide Annotation</strong>")), 
+           data = reactive(list(title = "Genome Wide Annotation", 
                                 content=paste0(tags$p("If the expected annotation database is not proposed in the dropdown menu, please find "),
                                                tags$a("here", href = "http://bioconductor.org/packages/release/BiocViews.html#___OrgDb",target="_blank"),
                                                tags$p(" the corresponding package. Then, install it (or have it installed by the administrator of the ProStaR server) and restart ProStaR.")))))

@@ -13,7 +13,10 @@ MSnSetExplorerUI <- function(id) {
 MSnSetExplorer <- function(input, output, session, data) {
   ns <- session$ns
   
-  callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
+  callModule(moduleLegendColoredExprs, 
+             "ExprsColorLegend_DS", 
+             legend = rv$legendTypeMV,
+             colors = rv$colorsTypeMV)
   
   
   output$DS_sidebarPanel_tab <- renderUI({
@@ -57,13 +60,16 @@ MSnSetExplorer <- function(input, output, session, data) {
   
   
   
-  callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
+  callModule(moduleLegendColoredExprs, 
+             "FilterColorLegend_DS", 
+             legend = rv$legendTypeMV,
+             colors = rv$colorsTypeMV)
   
   output$legendForExprsData <- renderUI({
     req(input$DS_TabsChoice)
     
     if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-    moduleLegendColoredExprsUI("ExprsColorLegend_DS",rv$colorsTypeMV)
+    moduleLegendColoredExprsUI("ExprsColorLegend_DS")
     
   })
   

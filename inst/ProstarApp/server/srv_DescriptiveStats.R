@@ -1,5 +1,11 @@
-callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
-callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
+callModule(moduleLegendColoredExprs, 
+           "ExprsColorLegend_DS", 
+           legend = rv$legendTypeMV,
+           colors = rv$colorsTypeMV)
+callModule(moduleLegendColoredExprs, 
+           "FilterColorLegend_DS", 
+           legend = rv$legendTypeMV,
+           colors = rv$colorsTypeMV)
 
 callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
@@ -685,7 +691,7 @@ output$legendForExprsData <- renderUI({
   req(input$DS_TabsChoice)
   
   if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-  moduleLegendColoredExprsUI("ExprsColorLegend_DS",rv$colorsTypeMV)
+  moduleLegendColoredExprsUI("ExprsColorLegend_DS")
   
 })
 

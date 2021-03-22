@@ -420,14 +420,16 @@ observe({
 # })
 
 callModule(modulePopover,"modulePopover_volcanoTooltip", 
-           data = reactive(list(title = HTML(paste0("<strong><font size=\"4\">Tooltip</font></strong>")), 
+           data = reactive(list(title = "Tooltip", 
                                 content="Infos to be displayed in the tooltip of volcanoplot")))
 
-callModule(modulePopover,"modulePopover_pushPVal", data = reactive(list(title=HTML(paste0("<strong>P-Value push</strong>")),
-                                                                        content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
+callModule(modulePopover,"modulePopover_pushPVal", 
+           data = reactive(list(title="P-Value push",
+           content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
-callModule(modulePopover,"modulePopover_keepLines", data = reactive(list(title=HTML(paste0("<strong>n values</strong>")),
-                                                                         content= "Keep the lines which have at least n intensity values.")))
+callModule(modulePopover,"modulePopover_keepLines", 
+           data = reactive(list(title="n values",
+                                content= "Keep the lines which have at least n intensity values.")))
 
 
 GetBackToCurrentResAnaDiff <- reactive({
@@ -892,17 +894,8 @@ observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- inpu
 # })
 
 
-
-
-
-
-
-
-
-
-
 callModule(modulePopover,"modulePopover_pValThreshold", 
-           data = reactive(list(title = HTML(paste0("<strong>p-val cutoff</strong>")), 
+           data = reactive(list(title = "p-val cutoff", 
                                 content="Define the -log10(p_value) threshold")))
 
 
