@@ -190,6 +190,17 @@ server <- function(input, output, session){
   output$example_tab <- DT::renderDataTable({
     
     
+    # change example tab after chooseMetacellTag user choice
+    if (input$chooseMetacellTag != "None"){
+      if (input$chooseMetacellTag %in% c("missing", "missing_POV", "missing_MEC")){
+        plop[plop=="na"] <- input$chooseMetacellTag  
+      } else {
+        plop[plop==1] <- input$chooseMetacellTag  
+      }
+    }
+    
+    
+    
     if (!(input$ChooseMetacellFilters %in% c("None", "WholeLine"))){
       th <- NULL
       if (input$choose_val_vs_percent == 'Value'){
@@ -206,35 +217,38 @@ server <- function(input, output, session){
     op <- input$choose_metacellFilter_operator
     conds <-  Biobase::pData(plop_msnset)$Condition
     
-    
-    mask <- match.metacell(metadata=DAPAR::GetMetacell(plop_msnset), 
-                           pattern=pattern, 
-                           level=level)
-    
-    
-    index <- switch(input$ChooseMetacellFilters,
-                    WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
-                                                         op = op, 
-                                                         percent = percent, 
-                                                         th = th),
-                    WholeLine = GetIndices_WholeLine(metacell.mask = mask),
-                    AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                           type = type, 
-                                                           conds = conds, 
-                                                           percent = percent, 
+    index <- NULL
+    if (input$ChooseMetacellFilters != "None"){
+      mask <- match.metacell(metadata=DAPAR::GetMetacell(plop_msnset), 
+                             pattern=pattern, 
+                             level=level)
+      
+      
+      index <- switch(input$ChooseMetacellFilters,
+                      WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
                                                            op = op, 
+                                                           percent = percent, 
                                                            th = th),
-                    AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                  type = type,
-                                                                  conds = conds, 
-                                                                  percent = percent,
-                                                                  op = op, 
-                                                                  th = th)
-    )
+                      WholeLine = GetIndices_WholeLine(metacell.mask = mask),
+                      AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                             type = type, 
+                                                             conds = conds, 
+                                                             percent = percent, 
+                                                             op = op, 
+                                                             th = th),
+                      AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                                    type = type,
+                                                                    conds = conds, 
+                                                                    percent = percent,
+                                                                    op = op, 
+                                                                    th = th)
+      )
+    }
+
     
     
-    
-    if(input$ChooseKeepRemove == "keep"){
+    if(input$ChooseMetacellFilters != "None" &&
+       input$ChooseKeepRemove == "keep"){
       if(!is.null(index)) {
         index <- (1:nrow(plop))[-index]
       } else {
@@ -242,12 +256,7 @@ server <- function(input, output, session){
       }
     }
     
-    
-    # change example tab after chooseMetacellTag user choice
-    if (input$chooseMetacellTag != "None"){
-      plop[plop=="xxx"] <- input$chooseMetacellTag  
-    }
-    
+
     
     
     if (!is.null(index)){
