@@ -3,7 +3,6 @@ library(DT)
 library(DAPAR)
 library(shinyBS)
 library(shinyjqui)
-library(shinyjs)
 
 gFiltersList <- c("None" = "None",
                   "Empty lines" = "EmptyLines",
@@ -31,10 +30,12 @@ plop_msnset <- DAPAR::createMSnset(file = paste0(path, 'dev/example_filtration_t
                                    metadata = metadata_plop,
                                    pep_prot_data="peptide",
                                    software = 'maxquant')
-DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)
+
 
 
 ########################################################################
+
+
 
 ui <- fluidPage(
   
@@ -72,8 +73,7 @@ ui <- fluidPage(
                    size = "large",
                    trigger="show_modal",
                    uiOutput("modal_content"),
-                   tags$head(tags$style("#example_modal .modal-footer{ display:none}"))#,
-                   # tags$head(tags$style("#example_modal .modal-header .close { display:none}"))
+                   tags$head(tags$style("#example_modal .modal-footer{ display:none}"))
   )# ,
   
   # dataTableOutput("buildFiltrationExample")
@@ -83,6 +83,17 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session){
+  
+  
+  
+  ###############
+  # options modal
+  jqui_draggable(paste0("#","example_modal"," .modal-content"),
+                 options = list(revert=FALSE)
+  )
+  ###############
+  
+  
   
   output$Choose_keepOrRemove_ui <- renderUI({
     
@@ -139,7 +150,7 @@ server <- function(input, output, session){
   
   output$choose_percentage_ui <- renderUI({
     req(input$choose_val_vs_percent == 'Percentage')
-  
+    
     
     tagList(
       numericInput("choose_metacell_percent_th", 
@@ -178,54 +189,58 @@ server <- function(input, output, session){
   
   output$example_tab <- DT::renderDataTable({
     
-    if (input$choose_val_vs_percent == 'Value'){
-      seuil <- input$choose_metacell_value_th
-    } else {
-      seuil <- input$choose_metacell_percent_th
+    
+    if (!(input$ChooseMetacellFilters %in% c("None", "WholeLine"))){
+      th <- NULL
+      if (input$choose_val_vs_percent == 'Value'){
+        th <- as.integer(input$choose_metacell_value_th)
+      } else {
+        th <- as.numeric(input$choose_metacell_percent_th)
+      }
     }
     
+    level <- plop_msnset@experimentData@other$typeOfData
+    pattern <- input$chooseMetacellTag
+    type <- input$ChooseMetacellFilters
+    percent <- input$choose_val_vs_percent == 'Percentage'
+    op <- input$choose_metacellFilter_operator
+    conds <-  Biobase::pData(plop_msnset)$Condition
     
-    index <- NULL
-    switch(input$ChooseMetacellFilters,
-           None = { index <- NULL },
-           EmptyLines = { index <- 7 },
-           WholeMatrix = { switch(seuil,
-                                  "0" = { index <- NULL },
-                                  "1" = { index <- 7 },
-                                  "2" = { index <- c(6,7) },
-                                  "3" = { index <- c(5:7,10) },
-                                  "4" = { index <- c(4:7,9,10) },
-                                  "5" = { index <- c(3:10)},
-                                  "6" = { index <- c(2:10)}
-           )},
-           AllCond = { switch(seuil,
-                              "0" = { index <- NULL },
-                              "1" = { index <- c(4:7) },
-                              "2" = { index <- c(3:7,9,10) },
-                              "3" = { index <- c(2:10) }
-           )},
-           AtLeastOneCond = { switch(seuil,
-                                     "0" = { index <- NULL },
-                                     "1" = { index <- 7 },
-                                     "2" = { index <- c(6,7,10) },
-                                     "3" = { index <- c(5:10) }
-           )}
+    
+    mask <- match.metacell(metadata=DAPAR::GetMetacell(plop_msnset), 
+                           pattern=pattern, 
+                           level=level)
+    
+    
+    index <- switch(input$ChooseMetacellFilters,
+                    WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
+                                                         op = op, 
+                                                         percent = percent, 
+                                                         th = th),
+                    WholeLine = GetIndices_WholeLine(metacell.mask = mask),
+                    AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                           type = type, 
+                                                           conds = conds, 
+                                                           percent = percent, 
+                                                           op = op, 
+                                                           th = th),
+                    AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                                  type = type,
+                                                                  conds = conds, 
+                                                                  percent = percent,
+                                                                  op = op, 
+                                                                  th = th)
     )
     
     
-    #DT::datatable(NULL)
     
-    
-    print(index)
-    if(input$ChooseKeepRemove == "delete"){
+    if(input$ChooseKeepRemove == "keep"){
       if(!is.null(index)) {
         index <- (1:nrow(plop))[-index]
       } else {
         index <- 1:nrow(plop)
       }
     }
-    print("deleted lines")
-    print(index)
     
     
     # change example tab after chooseMetacellTag user choice
@@ -299,7 +314,7 @@ server <- function(input, output, session){
   ##########################################################################
   
   
-
+  
   
   
   
@@ -338,7 +353,7 @@ server <- function(input, output, session){
   #          EmptyLines = {
   #            index <- 7
   #          },
-  #          WholeMatrix = { switch(seuil,
+  #          WholeMatrix = { switch(th,
   #                                 "0" = { index <- NULL },
   #                                 "1" = { index <- 7 },
   #                                 "2" = { index <- c(6,7) },
@@ -347,13 +362,13 @@ server <- function(input, output, session){
   #                                 "5" = { index <- c(3:10)},
   #                                 "6" = { index <- c(2:10)}
   #          )},
-  #          AllCond = { switch(seuil,
+  #          AllCond = { switch(th,
   #                             "0" = { index <- NULL },
   #                             "1" = { index <- c(4:7) },
   #                             "2" = { index <- c(3:7,9,10) },
   #                             "3" = { index <- c(2:10) }
   #          )},
-  #          AtLeastOneCond = { switch(seuil,
+  #          AtLeastOneCond = { switch(th,
   #                                    "0" = { index <- NULL },
   #                                    "1" = { index <- 7 },
   #                                    "2" = { index <- c(6,7,10) },
