@@ -262,26 +262,30 @@ createPNG_MVPlot2 <- function(obj,params=NULL,basename = NULL){
   return(pngfile)
 }
 
-createPNG_MVPlot3 <- function(obj,params=NULL,basename = NULL){
+createPNG_MVPlot3 <- function(obj,
+                              params=NULL,
+                              basename = NULL){
   if (is.null(basename)||is.null(obj)){return(NULL)}
   
   pngfile <- paste0(basename, ".png")
-   
+   pattern = NULL
   if (!file.exists(pngfile)){
-    tempplot <- wrapper.mvHisto_HC(obj)
+    tempplot <- metacellHisto_HC(obj, pattern)
     createPNGFromWidget(tempplot, basename)
     }
   return(pngfile)
 }
 
 
-createPNG_logFCDistr <- function(obj,params=NULL,basename = NULL){
+createPNG_logFCDistr <- function(obj,
+                                 params=NULL,
+                                 basename = NULL){
   if (is.null(basename)||is.null(obj)){return(NULL)}
   
   pngfile <- paste0(basename, ".png")
-  
+  pattern <- NULL
   if (!file.exists(pngfile)){
-    tempplot <- wrapper.mvHisto_HC(obj)
+    tempplot <- metacellHisto_HC(obj, pattern)
     createPNGFromWidget(tempplot, basename)
   }
   return(pngfile)

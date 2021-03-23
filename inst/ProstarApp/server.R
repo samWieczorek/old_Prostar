@@ -123,7 +123,7 @@ shinyServer(function(input, output, session) {
     shinyjs::toggle('tete', condition=!(input$navPage %in% c('graphTab', 'bugReportTab', 'checkForUpdatesTab', 'faqTab')))
     switch(input$navPage,
            DescriptiveStatisticsTab = {
-             source(file.path("server", "mod_plots_mv_histo.R"),  local = TRUE)$value
+             source(file.path("server", "mod_plots_metacell_histo.R"),  local = TRUE)$value
              source(file.path("server", "srv_DescriptiveStats.R"),  local = TRUE)$value
              },
            openMSnsetTab = {
@@ -147,7 +147,7 @@ shinyServer(function(input, output, session) {
            
            FilteringTab =
             {
-              source(file.path("server", "mod_plots_mv_histo.R"),  local = TRUE)$value
+              source(file.path("server", "mod_plots_metacell_histo.R"),  local = TRUE)$value
               source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value
             },
            

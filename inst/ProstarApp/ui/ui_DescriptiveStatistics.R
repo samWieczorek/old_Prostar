@@ -13,7 +13,7 @@ tabPanel("Descriptive statistics",
                      ),
                      
                      tabPanel(
-                         "Miss. values",
+                         "Metadata",
                          value = "DS_tabOverviewMV",
                          uiOutput("plotsMVHistograms")
                          

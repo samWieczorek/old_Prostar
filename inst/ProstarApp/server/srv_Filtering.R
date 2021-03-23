@@ -50,10 +50,6 @@ resetModuleFiltering <- reactive({
 })
 
 
-
-
-
-
 #########################################################################################
 ##
 ##                    SCREEN 1
@@ -135,7 +131,7 @@ output$screenFiltering1 <- renderUI({
         
         hr(),
         ################## PLots section ###################################
-        mod_plots_mv_histo_ui("MVPlots_filtering")
+        mod_plotsMetacellHistos_ui("MVPlots_filtering")
         #uiOutput("ObserverMVFilteringDone")
       )
       
@@ -151,10 +147,11 @@ observe({
 })
 
 
-callModule(mod_plots_mv_histo_server, "MVPlots_filtering", 
-           data = reactive({rv$current.obj}),
-           pal = reactive({rv$PlotParams$paletteForConditions})
-)
+mod_plotsMetacellHistos_server(id = "MVPlots_filtering", 
+                               obj = reactive({rv$current.obj}),
+                               pal = reactive({rv$PlotParams$paletteForConditions}),
+                               pattern = reactive({rv$widgets$filtering$MetacellTag})
+                               )
 
 
 
