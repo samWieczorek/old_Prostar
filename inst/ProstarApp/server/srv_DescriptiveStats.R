@@ -7,10 +7,12 @@ callModule(moduleLegendColoredExprs,
            legend = rv$legendTypeMV,
            colors = rv$colorsTypeMV)
 
-callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
-           data=reactive({rv$current.obj}),
-           pal = reactive({rv$PlotParams$paletteForConditions})
-)
+mod_plotsMetacellHistos_server(id = "MVPlots_DS", 
+                               data=reactive({rv$current.obj}),
+                               pattern = reactive({xxx}),
+                               pal = reactive({rv$PlotParams$paletteForConditions})
+                               )
+
 callModule(moduleDensityplot, "densityPlot_DS",
            data=reactive({rv$current.obj}))
 
@@ -136,7 +138,7 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
   tagList(
     helpText("These barplots display the distribution of missing values in the dataset."),
-    mod_plots_mv_histo_ui("MVPlots_DS")
+    mod_plotsMetacellHistos_ui("MVPlots_DS")
   )
 })
 
