@@ -8,8 +8,8 @@ callModule(moduleLegendColoredExprs,
            colors = rv$colorsTypeMV)
 
 mod_plotsMetacellHistos_server(id = "MVPlots_DS", 
-                               data=reactive({rv$current.obj}),
-                               pattern = reactive({xxx}),
+                               obj=reactive({rv$current.obj}),
+                               pattern = reactive({input$choose_metacell_DS}),
                                pal = reactive({rv$PlotParams$paletteForConditions})
                                )
 
@@ -137,6 +137,12 @@ output$IntensityStatsPlots <- renderUI({
 
 output$plotsMVHistograms <- renderUI({
   tagList(
+    selectInput("choose_metacell_DS",
+                "Metacell tag",
+                choices = c('None' = 'None',
+                            DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)
+                ),
+                width='200px'),
     helpText("These barplots display the distribution of missing values in the dataset."),
     mod_plotsMetacellHistos_ui("MVPlots_DS")
   )
