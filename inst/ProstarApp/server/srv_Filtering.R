@@ -151,7 +151,7 @@ mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
                                obj = reactive({rv$current.obj}),
                                pal = reactive({rv$PlotParams$paletteForConditions}),
                                pattern = reactive({rv$widgets$filtering$MetacellTag})
-                               )
+)
 
 
 
@@ -319,31 +319,30 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
   conds <-  Biobase::pData(rv$current.obj)$Condition
   
   indices <- NULL
-  if (rv$widgets$filtering$MetacellFilters != "None"){
-    
-    mask <- match.metacell(metadata=GetMetacell(rv$current.obj), 
-                           pattern=pattern, 
-                           level=level)
-    
-    indices <- switch(rv$widgets$filtering$MetacellFilters,
-                      WholeLine = GetIndices_WholeLine(metacell.mask = mask),
-                      WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
-                                                           op = op, 
+  
+  mask <- match.metacell(metadata=GetMetacell(rv$current.obj), 
+                         pattern=pattern, 
+                         level=level)
+  
+  indices <- switch(rv$widgets$filtering$MetacellFilters,
+                    WholeLine = GetIndices_WholeLine(metacell.mask = mask),
+                    WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
+                                                         op = op, 
+                                                         percent = percent, 
+                                                         th = th),
+                    AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                           type = type, 
+                                                           conds = conds, 
                                                            percent = percent, 
+                                                           op = op, 
                                                            th = th),
-                      AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                             type = type, 
-                                                             conds = conds, 
-                                                             percent = percent, 
-                                                             op = op, 
-                                                             th = th),
-                      AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                    type = type,
-                                                                    conds = conds, 
-                                                                    percent = percent,
-                                                                    op = op, 
-                                                                    th = th)
-    )}
+                    AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                                  type = type,
+                                                                  conds = conds, 
+                                                                  percent = percent,
+                                                                  op = op, 
+                                                                  th = th)
+  )
   
   nbDeleted <- 0
   #browser()

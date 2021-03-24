@@ -193,9 +193,9 @@ server <- function(input, output, session){
     # change example tab after chooseMetacellTag user choice
     if (input$chooseMetacellTag != "None"){
       if (input$chooseMetacellTag %in% c("missing", "missing_POV", "missing_MEC")){
-        plop[plop=="na"] <- input$chooseMetacellTag  
+        plop[plop!=1] <- input$chooseMetacellTag  
       } else {
-        plop[plop==1] <- input$chooseMetacellTag  
+        plop[plop!="na"] <- input$chooseMetacellTag  
       }
     }
     
@@ -218,33 +218,35 @@ server <- function(input, output, session){
     conds <-  Biobase::pData(plop_msnset)$Condition
     
     index <- NULL
-    if (input$ChooseMetacellFilters != "None"){
+    print(index)
+    #if (input$ChooseMetacellFilters != "None"){
       mask <- match.metacell(metadata=DAPAR::GetMetacell(plop_msnset), 
                              pattern=pattern, 
                              level=level)
+      print(mask)
       
       
       index <- switch(input$ChooseMetacellFilters,
-                      WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
-                                                           op = op, 
-                                                           percent = percent, 
-                                                           th = th),
-                      WholeLine = GetIndices_WholeLine(metacell.mask = mask),
-                      AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                             type = type, 
-                                                             conds = conds, 
-                                                             percent = percent, 
-                                                             op = op, 
-                                                             th = th),
-                      AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                    type = type,
+                      WholeLine = DAPAR::GetIndices_WholeLine(metacell.mask = mask),
+                      WholeMatrix = DAPAR::GetIndices_WholeMatrix(metacell.mask = mask,
+                                                                  op = op, 
+                                                                  percent = percent, 
+                                                                  th = th),
+                      AllCond = DAPAR::GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                                    type = type, 
                                                                     conds = conds, 
-                                                                    percent = percent,
+                                                                    percent = percent, 
                                                                     op = op, 
-                                                                    th = th)
+                                                                    th = th),
+                      AtLeastOneCond = DAPAR::GetIndices_BasedOnConditions(metacell.mask = mask, 
+                                                                           type = type,
+                                                                           conds = conds, 
+                                                                           percent = percent,
+                                                                           op = op, 
+                                                                           th = th)
       )
-    }
-
+    #}
+    print(index)
     
     
     if(input$ChooseMetacellFilters != "None" &&
@@ -255,8 +257,8 @@ server <- function(input, output, session){
         index <- 1:nrow(plop)
       }
     }
+    print(index)
     
-
     
     
     if (!is.null(index)){
