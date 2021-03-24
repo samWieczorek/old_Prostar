@@ -13,7 +13,7 @@ obj <- Exp1_R25_prot
 ui <- fluidPage(
   tagList(
     selectInput('pattern', 'Pattern', 
-                choices = DAPAR::metacell.def(obj@experimentData@other$typeOfData)
+                choices = DAPAR::GetMetacellDef(obj@experimentData@other$typeOfData)
                 ),
     mod_plotsMetacellHistos_ui('plots_boxplots')
   )
