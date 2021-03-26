@@ -93,7 +93,7 @@ output$screenFiltering1 <- renderUI({
                    selectInput("chooseMetacellTag",
                                modulePopoverUI("metacellTag_help"),
                                choices = c('None' = 'None',
-                                           DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)
+                                           DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
                                ),
                                width='200px')
             ),

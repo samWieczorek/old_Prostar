@@ -4,17 +4,20 @@ require(imp4p)
 callModule(moduleMVPlots,"mvImputationPlots_MV", 
            data=reactive({rv$imputePlotsSteps[["step0"]]}),
            title = reactive("POV distribution"),
-           pal =reactive(rv$PlotParams$paletteForConditions))
+           pal =reactive(rv$PlotParams$paletteForConditions),
+           pattern = 'missing')
 
 callModule(moduleMVPlots,"mvImputationPlots_MEC", 
            data=reactive({rv$imputePlotsSteps[["step1"]]}),
            title = reactive("Distribution after POV imputation"),
-           pal =reactive(rv$PlotParams$paletteForConditions))
+           pal =reactive(rv$PlotParams$paletteForConditions),
+           pattern = 'missing')
 
 callModule(moduleMVPlots,"mvImputationPlots_Valid", 
            data=reactive({rv$imputePlotsSteps[["step2"]]}),
            title = reactive("Distribution after POV and MEC imputation"),
-           pal =reactive(rv$PlotParams$paletteForConditions))
+           pal =reactive(rv$PlotParams$paletteForConditions),
+           pattern = 'missing')
 
 callModule(moduleDetQuantImpValues, "POV_DetQuantValues_DT", 
            reactive({rv$widgets$proteinImput$POV_detQuant_quantile}), 
@@ -310,7 +313,7 @@ observeEvent(input$perform.imputationClassical.button,{
       switch(rv$widgets$proteinImput$POV_algorithm,
              slsa = {
                #rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='missing_POV')
+               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='missing POV')
                #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
@@ -319,14 +322,14 @@ observeEvent(input$perform.imputationClassical.button,{
                rv$current.obj <- wrapper.impute.detQuant(obj = rv$current.obj,
                                                          qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
                                                          factor = rv$widgets$proteinImput$POV_detQuant_factor,
-                                                         na.type='missing_POV')
+                                                         na.type='missing POV')
                #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
                
              },
              KNN = {
                rv$current.obj <- wrapper.impute.KNN(rv$current.obj , 
                                                     rv$widgets$proteinImput$POV_KNN_n,
-                                                    na.type='missing_POV')
+                                                    na.type='missing POV')
              }
       )
       incProgress(0.75, detail = 'Reintroduce MEC blocks')
@@ -364,12 +367,12 @@ observeEvent(input$perform.imputationMEC.button,{
                rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
                                                          qval = rv$widgets$proteinImput$MEC_detQuant_quantile/100,
                                                          factor = rv$widgets$proteinImput$MEC_detQuant_factor,
-                                                         na.type='missing_MEC')
+                                                         na.type='missing MEC')
              },
              fixedValue = {
                rv$current.obj <- wrapper.impute.fixedValue(rv$current.obj,
                                                            fixVal = rv$widgets$proteinImput$MEC_fixedValue,
-                                                           na.type='missing_MEC')
+                                                           na.type='missing MEC')
              }
       )
       

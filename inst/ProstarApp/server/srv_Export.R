@@ -292,7 +292,7 @@ BuildParamDataProcessingDT <- reactive({
       df[iData,"Parameters"]<- '-'
     } else {
       
-      browser()
+      #browser()
       df[iData,"Parameters"]<- do.call(paste0("getTextFor",processName), 
                                        list(l.params=tmp.params[[iData]][[processName]]))
     }

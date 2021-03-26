@@ -38,11 +38,11 @@ GetCurrentDatasetName <- reactive({
 BuildColorStyles <- reactive({
 
   level <- rv$current.obj@experimentData@other$typeOfData
-  list_POV_tags <- search.metacell.tags('POV', level = level)
-  list_MEC_tags <- search.metacell.tags('MEC', level = level)
-  list_Identified_tags <- search.metacell.tags('identified', level = level)
-  list_Recovered_tags <- search.metacell.tags('recovered', level = level)
-  list_Combined_tags <- search.metacell.tags('combined', level = level)
+  list_POV_tags <- c('missing POV', 'imputed POV')
+  list_MEC_tags <- c('missing MEC', 'imputed MEC')
+  list_Identified_tags <- 'identified'
+  list_Recovered_tags <- 'recovered'
+  list_Combined_tags <- 'combined'
   
   styles <- list(tags = NULL,
                  colors = NULL)

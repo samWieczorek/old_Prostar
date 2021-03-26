@@ -140,7 +140,7 @@ output$plotsMVHistograms <- renderUI({
     selectInput("choose_metacell_DS",
                 "Metacell tag",
                 choices = c('None' = 'None',
-                            DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)
+                            DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
                 ),
                 width='200px'),
     helpText("These barplots display the distribution of missing values in the dataset."),

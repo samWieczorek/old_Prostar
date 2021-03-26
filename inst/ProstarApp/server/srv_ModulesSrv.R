@@ -648,11 +648,16 @@ moduleBoxplot <- function(input, output, session, data, pal) {
 
 
 
-moduleMVPlots <- function(input, output, session, data, title, pal) {
+moduleMVPlots <- function(input, output, session, data, title, pal, pattern) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    hc_mvTypePlot2(obj=data(), title=title(), pal = pal())
+    #browser()
+    hc_mvTypePlot2(obj=data(), 
+                   pattern = pattern,
+                   title=title(), 
+                   pal = pal()
+                   )
   })
   
   

@@ -16,15 +16,21 @@ gFilterEmptyLines <- gFiltersList[["Empty lines"]]
 path <- "~/TELETRAVAIL/github_master/Prostar/inst/ProstarApp/"
 
 
-
-plop <- read.csv(paste0(path, 'dev/example_filtration_tab.txt'), sep='\t')
+plop <- data.frame(A1 = c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                   A2	 = c(1, 1, NA, NA, NA, NA, NA, 1, 1, NA),
+                   A3 = c(1, 1, 1, NA, NA, NA, NA, 1, 1, 1),
+                   B1 = c(1, 1, 1, 1, NA, NA, NA, NA, NA, NA),
+                   B2 = c(1, 1, 1, 1, 1, NA, NA, 1, NA, NA),
+                   B3 = c(1, 1, 1, 1, 1, 1, NA, 1, 1, 1)
+                   )
+#plop[plop==1] <- sample(10, 1)
 
 metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
 colnames(metadata_plop) <- c("Sample.name","Condition","Bio.Rep")
 metadata_plop$Sample.name <- colnames(plop)
 metadata_plop$Condition <- c(rep("c1",3),rep("c2",3))
 metadata_plop$Bio.Rep <- c(1:6)
-plop_msnset <- DAPAR::createMSnset(file = paste0(path, 'dev/example_filtration_tab.txt'),
+plop_msnset <- DAPAR::createMSnset(file = plop,
                                    indExpData = c(1:6),
                                    indFData = c(1:6), 
                                    metadata = metadata_plop,
@@ -45,7 +51,7 @@ ui <- fluidPage(
            selectInput("chooseMetacellTag",
                        "metacellTag",
                        choices = c('None' = 'None',
-                                   DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)
+                                   DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)$node
                        ),
                        width='200px')
     ),
@@ -192,7 +198,7 @@ server <- function(input, output, session){
     
     # change example tab after chooseMetacellTag user choice
     if (input$chooseMetacellTag != "None"){
-      if (input$chooseMetacellTag %in% c("missing", "missing_POV", "missing_MEC")){
+      if (input$chooseMetacellTag %in% c("missing", "missing POV", "missing MEC")){
         plop[plop!=1] <- input$chooseMetacellTag  
       } else {
         plop[plop!="na"] <- input$chooseMetacellTag  

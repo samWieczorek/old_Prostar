@@ -142,34 +142,34 @@ shinyServer(function(input, output, session) {
              source(file.path("server", "srv_SaveGraphics.R"), local = TRUE)$value
            },
            ReloadTab = {
-             source(file.path("server", "srv_ReloadProstar.R"),  local = TRUE)$value
+             source(file.path("server", "srv_ReloadProstar.R"), local = TRUE)$value
            },
            
            FilteringTab =
             {
-              source(file.path("server", "mod_plots_metacell_histo.R"),  local = TRUE)$value
-              source(file.path("server", "srv_Filtering.R"),  local = TRUE)$value
+              source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
+              source(file.path("server", "srv_Filtering.R"), local = TRUE)$value
             },
            
            NormalizationTab = 
              {
-               source(file.path("server", "mod_plots_tracking.R"),  local = TRUE)$value
-               source(file.path("server", "mod_plots_intensity.R"),  local = TRUE)$value
-               source(file.path("server", "srv_Normalization.R"),  local = TRUE)$value
+               source(file.path("server", "mod_plots_tracking.R"), local = TRUE)$value
+               source(file.path("server", "mod_plots_intensity.R"), local = TRUE)$value
+               source(file.path("server", "srv_Normalization.R"), local = TRUE)$value
                },
            
            imputationProteinLevelTabs = {
-             source(file.path("server", "srv_Imputation_ProteinLevel.R"),  local = TRUE)$value
+             source(file.path("server", "srv_Imputation_ProteinLevel.R"), local = TRUE)$value
            },
            imputationPeptideLevelTabs = {
-             source(file.path("server", "srv_Imputation_PeptideLevel.R"),  local = TRUE)$value
+             source(file.path("server", "srv_Imputation_PeptideLevel.R"), local = TRUE)$value
            },
            AggregationTab =
-             source(file.path("server", "srv_Aggregation.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_Aggregation.R"), local = TRUE)$value,
            
            diffAnalysisTab = 
              {
-               source(file.path("server", "srv_AnaDiff.R"),  local = TRUE)$value
+               source(file.path("server", "srv_AnaDiff.R"), local = TRUE)$value
              },
            
            graphTab = 
@@ -179,24 +179,24 @@ shinyServer(function(input, output, session) {
              },
            
            GoTab = 
-             source(file.path("server", "srv_GO_enrichment.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_GO_enrichment.R"), local = TRUE)$value,
            
            # updateDesignTab = 
            #   source(file.path("server", "srv_UpdateDesign.R"),  local = TRUE)$value,
            # 
            faqTab = 
-             source(file.path("server", "srv_FAQ.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_FAQ.R"), local = TRUE)$value,
            checkForUpdatesTab = 
-             source(file.path("server", "srv_CheckForUpdates.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_CheckForUpdates.R"), local = TRUE)$value,
            usefulLinksTab = 
-             source(file.path("server", "srv_UsefulLinks.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_UsefulLinks.R"), local = TRUE)$value,
            
            ReleaseNotesTab = 
-             source(file.path("server", "srv_ReleaseNotes.R"),  local = TRUE)$value,
+             source(file.path("server", "srv_ReleaseNotes.R"), local = TRUE)$value,
            
-           bugReportTab = source(file.path("server", "srv_BugReport.R"),  local = TRUE)$value,
+           bugReportTab = source(file.path("server", "srv_BugReport.R"), local = TRUE)$value,
            
-           testTab = source(file.path("server", "srv_HypothesisTest.R"),  local = TRUE)$value
+           testTab = source(file.path("server", "srv_HypothesisTest.R"), local = TRUE)$value
     )
     
   })
