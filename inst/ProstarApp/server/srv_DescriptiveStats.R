@@ -592,7 +592,7 @@ output$DS_PlotHeatmap <- renderUI({
 #################
 output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
-  df <- getDataForExprs(rv$current.obj)
+  df <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
   #browser()
 
   dt <- datatable( df,

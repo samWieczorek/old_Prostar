@@ -295,7 +295,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     prot.indice <- rownames(prot)
     #print(prot.indice)
     
-    data <- getDataForExprs(prev.dataset)
+    data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     Xspec <- rv$matAdj$matWithUniquePeptides
@@ -357,7 +357,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     prot <- GetExprsClickedProtein()
     prot.indice <- rownames(prot)
     
-    data <- getDataForExprs(prev.dataset)
+    data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     
@@ -414,7 +414,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
     
-    data <- getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     index.g1 <- which((-log10(data()$P_Value) >= rv$widgets$anaDiff$th_pval

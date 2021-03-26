@@ -35,9 +35,9 @@ GetCurrentDatasetName <- reactive({
 
 
 
-BuildColorStyles <- reactive({
+BuildColorStyles <- function(obj, colors.def){
 
-  level <- rv$current.obj@experimentData@other$typeOfData
+  level <- obj@experimentData@other$typeOfData
   list_POV_tags <- c('missing POV', 'imputed POV')
   list_MEC_tags <- c('missing MEC', 'imputed MEC')
   list_Identified_tags <- 'identified'
@@ -47,41 +47,52 @@ BuildColorStyles <- reactive({
   styles <- list(tags = NULL,
                  colors = NULL)
   
-  if (length(list_POV_tags)>0){
+  if (length(list_POV_tags) > 0){
     styles$tags <- c(styles$tags, list_POV_tags)
-    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$POV, length(list_POV_tags)))
+    styles$colors <- c(styles$colors, rep(colors.def$POV, length(list_POV_tags)))
   }
   
-  if (length(list_MEC_tags)>0){
+  if (length(list_MEC_tags) > 0){
     styles$tags <- c(styles$tags, list_MEC_tags)
-    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$MEC, length(list_MEC_tags)))
+    styles$colors <- c(styles$colors, rep(colors.def$MEC, length(list_MEC_tags)))
   }
   
-  if (length(list_Identified_tags)>0){
+  if (length(list_Identified_tags) > 0){
     styles$tags <- c(styles$tags, list_Identified_tags)
-    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$identified, length(list_Identified_tags)))
+    styles$colors <- c(styles$colors, rep(colors.def$identified, length(list_Identified_tags)))
   }
   
-  if (length(list_Recovered_tags)>0){
+  if (length(list_Recovered_tags )> 0){
     styles$tags <- c(styles$tags, list_Recovered_tags)
-    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$recovered, length(list_Recovered_tags)))
+    styles$colors <- c(styles$colors, rep(colors.def$recovered, length(list_Recovered_tags)))
   }
   
   
-  if (length(list_Combined_tags)>0){
+  if (length(list_Combined_tags) > 0){
     styles$tags <- c(styles$tags, list_Combined_tags)
-    styles$colors <- c(styles$colors, rep(rv$colorsTypeMV$combined, length(list_Combined_tags)))
+    styles$colors <- c(styles$colors, rep(colors.def$combined, length(list_Combined_tags)))
   }
   
   styles
-})
+}
 
 
 
-getDataForExprs <- function(obj){
+#' @title 
+#' xxxx
+#' 
+#' @description 
+#' xxxx
+#' 
+#' @param obj xx
+#' 
+#' 
+getDataForExprs <- function(obj, digits=NULL){
   
   #browser()
-  test.table <- as.data.frame(round(Biobase::exprs(obj),digits=rv$settings_nDigits))
+  if (is.null(digits))
+    digits <- 2
+  test.table <- as.data.frame(round(Biobase::exprs(obj)))
   # print(paste0("tutu:",obj@experimentData@other$names.metacell))
   if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
     test.table <- cbind(test.table, 
@@ -96,6 +107,9 @@ getDataForExprs <- function(obj){
   return(test.table)
   
 }
+
+
+
 
 
 getData <- reactive({

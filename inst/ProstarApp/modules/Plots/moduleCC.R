@@ -306,7 +306,7 @@ output$CCDetailed <- renderUI({
     
     
     ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
     pepLine <- rvCC$detailedselectedNode$sharedPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
@@ -351,7 +351,7 @@ output$CCDetailed <- renderUI({
     if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
     
     ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
     pepLine <-  rvCC$detailedselectedNode$specPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
@@ -496,7 +496,7 @@ output$CCDetailed <- renderUI({
     line <- input$OneMultiDT_rows_selected
     
     ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
     pepLine <- as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
     
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
@@ -597,7 +597,7 @@ output$CCDetailed <- renderUI({
     line <- input$OneOneDT_rows_selected
     
     ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj)
+    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]

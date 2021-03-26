@@ -72,7 +72,7 @@ ui <- fluidPage(
     )
   ),
   
-  actionButton("show_modal", "Open modal example"),
+  actionButton("show_modal", "View example"),
   
   shinyBS::bsModal("example_modal",
                    title="Modal",

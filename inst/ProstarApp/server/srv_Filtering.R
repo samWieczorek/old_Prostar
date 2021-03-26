@@ -32,6 +32,7 @@ resetModuleFiltering <- reactive({
   rv$widgets$filtering$MetacellFilters <- "None"
   rv$widgets$filtering$KeepRemove <- 'delete'
   rv$widgets$filtering$metacell_value_th <- 0
+  rv$widgets$filtering$choose_metacell_percent_th <- 0
   rv$widgets$filtering$metacell_value_percent <- 0
   rv$widgets$filtering$val_vs_percent <- 'Value'
   rv$widgets$filtering$metacellFilter_operator <- '<='
@@ -59,6 +60,9 @@ resetModuleFiltering <- reactive({
 
 
 output$screenFiltering1 <- renderUI({
+  
+  mod_filtering_example_server(id = 'example',
+                               params = reactive({rv$widgets$filtering}))
   
   callModule(modulePopover,"metacellTag_help", 
              data = reactive(list(title = "Nature of data to filter", 
@@ -95,6 +99,7 @@ output$screenFiltering1 <- renderUI({
                                choices = c('None' = 'None',
                                            DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
                                ),
+                               selected = rv$widgets$filtering$MetacellTag,
                                width='200px')
             ),
             column(2,
@@ -181,7 +186,8 @@ output$MetacellFilters_widgets_set2_ui <- renderUI({
              data = reactive(list(title = paste("#/% of values to ", rv$widgets$filtering$KeepRemove),
                                   content="Define xxx")))
   
-  fluidRow(
+  tagList(
+    fluidRow(
     column(4,
            radioButtons('choose_val_vs_percent',
                         modulePopoverUI("choose_val_vs_percent_help"),
@@ -200,7 +206,14 @@ output$MetacellFilters_widgets_set2_ui <- renderUI({
            uiOutput('choose_value_ui'),
            uiOutput('choose_percentage_ui')
     )
+  ),
+   mod_filtering_example_ui('example')
   )
+  
+})
+
+observeEvent(input$show_filtering_example, {
+  shinyjs::toggle('example_div', condition = TRUE)
 })
 
 
@@ -247,6 +260,7 @@ output$choose_percentage_ui <- renderUI({
 })
 
 
+
 WriteQuery <- reactive({
   if (rv$widgets$filtering$MetacellFilters == "None"){
     txt_summary <- "No filtering is processed."
@@ -290,18 +304,8 @@ output$metacellFilter_request_ui <- renderUI({
 })
 
 
-## Perform filtration
-observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
-  # rv$widgets$filtering$MetacellTag
-  # rv$widgets$filtering$KeepRemove
-  # rv$widgets$filtering$MetacellFilters
-  # rv$widgets$filtering$metacell_value_th
-  # rv$widgets$filtering$metacell_percent_th
-  # rv$widgets$filtering$val_vs_percent
-  # rv$widgets$filtering$metacellFilter_operator
-  # rv$current.obj
-  
-  #browser()
+
+ComputenMetacellFilteringIndexes <- reactive({
   
   th <- NULL
   if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
@@ -343,6 +347,13 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
                                                                   op = op, 
                                                                   th = th)
   )
+})
+
+
+## Perform filtration
+observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
+  
+  indices <- ComputenMetacellFilteringIndexes()
   
   nbDeleted <- 0
   #browser()
