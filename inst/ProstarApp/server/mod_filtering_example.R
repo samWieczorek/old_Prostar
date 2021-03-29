@@ -6,10 +6,12 @@ mod_filtering_example_ui <- function(id){
   tagList(
     actionButton(ns("show_filtering_example"), "Preview filtering"),
     shinyBS::bsModal(ns("example_modal"),
-                     title="Preview of the filtering result.",
+                     title="Example preview of the filtering result.",
                      size = "large",
                      trigger = ns("show_filtering_example"),
-                     dataTableOutput(ns("example_tab")),
+                     tagList(
+                       p("The darkened lines are those which respect the query."),
+                       dataTableOutput(ns("example_tab"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-footer{ display:none}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-dialog{ width:1000px}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-body{ min-height:700px}")))
