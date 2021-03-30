@@ -207,6 +207,8 @@ MSnSetExplorer <- function(input, output, session, data) {
   output$table <- DT::renderDataTable(server=TRUE,{
     req(rv$current.obj)
     df <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
     dt <- DT::datatable( df,
                      rownames=TRUE,
@@ -232,7 +234,7 @@ MSnSetExplorer <- function(input, output, session, data) {
       formatStyle(
         colnames(df)[1:(ncol(df)/2)],
         colnames(df)[((ncol(df)/2)+1):ncol(df)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors),
+        backgroundColor = styleEqual(c.tags, c.colors),
         backgroundSize = '98% 48%',
         backgroundRepeat = 'no-repeat',
         backgroundPosition = 'center'

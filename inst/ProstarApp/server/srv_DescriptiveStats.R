@@ -594,7 +594,9 @@ output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
   #browser()
-
+  c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+  c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+  
   dt <- datatable( df,
                    extensions = c('Scroller', 'Buttons'),
                    options = list(
@@ -616,7 +618,7 @@ output$table <- DT::renderDataTable(server=TRUE, {
     formatStyle(
       colnames(df)[1:(ncol(df)/2)],
       colnames(df)[((ncol(df)/2)+1):ncol(df)],
-      backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors),
+      backgroundColor = styleEqual(c.tags, c.colors),
       backgroundSize = '98% 48%',
       backgroundRepeat = 'no-repeat',
       backgroundPosition = 'center'

@@ -318,6 +318,9 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
@@ -335,7 +338,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
+        backgroundColor = styleEqual(c.tags, c.colors))
     
     dt
   })
@@ -364,6 +367,8 @@ output$CCDetailed <- renderUI({
     
     offset <- length(input$pepInfo)
     
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
@@ -382,7 +387,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
+        backgroundColor = styleEqual(c.tags, c.colors))
     
     dt
   })
@@ -520,6 +525,8 @@ output$CCDetailed <- renderUI({
     data <- GetDataFor_OneMultiDTDetailed()
     offset <- length(input$pepInfo)
     
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
     dt <- DT::datatable(data ,
                      extensions = c('Scroller', 'Buttons'),
@@ -540,7 +547,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
+        backgroundColor = styleEqual(c.tags, c.colors))
     
     dt
   })
@@ -616,6 +623,9 @@ output$CCDetailed <- renderUI({
     data <- GetDataFor_OneOneDTDetailed()
     offset <- length(input$pepInfo)
     
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    
     dt <- DT::datatable( data,
                      extensions = c('Scroller', 'Buttons'),
                      options = list(initComplete = initComplete(),
@@ -635,7 +645,7 @@ output$CCDetailed <- renderUI({
       formatStyle(
         colnames(data)[1:((ncol(data)-offset)/2)],
         colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors))
+        backgroundColor = styleEqual(c.tags, c.colors))
     
     dt
   })

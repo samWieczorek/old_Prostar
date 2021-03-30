@@ -689,12 +689,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           }
         }
         
-        
-        versions <- list(Prostar_Version = 
-                           installed.packages(lib.loc = Prostar.loc)["Prostar","Version"],
-                         DAPAR_Version = 
-                           installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
-        )
         options(digits=15)
         
         protId <- NULL
@@ -713,7 +707,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                    replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
                                    proteinId =  gsub(".", "_", protId, fixed=TRUE),
-                                   versions = versions,
                                    software = input$choose_software
                                    )
         ClearUI()

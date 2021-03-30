@@ -797,6 +797,9 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   req(GetDataFor_VizualizeFilteredData())
   dt <- NULL
   data <- GetDataFor_VizualizeFilteredData()
+  c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+  c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+  
   #browser()
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
@@ -823,7 +826,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):ncol(data)],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
+        backgroundColor = styleEqual(c.tags, c.colors)
       )
   } else {
     dt <- DT::datatable( data,

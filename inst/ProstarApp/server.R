@@ -148,6 +148,7 @@ shinyServer(function(input, output, session) {
            FilteringTab =
             {
               source(file.path("server", "mod_plots_metacell_histo.R"), local = TRUE)$value
+              source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value
               source(file.path("server", "srv_Filtering.R"), local = TRUE)$value
               source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value
               
