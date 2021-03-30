@@ -66,9 +66,9 @@ mod_filtering_example_server <- function(id, params, txt) {
   
   # ###############
   # # options modal
-  jqui_draggable(paste0("#","example_modal"," .modal-content"),
-                 options = list(revert=FALSE)
-  )
+  # jqui_draggable(paste0("#","example_modal"," .modal-content"),
+  #                options = list(revert=FALSE)
+  # )
   # ###############
  
       colorsTypeMV = list(MEC = 'orange', 

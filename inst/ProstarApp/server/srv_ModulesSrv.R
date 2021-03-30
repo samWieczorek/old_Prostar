@@ -311,6 +311,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
     data <-  GetDataFor_sharedPeptidesInfos()
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    
     dt <- DT::datatable(data,
                         #colnames=NULL,
                         extensions = c('Scroller', 'Buttons'),
@@ -330,7 +333,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
+        backgroundColor = styleEqual(c.tags, c.colors)
       ) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
@@ -373,6 +376,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
     
     data <- GetDataFor_specificPeptidesInfos()
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    
     dt <- DT::datatable( data, 
                          #colnames=NULL,
                          extensions = c('Scroller', 'Buttons'),
@@ -391,7 +397,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)
+        backgroundColor = styleEqual(c.tags, c.colors)
       ) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
@@ -463,6 +469,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     borders_index <- GetBorderIndices()
     data <- GetExprsClickedProtein()
+    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    
     dt <- DT::datatable(data,
                         extensions = c('Scroller', 'Buttons'),
                         options = list(initComplete = initComplete(),
@@ -481,7 +490,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       formatStyle(
         colnames(data)[1:(ncol(data)/2)],
         colnames(data)[((ncol(data)/2)+1):(ncol(data))],
-        backgroundColor = styleEqual(BuildColorStyles()$tags, BuildColorStyles()$colors)) %>% 
+        backgroundColor = styleEqual(c.tags, c.colors)) %>% 
       formatStyle(borders_index, borderLeft = '3px solid #000000')
     
     
