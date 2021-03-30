@@ -62,7 +62,8 @@ resetModuleFiltering <- reactive({
 output$screenFiltering1 <- renderUI({
   
   mod_filtering_example_server(id = 'example',
-                               params = reactive({rv$widgets$filtering}))
+                               params = reactive({rv$widgets$filtering}),
+                               txt = reactive({WriteQuery()}))
   
   callModule(modulePopover,"metacellTag_help", 
              data = reactive(list(title = "Nature of data to filter", 

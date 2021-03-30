@@ -3,6 +3,7 @@ library(DT)
 library(MSnbase)
 library(DAPAR)
 library(shinyBS)
+library(shinyjqui)
 
 #source(file.path('../inst/ProstarApp/server', 'mod_plots_metacell_histo.R'), local=TRUE)$value
 
@@ -34,8 +35,9 @@ server <- function(input, output, session) {
   )
   
   mod_filtering_example_server(id = 'example', 
-                                 params = reactive({rv$widgets$filtering})
-  )
+                               params = reactive({rv$widgets$filtering}),
+                               txt = reactive({'query'})
+                               )
 }
 
 

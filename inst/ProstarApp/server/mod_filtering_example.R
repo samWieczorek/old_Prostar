@@ -10,8 +10,11 @@ mod_filtering_example_ui <- function(id){
                      size = "large",
                      trigger = ns("show_filtering_example"),
                      tagList(
-                       p("The darkened lines are those which respect the query."),
-                       dataTableOutput(ns("example_tab"))),
+                       uiOutput(ns('show_text')),
+                       radioButtons(ns('run_btn'), 'Example dataset',
+                                    choices = setNames(nm=c('original dataset', 'simulate filtered dataset'))),
+                       dataTableOutput(ns("example_tab"))
+                       ),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-footer{ display:none}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-dialog{ width:1000px}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-body{ min-height:700px}")))
@@ -23,22 +26,25 @@ mod_filtering_example_ui <- function(id){
 
 
 
-mod_filtering_example_server <- function(id, params) {
+mod_filtering_example_server <- function(id, params, txt) {
   
-  qdata <- data.frame(A1 = c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA),
-                     A2	= c(1,  1, NA, NA, NA, NA, NA,  1,  1, NA),
-                     A3 = c(1, 1,  1,  NA, NA, NA, NA,  1,  1,  1),
-                     B1 = c(1,  1, 1,   1, NA, NA, NA, NA, NA, NA),
-                     B2 = c(1,  1, 1,   1,  1, NA, NA,  1, NA, NA),
-                     B3 = c(1,  1, 1,   1,  1,  1, NA,  1,  1,  1)
+  qdata <- data.frame(A_1 = c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA),
+                      A_2	= c(1,  1, NA, NA, NA, NA, NA,  1,  1, NA),
+                      A_3 = c(1, 1,  1,  NA, NA, NA, NA,  1,  1,  1),
+                      B_1 = c(1,  1, 1,   1, NA, NA, NA, NA, NA, NA),
+                      B_2 = c(1,  1, 1,   1,  1, NA, NA,  1, NA, NA),
+                      B_3 = c(1,  1, 1,   1,  1,  1, NA,  1,  1,  1)
   )
-  #plop[plop==1] <- sample(10, 1)
+  ind <- which(qdata==1, arr.ind=TRUE)
+  samples <- round(runif(nrow(ind), min=0, max=100), digits = 2)
+  for (i in 1:nrow(ind))
+    qdata[ind[i, 1], ind[i, 2]] <- samples[i]
   
-  metadata_plop <- as.data.frame(matrix(NA, nrow=6, ncol=3))
-  colnames(metadata_plop) <- c("Sample.name", "Condition", "Bio.Rep")
-  metadata_plop$Sample.name <- colnames(qdata)
-  metadata_plop$Condition <- c(rep("c1", 3),rep("c2", 3))
-  metadata_plop$Bio.Rep <- c(1:6)
+  metadata_plop <- data.frame(Sample.name = colnames(qdata),
+                              Condition = c(rep("A", 3),rep("B", 3)),
+                              Bio.Rep = c(1:6)
+  )
+
   obj <- DAPAR::createMSnset(file = qdata,
                              indExpData = c(1:6),
                              indFData = c(1:6), 
@@ -52,6 +58,10 @@ mod_filtering_example_server <- function(id, params) {
     id,
     function(input, output, session) {
   
+  
+  output$show_text <- renderUI({
+    h3(txt())
+  })
   
   
   # ###############
@@ -75,17 +85,6 @@ mod_filtering_example_server <- function(id, params) {
   
   
   ComputenMetacellFilteringIndexes <- reactive({
-    
-    # change example tab after chooseMetacellTag user choice
-    # if (params()$MetacellTag != "None"){
-    #   if (params()$MetacellTag %in% c("missing", "missing POV", "missing MEC")){
-    #     plop_msnset[Biobase::exprs(plop_msnset) != 1] <- params()$MetacellTag  
-    #   } else {
-    #     plop_msnset[plop_msnset!="na"] <- params()$MetacellTag  
-    #   }
-    # }
-    # 
-    
     
     if (!(params()$MetacellFilters %in% c("None", "WholeLine"))){
       th <- NULL
@@ -177,44 +176,33 @@ mod_filtering_example_server <- function(id, params) {
   
   output$example_tab <- DT::renderDataTable({
     index <- ComputenMetacellFilteringIndexes()
+    df <- getDataForExprs(obj, NULL)
+    c.tags <- BuildColorStyles(obj, colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(obj, colorsTypeMV)$colors
+    range.invisible <- ((ncol(df)/2)+1):ncol(df)
     
-    if (!is.null(index)){
-      df <- getDataForExprs(obj, NULL)
-      range <- ((ncol(df)/2)+1):ncol(df)
+    if (!is.null(index) && input$run_btn == 'simulate filtered dataset'){
       for (i in index)
-        df[i, range] <- paste0('darken_', df[i, range] )
-      
-      
-      c.tags <- BuildColorStyles(obj, colorsTypeMV)$tags
-      c.colors <-  BuildColorStyles(obj, colorsTypeMV)$colors
+        df[i, range.invisible] <- paste0('darken_', df[i, range.invisible] )
       c.tags <- c(c.tags, paste0('darken_', c.tags))
       c.colors <- c(c.colors, DarkenColors(c.colors))
-      
+    }
+    
       DT::datatable(df,
+                    #rownames = FALSE,
                     options = list(
-                      paging = FALSE,
-                      searching = FALSE,
-                      columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), 
-                                             visible = FALSE)))) %>%
+                      dom = 't',
+                      server = FALSE,
+                      columnDefs = list(list(targets = range.invisible, 
+                                             visible = FALSE)))
+                    ) %>%
 
         formatStyle(
           colnames(df)[1:(ncol(df)/2)],
-          colnames(df)[((ncol(df)/2)+1):ncol(df)],
-          backgroundColor = styleEqual(c.tags, c.colors),
-          backgroundSize = '98% 48%',
-          backgroundRepeat = 'no-repeat',
-          backgroundPosition = 'center'
+          colnames(df)[range.invisible],
+          backgroundColor = styleEqual(c.tags, c.colors)
         )
-    } else {
-      p('No filtering with these parameters.')
-      
-      DT::datatable(obj,
-                    options = list(
-                      paging = FALSE,
-                      searching = FALSE)
-      )              
-      
-    }
+
   })
 
   
