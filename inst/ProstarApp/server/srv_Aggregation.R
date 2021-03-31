@@ -197,32 +197,52 @@ RunAggregation <- reactive({
     require(foreach)
     incProgress(0.5, detail = 'Aggregation in progress')
     
-    obj.prot <- NULL
+    ll.agg <- NULL
     if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides
       if (rv$widgets$aggregation$includeSharedPeptides == 'Yes1'){
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-          obj.prot <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),list( obj.pep=rv$current.obj,X=X))
+          ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
+                              list( obj.pep = rv$current.obj,X=X))
         } else {
-          obj.prot <- aggregateTopn(rv$current.obj, X,rv$widgets$aggregation$operator, n=as.numeric(rv$widgets$aggregation$topN))
+          ll.agg <- aggregateTopn(rv$current.obj, 
+                                    X,
+                                    rv$widgets$aggregation$operator, 
+                                    n = as.numeric(rv$widgets$aggregation$topN))
         }
       } else {
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-          obj.prot <- aggregateIterParallel(rv$current.obj, X,init.method='Sum', method='Mean')
+          ll.agg <- aggregateIterParallel(rv$current.obj, 
+                                            X,
+                                            init.method='Sum', 
+                                            method='Mean')
         } else {
-          obj.prot <- aggregateIterParallel(rv$current.obj, X, init.method='Sum', method='onlyN', n=rv$widgets$aggregation$topN)
+          ll.agg <- aggregateIterParallel(rv$current.obj, 
+                                            X, 
+                                            init.method='Sum', 
+                                            method='onlyN', 
+                                            n = rv$widgets$aggregation$topN)
         }
       }
     } else {
       X <- rv$matAdj$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-        obj.prot <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),list(obj.pep=rv$current.obj,X=X))
+        ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
+                            list(obj.pep = rv$current.obj,
+                                 X = X))
       } else {
-        obj.prot <- aggregateTopn(rv$current.obj, X, rv$widgets$aggregation$operator,n=as.numeric(rv$widgets$aggregation$topN))
+        ll.agg <- aggregateTopn(rv$current.obj, 
+                                  X, 
+                                  rv$widgets$aggregation$operator,
+                                  n = as.numeric(rv$widgets$aggregation$topN)
+                                  )
       }
     }
   } )
-  return(obj.prot)
+  
+  
+  
+  return(ll.agg)
   
 })
 
@@ -234,7 +254,7 @@ RunAggregation <- reactive({
 observeEvent(input$valid.aggregation,{ 
   
   req(rv$matAdj)
-  req(rv$temp.aggregate)
+  req(rv$temp.aggregate$obj.prot)
   
   isolate({
     withProgress(message = '',detail = '', value = 0, {
@@ -250,17 +270,17 @@ observeEvent(input$valid.aggregation,{
       
       for(c in rv$widgets$aggregation$columnsForProteinDataset.box){
         newCol <- BuildColumnToProteinDataset(
-          Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate)))
-        cnames <- colnames(Biobase::fData(rv$temp.aggregate))
-        Biobase::fData(rv$temp.aggregate) <- 
-          data.frame(Biobase::fData(rv$temp.aggregate), newCol)
+          Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate$obj.prot)))
+        cnames <- colnames(Biobase::fData(rv$temp.aggregate$obj.prot))
+        Biobase::fData(rv$temp.aggregate$obj.prot) <- 
+          data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
         
-        colnames(Biobase::fData(rv$temp.aggregate)) <- c(cnames, c)
+        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, c)
         
         cpt <- cpt + delta
         incProgress(cpt/100, detail = paste0('Processing column ', c))
       }
-      rv$current.obj <- rv$temp.aggregate
+      rv$current.obj <- rv$temp.aggregate$obj.prot
       
       rv$current.obj@experimentData@other$Prostar_Version <- 
         installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
@@ -268,7 +288,7 @@ observeEvent(input$valid.aggregation,{
       rv$current.obj@experimentData@other$DAPAR_Version <- 
         installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
       rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj,NULL)
+      rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj, NULL)
       
       name <- paste0("Aggregated", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
@@ -288,6 +308,11 @@ output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
   req(input$perform.aggregation)
   isolate({
+  if (length(rv$temp.aggregate) == 0)
+    h3(style("color = red;"),
+             'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
+       values at the same time.')
+  else
     h3("Aggregation done")
     
   })
@@ -349,8 +374,8 @@ observeEvent(input$perform.aggregation,{
   
   #isolate({
   rv$temp.aggregate <- RunAggregation()
-  rvModProcess$moduleAggregationDone[1] <- TRUE
-  
+  rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) > 0
+
   #})
 })
 
