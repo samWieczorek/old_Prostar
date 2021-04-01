@@ -272,6 +272,13 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
   
   nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
   algo <- rv$widgets$peptideImput$pepLevel_algorithm
+  
+  if (rv$widgets$peptideImput$pepLevel_imp4p_withLapala == FALSE ||
+      algo == "BasicMethods"){
+    print("Warning ! Aggregation of peptides won't be possible if MEC data aren't imputed.
+          Please check \"Impute MEC also\" in the Algorithm \"imp4p\".")
+  }
+  
   if (algo == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
   } else {
@@ -307,7 +314,7 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                MLE={
                  rv$current.obj <- wrapper.impute.mle(obj = rv$dataset[[input$datasets]],
                                                       na.type = 'missing POV')
-                 },
+               },
                detQuantile=
                  {
                    rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
