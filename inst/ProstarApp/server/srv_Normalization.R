@@ -496,7 +496,7 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 output$viewComparisonNorm_HC <- renderHighchart({
   rv$PlotParams$paletteForConditions
   req(rv$current.obj)
-  
+  #browser()
   dname <- paste0("Normalized.", rv$typeOfDataset)
   if (input$datasets == dname){
     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]

@@ -168,7 +168,11 @@ output$screenAggregation3 <- renderUI({
   tagList(
     h4("Once the saving operation is done, the new current dataset is a protein dataset.
        Prostar will automatically switch to the home page with the new dataset."),
-    actionButton("valid.aggregation","Save aggregation", class = actionBtnClass)
+    shinyjs::disabled(
+      actionButton("valid.aggregation",
+                   "Save aggregation", 
+                   class = actionBtnClass)
+    )
   )
 })
 
@@ -225,6 +229,7 @@ RunAggregation <- reactive({
         }
       }
     } else {
+     browser()
       X <- rv$matAdj$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
         ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
@@ -302,20 +307,29 @@ observeEvent(input$valid.aggregation,{
 })
 
 
+observe({
+  shinyjs::toggleState('valid.aggregation', condition = length(rv$temp.aggregate$issues) == 0)
+})
+
 
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
   req(input$perform.aggregation)
-  isolate({
-  if (length(rv$temp.aggregate) == 0)
-    h3(style("color = red;"),
-             'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
-       values at the same time.')
-  else
-    h3("Aggregation done")
-    
-  })
+
+  #browser()
+  if (length(rv$temp.aggregate$issues) > 0){
+    .style = "color: red;"
+    txt <- 'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
+       values at the same time.'
+  }
+  else {
+    txt <- "Aggregation done"
+    .style = ""
+  }
+
+ 
+  tags$h3(style = .style, txt)
 })
 
 
@@ -373,8 +387,10 @@ output$aggregationPlotUnique <- renderPlot({
 observeEvent(input$perform.aggregation,{
   
   #isolate({
+  #browser()
   rv$temp.aggregate <- RunAggregation()
-  rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) > 0
+ # browser()
+  rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) == 0
 
   #})
 })
@@ -476,7 +492,8 @@ output$warningAgregationMethod <- renderUI({
   
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
   {
-    tags$p(tags$b('Warning:')," Your dataset contains missing values.
+    tags$p(style = "color: red;",
+  tags$b('Warning:')," Your dataset contains missing values.
     For better results, you should impute them first")
   }
   

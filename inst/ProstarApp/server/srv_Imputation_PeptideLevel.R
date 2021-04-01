@@ -302,18 +302,18 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
                KNN={  
                  rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]],
                                                       K=rv$widgets$peptideImput$pepLevel_KNN_n,
-                                                      na.type = 'NA')
+                                                      na.type = 'missing POV')
                },
                MLE={
                  rv$current.obj <- wrapper.impute.mle(obj = rv$dataset[[input$datasets]],
-                                                      na.type = 'NA')
+                                                      na.type = 'missing POV')
                  },
                detQuantile=
                  {
                    rv$current.obj <- wrapper.impute.detQuant(rv$dataset[[input$datasets]],
                                                              qval = (rv$widgets$peptideImput$pepLevel_detQuantile/100),
                                                              factor = rv$widgets$peptideImput$pepLevel_detQuant_factor,
-                                                             na.type = 'NA')
+                                                             na.type = 'missing POV')
                  }
         )
       }
