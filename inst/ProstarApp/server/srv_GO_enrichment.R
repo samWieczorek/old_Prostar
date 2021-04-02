@@ -180,7 +180,7 @@ callModule(modulePopover,"modulePopover_GOlevel",
 
 
 callModule(modulePopover,"modulePopover_GOuniverse", 
-           data = reactive(list(title = "Universe" 
+           data = reactive(list(title = "Universe",
                                 content="universe")))
 callModule(modulePopover,"modulePopover_GOfdr", 
            data = reactive(list(title = "FDR", 

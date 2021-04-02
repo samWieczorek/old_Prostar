@@ -360,19 +360,18 @@ output$peptideLevel_warningImputationMethod <- renderText({
   rv$widgets$peptideImput$pepLevel_algorithm
   rv$widgets$peptideImput$pepLevel_imp4p_withLapala
   
+  if (rv$widgets$peptideImput$pepLevel_algorithm == "None"){return(NULL)}
   
-  var1 <- ((rv$widgets$peptideImput$pepLevel_algorithm == "imp4p") && (isFALSE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala))) ||
-             (rv$widgets$peptideImput$pepLevel_algorithm ==  "BasicMethods")
+  var1 <- (((rv$widgets$peptideImput$pepLevel_algorithm == "imp4p") && (isFALSE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala))) ||
+             (rv$widgets$peptideImput$pepLevel_algorithm ==  "BasicMethods"))
   if (var1){
     t <- "<font color=\"red\"><strong>Warning:</strong>Aggregation of peptides won't be possible if MEC data aren't imputed.
           <br>Please check \"Impute MEC also\" in the Algorithm \"imp4p\".</font color=\"red\">"}
   
   
-  # if (rv$widgets$peptideImput$pepLevel_imp4p_withLapala == FALSE){return(NULL)}
-
-  var2 <- ((rv$widgets$peptideImput$pepLevel_algorithm == "imp4p") && (isTRUE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala))) ||
-    (rv$widgets$peptideImput$pepLevel_algorithm ==  "BasicMethods")
-
+  
+  var2 <- ((rv$widgets$peptideImput$pepLevel_algorithm == "imp4p") && (isTRUE(rv$widgets$peptideImput$pepLevel_imp4p_withLapala)))
+  
   if (var2){
     t <- "<font color=\"red\"><strong>Warning:</strong> Imputed MEC (Missing on the Entire Condition)
           values must be very cautiously interpreted <br>[see the User manual, Section 6.3.1].</font color=\"red\">"}
