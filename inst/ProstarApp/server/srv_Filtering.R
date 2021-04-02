@@ -901,7 +901,10 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
 
 
 
-
+callModule(moduleLegendColoredExprs, 
+           "FilterColorLegend_DS", 
+           legend = rv$legendTypeMV,
+           colors = rv$colorsTypeMV)
 
 
 output$legendForExprsData2 <- renderUI({
