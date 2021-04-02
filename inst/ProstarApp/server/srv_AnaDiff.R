@@ -32,6 +32,7 @@ resetModuleAnaDiff <- reactive({
     rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
   }
 
+  #browser()
   ## update widgets values (reactive values)
   resetModuleProcess("AnaDiff")
   
@@ -479,7 +480,7 @@ output$screenAnaDiff2 <- renderUI({
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; padding-right: 40px;",
                 selectInput("calibrationMethod","Calibration method",
-                            choices = calibMethod_Choices,
+                            choices = c('None' = 'None', calibMethod_Choices),
                             selected = rv$widgets$anaDiff$calibMethod, width='200px')
       ),
       tags$div( style="display:inline-block; vertical-align: middle;",
@@ -489,10 +490,12 @@ output$screenAnaDiff2 <- renderUI({
                 #                     min=0, max=1, step=0.05, width='200px')
                 #      )
       ),
-      tags$div( style="display:inline-block; vertical-align: middle;",
+      tags$div( style="display:inline-block; vertical-align: middle;padding-right: 40px;",
                 selectInput("nBinsHistpval", "n bins", 
                             choices = c(1,seq(from = 0, to = 100, by = 10)[-1]),
-                            selected=rv$widgets$anaDiff$nBinsHistpval, width='80px'))
+                            selected=rv$widgets$anaDiff$nBinsHistpval, width='80px')),
+      tags$div( style="display:inline-block; vertical-align: middle;",
+                p(paste0("pi0 = ", rv$pi0)))
       
     ),
     tags$hr(),
@@ -575,24 +578,28 @@ output$screenAnaDiff3 <- renderUI({
 
 
 histPValue <- reactive({
+ # browser()
   req(rv$resAnaDiff)
   req(rv$pi0)
   req(rv$widgets$anaDiff$nBinsHistpval)
+  
   rv$widgets$hypothesisTest$th_logFC
   
   if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ||
       (length(rv$resAnaDiff$logFC) == 0)) { return()}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
   
-  isolate({
+ # isolate({
     t <- NULL
     method <- NULL
     t <- rv$resAnaDiff$P_Value
     t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
     toDelete <- which(t==1)
     if (length(toDelete) > 0){	t <- t[-toDelete] }
-    histPValue_HC(t,bins=as.numeric(rv$widgets$anaDiff$nBinsHistpval), pi0=rv$pi0)
-  })
+    histPValue_HC(t,
+                  bins=as.numeric(rv$widgets$anaDiff$nBinsHistpval), 
+                  pi0=rv$pi0)
+ # })
 })
 
 output$histPValue <- renderHighchart({
@@ -632,7 +639,7 @@ output$calibrationResults <- renderUI({
 
 
 calibrationPlot <- reactive({
-  
+  req(rv$widgets$anaDiff$calibMethod != 'None')
   rv$widgets$hypothesisTest$th_logFC
   rv$resAnaDiff
   req(rv$current.obj)
@@ -674,7 +681,8 @@ calibrationPlot <- reactive({
         rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
       }
       rv$pi0 <- ll$value$pi0
-      rvModProcess$moduleAnaDiffDone[2] <- TRUE
+     # browser()
+      rvModProcess$moduleAnaDiffDone[2] <- !is.null(rv$pi0)
     }
     , warning = function(w) {
       shinyjs::info(paste("Calibration plot",":",
@@ -685,7 +693,7 @@ calibrationPlot <- reactive({
     }, finally = {
       #cleanup-code 
     })
-  
+ # browser()
   
 })
 
@@ -764,7 +772,7 @@ calibrationPlotAll <- reactive({
     {
       l <-catchToList(wrapperCalibrationPlot(t, "ALL")  )
       rv$errMsgCalibrationPlotAll <- l$warnings[grep( "Warning:",l$warnings)]
-      rvModProcess$moduleAnaDiffDone[2] <- TRUE
+      rvModProcess$moduleAnaDiffDone[2] <- !is.null(rv$pi0)
     }
     , warning = function(w) {
       shinyjs::info(paste("Calibration Plot All methods",":",
