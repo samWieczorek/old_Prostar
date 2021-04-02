@@ -363,7 +363,7 @@ loadObjectInMemoryFromConverter <- function(){
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
       rv$current.obj@experimentData@other$RawPValues <- FALSE
     rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
-    print(paste0('rv$PlotParams$paletteForConditions = ', paste0(rv$PlotParams$paletteForConditions, collapse=' ')))
+   # print(paste0('rv$PlotParams$paletteForConditions = ', paste0(rv$PlotParams$paletteForConditions, collapse=' ')))
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
       print("begin compute adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')

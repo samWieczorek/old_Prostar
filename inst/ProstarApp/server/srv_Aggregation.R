@@ -87,9 +87,15 @@ observeEvent(input$nbPeptides,ignoreInit = TRUE,{
 })
 
 
+#-----------------------------------------------------
+#
+#              SCREEN 1
+#
+#-----------------------------------------------------
 output$screenAggregation1 <- renderUI({
   
   tagList(
+    shinyjs::useShinyjs(),
     uiOutput("warningAgregationMethod"),
     div(
       div( style="display:inline-block; vertical-align: top;",
@@ -132,6 +138,18 @@ output$screenAggregation1 <- renderUI({
 })
 
 
+output$warningAgregationMethod <- renderUI({
+  req(rv$current.obj)
+  
+  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
+  {
+    tags$p(style = "color: red;",
+           tags$b('Warning:')," Your dataset contains missing values.
+    For better results, you should impute them first")
+  }
+  
+})
+
 output$nTopn_widget <- renderUI({
   req(rv$widgets$aggregation$considerPeptides)
   if (rv$widgets$aggregation$considerPeptides!='onlyN'){return(NULL)}
@@ -153,29 +171,6 @@ output$operatorChoice <- renderUI({
                selected=rv$widgets$aggregation$operator)
 })
 
-output$screenAggregation2 <- renderUI({
-  tagList(
-    uiOutput(outputId = "progressSaveAggregation"),
-    withProgress(message = '',detail = '', value = 0, {
-      incProgress(0.5, detail = 'Aggregation in progress')
-      uiOutput("Aggregation_Step2")
-    })
-  )
-})
-
-
-output$screenAggregation3 <- renderUI({
-  tagList(
-    h4("Once the saving operation is done, the new current dataset is a protein dataset.
-       Prostar will automatically switch to the home page with the new dataset."),
-    shinyjs::disabled(
-      actionButton("valid.aggregation",
-                   "Save aggregation", 
-                   class = actionBtnClass)
-    )
-  )
-})
-
 
 observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
   if (rv$widgets$aggregation$includeSharedPeptides=='Yes2'){
@@ -184,6 +179,40 @@ observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
     ch <- c("Sum"='Sum', "Mean"="Mean")
   }
   #updateRadioButtons(session,"AggregationOperator", choices=ch, selected=rv$widgets$aggregation$operator)
+})
+
+
+
+
+output$specificPeptideBarplot <- renderUI({
+  req(rv$matAdj)
+  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
+    tagList(
+      h4("Only specific peptides"),
+      plotOutput("aggregationPlotUnique", width="400px")
+    )
+  })
+})
+
+output$allPeptideBarplot <- renderUI({
+  req(rv$matAdj)
+  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
+    tagList(
+      h4("All (specific & shared) peptides"),
+      plotOutput("aggregationPlotShared", width="400px")
+    )
+  })
+})
+
+
+output$displayNbPeptides <- renderUI({
+  req(rv$widgets$aggregation$filterProtAfterAgregation)
+  
+  if (rv$widgets$aggregation$filterProtAfterAgregation) {
+    numericInput("nbPeptides", "Nb of peptides defining a protein", 
+                 value = 0, min =0, step=1,
+                 width = "250px")
+  }
 })
 
 ########################################################
@@ -207,40 +236,39 @@ RunAggregation <- reactive({
       if (rv$widgets$aggregation$includeSharedPeptides == 'Yes1'){
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
           ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
-                              list( obj.pep = rv$current.obj,X=X))
+                            list( obj.pep = rv$current.obj,X=X))
         } else {
           ll.agg <- aggregateTopn(rv$current.obj, 
-                                    X,
-                                    rv$widgets$aggregation$operator, 
-                                    n = as.numeric(rv$widgets$aggregation$topN))
+                                  X,
+                                  rv$widgets$aggregation$operator, 
+                                  n = as.numeric(rv$widgets$aggregation$topN))
         }
       } else {
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
           ll.agg <- aggregateIterParallel(rv$current.obj, 
-                                            X,
-                                            init.method='Sum', 
-                                            method='Mean')
+                                          X,
+                                          init.method='Sum', 
+                                          method='Mean')
         } else {
           ll.agg <- aggregateIterParallel(rv$current.obj, 
-                                            X, 
-                                            init.method='Sum', 
-                                            method='onlyN', 
-                                            n = rv$widgets$aggregation$topN)
+                                          X, 
+                                          init.method='Sum', 
+                                          method='onlyN', 
+                                          n = rv$widgets$aggregation$topN)
         }
       }
     } else {
-     browser()
       X <- rv$matAdj$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
         ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
-                            list(obj.pep = rv$current.obj,
-                                 X = X))
+                          list(obj.pep = rv$current.obj,
+                               X = X))
       } else {
         ll.agg <- aggregateTopn(rv$current.obj, 
-                                  X, 
-                                  rv$widgets$aggregation$operator,
-                                  n = as.numeric(rv$widgets$aggregation$topN)
-                                  )
+                                X, 
+                                rv$widgets$aggregation$operator,
+                                n = as.numeric(rv$widgets$aggregation$topN)
+        )
       }
     }
   } )
@@ -251,6 +279,46 @@ RunAggregation <- reactive({
   
 })
 
+#-----------------------------------------------------
+#
+#              SCREEN 2
+#
+#-----------------------------------------------------
+output$screenAggregation2 <- renderUI({
+  tagList(
+    uiOutput(outputId = "progressSaveAggregation"),
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.5, detail = 'Aggregation in progress')
+      uiOutput("Aggregation_Step2")
+    })
+  )
+})
+
+
+
+
+
+
+#-----------------------------------------------------
+#
+#              SCREEN 3
+#
+#-----------------------------------------------------
+output$screenAggregation3 <- renderUI({
+  tagList(
+    shinyjs::useShinyjs(),
+    h4("Once the saving operation is done, the new current dataset is a protein dataset.
+       Prostar will automatically switch to the home page with the new dataset."),
+    #shinyjs::disabled(
+      actionButton("valid.aggregation",
+                   "Save aggregation", 
+                   class = actionBtnClass)
+   # )
+  )
+})
+
+
+
 
 
 
@@ -260,6 +328,7 @@ observeEvent(input$valid.aggregation,{
   
   req(rv$matAdj)
   req(rv$temp.aggregate$obj.prot)
+  req(length(rv$temp.aggregate$issues) == 0)
   
   isolate({
     withProgress(message = '',detail = '', value = 0, {
@@ -287,13 +356,9 @@ observeEvent(input$valid.aggregation,{
       }
       rv$current.obj <- rv$temp.aggregate$obj.prot
       
-      rv$current.obj@experimentData@other$Prostar_Version <- 
-        installed.packages(lib.loc = Prostar.loc)["Prostar","Version"]
-      
-      rv$current.obj@experimentData@other$DAPAR_Version <- 
-        installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
+
       rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj, NULL)
+     # rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj, NULL)
       
       name <- paste0("Aggregated", ".", rv$typeOfDataset)
       rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
@@ -307,15 +372,17 @@ observeEvent(input$valid.aggregation,{
 })
 
 
-observe({
-  shinyjs::toggleState('valid.aggregation', condition = length(rv$temp.aggregate$issues) == 0)
-})
+# observeEvent(rv$temp.aggregate$issues, {
+#   
+#   shinyjs::toggleState('valid.aggregation',
+#                        condition = length(rv$temp.aggregate$issues) == 0)
+# })
 
 
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
-  req(input$perform.aggregation)
+  #req(input$perform.aggregation)
 
   #browser()
   if (length(rv$temp.aggregate$issues) > 0){
@@ -391,42 +458,11 @@ observeEvent(input$perform.aggregation,{
   rv$temp.aggregate <- RunAggregation()
  # browser()
   rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) == 0
-
+  shinyjs::toggleState('valid.aggregation',
+                       condition = length(rv$temp.aggregate$issues) == 0)
   #})
 })
 
-
-
-output$specificPeptideBarplot <- renderUI({
-  req(rv$matAdj)
-  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
-    tagList(
-      h4("Only specific peptides"),
-      plotOutput("aggregationPlotUnique", width="400px")
-    )
-  })
-})
-
-output$allPeptideBarplot <- renderUI({
-  req(rv$matAdj)
-  withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
-    tagList(
-      h4("All (specific & shared) peptides"),
-      plotOutput("aggregationPlotShared", width="400px")
-    )
-  })
-})
-
-
-output$displayNbPeptides <- renderUI({
-  req(rv$widgets$aggregation$filterProtAfterAgregation)
-  
-  if (rv$widgets$aggregation$filterProtAfterAgregation) {
-    numericInput("nbPeptides", "Nb of peptides defining a protein", 
-                 value = 0, min =0, step=1,
-                 width = "250px")
-  }
-})
 
 
 callModule(modulePopover,"modulePopover_colsForAggreg", 
@@ -487,17 +523,6 @@ observe({
 })
 
 
-output$warningAgregationMethod <- renderUI({
-  req(rv$current.obj)
-  
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
-  {
-    tags$p(style = "color: red;",
-  tags$b('Warning:')," Your dataset contains missing values.
-    For better results, you should impute them first")
-  }
-  
-})
 
 
 
