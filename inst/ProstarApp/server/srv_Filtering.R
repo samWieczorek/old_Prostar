@@ -365,8 +365,8 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
       nbDeleted <- length(indices)
     } else { 
       rv$deleted.metacell <- rv$current.obj[-indices]
-      rv$current.obj <- rv$current.obj[indices]
       nbDeleted <- nrow(rv$current.obj)-length(indices)
+      rv$current.obj <- rv$current.obj[indices]
     }
     
     
@@ -901,7 +901,10 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
 
 
 
-
+callModule(moduleLegendColoredExprs, 
+           "FilterColorLegend_DS", 
+           legend = rv$legendTypeMV,
+           colors = rv$colorsTypeMV)
 
 
 output$legendForExprsData2 <- renderUI({
