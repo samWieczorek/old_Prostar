@@ -873,22 +873,39 @@ observe({
 ##' Validation of the filters and modification on current object
 ##' @author Samuel Wieczorek
 observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
+  
+  if (rv$typeOfDataset == "peptide")
+    nSteps <- 5
+  else 
+    nSteps <- 3
   #browser()
   isolate({
     if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
        || (nrow(rv$widgets$filtering$DT_filterSummary ) > 1)
        || (nrow(rv$widgets$filtering$DT_numfilterSummary ) > 1)){
-      l.params <- build_ParamsList_Filtering()
       
-      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-      name <- paste0("Filtered", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
-      
-      
-      if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-        ComputeAdjacencyMatrices()
-        ComputeConnexComposants()
-      }
+      withProgress(message = 'Save filtered dataset',detail = '', value = 0, {
+        incProgress(1/nSteps, detail = 'Building parameters list')
+        l.params <- build_ParamsList_Filtering()
+        
+        incProgress(2/nSteps, detail = 'Saving parameters')
+        rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
+        name <- paste0("Filtered", ".", rv$typeOfDataset)
+        rv$current.obj <- saveParameters(rv$current.obj,name,"Filtering",l.params)
+        
+        
+        
+        if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
+          incProgress(3/nSteps, detail = 'Computing adjacency matrices')
+          ComputeAdjacencyMatrices()
+        }
+        
+        if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
+          incProgress(3/nSteps, detail = 'Computing adjacency matrices')
+          ComputeConnexComposants()
+        }
+      })
+
       UpdateDatasetWidget(rv$current.obj, name)
     }
     dataOut<- rv$current.obj
