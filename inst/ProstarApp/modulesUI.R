@@ -23,10 +23,15 @@ module_Not_a_numericUI <- function(id){
 moduleLegendColoredExprsUI <- function(id){
     ns <- NS(id)
     
-    tagList(
-        tags$p(tags$b("Legend of colors")),
-        uiOutput(ns('legend'))
+    
+    bsCollapse(id = "collapseExample", 
+               open = "",
+               bsCollapsePanel(title = "Legend of colors",
+                               uiOutput(ns('legend')),
+                               style = ""
+               )
     )
+
 }
 
 

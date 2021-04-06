@@ -88,11 +88,8 @@ output$screenFiltering1 <- renderUI({
       div(
         id = "screen1Filtering",
         
-        ################## Enora's section ###################################
         div(
-          #style="border: 1px black solid; height: auto; padding: 10px",
-          #div(HTML("Empty Lines")),
-          fluidRow(
+           fluidRow(
             column(2,
                    
                    selectInput("chooseMetacellTag",
@@ -130,15 +127,10 @@ output$screenFiltering1 <- renderUI({
         div( style="display:inline-block; vertical-align: middle; align: center;",
              DT::dataTableOutput("metacell_Filter_SummaryDT")
         ),
-        # uiOutput("temp.ObserverMVFilteringDone_ui"),
-        
-        tags$hr(style="border-top: 3px double black;"),
-        
         
         hr(),
-        ################## PLots section ###################################
+        ################## Plots section #############################
         mod_plotsMetacellHistos_ui("MVPlots_filtering")
-        #uiOutput("ObserverMVFilteringDone")
       )
       
     )
@@ -160,15 +152,8 @@ mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
 )
 
 
-
-#####################################################################################################################
-############### BEGINNING  OF ENORA'S PART #########################
-
 output$Choose_keepOrRemove_ui <- renderUI({
   
-  # text <- paste("Type of filtering operation",
-  #               rv$widgets$filtering$MetacellTag,
-  #               " data.")
   radioButtons("ChooseKeepRemove",
                "Type of filter operation",
                choices = setNames(nm = c("delete", "keep")),
@@ -180,9 +165,6 @@ output$Choose_keepOrRemove_ui <- renderUI({
 output$MetacellFilters_widgets_set2_ui <- renderUI({
   req(!(rv$widgets$filtering$MetacellFilters %in% c("None", "WholeLine")))
   
-  # if (rv$widgets$filtering$MetacellFilters %in% c("None", "WholeLine"))
-  #   {return(NULL)}
-  # 
   callModule(modulePopover,"choose_val_vs_percent_help", 
              data = reactive(list(title = paste("#/% of values to ", rv$widgets$filtering$KeepRemove),
                                   content="Define xxx")))
@@ -416,10 +398,6 @@ observeEvent(input$choose_metacellFilter_operator,{
   rv$widgets$filtering$metacellFilter_operator <- input$choose_metacellFilter_operator
 })
 
-############### END OF ENORA'S PART #########################
-
-
-
 
 
 #########################################################################################
@@ -431,11 +409,9 @@ observeEvent(input$choose_metacellFilter_operator,{
 
 
 output$screenFiltering2 <- renderUI({
-  print("In output$screenFiltering2 <- renderUI")
   tagList(
     
-    #   id = "screen2Filtering",
-    tags$div(
+   tags$div(
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                 selectInput("symFilter_cname", "Column name", choices = Get_symFilter_cname_choice())
       ),
@@ -443,7 +419,7 @@ output$screenFiltering2 <- renderUI({
            textInput("symFilter_tagName", "Prefix", value = "", width='50px')
       ),
       div( style="display:inline-block; vertical-align: middle;",
-           p(""),actionButton("actionButtonFilter", "Perform", class = actionBtnClass)
+           p(""),actionButton("perform.text.filtering", "Perform", class = actionBtnClass)
       )
     ),
     hr(),
@@ -461,11 +437,11 @@ output$screenFiltering2 <- renderUI({
 ##  ---------------------------------------------------------
 ## perform symbolic filter
 ## ----------------------------------------------------------
-observeEvent(input$actionButtonFilter,{
+observeEvent(input$perform.text.filtering,{
   req(input$symFilter_cname)
+  req(input$symFilter_cname != "None")
   temp <- rv$current.obj
   
-  if (input$symFilter_cname=="None"){return()}
   cname <- input$symFilter_cname
   tagName <- input$symFilter_tagName
   res <- StringBasedFiltering2(temp,cname, input$symFilter_tagName)
@@ -478,7 +454,7 @@ observeEvent(input$actionButtonFilter,{
     nbDeleted <-  0
   }
   rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[3] <- TRUE
+  rvModProcess$moduleFilteringDone[2] <- TRUE
   
   df <- data.frame(Filter=cname, Prefix=tagName, nbDeleted=nbDeleted, Total=nrow(rv$current.obj))
   rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_filterSummary , df)
@@ -583,7 +559,7 @@ observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
     nbDeleted <-  0
   }
   rv$current.obj <- res[["obj"]]
-  rvModProcess$moduleFilteringDone[4] <- TRUE
+  rvModProcess$moduleFilteringDone[3] <- TRUE
   
   df <- data.frame(Filter=cname,
                    Condition=paste0(input$numericFilter_operator,' ',tagValue),
