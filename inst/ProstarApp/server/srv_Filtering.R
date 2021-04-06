@@ -306,72 +306,38 @@ output$metacellFilter_request_ui <- renderUI({
 
 
 
-ComputenMetacellFilteringIndexes <- reactive({
-  
-  th <- NULL
-  if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
-    th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
-  } else {
-    th <- as.integer(rv$widgets$filtering$metacell_value_th)
-  }
-  
-  
-  level <- rv$current.obj@experimentData@other$typeOfData
-  pattern <- rv$widgets$filtering$MetacellTag
-  type <- rv$widgets$filtering$MetacellFilters
-  percent <- rv$widgets$filtering$val_vs_percent == 'Percentage'
-  op <- rv$widgets$filtering$metacellFilter_operator
-  conds <-  Biobase::pData(rv$current.obj)$Condition
-  
-  indices <- NULL
-  
-  mask <- match.metacell(metadata=GetMetacell(rv$current.obj), 
-                         pattern=pattern, 
-                         level=level)
-  
-  indices <- switch(rv$widgets$filtering$MetacellFilters,
-                    WholeLine = GetIndices_WholeLine(metacell.mask = mask),
-                    WholeMatrix = GetIndices_WholeMatrix(metacell.mask = mask,
-                                                         op = op, 
-                                                         percent = percent, 
-                                                         th = th),
-                    AllCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                           type = type, 
-                                                           conds = conds, 
-                                                           percent = percent, 
-                                                           op = op, 
-                                                           th = th),
-                    AtLeastOneCond = GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                  type = type,
-                                                                  conds = conds, 
-                                                                  percent = percent,
-                                                                  op = op, 
-                                                                  th = th)
-  )
-})
+
 
 
 ## Perform filtration
 observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
-  
-  indices <- ComputenMetacellFilteringIndexes()
-  
-  nbDeleted <- 0
-  #browser()
-  if (!is.null(indices)) {
-    if (rv$widgets$filtering$KeepRemove == 'delete'){
-      rv$deleted.metacell <- rv$current.obj[indices]
-      rv$current.obj <- rv$current.obj[-indices]
-      nbDeleted <- length(indices)
-    } else { 
-      rv$deleted.metacell <- rv$current.obj[-indices]
-      nbDeleted <- nrow(rv$current.obj)-length(indices)
-      rv$current.obj <- rv$current.obj[indices]
+    
+    th <- NULL
+    if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
+      th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
+    } else {
+      th <- as.integer(rv$widgets$filtering$metacell_value_th)
     }
     
+    indices <- DAPAR::GetIndices_MetacellFiltering(obj = rv$current.obj,
+                                                        level = rv$current.obj@experimentData@other$typeOfData,
+                                                        pattern = rv$widgets$filtering$MetacellTag,
+                                                        type = rv$widgets$filtering$MetacellFilters,
+                                                        percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
+                                                        op = rv$widgets$filtering$metacellFilter_operator,
+                                                        th = th
+                                                        )
     
-  }
-  
+  nbDeleted <- 0
+
+  obj.tmp <-  MetaCellFiltering(obj = rv$current.obj,
+                                  indices = indices,
+                                  cmd = rv$widgets$filtering$KeepRemove)
+    
+    rv$deleted.metacell <- obj.tmp$deleted
+    rv$current.obj <- obj.tmp$new
+    nbDeleted <- nrow(rv$deleted.metacell)
+
   
   df <- data.frame(query = WriteQuery(),
                    nbDeleted = nbDeleted,
@@ -901,7 +867,7 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
         }
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(3/nSteps, detail = 'Computing adjacency matrices')
+          incProgress(4/nSteps, detail = 'Computing connex components')
           ComputeConnexComposants()
         }
       })

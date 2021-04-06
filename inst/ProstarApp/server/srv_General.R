@@ -286,11 +286,16 @@ ClearUI <- reactive({
 ComputeAdjacencyMatrices <- reactive({
   rv$matAdj <- NULL
   #browser()
-  matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
-  print("mat adj 1 done")
-  matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
-  print("mat adj 2 done")
+  withProgress(message = 'Computing adjacency matrices',detail = '', value = 0, {
+    incProgress(1/2, detail = 'with specific peptides only')
+    matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
+    
+    incProgress(2/2, detail = 'with specific and shared peptides')
+    matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
+    
+  }, style="old")
   
+
   rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
   rv$matAdj
 })
@@ -299,12 +304,19 @@ ComputeConnexComposants <- reactive({
   req(rv$matAdj)
   require(Matrix)
   print(dim(rv$matAdj$matWithSharedPeptides))
-  ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
-  ll2 <- DAPAR::get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
+  withProgress(message = 'Computing connex components',detail = '', value = 0, {
+    incProgress(1/2, detail = 'with specific peptides only')
+    ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
+    
+    incProgress(2/2, detail = 'with specific and shared peptides')
+    ll2 <- DAPAR::get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
+    
+  })
   
+ 
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
-  print("end ComputeConnexComposants")
+  print("end ComputeConnexComponents")
   
   rv$CC
 })
@@ -368,7 +380,7 @@ loadObjectInMemoryFromConverter <- function(){
       print("begin compute adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')
       ComputeAdjacencyMatrices()
-      incProgress(0.7, detail = 'Compute Connex Composants')
+      incProgress(0.7, detail = 'Compute Connex Components')
       ComputeConnexComposants()
     }
     

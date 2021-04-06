@@ -168,14 +168,24 @@ Get_Dataset_to_Analyze <- reactive({
   rv$widgets$anaDiff$Comparison
   rv$current.obj
   
-  condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
-  condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
-  ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
-            which(pData(rv$current.obj)$Condition==condition2))
+  datasetToAnalyze <- NULL
   
-  datasetToAnalyze <- rv$current.obj[,ind]
-  datasetToAnalyze@experimentData@other$names_metacell <-
+  if (length(grep("all-", rv$widgets$anaDiff$Comparison)) == 1){
+    condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+    ind_virtual_cond2 <- which(pData(rv$current.obj)$Condition != condition1)
+    datasetToAnalyze <- rv$current.obj
+    Biobase::pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- 'virtual_cond_2'
+  }
+  else {
+    condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+    condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+    ind <- c( which(pData(rv$current.obj)$Condition == condition1), 
+              which(pData(rv$current.obj)$Condition == condition2))
+    
+    datasetToAnalyze <- rv$current.obj[,ind]
+    datasetToAnalyze@experimentData@other$names_metacell <-
     rv$current.obj@experimentData@other$names_metacell[ind]
+  }
   
   datasetToAnalyze
 })
@@ -308,13 +318,22 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
     else
       th <-  as.integer(rv$widgets$anaDiff$seuilNA)
     
-    keepThat <- mvFilterGetIndices(obj = Get_Dataset_to_Analyze(),
-                                   percent = rv$widgets$anaDiff$val_vs_percent == 'Percentage',
-                                   condition = rv$widgets$anaDiff$ChooseFilters,
-                                   threshold = th)
+    browser()
+    obj2analyse <- Get_Dataset_to_Analyze()
+    #----------------------------------------
+    indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj2analyse,
+                                                   level = obj2analyse@experimentData@other$typeOfData,
+                                                   pattern = 'imputed',
+                                                   type = rv$widgets$anaDiff$ChooseFilters,
+                                                   percent = rv$widgets$anaDiff$val_vs_percent == 'Percentage',
+                                                   op = '==',
+                                                   th = th
+                                                   )
     
-    if (!is.null(keepThat) && length(keepThat) < nrow(Get_Dataset_to_Analyze())){
-      rv$resAnaDiff$P_Value[-keepThat] <- 1
+    
+    #--------------------------------
+    if (!is.null(indices) && length(indices) < nrow(obj2analyse)){
+      rv$resAnaDiff$P_Value[-indices] <- 1
     }
   }
   #})
@@ -491,11 +510,10 @@ output$screenAnaDiff2 <- renderUI({
                 #      )
       ),
       tags$div( style="display:inline-block; vertical-align: middle;padding-right: 40px;",
-                selectInput("nBinsHistpval", "n bins", 
-                            choices = c(1,seq(from = 0, to = 100, by = 10)[-1]),
-                            selected=rv$widgets$anaDiff$nBinsHistpval, width='80px')),
+                uiOutput('nBins_ui')),
       tags$div( style="display:inline-block; vertical-align: middle;",
-                p(paste0("pi0 = ", rv$pi0)))
+                p(tags$strong(paste0("value of pi0: ", round(as.numeric(rv$pi0), digits=2))))
+      )
       
     ),
     tags$hr(),
@@ -529,56 +547,20 @@ observeEvent(input$numericValCalibration,{
   rv$widgets$anaDiff$numValCalibMethod <- input$numericValCalibration
 })
 
-###
-### ------------------- SCREEN 3 ------------------------------
-###
 
-output$screenAnaDiff3 <- renderUI({
-  print("in output$screenAnaDiff3")
+output$nBins_ui <- renderUI({
+  req(rv$resAnaDiff)
+  req(rv$pi0)
+  req(rv$widgets$anaDiff$nBinsHistpval)
   
-  if(as.character(rv$widgets$anaDiff$Comparison) == "None"){return(NULL)}
-  
-  isolate({
-    tagList(
-      tags$div(
-        tags$div( style="display:inline-block; vertical-align: center; padding-right: 2px;",
-                  modulePopoverUI("modulePopover_pValThreshold"),
-                  textInput("seuilPVal",  NULL,
-                            value=rv$widgets$anaDiff$th_pval, width='100px')),
-        actionButton("valid_seuilPVal", 'Validate value', class = actionBtnClass),
-        tags$div( style="display:inline-block; vertical-align: top;",
-                  module_Not_a_numericUI("test_seuilPVal"))
-        
-        
-      ),
-      tags$hr(),
-      tagList(
-        tags$div(
-          tags$div( style="display:inline-block; vertical-align: top;",
-                    htmlOutput("showFDR"),
-                    withProgress(message = '',detail = '', value = 1, {
-                      moduleVolcanoplotUI("volcano_Step2")
-                    })
-          ),
-          
-          tags$div( style="display:inline-block; vertical-align: top;",
-                    uiOutput("tooltipInfo"),
-                    checkboxInput("showpvalTable","Show p-value table", value=FALSE),
-                    radioButtons("downloadAnaDiff", "Download as Excel file", 
-                                 choices=c("All data"="All", "only DA"="onlyDA" ),
-                                 selected = rv$widgets$anaDiff$downloadAnaDiff),
-                    downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
-        ),
-        hidden(DTOutput("anaDiff_selectedItems"))
-      )
-    )
-    
-  })
-})     
+  selectInput("nBinsHistpval", "n bins of p-value histogram", 
+              choices = c(1,seq(from = 0, to = 100, by = 10)[-1]),
+              selected=rv$widgets$anaDiff$nBinsHistpval, width='80px')
+})
 
 
 histPValue <- reactive({
- # browser()
+  # browser()
   req(rv$resAnaDiff)
   req(rv$pi0)
   req(rv$widgets$anaDiff$nBinsHistpval)
@@ -589,17 +571,17 @@ histPValue <- reactive({
       (length(rv$resAnaDiff$logFC) == 0)) { return()}
   if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
   
- # isolate({
-    t <- NULL
-    method <- NULL
-    t <- rv$resAnaDiff$P_Value
-    t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
-    toDelete <- which(t==1)
-    if (length(toDelete) > 0){	t <- t[-toDelete] }
-    histPValue_HC(t,
-                  bins=as.numeric(rv$widgets$anaDiff$nBinsHistpval), 
-                  pi0=rv$pi0)
- # })
+  # isolate({
+  t <- NULL
+  method <- NULL
+  t <- rv$resAnaDiff$P_Value
+  t <- t[which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)]
+  toDelete <- which(t==1)
+  if (length(toDelete) > 0){	t <- t[-toDelete] }
+  histPValue_HC(t,
+                bins=as.numeric(rv$widgets$anaDiff$nBinsHistpval), 
+                pi0=rv$pi0)
+  # })
 })
 
 output$histPValue <- renderHighchart({
@@ -681,7 +663,7 @@ calibrationPlot <- reactive({
         rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
       }
       rv$pi0 <- ll$value$pi0
-     # browser()
+      # browser()
       rvModProcess$moduleAnaDiffDone[2] <- !is.null(rv$pi0)
     }
     , warning = function(w) {
@@ -693,7 +675,7 @@ calibrationPlot <- reactive({
     }, finally = {
       #cleanup-code 
     })
- # browser()
+  # browser()
   
 })
 
@@ -802,6 +784,55 @@ output$calibrationPlotAll <- renderImage({
   list(src = outfile,
        alt = "This is alternate text")
 }, deleteFile = TRUE)
+
+
+
+###
+### ------------------- SCREEN 3 ------------------------------
+###
+
+output$screenAnaDiff3 <- renderUI({
+  print("in output$screenAnaDiff3")
+  
+  if(as.character(rv$widgets$anaDiff$Comparison) == "None"){return(NULL)}
+  
+  isolate({
+    tagList(
+      tags$div(
+        tags$div( style="display:inline-block; vertical-align: center; padding-right: 2px;",
+                  modulePopoverUI("modulePopover_pValThreshold"),
+                  textInput("seuilPVal",  NULL,
+                            value=rv$widgets$anaDiff$th_pval, width='100px')),
+        actionButton("valid_seuilPVal", 'Validate value', class = actionBtnClass),
+        tags$div( style="display:inline-block; vertical-align: top;",
+                  module_Not_a_numericUI("test_seuilPVal"))
+        
+        
+      ),
+      tags$hr(),
+      tagList(
+        tags$div(
+          tags$div( style="display:inline-block; vertical-align: top;",
+                    htmlOutput("showFDR"),
+                    withProgress(message = '',detail = '', value = 1, {
+                      moduleVolcanoplotUI("volcano_Step2")
+                    })
+          ),
+          
+          tags$div( style="display:inline-block; vertical-align: top;",
+                    uiOutput("tooltipInfo"),
+                    checkboxInput("showpvalTable","Show p-value table", value=FALSE),
+                    radioButtons("downloadAnaDiff", "Download as Excel file", 
+                                 choices=c("All data"="All", "only DA"="onlyDA" ),
+                                 selected = rv$widgets$anaDiff$downloadAnaDiff),
+                    downloadButton('downloadSelectedItems', 'Download', class=actionBtnClass))
+        ),
+        hidden(DTOutput("anaDiff_selectedItems"))
+      )
+    )
+    
+  })
+})     
 
 
 
