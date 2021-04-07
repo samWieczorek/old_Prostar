@@ -45,10 +45,12 @@ output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
   isolate({ 
-    
-    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                        pattern="missing", 
+                        level = 'peptide')
+    NA.count <- length(which(m))
   
-  nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
+  nb.empty.lines <- sum(apply(m, 1, all))
   
   tagList(
     tags$h3("Info"),

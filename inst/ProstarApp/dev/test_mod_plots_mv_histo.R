@@ -24,7 +24,7 @@ ui <- fluidPage(
 server <- function(input, output, session) {
    
 mod_plotsMetacellHistos_server(id = 'plots_boxplots', 
-                               obj = reactive({obj}),
+                               obj = reactive({NULL}),
                                pattern = reactive({input$pattern}),
                                pal=reactive({NULL})
                                )

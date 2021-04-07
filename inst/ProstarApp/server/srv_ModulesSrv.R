@@ -209,11 +209,17 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$current.obj
+    req(data()$logFC)
+    req(data()$P_Value)
     data()
     
     
-    if(is.null(data()$logFC) || is.null(data()$P_Value)){return(NULL)}
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return(NULL)}
+     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                        pattern="missing", 
+                        level = 'peptide')
+    if (length(which(m)) > 0) 
+      return(NULL)
+     
     p <- NULL
     p <- data()
     upItemsPVal <- NULL
@@ -281,10 +287,12 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
       p(MSG_WARNING_SIZE_DT)
     
   })
+  
+  
+  
+  
   GetDataFor_sharedPeptidesInfos <- reactive({
-    #req(rv$current.obj)
     req(comp())
-    #req(rv$matAdj)
     
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
@@ -293,7 +301,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     prot <- GetExprsClickedProtein()
     prot.indice <- rownames(prot)
-    #print(prot.indice)
     
     data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
@@ -434,9 +441,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             g2 = data <- data.g2[this.index+1,] 
     )
     
-    print("dans GetExprsClickedProtein")
-    print(data)
-    
+     
     data
   })
   
@@ -458,8 +463,6 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     data <- GetExprsClickedProtein()
     
-    print('################### Dans Infos  #################')
-    print(colnames(data))
     data
   })
   
@@ -472,6 +475,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
     c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
+    browser()
     dt <- DT::datatable(data,
                         extensions = c('Scroller', 'Buttons'),
                         options = list(initComplete = initComplete(),

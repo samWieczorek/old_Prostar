@@ -44,7 +44,7 @@ mod_filtering_example_server <- function(id, params, txt) {
                               Condition = c(rep("A", 3),rep("B", 3)),
                               Bio.Rep = c(1:6)
   )
-
+#browser()
   obj <- DAPAR::createMSnset(file = qdata,
                              indExpData = c(1:6),
                              indFData = c(1:6), 

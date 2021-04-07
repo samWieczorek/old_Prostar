@@ -92,18 +92,14 @@ getDataForExprs <- function(obj, digits=NULL){
   #browser()
   if (is.null(digits))
     digits <- 2
-  test.table <- as.data.frame(round(Biobase::exprs(obj)))
-  # print(paste0("tutu:",obj@experimentData@other$names.metacell))
-  if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
-    test.table <- cbind(test.table, 
-                        Biobase::fData(obj)[,obj@experimentData@other$names_metacell])
-    # print(paste0("tutu:",head(test.table)))
-    
-  } else {
-    test.table <- cbind(test.table, 
-                        as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
-    #print(paste0("tata:",head(test.table)))
-  }
+  
+ # test.table <- as.data.frame(round(Biobase::exprs(obj)))
+  #if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
+    test.table <- cbind(round(Biobase::exprs(obj)), DAPAR::GetMetacell(obj))
+ # } else {
+  #  test.table <- cbind(test.table, 
+  #                      as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))
+  #}
   return(test.table)
   
 }
@@ -135,10 +131,13 @@ GetDatasetOverview <- reactive({
   do <- data.frame(Definition= columns,
                    Value=rep(0,length(columns)))
   
-  NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing", 
+                      level = 'peptide')
+    NA.count<- length(which(m))
+    
   pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
-  nb.empty.lines <- sum(apply(
-    is.na(as.matrix(Biobase::exprs(rv$current.obj))), 1, all))
+  nb.empty.lines <- sum(apply(m, 1, all))
   
   
   val <- c(ncol((Biobase::exprs(rv$current.obj))),

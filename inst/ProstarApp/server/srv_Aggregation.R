@@ -141,7 +141,10 @@ output$screenAggregation1 <- renderUI({
 output$warningAgregationMethod <- renderUI({
   req(rv$current.obj)
   
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0)
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing", 
+                      level = 'peptide')
+  if (length(which(m)) > 0)
   {
     tags$p(style = "color: red;",
            tags$b('Warning:')," Your dataset contains missing values.

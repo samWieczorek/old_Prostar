@@ -397,7 +397,6 @@ output$eData <- renderUI({
 
 output$checkIdentificationTab <- renderUI({
   req(input$selectIdent == TRUE)
-  #if (!isTRUE(input$selectIdent)){return(NULL)}
   
   shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
   temp <- shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
@@ -432,18 +431,35 @@ output$checkIdentificationTab <- renderUI({
 
 
 
+
+
+GetToto <- reactive({
+  if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
+  browser()
+  shinyValue("colForOriginValue_",1)
+  isolate({
+    ind <- which(shinyValue("colForOriginValue_", 1) == colnames(rv$tab1))
+    n <- nrow(as.data.frame(input$choose_quantitative_columns))
+    if (length(ind) > 0)
+        colnames(rv$tab1)[ind:(ind+n)]
+    else
+      rep('', n)
+  })
+})
+
 # reactive dataset
 quantiDataTable <- reactive({
   # req(c(input$eData.box,rv$tab1))
   # input$selectIdent
   
-  #browser()
+ # browser()
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
   
   df <- NULL
   session$sendCustomMessage('unbind-DT', 'x1')
   choices <- c("None", colnames(rv$tab1))
-  names(choices) <- c("None",colnames(rv$tab1))
+  names(choices) <- c("None", colnames(rv$tab1))
+  
   
   if (isTRUE(input$selectIdent)) {
     
@@ -451,7 +467,32 @@ quantiDataTable <- reactive({
                      shinyInput(selectInput,
                                 "colForOriginValue_",
                                 nrow(as.data.frame(input$choose_quantitative_columns)),
-                                choices = choices))
+                                choices = choices)
+    )
+    
+    # df <- data.frame(as.data.frame(input$choose_quantitative_columns),
+    #                  toto = c(GetEx
+    #                  shinyInput(selectInput,"colForOriginValue_1",1,choices = choices,
+    #                                               selected = colnames(rv$tab1)[30]),
+    #                  shinyInput(selectInput,"colForOriginValue_2",1,choices = choices,
+    #                             selected = eventReactive(shinyValue("colForOriginValue_1",1), {
+    #                               return(colnames(rv$tab1)[33])
+    #                             })),
+    #                  shinyInput(selectInput,"colForOriginValue_3",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[32]),
+    #                  shinyInput(selectInput,"colForOriginValue_4",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[33]),
+    #                  shinyInput(selectInput,"colForOriginValue_5",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[34]),
+    #                  shinyInput(selectInput,"colForOriginValue_6",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[35]),
+    #                  shinyInput(selectInput,"colForOriginValue_7",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[36]),
+    #                  shinyInput(selectInput,"colForOriginValue_8",1,choices = choices,
+    #                             selected = colnames(rv$tab1)[37]))
+    # )
+    
+    
     colnames(df) <- c("Sample", "Identification method")
   } else {
     df <- data.frame(Sample = as.data.frame(input$choose_quantitative_columns))
@@ -696,7 +737,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
           protId <- input$idBox
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
-        #browser()
+        browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 

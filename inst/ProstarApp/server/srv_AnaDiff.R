@@ -394,7 +394,7 @@ UpdateCompList <- reactive({
 
 output$volcanoTooltip_UI <- renderUI({
   req(rv$widgets$anaDiff$Comparison)
-  if (rv$widgets$anaDiff$Comparison == "None"){return(NULL)}
+  req(rv$widgets$anaDiff$Comparison != "None")
   
   isolate({
     tagList(
@@ -427,17 +427,6 @@ observe({
   shinyjs::toggle('swapVolcano', condition=rv$widgets$anaDiff$Comparison != "None")
 })
 
-
-# output$pushPValUI <- renderUI({
-#   req(rv$widgets$anaDiff$Comparison)
-#   if (rv$widgets$anaDiff$Comparison == "None"){return(NULL)}
-#   isolate({
-#     tagList(
-#       modulePopoverUI("modulePopover_pushPVal"),
-#       radioButtons("AnaDiff_ChooseFilters",NULL, choices = gFiltersListAnaDiff, selected = rv$widgets$anaDiff$filterType)
-#     )
-#   })
-# })
 
 callModule(modulePopover,"modulePopover_volcanoTooltip", 
            data = reactive(list(title = "Tooltip", 
@@ -569,7 +558,11 @@ histPValue <- reactive({
   
   if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ||
       (length(rv$resAnaDiff$logFC) == 0)) { return()}
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {return()}
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing", 
+                      level = 'peptide')
+  if (length(which(m)) > 0)
+    {return()}
   
   # isolate({
   t <- NULL
@@ -628,9 +621,12 @@ calibrationPlot <- reactive({
   
   if (length(rv$resAnaDiff$logFC) == 0) { return()}
   
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing", 
+                      level = 'peptide')
+  if (length(which(m)) > 0)
     return()
-  }
+  
   cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
   
   
@@ -735,11 +731,14 @@ calibrationPlotAll <- reactive({
   
   if (is.na(rv$widgets$hypothesisTest$th_logFC) ||
       (length(rv$resAnaDiff$logFC) == 0)) { return()}
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) {
-    return()}
-  cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
-  # ________
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing", 
+                      level = 'peptide')
+  if (length(which(m)) > 0)
+    return()
   
+  cond <- c(rv$resAnaDiff$condition1, rv$resAnaDiff$condition2)
+
   t <- NULL
   method <- NULL
   t <- rv$resAnaDiff$P_Value
@@ -902,36 +901,6 @@ observeEvent(input$showpvalTable, {
 observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
 
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
-
-# 
-# output$anaDiffPanel <- renderUI({
-#   req(rv$current.obj)
-#     NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
-#   dataset.name <- last(names(rv$dataset))
-#   prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
-#   if (NA.count > 0){
-#     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them")
-#   } else if (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
-#              rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design=="None") {
-#     tags$p("The statistical test has not been performed so the differential analysis cannot be done.")
-#     } else {
-#       moduleProcessUI("moduleProcess_AnaDiff")
-#     }
-#   
-# })
-
-
-
-
-
-# 
-# DatasetIsSwaped <- reactive({
-#   req(input$swapVolcano)
-#   isSwaped <- (input$swapVolcano %%2)==1
-#   isSwaped
-#   
-# })
-
 
 callModule(modulePopover,"modulePopover_pValThreshold", 
            data = reactive(list(title = "p-val cutoff", 
