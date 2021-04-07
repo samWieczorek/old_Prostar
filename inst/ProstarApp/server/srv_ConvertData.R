@@ -256,6 +256,7 @@ output$convertChooseProteinID_UI <- renderUI({
   req(rv$tab1)
   
   if (input$typeOfData == "protein") {return(NULL)}
+  if (input$typeOfData == "metabolite") {return(NULL)}
   
   .choices <- c("",colnames(rv$tab1))
   names(.choices) <- c("",colnames(rv$tab1))
@@ -294,7 +295,8 @@ output$ConvertOptions <- renderUI({
     radioButtons("typeOfData", 
                  "Is it a peptide or protein dataset ?", 
                  choices=c("peptide dataset" = "peptide", 
-                           "protein dataset" = "protein")
+                           "protein dataset" = "protein",
+                           "metabolite dataset" = "metabolite")
     )
     
     ,radioButtons("checkDataLogged", 
@@ -332,7 +334,8 @@ output$helpTextDataID <- renderUI({
   t <- ""
   switch(input$typeOfData,
          protein = {t <- "proteins"},
-         peptide = {t <- "peptides"}
+         peptide = {t <- "peptides"},
+         metabolite = {t <- "metabolites"}
   )
   txt <- paste ("Please select among the columns of your data the one that 
                 corresponds to a unique ID of the ", t, ".", sep=" ")
@@ -363,7 +366,7 @@ observeEvent(c(input$file1,input$XLSsheets),{
     shinyjs::disable("file1")
     switch(ext,
            txt = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
-           csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
+           csv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep=";", as.is=T)},
            tsv = { rv$tab1 <- read.csv(input$file1$datapath,  header=TRUE, sep="\t", as.is=T)},
            xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
            xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
@@ -695,7 +698,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         options(digits=15)
         
         protId <- NULL
-        if (input$typeOfData == 'protein')
+        if (input$typeOfData == 'protein' || input$typeOfData == 'metabolite')
           protId <- input$idBox
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId

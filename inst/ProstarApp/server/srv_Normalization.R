@@ -509,15 +509,15 @@ output$viewComparisonNorm_HC <- renderHighchart({
     
   }
 #browser()
-  compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
-                           qDataAfter = Biobase::exprs(obj2),
-                           keyId =  fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
-                           conds = Biobase::pData(obj1)$Condition,
-                           palette = unique(rv$PlotParams$paletteConditions),
-                           subset.view =   if(rv.norm$sync)
-                             GetIndicesOfSelectedProteins_ForNorm()
-                           else
-                             GetIndicesOfSelectedProteins()
+  DAPAR::compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
+                                  qDataAfter = Biobase::exprs(obj2),
+                                  keyId = fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
+                                  conds = Biobase::pData(obj1)$Condition,
+                                  palette = unique(rv$PlotParams$paletteConditions),
+                                  subset.view =   if(rv.norm$sync)
+                                    GetIndicesOfSelectedProteins_ForNorm()
+                                  else
+                                    GetIndicesOfSelectedProteins()
   )
 
 })

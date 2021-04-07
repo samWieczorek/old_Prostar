@@ -15,7 +15,7 @@ observeEvent( req(input$datasets),ignoreInit = TRUE,{
  # isolate({
     
     if (rv$processSaved== TRUE) {
-      print("---- changement de dataset par mise à jour de input$datasets !!!!-----")
+      print("---- changement de dataset par mise a jour de input$datasets !!!!-----")
       rv$processSaved <- FALSE
     } else {
       print("---- changement de dataset par le menu - Utilisateur !!!!-----")
@@ -129,49 +129,79 @@ rv$current.obj
     if (!is.null(rv$typeOfDataset)){
 
       switch(rv$typeOfDataset,
-           protein = {
-             if ("dataProcessPeptTab" %in% rv$UI_TabsList){
-               removeTab(inputId = "navPage", target = "Data processing (peptide)")
-               isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
-             } 
-             
-               if (!("dataProcessProtTab" %in% rv$UI_TabsList))
-             {
-             insertTab(inputId = "navPage",
-              navbarMenu("Data processing (protein)" 
-                         ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
-                         ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
-                         ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
-                         ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
-                         ),
-              target = "Data manager",
-              position="after")
-               isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessProtTab")      })
+             protein = {
+               if ("dataProcessPeptTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (peptide)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
+               }
+               if ("dataProcessMetTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (metabolite)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessMetTab"))] })
+               }
+               
+               if (!("dataProcessProtTab" %in% rv$UI_TabsList)) {
+                 insertTab(inputId = "navPage",
+                           navbarMenu("Data processing (protein)" 
+                                      ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
+                                      ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
+                                      ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
+                                      ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
+                           ),
+                           target = "Data manager",
+                           position="after")
+                 isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessProtTab")      })
+               }
              }
-           }
            
            
-        ,peptide = {
-          if ("dataProcessProtTab" %in% rv$UI_TabsList){
-            removeTab(inputId = "navPage", target = "Data processing (protein)")
-            isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessProtTab"))] })
-          }
-          
-          if (!("dataProcessPeptTab" %in% rv$UI_TabsList))
-          {
-            insertTab(inputId = "navPage",
-                    navbarMenu("Data processing (peptide)",
-                     source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
-                     source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
-                     source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value),
-          target = "Data manager",
-          position="after"
-          )
-            isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessPeptTab")      })
-          }
-    }
+             ,peptide = {
+               if ("dataProcessProtTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (protein)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessProtTab"))] })
+               }
+               if ("dataProcessMetTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (metabolite)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessMetTab"))] })
+               }
+               
+               if (!("dataProcessPeptTab" %in% rv$UI_TabsList)) {
+                 insertTab(inputId = "navPage",
+                           navbarMenu("Data processing (peptide)",
+                                      source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
+                                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
+                                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
+                                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
+                                      source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value),
+                           target = "Data manager",
+                           position="after"
+                 )
+                 isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessPeptTab")      })
+               }
+             }
+             
+             ,metabolite = {
+               if ("dataProcessPeptTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (peptide)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessPeptTab"))] })
+               }
+               if ("dataProcessProtTab" %in% rv$UI_TabsList){
+                 removeTab(inputId = "navPage", target = "Data processing (protein)")
+                 isolate({rv$UI_TabsList <- rv$UI_TabsList[-(which(rv$UI_TabsList == "dataProcessProtTab"))] })
+               }
+               
+               if (!("dataProcessMetTab" %in% rv$UI_TabsList)) {
+                 insertTab(inputId = "navPage",
+                           navbarMenu("Data processing (metabolite)" 
+                                      ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
+                                      ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
+                                      ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
+                                      ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
+                           ),
+                           target = "Data manager",
+                           position="after")
+                 isolate({rv$UI_TabsList <- c(rv$UI_TabsList, "dataProcessMetTab")      })
+               }
+             }
     )
     }
    
