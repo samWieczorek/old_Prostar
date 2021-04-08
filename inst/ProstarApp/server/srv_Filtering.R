@@ -300,7 +300,7 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
     } else {
       th <- as.integer(rv$widgets$filtering$metacell_value_th)
     }
-    browser()
+    #browser()
     indices <- DAPAR::GetIndices_MetacellFiltering(obj = rv$current.obj,
                                                         level = rv$current.obj@experimentData@other$typeOfData,
                                                         pattern = rv$widgets$filtering$MetacellTag,
