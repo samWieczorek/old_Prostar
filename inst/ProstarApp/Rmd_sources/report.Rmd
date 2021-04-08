@@ -14,7 +14,6 @@ knitr::opts_chunk$set(cache=FALSE)
 # Versions
 
 ```{r DT_versions,out.width = "150%", echo=FALSE}
-
 library(DT)
 DT::datatable(getPackagesVersions('installed'), 
                           escape = FALSE,
@@ -26,8 +25,6 @@ DT::datatable(getPackagesVersions('installed'),
                           ordering = FALSE
               )
             )
-
-
 ```
 
 
@@ -38,7 +35,6 @@ DT::datatable(getPackagesVersions('installed'),
 ```{r DT_summary_dataProcessing,out.width = "150%", echo=FALSE}
 library(DT)
 df <- BuildParamDataProcessingDT()
-
 if (!is.null(df)){
   library(DT)
 DT::datatable(df, 
@@ -51,10 +47,7 @@ DT::datatable(df,
                           ordering = FALSE
               )
             )
-
-
 }
-
 ```
 
 
@@ -64,7 +57,6 @@ DT::datatable(df,
 ```{r DT_summary_dataMining,out.width = "150%", echo=FALSE}
 library(DT)
 df <- BuildParamDataMiningDT()
-
 if (!is.null(df)){
 library(DT)
 DT::datatable(df, 
@@ -77,10 +69,5 @@ DT::datatable(df,
                           ordering = FALSE
               )
             )
-
-
-
 }
-
 ```
-

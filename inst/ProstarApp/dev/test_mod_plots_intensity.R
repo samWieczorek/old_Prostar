@@ -31,7 +31,7 @@ server <- function(input, output, session) {
   
   #metadata <- metadata(Exp1_R25_prot)
   conds <- pData(obj)$Condition
-   fData(obj) <- cbind(fData(obj), ProtOfInterest=rep(0,nrow(obj)))
+  fData(obj) <- cbind(fData(obj), ProtOfInterest=rep(0,nrow(obj)))
   fData(obj)$ProtOfInterest[10:20] <- 1
   
   r$master <- callModule(mod_plots_tracking_server,'master_tracking', 

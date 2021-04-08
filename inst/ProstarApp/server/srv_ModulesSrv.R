@@ -408,7 +408,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             g1=data <- data.g1[this.index+1,],
             g2 = data <- data.g2[this.index+1,] 
     )
-
+    
     data
   })
   
@@ -426,7 +426,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   GetDataFor_Infos <- reactive({
     req(comp())
-
+    
     data <- GetExprsClickedProtein()
     data
   })
@@ -473,15 +473,10 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     tooltip()
     isSwaped()
     
-     isolate({
+    isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
-<<<<<<< HEAD
-      print("in volcanoplot")
-      print(head(data()))
-=======
->>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
-
+      
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
         
@@ -498,11 +493,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
         }
         clickFun <-   
-         JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
+          JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
         cond <- c(data()$condition1, data()$condition2)
-        
-        
         rv$tempplot$volcano <-  diffAnaVolcanoplot_rCharts(df,
                                                            threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                            threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
@@ -544,8 +537,7 @@ moduleDensityplot <- function(input, output, session, data) {
     tmp <- NULL
     isolate({
       
-      withProgress(message = 'Making plot', value = 0, {
-        incProgress(0.5, detail = '')
+      withProgress(message = 'Making plot', value = 100, {
         pattern <- paste0(GetCurrentObjName(),".densityplot")
         tmp <- DAPAR::densityPlotD_HC(data(), 
                                       rv$PlotParams$legendForSamples,
@@ -578,7 +570,7 @@ moduleBoxplot <- function(input, output, session, data) {
   output$BoxPlot <- renderHighchart({
     #req(rv$current.obj)
     data()
-
+    
     rv$current.obj.name
     rv$PlotParams$paletteConditions
     rv$PlotParams$legendForSamples
@@ -629,18 +621,12 @@ moduleBoxplot <- function(input, output, session, data) {
 }
 
 
-#withProgress
+
 moduleMVPlots <- function(input, output, session, data, title, palette) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    
-    isolate({
-      withProgress(message = 'Making plot', value = 0, {
-        incProgress(0.5, detail = '')
-        wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
-      })
-    })
+    wrapper.hc_mvTypePlot2(obj=data(), title=title(), palette = palette())
   })
   
   
@@ -650,12 +636,7 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
     
     tryCatch(
       {
-        isolate({
-          withProgress(message = 'Making plot', value = 0, {
-            incProgress(0.5, detail = '')
-            wrapper.mvImage(data())
-          })
-        })
+        wrapper.mvImage(data())
       },
       warning = function(w) { p(conditionMessage(w))},
       error = function(e) {p(conditionMessage(e))},
@@ -667,19 +648,14 @@ moduleMVPlots <- function(input, output, session, data, title, palette) {
   
   output$plot_showImageNA <- renderImage({
     #req(wrapper.mvImage(data()))
-    isolate({
-      withProgress(message = 'Making plot', value = 0, {
-        incProgress(0.5, detail = '')
-        
-        # A temp file to save the output. It will be deleted after renderImage
-        # sends it, because deleteFile=TRUE.
-        outfile <- tempfile(fileext='.png')
-        
-        png(outfile)
-        wrapper.mvImage(data())
-        dev.off()
-      })
-    })
+    
+    # A temp file to save the output. It will be deleted after renderImage
+    # sends it, because deleteFile=TRUE.
+    outfile <- tempfile(fileext='.png')
+    
+    png(outfile)
+    wrapper.mvImage(data())
+    dev.off()
     
     # Return a list
     list(src = outfile,

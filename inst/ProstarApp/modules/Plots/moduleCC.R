@@ -153,9 +153,9 @@ moduleCC <- function(input, output, session,cc){
       local <-   cc()[Get_CC_Multi2Any()]
       n.prot <- unlist(lapply(local, function(x){length(x$proteins)}))
       n.pept <- unlist(lapply(local, function(x){length(x$peptides)}))
-      df <- data.frame(x=jitter(n.pept),
-                       y = jitter(n.prot),
-                       index = 1:length(local))
+      df <- tibble(x=jitter(n.pept),
+                   y = jitter(n.prot),
+                   index = 1:length(local))
       
       if (!is.null( tooltip)){
         df <- cbind(df,fData(rv$current.obj)[ tooltip])
@@ -181,18 +181,11 @@ moduleCC <- function(input, output, session,cc){
   
   
   output$Warning_CCMultiMulti <- renderUI({
-<<<<<<< HEAD
+    req(GetDataFor_CCMultiMulti())
     if (nrow(GetDataFor_CCMultiMulti()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
   
-=======
-    req(GetDataFor_CCMultiMulti())
-      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
-        p(MSG_WARNING_SIZE_DT)
-    })
-
->>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
   
   GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
@@ -489,13 +482,8 @@ moduleCC <- function(input, output, session,cc){
   
   
   output$Warning_OneMultiDTDetailed <- renderUI({
-<<<<<<< HEAD
-    req(req(input$OneMultiDT_rows_selected))
-    
-=======
     req(input$OneMultiDT_rows_selected)
-
->>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
+    
     if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })

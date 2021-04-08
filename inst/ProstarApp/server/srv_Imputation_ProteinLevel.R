@@ -110,12 +110,7 @@ output$screenProtImput1 <- renderUI({
     
     htmlOutput("helpForImputation"),
     tags$hr(),
-<<<<<<< HEAD
-    print("lancement du MVplots"),
     moduleMVPlotsUI("mvImputationPlots_MV")
-=======
-     moduleMVPlotsUI("mvImputationPlots_MV")
->>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
   )
 })
 

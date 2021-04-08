@@ -721,6 +721,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         )
         options(digits=15)
         
+        print(datasetID_Ok())
         protId <- NULL
         if (input$typeOfData == 'protein' || input$typeOfData == 'metabolite')
           protId <- input$idBox
