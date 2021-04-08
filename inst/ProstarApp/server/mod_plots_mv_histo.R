@@ -1,27 +1,30 @@
-missingValuesPlotsUI <- function(id) {
+
+
+mod_plots_mv_histo_ui <- function(id){
   ns <- NS(id)
-  fluidRow(
-    column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
-    column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
-    column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
+  tagList(
+    fluidRow(
+      column(width = 4, highchartOutput(ns("histo_MV")), height="600px"),
+      column(width = 4, highchartOutput(ns("histo_MV_per_lines"))),
+      column(width = 4, highchartOutput(ns("histo_MV_per_lines_per_conditions")))
+    )  
   )
-  
 }
 
 
 
 
-#------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data) {
+
+mod_plots_mv_histo_server <- function(input, output, session, data, palette) {
   
   output$histo_MV <- renderHighchart({
-    req(data())
-    rv$PlotParams$paletteConditions
+    data()
+    
     tmp <- NULL
     #isolate({
     #pattern <- paste0(GetCurrentObjName(),".MVplot1")
     tmp <- wrapper.mvHisto_HC(data(),
-                              base_palette=rv$PlotParams$paletteConditions)
+                              base_palette = unique(palette())) 
     #future(createPNGFromWidget(tmp,pattern))
     #  })
     tmp
@@ -30,7 +33,7 @@ missingValuesPlots <- function(input, output, session, data) {
   
   
   output$histo_MV_per_lines <- renderHighchart({
-    req(data())
+    data()
     tmp <- NULL
     isolate({
      # pattern <- paste0(GetCurrentObjName(),".MVplot2")
@@ -45,14 +48,13 @@ missingValuesPlots <- function(input, output, session, data) {
   
   
   output$histo_MV_per_lines_per_conditions <- renderHighchart({
-    req(data())
-    rv$PlotParams$paletteConditions
+    data()
+    #palette()
     tmp <- NULL
     isolate({
-     # pattern <- paste0(GetCurrentObjName(),".MVplot2")
+      #pattern <- paste0(GetCurrentObjName(),".MVplot2")
       tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                    c(2:length(colnames(Biobase::pData(data()))))
-                                                    ,rv$PlotParams$paletteConditions)
+                                                    palette=unique(palette()))
       #future(createPNGFromWidget(tmp,pattern))
     })
     tmp

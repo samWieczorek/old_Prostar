@@ -43,7 +43,8 @@ install.packages("Prostar", lib="~/rlib")
 ## Usage
 
 ### Example of a small size protein dataset.
-### Copy/paste to format your own dataset.
+Copy/paste to format your own dataset.
+```r
 id	IntCond1	IntCond1	IntCond2	IntCond2
 0	40679000	33460000	23513000	47514000
 1	22472000	20529000	18878000	27066000
@@ -64,6 +65,7 @@ id	IntCond1	IntCond1	IntCond2	IntCond2
 16	33044000	30683000	44981000	30866000
 17	154570000	160330000	161860000	170290000
 18	67461000	65409000	63535000	64638000
+```
 
 ## Contact
 

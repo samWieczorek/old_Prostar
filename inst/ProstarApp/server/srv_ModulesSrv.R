@@ -96,8 +96,7 @@ moduleDesignExample <- function(input, output, session, n){
 
 
 
-moduleDetQuantImpValues <- function(input, output, session, quant,factor)
-{
+moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
   
   output$detQuantValues_DT <- renderDataTable(server=TRUE,{
     req(rv$current.obj, quant(), factor())
@@ -108,6 +107,7 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor)
                   options = list(initComplete = initComplete(),
                                  dom = 't',
                                  bLengthChange = FALSE))
+    
   })
 }
 
@@ -159,6 +159,9 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   ns <- session$ns
   
   
+  observeEvent(data(), {
+    print('############ NEW DATA on rv$resAnaDiff')
+  })
   output$quantiDT <- renderUI({
     req(input$eventPointClicked)
     
@@ -405,10 +408,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
             g1=data <- data.g1[this.index+1,],
             g2 = data <- data.g2[this.index+1,] 
     )
-    
-    print("dans GetExprsClickedProtein")
-    print(data)
-    
+
     data
   })
   
@@ -426,12 +426,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   GetDataFor_Infos <- reactive({
     req(comp())
-    
-    
+
     data <- GetExprsClickedProtein()
-    
-    print('################### Dans Infos  #################')
-    print(colnames(data))
     data
   })
   
@@ -472,16 +468,19 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     rv$widgets$anaDiff$th_pval
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
+    data()$P_Value
     #data()$logFC
     tooltip()
     isSwaped()
     
-    print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
-    isolate({
+     isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
+<<<<<<< HEAD
       print("in volcanoplot")
       print(head(data()))
+=======
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
 
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
@@ -526,51 +525,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
 
 
 #------------------------------------------------------------
-missingValuesPlots <- function(input, output, session, data, palette) {
-  
-  output$histo_MV <- renderHighchart({
-    data()
-    
-    rv$PlotParams$paletteConditions
-    tmp <- NULL
-    #isolate({
-    pattern <- paste0(GetCurrentObjName(),".MVplot1")
-    tmp <- wrapper.mvHisto_HC(data(),palette=rv$PlotParams$paletteConditions)
-    #future(createPNGFromWidget(tmp,pattern))
-    #  })
-    tmp
-  })
-  
-  
-  
-  output$histo_MV_per_lines <- renderHighchart({
-    data()
-    tmp <- NULL
-    isolate({
-      pattern <- paste0(GetCurrentObjName(),".MVplot2")
-      tmp <- 
-        wrapper.mvPerLinesHisto_HC(data(), 
-                                   c(2:length(colnames(Biobase::pData(rv$current.obj)))))
-      #future(createPNGFromWidget(tmp,pattern))
-    })
-    tmp
-  })
-  
-  
-  
-  output$histo_MV_per_lines_per_conditions <- renderHighchart({
-    data()
-    palette()
-    tmp <- NULL
-    isolate({
-      pattern <- paste0(GetCurrentObjName(),".MVplot2")
-      tmp <- wrapper.mvPerLinesHistoPerCondition_HC(data(), 
-                                                    palette=palette())
-      #future(createPNGFromWidget(tmp,pattern))
-    })
-    tmp
-  })
-}
+
 
 
 #------------------------------------------------------------
@@ -623,6 +578,7 @@ moduleBoxplot <- function(input, output, session, data) {
   output$BoxPlot <- renderHighchart({
     #req(rv$current.obj)
     data()
+
     rv$current.obj.name
     rv$PlotParams$paletteConditions
     rv$PlotParams$legendForSamples
@@ -632,7 +588,9 @@ moduleBoxplot <- function(input, output, session, data) {
       print(paste0("palette for boxplot : ",rv$PlotParams$paletteConditions) )
       print(ncol(exprs(data())))
       print(str(exprs(data())))
-      tmp <- boxPlotD_HC(data(), rv$PlotParams$legendForSamples, palette=rv$PlotParams$paletteConditions)
+      tmp <- boxPlotD_HC(data(), 
+                         rv$PlotParams$legendForSamples, 
+                         palette=rv$PlotParams$paletteConditions)
       #future(createPNGFromWidget(tmp,pattern))
       
       

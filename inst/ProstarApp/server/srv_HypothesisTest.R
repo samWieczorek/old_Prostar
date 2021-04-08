@@ -167,13 +167,13 @@ ComputeComparisons <- reactive({
     
     switch(rv$widgets$hypothesisTest$method,
            Limma={
-             rv$res_AllPairwiseComparisons <- limmaCompleteTest(Biobase::exprs(rv$current.obj), 
+             rv$res_AllPairwiseComparisons <- DAPAR::limmaCompleteTest(Biobase::exprs(rv$current.obj), 
                                                                 Biobase::pData(rv$current.obj),
                                                                 rv$widgets$hypothesisTest$design) 
              
            },
            ttests={
-             rv$res_AllPairwiseComparisons <- wrapper.t_test_Complete(rv$current.obj, 
+             rv$res_AllPairwiseComparisons <- DAPAR::compute_t_tests(rv$current.obj, 
                                                                       contrast=rv$widgets$hypothesisTest$design,
                                                                       type=rv$widgets$hypothesisTest$ttest_options)
            })

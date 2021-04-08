@@ -535,9 +535,9 @@ output$checkIdentificationTab <- renderUI({
 
 # reactive dataset
 quantiDataTable <- reactive({
+ 
   req(input$eData.box)
   req(rv$tab1)
-  
   session$sendCustomMessage('unbind-DT', 'x1')
   df <- NULL
   choices <- c("None",colnames(rv$tab1))
@@ -545,7 +545,7 @@ quantiDataTable <- reactive({
   
   if (isTRUE(input$selectIdent)) {
     
-    df <- data.frame(as.data.frame(input$eData.box),
+    df <- data.frame(input$eData.box,
                      shinyInput(selectInput,
                                 "colForOriginValue_",
                                 nrow(as.data.frame(input$eData.box)),
@@ -590,11 +590,11 @@ output$x1 <- renderDataTable(
 )
 
 
-observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
+#observeEvent(shinyValue("colForOriginValue_",nrow(quantiDataTable())),{})
 
 
 checkIdentificationMethod_Ok <- reactive({
-  #req(input$selectIdent)
+  req(quantiDataTable())
   res <- TRUE
   tmp <- NULL
   if (isTRUE(input$selectIdent)) {
@@ -720,6 +720,13 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                            installed.packages(lib.loc = DAPAR.loc)["DAPAR","Version"]
         )
         options(digits=15)
+        
+        protId <- NULL
+        if (input$typeOfData == 'protein' || input$typeOfData == 'metabolite')
+          protId <- input$idBox
+        else if(input$typeOfData == 'peptide') 
+          protId <- input$convert_proteinId
+        
         tmp <- DAPAR::createMSnset(rv$tab1, 
                                    metadata, 
                                    indexForEData, 
@@ -729,7 +736,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                                    logData, 
                                    input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
-                                   proteinId =  gsub(".", "_", input$convert_proteinId, fixed=TRUE),
+                                   proteinId =  gsub(".", "_", protId, fixed=TRUE),
                                    versions
         )
         ClearUI()

@@ -208,7 +208,11 @@ output$imp4pOptsUI <- renderUI({
                            step=1, min=1, width='100px')),
     
     tags$div( style="display:inline-block; vertical-align: bottom; padding-right: 20px;",
+<<<<<<< HEAD
               checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also", 
+=======
+              checkboxInput("peptideLevel_imp4p_withLapala", "Impute MEC also",
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
                             value = rv$widgets$peptideImput$pepLevel_imp4p_withLapala ))
   )
 })

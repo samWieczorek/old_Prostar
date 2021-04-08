@@ -150,15 +150,15 @@ originOfValue[["ByAlignment"]] <- 3
 
 gFiltersList <- c("None" = "None",
                   "Empty lines" = "EmptyLines",
-                  "Whole matrix" = "wholeMatrix",
-                  "For every condition" = "allCond",
-                  "At least one condition" = "atLeastOneCond")
+                  "Whole matrix" = "WholeMatrix",
+                  "For every condition" = "AllCond",
+                  "At least one condition" = "AtLeastOneCond")
 
 gFiltersListAnaDiff <- list()
 gFiltersListAnaDiff[["None"]] <- "None"
-gFiltersListAnaDiff[["Whole matrix"]] <- "wholeMatrix"
-gFiltersListAnaDiff[["For every condition"]] <- "allCond"
-gFiltersListAnaDiff[["At least one condition"]] <- "atLeastOneCond"
+gFiltersListAnaDiff[["Whole matrix"]] <- "WholeMatrix"
+gFiltersListAnaDiff[["For every condition"]] <- "AllCond"
+gFiltersListAnaDiff[["At least one condition"]] <- "AtLeastOneCond"
 
 group2ColorByDefault <- "Condition"
 
@@ -620,7 +620,7 @@ G_exportFileFormat_Choices <- c( "msnset","Excel", "zip")
 gFileFormatExport <- list(msnset = "msnset",excel = "Excel", zip="zip")
 gFileExtension <- list(txt = ".txt",
                        tsv = ".tsv",
-                       msnset = "msnset",
+                       msnset = ".msnset",
                        excel = ".xlsx",
                        zip = ".zip")
 

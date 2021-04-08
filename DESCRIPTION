@@ -1,9 +1,14 @@
 Package: Prostar
 Type: Package
 Title: Provides a GUI for DAPAR
+<<<<<<< HEAD
 Version: 1.20.0
 Date: 2020-03-28
 Encoding: UTF-8
+=======
+Version: 1.22.8
+Date: 2021-03-08
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
 Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "samuel.wieczorek@cea.fr",
  		    role = c("aut","cre")),
@@ -14,19 +19,21 @@ Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "thomas.burger@cea.fr",
 		    role = "aut"))
 Author: Samuel Wieczorek [cre,aut],
-    Florence Combes [aut],
     Thomas Burger [aut],
     Enora Fremy [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing, ImmunoOncology,  R.utils, GO, GUI
 License: Artistic-2.0
-Depends: R (>= 3.6.2)
+Depends: R (>= 4.0.3)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.19.16), DAPARdata (>= 1.16.0), rhandsontable, data.table,
+Imports: DAPAR (>= 1.22.6), DAPARdata (>= 1.20.0), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,
         shinythemes, XML,later, rclipboard, shinycssloaders, future, promises, 
         colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets, sass, tibble
 NeedsCompilation: no
 RoxygenNote: 7.1.1
 Packaged: 2017-10-13 06:25:55 UTC; sw175264
+Encoding: UTF-8
+URL: http://www.prostar-proteomics.org/
+BugReports: https://github.com/samWieczorek/Prostar/issues

@@ -21,9 +21,10 @@ output$citationText <- renderUI({
 
 output$versionsText <- renderUI({
   t <- sessionInfo()
+  
   daparVersion <- installed.packages(lib.loc=DAPAR.loc)["DAPAR","Version"]
   ProstarVersion <- installed.packages(lib.loc=Prostar.loc)["Prostar","Version"]
-  
+
   tagList(
      tags$p(class="body",
             tags$b("DAPAR"),
@@ -48,7 +49,8 @@ output$versionsText <- renderUI({
 
 output$NoteForNewVersion <- renderUI({
   
-  df <- getPackagesVersions2()
+  #df <- getPackagesVersions2()
+  df <- getPackagesVersions()
   if (sum(grepl("(Out of date)",df[,1])) >= 1) {
   tags$div(
     style="font-size: 16px",

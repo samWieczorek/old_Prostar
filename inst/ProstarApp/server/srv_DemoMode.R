@@ -4,26 +4,22 @@ callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDa
 
 output$chooseDataset <- renderUI({
  
-  if(require("DAPARdata", lib.loc=DAPARdata.loc)){
-    print("DAPARdata is loaded correctly")
-    selectInput("demoDataset",
-                "Demo dataset",
-                choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
-                width='200px'    )
-  } else {
-    print("trying to install DAPARdata")
+  if(!require("DAPARdata", lib.loc=DAPARdata.loc)){
+    print("Installing DAPARdata")
     BiocManager::install("DAPARdata")
+  }
+  if(!require(DAPARdata))
+    stop("Could not install the package DAPARdata")
+  
+  
+    print("DAPARdata is loaded correctly")
     if(require(DAPARdata)){
       print("DAPARdata installed and loaded")
       selectInput("demoDataset",
                   "Demo dataset",
-                  choices = c("None" = "None",utils::data(package="DAPARdata")$results[,"Item"]),
+                  choices = c("None" = "None", utils::data(package="DAPARdata")$results[,"Item"]),
                   width='200px'   )
-    } else {
-      stop("Could not install the package DAPARdata")
     }
-  }
-  
 
 })
 
@@ -32,6 +28,7 @@ output$chooseDataset <- renderUI({
 output$linktoDemoPdf <- renderUI({
   req(input$demoDataset)
   if (input$demoDataset == "None"){return(NULL)}
+  
   file<- paste(system.file(package = "DAPARdata"),"/doc/",
                input$demoDataset,".pdf", sep="")
   cmd <- paste("cp ",file," www/.", sep="")
@@ -87,10 +84,13 @@ output$infoAboutDemoDataset <- renderUI({
 
 
 observeEvent(input$loadDemoDataset,{
-  if (input$loadDemoDataset == "None"){return(NULL)}
+
+  req(input$demoDataset)
+  if (input$demoDataset == "None"){return(NULL)}
   
   isolate({
     ntotal <- 4
+   
   withProgress(message = '',detail = '', value = 0, {
     
     ClearUI()

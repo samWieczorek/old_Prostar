@@ -1,12 +1,16 @@
 callModule(moduleLegendColoredExprs, "ExprsColorLegend_DS")
 callModule(moduleLegendColoredExprs, "FilterColorLegend_DS")
 
-callModule(missingValuesPlots, "MVPlots_DS", 
+callModule(mod_plots_mv_histo_server, "MVPlots_DS", 
            data=reactive({rv$current.obj}),
            palette = reactive({rv$PlotParams$paletteConditions})
 )
 callModule(moduleDensityplot, "densityPlot_DS",data=reactive({rv$current.obj}))
-callModule(moduleBoxplot, "boxPlot_DS",data=reactive({rv$current.obj}))
+
+callModule(moduleBoxplot, "boxPlot_DS",
+           data=reactive({rv$current.obj})
+           )
+
 callModule(moduleStaticDataTable,"overview_DS", table2show=reactive({GetDatasetOverview()}),
            filename='DescriptiveStats_Overview')
 
@@ -110,8 +114,12 @@ output$IntensityStatsPlots <- renderUI({
                             style = "material-circle", icon = icon("gear"), status = optionsBtnClass
                           )))
                
+<<<<<<< HEAD
       )
       ),
+=======
+      )),
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
     
     
     fluidRow(
@@ -125,7 +133,11 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
   tagList(
     helpText("These barplots display the distribution of missing values in the dataset."),
+<<<<<<< HEAD
     missingValuesPlotsUI("MVPlots_DS")
+=======
+    mod_plots_mv_histo_ui("MVPlots_DS")
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
   )
 })
 
@@ -515,6 +527,7 @@ corrMatrix <- reactive({
   
   req(rv$current.obj)
   input$expGradientRate
+<<<<<<< HEAD
   input$showValues
   
   gradient <- NULL
@@ -523,15 +536,30 @@ corrMatrix <- reactive({
     gradient <- input$expGradientRate}
   isolate({
     rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj,gradient,input$showValues)
+=======
+  input$showDataLabels
+  
+  gradient <- NULL
+  if (is.null(input$expGradientRate)){gradient <- defaultGradientRate}
+  else{gradient <- input$expGradientRate }
+  
+  isolate({
+    rv$tempplot$corrMatrix <- wrapper.corrMatrixD_HC(rv$current.obj, gradient, showValues= input$showDataLabels)
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
     rv$tempplot$corrMatrix
   })
   
 })
 
 
+<<<<<<< HEAD
 
 observeEvent(input$distance,{rv$PlotParams$heatmap.distance <- input$distance})
 observeEvent(input$linkage,{rv$PlotParams$heatmap.linkage <- input$linkage})
+=======
+observeEvent(input$distance, { rv$PlotParams$heatmap.distance <- input$distance})
+observeEvent(input$linkage, { rv$PlotParams$heatmap.linkage <- input$linkage})
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
 
 heatmap <- reactive({
   
@@ -542,7 +570,10 @@ heatmap <- reactive({
   isolate({  wrapper.heatmapD(rv$current.obj,
                               input$distance, 
                               input$linkage,
+<<<<<<< HEAD
                               
+=======
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
                               TRUE)
   })
   

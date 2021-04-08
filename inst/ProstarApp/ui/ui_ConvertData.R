@@ -1,4 +1,13 @@
+<<<<<<< HEAD
 
+=======
+# tabPanel("Convert data",
+# 
+#          value = "convertTab",
+#          moduleProcessUI("moduleProcess_Convert")
+# 
+# )
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
 
 tabPanel("Convert data",
          value = "convertTab",

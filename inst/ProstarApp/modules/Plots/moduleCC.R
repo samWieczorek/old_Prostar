@@ -181,10 +181,18 @@ moduleCC <- function(input, output, session,cc){
   
   
   output$Warning_CCMultiMulti <- renderUI({
+<<<<<<< HEAD
     if (nrow(GetDataFor_CCMultiMulti()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
   
+=======
+    req(GetDataFor_CCMultiMulti())
+      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
+        p(MSG_WARNING_SIZE_DT)
+    })
+
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
   
   GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
@@ -443,6 +451,7 @@ moduleCC <- function(input, output, session,cc){
   
   output$Warning_OneMultiDT <- renderUI({
     req(rv$CC$allPep)
+    req(BuildOne2MultiTab())
     if (nrow(BuildOne2MultiTab()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
@@ -480,8 +489,13 @@ moduleCC <- function(input, output, session,cc){
   
   
   output$Warning_OneMultiDTDetailed <- renderUI({
+<<<<<<< HEAD
     req(req(input$OneMultiDT_rows_selected))
     
+=======
+    req(input$OneMultiDT_rows_selected)
+
+>>>>>>> 3f7a010f9977e8f1f29597873b6afa82b0158f85
     if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
   })
@@ -581,6 +595,7 @@ moduleCC <- function(input, output, session,cc){
   
   
   output$Warning_OneOneDTDetailed <- reactive({
+    req(GetDataFor_OneOneDTDetailed())
     if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
       p(MSG_WARNING_SIZE_DT)
     
@@ -590,16 +605,13 @@ moduleCC <- function(input, output, session,cc){
     req(rv$CC$allPep)
     req(input$OneOneDT_rows_selected)
     input$pepInfo
-    print(input$pepInfo)
     line <- input$OneOneDT_rows_selected
     
     ind <- 1:ncol(rv$current.obj)
-    print(ind)
     data <- getDataForExprs(rv$current.obj)
     pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
-    print("marqueur 1")
     if(!is.null(input$pepInfo))
     {
       data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
