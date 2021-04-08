@@ -179,8 +179,7 @@ output$screenNormalization2 <- renderUI({
 
 
 output$helpForNormalizationMethods <- renderUI({
-  req(rv$widgets$normalization$method)
-  if (rv$widgets$normalization$method == "None") {return(NULL)}
+  req(rv$widgets$normalization$method != 'None')
   
   
   switch(rv$widgets$normalization$method,
@@ -214,8 +213,7 @@ output$helpForNormalizationMethods <- renderUI({
 callModule(module_Not_a_numeric,"test_normQuant", reactive({rv$widgets$normalization$quantile}))
 
 output$choose_normalizationQuantile <- renderUI({
-  req(rv$widgets$normalization$method)
-  if (rv$widgets$normalization$method != "QuantileCentering") { return (NULL)}
+  req(rv$widgets$normalization$method == "QuantileCentering")
   
   tagList(
     modulePopoverUI("modulePopover_normQuanti"),
@@ -243,10 +241,10 @@ output$choose_normalizationScaling <- renderUI({
 
 observeEvent(rv$widgets$normalization$method,{
   #req(rv$widgets$normalization$method)
-  if (rv$widgets$normalization$method == "None"){
-    rv$current.obj <- rv$dataset[[input$datasets]]
-    return(NULL)
-  }
+  #if (rv$widgets$normalization$method == "None"){
+   # rv$current.obj <- rv$dataset[[input$datasets]]
+ #   return(NULL)
+ # }
   
   shinyjs::toggle("perform.normalization", condition=rv$widgets$normalization$method != "None")
   shinyjs::toggle("spanLOESS", condition=rv$widgets$normalization$method == "LOESS")

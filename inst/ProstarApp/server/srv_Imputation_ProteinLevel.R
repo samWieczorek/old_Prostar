@@ -106,8 +106,8 @@ output$screenProtImput1 <- renderUI({
     ),
     
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-              actionButton("perform.imputationClassical.button",
-                           "Perform imputation", class = actionBtnClass)),
+              actionButton("perform.POVimputation.button",
+                           "Perform POV imputation", class = actionBtnClass)),
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
               uiOutput("ImputationStep1Done")),
     
@@ -119,50 +119,29 @@ output$screenProtImput1 <- renderUI({
 
 
 
-output$screenProtImput2 <- renderUI({
+output$sidebar_imputation_step1 <- renderUI({
+  # req(rv$current.obj)
   
-  tagList(
-    uiOutput("warningMECImputation"),
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                uiOutput("MEC_chooseImputationMethod")),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                uiOutput("MEC_Params")),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                uiOutput("MEC_showDetQuantValues"))),
-    
-    tagList(
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)),
-      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-                uiOutput("ImputationStep2Done"))),
-    tags$hr(),
-    withProgress(message = '',detail = '', value = 0, {
-      incProgress(0.5, detail = 'Building plots...')
+  #isolate({
+    if (length(grep("Imputed", input$datasets))==0){
+      rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
+      shinyjs::enable("perform.POVimputation.button")
       
-      moduleMVPlotsUI("mvImputationPlots_MEC")
-    })
-  )
-  
+    } else {
+      shinyjs::disable("perform.POVimputation.button")
+    }
+    
+    algo <- imputationAlgorithmsProteins_POV
+    
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+              selectInput("POV_missing.value.algorithm","Algorithm for POV",
+                          choices = algo, 
+                          selected=rv$widgets$proteinImput$POV_algorithm, 
+                          width='150px')
+    )
+    
+ # })
 })
-
-
-
-output$screenProtImput3 <- renderUI({
-  
-  tagList(
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-              actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
-              uiOutput("ImputationSaved")),
-    tags$hr(),
-    moduleMVPlotsUI("mvImputationPlots_Valid")
-  )
-})
-
-
-
-
 
 
 
@@ -178,58 +157,6 @@ output$POV_showDetQuantValues <- renderUI({
     )
   }
 })
-
-output$MEC_showDetQuantValues <- renderUI({
-  
-  req(rv$widgets$proteinImput$MEC_algorithm)
-  
-  if (rv$widgets$proteinImput$MEC_algorithm == 'detQuantile')
-  {
-    tagList(
-      h5("The MEC will be imputed by the following values :"),
-      moduleDetQuantImpValuesUI("MEC_DetQuantValues_DT")
-    )
-  }
-})
-
-
-
-output$sidebar_imputation_step1 <- renderUI({
-  # req(rv$current.obj)
-  
-  isolate({
-    if (length(grep("Imputed", input$datasets))==0){
-      rv$imputePlotsSteps[["step0"]] <- rv$dataset[[input$datasets]]
-      shinyjs::enable("perform.imputationClassical.button")
-      
-    } else {
-      shinyjs::disable("perform.imputationClassical.button")
-    }
-    
-    algo <- imputationAlgorithmsProteins_POV
-    
-    tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
-              selectInput("POV_missing.value.algorithm","Algorithm for POV",
-                          choices = algo, 
-                          selected=rv$widgets$proteinImput$POV_algorithm, 
-                          width='150px')
-    )
-    
-  })
-})
-
-
-output$MEC_chooseImputationMethod <- renderUI({
-  algo <- imputationAlgorithmsProteins_MEC
-  
-  tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
-            selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo,
-                        selected=rv$widgets$proteinImput$MEC_algorithm, width='150px')
-  )
-})
-
-
-
 
 
 
@@ -260,6 +187,151 @@ output$POV_Params <- renderUI({
     )
     
   })
+})
+
+
+
+
+
+observeEvent(input$perform.POVimputation.button,{
+  rv$current.obj
+ # isolate({
+  #  browser()
+   # rv$MECIndex <-NULL
+   m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                       pattern="missing POV", 
+                       level = DAPAR::GetTypeofData(rv$current.obj))
+    nbPOVBefore <- length(which(m))
+    
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.25, detail = 'Find MEC blocks')
+      
+      
+      
+      #browser()
+      switch(rv$widgets$proteinImput$POV_algorithm,
+             None = rv$current.obj <- rv$dataset[[input$datasets]],
+             slsa = {
+               #rv$MECIndex <- findMECBlock(rv$current.obj)
+               print("slsa")
+               incProgress(0.5, detail = 'slsa Imputation')
+               rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]], na.type='missing POV')
+               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+               
+             },
+             detQuantile = {
+               #rv$MECIndex <- findMECBlock(rv$current.obj)
+               incProgress(0.5, detail = 'det quantile Imputation')
+               rv$current.obj <- wrapper.impute.detQuant(obj = rv$dataset[[input$datasets]],
+                                                         qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
+                                                         factor = rv$widgets$proteinImput$POV_detQuant_factor,
+                                                         na.type='missing POV')
+               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
+               
+             },
+             KNN = {
+               incProgress(0.5, detail = 'KNN Imputation')
+               rv$current.obj <- wrapper.impute.KNN(rv$dataset[[input$datasets]] , 
+                                                    rv$widgets$proteinImput$POV_KNN_n,
+                                                    na.type='missing POV')
+             }
+      )
+      #incProgress(0.75, detail = 'Reintroduce MEC blocks')
+      incProgress(1, detail = 'Finalize POV imputation')
+      m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                          pattern="missing POV",
+                          level = DAPAR::GetTypeofData(rv$current.obj))
+      nbPOVAfter <- length(which(m))
+      rv$nbPOVimputed <-  nbPOVBefore - nbPOVAfter
+      
+      rv$impute_Step <- 1
+      rv$imputePlotsSteps[["step1"]] <- rv$current.obj
+      rvModProcess$moduleProtImputationDone[1] <- TRUE
+      shinyjs::enable("perform.imputationMEC.button")
+      shinyjs::enable("ValidImputation")
+      
+    })
+ # })
+})
+
+
+output$ImputationStep1Done <- renderUI({
+  #isolate({
+ # browser()
+  if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
+    tagList(
+      h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
+      # br(),
+      h5("Updated graphs can be seen on step \"2 - Missing on the Entire Condition\".")
+    )
+  }
+  # })
+})
+
+
+#------------------------------------------------------------
+#                             SCREEN 2
+#------------------------------------------------------------
+output$screenProtImput2 <- renderUI({
+  
+  tagList(
+    uiOutput("warningMECImputation"),
+    tags$div(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("MEC_chooseImputationMethod")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("MEC_Params")),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("MEC_showDetQuantValues"))),
+    
+    tagList(
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                actionButton("perform.imputationMEC.button","Perform imputation", class = actionBtnClass)),
+      tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+                uiOutput("ImputationStep2Done"))),
+    tags$hr(),
+    withProgress(message = '',detail = '', value = 0, {
+      incProgress(0.5, detail = 'Building plots...')
+      
+      moduleMVPlotsUI("mvImputationPlots_MEC")
+    })
+  )
+  
+})
+
+
+
+
+output$MEC_showDetQuantValues <- renderUI({
+  
+  req(rv$widgets$proteinImput$MEC_algorithm)
+  
+  if (rv$widgets$proteinImput$MEC_algorithm == 'detQuantile')
+  {
+    tagList(
+      h5("The MEC will be imputed by the following values :"),
+      moduleDetQuantImpValuesUI("MEC_DetQuantValues_DT")
+    )
+  }
+})
+
+
+
+observeEvent(rv$widgets$proteinImput$MEC_algorithm,{
+  if (rv$widgets$proteinImput$MEC_algorithm == "None"){
+    rv$current.obj <- rv$dataset[[input$datasets]]
+    return(NULL)
+  }
+})
+
+
+output$MEC_chooseImputationMethod <- renderUI({
+  algo <- imputationAlgorithmsProteins_MEC
+  
+  tags$div( style="display:inline-block; vertical-align: top; padding-right: 40px;",
+            selectInput("MEC_missing.value.algorithm", "Algorithm for MEC", choices = algo,
+                        selected=rv$widgets$proteinImput$MEC_algorithm, width='150px')
+  )
 })
 
 
@@ -296,72 +368,19 @@ output$MEC_Params <- renderUI({
 
 
 
-observeEvent(input$perform.imputationClassical.button,{
-  
-  isolate({
-    
-    rv$MECIndex <-NULL
-    rv$current.obj <- rv$imputePlotsSteps[["step0"]]
-    nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-    
-    withProgress(message = '',detail = '', value = 0, {
-      incProgress(0.25, detail = 'Find MEC blocks')
-      
-      incProgress(0.5, detail = 'POV Imputation')
-      
-      #browser()
-      switch(rv$widgets$proteinImput$POV_algorithm,
-             slsa = {
-               #rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.slsa(rv$current.obj, na.type='missing POV')
-               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-               
-             },
-             detQuantile = {
-               #rv$MECIndex <- findMECBlock(rv$current.obj)
-               rv$current.obj <- wrapper.impute.detQuant(obj = rv$current.obj,
-                                                         qval = rv$widgets$proteinImput$POV_detQuant_quantile/100,
-                                                         factor = rv$widgets$proteinImput$POV_detQuant_factor,
-                                                         na.type='missing POV')
-               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-               
-             },
-             KNN = {
-               rv$current.obj <- wrapper.impute.KNN(rv$current.obj , 
-                                                    rv$widgets$proteinImput$POV_KNN_n,
-                                                    na.type='missing POV')
-             }
-      )
-      incProgress(0.75, detail = 'Reintroduce MEC blocks')
-      incProgress(1, detail = 'Finalize POV imputation')
-      nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-      rv$nbPOVimputed <-  nbMVBefore - nbMVAfter
-      
-      rv$impute_Step <- 1
-      rv$imputePlotsSteps[["step1"]] <- rv$current.obj
-      rvModProcess$moduleProtImputationDone[1] <- TRUE
-      shinyjs::enable("perform.imputationMEC.button")
-      shinyjs::enable("ValidImputation")
-      
-    })
-  })
-})
-
-
-#################################################################################
-#################################################################################
-#################################################################################
-
 
 observeEvent(input$perform.imputationMEC.button,{
-  
-  isolate({
+  rv$current.obj
+  #isolate({
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Reintroduce MEC')
       
-      #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-      nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+      m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                          pattern="missing MEC",
+                          level = DAPAR::GetTypeofData(rv$current.obj))
+      nbMECBefore <- length(which(m))
       incProgress(0.75, detail = 'MEC Imputation')
+      #browser()
       switch(rv$widgets$proteinImput$MEC_algorithm,
              detQuantile = {
                rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,
@@ -376,20 +395,53 @@ observeEvent(input$perform.imputationMEC.button,{
              }
       )
       
-      nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
-      rv$nbMECimputed <-  nbMVBefore - nbMVAfter
+      m <- match.metacell(DAPAR::GetMetacell(rv$current.obj),
+                          pattern="missing MEC",
+                          level = DAPAR::GetTypeofData(rv$current.obj))
+      nbMECAfter <- length(which(m))
+      rv$nbMECimputed <-  nbMECBefore - nbMECAfter
       
       incProgress(1, detail = 'Finalize MEC imputation')
       rv$impute_Step <- 2
       rv$imputePlotsSteps[["step2"]] <- rv$current.obj
       rvModProcess$moduleProtImputationDone[2] <- TRUE
     })
-  })
+  #})
 })
 
 
+output$ImputationStep2Done <- renderUI({
+  #isolate({
+  if (isTRUE(rvModProcess$moduleProtImputationDone[2])) {
+    tagList(
+      h5("MEC imputation done.", rv$nbMECimputed, " were imputed"),
+      h5("Updated graphs cans be seen on step \"3 - Save\"."))
+  }
+  #})
+})
 
+output$warningMECImputation<- renderUI({
+  
+  tags$p(tags$b("Warning:"),"Imputing MEC in a conservative way
+  is a real issue as, in the given condition, there is no observed value to rely on.
+   Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.")
+})
 
+#------------------------------------------------------------
+#                             SCREEN 3
+#------------------------------------------------------------
+
+output$screenProtImput3 <- renderUI({
+  
+  tagList(
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+              actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
+    tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
+              uiOutput("ImputationSaved")),
+    tags$hr(),
+    moduleMVPlotsUI("mvImputationPlots_Valid")
+  )
+})
 
 
 
@@ -411,9 +463,6 @@ observeEvent(input$ValidImputation,{
 
 
 
-
-
-
 output$ImputationSaved <- renderUI({
   req(input$datasets)
   if ((length(grep("Imputed",input$datasets)) !=1) ) {return(NULL)  }
@@ -422,35 +471,10 @@ output$ImputationSaved <- renderUI({
   }
 })
 
-output$ImputationStep1Done <- renderUI({
-  #isolate({
-  if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
-    tagList(
-      h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
-      # br(),
-      h5("Updated graphs can be seen on step \"2 - Missing on the Entire Condition\".")
-    )
-  }
-  # })
-})
 
 
-output$ImputationStep2Done <- renderUI({
-  #isolate({
-  if (isTRUE(rvModProcess$moduleProtImputationDone[2])) {
-    tagList(
-      h5("MEC imputation done.", rv$nbMECimputed, " were imputed"),
-      h5("Updated graphs cans be seen on step \"3 - Save\"."))
-  }
-  #})
-})
 
-output$warningMECImputation<- renderUI({
-  
-  tags$p(tags$b("Warning:"),"Imputing MEC in a conservative way
-  is a real issue as, in the given condition, there is no observed value to rely on.
-   Thus, if imputation is not avoidable, imputed MEC must be very cautiously interpreted.")
-})
+
 
 
 
