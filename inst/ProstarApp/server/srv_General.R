@@ -133,7 +133,7 @@ GetDatasetOverview <- reactive({
   
   m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                       pattern="missing", 
-                      level = 'peptide')
+                      level = DAPAR::GetTypeofData(rv$current.obj))
     NA.count<- length(which(m))
     
   pourcentage <- 100 * round(NA.count/(ncol(rv$current.obj)*nrow(rv$current.obj)), digits=4)
@@ -383,7 +383,11 @@ loadObjectInMemoryFromConverter <- function(){
       ComputeConnexComposants()
     }
     
-    if (length(which(is.na(Biobase::exprs(rv$current.obj)))) == 0)
+    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                        pattern="missing",
+                        level = DAPAR::GetTypeofData(rv$current.obj)
+    )
+    if (length(which(m)) > 0)
     {
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     }

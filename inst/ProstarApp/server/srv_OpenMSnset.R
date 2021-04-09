@@ -79,11 +79,14 @@ output$infoAboutAggregationTool <- renderUI({
   } else{
     
     
-    NA.count <- length(which(is.na(Biobase::exprs(rv$current.obj))))
-    
-    nb.empty.lines <- sum(apply(is.na(as.matrix(exprs(rv$current.obj))), 1, all))
-    
-    tagList(
+     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                                    pattern="missing",
+                                    level = DAPAR::GetTypeofData(rv$current.obj)
+    )
+     NA.count <-length(which(m))
+     nb.empty.lines <- sum(apply(m, 1, all))
+   
+      tagList(
       tags$h3("Info"),
       if (rv$typeOfDataset == "protein"){
         tags$p("Note: the aggregation tool

@@ -318,7 +318,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   GetDataFor_sharedPeptidesInfos <- reactive({
     req(comp())
-    browser()
+    #browser()
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
     
@@ -500,8 +500,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
     c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
-    browser()
-    dt <- DT::datatable(data,
+   dt <- DT::datatable(data,
                         extensions = c('Scroller', 'Buttons'),
                         options = list(initComplete = initComplete(),
                                        buttons = list('copy',
@@ -541,11 +540,13 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
-      print("in volcanoplot")
-      print(head(data()))
       withProgress(message = 'Building plot...',detail = '', value = 0, {
-        if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
-        
+        m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                            pattern="missing",
+                            level = DAPAR::GetTypeofData(rv$current.obj)
+        )
+        if (length(which(m)) > 0)
+          return()
         
         df <-  data.frame(x=data()$logFC, 
                           y = -log10(data()$P_Value),

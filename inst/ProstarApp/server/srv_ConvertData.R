@@ -160,7 +160,6 @@ output$Convert_DataId <- renderUI({
   tagList(
     
     br(), br(),
-    #uiOutput("helpTextDataID"),
     
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 100px;",
@@ -184,18 +183,18 @@ output$id <- renderUI({
   
   tagList(
     modulePopoverUI("modulePopover_convertIdType"),
-    selectInput("idBox", label = "", choices = .choices)
+    selectInput("colnameForID", label = "", choices = .choices)
   )
   
 })
 
 
 output$warningNonUniqueID <- renderUI({
-  req(input$idBox != 'AutoID')
+  req(input$colnameForID != 'AutoID')
   req(rv$tab1)
   
-  t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-        == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+  t <- (length(as.data.frame(rv$tab1)[, input$colnameForID])
+        == length(unique(as.data.frame(rv$tab1)[, input$colnameForID])))
   
   if (!t){
     text <- "<img src=\"images/Problem.png\" height=\"24\"></img><font color=\"red\">
@@ -244,12 +243,12 @@ output$helpTextDataID <- renderUI({
 
 
 datasetID_Ok <- reactive({
-  req(input$idBox)
+  req(input$colnameForID)
   req(rv$tab1)
-  if (input$idBox == "AutoID") {t <- TRUE}
+  if (input$colnameForID == "AutoID") {t <- TRUE}
   else {
-    t <- (length(as.data.frame(rv$tab1)[, input$idBox])
-          == length(unique(as.data.frame(rv$tab1)[, input$idBox])))
+    t <- (length(as.data.frame(rv$tab1)[, input$colnameForID])
+          == length(unique(as.data.frame(rv$tab1)[, input$colnameForID])))
   }
   t
 })
@@ -435,7 +434,6 @@ output$checkIdentificationTab <- renderUI({
 
 GetToto <- reactive({
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
-  browser()
   shinyValue("colForOriginValue_",1)
   isolate({
     ind <- which(shinyValue("colForOriginValue_", 1) == colnames(rv$tab1))
@@ -713,11 +711,11 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         
         indexForFData <- seq(1, ncol(rv$tab1))[-indexForEData]
         
-        indexForIDBox <- NULL
-        if (input$idBox !="AutoID") {
-          indexForIDBox <- match(input$idBox, colnames(rv$tab1))
-        }
-        
+        # indexForIDBox <- NULL
+        # if (input$colnameForID != "AutoID") {
+        #   indexForIDBox <- match(input$idBox, colnames(rv$tab1))
+        # }
+        # 
         
         metadata <- hot_to_r(input$hot)
         logData <- (input$checkDataLogged == "no")
@@ -734,15 +732,16 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         
         protId <- NULL
         if (input$typeOfData == 'protein')
-          protId <- input$idBox
+          protId <- input$colnameForID
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
-        browser()
+        
+        #browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
                                    indFData = indexForFData, 
-                                   indiceID = indexForIDBox,
+                                   colnameForID = input$colnameForID,
                                    indexForMetacell = indexForMetacell,
                                    logData = logData, 
                                    replaceZeros = input$replaceAllZeros,

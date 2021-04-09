@@ -49,7 +49,11 @@ output$screenHypoTest1 <- renderUI({
   
    rv$current.obj
   isolate({
-    NA.count<- length(which(is.na(Biobase::exprs(rv$current.obj))))
+    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                        pattern="missing",
+                        level = DAPAR::GetTypeofData(rv$current.obj)
+    )
+     NA.count<- length(which(m))
 
      
   if (NA.count > 0){
@@ -159,7 +163,12 @@ ComputeComparisons <- reactive({
   req(rv$widgets$hypothesisTest$design)
   rv$widgets$hypothesisTest$ttest_options
   if ((rv$widgets$hypothesisTest$method=="None")|| (rv$widgets$hypothesisTest$design=="None")) {return (NULL)}
-  if (length(which(is.na(Biobase::exprs(rv$current.obj)))) > 0) { return()}
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing",
+                      level = DAPAR::GetTypeofData(rv$current.obj)
+  )
+  if (length(which(m)) > 0)
+    return()
   
   rv$res_AllPairwiseComparisons <- NULL
 #isolate({

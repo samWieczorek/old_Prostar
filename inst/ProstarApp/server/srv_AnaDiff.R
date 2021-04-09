@@ -318,7 +318,6 @@ observeEvent(input$AnaDiff_perform.filtering.MV,{
     else
       th <-  as.integer(rv$widgets$anaDiff$seuilNA)
     
-    browser()
     obj2analyse <- Get_Dataset_to_Analyze()
     #----------------------------------------
     indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj2analyse,

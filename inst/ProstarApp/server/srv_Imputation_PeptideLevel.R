@@ -270,7 +270,12 @@ output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server=TRUE,{
 ##' @author Samuel Wieczorek
 observeEvent(input$peptideLevel_perform.imputation.button,{
   
-  nbMVBefore <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                      pattern="missing",
+                      level = DAPAR::GetTypeofData(rv$current.obj)
+  )
+  nbMVBefore <- length(which(m))
+  
   algo <- rv$widgets$peptideImput$pepLevel_algorithm
   if (algo == "None"){
     rv$current.obj <- rv$dataset[[input$datasets]]
@@ -323,7 +328,11 @@ observeEvent(input$peptideLevel_perform.imputation.button,{
   }
   
   
-  nbMVAfter <- length(which(is.na(Biobase::exprs(rv$current.obj))==TRUE))
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                                   pattern="missing",
+                                   level = DAPAR::GetTypeofData(rv$current.obj)
+  )
+  nbMVAfter <- length(which(m))
   rv$nbMVimputed <- nbMVAfter - nbMVBefore
   rvModProcess$modulePepImputationDone[1] <- TRUE
   
