@@ -32,7 +32,6 @@ resetModuleAnaDiff <- reactive({
     rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
   }
 
-  #browser()
   ## update widgets values (reactive values)
   resetModuleProcess("AnaDiff")
   
@@ -548,7 +547,7 @@ output$nBins_ui <- renderUI({
 
 
 histPValue <- reactive({
-  # browser()
+
   req(rv$resAnaDiff)
   req(rv$pi0)
   req(rv$widgets$anaDiff$nBinsHistpval)
@@ -658,7 +657,7 @@ calibrationPlot <- reactive({
         rv$errMsgCalibrationPlot <- ll$warnings[grep( "Warning:", ll$warnings)]
       }
       rv$pi0 <- ll$value$pi0
-      # browser()
+
       rvModProcess$moduleAnaDiffDone[2] <- !is.null(rv$pi0)
     }
     , warning = function(w) {
@@ -670,7 +669,7 @@ calibrationPlot <- reactive({
     }, finally = {
       #cleanup-code 
     })
-  # browser()
+
   
 })
 

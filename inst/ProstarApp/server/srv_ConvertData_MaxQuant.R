@@ -1,5 +1,5 @@
 output$maxquant_metacell <- renderUI({
-  #browser()
+
   req(input$choose_software == 'MaxQuant')
   tagList(
     uiOutput("checkIdentificationTab"),
@@ -20,7 +20,7 @@ output$maxquant_metacell <- renderUI({
 
 
 observe({
-  #browser()
+
   shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
   shinyjs::toggle('selectIdent', condition = !is.null(rv$tab1))
   shinyjs::toggle('x1', condition = isTRUE(input$selectIdent))
@@ -73,7 +73,6 @@ quantiDataTable <- reactive({
   input$choose_quantitative_columns
   input$selectIdent
   
-  #browser()
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
   
   df <- NULL

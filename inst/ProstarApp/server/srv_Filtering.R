@@ -300,7 +300,7 @@ observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
     } else {
       th <- as.integer(rv$widgets$filtering$metacell_value_th)
     }
-    #browser()
+
     indices <- DAPAR::GetIndices_MetacellFiltering(obj = rv$current.obj,
                                                         level = rv$current.obj@experimentData@other$typeOfData,
                                                         pattern = rv$widgets$filtering$MetacellTag,
@@ -742,7 +742,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
   c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
   
-  #browser()
+
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
                          extensions = c('Scroller', 'Buttons'),
@@ -820,7 +820,7 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
     nSteps <- 5
   else 
     nSteps <- 3
-  #browser()
+
   isolate({
     if((nrow(rv$widgets$filtering$metacell_Filter_SummaryDT) > 1)
        || (nrow(rv$widgets$filtering$DT_filterSummary ) > 1)

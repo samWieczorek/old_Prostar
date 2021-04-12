@@ -597,7 +597,7 @@ output$DS_PlotHeatmap <- renderUI({
 output$table <- DT::renderDataTable(server=TRUE, {
   req(rv$current.obj)
   df <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
-  #browser()
+
   c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
   c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
   

@@ -196,7 +196,6 @@ output$POV_Params <- renderUI({
 observeEvent(input$perform.POVimputation.button,{
   rv$current.obj
  # isolate({
-  #  browser()
    # rv$MECIndex <-NULL
    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                        pattern="missing POV", 
@@ -207,8 +206,6 @@ observeEvent(input$perform.POVimputation.button,{
       incProgress(0.25, detail = 'Find MEC blocks')
       
       
-      
-      #browser()
       switch(rv$widgets$proteinImput$POV_algorithm,
              None = rv$current.obj <- rv$dataset[[input$datasets]],
              slsa = {
@@ -257,7 +254,7 @@ observeEvent(input$perform.POVimputation.button,{
 
 output$ImputationStep1Done <- renderUI({
   #isolate({
- # browser()
+
   if (isTRUE(rvModProcess$moduleProtImputationDone[1])) {
     tagList(
       h5(paste0("POV imputation done.", rv$nbPOVimputed, " were imputed")),
@@ -380,7 +377,7 @@ observeEvent(input$perform.imputationMEC.button,{
                           level = DAPAR::GetTypeofData(rv$current.obj))
       nbMECBefore <- length(which(m))
       incProgress(0.75, detail = 'MEC Imputation')
-      #browser()
+
       switch(rv$widgets$proteinImput$MEC_algorithm,
              detQuantile = {
                rv$current.obj <- wrapper.impute.detQuant(rv$current.obj ,

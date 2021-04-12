@@ -138,7 +138,7 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
       warning("Warning : this file is not a MSnset file ! Please choose another one.")
     }
  
-  # browser()
+
   #   # Check versions for compatibilty
   # if(rv$current.obj@experimentData@other$Prostar_Version != getPackagesVersions()['Prostar', 'Installed.packages']) {
   #     # shinyjs::info("Warning : this file is not a MSnset file !  Please choose another one.")

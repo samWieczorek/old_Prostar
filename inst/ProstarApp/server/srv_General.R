@@ -89,7 +89,6 @@ BuildColorStyles <- function(obj, colors.def){
 #' 
 getDataForExprs <- function(obj, digits=NULL){
   
-  #browser()
   if (is.null(digits))
     digits <- 2
   
@@ -284,7 +283,7 @@ ClearUI <- reactive({
 
 ComputeAdjacencyMatrices <- reactive({
   rv$matAdj <- NULL
-  #browser()
+
   withProgress(message = 'Computing adjacency matrices',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
     matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)

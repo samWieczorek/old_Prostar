@@ -82,7 +82,7 @@ mod_plots_tracking_server <- function(input, output, session,
   })
   
   output$listSelect_UI <- renderUI({
-   # browser()
+
     selectInput(ns("listSelect"), 
                 "Protein for normalization", 
                 choices = Biobase::fData(obj())[,keyId()], 

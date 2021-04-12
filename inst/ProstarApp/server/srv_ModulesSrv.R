@@ -318,7 +318,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   GetDataFor_sharedPeptidesInfos <- reactive({
     req(comp())
-    #browser()
+
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
     
@@ -636,7 +636,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
     rv$current.obj.name
     rv$PlotParams$paletteForConditions
     rv$PlotParams$legendForSamples
-   #browser()
+
    tmp <- NULL
     isolate({
       pattern <- paste0(GetCurrentObjName(),".boxplot")
@@ -691,7 +691,7 @@ moduleMVPlots <- function(input, output, session, data, title, pal, pattern) {
   
   output$plot_viewNAbyMean <- renderHighchart({
     req(data())
-    #browser()
+
     hc_mvTypePlot2(obj=data(), 
                    pattern = pattern,
                    title=title(), 

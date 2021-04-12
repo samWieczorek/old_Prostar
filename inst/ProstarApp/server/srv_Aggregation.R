@@ -385,9 +385,7 @@ observeEvent(input$valid.aggregation,{
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
-  #req(input$perform.aggregation)
 
-  #browser()
   if (length(rv$temp.aggregate$issues) > 0){
     .style = "color: red;"
     txt <- 'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
@@ -457,9 +455,8 @@ output$aggregationPlotUnique <- renderPlot({
 observeEvent(input$perform.aggregation,{
   
   #isolate({
-  #browser()
   rv$temp.aggregate <- RunAggregation()
- # browser()
+
   rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) == 0
   shinyjs::toggleState('valid.aggregation',
                        condition = length(rv$temp.aggregate$issues) == 0)

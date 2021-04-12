@@ -368,7 +368,7 @@ output$Convert_ExpFeatData <- renderUI({
 
 
 observe({
-  #browser()
+
   shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
   shinyjs::toggle('selectIdent', condition = !is.null(input$choose_quantitative_columns))
   shinyjs::toggle('x1', condition = input$selectIdent == TRUE)
@@ -450,7 +450,7 @@ quantiDataTable <- reactive({
   # req(c(input$eData.box,rv$tab1))
   # input$selectIdent
   
- # browser()
+
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
   
   df <- NULL
@@ -553,8 +553,7 @@ checkIdentificationMethod_Ok <- reactive({
 ############# STEP 4 ######################
 
 output$Convert_BuildDesign <- renderUI({
-  # print('toto')
- # browser()
+
   req(input$file1)
   tagList(
     tags$p("If you do not know how to fill the experimental design, you can click
@@ -676,7 +675,7 @@ output$warningCreateMSnset <- renderUI({
 observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
-  #browser()
+
   colNamesForMetacell <- NULL
   if (isTRUE(input$selectIdent)) {
     colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
@@ -736,7 +735,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
         
-        #browser()
+
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
