@@ -49,6 +49,7 @@ mod_filtering_example_server <- function(id, params, txt) {
                              indExpData = c(1:6),
                              indFData = c(1:6), 
                              metadata = metadata_plop,
+                             colnameForID='AutoID',
                              pep_prot_data = "peptide",
                              software = 'maxquant')
   
