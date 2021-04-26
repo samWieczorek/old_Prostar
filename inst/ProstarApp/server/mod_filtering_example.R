@@ -13,8 +13,7 @@ mod_filtering_example_ui <- function(id){
                        uiOutput(ns('show_text')),
                        radioButtons(ns('run_btn'), 'Example dataset',
                                     choices = setNames(nm=c('original dataset', 'simulate filtered dataset'))),
-                       dataTableOutput(ns("example_tab"))
-                       ),
+                       dataTableOutput(ns("example_tab_filtered"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-footer{ display:none}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-dialog{ width:1000px}"))),
                      tags$head(tags$style(paste0("#", ns('example_modal'), " .modal-body{ min-height:700px}")))
@@ -26,34 +25,8 @@ mod_filtering_example_ui <- function(id){
 
 
 
-mod_filtering_example_server <- function(id, params, txt) {
+mod_filtering_example_server <- function(id, obj, params, txt) {
   
-  qdata <- data.frame(A_1 = c(1, NA, NA, NA, NA, NA, NA, NA, NA, NA),
-                      A_2	= c(1,  1, NA, NA, NA, NA, NA,  1,  1, NA),
-                      A_3 = c(1, 1,  1,  NA, NA, NA, NA,  1,  1,  1),
-                      B_1 = c(1,  1, 1,   1, NA, NA, NA, NA, NA, NA),
-                      B_2 = c(1,  1, 1,   1,  1, NA, NA,  1, NA, NA),
-                      B_3 = c(1,  1, 1,   1,  1,  1, NA,  1,  1,  1)
-  )
-  ind <- which(qdata==1, arr.ind=TRUE)
-  samples <- round(runif(nrow(ind), min=0, max=100), digits = 2)
-  for (i in 1:nrow(ind))
-    qdata[ind[i, 1], ind[i, 2]] <- samples[i]
-  
-  metadata_plop <- data.frame(Sample.name = colnames(qdata),
-                              Condition = c(rep("A", 3),rep("B", 3)),
-                              Bio.Rep = c(1:6)
-  )
-
-  obj <- DAPAR::createMSnset(file = qdata,
-                             indExpData = c(1:6),
-                             indFData = c(1:6), 
-                             metadata = metadata_plop,
-                             colnameForID='AutoID',
-                             pep_prot_data = "peptide",
-                             software = 'maxquant')
-  
-  Biobase::fData(obj)[Biobase::fData(obj)=='quanti'] <- 'identified'
   
   moduleServer(
     id,
@@ -96,16 +69,16 @@ mod_filtering_example_server <- function(id, params, txt) {
       }
     }
     
-    level <- obj@experimentData@other$typeOfData
+    level <- obj()@experimentData@other$typeOfData
     pattern <- params()$MetacellTag
     type <- params()$MetacellFilters
     percent <- params()$val_vs_percent == 'Percentage'
     op <- params()$metacellFilter_operator
-    conds <-  Biobase::pData(obj)$Condition
+    conds <-  Biobase::pData(obj())$Condition
     
     index <- NULL
     
-    mask <- match.metacell(metadata=DAPAR::GetMetacell(obj), 
+    mask <- match.metacell(metadata=DAPAR::GetMetacell(obj()), 
                            pattern=pattern, 
                            level=level)
     
@@ -137,9 +110,9 @@ mod_filtering_example_server <- function(id, params, txt) {
     if(params()$MetacellFilters != "None" &&
        params()$KeepRemove == "keep"){
       if(!is.null(index)) {
-        index <- (1:nrow(obj))[-index]
+        index <- (1:nrow(obj()))[-index]
       } else {
-        index <- 1:nrow(obj)
+        index <- 1:nrow(obj())
       }
     }
     
@@ -175,11 +148,11 @@ mod_filtering_example_server <- function(id, params, txt) {
     
   }
   
-  output$example_tab <- DT::renderDataTable({
+  output$example_tab_filtered <- DT::renderDataTable({
     index <- ComputenMetacellFilteringIndexes()
-    df <- getDataForExprs(obj, NULL)
-    c.tags <- BuildColorStyles(obj, colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(obj, colorsTypeMV)$colors
+    df <- getDataForExprs(obj(), NULL)
+    c.tags <- BuildColorStyles(obj(), colorsTypeMV)$tags
+    c.colors <-  BuildColorStyles(obj(), colorsTypeMV)$colors
     range.invisible <- ((ncol(df)/2)+1):ncol(df)
     
     if (!is.null(index) && input$run_btn == 'simulate filtered dataset'){
@@ -191,8 +164,17 @@ mod_filtering_example_server <- function(id, params, txt) {
     
       DT::datatable(df,
                     #rownames = FALSE,
+                    extensions = c('Scroller'),
                     options = list(
-                      dom = 't',
+                      dom = 'Brtip',
+                      pageLength = 15,
+                      orderClasses = TRUE,
+                      autoWidth=TRUE,
+                      deferRender = TRUE,
+                      bLengthChange = FALSE,
+                      scrollX = 200,
+                      scrollY = 500,
+                      scroller = TRUE,
                       server = FALSE,
                       columnDefs = list(list(targets = range.invisible, 
                                              visible = FALSE)))
@@ -206,7 +188,6 @@ mod_filtering_example_server <- function(id, params, txt) {
 
   })
 
-  
     }
 )
 }

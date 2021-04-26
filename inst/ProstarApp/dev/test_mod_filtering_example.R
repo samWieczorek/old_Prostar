@@ -5,12 +5,9 @@ library(DAPAR)
 library(shinyBS)
 library(shinyjqui)
 
-#source(file.path('../inst/ProstarApp/server', 'mod_plots_metacell_histo.R'), local=TRUE)$value
-
-
-utils::data(Exp1_R25_prot, package='DAPARdata')
-obj <- Exp1_R25_prot
-
+utils::data(Exp1_R25_pept, package='DAPARdata')
+obj <- Exp1_R25_pept
+DT_pagelength <- 15
 ui <- fluidPage(
   mod_filtering_example_ui('example')
 )
@@ -35,8 +32,9 @@ server <- function(input, output, session) {
   )
   
   mod_filtering_example_server(id = 'example', 
+                               obj = reactive({obj}),
                                params = reactive({rv$widgets$filtering}),
-                               txt = reactive({'query'})
+                               txt = reactive({paste0('Query:', "query")})
                                )
 }
 
