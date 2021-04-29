@@ -78,10 +78,10 @@ output$infoAboutAggregationTool <- renderUI({
     )
   } else{
     
-    
+
      m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
-                                    pattern="missing",
-                                    level = DAPAR::GetTypeofData(rv$current.obj)
+                         pattern="missing",
+                         level = DAPAR::GetTypeofData(rv$current.obj)
     )
      NA.count <-length(which(m))
      nb.empty.lines <- sum(apply(m, 1, all))

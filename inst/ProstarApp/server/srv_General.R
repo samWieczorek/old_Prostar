@@ -298,11 +298,11 @@ ComputeAdjacencyMatrices <- reactive({
   rv$matAdj
 })
 
-ComputeConnexComposants <- reactive({
+ComputeConnectedComposants <- reactive({
   req(rv$matAdj)
   require(Matrix)
   print(dim(rv$matAdj$matWithSharedPeptides))
-  withProgress(message = 'Computing connex components',detail = '', value = 0, {
+  withProgress(message = 'Computing connected components',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
     ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
     
@@ -314,7 +314,7 @@ ComputeConnexComposants <- reactive({
  
   rv$CC <- list(allPep = ll1,
                 onlyUniquePep = ll2)
-  print("end ComputeConnexComponents")
+  print("end ComputeConnectedComponents")
   
   rv$CC
 })
@@ -378,8 +378,8 @@ loadObjectInMemoryFromConverter <- function(){
       print("begin compute adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')
       ComputeAdjacencyMatrices()
-      incProgress(0.7, detail = 'Compute Connex Components')
-      ComputeConnexComposants()
+      incProgress(0.7, detail = 'Compute Connected Components')
+      ComputeConnectedComposants()
     }
     
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
@@ -993,6 +993,8 @@ rv <- reactiveValues(
   SRV_fileSourced = NULL,
   
   processSaved = FALSE,
+  
+  typeOfPipeline = '',
   
   current.navPage = NULL,
   # variable to handle the current object that will be showed

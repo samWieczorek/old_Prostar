@@ -843,8 +843,8 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
         }
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(4/nSteps, detail = 'Computing connex components')
-          ComputeConnexComposants()
+          incProgress(4/nSteps, detail = 'Computing connected components')
+          ComputeConnectedComposants()
         }
       })
 

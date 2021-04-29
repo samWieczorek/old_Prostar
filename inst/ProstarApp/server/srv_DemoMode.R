@@ -18,11 +18,10 @@ output$chooseDataset <- renderUI({
       selectInput("demoDataset",
                   "Demo dataset",
                   choices = c("None" = "None", utils::data(package="DAPARdata")$results[,"Item"]),
-                  width='200px'   )
+                  width='200px')
     }
 
 })
-
 
 
 output$linktoDemoPdf <- renderUI({
@@ -45,6 +44,7 @@ output$infoAboutDemoDataset <- renderUI({
   req(rv$current.obj)
   
   isolate({ 
+   
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                         pattern="missing", 
                         level = 'peptide')
@@ -117,3 +117,7 @@ observeEvent(input$loadDemoDataset,{
   # shinyjs::disable("chooseDataset")
   # shinyjs::disable("linktoDemoPdf")
 })
+
+
+
+
