@@ -700,14 +700,15 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
         
+
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
-                                   metadata, 
-                                   indexForEData, 
-                                   indexForFData, 
+                                   metadata = metadata, 
+                                   indExpData = indexForEData, 
+                                   indFData = indexForFData, 
                                    colnameForID = input$colnameForID,
-                                   indexForOriginOfValue,
-                                   logData, 
-                                   input$replaceAllZeros,
+                                   indexForOriginOfValue = indexForOriginOfValue,
+                                   logData = logData, 
+                                   replaceZeros = input$replaceAllZeros,
                                    pep_prot_data = input$typeOfData,
                                    proteinId =  gsub(".", "_", protId, fixed=TRUE),
                                    versions
