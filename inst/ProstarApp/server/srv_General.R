@@ -386,7 +386,8 @@ loadObjectInMemoryFromConverter <- function(){
                         pattern="missing",
                         level = DAPAR::GetTypeofData(rv$current.obj)
     )
-    if (length(which(m)) > 0)
+
+    if (length(which(m)) == 0)
     {
       rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
     }

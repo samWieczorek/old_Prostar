@@ -310,7 +310,7 @@ output$CCDetailed <- renderUI({
     pepLine <- rvCC$detailedselectedNode$sharedPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices, c(ind, (ind + ncol(data)/2))]
-    #browser()
+
     if(!is.null(input$pepInfo))
       {
       data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])

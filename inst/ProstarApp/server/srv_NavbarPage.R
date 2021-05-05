@@ -5,6 +5,8 @@
 
 
 observeEvent(rv$current.obj,{  
+  print("## observeEvent(rv$current.obj ##")
+  
   BuildNavbarPage()  
   })
 
@@ -118,7 +120,7 @@ rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
    
-   
+
    ## if a dataset is in memory (ie rv$current.obj is not null
    ## remove menus to import new dataset
    removeTab(inputId = "navPage", target = "demoTab")
@@ -182,7 +184,7 @@ rv$current.obj
    
    dataset.name <- last(names(rv$dataset))
    prev.dataset.name <- paste0('prev.HypothesisTest.',rv$current.obj@experimentData@other$typeOfData)
-   
+
    if ((is.null(rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design) 
         && is.null(rv$current.obj@experimentData@other$Params[[prev.dataset.name]][['HypothesisTest']]$design) ) || 
        (rv$current.obj@experimentData@other$Params[[dataset.name]][['HypothesisTest']]$design=="None" &&
