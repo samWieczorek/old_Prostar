@@ -37,10 +37,13 @@ pcaPlots <- function(input, output, session, data) {
   
   output$pcaOptions <- renderUI({
     req(data())
-    
+    m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+                        pattern="missing",
+                        level = DAPAR::GetTypeofData(rv$current.obj)
+    )
     tagList(
       
-      if (length(which(is.na(Biobase::exprs(data())))) > 0)
+      if (length(which(m)) > 0)
       {
         tags$p("Warning: As your dataset contains missing values, the PCA cannot be computed.
                Please impute them first.")

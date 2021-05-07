@@ -13,7 +13,7 @@ tabPanel("Descriptive statistics",
                      ),
                      
                      tabPanel(
-                         "Metadata",
+                         "Quantification nature",
                          value = "DS_tabOverviewMV",
                          uiOutput("plotsMVHistograms")
                          

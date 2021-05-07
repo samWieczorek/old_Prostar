@@ -486,7 +486,7 @@ resetModuleProcess <- function(moduleName){
           
           
           rvModProcess$moduleFiltering = list(name = "Filtering",
-                                              stepsNames = c("Metacell Removal", "String-based Removal","Numerical Removal", "Summary", "Validate"),
+                                              stepsNames = c("Quanti. metadata filtering", "String-based filtering","Numerical filtering", "Summary", "Validate"),
                                               isMandatory = rep(FALSE, 5),
                                               ll.UI = list( screenStep1 = uiOutput("screenFiltering1"),
                                                             screenStep2 = uiOutput("screenFiltering2"),
