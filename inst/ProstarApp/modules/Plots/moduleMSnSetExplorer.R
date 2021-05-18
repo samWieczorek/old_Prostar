@@ -66,10 +66,9 @@ MSnSetExplorer <- function(input, output, session, data) {
              colors = rv$colorsTypeMV)
   
   output$legendForExprsData <- renderUI({
-    req(input$DS_TabsChoice)
+    req(input$DS_TabsChoice=="tabExprs")
     
-    if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
-    moduleLegendColoredExprsUI("ExprsColorLegend_DS")
+     moduleLegendColoredExprsUI("ExprsColorLegend_DS")
     
   })
   

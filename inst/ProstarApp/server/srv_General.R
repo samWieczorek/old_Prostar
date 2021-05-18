@@ -94,7 +94,7 @@ getDataForExprs <- function(obj, digits=NULL){
   
  # test.table <- as.data.frame(round(Biobase::exprs(obj)))
   #if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
-    test.table <- cbind(round(Biobase::exprs(obj)), DAPAR::GetMetacell(obj))
+    test.table <- cbind(round(Biobase::exprs(obj), digits = digits), DAPAR::GetMetacell(obj))
  # } else {
   #  test.table <- cbind(test.table, 
   #                      as.data.frame(matrix(rep(NA,ncol(test.table)*nrow(test.table)), nrow=nrow(test.table))))

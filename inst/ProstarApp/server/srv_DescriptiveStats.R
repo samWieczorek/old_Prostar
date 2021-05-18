@@ -702,11 +702,9 @@ output$corrMatrix <- renderHighchart({
 
 # 
 output$legendForExprsData <- renderUI({
-  req(input$DS_TabsChoice)
+  req(input$DS_TabsChoice=="tabExprs")
   
-  if (input$DS_TabsChoice != "tabExprs"){return(NULL)}
   moduleLegendColoredExprsUI("ExprsColorLegend_DS")
-  
 })
 
 
