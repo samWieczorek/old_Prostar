@@ -61,7 +61,10 @@ resetModuleFiltering <- reactive({
 
 output$screenFiltering1 <- renderUI({
   
+  
+
   mod_filtering_example_server(id = 'example',
+                               obj = reactive({rv$current.obj}),
                                params = reactive({rv$widgets$filtering}),
                                txt = reactive({WriteQuery()}))
   
@@ -116,7 +119,9 @@ output$screenFiltering1 <- renderUI({
                    uiOutput("MetacellFilters_widgets_set2_ui")
             )
           ),
-          uiOutput('metacellFilter_request_ui'),
+          div( style="display:inline-block; vertical-align: middle; align: center;",
+               uiOutput('metacellFilter_request_ui')
+               ),
           div( style="display:inline-block; vertical-align: middle;",
                shinyjs::disabled(actionButton("perform.metacell.filtering", 
                                               "Perform metacell filtering", 
