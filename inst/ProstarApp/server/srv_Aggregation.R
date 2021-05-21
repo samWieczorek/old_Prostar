@@ -356,7 +356,7 @@ observeEvent(input$valid.aggregation,{
         Biobase::fData(rv$temp.aggregate$obj.prot) <- 
           data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
         
-        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, c)
+        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, paste0('agg_',c))
         
         cpt <- cpt + delta
         incProgress(cpt/100, detail = paste0('Processing column ', c))
