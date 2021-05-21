@@ -238,7 +238,7 @@ RunAggregation <- reactive({
       X <- rv$matAdj$matWithSharedPeptides
       if (rv$widgets$aggregation$includeSharedPeptides == 'Yes1'){
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-          ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
+          ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
                             list( obj.pep = rv$current.obj,X=X))
         } else {
           ll.agg <- aggregateTopn(rv$current.obj, 
@@ -248,15 +248,15 @@ RunAggregation <- reactive({
         }
       } else {
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-          ll.agg <- aggregateIterParallel(rv$current.obj, 
-                                          X,
-                                          init.method='Sum', 
-                                          method='Mean')
+          ll.agg <- aggregateIterParallel(obj.pep = rv$current.obj, 
+                                          X = X,
+                                          init.method = 'Sum', 
+                                          method = 'Mean')
         } else {
           ll.agg <- aggregateIterParallel(rv$current.obj, 
                                           X, 
-                                          init.method='Sum', 
-                                          method='onlyN', 
+                                          init.method = 'Sum', 
+                                          method = 'onlyN', 
                                           n = rv$widgets$aggregation$topN)
         }
       }
@@ -337,22 +337,26 @@ observeEvent(input$valid.aggregation,{
     withProgress(message = '',detail = '', value = 0, {
       
       X <- NULL
-      if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1")){
-        X <- rv$matAdj$matWithSharedPeptides}
-      else { X <- rv$matAdj$matWithUniquePeptides}
+      if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1"))
+        X <- rv$matAdj$matWithSharedPeptides
+      else
+        X <- rv$matAdj$matWithUniquePeptides
       
       total <- 60
       delta <- round(total / length(rv$widgets$aggregation$columnsForProteinDataset.box))
       cpt <- 10
       
       for(c in rv$widgets$aggregation$columnsForProteinDataset.box){
-        newCol <- BuildColumnToProteinDataset(
-          Biobase::fData(rv$current.obj), X, c, rownames(Biobase::fData(rv$temp.aggregate$obj.prot)))
+        newCol <- BuildColumnToProteinDataset(peptideData = Biobase::fData(rv$current.obj), 
+                                              matAdj = X,
+                                              columnName = c, 
+                                              proteinNames = rownames(Biobase::fData(rv$temp.aggregate$obj.prot))
+                                              )
         cnames <- colnames(Biobase::fData(rv$temp.aggregate$obj.prot))
         Biobase::fData(rv$temp.aggregate$obj.prot) <- 
           data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
         
-        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, c)
+        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, paste0('agg_',c))
         
         cpt <- cpt + delta
         incProgress(cpt/100, detail = paste0('Processing column ', c))
@@ -478,8 +482,9 @@ output$Aggregation_Step2 <- renderUI({
   req(rv$current.obj)
   
   #if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
-  choices <- colnames(Biobase::fData(rv$current.obj))
-  names(choices) <- colnames(Biobase::fData(rv$current.obj))
+  ind <-  match(rv$current.obj@experimentData@other$names_metacell, colnames(Biobase::fData(rv$current.obj)))
+  choices <- setNames(nm = colnames(Biobase::fData(rv$current.obj))[-ind])
+
   tagList(
     uiOutput("displayNbPeptides"),
     

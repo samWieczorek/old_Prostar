@@ -94,8 +94,8 @@ output$exportOptions <- renderUI({
   
   tagList(
     fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportFileFormat")),
-      column(width=10,selectInput("fileformatExport", "",choices=  gFileFormatExport))
+      column(width=2, modulePopoverUI("modulePopover_exportFileFormat")),
+      column(width=10, selectInput("fileformatExport", "",choices=  gFileFormatExport))
     ),
     
     # br(),
@@ -105,8 +105,8 @@ output$exportOptions <- renderUI({
     # ),
     br(),
     fluidRow(
-      column(width=2,modulePopoverUI("modulePopover_exportFilename")),
-      column(width=10,uiOutput("chooseExportFilename"))
+      column(width=2, modulePopoverUI("modulePopover_exportFilename")),
+      column(width=10, uiOutput("chooseExportFilename"))
     ),
     
     br(),
@@ -203,7 +203,7 @@ output$downloadMSnSet <- downloadHandler(
     
     else if  (input$fileformatExport == gFileFormatExport$msnset) {
       fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
-      saveRDS(dataToExport,file=fname)
+      saveRDS(dataToExport, file=fname)
       file.copy(fname, file)
       file.remove(fname)
     }
