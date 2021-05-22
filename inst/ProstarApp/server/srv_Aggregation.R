@@ -232,7 +232,7 @@ RunAggregation <- reactive({
     
     require(foreach)
     incProgress(0.5, detail = 'Aggregation in progress')
-    
+
     ll.agg <- NULL
     if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1")){
       X <- rv$matAdj$matWithSharedPeptides

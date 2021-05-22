@@ -52,7 +52,9 @@ observeEvent(input$varScale_PCA,{
 })
 
 observeEvent(rv$current.obj, {
-  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+  rv$res.pca <- wrapper.pca(rv$current.obj,
+                            rv$PCA_varScale, 
+                            ncp = Compute_PCA_nbDimensions())
 })
 
 

@@ -119,7 +119,7 @@ BuildNavbarPage <- reactive({
 rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
-   
+  
 
    ## if a dataset is in memory (ie rv$current.obj is not null
    ## remove menus to import new dataset
