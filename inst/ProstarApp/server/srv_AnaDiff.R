@@ -49,7 +49,7 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
   rv$widgets$anaDiff$swapVolcano = FALSE
-   rv$widgets$anaDiff$val_vs_percent = "Value"
+  rv$widgets$anaDiff$val_vs_percent = "Value"
   rv$widgets$anaDiff$ChooseFilters = "None"
   rv$widgets$anaDiff$seuilNA_percent = 0
   rv$widgets$anaDiff$seuilNA = 0
@@ -68,9 +68,11 @@ resetModuleAnaDiff <- reactive({
   rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
   
   rv_anaDiff$filename = NULL
+  UpdateCompList()
   ##update dataset to put the previous one
   #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
   #rv$resAnaDiff <- NULL
+  
   
 })
 #####
@@ -102,7 +104,7 @@ output$screenAnaDiff1 <- renderUI({
         tags$div( style="display:inline-block; vertical-align: top; padding-right: 0px",
                   hidden(div(id='trtr',
                              modulePopoverUI("modulePopover_pushPVal"),
-                             radioButtons("AnaDiff_ChooseFilters", "", 
+                             radioButtons("AnaDiff_ChooseFilters", "Applies on", 
                                           choices = gFiltersListAnaDiff, 
                                           selected = rv$widgets$anaDiff$ChooseFilters,
                                           width='200px')
@@ -148,7 +150,7 @@ output$AnaDiff_seuilNADelete <- renderUI({
     tagList(
      div(
        div( style="display:inline-block; vertical-align: middle;",
-            radioButtons('AnaDiff_val_vs_percent', '#/% of values to keep', 
+            radioButtons('AnaDiff_val_vs_percent', "#/% of 'imputed' values to keep", 
                    choices = c('Value'='Value', 'Percentage'='Percentage'),
                    selected = rv$widgets$anaDiff$val_vs_percent
       )
@@ -431,7 +433,7 @@ callModule(modulePopover,"modulePopover_volcanoTooltip",
                                 content="Infos to be displayed in the tooltip of volcanoplot")))
 
 callModule(modulePopover,"modulePopover_pushPVal", 
-           data = reactive(list(title="P-Value push",
+           data = reactive(list(title="Push p-value",
            content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
 callModule(modulePopover,"modulePopover_keepLines", 
