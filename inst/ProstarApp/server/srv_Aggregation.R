@@ -264,7 +264,7 @@ RunAggregation <- reactive({
     } else {
       X <- rv$matAdj$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-        ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
+        ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
                           list(obj.pep = rv$current.obj,
                                X = X))
       } else {
@@ -282,6 +282,43 @@ RunAggregation <- reactive({
   return(ll.agg)
   
 })
+
+
+
+
+###------------ Perform aggregation--------------------
+observeEvent(input$perform.aggregation,{
+  
+  rv$temp.aggregate <- RunAggregation()
+  rvModProcess$moduleAggregationDone[1] <- is.null(rv$temp.aggregate$issues)
+  # shinyjs::toggleState('validAggregation',
+  #                      condition = is.null(rv$temp.aggregate$issues))
+  # shinyjs::toggle('downloadAggregationIssues', 
+  #                 condition = !is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0
+  # )
+})
+
+observe({
+  rv$temp.aggregate$issues
+  shinyjs::toggleState('validAggregation',
+                       condition = is.null(rv$temp.aggregate$issues))
+  shinyjs::toggle('downloadAggregationIssues', 
+                  condition = !is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0
+  )
+})
+
+output$downloadAggregationIssues <- downloadHandler(
+  
+  filename = 'aggregation_issues.txt',
+  content = function(file) {
+    
+    tmp.peptides <- lapply(rv$temp.aggregate$issues, function(x)paste0(x, collapse=","))
+    df <- data.frame(Proteins=names(rv$temp.aggregate$issues), Peptides = as.data.frame(do.call(rbind, tmp.peptides)))
+    colnames(df) <- c('Proteins', 'Peptides')
+    write.table(df, file = file, row.names = FALSE, quote=FALSE, sep="\t")
+  }
+)
+
 
 #-----------------------------------------------------
 #
@@ -310,11 +347,10 @@ output$screenAggregation2 <- renderUI({
 #-----------------------------------------------------
 output$screenAggregation3 <- renderUI({
   tagList(
-    shinyjs::useShinyjs(),
     h4("Once the saving operation is done, the new current dataset is a protein dataset.
        Prostar will automatically switch to the home page with the new dataset."),
     shinyjs::disabled(
-      actionButton("valid.aggregation",
+      actionButton("validAggregation",
                    "Save aggregation", 
                    class = actionBtnClass)
     )
@@ -328,11 +364,11 @@ output$screenAggregation3 <- renderUI({
 
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent(input$valid.aggregation,{ 
+observeEvent(input$validAggregation,{ 
   
   req(rv$matAdj)
   req(rv$temp.aggregate$obj.prot)
-  req(length(rv$temp.aggregate$issues) == 0)
+  req(is.null(rv$temp.aggregate$issues))
   
   isolate({
     withProgress(message = '',detail = '', value = 0, {
@@ -379,19 +415,11 @@ observeEvent(input$valid.aggregation,{
   })
 })
 
-
-observeEvent(rv$temp.aggregate$issues, {
-
-  shinyjs::toggleState('valid.aggregation',
-                       condition = length(rv$temp.aggregate$issues) == 0)
-})
-
-
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
 
-  if (length(rv$temp.aggregate$issues) > 0){
+  if (!is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0){
     .style = "color: red;"
     txt <- 'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
        values at the same time.'
@@ -456,32 +484,6 @@ output$aggregationPlotUnique <- renderPlot({
 })
 
 
-
-###------------ Perform aggregation--------------------
-observeEvent(input$perform.aggregation,{
-
-  rv$temp.aggregate <- RunAggregation()
-
-  rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) == 0
-  shinyjs::toggleState('valid.aggregation',
-                       condition = length(rv$temp.aggregate$issues) == 0)
-  shinyjs::toggle('downloadAggregationIssues', 
-                  condition = length(rv$temp.aggregate$issues) > 0)
-})
-
-
-
-output$downloadAggregationIssues <- downloadHandler(
-  
-  filename = 'aggregation_issues.txt',
-  content = function(file) {
-   
-    tmp.peptides <- lapply(rv$temp.aggregate$issues, function(x)paste0(x, collapse=","))
-    df <- data.frame(Proteins=names(rv$temp.aggregate$issues), Peptides = as.data.frame(do.call(rbind, tmp.peptides)))
-    colnames(df) <- c('Proteins', 'Peptides')
-    write.table(df, file = file, row.names = FALSE, quote=FALSE, sep="\t")
-  }
-)
 
 callModule(modulePopover,"modulePopover_colsForAggreg", 
            data = reactive(list(title= "Columns of the meta-data",
