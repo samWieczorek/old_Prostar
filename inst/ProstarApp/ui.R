@@ -5,6 +5,7 @@ library(shinyjs)
 library(sass)
 source(file.path("ui", "ui_Configure.R"),  local = TRUE)$value
 source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+source(file.path("server", "mod_popover.R"),  local = TRUE)$value
 
 theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------

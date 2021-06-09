@@ -4,10 +4,7 @@ NUM_PAGES_FILTERING <- 3
 
 
 
-modulePopoverUI <- function(id){
-    ns <- NS(id)
-    uiOutput(ns("customPopover"))
-}
+
 
 
 

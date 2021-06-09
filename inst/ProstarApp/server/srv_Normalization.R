@@ -202,7 +202,7 @@ output$helpForNormalizationMethods <- renderUI({
          (either all of them at once, or on each condition independently). It relates to  a 
          combination of multiple regression models. The user can tune the regression span (an higher span smooths
          the fit more, while a lower span captures more trends).",
-         vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization method to the 
+         vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization method [Other ref. 6] to the 
          data (either all of them at once, or on each condition independently). No specific parameters required."
   )
   

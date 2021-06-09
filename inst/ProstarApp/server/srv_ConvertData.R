@@ -700,7 +700,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         
         input$filenameToCreate
         rv$tab1
-        
         tmp.choose_quantitative_columns <- input$choose_quantitative_columns
         indexForEData <- match(tmp.choose_quantitative_columns, colnames(rv$tab1))
         if (!is.null(rv$newOrder)){
@@ -738,7 +737,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
-                                   indFData = indexForFData, 
                                    colnameForID = input$colnameForID,
                                    indexForMetacell = indexForMetacell,
                                    logData = logData, 

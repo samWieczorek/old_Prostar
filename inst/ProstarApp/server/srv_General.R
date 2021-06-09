@@ -86,6 +86,7 @@ BuildColorStyles <- function(obj, colors.def){
 #' 
 #' @param obj xx
 #' 
+#' @export
 #' 
 getDataForExprs <- function(obj, digits=NULL){
   

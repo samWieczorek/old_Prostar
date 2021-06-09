@@ -1,3 +1,19 @@
+source(file.path("server", "mod_popover.R"), local = TRUE)$value
+source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
+source(file.path("server", "mod_filtering_example_server.R"), local = TRUE)$value
+
+
+
+convertAnaDiff2DF <- reactive({
+  req(rv$widgets$anaDiff)
+  rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
+  df <- as.data.frame(tibble::enframe(rv$widgets$anaDiff))
+  names(df) <- c("Parameter", "Value")
+  rownames(df) <- NULL
+  df
+})
+
+
 callModule(moduleVolcanoplot,"volcano_Step1", 
            data = reactive({rv$resAnaDiff}),
            comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
@@ -87,40 +103,48 @@ rv_anaDiff <- reactiveValues(
 ###
 ### ------------------- SCREEN 1 ------------------------------
 ###
+
+UpdateCompList <- reactive({
+  rv$widgets$anaDiff$Comparison 
+  isolate({
+    if (rv$widgets$anaDiff$Comparison== "None"){
+      rv$resAnaDiff <- NULL
+      return(NULL)
+    } else {
+      index <- which(paste(as.character(rv$widgets$anaDiff$Comparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
+      print("On met a jour la liste rv$resAnaDiff")
+      rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
+                            P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
+                            condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1],
+                            condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+      )
+      rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
+      rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+      rvModProcess$moduleAnaDiffDone[1] <- TRUE
+    }
+  })
+})
+
+
 output$screenAnaDiff1 <- renderUI({
   isolate({
     tagList(
       tags$div(
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px",
+        tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
                   selectInput("selectComparison","Select a comparison",
-                              choices = c("None"="None",GetPairwiseCompChoice()),
-                              selected = rv$widgets$anaDiff$Comparison,
-                              width='200px'),
-                  #  checkboxInput("swapVolcano", "Swap logFC in volcanoplot", value = rv$widgets$anaDiff$swapVolcano),
-                  hidden(radioButtons("swapVolcano", "Swap volcano", choices=c("Original dataset"=FALSE,
-                                                                               "Swaped dataset"=TRUE),
-                                      selected=rv$widgets$anaDiff$swapVolcano))
+                                choices = c("None"="None",GetPairwiseCompChoice()),
+                                selected = rv$widgets$anaDiff$Comparison,
+                                width='200px')
+                  ),
+        tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
+                  hidden(radioButtons("swapVolcano", "Swap volcano", 
+                                     choices=c("Original dataset"=FALSE,
+                                               "Swaped dataset"=TRUE),
+                                     selected=rv$widgets$anaDiff$swapVolcano))
+                 )
         ),
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 0px",
-                  hidden(div(id='trtr',
-                             modulePopoverUI("modulePopover_pushPVal"),
-                             radioButtons("AnaDiff_ChooseFilters", "Applies on", 
-                                          choices = gFiltersListAnaDiff, 
-                                          selected = rv$widgets$anaDiff$ChooseFilters,
-                                          width='200px')
-                  )),
-                  #uiOutput("pushPValUI"),
-                  div( style="display:inline-block; vertical-align: middle;  padding-right: 40px;",
-                       uiOutput("AnaDiff_seuilNADelete")
-                       ),
-                  div( style="display:inline-block; vertical-align: middle;",
-                       hidden(actionButton("AnaDiff_perform.filtering.MV", 
-                                           "Push p-value", 
-                                           class = actionBtnClass))
-                       ),
-                  
-        )
-      ),
+        uiOutput('pushpval_ui'),
+
       tags$hr(),
       tags$div(
         tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
@@ -138,32 +162,24 @@ output$screenAnaDiff1 <- renderUI({
 })
 
 
-output$AnaDiff_seuilNADelete <- renderUI({ 
-  req(rv$widgets$anaDiff$ChooseFilters)
+output$pushpval_ui <- renderUI({
   req(rv$widgets$anaDiff$Comparison != 'None')
-  #if (rv$widgets$anaDiff$Comparison == "None"){return(NULL)}
+  callModule(modulePopover,"modulePopover_pushPVal", 
+             data = reactive(list(title=h3("Push p-value"),
+                                  content= "This functionality is useful in case of multiple pairwise comparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
   
-  if (as.character(rv$widgets$anaDiff$ChooseFilters)==gFilterNone){
-    return(NULL)   }
-  
- # isolate({  
-    tagList(
-     div(
-       div( style="display:inline-block; vertical-align: middle;",
-            radioButtons('AnaDiff_val_vs_percent', "#/% of 'imputed' values to keep", 
-                   choices = c('Value'='Value', 'Percentage'='Percentage'),
-                   selected = rv$widgets$anaDiff$val_vs_percent
-      )
-      ),
-      div( style="display:inline-block; vertical-align: middle;",
-           uiOutput('AnaDiff_keepVal_ui'),
-           uiOutput('AnaDiff_keepVal_percent_ui')
-           )
-      ),
-      uiOutput('AnaDiff_keep_helptext')
+    wellPanel(
+       modulePopoverUI("modulePopover_pushPVal"),
+      mod_query_metacell_ui('AnaDiff_query'),
+      shinyjs::disabled(actionButton("AnaDiff_performFilteringMV",
+                                   "Push p-value",
+                                   class = actionBtnClass)
+                      )
     )
- # })
 })
+
+#---------------------------
+
 
 Get_Dataset_to_Analyze <- reactive({
   rv$widgets$anaDiff$Comparison
@@ -185,157 +201,64 @@ Get_Dataset_to_Analyze <- reactive({
     
     datasetToAnalyze <- rv$current.obj[,ind]
     datasetToAnalyze@experimentData@other$names_metacell <-
-    rv$current.obj@experimentData@other$names_metacell[ind]
+      rv$current.obj@experimentData@other$names_metacell[ind]
   }
   
   datasetToAnalyze
 })
 
-output$AnaDiff_keepVal_ui <- renderUI({
-  req(rv$widgets$anaDiff$val_vs_percent)
-  if (rv$widgets$anaDiff$val_vs_percent != 'Value') {return(NULL)}
-  if (rv$widgets$anaDiff$ChooseFilters %in% c('None', 'Emptylines')) {return(NULL)}
-  
-    
-  choix <- getListNbValuesInLines(Get_Dataset_to_Analyze(), 
-                                  type = as.character(rv$widgets$anaDiff$ChooseFilters))
-  
-  tagList(
-    modulePopoverUI("modulePopover_anaDiff_keepVal"),
-    selectInput("AnaDiff_seuilNA", NULL,
-                choices =  choix,
-                selected = rv$widgets$anaDiff$seuilNA,
-                width='150px')
-  )
+
+AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
+                                     obj = reactive({Get_Dataset_to_Analyze()}),
+                                     list_tags = reactive({c('None','imputed')}),
+                                     keep_vs_remove = reactive({setNames(nm = c("delete"))}),
+                                     filters = reactive({c("None" = "None",
+                                                           "Whole Line" = "WholeLine",
+                                                           "Whole matrix" = "WholeMatrix",
+                                                           "For every condition" = "AllCond",
+                                                           "At least one condition" = "AtLeastOneCond")}),
+                                     val_vs_percent = reactive({setNames(nm=c('Count', 'Percentage'))}),
+                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())})
+                                     )
+#----------------------------------------------------
+
+
+
+observe({
+  req(AnaDiff_indices()$params$MetacellTag)
+  shinyjs::toggleState("AnaDiff_performFilteringMV",
+                       condition =AnaDiff_indices()$params$MetacellTag != 'None')
 })
-
-output$AnaDiff_keepVal_percent_ui <- renderUI({
-  req(rv$widgets$anaDiff$val_vs_percent=='Percentage')
-  #if (rv$widgets$anaDiff$val_vs_percent != 'Percentage') {return(NULL)}
-  
-  tagList(
-    modulePopoverUI("modulePopover_anaDiff_keepVal_percent"),
-    numericInput("AnaDiff_seuilNA_percent", NULL,
-                 min = 0,
-                 max = 100,
-                 value = rv$widgets$anaDiff$seuilNA_percent,
-                 width='150px')
-  )
-})
-
-
-
-output$AnaDiff_keep_helptext <- renderUI({
-  rv$widgets$anaDiff$ChooseFilters
-  txt <- NULL
-  switch(rv$widgets$anaDiff$ChooseFilters,
-         None = txt <-"All lines will be kept",
-         WholeMatrix = {
-           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
-             txt <- paste0("Only the lines (across all conditions) which contain at least ",
-                           rv$widgets$anaDiff$seuilNA, 
-                           " non-missing value are kept.")
-           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines (across all conditions) which contain at least ",
-                           rv$widgets$anaDiff$seuilNA_percent, 
-                           "% of non-missing value are kept.")
-         },
-         AtLeastOneCond = {
-           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$anaDiff$seuilNA, 
-                           " non-missing value in, at least one condition, are kept.")
-           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$anaDiff$seuilNA_percent, 
-                           "% of non-missing value in, at least one condition, are kept.")
-         },
-         AllCond = {
-           if (rv$widgets$anaDiff$val_vs_percent == 'Value')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$anaDiff$seuilNA, 
-                           " non-missing value in each condition are kept.")
-           else if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
-             txt <- paste0("The lines which contain at least ",
-                           rv$widgets$anaDiff$seuilNA_percent, 
-                           "% of non-missing value in each condition are kept.")
-         }
-  )
-  tagList(
-    tags$p(txt)
-  )
-})
-
-
-
-observeEvent(input$AnaDiff_val_vs_percent, {
-  rv$widgets$anaDiff$val_vs_percent <- input$AnaDiff_val_vs_percent
-  })
-
-observeEvent(input$AnaDiff_seuilNA_percent, ignoreNULL = TRUE, ignoreInit = TRUE, {
-  rv$widgets$anaDiff$seuilNA_percent <- input$AnaDiff_seuilNA_percent
-})
-
-observeEvent(input$AnaDiff_ChooseFilters, {
-  rv$widgets$anaDiff$ChooseFilters <-input$AnaDiff_ChooseFilters
-  shinyjs::toggle("AnaDiff_perform.filtering.MV", 
-                  condition=rv$widgets$anaDiff$ChooseFilters != "None")
-})
-
-# observe({
-#   rv$widgets$anaDiff$ChooseFilters
-#   shinyjs::toggle("AnaDiff_perform.filtering.MV", 
-#                   condition=rv$widgets$anaDiff$ChooseFilters != "None")
-# })
-
-
-observeEvent(input$AnaDiff_seuilNA, {
-  rv$widgets$anaDiff$seuilNA <-input$AnaDiff_seuilNA
-  if (rv$widgets$anaDiff$seuilNA==gFilterNone) {
-    updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$seuilNA)}
-})
-
-
 
 ########################################################
 ## Perform missing values filtering
 ########################################################
-observeEvent(input$AnaDiff_perform.filtering.MV,{
-  rv$widgets$anaDiff$Comparison
-  rv$widgets$anaDiff$ChooseFilters
-  rv$widgets$anaDiff$seuilNA
-  rv$widgets$anaDiff$seuilNA_percent
-  rv$widgets$anaDiff$val_vs_percent
+observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE,{
+  # rv$widgets$anaDiff$Comparison
+  # rv$widgets$anaDiff$ChooseFilters
+  # rv$widgets$anaDiff$seuilNA
+  # rv$widgets$anaDiff$seuilNA_percent
+  # rv$widgets$anaDiff$val_vs_percent
   
+  UpdateCompList()
+  rv$widgets$anaDiff$MetacellTag <- 'imputed'
+  rv$widgets$anaDiff$KeepRemove <-  'delete'
+  rv$widgets$anaDiff$ChooseFilters <- AnaDiff_indices()$params$MetacellFilters
+  rv$widgets$anaDiff$seuilNA_percent  <- AnaDiff_indices()$params$metacell_percent_th
+  rv$widgets$anaDiff$seuilNA  <- AnaDiff_indices()$params$metacell_value_th
+  rv$widgets$anaDiff$val_vs_percent  <- AnaDiff_indices()$params$val_vs_percent
+  rv$widgets$anaDiff$operator  <- AnaDiff_indices()$params$metacellFilter_operator
   
   
   #isolate({
-  if (as.character(rv$widgets$anaDiff$ChooseFilters) == gFilterNone){
+  if (as.character(rv$widgets$anaDiff$ChooseFilters) == 'None')
     GetBackToCurrentResAnaDiff()
-  } else {
-   th <- NULL
-    if (rv$widgets$anaDiff$val_vs_percent == 'Percentage')
-      th <- as.numeric(rv$widgets$anaDiff$seuilNA_percent)/100
-    else
-      th <-  as.integer(rv$widgets$anaDiff$seuilNA)
-    
-    obj2analyse <- Get_Dataset_to_Analyze()
-    #----------------------------------------
-    indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj2analyse,
-                                                   level = obj2analyse@experimentData@other$typeOfData,
-                                                   pattern = 'imputed',
-                                                   type = rv$widgets$anaDiff$ChooseFilters,
-                                                   percent = rv$widgets$anaDiff$val_vs_percent == 'Percentage',
-                                                   op = '==',
-                                                   th = th
-                                                   )
-    
-    
+
     #--------------------------------
-    if (!is.null(indices) && length(indices) < nrow(obj2analyse)){
-      rv$resAnaDiff$P_Value[-indices] <- 1
+    if (!is.null(AnaDiff_indices()$indices) && length(AnaDiff_indices()$indices) < nrow(Get_Dataset_to_Analyze())){
+      rv$resAnaDiff$P_Value[-AnaDiff_indices()$indices] <- 1
     }
-  }
+  #}
   #})
 })
 
@@ -366,26 +289,7 @@ observeEvent(input$selectComparison,ignoreInit = TRUE,{
 })
 
 
-UpdateCompList <- reactive({
-  rv$widgets$anaDiff$Comparison 
-  isolate({
-    if (rv$widgets$anaDiff$Comparison== "None"){
-      rv$resAnaDiff <- NULL
-      return(NULL)
-    } else {
-      index <- which(paste(as.character(rv$widgets$anaDiff$Comparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
-      print("On met a jour la liste rv$resAnaDiff")
-      rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
-                            P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
-                            condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1],
-                            condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
-      )
-      rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
-      rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
-      rvModProcess$moduleAnaDiffDone[1] <- TRUE
-    }
-  })
-})
+
 
 
 ##--------------------------------------------------------
@@ -404,7 +308,7 @@ output$volcanoTooltip_UI <- renderUI({
                   choices = colnames(fData(rv$current.obj)),
                   selected = rv$widgets$anaDiff$tooltipInfo,
                   multiple = TRUE, selectize=FALSE,width='300px', size=5),
-      actionButton("validTooltipInfo", "Valid tooltip choices", class = actionBtnClass)
+      actionButton("validTooltipInfo", "Validate tooltip choice", class = actionBtnClass)
     )
   })
 })
@@ -423,8 +327,8 @@ GetPairwiseCompChoice <- reactive({
 
 observe({
   req(rv$widgets$anaDiff$Comparison)
-  shinyjs::toggle('trtr', condition=rv$widgets$anaDiff$Comparison != "None")
-  shinyjs::toggle('swapVolcano', condition=rv$widgets$anaDiff$Comparison != "None")
+  #shinyjs::toggle('toto', condition = rv$widgets$anaDiff$Comparison != "None")
+  shinyjs::toggle('swapVolcano', condition = rv$widgets$anaDiff$Comparison != "None")
 })
 
 
@@ -432,9 +336,6 @@ callModule(modulePopover,"modulePopover_volcanoTooltip",
            data = reactive(list(title = "Tooltip", 
                                 content="Infos to be displayed in the tooltip of volcanoplot")))
 
-callModule(modulePopover,"modulePopover_pushPVal", 
-           data = reactive(list(title="Push p-value",
-           content= "This functionality is useful in case of multiple pairwise omparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
 
 callModule(modulePopover,"modulePopover_keepLines", 
            data = reactive(list(title="n values",
@@ -851,14 +752,7 @@ output$screenAnaDiff4 <- renderUI({
 })
 
 
-convertAnaDiff2DF <- reactive({
-  req(rv$widgets$anaDiff)
-  rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
-  df <- as.data.frame(tibble::enframe(rv$widgets$anaDiff))
-  names(df) <- c("Parameter", "Value")
-  rownames(df) <- NULL
-  df
-})
+
 
 
 
