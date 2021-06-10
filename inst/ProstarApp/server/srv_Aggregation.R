@@ -299,11 +299,11 @@ observeEvent(input$perform.aggregation,{
 })
 
 observe({
-  rv$temp.aggregate$issues
-  shinyjs::toggleState('validAggregation',
-                       condition = is.null(rv$temp.aggregate$issues))
+  rvModProcess$moduleAggregationDone[1]
+  # shinyjs::toggleState('validAggregation',
+  #                      condition = rvModProcess$moduleAggregationDone[1])
   shinyjs::toggle('downloadAggregationIssues', 
-                  condition = !is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0
+                  condition = !rvModProcess$moduleAggregationDone[1] && length(rv$temp.aggregate$issues) > 0
   )
 })
 
@@ -349,16 +349,17 @@ output$screenAggregation3 <- renderUI({
   tagList(
     h4("Once the saving operation is done, the new current dataset is a protein dataset.
        Prostar will automatically switch to the home page with the new dataset."),
-    shinyjs::disabled(
-      actionButton("validAggregation",
-                   "Save aggregation", 
-                   class = actionBtnClass)
-    )
+    uiOutput("showValidAggregationBtn_ui")
   )
 })
 
 
-
+output$showValidAggregationBtn_ui <- renderUI({
+  req(rvModProcess$moduleAggregationDone[1])
+  actionButton("validAggregation",
+               "Save aggregation", 
+               class = actionBtnClass)
+})
 
 
 

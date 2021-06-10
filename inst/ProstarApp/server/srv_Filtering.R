@@ -178,7 +178,7 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server=TRUE,{
                   options=list(buttons = list('copy',
                                               list(
                                                 extend = 'csv',
-                                                filename = 'Metacell_Filtering_summary'
+                                                filename = 'Quant_Metadata_Filtering_summary'
                                               ),'print'),
                                dom='Brt',
                                initComplete = initComplete(),
@@ -452,7 +452,7 @@ output$screenFiltering4 <- renderUI({
       column(width=3,radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
                                   choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))),
       column(width=3,radioButtons("ChooseViewAfterFiltering", "Type of filtered data",
-                                  choices= list("Deleted on metacell" = "Metacell",
+                                  choices= list("Deleted on quant. metadata" = "Metacell",
                                                 "Deleted string based" = "StringBased",
                                                 "Deleted numeric filter" = "Numerical"),
                                   selected=character(0))),

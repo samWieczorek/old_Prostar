@@ -140,7 +140,7 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
   tagList(
     selectInput("choose_metacell_DS",
-                "Metacell tag",
+                "Quant. metadata",
                 choices = c('None' = 'None',
                             DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
                 ),
