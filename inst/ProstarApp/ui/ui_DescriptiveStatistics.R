@@ -8,7 +8,7 @@ tabPanel("Descriptive statistics",
                               value = "DS_tabGeneral",
                               tagList(
                                 br(),
-                                moduleStaticDataTableUI("overview_DS")
+                                mod_staticDT_ui("overview_DS")
                                 )
                      ),
                      
@@ -22,10 +22,7 @@ tabPanel("Descriptive statistics",
                      #-------------------------------------------------------------
                      tabPanel(title="Data explorer",
                               value = "DS_DataExplorer",
-                               tagList(
-                                       uiOutput("DS_sidebarPanel_tab"),
-                                       uiOutput("tabToShow")
-                                       )
+                              mod_MSnSetExplorer_ui(id = 'test')
                      ),
                      
                      tabPanel("Corr. matrix",

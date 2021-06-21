@@ -142,6 +142,7 @@ rv$current.obj
              insertTab(inputId = "navPage",
               navbarMenu("Data processing (protein)" 
                          ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
+                         #,source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
                          ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
@@ -164,6 +165,7 @@ rv$current.obj
             insertTab(inputId = "navPage",
                     navbarMenu("Data processing (peptide)",
                      source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
+                     #source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,

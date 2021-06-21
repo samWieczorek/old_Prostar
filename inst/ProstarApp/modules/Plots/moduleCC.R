@@ -11,24 +11,25 @@ moduleCCUI <- function(id) {
                       tagList(
                         fluidRow(
                                  column(width=4, tagList(
-                                   uiOutput(ns("Warning_OneOneDT")),
+                                   mod_download_btns_ui(ns('OneOneDT_DL_btns')),
                                    DT::dataTableOutput(ns("OneOneDT")))
                                             ),
                                  column(width=8, tagList(
-                                   uiOutput(ns("Warning_OneOneDTDetailed")),
-                                   DT::dataTableOutput(ns("OneOneDTDetailed"))))
+                                  # uiOutput(ns('OneOneDTDetailed_ui')),
+                                  DT::dataTableOutput(ns("OneOneDTDetailed")))
                                  )
                         #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
                         )
+                      )
              ),
              tabPanel("One-Multi Connected Components",
                       tagList(
                         fluidRow(
                                   column(width=4, tagList(
-                                    uiOutput(ns("Warning_OneMultiDT")),
+                                    mod_download_btns_ui(ns('OneMultiDT_DL_btns')),
                                     DT::dataTableOutput(ns("OneMultiDT")))),
                                   column(width=8, tagList(
-                                    uiOutput(ns("Warning_OneMultiDTDetailed")),
+                                   # uiOutput(ns('OneMultiDTDetailed_ui')),
                                     DT::dataTableOutput(ns("OneMultiDTDetailed"))))
                         )
                       )
@@ -44,7 +45,7 @@ moduleCCUI <- function(id) {
                         fluidRow(
                           column(width=6,tagList(
                             highchartOutput(ns("jiji")),
-                            uiOutput(ns("Warning_CCMultiMulti")),
+                            uiOutput(ns('CCMultiMulti_DL_btns_ui')),
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
                             )),
                           column(width=6, tagList(
@@ -178,42 +179,49 @@ output$visNet_CC <- renderVisNetwork({
   })
   
 
-  
-  
-  output$Warning_CCMultiMulti <- renderUI({
-    req(GetDataFor_CCMultiMulti())
-      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
-        p(MSG_WARNING_SIZE_DT)
-    })
-
-  
   GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
-    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],
-                               function(x){
-                                 data.frame(rbind(x),
-                                            nPep = length(x$peptides),
-                                            nProt = length(x$proteins))}))
-    df <- cbind(df,id = 1:nrow(df))
-    df <- df[c('id', 'nProt', 'nPep', 'proteins', 'peptides')]
+
+    df <- cbind(id = 1:length(Get_CC_Multi2Any()),
+                nProt = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                                     function(x){length(x$proteins)})),
+                nPep = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$peptides)})),
+                proteins =  cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                                         function(x){paste(x$proteins, collapse=",")})),
+                peptides = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                                        function(x){paste(x$proteins, collapse=",")}))
+                )
+
     colnames(df) <-c('id', 'nProt', 'nPep', 'Proteins Ids', 'Peptides Ids')
-    
-    
+
     df
   })
+  
+  
+  
+  output$CCMultiMulti_DL_btns_ui <- renderUI({
+    req(input$searchCC == 'tabular')
+    mod_download_btns_ui(ns('CCMultiMulti_DL_btns'))
+  })
+  
+  mod_download_btns_server('CCMultiMulti_DL_btns',
+                           df.data = reactive({GetDataFor_CCMultiMulti()}),
+                           name = reactive({'CC_MultiMulti'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
+  
+  
+ 
   
   output$CCMultiMulti <- renderDataTable(server=TRUE,{
     dat <- DT::datatable(GetDataFor_CCMultiMulti(),
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CCMultiMulti'
-                                                     ),'print'),
-                                      dom='Bfrtip',
+                                      dom='frtip',
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
                                       scrollX = 400,
@@ -274,22 +282,19 @@ output$CCDetailed <- renderUI({
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
-   # print("output$CCDetailedProt<- renderDataTable(")
-    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
-                     #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
-                     )
+    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels))
     colnames(df) <-c('Proteins Ids')
     dt <- DT::datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='rt',
+                                    dom = 'rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering = FALSE,
                                     scrollX = 400,
                                     scrollY = 100,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE)) 
     dt
   })
@@ -326,12 +331,12 @@ output$CCDetailed <- renderUI({
                      options = list(initComplete = initComplete(),
                                     dom='rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering= FALSE,
                                     scrollX = 400,
                                     scrollY = 150,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -351,7 +356,7 @@ output$CCDetailed <- renderUI({
   output$CCDetailedSpecPep <- renderDataTable(server=TRUE,{
     rvCC$detailedselectedNode
     input$pepInfo
-    if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
+    req(rvCC$detailedselectedNode$specPepLabels)
     
     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
@@ -373,14 +378,14 @@ output$CCDetailed <- renderUI({
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='rt',
+                                    dom = 'rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering = FALSE,
                                     scrollX = 400,
                                     scrollY = 100,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -409,7 +414,7 @@ output$CCDetailed <- renderUI({
     rv$CC$allPep
     ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
     ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
-    ll.prot.one2multi <- intersect(which(ll.prot == 1),which(ll.pept > 1))
+    ll.prot.one2multi <- intersect(which(ll.prot == 1), which(ll.pept > 1))
     ll.prot.one2multi
   })
   
@@ -425,34 +430,64 @@ output$CCDetailed <- renderUI({
   
   BuildOne2OneTab <- reactive({
     rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
-    table
+   # table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
+    #browser()
+    df <- cbind(
+      cbind(lapply(rv$CC$allPep[Get_CC_One2One()], function(x){x$proteins})),
+      cbind(lapply(rv$CC$allPep[Get_CC_One2One()], function(x){x$peptides}))
+    )
+    
+    colnames(df) <- c('proteins', 'peptides')
+    
+    df
   })
   
   BuildOne2MultiTab <- reactive({
     rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
-    table
+
+    df <- cbind(proteins = cbind(lapply(rv$CC$allPep[Get_CC_One2multi()],
+                                     function(x){x$proteins})),
+                nPep = cbind(lapply(rv$CC$allPep[Get_CC_One2multi()], 
+                                    function(x){length(x$peptides)})),
+                peptides =  cbind(lapply(rv$CC$allPep[Get_CC_One2multi()],
+                                         function(x){paste(x$peptides, collapse=',')}))
+                )
+    colnames(df) <- c('proteins', 'nPep', 'peptides')
+    
+    df
   })
   
   
   BuildMulti2AnyTab <- reactive({
     rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
+    df <- cbind(id = 1:length(Get_CC_Multi2Any()),
+                proteins = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                                        function(x){x$proteins})),
+                nProt = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$proteins)})),
+                nPep = cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$peptides)})),
+                peptides =  cbind(lapply(rv$CC$allPep[Get_CC_Multi2Any()],
+                                         function(x){paste(x$peptides, collapse=',')}))
+    )
+    colnames(df) <- c('proteins', 'nPep', 'peptides')
     
-    table
+    df
   })
   
+
   
+  mod_download_btns_server('OneMultiDT_DL_btns',
+                           df.data = reactive({
+                             df <- BuildOne2MultiTab()
+                             colnames(df) <- c('Proteins Ids', 'nPep', 'Peptides Ids')
+                             df
+                             }),
+                           name = reactive({'CC_OneMulti'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
   
-  output$Warning_OneMultiDT <- renderUI({
-    req(rv$CC$allPep)
-    req(BuildOne2MultiTab())
-    if (nrow(BuildOne2MultiTab()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-  })
   
   output$OneMultiDT <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
@@ -462,60 +497,67 @@ output$CCDetailed <- renderUI({
   dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CC_One_Multi'
-                                                     ),'print'),
-                                      dom='Bfrtip',deferRender = TRUE,
+                                      dom = 'frtip',
+                                      deferRender = TRUE,
                                       bLengthChange = TRUE,
                                       displayLength = 10,
                                       scrollX = 400,
                                       scrollY = 400,
                                       scroller = TRUE,
                                       orderClasses = TRUE,
-                                      autoWidth=FALSE,
-                                      columns.searchable=F,
+                                      autoWidth = FALSE,
+                                      columns.searchable = FALSE,
                                       columnDefs = list(list(columns.width=c("60px"),
                                                              columnDefs.targets=c(list(0),list(1),list(2))))))
     
     return(dat)
   })
   
-  
-  
-  output$Warning_OneMultiDTDetailed <- renderUI({
-    req(input$OneMultiDT_rows_selected)
 
-    if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-  })
-  
   
   GetDataFor_OneMultiDTDetailed <- reactive({
     input$pepInfo
     req(input$OneMultiDT_rows_selected)
-    
+
     line <- input$OneMultiDT_rows_selected
-    
-    ind <- 1:ncol(rv$current.obj)
+     ind <- 1:ncol(rv$current.obj)
     data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
-    pepLine <- as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
+    pepLine <- as.numeric(unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=",")))
     
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     
-    data <- data[indices,c(ind, (ind + ncol(data)/2))]
+    data <- data[indices, c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(rv$current.obj)[pepLine, input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     data
   })
+  
+
+  # output$OneMultiDTDetailed_ui <- renderUI({
+  #   req(input$OneMultiDT_rows_selected)
+  #   mod_download_btns_ui('OneMultiDTDetailed_DL_btns')
+  #   
+  # })
+  # 
+  # mod_download_btns_server('OneMultiDTDetailed_DL_btns',
+  #                          df.data = reactive({GetDataFor_OneMultiDTDetailed()[,1:(ncol(GetDataFor_OneMultiDTDetailed())/2)] }),
+  #                          name = reactive({'CC_OneMulti_Detailed'}),
+  #                          colors =  reactive({list('missing POV' = "lightblue",
+  #                                                   'missing MEC' = "orange",
+  #                                                   'recovered' = "lightgrey",
+  #                                                   'identified' = "white",
+  #                                                   'combined' = "red")}),
+  #                          df.tags = reactive({
+  #                            GetDataFor_OneMultiDTDetailed()[,(1+ncol(GetDataFor_OneMultiDTDetailed())/2):ncol(GetDataFor_OneMultiDTDetailed())]})
+  # )
+  # 
   
   
   output$OneMultiDTDetailed <- renderDataTable(server=TRUE,{
@@ -529,18 +571,13 @@ output$CCDetailed <- renderUI({
     c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
     dt <- DT::datatable(data ,
-                     extensions = c('Scroller', 'Buttons'),
+                     extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_Multi'
-                                                   ),'print'),
-                                    dom='Bfrtip',pageLength = 10,
+                                    dom = 'frtip',pageLength = 10,
                                     blengthChange = FALSE,
                                     displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
+                                    ordering = FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -552,12 +589,18 @@ output$CCDetailed <- renderUI({
     dt
   })
   
+
   
-  output$Warning_OneOneDT <- renderUI({
-    if (nrow(BuildOne2OneTab()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
+  
+  mod_download_btns_server('OneOneDT_DL_btns',
+                           df.data = reactive({df <- BuildOne2OneTab()
+                           colnames(df) <- c('Proteins Ids', 'Peptides Ids')
+                           df}),
+                           name = reactive({'CC_OneOne'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
+  
   
   output$OneOneDT <- renderDataTable(server=TRUE,{
     req(rv$CC$allPep)
@@ -566,14 +609,9 @@ output$CCDetailed <- renderUI({
     dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CC_One_One'
-                                                     ),'print'),
-                                      dom='Bfrtip', 
+                                      dom = 'frtip', 
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
                                       scrollX = 400,
@@ -588,14 +626,7 @@ output$CCDetailed <- renderUI({
     return(dat)
   })
   
-  
-  output$Warning_OneOneDTDetailed <- reactive({
-    req(GetDataFor_OneOneDTDetailed())
 
-    if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
   
   GetDataFor_OneOneDTDetailed <- reactive({
     req(rv$CC$allPep)
@@ -610,45 +641,58 @@ output$CCDetailed <- renderUI({
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(rv$current.obj)[pepLine, input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     data
   })
   
-  output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
-    req(rv$CC$allPep)
-    req(input$OneOneDT_rows_selected)
-    data <- GetDataFor_OneOneDTDetailed()
-    offset <- length(input$pepInfo)
+  
+  # output$OneOneDTDetailed_ui <- renderUI({
+  #   req(input$OneOneDT_rows_selected)
+  #   mod_download_btns_ui('OneOneDTDetailed_DL_btns')
+  #   
+  # })
+  #   
+  # 
+  # mod_download_btns_server('OneOneDTDetailed_DL_btns',
+  #                          df.data = reactive({ GetDataFor_OneOneDTDetailed()}),
+  #                          name = reactive({'CC_OneOne_Detailed'}),
+  #                          colors = reactive({NULL}),
+  #                          df.tags = reactive({NULL})
+  # )
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
-    
-    dt <- DT::datatable( data,
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_One'
-                                                   ),'print'),
-                                    dom='Bfrtip',blengthChange = FALSE,
-                                    pageLength = 10,
-                                    displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
-      formatStyle(
-        colnames(data)[1:((ncol(data)-offset)/2)],
-        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c.tags, c.colors))
-    
-    dt
-  })
+    output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
+      req(rv$CC$allPep)
+      req(input$OneOneDT_rows_selected)
+      data <- GetDataFor_OneOneDTDetailed()
+      offset <- length(input$pepInfo)
+      
+      c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
+      c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+      
+      dt <- DT::datatable( data,
+                           extensions = c('Scroller'),
+                           options = list(initComplete = initComplete(),
+                                          dom = 'frtip',
+                                          blengthChange = FALSE,
+                                          pageLength = 10,
+                                          displayLength = 10,
+                                          ordering = FALSE,
+                                          header = FALSE,
+                                          server = FALSE,
+                                          columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                           )) %>%
+        formatStyle(
+          colnames(data)[1:((ncol(data)-offset)/2)],
+          colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
+          backgroundColor = styleEqual(c.tags, c.colors))
+      
+      dt
+    })
+
+  
   
   
   

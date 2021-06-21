@@ -117,29 +117,7 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
 
 
 #------------------------------------------------------------
-moduleLegendColoredExprs <- function(input, output, session, legend, colors){
-  ns <- session$ns
-  
- 
-  
-  
-  output$legend <- renderUI({
 
-    tagList(
-      lapply(1:length(colors), function(x){
-        fluidRow(
-          column(width=2, 
-                 tags$div(class="input-color", checked=NA,
-                          tags$input(type="text", value=""),
-                          tags$div(class="color-box", 
-                                   style=paste0("border: 1px solid #000000; background-color: ", colors[[x]] , ";"))
-                 )),
-          column(width=10, tags$p(legend[[x]]))
-          )
-        })
-        )
-  })
-}
 
 
 #------------------------------------------------------------
@@ -316,17 +294,12 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     dt <- DT::datatable(data,
                         #colnames=NULL,
-                        extensions = c('Scroller', 'Buttons'),
+                        extensions = c('Scroller'),
                         options = list(initComplete = initComplete(),
-                                       buttons = list('copy',
-                                                      list(
-                                                        extend = 'csv',
-                                                        filename = 'sharedPeptidesInfos'
-                                                      ),'print'),
-                                       dom='Bfrtip',
+                                       dom = 'frtip',
                                        blengthChange = FALSE,
                                        displayLength = 20,
-                                       ordering=FALSE,
+                                       ordering = FALSE,
                                        server = FALSE,
                                        columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                         )) %>%
@@ -381,17 +354,12 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     dt <- DT::datatable( data, 
                          #colnames=NULL,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options = list(initComplete = initComplete(),
-                                        buttons = list('copy',
-                                                       list(
-                                                         extend = 'csv',
-                                                         filename = 'specific peptides infos'
-                                                       ),'print'),
-                                        dom='Bfrtip',
+                                        dom = 'frtip',
                                         blengthChange = FALSE,
                                         displayLength = 20,
-                                        ordering=FALSE,
+                                        ordering = FALSE,
                                         columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                          )) %>%
       formatStyle(
@@ -469,18 +437,13 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
     
    dt <- DT::datatable(data,
-                        extensions = c('Scroller', 'Buttons'),
+                        extensions = c('Scroller'),
                         options = list(initComplete = initComplete(),
-                                       buttons = list('copy',
-                                                      list(
-                                                        extend = 'csv',
-                                                        filename = 'Infos'
-                                                      ),'print'),
-                                       dom='Bfrtip',
+                                       dom = 'frtip',
                                        blengthChange = FALSE,
                                        displayLength = 20,
-                                       ordering=FALSE,
-                                       header=FALSE,
+                                       ordering = FALSE,
+                                       header = FALSE,
                                        columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                         )) %>%
       formatStyle(
@@ -735,60 +698,6 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,
-                                  table2show, 
-                                  withBtns, 
-                                  showRownames=FALSE, 
-                                  dom='Bt', 
-                                  filename='Prostar_export') {
-  
-  
-  proxy = dataTableProxy(session$ns('StaticDataTable'), session)
-  
-  
-  observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
-  
-  
-  output$warningOnSize <- renderUI({
-    if (length(table2show())==0){return(NULL)}
-    if (nrow(table2show())>153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
-  
-  output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
-    req(rv$current.obj)
-    #table2show
-    if (length(table2show())==0){return(NULL)}
-    
-    print(table2show())
-    isolate({
-      DT::datatable(table2show(), 
-                    extensions = 'Buttons',
-                    escape = FALSE,
-                    # rownames= showRownames,
-                    options=list(
-                      buttons = list(
-                        list(
-                          extend = 'csv',
-                          filename = filename
-                        ),
-                        list(
-                          extend = 'pdf',
-                          filename = filename
-                        ),'print'),
-                      #initComplete = initComplete(),
-                      dom = dom
-                      #    server = FALSE,
-                      #    autoWidth=TRUE,
-                      #columnDefs = list(list(width='150px',targets= "_all")),
-                      #ordering = FALSE
-                    )
-      )
-    })
-    
-  })
-}
 
 
 

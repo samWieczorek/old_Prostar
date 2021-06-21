@@ -1,7 +1,7 @@
 source(file.path("server", "mod_popover.R"), local = TRUE)$value
 source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
-source(file.path("server", "mod_filtering_example_server.R"), local = TRUE)$value
-
+source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
+source(file.path("server", "mod_staticDT.R"), local=TRUE)$value
 
 
 convertAnaDiff2DF <- reactive({
@@ -26,9 +26,9 @@ callModule(moduleVolcanoplot,"volcano_Step2",
            tooltip = reactive({rv$widgets$anaDiff$tooltipInfo}),
            isSwaped = reactive({rv$widgets$anaDiff$swapVolcano}))
 
-callModule(moduleStaticDataTable,"params_AnaDiff", table2show=reactive({convertAnaDiff2DF()}), dom='t',
-           filename='AnaDiffParams')
-#callModule(moduleStaticDataTable,"anaDiff_selectedItems", table2show=reactive({GetSelectedItems()}))
+mod_staticDT_server("params_AnaDiff",
+             data = reactive({convertAnaDiff2DF()}),
+             filename='AnaDiffParams')
 
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({rv$widgets$anaDiff$th_pval}))
 
@@ -743,25 +743,18 @@ output$screenAnaDiff3 <- renderUI({
 
 
 output$screenAnaDiff4 <- renderUI({     
-  print("in output$screenAnaDiff4")
-  if (as.character(rv$widgets$anaDiff$Comparison) == "None"){return(NULL)}
+  req(as.character(rv$widgets$anaDiff$Comparison) != "None")
   tagList(
-    moduleStaticDataTableUI("params_AnaDiff")
+    mod_static_ui("params_AnaDiff")
     
   )
 })
 
-
-
-
-
-
 output$diffAna_Summary <- renderUI({     
-  
-  if (as.character(rv$widgets$anaDiff$Comparison) == "None"){return(NULL)}
+  req(as.character(rv$widgets$anaDiff$Comparison) != "None")
   
   tagList(
-    moduleStaticDataTableUI("params_AnaDiff")
+    mod_static_ui("params_AnaDiff")
   )
   
 })
@@ -801,26 +794,14 @@ callModule(modulePopover,"modulePopover_pValThreshold",
                                 content="Define the -log10(p_value) threshold")))
 
 
-
-
 output$anaDiff_selectedItems <- renderDT({
   
   DT::datatable(GetSelectedItems(),
-                extensions = 'Buttons',
                 escape = FALSE,
                 rownames=FALSE,
                 options = list(
-                  buttons = list(
-                    list(
-                      extend = 'csv',
-                      filename = rv_anaDiff$filename
-                    ),
-                    list(
-                      extend = 'pdf',
-                      filename = rv_anaDiff$filename
-                    ),'print'),
                   initComplete = initComplete(),
-                  dom = 'Bfrtip',
+                  dom = 'frtip',
                   server = TRUE,
                   columnDefs = list(list(width='200px',targets= "_all")),
                   ordering = TRUE)
@@ -828,7 +809,7 @@ output$anaDiff_selectedItems <- renderDT({
     formatStyle(
       paste0('isDifferential (', as.character(rv$widgets$anaDiff$Comparison), ')'),
       target = 'row',
-      backgroundColor = styleEqual(c(0, 1), c("white",orangeProstar))
+      backgroundColor = styleEqual(c(0, 1), c("white", orangeProstar))
     )
 })
 
@@ -844,7 +825,7 @@ output$downloadSelectedItems <- downloadHandler(
     wb <- openxlsx::createWorkbook() # Create wb in R
     openxlsx::addWorksheet(wb,sheetName="DA result") #create sheet
     openxlsx::writeData(wb,sheet = 1, as.character(rv$widgets$anaDiff$Comparison), colNames = TRUE,headerStyle = hs1)
-    openxlsx::writeData(wb,sheet = 1, startRow = 3,GetSelectedItems(), colNames = TRUE)
+    openxlsx::writeData(wb,sheet = 1, startRow = 3, GetSelectedItems(), colNames = TRUE)
     ll.DA.row <- which(GetSelectedItems()[,paste0('isDifferential (',as.character(rv$widgets$anaDiff$Comparison), ')')]==1)
     ll.DA.col <- rep(which(colnames(GetSelectedItems()) == paste0('isDifferential (',as.character(rv$widgets$anaDiff$Comparison),')')), length(ll.DA.row))
     

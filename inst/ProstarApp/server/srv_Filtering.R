@@ -173,14 +173,10 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server=TRUE,{
     
     
     DT::datatable(rv$widgets$filtering$metacell_Filter_SummaryDT,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
-                  options=list(buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'Quant_Metadata_Filtering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                  options=list(
+                               dom='rt',
                                initComplete = initComplete(),
                                deferRender = TRUE,
                                bLengthChange = FALSE
@@ -216,7 +212,7 @@ output$screenFiltering2 <- renderUI({
     hr(),
     div(
       div( style="display:inline-block; vertical-align: middle; align: center;",
-           DT::dataTableOutput("FilterSummaryData")
+            DT::dataTableOutput("FilterSummaryData")
       )
     )
     
@@ -263,7 +259,6 @@ observeEvent(input$perform.text.filtering,{
 
 
 
-
 output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
@@ -275,25 +270,20 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
                        nbDeleted=0, 
                        Total=nrow(rv$current.obj), 
                        stringsAsFactors = FALSE)
-      #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-      rv$widgets$filtering$DT_filterSummary <- df
+       rv$widgets$filtering$DT_filterSummary <- df
     }
     
     
     DT::datatable(rv$widgets$filtering$DT_filterSummary,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
-                  options=list(buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'Filtering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                  options=list(dom = 'rt',
                                initComplete = initComplete(),
                                deferRender = TRUE,
                                bLengthChange = FALSE
-                  ))
-  })
+                               )
+                  )
+    })
 })
 
 
@@ -390,7 +380,6 @@ Get_symFilter_cname_choice <- reactive({
 })
 
 
-
 ### ------------------------------------------------------------
 output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
@@ -404,16 +393,11 @@ output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
     
     
     DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
                   
                   options=list(initComplete = initComplete(),
-                               buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'NumericalFiltering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                               dom = 'rt',
                                deferRender = TRUE,
                                bLengthChange = FALSE
                   ))
@@ -460,7 +444,7 @@ output$screenFiltering4 <- renderUI({
     ),
     hr(),
     uiOutput("helpTextMV"),
-    uiOutput("Warning_VizualizeFilteredData"),
+    mod_download_btns_ui('VizualizeFilteredData_DL_btns'),
     DT::dataTableOutput("VizualizeFilteredData")
     
   )
@@ -470,8 +454,13 @@ output$screenFiltering4 <- renderUI({
 getDataForMetacellFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.metacell
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.metacell)
+  
+ # browser()
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),
+                               digits = rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
+                 table,
+                 DAPAR::GetMetacell(rv$deleted.metacell)
   )
   table
 })
@@ -479,8 +468,11 @@ getDataForMetacellFiltered <- reactive({
 getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.numeric))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),
+                               digits = rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
+                 table, 
+                 DAPAR::GetMetacell(rv$deleted.numeric))
   
   table
 })
@@ -489,20 +481,14 @@ getDataForNumericalFiltered <- reactive({
 getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.stringBased))
+  id <- 
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),
+                               digits=rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
+                 table, 
+                 DAPAR::GetMetacell(rv$deleted.stringBased))
   
   table
-})
-
-
-
-output$Warning_VizualizeFilteredData <- renderUI({
-  if (length(GetDataFor_VizualizeFilteredData())==0)
-  {return(NULL)}
-  if (nrow(GetDataFor_VizualizeFilteredData())>153) 
-    p(MSG_WARNING_SIZE_DT)
-  
 })
 
 
@@ -516,33 +502,51 @@ GetDataFor_VizualizeFilteredData <- reactive({
   rv$deleted.numeric
   
   data <- NULL
-  if ((input$ChooseViewAfterFiltering == "Metacell") && !is.null(rv$deleted.metacell))
-  {
-    #print("DANS REACTIVE : If 1")
-    #print(dim(getDataForMVFiltered()))
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForMetacellFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.metacell)
-    )
-  } 
-  
-  else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
-    
-    #print("DANS REACTIVE : If 2")
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForMVStringFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.stringBased)
-    )
-  }  else if ((input$ChooseViewAfterFiltering == "Numerical") && !is.null(rv$deleted.numeric)) {
-    
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForNumericalFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.numeric)
-    )
-  }
+  data <- switch(input$ChooseViewAfterFiltering,
+                 Metacell = if(!is.null(rv$deleted.metacell))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData =  getDataForMetacellFiltered(),
+                          metaData = Biobase::fData(rv$deleted.metacell)
+                          ),
+                 StringBased = if(!is.null(rv$deleted.stringBased))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData = getDataForMVStringFiltered(),
+                          metaData = Biobase::fData(rv$deleted.stringBased)
+                          ),
+                 Numerical = if(!is.null(rv$deleted.numeric))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData = getDataForNumericalFiltered(),
+                          metaData = Biobase::fData(rv$deleted.numeric)
+                          )
+                 )
   data
 })
 
+
+
+mod_download_btns_server(id = 'VizualizeFilteredData_DL_btns',
+                         df.data = reactive({
+                           
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             len <- ncol(GetDataFor_VizualizeFilteredData())
+                             GetDataFor_VizualizeFilteredData()[, 1:(1+len/2)]
+                           } else GetDataFor_VizualizeFilteredData()
+                         }), 
+                         name = reactive({'ViewFilteredData'}), 
+                         colors = reactive({
+                           if (input$ChooseTabAfterFiltering == 'quantiData')
+                             list('missing POV' = "lightblue",
+                                  'missing MEC' = "orange",
+                                  'recovered' = "lightgrey",
+                                  'identified' = "white",
+                                  'combined' = "red")
+                           else NULL}),
+                         df.tags = reactive({
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             len <- ncol(GetDataFor_VizualizeFilteredData())
+                             GetDataFor_VizualizeFilteredData()[, (2 + (len-1)/2):len]
+                           } else GetDataFor_VizualizeFilteredData()})
+)
 
 
 #----------------------------------------------
@@ -557,14 +561,9 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
 
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options = list(
-                           buttons = list('copy',
-                                          list(
-                                            extend = 'csv',
-                                            filename = 'Prostar_export'),
-                                          'print'),
-                           dom='Brtip',
+                           dom = 'rtip',
                            initComplete = initComplete(),
                            displayLength = 20,
                            deferRender = TRUE,
@@ -572,14 +571,14 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
                            scrollX = 200,
                            scrollY = 600,
                            scroller = TRUE,
-                           ordering=FALSE,
-                           columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
-                                             list(width='150px',targets= "_all"))
+                           ordering = FALSE,
+                           columnDefs = list(list(targets = c((( 2 + (ncol(data)-1)/2)):ncol(data)), visible = FALSE),
+                                             list(width='150px', targets= "_all"))
                          )
     ) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):ncol(data)],
+        colnames(data)[2:(1 + (ncol(data)-1)/2)],
+        colnames(data)[((2 + (ncol(data)-1)/2)):ncol(data)],
         backgroundColor = styleEqual(c.tags, c.colors)
       )
   } else {
@@ -592,7 +591,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
                                         scrollX = 200,
                                         scrollY = 600,
                                         scroller = TRUE,
-                                        ordering=FALSE)) 
+                                        ordering = FALSE)) 
   }
   # }
   dt
@@ -670,19 +669,14 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
 })
 
 
-
-
-callModule(moduleLegendColoredExprs, 
-           "FilterColorLegend_DS", 
-           legend = rv$legendTypeMV,
-           colors = rv$colorsTypeMV)
+mod_LegendColoredExprs_server(id = 'FilterColorLegend_DS')
 
 
 output$legendForExprsData2 <- renderUI({
   req(input$ChooseTabAfterFiltering)
+  req(input$ChooseTabAfterFiltering == "quantiData")
   
-  if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-  moduleLegendColoredExprsUI("FilterColorLegend_DS")
+  mod_LegendColoredExprs_ui(id = 'FilterColorLegend_DS')
   
 })
 

@@ -291,7 +291,6 @@ ComputeAdjacencyMatrices <- reactive({
     
     incProgress(2/2, detail = 'with specific and shared peptides')
     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
-    
   }, style="old")
   
 
@@ -309,7 +308,6 @@ ComputeConnectedComposants <- reactive({
     
     incProgress(2/2, detail = 'with specific and shared peptides')
     ll2 <- DAPAR::get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
-    
   })
   
  
@@ -348,8 +346,7 @@ Compute_PCA_nbDimensions <- reactive({
 ######################################
 loadObjectInMemoryFromConverter <- function(){
   # req(rv$current.obj)
-  
-  rv$proteinId <-rv$current.obj@experimentData@other$proteinId
+  rv$proteinId <- rv$current.obj@experimentData@other$proteinId
   if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
     rv$typeOfDataset <- ""
   } else {
@@ -376,7 +373,7 @@ loadObjectInMemoryFromConverter <- function(){
     rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
    # print(paste0('rv$PlotParams$paletteForConditions = ', paste0(rv$PlotParams$paletteForConditions, collapse=' ')))
     if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
-      print("begin compute adjacency matrix")
+      print("Start computing adjacency matrix")
       incProgress(0.6, detail = 'Compute Adjacency Matrices')
       ComputeAdjacencyMatrices()
       incProgress(0.7, detail = 'Compute Connected Components')

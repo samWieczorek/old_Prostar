@@ -19,7 +19,9 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
            data = reactive(list(title = "Quantitative data", 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
+mod_staticDT_server("overview_convertData",
+                    data = reactive({GetDatasetOverview()})
+                    )
 
 
 
@@ -66,9 +68,17 @@ output$choose_file_to_import <- renderUI({
 })
 
 
+fileExt.ok <- reactive({
+  req(input$file1$name)
+  authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
+  ext <- GetExtension(input$file1$name)
+  !is.na(match(ext, authorizedExts))
+})
+
 output$ConvertOptions <- renderUI({
   req(input$choose_software)
   req(input$file1)
+  req(fileExt.ok())
   
   tagList(
     radioButtons("typeOfData", 
@@ -93,20 +103,18 @@ output$ConvertOptions <- renderUI({
 
 
 
-
 ############ Read text file to be imported ######################
-observeEvent(c(input$file1,input$XLSsheets),{
+observeEvent(c(input$file1, input$XLSsheets),{
   input$XLSsheets
-  if (((GetExtension(input$file1$name)== "xls")
-       || (GetExtension(input$file1$name) == "xlsx") )
+  if (((GetExtension(input$file1$name) %in% c("xls","xlsx")))
       && is.null(input$XLSsheets)) {return(NULL)  }
   
   authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
-  if( is.na(match(GetExtension(input$file1$name), authorizedExts))) {
+  
+  if (!fileExt.ok()){
     shinyjs::info("Warning : this file is not a text nor an Excel file ! 
-                  Please choose another one.")
-  }
-  else {
+     Please choose another one.")
+  } else {
     # result = tryCatch(
     #   {
     ClearUI()
@@ -120,6 +128,10 @@ observeEvent(c(input$file1,input$XLSsheets),{
            xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
            xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
     )
+    
+    colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed=TRUE)
+    colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed=TRUE)
+    
     #   }
     #   , warning = function(w) {
     #     shinyjs::info(conditionMessage(w))
@@ -505,11 +517,11 @@ output$x1 <- renderDataTable(
   quantiDataTable(),
   escape=FALSE,
   rownames = FALSE,
-  extensions = c('Scroller', 'Buttons'),
-  server=FALSE,
-  selection='none', 
+  extensions = c('Scroller'),
+  server = FALSE,
+  selection = 'none', 
   class = 'compact',
-  options=list(
+  options = list(
     preDrawCallback=JS(
       'function() {
             Shiny.unbindAll(this.api().table().node());}'),
@@ -517,8 +529,8 @@ output$x1 <- renderDataTable(
       'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
     # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-    dom = 'Bfrtip',
-    autoWidth=TRUE,
+    dom = 'frtip',
+    autoWidth = TRUE,
     deferRender = TRUE,
     bLengthChange = FALSE,
     scrollX = 200,
@@ -598,7 +610,7 @@ output$Convert_Convert <- renderUI({
     br(), br(),
     
     uiOutput("convertFinalStep"),
-    moduleStaticDataTableUI("overview_convertData"),
+    mod_staticDT_ui("overview_convertData"),
     uiOutput("conversionDone"),
     p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
     interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
@@ -698,6 +710,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                xlsx = writeToCommandLogFile(txtXls)
         )
         
+
         input$filenameToCreate
         rv$tab1
         tmp.choose_quantitative_columns <- input$choose_quantitative_columns
@@ -734,6 +747,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
         
+        #browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 

@@ -1,5 +1,6 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}),
-           filename='Aggregation_overview')
+# mod_staticDT_server("overview_Aggregation",
+#                     data = reactive({GetDatasetOverview()}),
+#                     filename = 'Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 
@@ -130,7 +131,11 @@ output$screenAggregation1 <- renderUI({
       div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
            uiOutput("allPeptideBarplot")),
       div( style="display:inline-block; vertical-align: top;",
-           DT::dataTableOutput("aggregationStats"))
+           tagList(
+             mod_download_btns_ui('aggregationStats_DL_btn'),
+             DT::dataTableOutput("aggregationStats")
+           )
+      )
     )
     
   )
@@ -436,13 +441,21 @@ output$ObserverAggregationDone <- renderUI({
 })
 
 
+mod_download_btns_server(id = 'aggregationStats_DL_btn',
+                         df.data = reactive({Biobase::exprs(obj)}), 
+                         name = reactive({'toto'}), 
+                         colors = reactive({colors}),
+                         df.tags = reactive({GetMetacell(obj)})
+)
+
 
 output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   req(rv$matAdj)
-  if (is.null(rv$widgets$aggregation$proteinId) || rv$widgets$aggregation$proteinId == "None") {return(NULL)}
+  req(rv$widgets$aggregation$proteinId)
+  req(rv$widgets$aggregation$proteinId != "None")
   
   res <- getProteinsStats(rv$matAdj$matWithSharedPeptides)
-  #print(res)
+
   rv$AggregProtStats$nb <- c(res$nbPeptides,
                              res$nbSpecificPeptides,
                              res$nbSharedPeptides,
@@ -456,18 +469,13 @@ output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   DT::datatable(df, 
                 escape = FALSE,
                 rownames= FALSE,
-                extensions = c('Scroller', 'Buttons'),
+                extensions = c('Scroller'),
                 option=list(initComplete = initComplete(),
-                            buttons = list('copy',
-                                           list(
-                                             extend = 'csv',
-                                             filename = 'aggregation stats'
-                                           ),'print'),
-                            dom='Brt',
-                            autoWidth=TRUE,
-                            ordering=F,
-                            columnDefs = list(list(width='150px',targets= 0),
-                                              list(width='100px',targets= 1))
+                            dom = 'rt',
+                            autoWidth = TRUE,
+                            ordering = F,
+                            columnDefs = list(list(width='150px', targets= 0),
+                                              list(width='100px', targets= 1))
                 )
   )
 })
@@ -480,7 +488,6 @@ output$aggregationPlotShared <- renderPlot({
 
 output$aggregationPlotUnique <- renderPlot({
   req(rv$matAdj)
-  
   GraphPepProt(rv$matAdj$matWithUniquePeptides)
 })
 
@@ -521,16 +528,7 @@ output$Aggregation_Step2 <- renderUI({
       )
     )
   )
-  
-  # } else {
-  #   tagList(
-  #     h4("The peptide dataset has been aggregated into a protein dataset."),
-  #     tags$div(style="align: center;",
-  #              moduleStaticDataTableUI("overview_Aggregation")
-  #     )
-  #   )
-  # }
-  
+
 })
 
 
