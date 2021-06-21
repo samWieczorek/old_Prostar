@@ -221,18 +221,17 @@ output$visNet_CC <- renderVisNetwork({
                          rownames=FALSE,
                          extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      dom='frtip',
-                                      deferRender = TRUE,
-                                      bLengthChange = FALSE,
+                                      dom = 'frt',
+                                      #deferRender = TRUE,
+                                      #bLengthChange = FALSE,
                                       scrollX = 400,
                                       scrollY = 400,
                                       displayLength = 10,
-                                      scroller = TRUE,
-                                      orderClasses = TRUE,
-                                      autoWidth=TRUE,
-                                      columns.searchable=F,
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+                                      scroller = TRUE
+                                      #orderClasses = TRUE,
+                                      #autoWidth=TRUE
+                                     )
+                         )
     
     return(dat)
   })
@@ -499,18 +498,20 @@ output$CCDetailed <- renderUI({
                          rownames=FALSE,
                          extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      dom = 'frtip',
+                                      dom = 'rt',
                                       deferRender = TRUE,
                                       bLengthChange = TRUE,
                                       displayLength = 10,
                                       scrollX = 400,
                                       scrollY = 400,
                                       scroller = TRUE,
-                                      orderClasses = TRUE,
-                                      autoWidth = FALSE,
+                                       autoWidth = FALSE,
                                       columns.searchable = FALSE,
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+                                      columnDefs = list(list(columns.width=c("60px")
+                                                             )
+                                                        )
+                                      )
+                       )
     
     return(dat)
   })
@@ -538,26 +539,6 @@ output$CCDetailed <- renderUI({
     
     data
   })
-  
-
-  # output$OneMultiDTDetailed_ui <- renderUI({
-  #   req(input$OneMultiDT_rows_selected)
-  #   mod_download_btns_ui('OneMultiDTDetailed_DL_btns')
-  #   
-  # })
-  # 
-  # mod_download_btns_server('OneMultiDTDetailed_DL_btns',
-  #                          df.data = reactive({GetDataFor_OneMultiDTDetailed()[,1:(ncol(GetDataFor_OneMultiDTDetailed())/2)] }),
-  #                          name = reactive({'CC_OneMulti_Detailed'}),
-  #                          colors =  reactive({list('missing POV' = "lightblue",
-  #                                                   'missing MEC' = "orange",
-  #                                                   'recovered' = "lightgrey",
-  #                                                   'identified' = "white",
-  #                                                   'combined' = "red")}),
-  #                          df.tags = reactive({
-  #                            GetDataFor_OneMultiDTDetailed()[,(1+ncol(GetDataFor_OneMultiDTDetailed())/2):ncol(GetDataFor_OneMultiDTDetailed())]})
-  # )
-  # 
   
   
   output$OneMultiDTDetailed <- renderDataTable(server=TRUE,{

@@ -132,7 +132,6 @@ output$screenAggregation1 <- renderUI({
            uiOutput("allPeptideBarplot")),
       div( style="display:inline-block; vertical-align: top;",
            tagList(
-             mod_download_btns_ui('aggregationStats_DL_btn'),
              DT::dataTableOutput("aggregationStats")
            )
       )
@@ -441,17 +440,9 @@ output$ObserverAggregationDone <- renderUI({
 })
 
 
-mod_download_btns_server(id = 'aggregationStats_DL_btn',
-                         df.data = reactive({Biobase::exprs(obj)}), 
-                         name = reactive({'toto'}), 
-                         colors = reactive({colors}),
-                         df.tags = reactive({GetMetacell(obj)})
-)
-
 
 output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   req(rv$matAdj)
-  req(rv$widgets$aggregation$proteinId)
   req(rv$widgets$aggregation$proteinId != "None")
   
   res <- getProteinsStats(rv$matAdj$matWithSharedPeptides)
