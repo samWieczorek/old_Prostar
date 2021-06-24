@@ -46,11 +46,11 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
   # )
   # ###############
  
-      colorsTypeMV = list(MEC = 'orange', 
-                          POV = 'lightblue',
-                          identified = 'white',
-                          recovered = 'lightgrey',
-                          combined = 'red')
+      # colorsTypeMV = list(MEC = 'orange', 
+      #                     POV = 'lightblue',
+      #                     identified = 'white',
+      #                     recovered = 'lightgrey',
+      #                     combined = 'red')
       
       legendTypeMV = list(MEC = 'Missing in Entire Condition (MEC)', 
                           POV = "Partially Observed Value (POV)",
@@ -58,23 +58,7 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
                           recovered = 'Recovered',
                           combined = 'Combined')
   
-  
 
-  #   observeEvent(indices(), ignoreNULL = FALSE,{
-  #     
-  #     if (is.null(indices()))
-  #       rv$index <- NULL
-  #     else {
-  #       if(params()$MetacellFilters != "None")
-  #         if (params()$KeepRemove == "keep")
-  #           rv$index <- (1:nrow(obj()))[indices()]
-  #       else
-  #         rv$index <- 1:nrow(obj())[-indices()]
-  #     }
-  # })
-  
-  
-  
   rgb2col = function(rgbmat){
     ProcessColumn = function(col){
       rgb(rgbmat[1, col], 
@@ -104,8 +88,8 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
   
   output$example_tab_filtered <- DT::renderDataTable({
     df <- getDataForExprs(obj(), NULL)
-    c.tags <- BuildColorStyles(obj(), colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(obj(), colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(obj())$tags
+    c.colors <-  BuildColorStyles(obj())$colors
     range.invisible <- ((ncol(df)/2)+1):ncol(df)
     
     #browser()

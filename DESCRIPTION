@@ -21,7 +21,7 @@ biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing, ImmunoOnc
 License: Artistic-2.0
 Depends: R (>= 4.1.0)
 Suggests: BiocStyle, testthat
-Imports: DAPAR (>= 1.24.5), DAPARdata (>= 1.22.1), rhandsontable, data.table,
+Imports: DAPAR (>= 1.24.5), DAPARdata (>= 1.22.2), rhandsontable, data.table,
         shinyjs, DT, shiny, shinyBS, shinyAce, highcharter, htmlwidgets, webshot, R.utils,
         shinythemes, XML,later, rclipboard, shinycssloaders, future, promises, 
         colourpicker, BiocManager, shinyjqui,shinyTree, shinyWidgets, sass, tibble

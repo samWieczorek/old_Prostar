@@ -322,8 +322,8 @@ output$CCDetailed <- renderUI({
     }
     
     offset <- length(input$pepInfo)
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
@@ -371,8 +371,8 @@ output$CCDetailed <- renderUI({
     
     offset <- length(input$pepInfo)
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
@@ -548,8 +548,8 @@ output$CCDetailed <- renderUI({
     data <- GetDataFor_OneMultiDTDetailed()
     offset <- length(input$pepInfo)
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable(data ,
                      extensions = c('Scroller'),
@@ -650,8 +650,8 @@ output$CCDetailed <- renderUI({
       data <- GetDataFor_OneOneDTDetailed()
       offset <- length(input$pepInfo)
       
-      c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-      c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+      c.tags <- BuildColorStyles(rv$current.obj)$tags
+      c.colors <-  BuildColorStyles(rv$current.obj)$colors
       
       dt <- DT::datatable( data,
                            extensions = c('Scroller'),

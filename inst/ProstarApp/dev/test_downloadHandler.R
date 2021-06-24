@@ -15,12 +15,9 @@ server <- function(input, output, session) {
   utils::data(Exp1_R25_prot, package='DAPARdata')
   obj <- Exp1_R25_prot
   
-  colors <- list('missing POV' = "lightblue",
-                 'missing MEC' = "orange",
-                 'recovered' = "lightgrey",
-                 'identified' = "white",
-                 'combined' = "red")
-  
+  mc <- metacell.def(GetTypeofData(obj))
+  colors <- as.list(setNames(mc$color, mc$node))
+
   
   mod_download_btns_server(id = 'test',
                            df.data = reactive({Biobase::exprs(obj)}), 

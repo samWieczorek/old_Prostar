@@ -63,7 +63,8 @@ mod_MSnSetExplorer_server <- function(id,
   })
   
   
-  mod_LegendColoredExprs_server('ExprsColorLegend_DS')
+  mod_LegendColoredExprs_server('ExprsColorLegend_DS',
+                                obj = reactive({data()}))
   
   output$legendForExprsData <- renderUI({
     req(input$DS_TabsChoice == "tabExprs")
@@ -206,11 +207,7 @@ mod_MSnSetExplorer_server <- function(id,
   )
   
   
-  colors.def <- list('missing POV' = "lightblue",
-                     'missing MEC' = "orange",
-                     'recovered' = "lightgrey",
-                     'identified' = "white",
-                     'combined' = "red")
+  
   
   mod_download_btns_server('table_DL_btns',
                            df.data = reactive({
@@ -219,7 +216,10 @@ mod_MSnSetExplorer_server <- function(id,
                                    )
                              }),
                            name = reactive({'quantiData'}),
-                           colors = reactive({colors.def}),
+                           colors = reactive({
+                             mc <- metacell.def(GetTypeofData(data()))
+                             as.list(setNames(mc$color, mc$node))
+                           }),
                            df.tags = reactive({
                              cbind(keyId = rep('identified', nrow(data())),
                                    GetMetacell(data())
@@ -236,7 +236,9 @@ mod_MSnSetExplorer_server <- function(id,
                 round(Biobase::exprs(data()), digits = digits()), 
                 DAPAR::GetMetacell(data())
                 )
-   
+    mc <- metacell.def(GetTypeofData(data()))
+    colors <- as.list(setNames(mc$color, mc$node))
+    
     DT::datatable( df,
                     extensions = c('Scroller'),
                    #
@@ -255,7 +257,7 @@ mod_MSnSetExplorer_server <- function(id,
       formatStyle(
         colnames(df)[2:(1 + (ncol(df)-1)/2)],
         colnames(df)[((2 + (ncol(df)-1)/2)):ncol(df)],
-        backgroundColor = styleEqual(names(colors.def), unlist(colors.def)),
+        backgroundColor = styleEqual(names(colors), unlist(colors)),
         backgroundSize = '98% 48%',
         backgroundRepeat = 'no-repeat',
         backgroundPosition = 'center'

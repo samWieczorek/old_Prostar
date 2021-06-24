@@ -17,36 +17,35 @@ mod_LegendColoredExprs_ui <- function(id){
 
 
 
-mod_LegendColoredExprs_server <- function(id){
+mod_LegendColoredExprs_server <- function(id, obj, hide.white = TRUE){
   
   moduleServer(
     id,
     function(input, output, session) {
       ns <- session$ns
       
-      colors <- list('missing POV' = "lightblue",
-                     'missing MEC' = "orange",
-                     'recovered' = "lightgrey",
-                     'identified' = "white",
-                     'combined' = "red")
-                     
+                      
       output$legend <- renderUI({
+        mc <- metacell.def(GetTypeofData(obj()))
+        
         tagList(
-          lapply(1:length(colors), function(x){
-            tagList(
+          lapply(1:nrow(mc), function(x){
+            if (mc[x, 'color'] != 'white' || (mc[x, 'color'] == 'white' && !isTRUE(hide.white))) {
+              tagList(
                  tags$div(class="color-box",
                        style = paste0("display:inline-block; 
                                       vertical-align: middle;
                                       width:20px; height:20px;
                                       border:1px solid #000; 
                                       background-color: ", 
-                                      colors[[x]] , ";"),
+                                      mc[x, 'color'] , ";"),
                        ),
                  tags$p(style = paste0("display:inline-block; 
                                        vertical-align: middle;"),
-                        names(colors)[x]),
+                        mc[x, 'node']),
                  br()
                  )
+            }
       })
     )
   })

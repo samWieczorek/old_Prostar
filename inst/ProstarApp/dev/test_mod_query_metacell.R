@@ -37,47 +37,57 @@ getDataForExprs <- function(obj, digits=NULL){
 
 
 
-BuildColorStyles <- function(obj, colors.def){
-  
-  level <- obj@experimentData@other$typeOfData
-  list_POV_tags <- c('missing POV', 'imputed POV')
-  list_MEC_tags <- c('missing MEC', 'imputed MEC')
-  list_Identified_tags <- 'identified'
-  list_Recovered_tags <- 'recovered'
-  list_Combined_tags <- 'combined'
-  
+# BuildColorStyles <- function(obj, colors.def){
+#   
+#   level <- obj@experimentData@other$typeOfData
+#   list_missing_POV_tags <- c('missing POV', 'imputed POV')
+#   list_missing_MEC_tags <- c('missing MEC', 'imputed MEC')
+#   list_Identified_tags <- 'identified'
+#   list_Recovered_tags <- 'recovered'
+#   list_Combined_tags <- 'combined'
+#   
+#   styles <- list(tags = NULL,
+#                  colors = NULL)
+#   
+#   if (length(list_POV_tags) > 0){
+#     styles$tags <- c(styles$tags, list_POV_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$POV, length(list_POV_tags)))
+#   }
+#   
+#   if (length(list_MEC_tags) > 0){
+#     styles$tags <- c(styles$tags, list_MEC_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$MEC, length(list_MEC_tags)))
+#   }
+#   
+#   if (length(list_Identified_tags) > 0){
+#     styles$tags <- c(styles$tags, list_Identified_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$identified, length(list_Identified_tags)))
+#   }
+#   
+#   if (length(list_Recovered_tags )> 0){
+#     styles$tags <- c(styles$tags, list_Recovered_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$recovered, length(list_Recovered_tags)))
+#   }
+#   
+#   
+#   if (length(list_Combined_tags) > 0){
+#     styles$tags <- c(styles$tags, list_Combined_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$combined, length(list_Combined_tags)))
+#   }
+#   
+#   styles
+# }
+
+
+BuildColorStyles <- function(obj){
   styles <- list(tags = NULL,
                  colors = NULL)
-  
-  if (length(list_POV_tags) > 0){
-    styles$tags <- c(styles$tags, list_POV_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$POV, length(list_POV_tags)))
-  }
-  
-  if (length(list_MEC_tags) > 0){
-    styles$tags <- c(styles$tags, list_MEC_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$MEC, length(list_MEC_tags)))
-  }
-  
-  if (length(list_Identified_tags) > 0){
-    styles$tags <- c(styles$tags, list_Identified_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$identified, length(list_Identified_tags)))
-  }
-  
-  if (length(list_Recovered_tags )> 0){
-    styles$tags <- c(styles$tags, list_Recovered_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$recovered, length(list_Recovered_tags)))
-  }
-  
-  
-  if (length(list_Combined_tags) > 0){
-    styles$tags <- c(styles$tags, list_Combined_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$combined, length(list_Combined_tags)))
-  }
-  
-  styles
-}
+mc <- metacell.def(GetTypeofData(obj))
 
+styles$tags <- mc$node
+styles$colors <- mc$color
+styles
+}
 
 
 

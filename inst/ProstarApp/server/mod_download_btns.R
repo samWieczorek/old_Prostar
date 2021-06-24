@@ -20,11 +20,6 @@ mod_download_btns_server <- function(id, df.data, name, colors, df.tags) {
     id,
     function(input, output, session) {
 
-      
-      # observeEvent(df.data(), {
-      #   browser()
-      # })
-      
       output$download_as_csv_btn <- downloadHandler(
         filename = function() {
           paste(name(), "-", Sys.Date(), ".csv", sep="")

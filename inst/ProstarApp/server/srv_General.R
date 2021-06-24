@@ -35,44 +35,55 @@ GetCurrentDatasetName <- reactive({
 
 
 
-BuildColorStyles <- function(obj, colors.def){
+# BuildColorStyles <- function(obj, colors.def){
+# 
+#   level <- obj@experimentData@other$typeOfData
+#   list_POV_tags <- c('missing POV', 'imputed POV')
+#   list_MEC_tags <- c('missing MEC', 'imputed MEC')
+#   list_Identified_tags <- 'identified'
+#   list_Recovered_tags <- 'recovered'
+#   list_Combined_tags <- 'combined'
+#   
+#   styles <- list(tags = NULL,
+#                  colors = NULL)
+#   
+#   if (length(list_POV_tags) > 0){
+#     styles$tags <- c(styles$tags, list_POV_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$POV, length(list_POV_tags)))
+#   }
+#   
+#   if (length(list_MEC_tags) > 0){
+#     styles$tags <- c(styles$tags, list_MEC_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$MEC, length(list_MEC_tags)))
+#   }
+#   
+#   if (length(list_Identified_tags) > 0){
+#     styles$tags <- c(styles$tags, list_Identified_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$identified, length(list_Identified_tags)))
+#   }
+#   
+#   if (length(list_Recovered_tags )> 0){
+#     styles$tags <- c(styles$tags, list_Recovered_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$recovered, length(list_Recovered_tags)))
+#   }
+#   
+#   
+#   if (length(list_Combined_tags) > 0){
+#     styles$tags <- c(styles$tags, list_Combined_tags)
+#     styles$colors <- c(styles$colors, rep(colors.def$combined, length(list_Combined_tags)))
+#   }
+#   
+#   styles
+# }
 
-  level <- obj@experimentData@other$typeOfData
-  list_POV_tags <- c('missing POV', 'imputed POV')
-  list_MEC_tags <- c('missing MEC', 'imputed MEC')
-  list_Identified_tags <- 'identified'
-  list_Recovered_tags <- 'recovered'
-  list_Combined_tags <- 'combined'
-  
+
+BuildColorStyles <- function(obj){
   styles <- list(tags = NULL,
                  colors = NULL)
+  mc <- metacell.def(GetTypeofData(obj))
   
-  if (length(list_POV_tags) > 0){
-    styles$tags <- c(styles$tags, list_POV_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$POV, length(list_POV_tags)))
-  }
-  
-  if (length(list_MEC_tags) > 0){
-    styles$tags <- c(styles$tags, list_MEC_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$MEC, length(list_MEC_tags)))
-  }
-  
-  if (length(list_Identified_tags) > 0){
-    styles$tags <- c(styles$tags, list_Identified_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$identified, length(list_Identified_tags)))
-  }
-  
-  if (length(list_Recovered_tags )> 0){
-    styles$tags <- c(styles$tags, list_Recovered_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$recovered, length(list_Recovered_tags)))
-  }
-  
-  
-  if (length(list_Combined_tags) > 0){
-    styles$tags <- c(styles$tags, list_Combined_tags)
-    styles$colors <- c(styles$colors, rep(colors.def$combined, length(list_Combined_tags)))
-  }
-  
+  styles$tags <- mc$node
+  styles$colors <- mc$color
   styles
 }
 
@@ -831,11 +842,11 @@ ClearMemory <- function(){
   rv$current.navPage = NULL
   rv$current.comp = NULL
   rv$colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey')
-  rv$colorsTypeMV = list(MEC = orangeProstar, 
-                         POV = 'lightblue',
-                         identified = 'white',
-                         recovered = 'lightgrey',
-                         combined = 'red')
+  # rv$colorsTypeMV = list(MEC = orangeProstar,
+  #                        POV = 'lightblue',
+  #                        identified = 'white',
+  #                        recovered = 'lightgrey',
+  #                        combined = 'red')
   
   rv$legendTypeMV = list(MEC = 'Missing in Entire Condition (MEC)', 
                          POV = "Partially Observed Value (POV)",
@@ -1021,8 +1032,8 @@ rv <- reactiveValues(
   tableVersions = NULL,
   
   colorsVolcanoplot = list(In=orangeProstar, Out='lightgrey'),
-  colorsTypeMV = list(MEC=orangeProstar, POV='lightblue'),
-  # variable to keep memory of previous datasets before 
+  # colorsTypeMV = list(MEC=orangeProstar, POV='lightblue'),
+  # # variable to keep memory of previous datasets before 
   # transformation of the data
   dataset = list(),
   # Variable that contains the log for the current R session

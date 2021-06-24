@@ -534,13 +534,12 @@ mod_download_btns_server(id = 'VizualizeFilteredData_DL_btns',
                          }), 
                          name = reactive({'ViewFilteredData'}), 
                          colors = reactive({
-                           if (input$ChooseTabAfterFiltering == 'quantiData')
-                             list('missing POV' = "lightblue",
-                                  'missing MEC' = "orange",
-                                  'recovered' = "lightgrey",
-                                  'identified' = "white",
-                                  'combined' = "red")
-                           else NULL}),
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             mc <- metacell.def(GetTypeofData(rv$current.obj))
+                             as.list(setNames(mc$color, mc$node))
+                           }
+                           else NULL
+                           }),
                          df.tags = reactive({
                            if (input$ChooseTabAfterFiltering == 'quantiData'){
                              len <- ncol(GetDataFor_VizualizeFilteredData())
@@ -555,8 +554,8 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   req(GetDataFor_VizualizeFilteredData())
   dt <- NULL
   data <- GetDataFor_VizualizeFilteredData()
-  c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-  c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+  c.tags <- BuildColorStyles(rv$current.obj)$tags
+  c.colors <-  BuildColorStyles(rv$current.obj)$colors
   
 
   if(input$ChooseTabAfterFiltering =="quantiData"){
@@ -669,7 +668,8 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
 })
 
 
-mod_LegendColoredExprs_server(id = 'FilterColorLegend_DS')
+mod_LegendColoredExprs_server(id = 'FilterColorLegend_DS',
+                              obj = reactive({rv$current.obj}))
 
 
 output$legendForExprsData2 <- renderUI({

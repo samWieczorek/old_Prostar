@@ -289,8 +289,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
     data <-  GetDataFor_sharedPeptidesInfos()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable(data,
                         #colnames=NULL,
@@ -349,8 +349,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
     
     data <- GetDataFor_specificPeptidesInfos()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable( data, 
                          #colnames=NULL,
@@ -433,8 +433,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     borders_index <- GetBorderIndices()
     data <- GetExprsClickedProtein()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
    dt <- DT::datatable(data,
                         extensions = c('Scroller'),
