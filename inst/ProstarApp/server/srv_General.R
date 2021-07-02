@@ -536,7 +536,7 @@ resetModuleProcess <- function(moduleName){
           
           Normalization ={
             rv$widgets$normalization <- list(method = "None",
-                                             type = "None",
+                                             type = "overall",
                                              varReduction = FALSE,
                                              quantile = 0.15,
                                              spanLOESS = 0.7)
@@ -1077,7 +1077,7 @@ rv <- reactiveValues(
                      
     ),
     normalization=list(method = "None",
-                       type = "None",
+                       type = "overall",
                        varReduction = FALSE,
                        quantile = 0.15,
                        spanLOESS = 0.7),

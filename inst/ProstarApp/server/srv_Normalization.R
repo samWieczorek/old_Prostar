@@ -27,7 +27,7 @@ resetModuleNormalization <- reactive({
   resetModuleProcess("Normalization")
   
   rv$widgets$normalization$method <- "None"
-  rv$widgets$normalization$type <- "None"
+  rv$widgets$normalization$type <- "overall"
   rv$widgets$normalization$varReduction <- FALSE
   rv$widgets$normalization$quantile <- 0.15
   rv$widgets$normalization$spanLOESS <- 0.7
@@ -80,19 +80,19 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
 
 
 
-observeEvent(input$normalization.method,ignoreInit=TRUE,{
+observeEvent(input$normalization.method,{
   rv$widgets$normalization$method <- input$normalization.method
 })
-observeEvent(input$normalization.type,ignoreInit=TRUE,{
+observeEvent(input$normalization.type,{
   rv$widgets$normalization$type <- input$normalization.type
 })
-observeEvent(input$normalization.variance.reduction,ignoreInit=TRUE,{
+observeEvent(input$normalization.variance.reduction,{
   rv$widgets$normalization$varReduction <- input$normalization.variance.reduction
 })
-observeEvent(input$normalization.quantile,ignoreInit=TRUE,{
+observeEvent(input$normalization.quantile,{
   rv$widgets$normalization$quantile <- input$normalization.quantile
 })
-observeEvent(input$spanLOESS,ignoreInit=TRUE,{
+observeEvent(input$spanLOESS, {
   rv$widgets$normalization$spanLOESS <- input$spanLOESS
 })
 
@@ -123,7 +123,7 @@ output$screenNormalization1 <- renderUI({
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
           hidden(selectInput("normalization.type", "Normalization type",  
-                             choices = setNames( c("overall", "within conditions"),c("overall", "within conditions")), 
+                             choices = setNames( nm = c("overall", "within conditions")), 
                              selected = rv$widgets$normalization$type,
                              width='150px'))
         ),
