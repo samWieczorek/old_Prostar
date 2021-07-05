@@ -149,15 +149,31 @@ output$downloadMSnSet <- downloadHandler(
     
   },
   content = function(file) {
-     dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
-    colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
-    names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
+    withProgress(message = 'Export process', detail = 'Initialisation', value = 0, {
+      incProgress(0.3, detail = 'Preparing dataset')
+      dataToExport <- rv$dataset[[input$chooseDatasetToExportToMSnset]]
+      colnames(fData(dataToExport)) <- gsub(".", "_", colnames(fData(dataToExport)), fixed=TRUE)
+      names(dataToExport@experimentData@other) <- gsub(".", "_", names(dataToExport@experimentData@other), fixed=TRUE)
     
-    dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar", "Version"]
-    dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR", "Version"]
-    dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
+      incProgress(0.5, detail = 'Recording versions')
+      dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar", "Version"]
+      dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR", "Version"]
+      dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
+    
+      if (rv$typeOfDataset == "peptide"){
+        ## Export adjacency matrices
+        incProgress(0.7, detail = 'Exporting adjacency matrices')
+        dataToExport@experimentData@other$matAdj <- ComputeAdjacencyMatrices()
+    
+        ## Export CC
+        incProgress(0.7, detail = 'Exporting connected components')
+        dataToExport@experimentData@other$CC <- ComputeConnectedComposants()
+      }
+    
+    
     
     if (input$fileformatExport == gFileFormatExport$excel) {
+      incProgress(0.9, detail = 'Save dataset as Excel file')
       fname <- paste(input$nameExport, gFileExtension$excel,  sep="")
       writeMSnsetToExcel(dataToExport, input$nameExport)
       file.copy(fname, file)
@@ -165,6 +181,7 @@ output$downloadMSnSet <- downloadHandler(
     }
     
     else if  (input$fileformatExport == gFileFormatExport$msnset) {
+      incProgress(0.9, detail = 'Save dataset as MSnSet file')
       fname <- paste(input$nameExport,gFileExtension$msnset,  sep="")
       saveRDS(dataToExport, file=fname)
       file.copy(fname, file)
@@ -172,11 +189,13 @@ output$downloadMSnSet <- downloadHandler(
     }
     
     else if  (input$fileformatExport == gFileFormatExport$zip) {
+      incProgress(0.9, detail = 'Save dataset as csv file')
       fname <- paste(input$nameExport,gFileExtension$zip,  sep="")
       writeMSnsetToCSV(dataToExport,fname)
       file.copy(fname, file)
       file.remove(fname)
     }
+    })
   }
 )
 

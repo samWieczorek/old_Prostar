@@ -36,7 +36,7 @@ resetModuleNormalization <- reactive({
   rv.norm$sync <- FALSE
   
   rv$current.obj <- rv$dataset[[input$datasets]] 
-  rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+  rvModProcess$moduleNormalizationDone =  rep(FALSE, 2)
   
 })
 
@@ -302,7 +302,7 @@ observeEvent(input$perform.normalization,{
   rv$widgets$normalization$method
   rv$dataset[[input$datasets]]
   # isolate({
-  
+
   switch(rv$widgets$normalization$method, 
          G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
          GlobalQuantileAlignment = {
@@ -398,98 +398,6 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 
 #######################
 
-# viewComparisonNorm2 <- reactive({
-#   rv$PlotParams$paletteForConditions
-#   leg <- NULL
-#   grp <- NULL
-#   
-#   labelsNorm <- NULL
-#   labelsToShowNorm <- NULL
-#   gToColorNorm <- NULL
-#   
-#   labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-#   
-#   
-#   
-#   if (is.null(rv$whichGroup2Color) 
-#       || (rv$whichGroup2Color == "Condition")){
-#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-#   }else {
-#     labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-#                         Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-#                         Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-#                         Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-#                         sep= "_")
-#   }
-#   
-#   
-#   if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
-#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-#     obj2 <- rv$dataset[[input$datasets]]
-#   }
-#   else {
-#     obj1 <-rv$dataset[[input$datasets]]
-#     obj2 <- rv$current.obj
-#     
-#   }
-#   
-#   wrapper.compareNormalizationD(obj1, obj2,
-#                                 labelsNorm,
-#                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteForConditions)
-#   
-# })
-# 
-
-
-# viewComparisonNorm <- reactive({
-#   rv$PlotParams$paletteForConditions
-#   req(rv$current.obj)
-#   
-#   leg <- NULL
-#   grp <- NULL
-#   
-#   labelsNorm <- NULL
-#   labelsToShowNorm <- NULL
-#   gToColorNorm <- NULL
-#   if (is.null(input$lab2Show)) { 
-#     labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-#   }
-#   else { labelsToShowNorm <- input$lab2Show}
-#   
-#   if (is.null(rv$whichGroup2Color)){
-#     gToColorNorm <- "Condition"
-#   }else{gToColorNorm <- rv$whichGroup2Color}
-#   
-#   
-#   if (is.null(rv$whichGroup2Color) 
-#       || (rv$whichGroup2Color == "Condition")){
-#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-#   }else {
-#     labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
-#     names(labelsNorm)<- NULL
-#     labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
-#   }
-#   
-#   
-#   dname <- paste0("Normalized.", rv$typeOfDataset)
-#   if (input$datasets == dname){
-#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-#     obj2 <- rv$dataset[[input$datasets]]
-#   }
-#   else {
-#     obj1 <-rv$dataset[[input$datasets]]
-#     obj2 <- rv$current.obj
-#     
-#   }
-#   
-#   wrapper.compareNormalizationD(obj1, obj2,
-#                                 labelsNorm,
-#                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteForConditions)
-#   
-# })
-
 
 output$viewComparisonNorm_HC <- renderHighchart({
   rv$PlotParams$paletteForConditions
@@ -501,7 +409,7 @@ output$viewComparisonNorm_HC <- renderHighchart({
     obj2 <- rv$dataset[[input$datasets]]
   }
   else {
-    obj1 <-rv$dataset[[input$datasets]]
+    obj1 <- rv$dataset[[input$datasets]]
     obj2 <- rv$current.obj
     
   }
@@ -518,19 +426,3 @@ output$viewComparisonNorm_HC <- renderHighchart({
   )
 })
 
-#######################
-# output$viewComparisonNorm_DS<- renderImage({
-#   
-#   #req(rv$PCA_axes)
-#   # req(rv$res.pca)
-#   
-#   outfile <- tempfile(fileext='.png')
-#   # Generate a png
-#   png(outfile)
-#   viewComparisonNorm()
-#   dev.off()
-#   
-#   # Return a list
-#   list(src = outfile,
-#        alt = "This is alternate text")
-# }, deleteFile = FALSE)

@@ -5,8 +5,6 @@
 
 
 observeEvent(rv$current.obj,{  
-  print("## observeEvent(rv$current.obj ##")
-  
   BuildNavbarPage()  
   })
 
@@ -195,9 +193,9 @@ rv$current.obj
      if (rv$typeOfDataset == "peptide"){
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
-                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,moduleCCUI('CC_Multi_Any')
-                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            , source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            , mod_cc_ui('CC_Multi_Any')
+                            , source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
                  ),
                  target = "Help",
                  position="before")
@@ -216,10 +214,10 @@ rv$current.obj
      if (rv$typeOfDataset == "peptide"){
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
-                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,moduleCCUI('CC_Multi_Any')
-                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
-                            ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                            , source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            , mod_cc_ui('CC_Multi_Any')
+                            , source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            , source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
                  ),
                  target = "Help",
                  position="before")

@@ -88,8 +88,7 @@ output$infoAboutDemoDataset <- renderUI({
 
 observeEvent(input$loadDemoDataset,{
 
-  req(input$demoDataset)
-  if (input$demoDataset == "None"){return(NULL)}
+  req(input$demoDataset != "None")
   
   isolate({
     ntotal <- 4

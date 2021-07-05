@@ -184,7 +184,10 @@ shinyServer(function(input, output, session) {
            
            graphTab = 
              {
-               callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
+               mod_cc_server("CC_Multi_Any", 
+                             obj = reactive({rv$current.obj}),
+                             cc = reactive({GetCC(rv$current.obj)$allPep})
+                             )
                
              },
            

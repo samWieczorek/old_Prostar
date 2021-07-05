@@ -92,7 +92,7 @@ mod_filtering_example_server <- function(id, obj, indices, params, txt) {
     c.colors <-  BuildColorStyles(obj())$colors
     range.invisible <- ((ncol(df)/2)+1):ncol(df)
     
-    #browser()
+
     if (!is.null(indices()) && input$run_btn == 'simulate filtered dataset'){
       if (params()$KeepRemove == "keep")
         index2darken <- (1:nrow(obj()))[-indices()]

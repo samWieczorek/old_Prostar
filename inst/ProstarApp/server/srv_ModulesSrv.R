@@ -132,7 +132,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     #
      if (DAPAR::GetTypeofData(rv$current.obj) == 'protein'){
-       if (is.null(rv$matAdj)){
+       if (is.null(GetMatAdj(rv$current.obj))){
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), 
                           open = "Protein",
                           multiple = TRUE,
@@ -276,8 +276,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    Xspec <- rv$matAdj$matWithUniquePeptides
-    Xshared <- rv$matAdj$matWithSharedPeptides
+    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
+    Xshared <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     specificPeptidesIndices <- which(Xspec[,i]==1)
@@ -321,9 +321,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   GetDataFor_specificPeptidesInfos <- reactive({
-    #req(rv$current.obj)
     req(comp())
-    #req(rv$matAdj)
     
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
@@ -337,7 +335,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     
-    Xspec <- rv$matAdj$matWithUniquePeptides
+    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     peptidesIndices <- which(Xspec[,i]==1)

@@ -747,7 +747,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         else if(input$typeOfData == 'peptide') 
           protId <- input$convert_proteinId
         
-        #browser()
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 

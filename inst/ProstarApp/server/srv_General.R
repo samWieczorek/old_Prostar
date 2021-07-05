@@ -254,9 +254,6 @@ session$onSessionEnded(function() {
   unlink(paste(tempdir(), "*log", sep="/"))
   unlink("www/*pdf")
   
-  #unlink( normalizePath(paste(tempdir(), 'report.Rmd',sep="/")))
-  #do.call(file.remove, list(list.files(tempdir(), full.names = TRUE)))
-  #rm(rv$current.obj, rv$matAdj) 
   gc()
   cat("Session stopped. Temporary files cleaned up\n")
   
@@ -294,8 +291,7 @@ ClearUI <- reactive({
 
 
 ComputeAdjacencyMatrices <- reactive({
-  rv$matAdj <- NULL
-
+  
   withProgress(message = 'Computing adjacency matrices',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
     matSharedPeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, FALSE)
@@ -304,30 +300,33 @@ ComputeAdjacencyMatrices <- reactive({
     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
   }, style="old")
   
-
-  rv$matAdj <- list(matWithSharedPeptides=matSharedPeptides, matWithUniquePeptides=matUniquePeptides)
-  rv$matAdj
-})
+  rv$current.obj <- SetMatAdj(rv$current.obj,
+            list(matWithSharedPeptides = matSharedPeptides, 
+                 matWithUniquePeptides = matUniquePeptides)
+  )
+  
+}) %>% bindCache(rv$current.obj, rv$proteinId )
 
 ComputeConnectedComposants <- reactive({
-  req(rv$matAdj)
+  req(GetMatAdj(rv$current.obj))
   require(Matrix)
-  print(dim(rv$matAdj$matWithSharedPeptides))
+
   withProgress(message = 'Computing connected components',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
-    ll1 <- get.pep.prot.cc(rv$matAdj$matWithSharedPeptides)
+    ll1 <- get.pep.prot.cc(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
     
     incProgress(2/2, detail = 'with specific and shared peptides')
-    ll2 <- DAPAR::get.pep.prot.cc(rv$matAdj$matWithUniquePeptides)
+    ll2 <- DAPAR::get.pep.prot.cc(GetMatAdj(rv$current.obj)$matWithUniquePeptides)
   })
   
- 
-  rv$CC <- list(allPep = ll1,
-                onlyUniquePep = ll2)
   print("end ComputeConnectedComponents")
   
-  rv$CC
-})
+  rv$current.obj <- SetCC(rv$current.obj,
+                          list(allPep = ll1,
+                               onlyUniquePep = ll2)
+                          )
+}) %>%  bindCache(GetMatAdj(rv$current.obj))
+
 
 
 ###-------------------------------------
@@ -356,13 +355,10 @@ Compute_PCA_nbDimensions <- reactive({
 
 ######################################
 loadObjectInMemoryFromConverter <- function(){
-  # req(rv$current.obj)
   rv$proteinId <- rv$current.obj@experimentData@other$proteinId
-  if (is.null(rv$current.obj@experimentData@other$typeOfData)) {
-    rv$typeOfDataset <- ""
-  } else {
-    rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
-  }
+  rv$typeOfDataset <- ""
+  if (!is.null( GetTypeofData(rv$current.obj)))
+    rv$typeOfDataset <- GetTypeofData(rv$current.obj)
   
   
   withProgress(message = 'Loading memory',detail = '', value = 0, {
@@ -382,13 +378,21 @@ loadObjectInMemoryFromConverter <- function(){
     if (is.null(rv$current.obj@experimentData@other$RawPValues ))
       rv$current.obj@experimentData@other$RawPValues <- FALSE
     rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
-   # print(paste0('rv$PlotParams$paletteForConditions = ', paste0(rv$PlotParams$paletteForConditions, collapse=' ')))
-    if (rv$typeOfDataset == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
-      print("Start computing adjacency matrix")
-      incProgress(0.6, detail = 'Compute Adjacency Matrices')
-      ComputeAdjacencyMatrices()
-      incProgress(0.7, detail = 'Compute Connected Components')
-      ComputeConnectedComposants()
+   
+    if (GetTypeofData(rv$current.obj) == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
+      
+      if (is.null(GetMatAdj(rv$current.obj))){
+        print("Start computing adjacency matrix")
+        incProgress(0.6, detail = 'Compute Adjacency Matrices')
+        ComputeAdjacencyMatrices()
+      }
+      
+      
+      if (is.null(GetCC(rv$current.obj))){
+        print("Start computing Connected Components")
+        incProgress(0.7, detail = 'Compute Connected Components')
+        ComputeConnectedComposants()
+      }
     }
     
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
@@ -405,13 +409,18 @@ loadObjectInMemoryFromConverter <- function(){
     if (is.null(rv$current.obj@experimentData@other$Params))
       rv$current.obj <- saveParameters(rv$current.obj, name,"-")
     else {
-      names(rv$current.obj@experimentData@other$Params) <- paste0('prev.',names(rv$current.obj@experimentData@other$Params))
+      names(rv$current.obj@experimentData@other$Params) <- 
+        paste0('prev.',
+               names(rv$current.obj@experimentData@other$Params)
+               )
     }
     
     UpdateDatasetWidget(rv$current.obj, name)
     incProgress(0.9, detail = 'Build UI') 
     ClearNavbarPage()
     BuildNavbarPage()
+    
+
   })
   
   shinyjs::disable("file1")
@@ -895,8 +904,6 @@ ClearMemory <- function(){
   rv$typeOfDataset = ""
   rv$proteinId = NULL
   rv$commandLog =  "" 
-  rv$matAdj = NULL
-  rv$CC = NULL
   rv$resAnaDiff = list(logFC=NULL, P_Value=NULL, condition1 = NULL, condition2 = NULL)
   rv$res_AllPairwiseComparisons = data.frame()
   rv$indexNA = NULL

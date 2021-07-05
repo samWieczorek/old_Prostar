@@ -455,7 +455,6 @@ getDataForMetacellFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.metacell
   
- # browser()
   table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),
                                digits = rv$settings_nDigits))
   table <- cbind(id = Biobase::fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
@@ -648,12 +647,12 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
         
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(3/nSteps, detail = 'Computing adjacency matrices')
+          incProgress(3/nSteps, detail = 'Computing new adjacency matrices')
           ComputeAdjacencyMatrices()
         }
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(4/nSteps, detail = 'Computing connected components')
+          incProgress(4/nSteps, detail = 'Computing new connected components')
           ComputeConnectedComposants()
         }
       })
