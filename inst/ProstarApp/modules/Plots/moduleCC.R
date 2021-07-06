@@ -231,7 +231,7 @@ output$visNet_CC <- renderVisNetwork({
     rvCC$selectedNeighbors
     
     nodes <- rvCC$selectedCCgraph$nodes
-    browser()
+
     if(!is.null(input$node_selected) && input$node_selected == 1){ 
       sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
       specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))

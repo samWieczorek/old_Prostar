@@ -300,12 +300,12 @@ ComputeAdjacencyMatrices <- reactive({
     matUniquePeptides <- BuildAdjacencyMatrix(rv$current.obj, rv$proteinId, TRUE)
   }, style="old")
   
-  rv$current.obj <- SetMatAdj(rv$current.obj,
-            list(matWithSharedPeptides = matSharedPeptides, 
-                 matWithUniquePeptides = matUniquePeptides)
-  )
+  list(matWithSharedPeptides = matSharedPeptides, 
+       matWithUniquePeptides = matUniquePeptides)
   
 }) %>% bindCache(rv$current.obj, rv$proteinId )
+
+
 
 ComputeConnectedComposants <- reactive({
   req(GetMatAdj(rv$current.obj))
@@ -321,10 +321,9 @@ ComputeConnectedComposants <- reactive({
   
   print("end ComputeConnectedComponents")
   
-  rv$current.obj <- SetCC(rv$current.obj,
-                          list(allPep = ll1,
-                               onlyUniquePep = ll2)
-                          )
+  list(allPep = ll1,
+       onlyUniquePep = ll2)
+
 }) %>%  bindCache(GetMatAdj(rv$current.obj))
 
 

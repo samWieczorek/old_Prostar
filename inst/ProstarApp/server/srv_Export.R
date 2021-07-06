@@ -161,13 +161,17 @@ output$downloadMSnSet <- downloadHandler(
       dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
     
       if (rv$typeOfDataset == "peptide"){
-        ## Export adjacency matrices
-        incProgress(0.7, detail = 'Exporting adjacency matrices')
-        dataToExport@experimentData@other$matAdj <- ComputeAdjacencyMatrices()
+        if (is.null(GetMatAdj(dataToExport))){
+          ## Export adjacency matrices
+          incProgress(0.7, detail = 'Exporting adjacency matrices')
+          dataToExport <- SetMatAdj(dataToExport, ComputeAdjacencyMatrices())
+        }
     
-        ## Export CC
+        if (is.null(GetCC(dataToExport))){
+          ## Export CC
         incProgress(0.7, detail = 'Exporting connected components')
-        dataToExport@experimentData@other$CC <- ComputeConnectedComposants()
+        dataToExport <- SetCC( dataToExport, ComputeConnectedComposants())
+        }
       }
     
     

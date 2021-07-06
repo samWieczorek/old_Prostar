@@ -61,8 +61,8 @@ observeEvent(input$AggregationConsider,ignoreInit = TRUE,{
 
 observeEvent(req(input$proteinId),{
   rv$proteinId <- input$proteinId
-  ComputeAdjacencyMatrices()
-  ComputeConnectedComposants()
+  rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
+  rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
   rv$widgets$aggregation$proteinId <- input$proteinId
 })
 

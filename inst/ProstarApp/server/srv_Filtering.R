@@ -648,12 +648,12 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
           incProgress(3/nSteps, detail = 'Computing new adjacency matrices')
-          ComputeAdjacencyMatrices()
+          rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
         }
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
           incProgress(4/nSteps, detail = 'Computing new connected components')
-          ComputeConnectedComposants()
+          rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
         }
       })
 
