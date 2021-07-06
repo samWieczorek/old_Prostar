@@ -731,7 +731,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         metadata <- hot_to_r(input$hot)
         logData <- (input$checkDataLogged == "no")
         
-        
+
         indexForMetacell <- NULL
         if (!is.null(colNamesForMetacell) && (length(grep("None", colNamesForMetacell))==0)  && (sum(is.na(colNamesForMetacell)) == 0)){
           for (i in 1:length(tmp.choose_quantitative_columns)){

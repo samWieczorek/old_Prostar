@@ -379,18 +379,18 @@ loadObjectInMemoryFromConverter <- function(){
     rv$PlotParams$paletteForConditions <- GetPaletteForConditions()
    
     if (GetTypeofData(rv$current.obj) == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
-      
+     # browser()
       if (is.null(GetMatAdj(rv$current.obj))){
         print("Start computing adjacency matrix")
         incProgress(0.6, detail = 'Compute Adjacency Matrices')
-        ComputeAdjacencyMatrices()
+        rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
       }
       
       
       if (is.null(GetCC(rv$current.obj))){
         print("Start computing Connected Components")
         incProgress(0.7, detail = 'Compute Connected Components')
-        ComputeConnectedComposants()
+        rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
       }
     }
     
