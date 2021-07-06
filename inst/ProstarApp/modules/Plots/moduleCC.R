@@ -225,26 +225,29 @@ output$visNet_CC <- renderVisNetwork({
   
   
  
- observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
+ observeEvent(c(rvCC$selectedNeighbors, input$node_selected, rvCC$selectedCCgraph), {
     
-    local <-   cc()[Get_CC_Multi2Any()]
+    local <- cc()[Get_CC_Multi2Any()]
     rvCC$selectedNeighbors
     
     nodes <- rvCC$selectedCCgraph$nodes
-    
+    browser()
     if(!is.null(input$node_selected) && input$node_selected == 1){ 
       sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
       specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
-      protIndices <- intersect(rvCC$selectedNeighbors,which(nodes[,'group'] == "protein"))
+      protIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "protein"))
     
     } else {
-      sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
-      specPepIndices <- which(nodes[,'group'] == "spec.peptide")
-      protIndices <- which(nodes[,'group'] == "protein")
+      sharedPepIndices <- which(nodes[ ,'group'] == "shared.peptide")
+      specPepIndices <- which(nodes[ ,'group'] == "spec.peptide")
+      protIndices <- which(nodes[ ,'group'] == "protein")
     }
-    rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
-    rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
-    rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
+    #rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
+   # rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
+   # rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
+    rvCC$detailedselectedNode$sharedPepLabels <- nodes[sharedPepIndices, 'label']
+    rvCC$detailedselectedNode$specPepLabels <-  nodes[specPepIndices, 'label']
+    rvCC$detailedselectedNode$protLabels <-  nodes[protIndices, 'label']
     
 })
 
@@ -252,7 +255,7 @@ output$visNet_CC <- renderVisNetwork({
 output$CCDetailed <- renderUI({
    req(rvCC$detailedselectedNode)
    req(rvCC$selectedCC)
-   
+  # browser()
    tagList(
       h4("Proteins"),
       dataTableOutput(ns('CCDetailedProt')),
@@ -339,15 +342,16 @@ output$CCDetailed <- renderUI({
   
   
   #####-----------
-  output$CCDetailedSpecPep <- renderDataTable(server=TRUE,{
+  output$CCDetailedSpecPep <- renderDataTable(server=TRUE, {
     rvCC$detailedselectedNode
     input$pepInfo
     req(rvCC$detailedselectedNode$specPepLabels)
-    
+
     ind <- 1:ncol(obj())
     data <- getDataForExprs(obj(), rv$settings_nDigits)
     pepLine <-  rvCC$detailedselectedNode$specPepLabels
-    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    indices <- unlist(lapply(pepLine, 
+                             function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
@@ -510,7 +514,8 @@ output$CCDetailed <- renderUI({
     line <- input$OneMultiDT_rows_selected
      ind <- 1:ncol(obj())
     data <- getDataForExprs(obj(), rv$settings_nDigits)
-    pepLine <- as.numeric(unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=",")))
+    #pepLine <- as.numeric(unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=",")))
+    pepLine <- unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=","))
     
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     
@@ -600,10 +605,11 @@ output$CCDetailed <- renderUI({
     req(input$OneOneDT_rows_selected)
     input$pepInfo
     line <- input$OneOneDT_rows_selected
-    
     ind <- 1:ncol(obj())
     data <- getDataForExprs(obj(), rv$settings_nDigits)
-    pepLine <- as.numeric(BuildOne2OneTab()[line,2])
+    #pepLine <- as.numeric(BuildOne2OneTab()[line, 2])
+    pepLine <- BuildOne2OneTab()[line, 2]
+    
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     if(!is.null(input$pepInfo))
