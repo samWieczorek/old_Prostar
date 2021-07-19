@@ -688,10 +688,14 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
 
+  browser()
   colNamesForMetacell <- NULL
   if (isTRUE(input$selectIdent)) {
     colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
-    if (length(which(colNamesForMetacell == "None")) > 0 ){ return (NULL)   }
+    if (length(which(colNamesForMetacell == "None")) > 0 )
+      return (NULL)
+    if (!is.null(rv$newOrder))
+      colNamesForMetacell <- colNamesForMetacell[rv$newOrder]
   } 
   
   isolate({
@@ -734,9 +738,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
 
         indexForMetacell <- NULL
         if (!is.null(colNamesForMetacell) && (length(grep("None", colNamesForMetacell))==0)  && (sum(is.na(colNamesForMetacell)) == 0)){
-          for (i in 1:length(tmp.choose_quantitative_columns)){
-            indexForMetacell <- c(indexForMetacell, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
-          }
+          indexForMetacell <-  match(colNamesForMetacell, colnames(rv$tab1))
         }
         
         options(digits=15)

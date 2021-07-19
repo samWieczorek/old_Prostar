@@ -147,17 +147,20 @@ mod_query_metacell_server <- function(id,
                                 selected = rv.widgets$val_vs_percent
                    )
             ),
-            column(4,
+            column(8,
                    selectInput(ns("choose_metacellFilter_operator"),
                                "Choose operator",
                                choices = operator(),
                                selected = rv.widgets$metacellFilter_operator,
-                               width='150px')
-            ),
-            column(4,
+                               width='100px'),
                    uiOutput(ns('choose_value_ui')),
                    uiOutput(ns('choose_percentage_ui'))
+                   
             )
+            # column(5,
+            #        uiOutput(ns('choose_value_ui')),
+            #        uiOutput(ns('choose_percentage_ui'))
+            # )
           )
         )
         
@@ -199,7 +202,7 @@ mod_query_metacell_server <- function(id,
                        max = 100,
                         step = 1,
                        value = rv.widgets$metacell_percent_th,
-                       width='150px')
+                       width='250px')
         )
       })
       
