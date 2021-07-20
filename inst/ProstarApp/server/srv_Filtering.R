@@ -49,7 +49,19 @@ resetModuleFiltering <- reactive({
   #rv$deleted.byMSMSLines <- NULL
   rv$deleted.numeric <- NULL
   
-  rv$current.obj <- rv$dataset[[input$datasets]]
+  # Get back to previous dataset
+  if (length(grep("Filtered", names(rv$dataset))) > 0){
+    i <- grep("Filtered", names(rv$dataset))
+    rv$dataset <- rv$dataset[1:(i-1)]
+    updateSelectInput(session, 
+                      'datasets', 
+                      choices = names(rv$dataset),
+                      selected = names(rv$dataset)[length(names(rv$dataset))]
+    )
+  }
+  
+  rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  
   rvModProcess$moduleFilteringDone = rep(FALSE, length(rvModProcess$moduleFiltering$stepsNames))
   
 })

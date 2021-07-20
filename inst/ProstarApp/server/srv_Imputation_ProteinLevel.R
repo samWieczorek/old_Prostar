@@ -49,8 +49,19 @@ resetModuleProtImputation <- reactive({
   rv$widgets$proteinImput$MEC_detQuant_factor <-  1
   rv$widgets$proteinImput$MEC_fixedValue <- 0
   
+  # Get back to previous dataset
+  if (length(grep("Imputed", names(rv$dataset))) > 0){
+    i <- grep("Imputed", names(rv$dataset))
+    rv$dataset <- rv$dataset[1:(i-1)]
+    updateSelectInput(session, 
+                      'datasets', 
+                      choices = names(rv$dataset),
+                      selected = names(rv$dataset)[length(names(rv$dataset))]
+    )
+  }
   
-  rv$current.obj <- rv$dataset[[input$datasets]]
+  rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  
   rv$imputePlotsSteps[["step0"]] <- rv$current.obj 
   rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   

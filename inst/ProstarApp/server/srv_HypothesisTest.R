@@ -20,7 +20,20 @@ resetModuleHypothesisTest <- reactive({
   rv$res_AllPairwiseComparisons <- NULL
   rv$tempplot$logFCDistr <- NULL
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
-  rv$current.obj <- rv$dataset[[input$datasets]]
+  
+  # Get back to previous dataset
+  if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
+      i <- grep("HypothesisTest.", names(rv$dataset))
+      rv$dataset <- rv$dataset[1:(i-1)]
+      updateSelectInput(session, 
+                        'datasets', 
+                        choices = names(rv$dataset),
+                        selected = names(rv$dataset)[length(names(rv$dataset))]
+      )
+      
+    }
+    
+    rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
 })
 
 
@@ -114,7 +127,11 @@ output$screenHypoTest2 <- renderUI({
 
 
 
-
+observe({
+  if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
+    rvModProcess$moduleHypothesisTestDone[1:2] <- TRUE
+  }
+})
 
 output$correspondingRatio <- renderUI({
   
@@ -140,13 +157,19 @@ observeEvent(rv$widgets$hypothesisTest$method,{
 
 
 output$FoldChangePlot <- renderHighchart({
-  req(ComputeComparisons()$logFC)
-  req(rv$PlotParams$paletteForConditions)
-  req(rv$widgets$hypothesisTest$th_logFC)
-  if (length(ComputeComparisons()$logFC)==0){return(NULL)}
+  #req(ComputeComparisons()$logFC)
+  #req(rv$widgets$hypothesisTest$th_logFC)
+  name <- rv$current.obj@experimentData@other$Params$HypothesisTest.protein$HypothesisTest$AllPairwiseCompNames$logFC
+  if (length(ComputeComparisons()$logFC)==0 && length(as.data.frame(Biobase::fData(rv$current.obj)[,name])) ==0)
+  return(NULL)
+  
   withProgress(message = 'Computing plot...',detail = '', value = 0.5, {
-  rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,
-                                                 as.numeric(rv$widgets$hypothesisTest$th_logFC))
+  if (length(as.data.frame(Biobase::fData(rv$current.obj)[,name])) > 0)
+    rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(as.data.frame(Biobase::fData(rv$current.obj)[,name]),
+                                                   rv$current.obj@experimentData@other$Params$HypothesisTest.protein$HypothesisTest$th_logFC)
+  else if (length(ComputeComparisons()$logFC) > 0)
+    rv$tempplot$logFCDistr <- hc_logFC_DensityPlot(ComputeComparisons()$logFC,
+                                                   as.numeric(rv$widgets$hypothesisTest$th_logFC))
  # rv$tempplot$logFCDistr
   
   })
@@ -184,8 +207,8 @@ ComputeComparisons <- reactive({
            },
            ttests={
              rv$res_AllPairwiseComparisons <- DAPAR::compute_t_tests(rv$current.obj, 
-                                                                      contrast=rv$widgets$hypothesisTest$design,
-                                                                      type=rv$widgets$hypothesisTest$ttest_options)
+                                                                      contrast = rv$widgets$hypothesisTest$design,
+                                                                      type = rv$widgets$hypothesisTest$ttest_options)
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
     
@@ -205,17 +228,22 @@ ComputeComparisons <- reactive({
 #
 ########################################################################
 observeEvent(input$ValidTest,{ 
-  #req(rv$res_AllPairwiseComparisons)
+  req(rv$res_AllPairwiseComparisons)
   
-#isolate({
-  rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj, allComp = rv$res_AllPairwiseComparisons)
+
+  rv$current.obj <- DAPAR::diffAnaSave(obj = rv$current.obj,
+                                       allComp = rv$res_AllPairwiseComparisons
+                                       )
   
   name <- paste("HypothesisTest.", rv$typeOfDataset, sep="")
-  rv$current.obj <- saveParameters(rv$current.obj, name,"HypothesisTest", build_ParamsList_HypothesisTest())
+  rv$current.obj <- saveParameters(rv$current.obj, 
+                                   name,
+                                   "HypothesisTest", 
+                                   build_ParamsList_HypothesisTest()
+                                   )
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)
 
-#})
   
 })

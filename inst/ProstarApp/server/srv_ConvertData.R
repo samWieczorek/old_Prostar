@@ -688,7 +688,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
 
-  browser()
+  #browser()
   colNamesForMetacell <- NULL
   if (isTRUE(input$selectIdent)) {
     colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))

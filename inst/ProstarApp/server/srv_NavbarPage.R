@@ -40,40 +40,40 @@ ClearCurrentNavPage <- function(page){
   switch(page,
          FilteringTab = {
            resetModuleProcess("Filtering")
-           rvModProcess$moduleFilteringForceReset <-  1 + rvModProcess$moduleFilteringForceReset  
+           rvModProcess$moduleFilteringForceReset <- rvModProcess$moduleFilteringForceReset  
          },
          NormalizationTab = {
            resetModuleProcess("Normalization")
-           rvModProcess$moduleNormalizationForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
+           rvModProcess$moduleNormalizationForceReset <-   rvModProcess$moduleNormalizationForceReset  
          },
          imputationProteinLevelTabs = {
            resetModuleProcess("ProtImputation")
-           rvModProcess$moduleProtImputationForceReset <-  1 + rvModProcess$moduleProtImputationForceReset  
+           rvModProcess$moduleProtImputationForceReset <-  rvModProcess$moduleProtImputationForceReset  
          },
          imputationPeptideLevelTabs = {
            resetModuleProcess("PepImputation")
-           rvModProcess$modulePepImputationForceReset <-  1 + rvModProcess$modulePepImputationForceReset  
+           rvModProcess$modulePepImputationForceReset <-  rvModProcess$modulePepImputationForceReset  
          },
          testTab = {
            resetModuleProcess("HypothesisTest")
-           rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  
+           rvModProcess$moduleHypothesisTestForceReset <-  rvModProcess$moduleHypothesisTestForceReset  
          },
          AggregationTab = {
            resetModuleProcess("Aggregation")
-           rvModProcess$moduleAggregationForceReset <-  1 + rvModProcess$moduleAggregationForceReset  
+           rvModProcess$moduleAggregationForceReset <- rvModProcess$moduleAggregationForceReset  
          },
          diffAnalysisTab = {
            resetModuleProcess("AnaDiff")
-           rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset
+           rvModProcess$moduleAnaDiffForceReset <- rvModProcess$moduleAnaDiffForceReset
          },
          convertTab = {
            resetModuleProcess("Convert")
-           rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
+           rvModProcess$moduleConvertForceReset <- rvModProcess$moduleConvertForceReset
          },
          
          GoTab = {
            resetModuleProcess("GO")
-           rvModProcess$moduleGOForceReset <- 1 + rvModProcess$moduleGOForceReset
+           rvModProcess$moduleGOForceReset <- rvModProcess$moduleGOForceReset
          }
          
   )

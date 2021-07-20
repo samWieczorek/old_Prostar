@@ -34,8 +34,19 @@ resetModuleNormalization <- reactive({
   
   rv.norm$resetTracking <- TRUE
   rv.norm$sync <- FALSE
+ # Get back to previous dataset
+  if (length(grep("Normalized.", names(rv$dataset))) > 0){
+    i <- grep("Normalized.", names(rv$dataset))
+    rv$dataset <- rv$dataset[1:(i-1)]
+    updateSelectInput(session, 
+                      'datasets', 
+                      choices = names(rv$dataset),
+                      selected = names(rv$dataset)[length(names(rv$dataset))]
+                      )
+    
+  }
   
-  rv$current.obj <- rv$dataset[[input$datasets]] 
+  rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
   rvModProcess$moduleNormalizationDone =  rep(FALSE, 2)
   
 })
@@ -360,12 +371,17 @@ observeEvent(input$perform.normalization,{
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.normalization,{ 
   req(input$perform.normalization)
+  req(rv$current.obj)
   
   isolate({
     if (rv$widgets$normalization$method != G_noneStr) {
-      rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Normalized", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
+      rv$current.obj <- saveParameters(rv$current.obj,
+                                       name,
+                                       "Normalization",
+                                       build_ParamsList_Normalization()
+                                       )
       
       rvModProcess$moduleNormalizationDone[2] <- TRUE
       UpdateDatasetWidget(rv$current.obj, name)
@@ -400,20 +416,23 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 
 
 output$viewComparisonNorm_HC <- renderHighchart({
-  rv$PlotParams$paletteForConditions
+  #rv$PlotParams$paletteForConditions
   req(rv$current.obj)
-
-  dname <- paste0("Normalized.", rv$typeOfDataset)
-  if (input$datasets == dname){
-    obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-    obj2 <- rv$dataset[[input$datasets]]
+  #req(length(rv$dataset > 1))
+  #browser()
+  ind <- grep("Normalized.", names(rv$dataset))
+  if (length(ind) > 0){
+    obj1 <- rv$dataset[[ind - 1]]
+    obj2 <- rv$dataset[[ind]]
   }
   else {
     obj1 <- rv$dataset[[input$datasets]]
     obj2 <- rv$current.obj
-    
   }
 
+  if (is.null(obj1) || is.null(obj2))
+    return(NULL)
+  
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
                            keyId = fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],

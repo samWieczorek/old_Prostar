@@ -38,8 +38,20 @@ resetModuleAggregation <- reactive({
   rv$widgets$aggregation$nbPeptides <- 0
   
   rvModProcess$moduleAggregationDone = rep(FALSE, 3)
-  ##update dataset to put the previous one
-  rv$current.obj <- rv$dataset[[input$datasets]]
+  # Get back to previous dataset
+  if (length(grep("Aggregated", names(rv$dataset))) > 0){
+    i <- grep("Aggregated", names(rv$dataset))
+    rv$dataset <- rv$dataset[1:(i-1)]
+    updateSelectInput(session, 
+                      'datasets', 
+                      choices = names(rv$dataset),
+                      selected = names(rv$dataset)[length(names(rv$dataset))]
+    )
+  }
+  
+  rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  
+  
   ## reset temp object
   rv$temp.aggregate <- NULL
   
