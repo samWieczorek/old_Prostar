@@ -77,7 +77,7 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$NbSelected = 0
   rv$widgets$anaDiff$nBinsHistpval = 80
   rv$widgets$anaDiff$downloadAnaDiff = "All"
-  rv$widgets$anaDiff$tooltipInfo=NULL
+  rv$widgets$anaDiff$tooltipInfo = NULL
   
   
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA

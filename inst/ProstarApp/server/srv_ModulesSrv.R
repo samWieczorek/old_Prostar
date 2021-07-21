@@ -122,7 +122,11 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwaped){
+moduleVolcanoplot <- function(input, output, session,
+                              data, 
+                              comp, 
+                              tooltip, 
+                              isSwaped){
   
   ns <- session$ns
   
@@ -464,7 +468,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     #data()$logFC
     tooltip()
     isSwaped()
-    
+    #browser()
     print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
     isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
@@ -480,7 +484,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
         df <-  data.frame(x=data()$logFC, 
                           y = -log10(data()$P_Value),
                           index = 1:nrow(fData(rv$current.obj)))
-        if (length( tooltip()) > 0){
+        if (length( tooltip()) > 0 && !is.na(tooltip())){
           df <- cbind(df,fData(rv$current.obj)[ tooltip()])
         }
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)

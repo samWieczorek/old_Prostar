@@ -22,18 +22,19 @@ resetModuleHypothesisTest <- reactive({
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
   
   # Get back to previous dataset
-  if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
-      i <- grep("HypothesisTest.", names(rv$dataset))
-      rv$dataset <- rv$dataset[1:(i-1)]
-      updateSelectInput(session, 
-                        'datasets', 
-                        choices = names(rv$dataset),
-                        selected = names(rv$dataset)[length(names(rv$dataset))]
-      )
-      
-    }
-    
-    rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  # if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
+  #     i <- grep("HypothesisTest.", names(rv$dataset))
+  #     rv$dataset <- rv$dataset[1:(i-1)]
+  #     updateSelectInput(session, 
+  #                       'datasets', 
+  #                       choices = names(rv$dataset),
+  #                       selected = names(rv$dataset)[length(names(rv$dataset))]
+  #     )
+  #     
+  #   }
+  #   
+  #   rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  rv$current.obj <- rv$dataset[[input$datasets]]
 })
 
 
