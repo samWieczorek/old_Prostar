@@ -150,7 +150,11 @@ server <- function(input, output, session) {
                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())})
   )
   
+  observe({
+    test_2()
+print(test_2())
 
+})
 }
 
 

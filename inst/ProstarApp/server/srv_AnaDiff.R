@@ -184,7 +184,7 @@ output$pushpval_ui <- renderUI({
 Get_Dataset_to_Analyze <- reactive({
   rv$widgets$anaDiff$Comparison
   rv$current.obj
-  
+
   datasetToAnalyze <- NULL
   
   if (length(grep("all-", rv$widgets$anaDiff$Comparison)) == 1){
@@ -205,13 +205,13 @@ Get_Dataset_to_Analyze <- reactive({
   }
   
   datasetToAnalyze
-})
+}) %>% bindCache(rv$current.obj, rv$widgets$anaDiff$Comparison)
 
 
 AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
                                      obj = reactive({Get_Dataset_to_Analyze()}),
-                                     list_tags = reactive({c('None','imputed')}),
-                                     keep_vs_remove = reactive({setNames(nm = c("delete"))}),
+                                     list_tags = reactive({c('None','quanti', 'recovered', 'identified', 'imputed', 'imputed POV', 'imputed MEC')}),
+                                     keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
                                      filters = reactive({c("None" = "None",
                                                            "Whole Line" = "WholeLine",
                                                            "Whole matrix" = "WholeMatrix",
@@ -226,31 +226,31 @@ AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
 
 observe({
   req(AnaDiff_indices()$params$MetacellTag)
+
   shinyjs::toggleState("AnaDiff_performFilteringMV",
-                       condition =AnaDiff_indices()$params$MetacellTag != 'None')
+                       condition = AnaDiff_indices()$params$MetacellTag != 'None')
 })
 
 ########################################################
 ## Perform missing values filtering
 ########################################################
-observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE,{
+observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE, {
   # rv$widgets$anaDiff$Comparison
   # rv$widgets$anaDiff$ChooseFilters
   # rv$widgets$anaDiff$seuilNA
   # rv$widgets$anaDiff$seuilNA_percent
   # rv$widgets$anaDiff$val_vs_percent
-  
+ # isolate({
   UpdateCompList()
-  rv$widgets$anaDiff$MetacellTag <- 'imputed'
-  rv$widgets$anaDiff$KeepRemove <-  'delete'
+  rv$widgets$anaDiff$MetacellTag <- AnaDiff_indices()$params$MetacellTag
+  rv$widgets$anaDiff$KeepRemove <-  AnaDiff_indices()$params$KeepRemove
   rv$widgets$anaDiff$ChooseFilters <- AnaDiff_indices()$params$MetacellFilters
   rv$widgets$anaDiff$seuilNA_percent  <- AnaDiff_indices()$params$metacell_percent_th
   rv$widgets$anaDiff$seuilNA  <- AnaDiff_indices()$params$metacell_value_th
   rv$widgets$anaDiff$val_vs_percent  <- AnaDiff_indices()$params$val_vs_percent
   rv$widgets$anaDiff$operator  <- AnaDiff_indices()$params$metacellFilter_operator
   
-  
-  #isolate({
+   print(AnaDiff_indices())
   if (as.character(rv$widgets$anaDiff$ChooseFilters) == 'None')
     GetBackToCurrentResAnaDiff()
 
@@ -259,7 +259,7 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE,{
       rv$resAnaDiff$P_Value[-AnaDiff_indices()$indices] <- 1
     }
   #}
-  #})
+ # })
 })
 
 

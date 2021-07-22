@@ -117,14 +117,13 @@ mod_query_metacell_server <- function(id,
       
       
       output$show_example_ui <- renderUI({
-        req(rv.widgets$MetacellFilters)
         req(rv.widgets$MetacellFilters != "None")
         
         mod_filtering_example_server(id = 'filteringExample',
-                                   obj = reactive({obj()}),
-                                   indices = reactive({rv$indices}),
-                                   params = reactive({rv.widgets}),
-                                   txt = reactive({WriteQuery()})
+                                     obj = reactive({obj()}),
+                                     indices = reactive({CompileIndices()}),
+                                     params = reactive({rv.widgets}),
+                                     txt = reactive({WriteQuery()})
                                    )
         
          mod_filtering_example_ui(ns('filteringExample'))
@@ -256,45 +255,80 @@ mod_query_metacell_server <- function(id,
       
       
       
-      observe({
-        req(obj())
-        
-        th <- 0
-        if (rv.widgets$val_vs_percent == 'Percentage') {
-          th <- rv.widgets$metacell_percent_th / 100
-        } else  if (rv.widgets$val_vs_percent == 'Count'){
-          th <- as.integer(rv.widgets$metacell_value_th)
-        }
-        
-        
-        rv$indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj(),
-                                            level = DAPAR::GetTypeofData(obj()),
-                                            pattern = rv.widgets$MetacellTag,
-                                            type = rv.widgets$MetacellFilters,
-                                            percent = rv.widgets$val_vs_percent == 'Percentage',
-                                            op = rv.widgets$metacellFilter_operator,
-                                            th = th)
-
-        rv$trigger = as.numeric(Sys.time())
-        rv$params <- list(MetacellTag = rv.widgets$MetacellTag,
-                          KeepRemove = rv.widgets$KeepRemove,
-                          MetacellFilters = rv.widgets$MetacellFilters,
-                          metacell_percent_th = rv.widgets$metacell_percent_th,
-                          metacell_value_th = rv.widgets$metacell_value_th,
-                          val_vs_percent = rv.widgets$val_vs_percent,
-                          metacellFilter_operator = rv.widgets$metacellFilter_operator)
-        
-        rv$query <- WriteQuery()
-      })
-      
-      
-     
-    })
-  reactive({list(trigger = rv$trigger,
-                 indices = rv$indices,
-                 params = rv$params,
-                 query = rv$query
+    #   observe({
+    #     req(obj())
+    #     req(rv.widgets$MetacellTag != 'None')
+    #     req(rv.widgets$MetacellFilters != 'None')
+    #     
+    #     
+    #     browser()
+    #     th <- 0
+    #     if (rv.widgets$val_vs_percent == 'Percentage') {
+    #       th <- rv.widgets$metacell_percent_th / 100
+    #     } else  if (rv.widgets$val_vs_percent == 'Count'){
+    #       th <- as.integer(rv.widgets$metacell_value_th)
+    #     }
+    #     
+    #     
+    #     rv$indices <- DAPAR::GetIndices_MetacellFiltering(obj = obj(),
+    #                                         level = DAPAR::GetTypeofData(obj()),
+    #                                         pattern = rv.widgets$MetacellTag,
+    #                                         type = rv.widgets$MetacellFilters,
+    #                                         percent = rv.widgets$val_vs_percent == 'Percentage',
+    #                                         op = rv.widgets$metacellFilter_operator,
+    #                                         th = th)
+    # 
+    #     rv$trigger = as.numeric(Sys.time())
+    #     rv$params <- list(MetacellTag = rv.widgets$MetacellTag,
+    #                       KeepRemove = rv.widgets$KeepRemove,
+    #                       MetacellFilters = rv.widgets$MetacellFilters,
+    #                       metacell_percent_th = rv.widgets$metacell_percent_th,
+    #                       metacell_value_th = rv.widgets$metacell_value_th,
+    #                       val_vs_percent = rv.widgets$val_vs_percent,
+    #                       metacellFilter_operator = rv.widgets$metacellFilter_operator)
+    #     
+    #     rv$query <- WriteQuery()
+    #   })
+    #   
+    #   
+    #  
+    # })
+  
+  CompileIndices <- reactive({
+    req(obj())
+    req(rv.widgets$MetacellTag != 'None')
+    req(rv.widgets$MetacellFilters != 'None')
+    
+    th <- switch(rv.widgets$val_vs_percent,
+                 Percentage =  rv.widgets$metacell_percent_th / 100,
+                 Count = as.integer(rv.widgets$metacell_value_th)
                  )
+    
+    DAPAR::GetIndices_MetacellFiltering(obj = obj(),
+                                        level = DAPAR::GetTypeofData(obj()),
+                                        pattern = rv.widgets$MetacellTag,
+                                        type = rv.widgets$MetacellFilters,
+                                        percent = rv.widgets$val_vs_percent == 'Percentage',
+                                        op = rv.widgets$metacellFilter_operator,
+                                        th = th)
+    
+  })
+  
+  
+  
+  reactive({list(trigger = as.numeric(Sys.time()),
+                 indices = CompileIndices(),
+                 params = list(MetacellTag = rv.widgets$MetacellTag,
+                               KeepRemove = rv.widgets$KeepRemove,
+                               MetacellFilters = rv.widgets$MetacellFilters,
+                               metacell_percent_th = rv.widgets$metacell_percent_th,
+                               metacell_value_th = rv.widgets$metacell_value_th,
+                               val_vs_percent = rv.widgets$val_vs_percent,
+                               metacellFilter_operator = rv.widgets$metacellFilter_operator),
+                 query = WriteQuery()
+  )
+  })
+  
     })
 }
 
