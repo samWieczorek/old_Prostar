@@ -1,5 +1,6 @@
-callModule(moduleStaticDataTable,"overview_openMSnset", table2show=reactive({GetDatasetOverview()}),
-           filename='openMSnset_View')
+mod_staticDT_server("overview_openMSnset",
+                    data = reactive({GetDatasetOverview()}),
+                    filename='openMSnset_View')
 
 
 
@@ -47,7 +48,7 @@ output$openMSnsetScreen <- renderUI({
   
   tagList(
     fileInput("file", "Open a MSnset file", multiple = FALSE),
-    moduleStaticDataTableUI("overview_openMSnset"),
+    mod_staticDT_ui("overview_openMSnset"),
     uiOutput("infoAboutAggregationTool")
   )
 })

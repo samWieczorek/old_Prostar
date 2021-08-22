@@ -1,5 +1,6 @@
-callModule(moduleStaticDataTable,"overview_DemoMode", table2show=reactive({GetDatasetOverview()}),
-           filename = 'Demomode_Overview')
+mod_staticDT_server("overview_DemoMode",
+                    data = reactive({GetDatasetOverview()}),
+                    filename = 'Demomode_Overview')
 
 
 output$chooseDataset <- renderUI({
@@ -72,7 +73,7 @@ output$infoAboutDemoDataset <- renderUI({
     
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top;",
-                moduleStaticDataTableUI("overview_DemoMode")
+                mod_staticDT_ui("overview_DemoMode")
       )
     )
     
@@ -87,8 +88,7 @@ output$infoAboutDemoDataset <- renderUI({
 
 observeEvent(input$loadDemoDataset,{
 
-  req(input$demoDataset)
-  if (input$demoDataset == "None"){return(NULL)}
+  req(input$demoDataset != "None")
   
   isolate({
     ntotal <- 4

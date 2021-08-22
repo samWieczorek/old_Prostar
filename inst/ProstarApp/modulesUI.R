@@ -4,10 +4,7 @@ NUM_PAGES_FILTERING <- 3
 
 
 
-modulePopoverUI <- function(id){
-    ns <- NS(id)
-    uiOutput(ns("customPopover"))
-}
+
 
 
 
@@ -20,19 +17,6 @@ module_Not_a_numericUI <- function(id){
 
 
 
-moduleLegendColoredExprsUI <- function(id){
-    ns <- NS(id)
-    
-    
-    bsCollapse(id = "collapseExample", 
-               open = "",
-               bsCollapsePanel(title = "Legend of colors",
-                               uiOutput(ns('legend')),
-                               style = ""
-               )
-    )
-
-}
 
 
 
@@ -118,18 +102,7 @@ moduleBoxplotUI <- function(id) {
 }
 
 
-moduleStaticDataTableUI <- function(id) {
-    ns <- NS(id)
-    tags$div(
-      tags$div( style="display:inline-block; vertical-align: middle; align: center;",
-                uiOutput(ns("warningOnSize")),
-                DT::dataTableOutput(ns("StaticDataTable"))
-      )
-    )
-    
-     
 
-}
 
 
 moduleFilterStringbasedOptionsUI <- function(id) {

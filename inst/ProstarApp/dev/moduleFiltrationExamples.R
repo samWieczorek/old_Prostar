@@ -49,7 +49,7 @@ ui <- fluidPage(
     column(2,
            
            selectInput("chooseMetacellTag",
-                       "metacellTag",
+                       "Quant. metadata",
                        choices = c('None' = 'None',
                                    DAPAR::metacell.def(plop_msnset@experimentData@other$typeOfData)$node
                        ),
@@ -144,7 +144,7 @@ server <- function(input, output, session){
     
     tagList(
       selectInput("choose_metacell_value_th",
-                  "metacell_value_th",
+                  "Quant. metadata_value_th",
                   choices =  getListNbValuesInLines(plop_msnset, 
                                                     type = input$ChooseMetacellFilters),
                   selected = 0,

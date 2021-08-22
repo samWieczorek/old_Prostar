@@ -4,8 +4,10 @@ Parameters used for the differential analysis :
 
 ```{r tab_params_anaDiff,out.width = "100%", echo=FALSE}
 library(DT)
-callModule(moduleStaticDataTable,"summaryParamsAnaDiff", table2show=rv$widgets$anaDiff, filename="AnaDiffParamsSummary")
-moduleStaticDataTableUI("summaryParamsAnaDiff")
+mod_staticDT_server("summaryParamsAnaDiff", 
+                    data = rv$widgets$anaDiff,
+                    filename = "AnaDiffParamsSummary")
+mod_staticDT_ui("summaryParamsAnaDiff")
 ```
                                                       
 ```{r fig_calibrationALL,out.width = "100%", echo=FALSE}

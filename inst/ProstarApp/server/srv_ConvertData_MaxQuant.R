@@ -99,13 +99,13 @@ quantiDataTable <- reactive({
 
 output$x1 <- renderDataTable(
   quantiDataTable(),
-  escape=FALSE,
+  escape = FALSE,
   rownames = FALSE,
-  extensions = c('Scroller', 'Buttons'),
-  server=FALSE,
-  selection='none', 
+  extensions = c('Scroller'),
+  server = FALSE,
+  selection = 'none', 
   class = 'compact',
-  options=list(
+  options = list(
     preDrawCallback=JS(
       'function() {
             Shiny.unbindAll(this.api().table().node());}'),
@@ -113,8 +113,8 @@ output$x1 <- renderDataTable(
       'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
     # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-    dom = 'Bfrtip',
-    autoWidth=TRUE,
+    dom = 'frtip',
+    autoWidth = TRUE,
     deferRender = TRUE,
     bLengthChange = FALSE,
     scrollX = 200,

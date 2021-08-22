@@ -1,3 +1,7 @@
+source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value
+source(file.path("server", "mod_query_metacell.R"),  local = TRUE)$value
+
+
 callModule(moduleProcess, "moduleProcess_Filtering",
            isDone = reactive({rvModProcess$moduleFilteringDone}),
            pages = reactive({rvModProcess$moduleFiltering}),
@@ -45,6 +49,18 @@ resetModuleFiltering <- reactive({
   #rv$deleted.byMSMSLines <- NULL
   rv$deleted.numeric <- NULL
   
+  # Get back to previous dataset
+  # if (length(grep("Filtered", names(rv$dataset))) > 0){
+  #   i <- grep("Filtered", names(rv$dataset))
+  #   rv$dataset <- rv$dataset[1:(i-1)]
+  #   updateSelectInput(session, 
+  #                     'datasets', 
+  #                     choices = names(rv$dataset),
+  #                     selected = names(rv$dataset)[length(names(rv$dataset))]
+  #   )
+  # }
+  # 
+  # rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
   rv$current.obj <- rv$dataset[[input$datasets]]
   rvModProcess$moduleFilteringDone = rep(FALSE, length(rvModProcess$moduleFiltering$stepsNames))
   
@@ -62,71 +78,19 @@ resetModuleFiltering <- reactive({
 output$screenFiltering1 <- renderUI({
   
   
-
-  mod_filtering_example_server(id = 'example',
-                               obj = reactive({rv$current.obj}),
-                               params = reactive({rv$widgets$filtering}),
-                               txt = reactive({WriteQuery()}))
-  
-  callModule(modulePopover,"metacellTag_help", 
-             data = reactive(list(title = "Nature of data to filter", 
-                                  content="Define xxx")))
-  
-  
-  callModule(modulePopover,"filterScope_help", 
-             data = reactive(list(title = "Scope", 
-                                  content=HTML(paste0("To filter the missing values, the choice of the lines to be kept is made by different options:"),
-                                               ("<ul>"),
-                                               ("<li><strong>None</strong>: No filtering, the quantitative data is left unchanged.</li>"),
-                                               ("<li><strong>(Remove) Empty lines</strong>: All the lines with 100% of missing values are filtered out.</li>"),
-                                               ("<li><strong>Whole Matrix</strong>: The lines (across all conditions) which contain less quantitative value than a user-defined threshold are kept;</li>"),
-                                               ("<li><strong>For every condition</strong>: The lines for which each condition contain less quantitative value than a user-defined threshold are deleted;</li>"),
-                                               ("<li><strong>At least one condition</strong>: The lines for which at least one condition contain less quantitative value than a user-defined threshold are deleted.</li>"),
-                                               ("</ul>")
-                                  )
-             )))
-  
-  isolate({
     tagList(
       div(
-        id = "screen1Filtering",
+       # id = "screen1Filtering",
         
         div(
-           fluidRow(
-            column(2,
-                   
-                   selectInput("chooseMetacellTag",
-                               modulePopoverUI("metacellTag_help"),
-                               choices = c('None' = 'None',
-                                           DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
-                               ),
-                               selected = rv$widgets$filtering$MetacellTag,
-                               width='200px')
-            ),
-            column(2,
-                   uiOutput("Choose_keepOrRemove_ui")
-            ),
-            column(2,
-                   selectInput("ChooseMetacellFilters",
-                               modulePopoverUI("filterScope_help"),
-                               choices = c(gFiltersList[1],
-                                           "Whole Line"="WholeLine",
-                                           gFiltersList[3:length(gFiltersList)]),
-                               selected = rv$widgets$filtering$MetacellFilters,
-                               width='200px')
-            ),
-            column(6,
-                   uiOutput("MetacellFilters_widgets_set2_ui")
-            )
-          ),
-          div( style="display:inline-block; vertical-align: middle; align: center;",
-               uiOutput('metacellFilter_request_ui')
-               ),
+          mod_query_metacell_ui('query'),
           div( style="display:inline-block; vertical-align: middle;",
-               shinyjs::disabled(actionButton("perform.metacell.filtering", 
+               shinyjs::disabled(
+                 actionButton("performMetacellFiltering", 
                                               "Perform metacell filtering", 
-                                              class = actionBtnClass))
-          ),
+                                              class = actionBtnClass)
+                                 )
+          )
         ),
         tags$hr(),
         div( style="display:inline-block; vertical-align: middle; align: center;",
@@ -139,15 +103,31 @@ output$screenFiltering1 <- renderUI({
       )
       
     )
-  })
   
 })
 
-observe({
-  shinyjs::toggleState("perform.metacell.filtering",
-                       condition = !is.null(rv$widgets$filtering$MetacellTag) &&
-                         !(rv$widgets$filtering$MetacellTag %in% c('', 'None')))
-})
+
+indices <- mod_query_metacell_server(id = 'query',
+                                  obj = reactive({rv$current.obj}),
+                                  list_tags = reactive({c('None' = 'None',
+                                                          DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+                                  )}),
+                                  keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
+                                  filters = reactive({c("None" = "None",
+                                                        "Whole Line" = "WholeLine",
+                                                        "Whole matrix" = "WholeMatrix",
+                                                        "For every condition" = "AllCond",
+                                                        "At least one condition" = "AtLeastOneCond")}),
+                                  val_vs_percent = reactive({setNames(nm=c('Count', 'Percentage'))}),
+                                  operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())})
+)
+
+
+
+ observeEvent(req(indices()$params$MetacellTag), {
+   shinyjs::toggleState("performMetacellFiltering",
+                         condition = indices()$params$MetacellTag != 'None')
+ })
 
 
 mod_plotsMetacellHistos_server(id = "MVPlots_filtering", 
@@ -157,183 +137,36 @@ mod_plotsMetacellHistos_server(id = "MVPlots_filtering",
 )
 
 
-output$Choose_keepOrRemove_ui <- renderUI({
-  
-  radioButtons("ChooseKeepRemove",
-               "Type of filter operation",
-               choices = setNames(nm = c("delete", "keep")),
-               selected = rv$widgets$filtering$KeepRemove)
-  
-})
-
-
-output$MetacellFilters_widgets_set2_ui <- renderUI({
-  req(!(rv$widgets$filtering$MetacellFilters %in% c("None", "WholeLine")))
-  
-  callModule(modulePopover,"choose_val_vs_percent_help", 
-             data = reactive(list(title = paste("#/% of values to ", rv$widgets$filtering$KeepRemove),
-                                  content="Define xxx")))
-  
-  tagList(
-    fluidRow(
-    column(4,
-           radioButtons('choose_val_vs_percent',
-                        modulePopoverUI("choose_val_vs_percent_help"),
-                        choices = setNames(nm=c('Value', 'Percentage')),
-                        selected = rv$widgets$filtering$val_vs_percent
-           )
-    ),
-    column(4,
-           selectInput("choose_metacellFilter_operator",
-                       "Choose operator",
-                       choices = setNames(nm=DAPAR::SymFilteringOperators()),
-                       selected = rv$widgets$filtering$metacellFilter_operator,
-                       width='150px')
-    ),
-    column(4,
-           uiOutput('choose_value_ui'),
-           uiOutput('choose_percentage_ui')
-    )
-  ),
-   mod_filtering_example_ui('example')
-  )
-  
-})
-
-observeEvent(input$show_filtering_example, {
-  shinyjs::toggle('example_div', condition = TRUE)
-})
-
-
-output$choose_value_ui <- renderUI({
-  req(rv$widgets$filtering$val_vs_percent == 'Value')
-  
-  # if (rv$widgets$filtering$val_vs_percent != 'Value') {return(NULL)}
-  callModule(modulePopover,"metacell_value_th_help", 
-             data = reactive(list(title = "Value threshold", 
-                                  content="Define xxx")))
-  
-  
-  tagList(
-    modulePopoverUI("modulePopover_keepVal"),
-    selectInput("choose_metacell_value_th",
-                modulePopoverUI("metacell_value_th_help"),
-                choices =  getListNbValuesInLines(rv$current.obj, 
-                                                  type = rv$widgets$filtering$MetacellFilters),
-                selected = rv$widgets$filtering$metacell_value_th,
-                width='150px')
-  )
-})
-
-
-
-output$choose_percentage_ui <- renderUI({
-  req(rv$widgets$filtering$val_vs_percent == 'Percentage')
-  callModule(modulePopover,"metacell_percent_th_help", 
-             data = reactive(list(title = "Percentage threshold", 
-                                  content="Define xxx")))
-  
-  
-  #if (rv$widgets$filtering$temp.val_vs_percent != 'Percentage') {return(NULL)}
-  
-  tagList(
-    modulePopoverUI("modulePopover_keepVal_percent"),
-    numericInput("choose_metacell_percent_th", 
-                 modulePopoverUI("metacell_percent_th_help"),
-                 min = 0,
-                 max = 100,
-                 value = rv$widgets$filtering$metacell_percent_th,
-                 width='150px')
-  )
-})
-
-
-
-WriteQuery <- reactive({
-  if (rv$widgets$filtering$MetacellFilters == "None"){
-    txt_summary <- "No filtering is processed."
-  } else if (rv$widgets$filtering$MetacellFilters == "WholeLine") {
-    txt_summary <- paste(rv$widgets$filtering$KeepRemove,
-                         "lines that contain only",
-                         rv$widgets$filtering$MetacellTag)
-  } else {
-    
-    switch(rv$widgets$filtering$MetacellFilters,
-           "WholeMatrix" = text_method <- "the whole matrix.",
-           "AllCond" = text_method <- "each condition.",
-           "AtLeastOneCond" = text_method <- "at least one condition.")
-    
-    if(rv$widgets$filtering$val_vs_percent == 'Value'){
-      text_threshold <- rv$widgets$filtering$metacell_value_th
-    } else {
-      text_threshold <- paste(100 * rv$widgets$filtering$metacell_percent_th,
-                              " %", sep="")
-    }
-    
-    txt_summary <- paste(rv$widgets$filtering$KeepRemove,
-                         " lines where number of ",
-                         rv$widgets$filtering$MetacellTag,
-                         " data ",
-                         rv$widgets$filtering$metacellFilter_operator,
-                         " ",
-                         text_threshold,
-                         " in ",
-                         text_method)
-  }
-  txt_summary
-})
-
-
-output$metacellFilter_request_ui <- renderUI({
-  ###@ req ? ###
-  
-  txt_summary <- paste("You are going to ", WriteQuery())
-  tags$p(txt_summary, style = "font-size: small; text-align : center; color: purple;")
-})
-
-
-
-
-
 
 ## Perform filtration
-observeEvent(input$perform.metacell.filtering, ignoreInit=TRUE,{
-    
-    th <- NULL
-    if (rv$widgets$filtering$val_vs_percent == 'Percentage') {
-      th <- as.numeric(rv$widgets$filtering$metacell_percent_th)
-    } else {
-      th <- as.integer(rv$widgets$filtering$metacell_value_th)
-    }
+observeEvent(input$performMetacellFiltering, ignoreInit = TRUE,{
 
-    indices <- DAPAR::GetIndices_MetacellFiltering(obj = rv$current.obj,
-                                                        level = rv$current.obj@experimentData@other$typeOfData,
-                                                        pattern = rv$widgets$filtering$MetacellTag,
-                                                        type = rv$widgets$filtering$MetacellFilters,
-                                                        percent = rv$widgets$filtering$val_vs_percent == 'Percentage',
-                                                        op = rv$widgets$filtering$metacellFilter_operator,
-                                                        th = th
-                                                        )
-    
   nbDeleted <- 0
+  rv$widgets$filtering$MetacellTag <- indices()$params$MetacellTag
+  rv$widgets$filtering$KeepRemove <- indices()$params$KeepRemove
+  rv$widgets$filtering$MetacellFilters <- indices()$params$MetacellFilters
+  rv$widgets$filtering$metacell_percent_th  <- indices()$params$metacell_percent_th
+  rv$widgets$filtering$metacell_value_th  <- indices()$params$metacell_value_th
+  rv$widgets$filtering$val_vs_percent  <- indices()$params$val_vs_percent
+  rv$widgets$filtering$metacellFilter_operator  <- indices()$params$metacellFilter_operator
 
   obj.tmp <-  MetaCellFiltering(obj = rv$current.obj,
-                                  indices = indices,
-                                  cmd = rv$widgets$filtering$KeepRemove)
+                                indices = indices()$indices,
+                                cmd = rv$widgets$filtering$KeepRemove)
     
     rv$deleted.metacell <- obj.tmp$deleted
     rv$current.obj <- obj.tmp$new
     nbDeleted <- nrow(rv$deleted.metacell)
 
   
-  df <- data.frame(query = WriteQuery(),
+  df <- data.frame(query =  indices()$query,
                    nbDeleted = nbDeleted,
                    Total = nrow(rv$current.obj))
   
   rv$widgets$filtering$metacell_Filter_SummaryDT <- rbind(rv$widgets$filtering$metacell_Filter_SummaryDT , df)
   
   rvModProcess$moduleFilteringDone[1] <- TRUE
-})
+}, priority = 900)
 
 
 
@@ -352,55 +185,15 @@ output$metacell_Filter_SummaryDT <- DT::renderDataTable(server=TRUE,{
     
     
     DT::datatable(rv$widgets$filtering$metacell_Filter_SummaryDT,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
-                  options=list(buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'Metacell_Filtering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                  options=list(
+                               dom='rt',
                                initComplete = initComplete(),
                                deferRender = TRUE,
                                bLengthChange = FALSE
                   ))
   })
-})
-
-
-
-observeEvent(input$chooseMetacellTag,{
-  rv$widgets$filtering$MetacellTag <- input$chooseMetacellTag
-})
-
-
-observeEvent(input$ChooseKeepRemove, {
-  rv$widgets$filtering$KeepRemove <- input$ChooseKeepRemove
-})
-
-
-observeEvent(input$ChooseMetacellFilters,{
-  rv$widgets$filtering$MetacellFilters <- input$ChooseMetacellFilters
-})
-
-
-observeEvent(input$choose_metacell_value_th, ignoreNULL = TRUE, ignoreInit = TRUE, {
-  rv$widgets$filtering$metacell_value_th <- input$choose_metacell_value_th
-})
-
-
-observeEvent(input$choose_metacell_percent_th, ignoreNULL = TRUE, ignoreInit = TRUE, {
-  rv$widgets$filtering$metacell_percent_th <- input$choose_metacell_percent_th
-})
-
-
-observeEvent(input$choose_val_vs_percent, {
-  rv$widgets$filtering$val_vs_percent <- input$choose_val_vs_percent
-})
-
-
-observeEvent(input$choose_metacellFilter_operator,{
-  rv$widgets$filtering$metacellFilter_operator <- input$choose_metacellFilter_operator
 })
 
 
@@ -427,10 +220,11 @@ output$screenFiltering2 <- renderUI({
            p(""),actionButton("perform.text.filtering", "Perform", class = actionBtnClass)
       )
     ),
+   uiOutput('explainSymFilter_ui'),
     hr(),
     div(
       div( style="display:inline-block; vertical-align: middle; align: center;",
-           DT::dataTableOutput("FilterSummaryData")
+            DT::dataTableOutput("FilterSummaryData")
       )
     )
     
@@ -438,6 +232,15 @@ output$screenFiltering2 <- renderUI({
 })
 
 
+output$explainSymFilter_ui <- renderUI({
+  req(input$symFilter_cname != 'None')
+  req(input$symFilter_tagName != '')
+  txt <- paste0("You are going to delete lines in the column '", 
+                input$symFilter_cname, "' which begin with '", 
+                input$symFilter_tagName, 
+                "'.")
+  p(txt)
+})
 
 ##  ---------------------------------------------------------
 ## perform symbolic filter
@@ -468,7 +271,6 @@ observeEvent(input$perform.text.filtering,{
 
 
 
-
 output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
   req(rv$widgets$filtering$DT_numfilterSummary)
@@ -480,25 +282,20 @@ output$FilterSummaryData <- DT::renderDataTable(server=TRUE,{
                        nbDeleted=0, 
                        Total=nrow(rv$current.obj), 
                        stringsAsFactors = FALSE)
-      #rv$widgets$filtering$DT_filterSummary <- rbind(rv$widgets$filtering$DT_numfilterSummary ,df)
-      rv$widgets$filtering$DT_filterSummary <- df
+       rv$widgets$filtering$DT_filterSummary <- df
     }
     
     
     DT::datatable(rv$widgets$filtering$DT_filterSummary,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
-                  options=list(buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'Filtering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                  options=list(dom = 'rt',
                                initComplete = initComplete(),
                                deferRender = TRUE,
                                bLengthChange = FALSE
-                  ))
-  })
+                               )
+                  )
+    })
 })
 
 
@@ -532,6 +329,7 @@ output$screenFiltering3 <- renderUI({
                 p(""),actionButton("btn_numFilter", "Perform", class = actionBtnClass)
       )
     ),
+    uiOutput('explainNumFilter_ui'),
     tags$hr(),
     tags$div(
       tags$div( style="display:inline-block; vertical-align: middle; align: center;",
@@ -543,13 +341,24 @@ output$screenFiltering3 <- renderUI({
 })
 
 
+output$explainNumFilter_ui <- renderUI({
+  req(input$numericFilter_cname != 'None')
+  req(input$numericFilter_value != '')
+  
+  txt <- paste0("You are going to delete lines where ", 
+                input$numericFilter_cname, " ", 
+                input$numericFilter_operator, 
+                " ", input$numericFilter_value, ".")
+  p(txt)
+})
 
 ## ----------------------------------------------
 # Perform numerical filtering
 observeEvent(input$btn_numFilter,ignoreInit=TRUE,{
   temp <- rv$current.obj
   
-  if (input$numericFilter_cname=="None"){return()}
+  req(input$numericFilter_cname != "None")
+  
   cname <- input$numericFilter_cname
   tagValue <- input$numericFilter_value
   
@@ -583,7 +392,6 @@ Get_symFilter_cname_choice <- reactive({
 })
 
 
-
 ### ------------------------------------------------------------
 output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
   req(rv$current.obj)
@@ -597,16 +405,11 @@ output$numericalFilterSummaryData <- DT::renderDataTable(server=TRUE,{
     
     
     DT::datatable(rv$widgets$filtering$DT_numfilterSummary,
-                  extensions = c('Scroller', 'Buttons'),
+                  extensions = c('Scroller'),
                   rownames = FALSE,
                   
                   options=list(initComplete = initComplete(),
-                               buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'NumericalFiltering_summary'
-                                              ),'print'),
-                               dom='Brt',
+                               dom = 'rt',
                                deferRender = TRUE,
                                bLengthChange = FALSE
                   ))
@@ -645,7 +448,7 @@ output$screenFiltering4 <- renderUI({
       column(width=3,radioButtons("ChooseTabAfterFiltering",  "Choose the data to display",
                                   choices= list("Quantitative data" = "quantiData", "Meta data" = "metaData"),selected=character(0))),
       column(width=3,radioButtons("ChooseViewAfterFiltering", "Type of filtered data",
-                                  choices= list("Deleted on metacell" = "Metacell",
+                                  choices= list("Deleted on quant. metadata" = "Metacell",
                                                 "Deleted string based" = "StringBased",
                                                 "Deleted numeric filter" = "Numerical"),
                                   selected=character(0))),
@@ -653,7 +456,7 @@ output$screenFiltering4 <- renderUI({
     ),
     hr(),
     uiOutput("helpTextMV"),
-    uiOutput("Warning_VizualizeFilteredData"),
+    mod_download_btns_ui('VizualizeFilteredData_DL_btns'),
     DT::dataTableOutput("VizualizeFilteredData")
     
   )
@@ -663,8 +466,12 @@ output$screenFiltering4 <- renderUI({
 getDataForMetacellFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.metacell
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.metacell)
+  
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),
+                               digits = rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
+                 table,
+                 DAPAR::GetMetacell(rv$deleted.metacell)
   )
   table
 })
@@ -672,8 +479,11 @@ getDataForMetacellFiltered <- reactive({
 getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.numeric))
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),
+                               digits = rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
+                 table, 
+                 DAPAR::GetMetacell(rv$deleted.numeric))
   
   table
 })
@@ -682,20 +492,14 @@ getDataForNumericalFiltered <- reactive({
 getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),digits=rv$settings_nDigits))
-  table <- cbind(table, DAPAR::GetMetacell(rv$deleted.stringBased))
+  id <- 
+  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),
+                               digits=rv$settings_nDigits))
+  table <- cbind(id = Biobase::fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
+                 table, 
+                 DAPAR::GetMetacell(rv$deleted.stringBased))
   
   table
-})
-
-
-
-output$Warning_VizualizeFilteredData <- renderUI({
-  if (length(GetDataFor_VizualizeFilteredData())==0)
-  {return(NULL)}
-  if (nrow(GetDataFor_VizualizeFilteredData())>153) 
-    p(MSG_WARNING_SIZE_DT)
-  
 })
 
 
@@ -709,33 +513,50 @@ GetDataFor_VizualizeFilteredData <- reactive({
   rv$deleted.numeric
   
   data <- NULL
-  if ((input$ChooseViewAfterFiltering == "Metacell") && !is.null(rv$deleted.metacell))
-  {
-    #print("DANS REACTIVE : If 1")
-    #print(dim(getDataForMVFiltered()))
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForMetacellFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.metacell)
-    )
-  } 
-  
-  else if ((input$ChooseViewAfterFiltering == "StringBased") && !is.null(rv$deleted.stringBased)) {
-    
-    #print("DANS REACTIVE : If 2")
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForMVStringFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.stringBased)
-    )
-  }  else if ((input$ChooseViewAfterFiltering == "Numerical") && !is.null(rv$deleted.numeric)) {
-    
-    switch(input$ChooseTabAfterFiltering,
-           quantiData =  data <- getDataForNumericalFiltered(),
-           metaData = data <- Biobase::fData(rv$deleted.numeric)
-    )
-  }
+  data <- switch(input$ChooseViewAfterFiltering,
+                 Metacell = if(!is.null(rv$deleted.metacell))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData =  getDataForMetacellFiltered(),
+                          metaData = Biobase::fData(rv$deleted.metacell)
+                          ),
+                 StringBased = if(!is.null(rv$deleted.stringBased))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData = getDataForMVStringFiltered(),
+                          metaData = Biobase::fData(rv$deleted.stringBased)
+                          ),
+                 Numerical = if(!is.null(rv$deleted.numeric))
+                   switch(input$ChooseTabAfterFiltering,
+                          quantiData = getDataForNumericalFiltered(),
+                          metaData = Biobase::fData(rv$deleted.numeric)
+                          )
+                 )
   data
 })
 
+
+
+mod_download_btns_server(id = 'VizualizeFilteredData_DL_btns',
+                         df.data = reactive({
+                           
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             len <- ncol(GetDataFor_VizualizeFilteredData())
+                             GetDataFor_VizualizeFilteredData()[, 1:(1+len/2)]
+                           } else GetDataFor_VizualizeFilteredData()
+                         }), 
+                         name = reactive({'ViewFilteredData'}), 
+                         colors = reactive({
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             mc <- metacell.def(GetTypeofData(rv$current.obj))
+                             as.list(setNames(mc$color, mc$node))
+                           }
+                           else NULL
+                           }),
+                         df.tags = reactive({
+                           if (input$ChooseTabAfterFiltering == 'quantiData'){
+                             len <- ncol(GetDataFor_VizualizeFilteredData())
+                             GetDataFor_VizualizeFilteredData()[, (2 + (len-1)/2):len]
+                           } else GetDataFor_VizualizeFilteredData()})
+)
 
 
 #----------------------------------------------
@@ -744,20 +565,15 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
   req(GetDataFor_VizualizeFilteredData())
   dt <- NULL
   data <- GetDataFor_VizualizeFilteredData()
-  c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-  c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+  c.tags <- BuildColorStyles(rv$current.obj)$tags
+  c.colors <-  BuildColorStyles(rv$current.obj)$colors
   
 
   if(input$ChooseTabAfterFiltering =="quantiData"){
     dt <- DT::datatable( data,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options = list(
-                           buttons = list('copy',
-                                          list(
-                                            extend = 'csv',
-                                            filename = 'Prostar_export'),
-                                          'print'),
-                           dom='Brtip',
+                           dom = 'rtip',
                            initComplete = initComplete(),
                            displayLength = 20,
                            deferRender = TRUE,
@@ -765,14 +581,14 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
                            scrollX = 200,
                            scrollY = 600,
                            scroller = TRUE,
-                           ordering=FALSE,
-                           columnDefs = list(list(targets = c(((ncol(data)/2)+1):ncol(data)), visible = FALSE),
-                                             list(width='150px',targets= "_all"))
+                           ordering = FALSE,
+                           columnDefs = list(list(targets = c((( 2 + (ncol(data)-1)/2)):ncol(data)), visible = FALSE),
+                                             list(width='150px', targets= "_all"))
                          )
     ) %>%
       formatStyle(
-        colnames(data)[1:(ncol(data)/2)],
-        colnames(data)[((ncol(data)/2)+1):ncol(data)],
+        colnames(data)[2:(1 + (ncol(data)-1)/2)],
+        colnames(data)[((2 + (ncol(data)-1)/2)):ncol(data)],
         backgroundColor = styleEqual(c.tags, c.colors)
       )
   } else {
@@ -785,7 +601,7 @@ output$VizualizeFilteredData <- DT::renderDataTable(server=TRUE,{
                                         scrollX = 200,
                                         scrollY = 600,
                                         scroller = TRUE,
-                                        ordering=FALSE)) 
+                                        ordering = FALSE)) 
   }
   # }
   dt
@@ -843,13 +659,13 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
         
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(3/nSteps, detail = 'Computing adjacency matrices')
-          ComputeAdjacencyMatrices()
+          incProgress(3/nSteps, detail = 'Computing new adjacency matrices')
+          rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
         }
         
         if (rv$typeOfDataset == "peptide"  && !is.null(rv$proteinId)){
-          incProgress(4/nSteps, detail = 'Computing connected components')
-          ComputeConnectedComposants()
+          incProgress(4/nSteps, detail = 'Computing new connected components')
+          rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
         }
       })
 
@@ -863,19 +679,15 @@ observeEvent(input$ValidateFilters, ignoreInit = TRUE,{
 })
 
 
-
-
-callModule(moduleLegendColoredExprs, 
-           "FilterColorLegend_DS", 
-           legend = rv$legendTypeMV,
-           colors = rv$colorsTypeMV)
+mod_LegendColoredExprs_server(id = 'FilterColorLegend_DS',
+                              obj = reactive({rv$current.obj}))
 
 
 output$legendForExprsData2 <- renderUI({
   req(input$ChooseTabAfterFiltering)
+  req(input$ChooseTabAfterFiltering == "quantiData")
   
-  if (input$ChooseTabAfterFiltering != "quantiData"){return(NULL)}
-  moduleLegendColoredExprsUI("FilterColorLegend_DS")
+  mod_LegendColoredExprs_ui(id = 'FilterColorLegend_DS')
   
 })
 
@@ -886,11 +698,11 @@ output$legendForExprsData2 <- renderUI({
 
 
 
-disableActionButton <- function(id,session) {
-  session$sendCustomMessage(type="jsCode",
-                            list(code= paste("$('#",id,"').prop('disabled',true)"
-                                             ,sep="")))
-}
+# disableActionButton <- function(id,session) {
+#   session$sendCustomMessage(type="jsCode",
+#                             list(code= paste("$('#",id,"').prop('disabled',true)"
+#                                              ,sep="")))
+# }
 
 #-----------------------------------------------
 output$ObserverStringBasedFilteringDone <- renderUI({

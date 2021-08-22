@@ -27,15 +27,10 @@ output$logSession <- DT::renderDataTable(server=TRUE,{
   
   dt <- DT::datatable(rv$text.log,
                       escape = FALSE,
-                      extensions = c('Scroller', 'Buttons'),
+                      extensions = c('Scroller'),
                       rownames = FALSE,
                       options=list(initComplete = initComplete(),
-                                   buttons = list('copy',
-                                                  list(
-                                                    extend = 'csv',
-                                                    filename = 'logSession'
-                                                  ),'print'),
-                                   dom='Bfrtip',
+                                   dom = 'frtip',
                                    pageLength=DT_pagelength,
                                    deferRender = TRUE,
                                    bLengthChange = FALSE,
@@ -43,7 +38,7 @@ output$logSession <- DT::renderDataTable(server=TRUE,{
                                    scrollY = 600,
                                    scroller = TRUE,
                                    orderClasses = TRUE,
-                                   autoWidth=FALSE,
+                                   autoWidth = FALSE,
                                    columnDefs = list(
                                      list(columns.width=c("60px","60px"),
                                           columnDefs.targets= c(list(0),list(1))))

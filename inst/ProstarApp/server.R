@@ -22,8 +22,8 @@ onStart = function() {
     graphics.off()
     unlink(sessionID, recursive = TRUE)
     unlink(paste(tempdir(), sessionID, commandLogFile, sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), sep="/"),recursive = TRUE)
-    unlink(paste(tempdir(), "*", sep="/"),recursive = TRUE)
+    unlink(paste(tempdir(), sep="/"), recursive = TRUE)
+    unlink(paste(tempdir(), "*", sep="/"), recursive = TRUE)
     unlink(paste(tempdir(), "*html", sep="/"))
     unlink(paste(tempdir(), "*log", sep="/"))
     unlink("www/*pdf")
@@ -86,6 +86,14 @@ shinyServer(function(input, output, session) {
   # Hide the loading message when the rest of the server function has executed
   
   env <- environment()
+  source(file.path("server", "mod_staticDT.R"), local=TRUE)$value
+  source(file.path("server", "mod_popover.R"), local = TRUE)$value
+  source(file.path("server","mod_download_btns.R"), local=TRUE)$value
+  source(file.path("modules/Plots", "mod_MSnSetExplorer.R"), local=TRUE)$value
+  source(file.path("server", "mod_LegendColoredExprs.R"), local=TRUE)$value
+  
+  
+  
   source(file.path("server", "srv_NavbarPage.R"),  local = TRUE)$value
   source(file.path("server", "srv_ModulesSrv.R"),  local = TRUE)$value
   source(file.path("server", "srv_ModuleProcess.R"),  local = TRUE)$value
@@ -95,8 +103,7 @@ shinyServer(function(input, output, session) {
   source(file.path("server", "srv_Settings.R"), local = TRUE)$value
   source(file.path("server", "srv_ParamsManager.R"), local = TRUE)$value
   
-  
-  #source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
+   #source(file.path(".", "modules/Plots/modulePlots.R"),  local = TRUE)$value
   source(file.path(".", "modules/Plots/moduleCC.R"),  local = TRUE)$value
   
   
@@ -177,7 +184,10 @@ shinyServer(function(input, output, session) {
            
            graphTab = 
              {
-               callModule(module = moduleCC, "CC_Multi_Any", cc=reactive({rv$CC$allPep}))
+               mod_cc_server("CC_Multi_Any", 
+                             obj = reactive({rv$current.obj}),
+                             cc = reactive({GetCC(rv$current.obj)$allPep})
+                             )
                
              },
            

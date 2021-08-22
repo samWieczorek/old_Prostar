@@ -25,7 +25,7 @@ mod_filtering_example_ui <- function(id){
 
 
 
-mod_filtering_example_server <- function(id, obj, params, txt) {
+mod_filtering_example_server <- function(id, obj, indices, params, txt) {
   
   
   moduleServer(
@@ -33,6 +33,7 @@ mod_filtering_example_server <- function(id, obj, params, txt) {
     function(input, output, session) {
   
   
+      
   output$show_text <- renderUI({
     h3(txt())
   })
@@ -45,11 +46,11 @@ mod_filtering_example_server <- function(id, obj, params, txt) {
   # )
   # ###############
  
-      colorsTypeMV = list(MEC = 'orange', 
-                          POV = 'lightblue',
-                          identified = 'white',
-                          recovered = 'lightgrey',
-                          combined = 'red')
+      # colorsTypeMV = list(MEC = 'orange', 
+      #                     POV = 'lightblue',
+      #                     identified = 'white',
+      #                     recovered = 'lightgrey',
+      #                     combined = 'red')
       
       legendTypeMV = list(MEC = 'Missing in Entire Condition (MEC)', 
                           POV = "Partially Observed Value (POV)",
@@ -57,70 +58,7 @@ mod_filtering_example_server <- function(id, obj, params, txt) {
                           recovered = 'Recovered',
                           combined = 'Combined')
   
-  
-  ComputenMetacellFilteringIndexes <- reactive({
-    
-    if (!(params()$MetacellFilters %in% c("None", "WholeLine"))){
-      th <- NULL
-      if (params()$val_vs_percent == 'Value'){
-        th <- as.integer(params()$metacell_value_th)
-      } else {
-        th <- as.numeric(params()$metacell_percent_th)
-      }
-    }
-    
-    level <- obj()@experimentData@other$typeOfData
-    pattern <- params()$MetacellTag
-    type <- params()$MetacellFilters
-    percent <- params()$val_vs_percent == 'Percentage'
-    op <- params()$metacellFilter_operator
-    conds <-  Biobase::pData(obj())$Condition
-    
-    index <- NULL
-    
-    mask <- match.metacell(metadata=DAPAR::GetMetacell(obj()), 
-                           pattern=pattern, 
-                           level=level)
-    
-    
-    
-    index <- switch(params()$MetacellFilters,
-                    WholeLine = DAPAR::GetIndices_WholeLine(metacell.mask = mask),
-                    WholeMatrix = DAPAR::GetIndices_WholeMatrix(metacell.mask = mask,
-                                                                op = op, 
-                                                                percent = percent, 
-                                                                th = th),
-                    AllCond = DAPAR::GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                  type = type, 
-                                                                  conds = conds, 
-                                                                  percent = percent, 
-                                                                  op = op, 
-                                                                  th = th),
-                    AtLeastOneCond = DAPAR::GetIndices_BasedOnConditions(metacell.mask = mask, 
-                                                                         type = type,
-                                                                         conds = conds, 
-                                                                         percent = percent,
-                                                                         op = op, 
-                                                                         th = th)
-    )
-    #}
-    
-    
-    
-    if(params()$MetacellFilters != "None" &&
-       params()$KeepRemove == "keep"){
-      if(!is.null(index)) {
-        index <- (1:nrow(obj()))[-index]
-      } else {
-        index <- 1:nrow(obj())
-      }
-    }
-    
-    index
-  })
-  
-  
-  
+
   rgb2col = function(rgbmat){
     ProcessColumn = function(col){
       rgb(rgbmat[1, col], 
@@ -149,15 +87,21 @@ mod_filtering_example_server <- function(id, obj, params, txt) {
   }
   
   output$example_tab_filtered <- DT::renderDataTable({
-    index <- ComputenMetacellFilteringIndexes()
     df <- getDataForExprs(obj(), NULL)
-    c.tags <- BuildColorStyles(obj(), colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(obj(), colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(obj())$tags
+    c.colors <-  BuildColorStyles(obj())$colors
     range.invisible <- ((ncol(df)/2)+1):ncol(df)
     
-    if (!is.null(index) && input$run_btn == 'simulate filtered dataset'){
-      for (i in index)
+
+    if (!is.null(indices()) && input$run_btn == 'simulate filtered dataset'){
+      if (params()$KeepRemove == "keep")
+        index2darken <- (1:nrow(obj()))[-indices()]
+      else if (params()$KeepRemove == "delete")
+        index2darken <- indices()
+      
+      for (i in index2darken)
         df[i, range.invisible] <- paste0('darken_', df[i, range.invisible] )
+      
       c.tags <- c(c.tags, paste0('darken_', c.tags))
       c.colors <- c(c.colors, DarkenColors(c.colors))
     }

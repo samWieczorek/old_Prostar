@@ -461,13 +461,9 @@ output$GODatatable <- renderDataTable(server=TRUE,{
     
     
     dt <- DT::datatable( as.data.frame(rv$widgets$go$groupGO_data@result),
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'GO_datatable'
-                                                   ),'print'),
-                                    dom='Bfrtip',
+                     extensions = c('Scroller'),
+                     options = list(
+                                    dom = 'frtip',
                                     initComplete = initComplete(),
                                     displayLength = 20,
                                     deferRender = TRUE,
@@ -475,7 +471,7 @@ output$GODatatable <- renderDataTable(server=TRUE,{
                                     scrollX = 400,
                                     scrollY = 600,
                                     scroller = TRUE,
-                                    ordering=FALSE,
+                                    ordering = FALSE,
                                     server = TRUE)
     )
     
@@ -540,13 +536,9 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
     if( nrow(data) != 0){
       
       dt <- DT::datatable( data,
-                       extensions = c('Scroller', 'Buttons'),
-                       options = list(buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'nonIdentifiedProteins'
-                                                     ),'print'),
-                                      dom='Bfrtip',
+                       extensions = c('Scroller'),
+                       options = list(
+                                      dom = 'frtip',
                                       initComplete = initComplete(),
                                       displayLength = 20,
                                       deferRender = TRUE,
@@ -554,7 +546,7 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
                                       scrollX = 400,
                                       scrollY = 600,
                                       scroller = TRUE,
-                                      ordering=FALSE,
+                                      ordering = FALSE,
                                       server = TRUE)
       )
       
@@ -777,15 +769,9 @@ output$GO_resumeParams <- DT::renderDataTable(server=TRUE,{
   DT::datatable(l.params,
                 escape = FALSE,
                 rownames=FALSE,
-                extensions = c('Scroller', 'Buttons'),
+                extensions = c('Scroller'),
                 options = list(initComplete = initComplete(),
-                               buttons = list('copy',
-                                              list(
-                                                extend = 'csv',
-                                                filename = 'GO_paramsUsed'
-                                              ),'print'),
-                               dom='Brt',
-                               buttons = c('copy','excel', 'pdf', 'print'),
+                               dom = 'rt',
                                columnDefs = list(list(width='200px',targets= "_all")),
                                ordering = FALSE)
   )
