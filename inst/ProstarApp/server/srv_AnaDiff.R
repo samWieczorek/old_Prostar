@@ -308,11 +308,7 @@ output$volcanoTooltip_UI <- renderUI({
                   choices = colnames(fData(rv$current.obj)),
                   selected = rv$widgets$anaDiff$tooltipInfo,
                   multiple = TRUE, selectize=FALSE,width='300px', size=5),
-<<<<<<< HEAD
-      actionButton("validTooltipInfo", "Valid tooltip choices", class = actionBtnClass)
-=======
       actionButton("validTooltipInfo", "Validate tooltip choice", class = actionBtnClass)
->>>>>>> 1d6dd84bd963008cfdd9113fbe9dd39d52611a7b
     )
   })
 })

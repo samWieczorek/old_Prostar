@@ -393,15 +393,9 @@ observeEvent(input$validAggregation,{
       
       X <- NULL
       if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1"))
-<<<<<<< HEAD
-        X <- rv$matAdj$matWithSharedPeptides
-      else
-        X <- rv$matAdj$matWithUniquePeptides
-=======
         X <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
       else
         X <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
->>>>>>> 1d6dd84bd963008cfdd9113fbe9dd39d52611a7b
       
       total <- 60
       delta <- round(total / length(rv$widgets$aggregation$columnsForProteinDataset.box))
