@@ -352,12 +352,13 @@ output$Convert_ExpFeatData <- renderUI({
   tagList(
     shinyjs::useShinyjs(),
     fluidRow(
-      column(width=4, shinyjs::hidden(
-        checkboxInput("selectIdent", 
-                      "Select columns for identification method", 
-                      value = FALSE))
+      column(width = 4, radioButtons("selectIdent","Provide identification method",
+                                   choices = list("No (default values will be computed)" = FALSE,
+                                                  "Yes" = TRUE),
+                                   selected = FALSE
+                                   )
       ),
-      column(width=4,uiOutput("checkIdentificationTab")),
+      column(width = 4,uiOutput("checkIdentificationTab")),
       column(width = 4, shinyjs::hidden(
         div(id = 'warning_neg_values',
             p("Warning : Your original dataset may contain negative values",
@@ -367,8 +368,8 @@ output$Convert_ExpFeatData <- renderUI({
       )
     ),
     fluidRow(
-      column(width=4, uiOutput("eData",width = "400px")),
-      column(width=8, shinyjs::hidden(
+      column(width = 4, uiOutput("eData",width = "400px")),
+      column(width = 8, shinyjs::hidden(
         DT::dataTableOutput("x1", width='500px'))
       )
     ),
@@ -383,7 +384,7 @@ observe({
 
   shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
   shinyjs::toggle('selectIdent', condition = !is.null(input$choose_quantitative_columns))
-  shinyjs::toggle('x1', condition = input$selectIdent == TRUE)
+  shinyjs::toggle('x1', condition = as.logical(input$selectIdent) == TRUE)
 })
 
 output$eData <- renderUI({
@@ -407,16 +408,17 @@ output$eData <- renderUI({
 
 
 output$checkIdentificationTab <- renderUI({
-  req(input$selectIdent == TRUE)
+  req(as.logical(input$selectIdent) == TRUE)
   
   shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
   temp <- shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
   
-  if ((length(which(temp == "None")) == length(temp)))
-  {
-    img <- "images/Ok.png"
-    txt <- "Correct"
-  }  else {
+  # if ((length(which(temp == "None")) == length(temp)))
+  # {
+  #   img <- "images/Ok.png"
+  #   txt <- "Correct"
+  # }  else {
+    
     if (length(which(temp == "None")) > 0)
     {
       img <- "images/Problem.png"
@@ -430,7 +432,7 @@ output$checkIdentificationTab <- renderUI({
         txt <- "Correct"
       }
     }
-  }
+  #}
   tags$div(
     tags$div(
       tags$div(style="display:inline-block;",tags$img(src = img, height=25)),
@@ -460,9 +462,8 @@ GetToto <- reactive({
 # reactive dataset
 quantiDataTable <- reactive({
   # req(c(input$eData.box,rv$tab1))
-  # input$selectIdent
-  
-
+  # as.logical(input$selectIdent)
+ 
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
   
   df <- NULL
@@ -471,7 +472,7 @@ quantiDataTable <- reactive({
   names(choices) <- c("None", colnames(rv$tab1))
   
   
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(as.logical(input$selectIdent)))) {
     
     df <- data.frame(as.data.frame(input$choose_quantitative_columns),
                      shinyInput(selectInput,
@@ -550,7 +551,7 @@ observeEvent(shinyValue("colForOriginValue_",
 checkIdentificationMethod_Ok <- reactive({
   res <- TRUE
   tmp <- NULL
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(input$selectIdent))) {
     tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
   } 
@@ -658,7 +659,7 @@ output$conversionDone <- renderUI({
 
 
 output$warningCreateMSnset <- renderUI({
-  if (isTRUE(input$selectIdent)){
+  if (isTRUE(as.logical(input$selectIdent))){
     colNamesForMetacell <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if (length(which(colNamesForMetacell == "None")) >0){
       text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
@@ -690,7 +691,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
 
   #browser()
   colNamesForMetacell <- NULL
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(input$selectIdent))) {
     colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
     if (length(which(colNamesForMetacell == "None")) > 0 )
       return (NULL)
