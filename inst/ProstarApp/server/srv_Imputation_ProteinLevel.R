@@ -49,8 +49,21 @@ resetModuleProtImputation <- reactive({
   rv$widgets$proteinImput$MEC_detQuant_factor <-  1
   rv$widgets$proteinImput$MEC_fixedValue <- 0
   
+  # Get back to previous dataset
+  # if (length(grep("Imputed", names(rv$dataset))) > 0){
+  #   i <- grep("Imputed", names(rv$dataset))
+  #   rv$dataset <- rv$dataset[1:(i-1)]
+  #   updateSelectInput(session, 
+  #                     'datasets', 
+  #                     choices = names(rv$dataset),
+  #                     selected = names(rv$dataset)[length(names(rv$dataset))]
+  #   )
+  # }
+  # 
+  # rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
   
   rv$current.obj <- rv$dataset[[input$datasets]]
+  
   rv$imputePlotsSteps[["step0"]] <- rv$current.obj 
   rvModProcess$moduleProtImputationDone = rep(FALSE, 3)
   
@@ -195,13 +208,11 @@ output$POV_Params <- renderUI({
 
 observeEvent(input$perform.POVimputation.button,{
   rv$current.obj
- # isolate({
-   # rv$MECIndex <-NULL
-   m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
+  m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                        pattern="missing POV", 
                        level = DAPAR::GetTypeofData(rv$current.obj))
     nbPOVBefore <- length(which(m))
-    
+
     withProgress(message = '',detail = '', value = 0, {
       incProgress(0.25, detail = 'Find MEC blocks')
       
@@ -209,12 +220,9 @@ observeEvent(input$perform.POVimputation.button,{
       switch(rv$widgets$proteinImput$POV_algorithm,
              None = rv$current.obj <- rv$dataset[[input$datasets]],
              slsa = {
-               #rv$MECIndex <- findMECBlock(rv$current.obj)
-               print("slsa")
                incProgress(0.5, detail = 'slsa Imputation')
-               rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]], na.type='missing POV')
-               #rv$current.obj <- reIntroduceMEC(rv$current.obj, rv$MECIndex)
-               
+               rv$current.obj <- wrapper.impute.slsa(rv$dataset[[input$datasets]], 
+                                                     na.type='missing POV')
              },
              detQuantile = {
                #rv$MECIndex <- findMECBlock(rv$current.obj)

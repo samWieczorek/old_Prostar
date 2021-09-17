@@ -1,11 +1,3 @@
-callModule(moduleLegendColoredExprs, 
-           "ExprsColorLegend_DS", 
-           legend = rv$legendTypeMV,
-           colors = rv$colorsTypeMV)
-callModule(moduleLegendColoredExprs, 
-           "FilterColorLegend_DS", 
-           legend = rv$legendTypeMV,
-           colors = rv$colorsTypeMV)
 
 mod_plotsMetacellHistos_server(id = "MVPlots_DS", 
                                obj=reactive({rv$current.obj}),
@@ -21,27 +13,16 @@ callModule(moduleBoxplot, "boxPlot_DS",
            pal = reactive({rv$PlotParams$paletteForConditions})
 )
 
-callModule(moduleStaticDataTable,"overview_DS", 
-           table2show=reactive({GetDatasetOverview()}),
-           filename='DescriptiveStats_Overview')
+mod_staticDT_server("overview_DS", 
+                    data = reactive({GetDatasetOverview()}),
+                    filename='DescriptiveStats_Overview')
 
-callModule(moduleStaticDataTable,"PCAvarCoord", 
-           table2show=reactive({if (!is.null(rv$res.pca)) 
-             round(rv$res.pca$var$coord, digits=7)}), 
-           showRownames=TRUE,
-           filename = 'PCA_Var_Coords')
-
-
-
-# outs <- outputOptions(output)
-# print(names(outs))
-# outputOptions(output, 'densityPlot_DS-Densityplot', suspendWhenHidden = FALSE)
-# outputOptions(output, 'boxPlot_DS-BoxPlot', suspendWhenHidden = FALSE)
-
-
-# lapply(names(outs), function(name) {
-#   outputOptions(output, name, suspendWhenHidden = FALSE)
-# })
+mod_staticDT_server("PCAvarCoord",
+                    data = reactive({
+                      if (!is.null(rv$res.pca)) 
+                        round(rv$res.pca$var$coord, digits=7)
+                      }), 
+                    filename = 'PCA_Var_Coords')
 
 
 observeEvent(c(input$pca.axe1,input$pca.axe2),{rv$PCA_axes <- c(input$pca.axe1,input$pca.axe2)})
@@ -52,7 +33,9 @@ observeEvent(input$varScale_PCA,{
 })
 
 observeEvent(rv$current.obj, {
-  rv$res.pca <- wrapper.pca(rv$current.obj, rv$PCA_varScale, ncp=Compute_PCA_nbDimensions())
+  rv$res.pca <- wrapper.pca(rv$current.obj,
+                            rv$PCA_varScale, 
+                            ncp = Compute_PCA_nbDimensions())
 })
 
 
@@ -138,7 +121,7 @@ output$IntensityStatsPlots <- renderUI({
 output$plotsMVHistograms <- renderUI({
   tagList(
     selectInput("choose_metacell_DS",
-                "Metacell tag",
+                "Quant. metadata",
                 choices = c('None' = 'None',
                             DAPAR::metacell.def(rv$current.obj@experimentData@other$typeOfData)$node
                 ),
@@ -198,7 +181,7 @@ output$plotsPCA <- renderUI({
     ),
     fluidRow(
       column(width=6,  highchartOutput("pcaPlotEigen")),
-      column(width=6,  moduleStaticDataTableUI("PCAvarCoord"))
+      column(width=6,  mod_staticDT_ui("PCAvarCoord"))
     )
   )
 })
@@ -211,7 +194,6 @@ output$pcaPlotInd <- renderImage({
   # req(rv$res.pca)
   
   outfile <- tempfile(fileext='.png')
-  print(paste0("Outfile = ", outfile))
   # Generate a png
   png(outfile)
   image <- DAPAR::plotPCA_Ind(rv$res.pca, rv$PCA_axes)
@@ -225,8 +207,6 @@ output$pcaPlotInd <- renderImage({
 
 
 output$pcaPlotVar <- renderImage({
-  print("IN ####output$pcaPlotVar <- renderImage" )
-  
   req(rv$PCA_axes)
   req(rv$res.pca)
   
@@ -348,175 +328,15 @@ output$DS_sidebarPanel_heatmap <- renderUI({
                 width="150px"))
 })
 
-#----------------------------------------------
-output$tabToShow <- renderUI({
-  req(input$DS_TabsChoice)
-  req(rv$current.obj)
-  
-  switch(input$DS_TabsChoice,
-         None = {return(NULL)},
-         tabExprs = {
-           tagList(
-             if (nrow(rv$current.obj)>153) p(MSG_WARNING_SIZE_DT),
-             DT::dataTableOutput("table"))
-         },
-         tabfData = {
-           tagList(
-             if (nrow(rv$current.obj)>153) p(MSG_WARNING_SIZE_DT),
-             DT::dataTableOutput("viewfData"))
-         },
-         tabpData = {
-           tagList(
-             if (nrow(pData(rv$current.obj))>153) p(MSG_WARNING_SIZE_DT),
-             DT::dataTableOutput("viewpData"))
-         }
-         # processingData = {
-         #             helpText("Previous operations made on the original dataset :")
-         #             DT::dataTableOutput("viewProcessingData")
-         #             }
-  )
-  
-})
 
-
-
-
-##' show pData of the MSnset object
-##' @author Samuel Wieczorek
-output$viewpData <- DT::renderDataTable(server=TRUE,{
-  req(rv$current.obj)
-  
-  data <- as.data.frame(Biobase::pData(rv$current.obj))
-  pal <- rv$PlotParams$paletteForConditions
-  dt <- DT::datatable(  data,
-                        extensions = c('Scroller', 'Buttons'),
-                        rownames=  FALSE,
-                        
-                        options=list(initComplete = initComplete(),
-                                     buttons = list('copy',
-                                                    list(
-                                                      extend = 'csv',
-                                                      filename = 'Samples data'
-                                                    ),'print'),
-                                     dom='Bfrtip',
-                                     pageLength=DT_pagelength,
-                                     orderClasses = TRUE,
-                                     autoWidth=TRUE,
-                                     deferRender = TRUE,
-                                     bLengthChange = FALSE,
-                                     scrollX = 200,
-                                     scrollY = 500,
-                                     scroller = TRUE,
-                                     #columnDefs = list(
-                                     #list(columns.width=c("60px"), columnDefs.targets= c(list(0),list(1),list(2))))
-                                     columnDefs = list(list(width='60px',targets= "_all"))
-                        )) %>%
-    formatStyle(
-      columns = colnames(data)[1:2],
-      valueColumns = colnames(data)[2],
-      backgroundColor = styleEqual(unique(data$Condition), pal)
-    )
-  
-})
-
-##' show fData of the MSnset object in a table
-##' @author Samuel Wieczorek
-output$viewfData <- DT::renderDataTable(server=TRUE,{
-  req(rv$current.obj)
-  
-  
-  if ('Significant' %in% colnames(Biobase::fData(rv$current.obj))){
-    dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                         rownames = TRUE,
-                         extensions = c('Scroller', 'Buttons','FixedColumns'),
-                         options=list(
-                           initComplete = initComplete(),
-                           buttons = list('copy',
-                                          list(
-                                            extend = 'csv',
-                                            filename = 'feature metadata'
-                                          ),'print'),
-                           dom='Bfrtip',
-                           pageLength=DT_pagelength,
-                           orderClasses = TRUE,
-                           autoWidth=FALSE,
-                           deferRender = TRUE,
-                           bLengthChange = FALSE,
-                           scrollX = 200,
-                           scrollY = 200,
-                           scroller = TRUE,
-                           columns.searchable=F,
-                           fixedColumns = list(leftColumns = 1),
-                           columnDefs = list(list(columns.width=c("60px"),
-                                                  columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
-      formatStyle(columns = 'Significant',
-                  target = 'row',
-                  background = styleEqual(1, 'lightblue'))
-  } else {
-    dat <- DT::datatable(as.data.frame(Biobase::fData(rv$current.obj)),
-                         rownames=TRUE,
-                         extensions = c('Scroller', 'Buttons', 'FixedColumns'),
-                         options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'feature metadata'
-                                                     ),'print'),
-                                      dom='Bfrtip',
-                                      pageLength=DT_pagelength,
-                                      deferRender = TRUE,
-                                      bLengthChange = FALSE,
-                                      scrollX = 200,
-                                      scrollY = 600,
-                                      scroller = TRUE,
-                                      orderClasses = TRUE,
-                                      autoWidth=FALSE,
-                                      columns.searchable=F,
-                                      fixedColumns = list(leftColumns = 1),
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
-  }
-  
-  return(dat)
-}
-
-#              
-#             ))
+mod_MSnSetExplorer_server(id = 'test',
+                          data = reactive({rv$current.obj}),
+                          digits = reactive({rv$settings_nDigits}),
+                          palette.conds = reactive({rv$PlotParams$paletteForConditions})
 )
 
 
 
-##' Visualisation of missing values table
-##' @author Samuel Wieczorek
-output$viewExprsMissValues <- DT::renderDataTable(server=TRUE, {
-  req(rv$current.obj)
-  dt <- DT::datatable(as.data.frame(cbind(ID = rownames(Biobase::fData(rv$current.obj)),
-                                          Biobase::exprs(rv$current.obj))),
-                      extensions = c('Scroller', 'Buttons'),
-                      rownames = FALSE,
-                      
-                      options=list(
-                        buttons = list('copy',
-                                       list(
-                                         extend = 'csv',
-                                         filename = 'missing values'
-                                       ),'print'),
-                        dom='Bfrtip',
-                        orderClasses = TRUE,
-                        autoWidth=FALSE,
-                        bLengthChange = FALSE,
-                        scrollX = 200,
-                        scrollY =600,
-                        scroller = TRUE,
-                        columns.searchable=F,
-                        autoWidth=TRUE,
-                        
-                        pageLength = DT_pagelength,
-                        #columnDefs = list(list(columns.width=c("60px"),columnDefs.targets=c(list(0),list(1),list(2))))
-                        columnDefs = list(list(width='150px',targets= "_all"))
-                      )
-  )
-})
 
 
 
@@ -593,46 +413,6 @@ output$DS_PlotHeatmap <- renderUI({
 
 
 
-#################
-output$table <- DT::renderDataTable(server=TRUE, {
-  req(rv$current.obj)
-  df <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
-
-  c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-  c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
-  
-  dt <- datatable( df,
-                   extensions = c('Scroller', 'Buttons'),
-                   options = list(
-                     buttons = list('copy',
-                                    list(
-                                      extend = 'csv',
-                                      filename = 'quantitation data'
-                                    ),'print'),
-                     dom='Bfrtip',initComplete = initComplete(),
-                     displayLength = 20,
-                     deferRender = TRUE,
-                     bLengthChange = FALSE,
-                     scrollX = 200,
-                     scrollY = 600,
-                     scroller = TRUE,
-                     ordering=FALSE,
-                     server = TRUE,
-                     columnDefs = list(list(targets = c(((ncol(df)/2)+1):ncol(df)), visible = FALSE)))) %>%
-    formatStyle(
-      colnames(df)[1:(ncol(df)/2)],
-      colnames(df)[((ncol(df)/2)+1):ncol(df)],
-      backgroundColor = styleEqual(c.tags, c.colors),
-      backgroundSize = '98% 48%',
-      backgroundRepeat = 'no-repeat',
-      backgroundPosition = 'center'
-    )
-  
-  
-  dt
-})
-
-
 
 
 # options for boxplot
@@ -696,17 +476,6 @@ output$viewDistCV <- renderHighchart({
 output$corrMatrix <- renderHighchart({
   corrMatrix()
 }) 
-
-
-
-
-# 
-output$legendForExprsData <- renderUI({
-  req(input$DS_TabsChoice=="tabExprs")
-  
-  moduleLegendColoredExprsUI("ExprsColorLegend_DS")
-})
-
 
 
 

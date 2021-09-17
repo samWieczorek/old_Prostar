@@ -1,6 +1,6 @@
 library(visNetwork)
 
-moduleCCUI <- function(id) {
+mod_cc_ui <- function(id) {
   ns <- NS(id)
   tabPanel("Peptide-Protein Graph",
            value = "graphTab",
@@ -11,32 +11,32 @@ moduleCCUI <- function(id) {
                       tagList(
                         fluidRow(
                                  column(width=4, tagList(
-                                   uiOutput(ns("Warning_OneOneDT")),
+                                   mod_download_btns_ui(ns('OneOneDT_DL_btns')),
                                    DT::dataTableOutput(ns("OneOneDT")))
                                             ),
                                  column(width=8, tagList(
-                                   uiOutput(ns("Warning_OneOneDTDetailed")),
-                                   DT::dataTableOutput(ns("OneOneDTDetailed"))))
+                                  # uiOutput(ns('OneOneDTDetailed_ui')),
+                                  DT::dataTableOutput(ns("OneOneDTDetailed")))
                                  )
                         #visNetworkOutput(ns("visNet_CC_OneOne"), height='600px')
                         )
+                      )
              ),
              tabPanel("One-Multi Connected Components",
                       tagList(
                         fluidRow(
                                   column(width=4, tagList(
-                                    uiOutput(ns("Warning_OneMultiDT")),
+                                    mod_download_btns_ui(ns('OneMultiDT_DL_btns')),
                                     DT::dataTableOutput(ns("OneMultiDT")))),
                                   column(width=8, tagList(
-                                    uiOutput(ns("Warning_OneMultiDTDetailed")),
+                                   # uiOutput(ns('OneMultiDTDetailed_ui')),
                                     DT::dataTableOutput(ns("OneMultiDTDetailed"))))
                         )
                       )
              ),
              tabPanel("Multi-Multi Connected Components",
                       tagList(
-                        selectInput(ns('pepInfo'), "Peptide Info", choices=colnames(fData(rv$current.obj)),
-                                    multiple=TRUE),
+                        uiOutput(ns('pepInfo_ui')),
                         selectInput(ns("searchCC"), 'Search for CC', 
                                     choices = c('Tabular view' = 'tabular',
                                                 'Graphical view' = 'graphical'),
@@ -44,7 +44,7 @@ moduleCCUI <- function(id) {
                         fluidRow(
                           column(width=6,tagList(
                             highchartOutput(ns("jiji")),
-                            uiOutput(ns("Warning_CCMultiMulti")),
+                            uiOutput(ns('CCMultiMulti_DL_btns_ui')),
                             shinyjs::hidden( dataTableOutput(ns('CCMultiMulti')))
                             )),
                           column(width=6, tagList(
@@ -58,8 +58,9 @@ moduleCCUI <- function(id) {
 }
 
 
-moduleCC <- function(input, output, session,cc){
-  
+mod_cc_server <- function(id, obj, cc){
+  moduleServer(id,
+    function(input, output, session) {
   ns <- session$ns
   
   rvCC <- reactiveValues(
@@ -84,7 +85,12 @@ moduleCC <- function(input, output, session,cc){
   })
   
   
-  
+  output$pepInfo_ui <- renderUI({
+    selectInput(ns('pepInfo'), 
+                "Peptide Info", 
+                choices=colnames(Biobase::fData(obj())),
+                multiple=TRUE)
+  })
   
   
   # select a point in the grpah
@@ -112,29 +118,11 @@ moduleCC <- function(input, output, session,cc){
   })
   
   
-  # output$visNet_CC_OneOne <- renderVisNetwork({
-  #   req(rvCC$selectedCC)
-  #   local <-   cc()[Get_CC_One2One()]
-  #   
-  #   rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
-  #   
-  #   display.CC.visNet(rvCC$selectedCCgraph) %>%
-  #     visEvents(click = paste0("function(nodes){
-  #               Shiny.onInputChange('",ns("click"),"', nodes.nodes[0]);
-  #               Shiny.onInputChange('",ns("node_selected"), "', nodes.nodes.length);
-  #               ;}")
-  #     ) %>%
-  #     visOptions(highlightNearest = TRUE )
-  # })
-  # 
-  
-  
-
 output$visNet_CC <- renderVisNetwork({
     req(rvCC$selectedCC)
-    local <-   cc()[Get_CC_Multi2Any()]
-    
-    rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], rv$matAdj$matWithSharedPeptides)
+    local <- cc()[Get_CC_Multi2Any()]
+    Xshared <- GetMatAdj(obj())$matWithSharedPeptides
+    rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], Xshared)
     
     display.CC.visNet(rvCC$selectedCCgraph) %>%
     visEvents(click = paste0("function(nodes){
@@ -158,7 +146,7 @@ output$visNet_CC <- renderVisNetwork({
                      index = 1:length(local))
         
         if (!is.null( tooltip)){
-          df <- cbind(df,fData(rv$current.obj)[ tooltip])
+          df <- cbind(df,fData(obj())[ tooltip])
         }
 
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -178,79 +166,88 @@ output$visNet_CC <- renderVisNetwork({
   })
   
 
-  
-  
-  output$Warning_CCMultiMulti <- renderUI({
-    req(GetDataFor_CCMultiMulti())
-      if (nrow(GetDataFor_CCMultiMulti()) > 153) 
-        p(MSG_WARNING_SIZE_DT)
-    })
-
-  
   GetDataFor_CCMultiMulti <- reactive({
     Get_CC_Multi2Any()
-    df <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],
-                               function(x){
-                                 data.frame(rbind(x),
-                                            nPep = length(x$peptides),
-                                            nProt = length(x$proteins))}))
-    df <- cbind(df,id = 1:nrow(df))
-    df <- df[c('id', 'nProt', 'nPep', 'proteins', 'peptides')]
+
+    df <- cbind(id = 1:length(Get_CC_Multi2Any()),
+                nProt = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()],
+                                     function(x){length(x$proteins)})),
+                nPep = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$peptides)})),
+                proteins =  cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()],
+                                         function(x){paste(x$proteins, collapse=",")})),
+                peptides = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()],
+                                        function(x){paste(x$proteins, collapse=",")}))
+                )
+
     colnames(df) <-c('id', 'nProt', 'nPep', 'Proteins Ids', 'Peptides Ids')
-    
-    
+
     df
   })
+  
+  
+  
+  output$CCMultiMulti_DL_btns_ui <- renderUI({
+    req(input$searchCC == 'tabular')
+    mod_download_btns_ui(ns('CCMultiMulti_DL_btns'))
+  })
+  
+  mod_download_btns_server('CCMultiMulti_DL_btns',
+                           df.data = reactive({GetDataFor_CCMultiMulti()}),
+                           name = reactive({'CC_MultiMulti'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
+  
+  
+ 
   
   output$CCMultiMulti <- renderDataTable(server=TRUE,{
     dat <- DT::datatable(GetDataFor_CCMultiMulti(),
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CCMultiMulti'
-                                                     ),'print'),
-                                      dom='Bfrtip',
-                                      deferRender = TRUE,
-                                      bLengthChange = FALSE,
+                                      dom = 'frt',
+                                      #deferRender = TRUE,
+                                      #bLengthChange = FALSE,
                                       scrollX = 400,
                                       scrollY = 400,
                                       displayLength = 10,
-                                      scroller = TRUE,
-                                      orderClasses = TRUE,
-                                      autoWidth=TRUE,
-                                      columns.searchable=F,
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+                                      scroller = TRUE
+                                      #orderClasses = TRUE,
+                                      #autoWidth=TRUE
+                                     )
+                         )
     
     return(dat)
   })
   
   
  
- observeEvent(c(rvCC$selectedNeighbors,input$node_selected,rvCC$selectedCCgraph), {
+ observeEvent(c(rvCC$selectedNeighbors, input$node_selected, rvCC$selectedCCgraph), {
     
-    local <-   cc()[Get_CC_Multi2Any()]
+    local <- cc()[Get_CC_Multi2Any()]
     rvCC$selectedNeighbors
     
     nodes <- rvCC$selectedCCgraph$nodes
-    
+
     if(!is.null(input$node_selected) && input$node_selected == 1){ 
       sharedPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "shared.peptide"))
       specPepIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "spec.peptide"))
-      protIndices <- intersect(rvCC$selectedNeighbors,which(nodes[,'group'] == "protein"))
+      protIndices <- intersect(rvCC$selectedNeighbors, which(nodes[,'group'] == "protein"))
     
     } else {
-      sharedPepIndices <- which(nodes[,'group'] == "shared.peptide")
-      specPepIndices <- which(nodes[,'group'] == "spec.peptide")
-      protIndices <- which(nodes[,'group'] == "protein")
+      sharedPepIndices <- which(nodes[ ,'group'] == "shared.peptide")
+      specPepIndices <- which(nodes[ ,'group'] == "spec.peptide")
+      protIndices <- which(nodes[ ,'group'] == "protein")
     }
-    rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
-    rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
-    rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
+    #rvCC$detailedselectedNode$sharedPepLabels <- as.numeric(nodes[sharedPepIndices, 'label'])
+   # rvCC$detailedselectedNode$specPepLabels <-  as.numeric(nodes[specPepIndices, 'label'])
+   # rvCC$detailedselectedNode$protLabels <-  as.numeric(nodes[protIndices, 'label'])
+    rvCC$detailedselectedNode$sharedPepLabels <- nodes[sharedPepIndices, 'label']
+    rvCC$detailedselectedNode$specPepLabels <-  nodes[specPepIndices, 'label']
+    rvCC$detailedselectedNode$protLabels <-  nodes[protIndices, 'label']
     
 })
 
@@ -258,7 +255,7 @@ output$visNet_CC <- renderVisNetwork({
 output$CCDetailed <- renderUI({
    req(rvCC$detailedselectedNode)
    req(rvCC$selectedCC)
-   
+  # browser()
    tagList(
       h4("Proteins"),
       dataTableOutput(ns('CCDetailedProt')),
@@ -274,22 +271,19 @@ output$CCDetailed <- renderUI({
     rvCC$detailedselectedNode
     if(is.null(rvCC$detailedselectedNode$protLabels)){return(NULL)}
     
-   # print("output$CCDetailedProt<- renderDataTable(")
-    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels)
-                     #other = rep(NA,length(rvCC$detailedselectedNode$protLabels))
-                     )
+    df <- data.frame(proteinId = unlist(rvCC$detailedselectedNode$protLabels))
     colnames(df) <-c('Proteins Ids')
     dt <- DT::datatable( df,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='rt',
+                                    dom = 'rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering = FALSE,
                                     scrollX = 400,
                                     scrollY = 100,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE)) 
     dt
   })
@@ -305,33 +299,33 @@ output$CCDetailed <- renderUI({
     req(rvCC$detailedselectedNode$sharedPepLabels)
     
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
+    ind <- 1:ncol(obj())
+    data <- getDataForExprs(obj(), rv$settings_nDigits)
     pepLine <- rvCC$detailedselectedNode$sharedPepLabels
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices, c(ind, (ind + ncol(data)/2))]
 
     if(!is.null(input$pepInfo))
       {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(obj())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     offset <- length(input$pepInfo)
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(obj())$tags
+    c.colors <-  BuildColorStyles(obj())$colors
     
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
                                     dom='rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering= FALSE,
                                     scrollX = 400,
                                     scrollY = 150,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -348,39 +342,40 @@ output$CCDetailed <- renderUI({
   
   
   #####-----------
-  output$CCDetailedSpecPep <- renderDataTable(server=TRUE,{
+  output$CCDetailedSpecPep <- renderDataTable(server=TRUE, {
     rvCC$detailedselectedNode
     input$pepInfo
-    if(is.null((rvCC$detailedselectedNode$specPepLabels))){return(NULL)}
-    
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
+    req(rvCC$detailedselectedNode$specPepLabels)
+
+    ind <- 1:ncol(obj())
+    data <- getDataForExprs(obj(), rv$settings_nDigits)
     pepLine <-  rvCC$detailedselectedNode$specPepLabels
-    indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
+    indices <- unlist(lapply(pepLine, 
+                             function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(obj())[pepLine,input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     offset <- length(input$pepInfo)
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(obj())$tags
+    c.colors <-  BuildColorStyles(obj())$colors
     
     dt <- DT::datatable( data,
                      extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    dom='rt',
+                                    dom = 'rt',
                                     blengthChange = FALSE,
-                                    ordering=FALSE,
+                                    ordering = FALSE,
                                     scrollX = 400,
                                     scrollY = 100,
                                     displayLength = 10,
                                     scroller = TRUE,
-                                    header=FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -398,25 +393,25 @@ output$CCDetailed <- renderUI({
   
   
   Get_CC_One2One <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    GetCC(obj())$allPep
+    ll.prot <- lapply(GetCC(obj())$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(GetCC(obj())$allPep, function(x){length(x$peptides)})
     ll.prot.one2one <- intersect(which(ll.prot == 1),which(ll.pept == 1))
     ll.prot.one2one
   })
   
   Get_CC_One2multi <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
-    ll.prot.one2multi <- intersect(which(ll.prot == 1),which(ll.pept > 1))
+    GetCC(obj())$allPep
+    ll.prot <- lapply(GetCC(obj())$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(GetCC(obj())$allPep, function(x){length(x$peptides)})
+    ll.prot.one2multi <- intersect(which(ll.prot == 1), which(ll.pept > 1))
     ll.prot.one2multi
   })
   
   Get_CC_Multi2Any <- reactive({
-    rv$CC$allPep
-    ll.prot <- lapply(rv$CC$allPep, function(x){length(x$proteins)})
-    ll.pept <- lapply(rv$CC$allPep, function(x){length(x$peptides)})
+    GetCC(obj())$allPep
+    ll.prot <- lapply(GetCC(obj())$allPep, function(x){length(x$proteins)})
+    ll.pept <- lapply(GetCC(obj())$allPep, function(x){length(x$peptides)})
     ll.prot.multi2any <- which(ll.prot > 1)
     ll.prot.multi2any
   })
@@ -424,93 +419,111 @@ output$CCDetailed <- renderUI({
   
   
   BuildOne2OneTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2One()],function(x){data.frame(rbind(x))}))
-    table
+    GetCC(obj())$allPep
+   df <- cbind(
+      cbind(lapply(GetCC(obj())$allPep[Get_CC_One2One()], function(x){x$proteins})),
+      cbind(lapply(GetCC(obj())$allPep[Get_CC_One2One()], function(x){x$peptides}))
+    )
+    
+    colnames(df) <- c('proteins', 'peptides')
+    
+    df
   })
   
   BuildOne2MultiTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_One2multi()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
-    table
+    GetCC(obj())$allPep
+
+    df <- cbind(proteins = cbind(lapply(GetCC(obj())$allPep[Get_CC_One2multi()],
+                                     function(x){x$proteins})),
+                nPep = cbind(lapply(GetCC(obj())$allPep[Get_CC_One2multi()], 
+                                    function(x){length(x$peptides)})),
+                peptides =  cbind(lapply(GetCC(obj())$allPep[Get_CC_One2multi()],
+                                         function(x){paste(x$peptides, collapse=',')}))
+                )
+    colnames(df) <- c('proteins', 'nPep', 'peptides')
+    
+    df
   })
   
   
   BuildMulti2AnyTab <- reactive({
-    rv$CC$allPep
-    table <- do.call(rbind,lapply(rv$CC$allPep[Get_CC_Multi2Any()],function(x){data.frame(rbind(x), nPep = length(x$peptides))}))
-    table <- table[c('proteins', 'nPep', 'peptides')]
+    GetCC(obj())$allPep
+    df <- cbind(id = 1:length(Get_CC_Multi2Any()),
+                proteins = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()],
+                                        function(x){x$proteins})),
+                nProt = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$proteins)})),
+                nPep = cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()], 
+                                    function(x){length(x$peptides)})),
+                peptides =  cbind(lapply(GetCC(obj())$allPep[Get_CC_Multi2Any()],
+                                         function(x){paste(x$peptides, collapse=',')}))
+    )
+    colnames(df) <- c('proteins', 'nPep', 'peptides')
     
-    table
+    df
   })
   
+
   
+  mod_download_btns_server('OneMultiDT_DL_btns',
+                           df.data = reactive({
+                             df <- BuildOne2MultiTab()
+                             colnames(df) <- c('Proteins Ids', 'nPep', 'Peptides Ids')
+                             df
+                             }),
+                           name = reactive({'CC_OneMulti'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
   
-  output$Warning_OneMultiDT <- renderUI({
-    req(rv$CC$allPep)
-    req(BuildOne2MultiTab())
-    if (nrow(BuildOne2MultiTab()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-  })
   
   output$OneMultiDT <- renderDataTable(server=TRUE,{
-    req(rv$CC$allPep)
+    req(GetCC(obj())$allPep)
     df <- BuildOne2MultiTab()
       colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
     
   dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CC_One_Multi'
-                                                     ),'print'),
-                                      dom='Bfrtip',deferRender = TRUE,
+                                      dom = 'rt',
+                                      deferRender = TRUE,
                                       bLengthChange = TRUE,
                                       displayLength = 10,
                                       scrollX = 400,
                                       scrollY = 400,
                                       scroller = TRUE,
-                                      orderClasses = TRUE,
-                                      autoWidth=FALSE,
-                                      columns.searchable=F,
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+                                       autoWidth = FALSE,
+                                      columns.searchable = FALSE,
+                                      columnDefs = list(list(columns.width=c("60px")
+                                                             )
+                                                        )
+                                      )
+                       )
     
     return(dat)
   })
   
-  
-  
-  output$Warning_OneMultiDTDetailed <- renderUI({
-    req(input$OneMultiDT_rows_selected)
 
-    if (nrow(GetDataFor_OneMultiDTDetailed()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-  })
-  
   
   GetDataFor_OneMultiDTDetailed <- reactive({
     input$pepInfo
     req(input$OneMultiDT_rows_selected)
-    
+
     line <- input$OneMultiDT_rows_selected
-    
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
-    pepLine <- as.numeric(unlist(BuildOne2MultiTab()[line,"peptides"]))
+     ind <- 1:ncol(obj())
+    data <- getDataForExprs(obj(), rv$settings_nDigits)
+    #pepLine <- as.numeric(unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=",")))
+    pepLine <- unlist(strsplit(unlist(BuildOne2MultiTab()[line,"peptides"]), split=","))
     
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     
-    data <- data[indices,c(ind, (ind + ncol(data)/2))]
+    data <- data[indices, c(ind, (ind + ncol(data)/2))]
     
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(obj())[pepLine, input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
@@ -525,22 +538,17 @@ output$CCDetailed <- renderUI({
     data <- GetDataFor_OneMultiDTDetailed()
     offset <- length(input$pepInfo)
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(obj())$tags
+    c.colors <-  BuildColorStyles(obj())$colors
     
     dt <- DT::datatable(data ,
-                     extensions = c('Scroller', 'Buttons'),
+                     extensions = c('Scroller'),
                      options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_Multi'
-                                                   ),'print'),
-                                    dom='Bfrtip',pageLength = 10,
+                                    dom = 'frtip',pageLength = 10,
                                     blengthChange = FALSE,
                                     displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
+                                    ordering = FALSE,
+                                    header = FALSE,
                                     server = FALSE,
                                     columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
                      )) %>%
@@ -552,28 +560,29 @@ output$CCDetailed <- renderUI({
     dt
   })
   
+
   
-  output$Warning_OneOneDT <- renderUI({
-    if (nrow(BuildOne2OneTab()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
+  
+  mod_download_btns_server('OneOneDT_DL_btns',
+                           df.data = reactive({df <- BuildOne2OneTab()
+                           colnames(df) <- c('Proteins Ids', 'Peptides Ids')
+                           df}),
+                           name = reactive({'CC_OneOne'}),
+                           colors = reactive({NULL}),
+                           df.tags = reactive({NULL})
+  )
+  
   
   output$OneOneDT <- renderDataTable(server=TRUE,{
-    req(rv$CC$allPep)
+    req(GetCC(obj())$allPep)
     df <- BuildOne2OneTab()
     colnames(df) <- c('Proteins Ids', 'Peptides Ids')
     dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options=list(initComplete = initComplete(),
-                                      buttons = list('copy',
-                                                     list(
-                                                       extend = 'csv',
-                                                       filename = 'CC_One_One'
-                                                     ),'print'),
-                                      dom='Bfrtip', 
+                                      dom = 'frtip', 
                                       deferRender = TRUE,
                                       bLengthChange = FALSE,
                                       scrollX = 400,
@@ -588,67 +597,76 @@ output$CCDetailed <- renderUI({
     return(dat)
   })
   
-  
-  output$Warning_OneOneDTDetailed <- reactive({
-    req(GetDataFor_OneOneDTDetailed())
 
-    if (nrow(GetDataFor_OneOneDTDetailed()) > 153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
   
   GetDataFor_OneOneDTDetailed <- reactive({
-    req(rv$CC$allPep)
+
+    req(GetCC(obj())$allPep)
     req(input$OneOneDT_rows_selected)
     input$pepInfo
     line <- input$OneOneDT_rows_selected
+    ind <- 1:ncol(obj())
+    data <- getDataForExprs(obj(), rv$settings_nDigits)
+    #pepLine <- as.numeric(BuildOne2OneTab()[line, 2])
+    pepLine <- BuildOne2OneTab()[line, 2]
     
-    ind <- 1:ncol(rv$current.obj)
-    data <- getDataForExprs(rv$current.obj, rv$settings_nDigits)
-    pepLine <- as.numeric(BuildOne2OneTab()[line,2])
     indices <- unlist(lapply(pepLine, function(x){which(rownames(data)==x)}))
     data <- data[indices,c(ind, (ind + ncol(data)/2))]
     if(!is.null(input$pepInfo))
     {
-      data <- cbind(data, fData(rv$current.obj)[pepLine,input$pepInfo])
+      data <- cbind(data, fData(obj())[pepLine, input$pepInfo])
       colnames(data)[(1+ncol(data)-length(input$pepInfo)):ncol(data)] <- input$pepInfo
     }
     
     data
   })
   
-  output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
-    req(rv$CC$allPep)
-    req(input$OneOneDT_rows_selected)
-    data <- GetDataFor_OneOneDTDetailed()
-    offset <- length(input$pepInfo)
+  
+  # output$OneOneDTDetailed_ui <- renderUI({
+  #   req(input$OneOneDT_rows_selected)
+  #   mod_download_btns_ui('OneOneDTDetailed_DL_btns')
+  #   
+  # })
+  #   
+  # 
+  # mod_download_btns_server('OneOneDTDetailed_DL_btns',
+  #                          df.data = reactive({ GetDataFor_OneOneDTDetailed()}),
+  #                          name = reactive({'CC_OneOne_Detailed'}),
+  #                          colors = reactive({NULL}),
+  #                          df.tags = reactive({NULL})
+  # )
     
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
-    
-    dt <- DT::datatable( data,
-                     extensions = c('Scroller', 'Buttons'),
-                     options = list(initComplete = initComplete(),
-                                    buttons = list('copy',
-                                                   list(
-                                                     extend = 'csv',
-                                                     filename = 'Detailed_One_One'
-                                                   ),'print'),
-                                    dom='Bfrtip',blengthChange = FALSE,
-                                    pageLength = 10,
-                                    displayLength = 10,
-                                    ordering=FALSE,
-                                    header=FALSE,
-                                    server = FALSE,
-                                    columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
-                     )) %>%
-      formatStyle(
-        colnames(data)[1:((ncol(data)-offset)/2)],
-        colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
-        backgroundColor = styleEqual(c.tags, c.colors))
-    
-    dt
-  })
+    output$OneOneDTDetailed <- renderDataTable(server=TRUE,{
+      req(GetCC(obj())$allPep)
+      req(input$OneOneDT_rows_selected)
+      data <- GetDataFor_OneOneDTDetailed()
+      offset <- length(input$pepInfo)
+      
+      c.tags <- BuildColorStyles(obj())$tags
+      c.colors <-  BuildColorStyles(obj())$colors
+      
+      dt <- DT::datatable( data,
+                           extensions = c('Scroller'),
+                           options = list(initComplete = initComplete(),
+                                          dom = 'frtip',
+                                          blengthChange = FALSE,
+                                          pageLength = 10,
+                                          displayLength = 10,
+                                          ordering = FALSE,
+                                          header = FALSE,
+                                          server = FALSE,
+                                          columnDefs = list(list(targets = c((((ncol(data)-offset)/2)+1):(ncol(data)-offset)), visible = FALSE))
+                           )) %>%
+        formatStyle(
+          colnames(data)[1:((ncol(data)-offset)/2)],
+          colnames(data)[(((ncol(data)-offset)/2)+1):(ncol(data)-offset)],
+          backgroundColor = styleEqual(c.tags, c.colors))
+      
+      dt
+    })
+
+    })
+
   
   
   

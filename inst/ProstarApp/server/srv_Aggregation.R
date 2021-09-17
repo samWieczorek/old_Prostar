@@ -1,5 +1,6 @@
-callModule(moduleStaticDataTable,"overview_Aggregation", table2show=reactive({GetDatasetOverview()}),
-           filename='Aggregation_overview')
+# mod_staticDT_server("overview_Aggregation",
+#                     data = reactive({GetDatasetOverview()}),
+#                     filename = 'Aggregation_overview')
 
 callModule(moduleProcess, "moduleProcess_Aggregation", 
            isDone = reactive({rvModProcess$moduleAggregationDone}), 
@@ -37,8 +38,21 @@ resetModuleAggregation <- reactive({
   rv$widgets$aggregation$nbPeptides <- 0
   
   rvModProcess$moduleAggregationDone = rep(FALSE, 3)
-  ##update dataset to put the previous one
+  # # Get back to previous dataset
+  # if (length(grep("Aggregated", names(rv$dataset))) > 0){
+  #   i <- grep("Aggregated", names(rv$dataset))
+  #   rv$dataset <- rv$dataset[1:(i-1)]
+  #   updateSelectInput(session, 
+  #                     'datasets', 
+  #                     choices = names(rv$dataset),
+  #                     selected = names(rv$dataset)[length(names(rv$dataset))]
+  #   )
+  # }
+  # 
+  # rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  
   rv$current.obj <- rv$dataset[[input$datasets]]
+  
   ## reset temp object
   rv$temp.aggregate <- NULL
   
@@ -60,8 +74,8 @@ observeEvent(input$AggregationConsider,ignoreInit = TRUE,{
 
 observeEvent(req(input$proteinId),{
   rv$proteinId <- input$proteinId
-  rv$matAdj <- ComputeAdjacencyMatrices()
-  ComputeConnectedComposants()
+  rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
+  rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
   rv$widgets$aggregation$proteinId <- input$proteinId
 })
 
@@ -121,6 +135,7 @@ output$screenAggregation1 <- renderUI({
     ),
     actionButton("perform.aggregation","Perform aggregation", class = actionBtnClass),
     uiOutput("ObserverAggregationDone"),
+    shinyjs::hidden(downloadButton('downloadAggregationIssues', 'Download issues', class = actionBtnClass)),
     
     hr(),
     div(
@@ -129,7 +144,10 @@ output$screenAggregation1 <- renderUI({
       div( style="display:inline-block; vertical-align: top; padding-right: 20px;",       
            uiOutput("allPeptideBarplot")),
       div( style="display:inline-block; vertical-align: top;",
-           DT::dataTableOutput("aggregationStats"))
+           tagList(
+             DT::dataTableOutput("aggregationStats")
+           )
+      )
     )
     
   )
@@ -188,7 +206,7 @@ observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
 
 
 output$specificPeptideBarplot <- renderUI({
-  req(rv$matAdj)
+  req(GetMatAdj(rv$current.obj))
   withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
     tagList(
       h4("Only specific peptides"),
@@ -198,7 +216,7 @@ output$specificPeptideBarplot <- renderUI({
 })
 
 output$allPeptideBarplot <- renderUI({
-  req(rv$matAdj)
+  req(GetMatAdj(rv$current.obj))
   withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
     tagList(
       h4("All (specific & shared) peptides"),
@@ -220,7 +238,7 @@ output$displayNbPeptides <- renderUI({
 
 ########################################################
 RunAggregation <- reactive({
-  req(rv$matAdj)
+  req(GetMatAdj(rv$current.obj))
   rv$widgets$aggregation$includeSharedPeptides
   rv$widgets$aggregation$operator
   rv$widgets$aggregation$considerPeptides
@@ -232,10 +250,10 @@ RunAggregation <- reactive({
     
     require(foreach)
     incProgress(0.5, detail = 'Aggregation in progress')
-    
+
     ll.agg <- NULL
     if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1")){
-      X <- rv$matAdj$matWithSharedPeptides
+      X <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
       if (rv$widgets$aggregation$includeSharedPeptides == 'Yes1'){
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
           ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
@@ -261,9 +279,9 @@ RunAggregation <- reactive({
         }
       }
     } else {
-      X <- rv$matAdj$matWithUniquePeptides
+      X <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
-        ll.agg <- do.call(paste0('aggregate',rv$widgets$aggregation$operator),
+        ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
                           list(obj.pep = rv$current.obj,
                                X = X))
       } else {
@@ -281,6 +299,43 @@ RunAggregation <- reactive({
   return(ll.agg)
   
 })
+
+
+
+
+###------------ Perform aggregation--------------------
+observeEvent(input$perform.aggregation,{
+  
+  rv$temp.aggregate <- RunAggregation()
+  rvModProcess$moduleAggregationDone[1] <- is.null(rv$temp.aggregate$issues)
+  # shinyjs::toggleState('validAggregation',
+  #                      condition = is.null(rv$temp.aggregate$issues))
+  # shinyjs::toggle('downloadAggregationIssues', 
+  #                 condition = !is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0
+  # )
+})
+
+observe({
+  rvModProcess$moduleAggregationDone[1]
+  # shinyjs::toggleState('validAggregation',
+  #                      condition = rvModProcess$moduleAggregationDone[1])
+  shinyjs::toggle('downloadAggregationIssues', 
+                  condition = !rvModProcess$moduleAggregationDone[1] && length(rv$temp.aggregate$issues) > 0
+  )
+})
+
+output$downloadAggregationIssues <- downloadHandler(
+  
+  filename = 'aggregation_issues.txt',
+  content = function(file) {
+    
+    tmp.peptides <- lapply(rv$temp.aggregate$issues, function(x)paste0(x, collapse=","))
+    df <- data.frame(Proteins=names(rv$temp.aggregate$issues), Peptides = as.data.frame(do.call(rbind, tmp.peptides)))
+    colnames(df) <- c('Proteins', 'Peptides')
+    write.table(df, file = file, row.names = FALSE, quote=FALSE, sep="\t")
+  }
+)
+
 
 #-----------------------------------------------------
 #
@@ -309,38 +364,38 @@ output$screenAggregation2 <- renderUI({
 #-----------------------------------------------------
 output$screenAggregation3 <- renderUI({
   tagList(
-    shinyjs::useShinyjs(),
     h4("Once the saving operation is done, the new current dataset is a protein dataset.
        Prostar will automatically switch to the home page with the new dataset."),
-    #shinyjs::disabled(
-      actionButton("valid.aggregation",
-                   "Save aggregation", 
-                   class = actionBtnClass)
-   # )
+    uiOutput("showValidAggregationBtn_ui")
   )
 })
 
 
-
+output$showValidAggregationBtn_ui <- renderUI({
+  req(rvModProcess$moduleAggregationDone[1])
+  actionButton("validAggregation",
+               "Save aggregation", 
+               class = actionBtnClass)
+})
 
 
 
 ##' -- Validate the aggregation ---------------------------------------
 ##' @author Samuel Wieczorek
-observeEvent(input$valid.aggregation,{ 
+observeEvent(input$validAggregation,{ 
   
-  req(rv$matAdj)
+  req(GetMatAdj(rv$current.obj))
   req(rv$temp.aggregate$obj.prot)
-  req(length(rv$temp.aggregate$issues) == 0)
+  req(is.null(rv$temp.aggregate$issues))
   
   isolate({
     withProgress(message = '',detail = '', value = 0, {
       
       X <- NULL
       if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1"))
-        X <- rv$matAdj$matWithSharedPeptides
+        X <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
       else
-        X <- rv$matAdj$matWithUniquePeptides
+        X <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
       
       total <- 60
       delta <- round(total / length(rv$widgets$aggregation$columnsForProteinDataset.box))
@@ -378,22 +433,15 @@ observeEvent(input$valid.aggregation,{
   })
 })
 
-
-# observeEvent(rv$temp.aggregate$issues, {
-#   
-#   shinyjs::toggleState('valid.aggregation',
-#                        condition = length(rv$temp.aggregate$issues) == 0)
-# })
-
-
 #-----------------------------------------------
 output$ObserverAggregationDone <- renderUI({
   req(rv$temp.aggregate)
 
-  if (length(rv$temp.aggregate$issues) > 0){
+  if (!is.null(rv$temp.aggregate$issues) && length(rv$temp.aggregate$issues) > 0){
     .style = "color: red;"
     txt <- 'The aggregation process did not succeed because some sets of peptides contains missing values and quantitative
        values at the same time.'
+
   }
   else {
     txt <- "Aggregation done"
@@ -407,11 +455,11 @@ output$ObserverAggregationDone <- renderUI({
 
 
 output$aggregationStats <- DT::renderDataTable (server=TRUE,{
-  req(rv$matAdj)
-  if (is.null(rv$widgets$aggregation$proteinId) || rv$widgets$aggregation$proteinId == "None") {return(NULL)}
+  req(GetMatAdj(rv$current.obj))
+  req(rv$widgets$aggregation$proteinId != "None")
   
-  res <- getProteinsStats(rv$matAdj$matWithSharedPeptides)
-  #print(res)
+  res <- getProteinsStats(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
+
   rv$AggregProtStats$nb <- c(res$nbPeptides,
                              res$nbSpecificPeptides,
                              res$nbSharedPeptides,
@@ -425,46 +473,26 @@ output$aggregationStats <- DT::renderDataTable (server=TRUE,{
   DT::datatable(df, 
                 escape = FALSE,
                 rownames= FALSE,
-                extensions = c('Scroller', 'Buttons'),
+                extensions = c('Scroller'),
                 option=list(initComplete = initComplete(),
-                            buttons = list('copy',
-                                           list(
-                                             extend = 'csv',
-                                             filename = 'aggregation stats'
-                                           ),'print'),
-                            dom='Brt',
-                            autoWidth=TRUE,
-                            ordering=F,
-                            columnDefs = list(list(width='150px',targets= 0),
-                                              list(width='100px',targets= 1))
+                            dom = 'rt',
+                            autoWidth = TRUE,
+                            ordering = F,
+                            columnDefs = list(list(width='150px', targets= 0),
+                                              list(width='100px', targets= 1))
                 )
   )
 })
 
 output$aggregationPlotShared <- renderPlot({
-  req(rv$matAdj)
-  GraphPepProt(rv$matAdj$matWithSharedPeptides)
+  req(GetMatAdj(rv$current.obj))
+  GraphPepProt(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
 })
 
 
 output$aggregationPlotUnique <- renderPlot({
-  req(rv$matAdj)
-  
-  GraphPepProt(rv$matAdj$matWithUniquePeptides)
-})
-
-
-
-###------------ Perform aggregation--------------------
-observeEvent(input$perform.aggregation,{
-  
-  #isolate({
-  rv$temp.aggregate <- RunAggregation()
-
-  rvModProcess$moduleAggregationDone[1] <- length(rv$temp.aggregate$issues) == 0
-  shinyjs::toggleState('valid.aggregation',
-                       condition = length(rv$temp.aggregate$issues) == 0)
-  #})
+  req(GetMatAdj(rv$current.obj))
+  GraphPepProt(GetMatAdj(rv$current.obj)$matWithUniquePeptides)
 })
 
 
@@ -504,16 +532,7 @@ output$Aggregation_Step2 <- renderUI({
       )
     )
   )
-  
-  # } else {
-  #   tagList(
-  #     h4("The peptide dataset has been aggregated into a protein dataset."),
-  #     tags$div(style="align: center;",
-  #              moduleStaticDataTableUI("overview_Aggregation")
-  #     )
-  #   )
-  # }
-  
+
 })
 
 

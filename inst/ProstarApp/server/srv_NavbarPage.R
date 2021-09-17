@@ -5,8 +5,6 @@
 
 
 observeEvent(rv$current.obj,{  
-  print("## observeEvent(rv$current.obj ##")
-  
   BuildNavbarPage()  
   })
 
@@ -42,40 +40,40 @@ ClearCurrentNavPage <- function(page){
   switch(page,
          FilteringTab = {
            resetModuleProcess("Filtering")
-           rvModProcess$moduleFilteringForceReset <-  1 + rvModProcess$moduleFilteringForceReset  
+           rvModProcess$moduleFilteringForceReset <- rvModProcess$moduleFilteringForceReset  
          },
          NormalizationTab = {
            resetModuleProcess("Normalization")
-           rvModProcess$moduleNormalizationForceReset <-  1 + rvModProcess$moduleNormalizationForceReset  
+           rvModProcess$moduleNormalizationForceReset <-   rvModProcess$moduleNormalizationForceReset  
          },
          imputationProteinLevelTabs = {
            resetModuleProcess("ProtImputation")
-           rvModProcess$moduleProtImputationForceReset <-  1 + rvModProcess$moduleProtImputationForceReset  
+           rvModProcess$moduleProtImputationForceReset <-  rvModProcess$moduleProtImputationForceReset  
          },
          imputationPeptideLevelTabs = {
            resetModuleProcess("PepImputation")
-           rvModProcess$modulePepImputationForceReset <-  1 + rvModProcess$modulePepImputationForceReset  
+           rvModProcess$modulePepImputationForceReset <-  rvModProcess$modulePepImputationForceReset  
          },
          testTab = {
            resetModuleProcess("HypothesisTest")
-           rvModProcess$moduleHypothesisTestForceReset <-  1 + rvModProcess$moduleHypothesisTestForceReset  
+           rvModProcess$moduleHypothesisTestForceReset <-  rvModProcess$moduleHypothesisTestForceReset  
          },
          AggregationTab = {
            resetModuleProcess("Aggregation")
-           rvModProcess$moduleAggregationForceReset <-  1 + rvModProcess$moduleAggregationForceReset  
+           rvModProcess$moduleAggregationForceReset <- rvModProcess$moduleAggregationForceReset  
          },
          diffAnalysisTab = {
            resetModuleProcess("AnaDiff")
-           rvModProcess$moduleAnaDiffForceReset <- 1 + rvModProcess$moduleAnaDiffForceReset
+           rvModProcess$moduleAnaDiffForceReset <- rvModProcess$moduleAnaDiffForceReset
          },
          convertTab = {
            resetModuleProcess("Convert")
-           rvModProcess$moduleConvertForceReset <- 1 + rvModProcess$moduleConvertForceReset
+           rvModProcess$moduleConvertForceReset <- rvModProcess$moduleConvertForceReset
          },
          
          GoTab = {
            resetModuleProcess("GO")
-           rvModProcess$moduleGOForceReset <- 1 + rvModProcess$moduleGOForceReset
+           rvModProcess$moduleGOForceReset <- rvModProcess$moduleGOForceReset
          }
          
   )
@@ -119,7 +117,7 @@ BuildNavbarPage <- reactive({
 rv$current.obj
 #   rv$typeOfDataset
    isolate({rv$UI_TabsList})
-   
+  
 
    ## if a dataset is in memory (ie rv$current.obj is not null
    ## remove menus to import new dataset
@@ -142,6 +140,7 @@ rv$current.obj
              insertTab(inputId = "navPage",
               navbarMenu("Data processing (protein)" 
                          ,source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value
+                         #,source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value
                          ,source(file.path("ui", "ui_ImputationProteinLevel.R"), local = TRUE)$value
                          ,source(file.path("ui", "ui_HypothesisTest.R"),  local = TRUE)$value
@@ -164,6 +163,7 @@ rv$current.obj
             insertTab(inputId = "navPage",
                     navbarMenu("Data processing (peptide)",
                      source(file.path("ui", "ui_Filtering.R"),  local = TRUE)$value,
+                     #source(file.path("server", "mod_filtering_example.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_Normalization.R"),  local = TRUE)$value,
                      source(file.path("ui", "ui_ImputationPeptideLevel.R"), local = TRUE)$value,
                      source(file.path("ui", "ui_Aggregation.R"),  local = TRUE)$value,
@@ -193,9 +193,9 @@ rv$current.obj
      if (rv$typeOfDataset == "peptide"){
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
-                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,moduleCCUI('CC_Multi_Any')
-                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            , source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            , mod_cc_ui('CC_Multi_Any')
+                            , source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
                  ),
                  target = "Help",
                  position="before")
@@ -214,10 +214,10 @@ rv$current.obj
      if (rv$typeOfDataset == "peptide"){
        insertTab(inputId = "navPage",
                  navbarMenu("Data mining" 
-                            ,source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
-                            ,moduleCCUI('CC_Multi_Any')
-                            ,source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
-                            ,source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
+                            , source(file.path("ui", "ui_DescriptiveStatistics.R"),  local = TRUE)$value
+                            , mod_cc_ui('CC_Multi_Any')
+                            , source(file.path("ui", "ui_GO_Enrich.R"),  local = TRUE)$value
+                            , source(file.path("ui", "ui_AnaDiff.R"), local = TRUE)$value
                  ),
                  target = "Help",
                  position="before")

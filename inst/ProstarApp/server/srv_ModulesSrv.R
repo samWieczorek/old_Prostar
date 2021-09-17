@@ -112,71 +112,21 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
 }
 
 
-modulePopover <- function(input, output, session, data){
-  
-  ns <- session$ns
-  
-  output$customPopover <- renderUI({
-    req(data())
-    
-    div(
-      div(
-        # edit1
-        style="display:inline-block; vertical-align: middle; padding-bottom: 5px;",
-        HTML(paste0("<strong>", data()$title, "</strong>"))
-      ),
-      div(
-        # edit2
-        style="display:inline-block; vertical-align: middle;padding-bottom: 5px;",
-        if (!is.null(data()$color) && ('white' == data()$color)) {
-          tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip_white")
-        } else {
-          tags$button(id=ns("q1"), tags$sup("[?]"), class="Prostar_tooltip")
-        },
-        shinyBS::bsPopover(id = ns("q1"), title = "",
-                           content = data()$content,
-                           placement = "right", 
-                           trigger = "hover", 
-                           options = list(container = "body")
-        )
-      )
-    )
-    
-    
-  })
-}
+
 
 
 
 #------------------------------------------------------------
-moduleLegendColoredExprs <- function(input, output, session, legend, colors){
-  ns <- session$ns
-  
- 
-  
-  
-  output$legend <- renderUI({
 
-    tagList(
-      lapply(1:length(colors), function(x){
-        fluidRow(
-          column(width=2, 
-                 tags$div(class="input-color", checked=NA,
-                          tags$input(type="text", value=""),
-                          tags$div(class="color-box", 
-                                   style=paste0("border: 1px solid #000000; background-color: ", colors[[x]] , ";"))
-                 )),
-          column(width=10, tags$p(legend[[x]]))
-          )
-        })
-        )
-  })
-}
 
 
 #------------------------------------------------------------
 
-moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwaped){
+moduleVolcanoplot <- function(input, output, session,
+                              data, 
+                              comp, 
+                              tooltip, 
+                              isSwaped){
   
   ns <- session$ns
   
@@ -186,7 +136,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     #
      if (DAPAR::GetTypeofData(rv$current.obj) == 'protein'){
-       if (is.null(rv$matAdj)){
+       if (is.null(GetMatAdj(rv$current.obj))){
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), 
                           open = "Protein",
                           multiple = TRUE,
@@ -330,8 +280,8 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    Xspec <- rv$matAdj$matWithUniquePeptides
-    Xshared <- rv$matAdj$matWithSharedPeptides
+    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
+    Xshared <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     specificPeptidesIndices <- which(Xspec[,i]==1)
@@ -343,22 +293,17 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   
   output$sharedPeptidesInfos <- renderDataTable(server=TRUE,{
     data <-  GetDataFor_sharedPeptidesInfos()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable(data,
                         #colnames=NULL,
-                        extensions = c('Scroller', 'Buttons'),
+                        extensions = c('Scroller'),
                         options = list(initComplete = initComplete(),
-                                       buttons = list('copy',
-                                                      list(
-                                                        extend = 'csv',
-                                                        filename = 'sharedPeptidesInfos'
-                                                      ),'print'),
-                                       dom='Bfrtip',
+                                       dom = 'frtip',
                                        blengthChange = FALSE,
                                        displayLength = 20,
-                                       ordering=FALSE,
+                                       ordering = FALSE,
                                        server = FALSE,
                                        columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                         )) %>%
@@ -380,9 +325,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   })
   
   GetDataFor_specificPeptidesInfos <- reactive({
-    #req(rv$current.obj)
     req(comp())
-    #req(rv$matAdj)
     
     ind <- GetSortingIndices()
     borders_index <- GetBorderIndices()
@@ -396,7 +339,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     
-    Xspec <- rv$matAdj$matWithUniquePeptides
+    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     peptidesIndices <- which(Xspec[,i]==1)
@@ -408,22 +351,17 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
   output$specificPeptidesInfos <- renderDataTable(server=TRUE,{
     
     data <- GetDataFor_specificPeptidesInfos()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
     dt <- DT::datatable( data, 
                          #colnames=NULL,
-                         extensions = c('Scroller', 'Buttons'),
+                         extensions = c('Scroller'),
                          options = list(initComplete = initComplete(),
-                                        buttons = list('copy',
-                                                       list(
-                                                         extend = 'csv',
-                                                         filename = 'specific peptides infos'
-                                                       ),'print'),
-                                        dom='Bfrtip',
+                                        dom = 'frtip',
                                         blengthChange = FALSE,
                                         displayLength = 20,
-                                        ordering=FALSE,
+                                        ordering = FALSE,
                                         columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                          )) %>%
       formatStyle(
@@ -497,22 +435,17 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     
     borders_index <- GetBorderIndices()
     data <- GetExprsClickedProtein()
-    c.tags <- BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$tags
-    c.colors <-  BuildColorStyles(rv$current.obj, rv$colorsTypeMV)$colors
+    c.tags <- BuildColorStyles(rv$current.obj)$tags
+    c.colors <-  BuildColorStyles(rv$current.obj)$colors
     
    dt <- DT::datatable(data,
-                        extensions = c('Scroller', 'Buttons'),
+                        extensions = c('Scroller'),
                         options = list(initComplete = initComplete(),
-                                       buttons = list('copy',
-                                                      list(
-                                                        extend = 'csv',
-                                                        filename = 'Infos'
-                                                      ),'print'),
-                                       dom='Bfrtip',
+                                       dom = 'frtip',
                                        blengthChange = FALSE,
                                        displayLength = 20,
-                                       ordering=FALSE,
-                                       header=FALSE,
+                                       ordering = FALSE,
+                                       header = FALSE,
                                        columnDefs = list(list(targets = c(((ncol(data)/2)+1):(ncol(data))), visible = FALSE))
                         )) %>%
       formatStyle(
@@ -535,7 +468,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
     #data()$logFC
     tooltip()
     isSwaped()
-    
+    #browser()
     print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
     isolate({
       #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
@@ -551,7 +484,7 @@ moduleVolcanoplot <- function(input, output, session, data, comp, tooltip, isSwa
         df <-  data.frame(x=data()$logFC, 
                           y = -log10(data()$P_Value),
                           index = 1:nrow(fData(rv$current.obj)))
-        if (length( tooltip()) > 0){
+        if (length( tooltip()) > 0 && !is.na(tooltip())){
           df <- cbind(df,fData(rv$current.obj)[ tooltip()])
         }
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
@@ -767,60 +700,6 @@ moduleFilterStringbasedOptions <- function(input, output, session) {
 
 
 
-moduleStaticDataTable <- function(input, output, session,
-                                  table2show, 
-                                  withBtns, 
-                                  showRownames=FALSE, 
-                                  dom='Bt', 
-                                  filename='Prostar_export') {
-  
-  
-  proxy = dataTableProxy(session$ns('StaticDataTable'), session)
-  
-  
-  observe({replaceData(proxy, table2show(), resetPaging = FALSE)  })
-  
-  
-  output$warningOnSize <- renderUI({
-    if (length(table2show())==0){return(NULL)}
-    if (nrow(table2show())>153) 
-      p(MSG_WARNING_SIZE_DT)
-    
-  })
-  
-  output$StaticDataTable <- DT::renderDataTable(server=TRUE,{
-    req(rv$current.obj)
-    #table2show
-    if (length(table2show())==0){return(NULL)}
-    
-    print(table2show())
-    isolate({
-      DT::datatable(table2show(), 
-                    extensions = 'Buttons',
-                    escape = FALSE,
-                    # rownames= showRownames,
-                    options=list(
-                      buttons = list(
-                        list(
-                          extend = 'csv',
-                          filename = filename
-                        ),
-                        list(
-                          extend = 'pdf',
-                          filename = filename
-                        ),'print'),
-                      #initComplete = initComplete(),
-                      dom = dom
-                      #    server = FALSE,
-                      #    autoWidth=TRUE,
-                      #columnDefs = list(list(width='150px',targets= "_all")),
-                      #ordering = FALSE
-                    )
-      )
-    })
-    
-  })
-}
 
 
 

@@ -27,16 +27,29 @@ resetModuleNormalization <- reactive({
   resetModuleProcess("Normalization")
   
   rv$widgets$normalization$method <- "None"
-  rv$widgets$normalization$type <- "None"
+  rv$widgets$normalization$type <- "overall"
   rv$widgets$normalization$varReduction <- FALSE
   rv$widgets$normalization$quantile <- 0.15
   rv$widgets$normalization$spanLOESS <- 0.7
   
   rv.norm$resetTracking <- TRUE
   rv.norm$sync <- FALSE
+ # Get back to previous dataset
+  # if (length(grep("Normalized.", names(rv$dataset))) > 0){
+  #   i <- grep("Normalized.", names(rv$dataset))
+  #   
+  #   rv$current.obj <- rv$dataset[[input$datasets]]
+  #   # updateSelectInput(session, 
+  #   #                   'datasets', 
+  #   #                   choices = names(rv$dataset),
+  #   #                   selected = names(rv$dataset)[length(names(rv$dataset))]
+  #   #                   )
+  #   
+  # }
   
-  rv$current.obj <- rv$dataset[[input$datasets]] 
-  rvModProcess$moduleNormalizationDone =  rep(FALSE,2)
+  rv$current.obj <- rv$dataset[[input$datasets]]
+  
+  rvModProcess$moduleNormalizationDone =  rep(FALSE, 2)
   
 })
 
@@ -80,19 +93,19 @@ rv.norm$trackFromBoxplot <- callModule(mod_plots_intensity_server,
 
 
 
-observeEvent(input$normalization.method,ignoreInit=TRUE,{
+observeEvent(input$normalization.method,{
   rv$widgets$normalization$method <- input$normalization.method
 })
-observeEvent(input$normalization.type,ignoreInit=TRUE,{
+observeEvent(input$normalization.type,{
   rv$widgets$normalization$type <- input$normalization.type
 })
-observeEvent(input$normalization.variance.reduction,ignoreInit=TRUE,{
+observeEvent(input$normalization.variance.reduction,{
   rv$widgets$normalization$varReduction <- input$normalization.variance.reduction
 })
-observeEvent(input$normalization.quantile,ignoreInit=TRUE,{
+observeEvent(input$normalization.quantile,{
   rv$widgets$normalization$quantile <- input$normalization.quantile
 })
-observeEvent(input$spanLOESS,ignoreInit=TRUE,{
+observeEvent(input$spanLOESS, {
   rv$widgets$normalization$spanLOESS <- input$spanLOESS
 })
 
@@ -123,7 +136,7 @@ output$screenNormalization1 <- renderUI({
         div(
           style="display:inline-block; vertical-align: middle; padding-right: 20px;",
           hidden(selectInput("normalization.type", "Normalization type",  
-                             choices = setNames( c("overall", "within conditions"),c("overall", "within conditions")), 
+                             choices = setNames( nm = c("overall", "within conditions")), 
                              selected = rv$widgets$normalization$type,
                              width='150px'))
         ),
@@ -202,7 +215,7 @@ output$helpForNormalizationMethods <- renderUI({
          (either all of them at once, or on each condition independently). It relates to  a 
          combination of multiple regression models. The user can tune the regression span (an higher span smooths
          the fit more, while a lower span captures more trends).",
-         vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization [Other ref. 6] to the 
+         vsn = txt <- "This method proposes to apply the Variance Stabilization Normalization method [Other ref. 6] to the 
          data (either all of them at once, or on each condition independently). No specific parameters required."
   )
   
@@ -302,7 +315,7 @@ observeEvent(input$perform.normalization,{
   rv$widgets$normalization$method
   rv$dataset[[input$datasets]]
   # isolate({
-  
+
   switch(rv$widgets$normalization$method, 
          G_noneStr = rv$current.obj <- rv$dataset[[input$datasets]],
          GlobalQuantileAlignment = {
@@ -360,12 +373,17 @@ observeEvent(input$perform.normalization,{
 ##' @author Samuel Wieczorek
 observeEvent(input$valid.normalization,{ 
   req(input$perform.normalization)
+  req(rv$current.obj)
   
   isolate({
     if (rv$widgets$normalization$method != G_noneStr) {
-      rv$typeOfDataset <-rv$current.obj@experimentData@other$typeOfData
+      rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
       name <- paste0("Normalized", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj,name,"Normalization",build_ParamsList_Normalization())
+      rv$current.obj <- saveParameters(rv$current.obj,
+                                       name,
+                                       "Normalization",
+                                       build_ParamsList_Normalization()
+                                       )
       
       rvModProcess$moduleNormalizationDone[2] <- TRUE
       UpdateDatasetWidget(rv$current.obj, name)
@@ -398,114 +416,25 @@ output$ChooseLegendForNormTabPanel <- renderUI({
 
 #######################
 
-# viewComparisonNorm2 <- reactive({
-#   rv$PlotParams$paletteForConditions
-#   leg <- NULL
-#   grp <- NULL
-#   
-#   labelsNorm <- NULL
-#   labelsToShowNorm <- NULL
-#   gToColorNorm <- NULL
-#   
-#   labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-#   
-#   
-#   
-#   if (is.null(rv$whichGroup2Color) 
-#       || (rv$whichGroup2Color == "Condition")){
-#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-#   }else {
-#     labelsNorm <- paste(Biobase::pData(rv$current.obj)[,"Condition"],
-#                         Biobase::pData(rv$current.obj)[,"Bio.Rep"],
-#                         Biobase::pData(rv$current.obj)[,"Tech.Rep"],
-#                         Biobase::pData(rv$current.obj)[,"Analyt.Rep"],
-#                         sep= "_")
-#   }
-#   
-#   
-#   if (input$datasets == paste0("Normalized.", rv$typeOfDataset)){
-#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-#     obj2 <- rv$dataset[[input$datasets]]
-#   }
-#   else {
-#     obj1 <-rv$dataset[[input$datasets]]
-#     obj2 <- rv$current.obj
-#     
-#   }
-#   
-#   wrapper.compareNormalizationD(obj1, obj2,
-#                                 labelsNorm,
-#                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteForConditions)
-#   
-# })
-# 
-
-
-# viewComparisonNorm <- reactive({
-#   rv$PlotParams$paletteForConditions
-#   req(rv$current.obj)
-#   
-#   leg <- NULL
-#   grp <- NULL
-#   
-#   labelsNorm <- NULL
-#   labelsToShowNorm <- NULL
-#   gToColorNorm <- NULL
-#   if (is.null(input$lab2Show)) { 
-#     labelsToShowNorm <- c(1:nrow(Biobase::pData(rv$current.obj)))
-#   }
-#   else { labelsToShowNorm <- input$lab2Show}
-#   
-#   if (is.null(rv$whichGroup2Color)){
-#     gToColorNorm <- "Condition"
-#   }else{gToColorNorm <- rv$whichGroup2Color}
-#   
-#   
-#   if (is.null(rv$whichGroup2Color) 
-#       || (rv$whichGroup2Color == "Condition")){
-#     labelsNorm <- Biobase::pData(rv$current.obj)[,"Condition"]
-#   }else {
-#     labelsNorm <- apply(pData(rv$current.obj), 1, function(x){paste0(x, collapse='_')})
-#     names(labelsNorm)<- NULL
-#     labelsNorm <- setNames(as.list(c(1:length(labs))),labs)
-#   }
-#   
-#   
-#   dname <- paste0("Normalized.", rv$typeOfDataset)
-#   if (input$datasets == dname){
-#     obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-#     obj2 <- rv$dataset[[input$datasets]]
-#   }
-#   else {
-#     obj1 <-rv$dataset[[input$datasets]]
-#     obj2 <- rv$current.obj
-#     
-#   }
-#   
-#   wrapper.compareNormalizationD(obj1, obj2,
-#                                 labelsNorm,
-#                                 as.numeric(labelsToShowNorm),
-#                                 palette = rv$PlotParams$paletteForConditions)
-#   
-# })
-
 
 output$viewComparisonNorm_HC <- renderHighchart({
-  rv$PlotParams$paletteForConditions
+  #rv$PlotParams$paletteForConditions
   req(rv$current.obj)
-
-  dname <- paste0("Normalized.", rv$typeOfDataset)
-  if (input$datasets == dname){
-    obj1 <- rv$dataset[[(which(names(rv$dataset)==dname) - 1)]]
-    obj2 <- rv$dataset[[input$datasets]]
+  #req(length(rv$dataset > 1))
+  #browser()
+  ind <- grep("Normalized.", names(rv$dataset))
+  if (length(ind) > 0){
+    obj1 <- rv$dataset[[ind - 1]]
+    obj2 <- rv$dataset[[ind]]
   }
   else {
-    obj1 <-rv$dataset[[input$datasets]]
+    obj1 <- rv$dataset[[input$datasets]]
     obj2 <- rv$current.obj
-    
   }
 
+  if (is.null(obj1) || is.null(obj2))
+    return(NULL)
+  
   compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
                            qDataAfter = Biobase::exprs(obj2),
                            keyId = fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
@@ -518,19 +447,3 @@ output$viewComparisonNorm_HC <- renderHighchart({
   )
 })
 
-#######################
-# output$viewComparisonNorm_DS<- renderImage({
-#   
-#   #req(rv$PCA_axes)
-#   # req(rv$res.pca)
-#   
-#   outfile <- tempfile(fileext='.png')
-#   # Generate a png
-#   png(outfile)
-#   viewComparisonNorm()
-#   dev.off()
-#   
-#   # Return a list
-#   list(src = outfile,
-#        alt = "This is alternate text")
-# }, deleteFile = FALSE)

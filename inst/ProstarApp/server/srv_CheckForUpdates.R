@@ -6,17 +6,15 @@
 
 output$tab_versions <- DT::renderDataTable(server=TRUE,{
   dt <- DT::datatable(getPackagesVersions(),
-  # dt <- DT::datatable(getPackagesVersions2(), 
                       escape = FALSE,
                       rownames= FALSE,
-                      extensions = c('Scroller', 'Buttons'),
+                      extensions = c('Scroller'),
                       option=list(initComplete = initComplete(),
-                                  
-                                  dom='Brt',
+                                  dom='rt',
                                   autoWidth=TRUE,
-                                  ordering = F
+                                  ordering = FALSE
+                                  )
                       )
-  )
   dt
 })
 

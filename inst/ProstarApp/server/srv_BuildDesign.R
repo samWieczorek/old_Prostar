@@ -73,7 +73,8 @@ output$hot <- renderRHandsontable({
                           stringsAsFactors = FALSE)
   }
   
-  hot <- rhandsontable::rhandsontable(rv$hot,rowHeaders=NULL, 
+  hot <- rhandsontable::rhandsontable(rv$hot,
+                                      rowHeaders=NULL, 
                                       fillHandle = list(direction='vertical', 
                                                         autoInsertRow=FALSE,
                                                         maxRows=nrow(rv$hot))) %>%

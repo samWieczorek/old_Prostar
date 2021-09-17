@@ -84,7 +84,7 @@ server <- function(input, output, session) {
     quantiDataTable(),
     escape=FALSE,
     rownames = FALSE,
-    extensions = c('Scroller', 'Buttons'),
+    extensions = c('Scroller'),
     server=FALSE,
     selection='none', 
     class = 'compact',

@@ -32,7 +32,8 @@ server <- function(input, output, session) {
   )
   
   mod_filtering_example_server(id = 'example', 
-                               obj = reactive({obj}),
+                               obj = reactive({obj[1:10,]}),
+                               indices = reactive({1:4}),
                                params = reactive({rv$widgets$filtering}),
                                txt = reactive({paste0('Query:', "query")})
                                )

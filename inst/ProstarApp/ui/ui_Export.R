@@ -2,18 +2,9 @@ tabPanel("Export",
          value = "ExportTab",
          tabsetPanel(
            id = "Export_tabSetPanel",
-           # tabPanel("Process summary",
-           #          tagList(
-           #            moduleStaticDataTableUI("viewProstarVersions"),
-           #          br(),br(),br(),
-           #          downloadButton('downloadProcessingData', 'Download', class=actionBtnClass),
-           #          moduleStaticDataTableUI("viewProcessingData")
-           #          )
-           #          ),
-           tabPanel("Export to file",
+            tabPanel("Export to file",
                     value = "export",
                     helpText("Export customization tab"),
-                    
                     uiOutput("choosedataToExportMSnset"),
                     hr(),
                     uiOutput("exportOptions")
@@ -21,13 +12,13 @@ tabPanel("Export",
            
            tabPanel("Build report (Beta)",
                     tagList(
-                      moduleStaticDataTableUI("viewProstarVersions"),
+                      mod_staticDT_ui("viewProstarVersions"),
                       downloadButton('downloadReport', "Build and download pdf report", class = actionBtnClass),
                       
                       tags$hr(),
                       tags$div(
                         tags$div( style="display:inline-block; vertical-align: top;",
-                                  moduleStaticDataTableUI("viewProcessingData")
+                                  mod_staticDT_ui("viewProcessingData")
                         ),
                         tags$div( style="display:inline-block; vertical-align: top;",
                                   shinyBS::bsCollapse(id = "collapseDataProcessingExport", open = "",
@@ -159,7 +150,7 @@ tabPanel("Export",
                       
                       tags$div(
                         tags$div( style="display:inline-block; vertical-align: top;",
-                                  moduleStaticDataTableUI("viewDataMining")
+                                  mod_staticDT_ui("viewDataMining")
                         ),
                         tags$div( style="display:inline-block; vertical-align: top;",
                                   shinyBS::bsCollapse(id = "collapseDataProcessingExport", open = "",

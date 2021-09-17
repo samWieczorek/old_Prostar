@@ -19,7 +19,9 @@ callModule(modulePopover,"modulePopover_convertDataQuanti",
            data = reactive(list(title = "Quantitative data", 
                                 content="Select the columns that are quantitation values by clicking in the field below.")))
 
-callModule(moduleStaticDataTable,"overview_convertData", table2show=reactive({GetDatasetOverview()}))
+mod_staticDT_server("overview_convertData",
+                    data = reactive({GetDatasetOverview()})
+                    )
 
 
 
@@ -66,9 +68,17 @@ output$choose_file_to_import <- renderUI({
 })
 
 
+fileExt.ok <- reactive({
+  req(input$file1$name)
+  authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
+  ext <- GetExtension(input$file1$name)
+  !is.na(match(ext, authorizedExts))
+})
+
 output$ConvertOptions <- renderUI({
   req(input$choose_software)
   req(input$file1)
+  req(fileExt.ok())
   
   tagList(
     radioButtons("typeOfData", 
@@ -93,20 +103,18 @@ output$ConvertOptions <- renderUI({
 
 
 
-
 ############ Read text file to be imported ######################
-observeEvent(c(input$file1,input$XLSsheets),{
+observeEvent(c(input$file1, input$XLSsheets),{
   input$XLSsheets
-  if (((GetExtension(input$file1$name)== "xls")
-       || (GetExtension(input$file1$name) == "xlsx") )
+  if (((GetExtension(input$file1$name) %in% c("xls","xlsx")))
       && is.null(input$XLSsheets)) {return(NULL)  }
   
   authorizedExts <- c("txt","csv", "tsv","xls","xlsx")
-  if( is.na(match(GetExtension(input$file1$name), authorizedExts))) {
+  
+  if (!fileExt.ok()){
     shinyjs::info("Warning : this file is not a text nor an Excel file ! 
-                  Please choose another one.")
-  }
-  else {
+     Please choose another one.")
+  } else {
     # result = tryCatch(
     #   {
     ClearUI()
@@ -120,6 +128,10 @@ observeEvent(c(input$file1,input$XLSsheets),{
            xls = { rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)},
            xlsx = {rv$tab1 <- readExcel(input$file1$datapath, ext, sheet=input$XLSsheets)}
     )
+    
+    colnames(rv$tab1) <- gsub(".", "_", colnames(rv$tab1), fixed=TRUE)
+    colnames(rv$tab1) <- gsub(" ", "_", colnames(rv$tab1), fixed=TRUE)
+    
     #   }
     #   , warning = function(w) {
     #     shinyjs::info(conditionMessage(w))
@@ -340,12 +352,13 @@ output$Convert_ExpFeatData <- renderUI({
   tagList(
     shinyjs::useShinyjs(),
     fluidRow(
-      column(width=4, shinyjs::hidden(
-        checkboxInput("selectIdent", 
-                      "Select columns for identification method", 
-                      value = FALSE))
+      column(width = 4, radioButtons("selectIdent","Provide identification method",
+                                   choices = list("No (default values will be computed)" = FALSE,
+                                                  "Yes" = TRUE),
+                                   selected = FALSE
+                                   )
       ),
-      column(width=4,uiOutput("checkIdentificationTab")),
+      column(width = 4,uiOutput("checkIdentificationTab")),
       column(width = 4, shinyjs::hidden(
         div(id = 'warning_neg_values',
             p("Warning : Your original dataset may contain negative values",
@@ -355,8 +368,8 @@ output$Convert_ExpFeatData <- renderUI({
       )
     ),
     fluidRow(
-      column(width=4, uiOutput("eData",width = "400px")),
-      column(width=8, shinyjs::hidden(
+      column(width = 4, uiOutput("eData",width = "400px")),
+      column(width = 8, shinyjs::hidden(
         DT::dataTableOutput("x1", width='500px'))
       )
     ),
@@ -371,7 +384,7 @@ observe({
 
   shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
   shinyjs::toggle('selectIdent', condition = !is.null(input$choose_quantitative_columns))
-  shinyjs::toggle('x1', condition = input$selectIdent == TRUE)
+  shinyjs::toggle('x1', condition = as.logical(input$selectIdent) == TRUE)
 })
 
 output$eData <- renderUI({
@@ -395,16 +408,17 @@ output$eData <- renderUI({
 
 
 output$checkIdentificationTab <- renderUI({
-  req(input$selectIdent == TRUE)
+  req(as.logical(input$selectIdent) == TRUE)
   
   shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
   temp <- shinyValue("colForOriginValue_",length(input$choose_quantitative_columns))
   
-  if ((length(which(temp == "None")) == length(temp)))
-  {
-    img <- "images/Ok.png"
-    txt <- "Correct"
-  }  else {
+  # if ((length(which(temp == "None")) == length(temp)))
+  # {
+  #   img <- "images/Ok.png"
+  #   txt <- "Correct"
+  # }  else {
+    
     if (length(which(temp == "None")) > 0)
     {
       img <- "images/Problem.png"
@@ -418,7 +432,7 @@ output$checkIdentificationTab <- renderUI({
         txt <- "Correct"
       }
     }
-  }
+  #}
   tags$div(
     tags$div(
       tags$div(style="display:inline-block;",tags$img(src = img, height=25)),
@@ -448,9 +462,8 @@ GetToto <- reactive({
 # reactive dataset
 quantiDataTable <- reactive({
   # req(c(input$eData.box,rv$tab1))
-  # input$selectIdent
-  
-
+  # as.logical(input$selectIdent)
+ 
   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
   
   df <- NULL
@@ -459,7 +472,7 @@ quantiDataTable <- reactive({
   names(choices) <- c("None", colnames(rv$tab1))
   
   
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(as.logical(input$selectIdent)))) {
     
     df <- data.frame(as.data.frame(input$choose_quantitative_columns),
                      shinyInput(selectInput,
@@ -505,11 +518,11 @@ output$x1 <- renderDataTable(
   quantiDataTable(),
   escape=FALSE,
   rownames = FALSE,
-  extensions = c('Scroller', 'Buttons'),
-  server=FALSE,
-  selection='none', 
+  extensions = c('Scroller'),
+  server = FALSE,
+  selection = 'none', 
   class = 'compact',
-  options=list(
+  options = list(
     preDrawCallback=JS(
       'function() {
             Shiny.unbindAll(this.api().table().node());}'),
@@ -517,8 +530,8 @@ output$x1 <- renderDataTable(
       'function(settings) {
             Shiny.bindAll(this.api().table().node());}'),
     # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-    dom = 'Bfrtip',
-    autoWidth=TRUE,
+    dom = 'frtip',
+    autoWidth = TRUE,
     deferRender = TRUE,
     bLengthChange = FALSE,
     scrollX = 200,
@@ -538,7 +551,7 @@ observeEvent(shinyValue("colForOriginValue_",
 checkIdentificationMethod_Ok <- reactive({
   res <- TRUE
   tmp <- NULL
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(input$selectIdent))) {
     tmp <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if ((length(grep("None", tmp)) > 0)  || (sum(is.na(tmp)) > 0)){ res <- FALSE }
   } 
@@ -598,7 +611,7 @@ output$Convert_Convert <- renderUI({
     br(), br(),
     
     uiOutput("convertFinalStep"),
-    moduleStaticDataTableUI("overview_convertData"),
+    mod_staticDT_ui("overview_convertData"),
     uiOutput("conversionDone"),
     p("Once the 'Load' button (above) clicked, you will be automatically redirected to Prostar home page. The dataset will be accessible within Prostar 
     interface and processing menus will be enabled. However, all importing functions ('Open MSnset', 'Demo data' and 'Convert data') will be disabled 
@@ -646,7 +659,7 @@ output$conversionDone <- renderUI({
 
 
 output$warningCreateMSnset <- renderUI({
-  if (isTRUE(input$selectIdent)){
+  if (isTRUE(as.logical(input$selectIdent))){
     colNamesForMetacell <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
     if (length(which(colNamesForMetacell == "None")) >0){
       text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
@@ -676,10 +689,14 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   # if(is.null(input$createMSnsetButton) || (input$createMSnsetButton == 0)) 
   #{return(NULL)}
 
+  #browser()
   colNamesForMetacell <- NULL
-  if (isTRUE(input$selectIdent)) {
+  if (isTRUE(as.logical(input$selectIdent))) {
     colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
-    if (length(which(colNamesForMetacell == "None")) > 0 ){ return (NULL)   }
+    if (length(which(colNamesForMetacell == "None")) > 0 )
+      return (NULL)
+    if (!is.null(rv$newOrder))
+      colNamesForMetacell <- colNamesForMetacell[rv$newOrder]
   } 
   
   isolate({
@@ -698,9 +715,9 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
                xlsx = writeToCommandLogFile(txtXls)
         )
         
+
         input$filenameToCreate
         rv$tab1
-        
         tmp.choose_quantitative_columns <- input$choose_quantitative_columns
         indexForEData <- match(tmp.choose_quantitative_columns, colnames(rv$tab1))
         if (!is.null(rv$newOrder)){
@@ -719,12 +736,10 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         metadata <- hot_to_r(input$hot)
         logData <- (input$checkDataLogged == "no")
         
-        
+
         indexForMetacell <- NULL
         if (!is.null(colNamesForMetacell) && (length(grep("None", colNamesForMetacell))==0)  && (sum(is.na(colNamesForMetacell)) == 0)){
-          for (i in 1:length(tmp.choose_quantitative_columns)){
-            indexForMetacell <- c(indexForMetacell, which(colnames(rv$tab1) == input[[paste0("colForOriginValue_", i)]]))
-          }
+          indexForMetacell <-  match(colNamesForMetacell, colnames(rv$tab1))
         }
         
         options(digits=15)
@@ -738,7 +753,6 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         tmp <- DAPAR::createMSnset(file = rv$tab1, 
                                    metadata = metadata, 
                                    indExpData = indexForEData, 
-                                   indFData = indexForFData, 
                                    colnameForID = input$colnameForID,
                                    indexForMetacell = indexForMetacell,
                                    logData = logData, 
