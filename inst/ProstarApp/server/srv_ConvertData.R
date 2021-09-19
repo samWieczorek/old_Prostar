@@ -368,23 +368,60 @@ output$Convert_ExpFeatData <- renderUI({
       )
     ),
     fluidRow(
-      column(width = 4, uiOutput("eData",width = "400px")),
+      column(width = 4, uiOutput("eData", width = "400px")),
       column(width = 8, shinyjs::hidden(
-        DT::dataTableOutput("x1", width='500px'))
+        #DT::dataTableOutput("x1", width='500px'))
+        uiOutput('inputGroup', width='600px'))
       )
-    ),
-    tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
-                                   Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
-                                   })"))
+      )
+    #)
+    # tags$script(HTML("Shiny.addCustomMessageHandler('unbind-DT', function(id) {
+    #                                Shiny.unbindAll($('#'+id).find('table').DataTable().table().node());
+    #                                })"))
   )
 })
 
+  
+  output$inputGroup = renderUI({
+    if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) 
+      return(NULL)
+    
+    n <- length(input$choose_quantitative_columns)
+    
+    input_list <- lapply(seq_len(n), function(i) {
+      inputName <- paste("colForOriginValue_", i, sep = "")
+      div(
+        div( style="align: center;display:inline-block; vertical-align: middle;padding-right: 10px;",
+             p(tags$strong(paste0('Identification col. for ', input$choose_quantitative_columns[i])))
+        ),
+        div( style="align: center;display:inline-block; vertical-align: middle;",
+             selectInput(inputName, '', choices = c('None', colnames(rv$tab1)))
+        )
+      )
+    })
+    do.call(tagList, input_list)
+  })
+  
+  
+  observeEvent(input[['colForOriginValue_1']], ignoreInit = T, ignoreNULL = F, {
+    n <- length(input$choose_quantitative_columns)
+    lapply(seq(2,n), function(i) {
+      inputName <- paste("colForOriginValue_", i, sep = "")
+      start <- which(colnames(rv$tab1)==input[['colForOriginValue_1']])
+      
+      if (input[['colForOriginValue_1']] == 'None')
+        .select <- 'None'
+      else 
+        .select <- colnames(rv$tab1)[(i-1)+start]
+      updateSelectInput(session, inputName, selected = .select) 
+    })
+  })
 
 observe({
 
   shinyjs::toggle('warning_neg_values', condition = !is.null(input$choose_quantitative_columns) && length(which(rv$tab1[,input$choose_quantitative_columns] < 0)) > 0)
   shinyjs::toggle('selectIdent', condition = !is.null(input$choose_quantitative_columns))
-  shinyjs::toggle('x1', condition = as.logical(input$selectIdent) == TRUE)
+  shinyjs::toggle('inputGroup', condition = as.logical(input$selectIdent) == TRUE)
 })
 
 output$eData <- renderUI({
@@ -446,106 +483,126 @@ output$checkIdentificationTab <- renderUI({
 
 
 
-GetToto <- reactive({
-  if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
-  shinyValue("colForOriginValue_",1)
-  isolate({
-    ind <- which(shinyValue("colForOriginValue_", 1) == colnames(rv$tab1))
-    n <- nrow(as.data.frame(input$choose_quantitative_columns))
-    if (length(ind) > 0)
-        colnames(rv$tab1)[ind:(ind+n)]
-    else
-      rep('', n)
-  })
-})
+# GetToto <- reactive({
+#   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
+#   shinyValue("colForOriginValue_",1)
+#   isolate({
+#     ind <- which(shinyValue("colForOriginValue_", 1) == colnames(rv$tab1))
+#     n <- nrow(as.data.frame(input$choose_quantitative_columns))
+#     if (length(ind) > 0)
+#         colnames(rv$tab1)[ind:(ind+n)]
+#     else
+#       rep('', n)
+#   })
+# })
 
 # reactive dataset
-quantiDataTable <- reactive({
-  # req(c(input$eData.box,rv$tab1))
-  # as.logical(input$selectIdent)
- 
-  if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
-  
-  df <- NULL
-  session$sendCustomMessage('unbind-DT', 'x1')
-  choices <- c("None", colnames(rv$tab1))
-  names(choices) <- c("None", colnames(rv$tab1))
-  
-  
-  if (isTRUE(as.logical(as.logical(input$selectIdent)))) {
-    
-    df <- data.frame(as.data.frame(input$choose_quantitative_columns),
-                     shinyInput(selectInput,
-                                "colForOriginValue_",
-                                nrow(as.data.frame(input$choose_quantitative_columns)),
-                                choices = choices)
-    )
-    
-    # df <- data.frame(as.data.frame(input$choose_quantitative_columns),
-    #                  toto = c(GetEx
-    #                  shinyInput(selectInput,"colForOriginValue_1",1,choices = choices,
-    #                                               selected = colnames(rv$tab1)[30]),
-    #                  shinyInput(selectInput,"colForOriginValue_2",1,choices = choices,
-    #                             selected = eventReactive(shinyValue("colForOriginValue_1",1), {
-    #                               return(colnames(rv$tab1)[33])
-    #                             })),
-    #                  shinyInput(selectInput,"colForOriginValue_3",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[32]),
-    #                  shinyInput(selectInput,"colForOriginValue_4",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[33]),
-    #                  shinyInput(selectInput,"colForOriginValue_5",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[34]),
-    #                  shinyInput(selectInput,"colForOriginValue_6",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[35]),
-    #                  shinyInput(selectInput,"colForOriginValue_7",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[36]),
-    #                  shinyInput(selectInput,"colForOriginValue_8",1,choices = choices,
-    #                             selected = colnames(rv$tab1)[37]))
-    # )
-    
-    
-    colnames(df) <- c("Sample", "Identification method")
-  } else {
-    df <- data.frame(Sample = as.data.frame(input$choose_quantitative_columns))
-    colnames(df) <- c("Sample")
-  }
-  df
-})
+# quantiDataTable <- reactive({
+#   # req(c(input$eData.box,rv$tab1))
+#   # as.logical(input$selectIdent)
+#  
+#   if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) return(NULL)
+#   
+#   df <- NULL
+#   session$sendCustomMessage('unbind-DT', 'x1')
+#   choices <- c("None", colnames(rv$tab1))
+#   names(choices) <- c("None", colnames(rv$tab1))
+#   
+#   
+#   if (isTRUE(as.logical(input$selectIdent))) {
+#     browser()
+#     # df <- data.frame(as.data.frame(input$choose_quantitative_columns),
+#     #                  shinyInput(selectInput,
+#     #                             "colForOriginValue_",
+#     #                             nrow(as.data.frame(input$choose_quantitative_columns)),
+#     #                             choices = choices)
+#     # )
+#     
+#     df <- data.frame(as.data.frame(input$choose_quantitative_columns),
+#                      shinyInput(selectInput,
+#                                 id = "colForOriginValue_1",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[30]),
+#                      shinyInput(selectInput,
+#                                 "colForOriginValue_2",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = eventReactive(shinyValue("colForOriginValue_1",1), {
+#                                   return(colnames(rv$tab1)[33])
+#                                 })),
+#                      shinyInput(selectInput,
+#                                 "colForOriginValue_3",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[32]),
+#                      shinyInput(selectInput,"colForOriginValue_4",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[33]),
+#                      shinyInput(selectInput,
+#                                 "colForOriginValue_5",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[34]),
+#                      shinyInput(selectInput,"colForOriginValue_6",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[35]),
+#                      shinyInput(selectInput,"colForOriginValue_7",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[36]),
+#                      shinyInput(selectInput,"colForOriginValue_8",
+#                                 num = 1,
+#                                 choices = choices,
+#                                 selected = colnames(rv$tab1)[37])
+#                      )
+#     
+#     
+#     
+#     colnames(df) <- c("Sample", "Identification method")
+#   } else {
+#     df <- data.frame(Sample = as.data.frame(input$choose_quantitative_columns))
+#     colnames(df) <- c("Sample")
+#   }
+#   df
+# })
 
 
 
-output$x1 <- renderDataTable(
-  quantiDataTable(),
-  escape=FALSE,
-  rownames = FALSE,
-  extensions = c('Scroller'),
-  server = FALSE,
-  selection = 'none', 
-  class = 'compact',
-  options = list(
-    preDrawCallback=JS(
-      'function() {
-            Shiny.unbindAll(this.api().table().node());}'),
-    drawCallback= JS(
-      'function(settings) {
-            Shiny.bindAll(this.api().table().node());}'),
-    # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
-    dom = 'frtip',
-    autoWidth = TRUE,
-    deferRender = TRUE,
-    bLengthChange = FALSE,
-    scrollX = 200,
-    scrollY = 500,
-    scroller = TRUE,
-    ajax = list(url = dataTableAjax(session, quantiDataTable()))
-    
-  )
-  
-)
-
-
-observeEvent(shinyValue("colForOriginValue_",
-                        nrow(as.data.frame(quantiDataTable()))),{})
+# output$x1 <- renderDataTable(
+#   quantiDataTable(),
+#   escape=FALSE,
+#   rownames = FALSE,
+#   extensions = c('Scroller'),
+#   server = FALSE,
+#   selection = 'none', 
+#   class = 'compact',
+#   options = list(
+#     preDrawCallback=JS(
+#       'function() {
+#             Shiny.unbindAll(this.api().table().node());}'),
+#     drawCallback= JS(
+#       'function(settings) {
+#             Shiny.bindAll(this.api().table().node());}'),
+#     # rowCallback = JS("function(r,d) {$(r).attr('height', '10px')}"),
+#     dom = 'frtip',
+#     autoWidth = TRUE,
+#     deferRender = TRUE,
+#     bLengthChange = FALSE,
+#     scrollX = 200,
+#     scrollY = 500,
+#     scroller = TRUE,
+#     ajax = list(url = dataTableAjax(session, quantiDataTable()))
+#     
+#   )
+#   
+# )
+# 
+# 
+# observeEvent(shinyValue("colForOriginValue_",
+#                         nrow(as.data.frame(quantiDataTable()))),{})
 
 
 checkIdentificationMethod_Ok <- reactive({
