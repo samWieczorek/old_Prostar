@@ -770,7 +770,7 @@ resetModuleProcess <- function(moduleName){
                                        NbSelected = 0,
                                        nBinsHistpval = 80,
                                        downloadAnaDiff = "All",
-                                       tooltipInfo=NULL)
+                                       tooltipInfo = NULL)
             
             rvModProcess$moduleAnaDiff = list(name = "AnaDiff",
                                               stepsNames = c("Pairwise comparison", "P-value calibration", "FDR","Summary"),
@@ -792,6 +792,7 @@ resetModuleProcess <- function(moduleName){
             updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
             updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
+            updateRadioButtons(session, "tooltipInfo", selected = rv$widgets$anaDiff$tooltipInfo)
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
           },
@@ -1127,7 +1128,7 @@ rv <- reactiveValues(
                    NbSelected = 0,
                    nBinsHistpval = 80,
                    downloadAnaDiff = "All",
-                   tooltipInfo=NULL),
+                   tooltipInfo = NULL),
 
     # Convert = list(datafile = NULL,
     #                selectIdent = FALSE,

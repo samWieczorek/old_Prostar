@@ -370,7 +370,6 @@ output$Convert_ExpFeatData <- renderUI({
     fluidRow(
       column(width = 4, uiOutput("eData", width = "400px")),
       column(width = 8, shinyjs::hidden(
-        #DT::dataTableOutput("x1", width='500px'))
         uiOutput('inputGroup', width='600px'))
       )
       )
@@ -383,8 +382,8 @@ output$Convert_ExpFeatData <- renderUI({
 
   
   output$inputGroup = renderUI({
-    if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) 
-      return(NULL)
+    #if (is.null(input$choose_quantitative_columns) || is.null(rv$tab1)) 
+    #  return(NULL)
     
     n <- length(input$choose_quantitative_columns)
     
@@ -717,7 +716,13 @@ output$conversionDone <- renderUI({
 
 output$warningCreateMSnset <- renderUI({
   if (isTRUE(as.logical(input$selectIdent))){
-    colNamesForMetacell <- shinyValue("colForOriginValue_",nrow(quantiDataTable()))
+    
+    n <- length(input$choose_quantitative_columns)
+      
+    colNamesForMetacell <- unlist(lapply(seq_len(n), function(x) {
+      input[[paste0('colForOriginValue_', x)]]
+      }))
+    
     if (length(which(colNamesForMetacell == "None")) >0){
       text <- "<font color=\"red\"> Warning: The MSnset cannot be created because the identification 
             method are not fully filled.  <br>"
@@ -749,7 +754,11 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
   #browser()
   colNamesForMetacell <- NULL
   if (isTRUE(as.logical(input$selectIdent))) {
-    colNamesForMetacell <- shinyValue("colForOriginValue_", nrow(quantiDataTable()))
+    n <- length(input$choose_quantitative_columns)
+    
+    colNamesForMetacell <- unlist(lapply(seq_len(n), function(x) {
+      input[[paste0('colForOriginValue_', x)]]
+    }))
     if (length(which(colNamesForMetacell == "None")) > 0 )
       return (NULL)
     if (!is.null(rv$newOrder))

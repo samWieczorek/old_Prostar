@@ -45,7 +45,8 @@ callModule(moduleProcess, "moduleProcess_AnaDiff",
 ######
 resetModuleAnaDiff <- reactive({  
   if (rv$widgets$anaDiff$swapVolcano == TRUE){
-    rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
+    rv$resAnaDiff$logFC <- - rv$resAnaDiff$logFC
+    rv$widgets$anaDiff$swapVolcano <- FALSE
   }
 
   ## update widgets values (reactive values)
@@ -77,7 +78,7 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$NbSelected = 0
   rv$widgets$anaDiff$nBinsHistpval = 80
   rv$widgets$anaDiff$downloadAnaDiff = "All"
-  rv$widgets$anaDiff$tooltipInfo = NULL
+  rv$widgets$anaDiff$tooltipInfo = rv$current.obj@experimentData@other$proteinId
   
   
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
@@ -91,7 +92,7 @@ resetModuleAnaDiff <- reactive({
   
   
 })
-#####
+
 
 rv_anaDiff <- reactiveValues(
   filename = NULL
@@ -104,6 +105,11 @@ rv_anaDiff <- reactiveValues(
 ### ------------------- SCREEN 1 ------------------------------
 ###
 
+
+# Fill the variable 'rv$resAnaDiff' with informations relatives to
+# the comparison choosen by the user. 
+# Concertely, it extracts data from the variable rv$res_AllPairwiseComparisons
+# which contains all info (logFC and pValue) for all comparisons.
 UpdateCompList <- reactive({
   rv$widgets$anaDiff$Comparison 
   isolate({
@@ -112,17 +118,36 @@ UpdateCompList <- reactive({
       return(NULL)
     } else {
       index <- which(paste(as.character(rv$widgets$anaDiff$Comparison), "_logFC", sep="") == colnames(rv$res_AllPairwiseComparisons$logFC))
-      print("On met a jour la liste rv$resAnaDiff")
-      rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
-                            P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
-                            condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1],
-                            condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
-      )
+      
+      # Update of the list rv$resAnaDiff
       rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
       rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+      
+      if (input$swapVolcano == FALSE)
+        rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
+                            P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
+                            condition1 = rv$widgets$anaDiff$Condition1,
+                            condition2 = rv$widgets$anaDiff$Condition2
+      )
+      else
+        rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
+                              P_Value = -(rv$res_AllPairwiseComparisons$P_Value)[,index],
+                              condition1 = rv$widgets$anaDiff$Condition2,
+                              condition2 = rv$widgets$anaDiff$Condition1
+        )
+      
       rvModProcess$moduleAnaDiffDone[1] <- TRUE
     }
   })
+})
+
+
+# By default, the tooltip for volcanoplot is set to the proteinId
+observe({
+  req(rv$current.obj)
+  if (is.null(rv$widgets$anaDiff$tooltipInfo))
+    rv$widgets$anaDiff$tooltipInfo<- rv$current.obj@experimentData@other$proteinId
+  
 })
 
 
@@ -132,7 +157,7 @@ output$screenAnaDiff1 <- renderUI({
       tags$div(
         tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
                   selectInput("selectComparison","Select a comparison",
-                                choices = c("None"="None",GetPairwiseCompChoice()),
+                                choices = c("None"="None", GetPairwiseCompChoice()),
                                 selected = rv$widgets$anaDiff$Comparison,
                                 width='200px')
                   ),
@@ -180,7 +205,9 @@ output$pushpval_ui <- renderUI({
 
 #---------------------------
 
-
+# Extract conditions of the current dataset to represent the selected comparison
+# It returns a subset of the current dataset that will be used to filter the data
+# within the 'Push p-value' feature
 Get_Dataset_to_Analyze <- reactive({
   rv$widgets$anaDiff$Comparison
   rv$current.obj
@@ -208,9 +235,16 @@ Get_Dataset_to_Analyze <- reactive({
 }) %>% bindCache(rv$current.obj, rv$widgets$anaDiff$Comparison)
 
 
+
+
+
+
 AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
                                      obj = reactive({Get_Dataset_to_Analyze()}),
-                                     list_tags = reactive({c('None','quanti', 'recovered', 'identified', 'imputed', 'imputed POV', 'imputed MEC')}),
+                                     list_tags = reactive({c('None' = 'None',
+                                                             DAPAR::metacell.def(GetTypeofData(rv$current.obj))$node
+                                                             )
+                                       }),
                                      keep_vs_remove = reactive({setNames(nm = c("delete", "keep"))}),
                                      filters = reactive({c("None" = "None",
                                                            "Whole Line" = "WholeLine",
@@ -235,13 +269,7 @@ observe({
 ## Perform missing values filtering
 ########################################################
 observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE, {
-  # rv$widgets$anaDiff$Comparison
-  # rv$widgets$anaDiff$ChooseFilters
-  # rv$widgets$anaDiff$seuilNA
-  # rv$widgets$anaDiff$seuilNA_percent
-  # rv$widgets$anaDiff$val_vs_percent
- # isolate({
-  UpdateCompList()
+   UpdateCompList()
   rv$widgets$anaDiff$MetacellTag <- AnaDiff_indices()$params$MetacellTag
   rv$widgets$anaDiff$KeepRemove <-  AnaDiff_indices()$params$KeepRemove
   rv$widgets$anaDiff$ChooseFilters <- AnaDiff_indices()$params$MetacellFilters
@@ -249,8 +277,8 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = T
   rv$widgets$anaDiff$seuilNA  <- AnaDiff_indices()$params$metacell_value_th
   rv$widgets$anaDiff$val_vs_percent  <- AnaDiff_indices()$params$val_vs_percent
   rv$widgets$anaDiff$operator  <- AnaDiff_indices()$params$metacellFilter_operator
+  rv$widgets$anaDiff$tooltipInfo <- rv$current.obj@experimentData@other$proteinId
   
-   print(AnaDiff_indices())
   if (as.character(rv$widgets$anaDiff$ChooseFilters) == 'None')
     GetBackToCurrentResAnaDiff()
 
@@ -258,22 +286,24 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = T
     if (!is.null(AnaDiff_indices()$indices) && length(AnaDiff_indices()$indices) < nrow(Get_Dataset_to_Analyze())){
       rv$resAnaDiff$P_Value[-AnaDiff_indices()$indices] <- 1
     }
-  #}
- # })
+
 })
 
 
 
+# Catch a change with swapVolcano, made by the user
 observeEvent(req(input$swapVolcano),{
   req(rv$resAnaDiff$logFC)
-  #isolate({
+
   rv$widgets$anaDiff$swapVolcano <- input$swapVolcano
   rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
-  #})
+
 })
+
 
 observeEvent(input$selectComparison,ignoreInit = TRUE,{ 
   rv$widgets$anaDiff$Comparison <- input$selectComparison
+  rv$widgets$anaDiff$tooltipInfo <- rv$current.obj@experimentData@other$proteinId
   UpdateCompList()
   
   req(rv$widgets$anaDiff$Comparison)
@@ -297,9 +327,8 @@ observeEvent(input$selectComparison,ignoreInit = TRUE,{
 
 
 output$volcanoTooltip_UI <- renderUI({
-  req(rv$widgets$anaDiff$Comparison)
   req(rv$widgets$anaDiff$Comparison != "None")
-  
+  rv$widgets$anaDiff$tooltipInfo
   isolate({
     tagList(
       modulePopoverUI("modulePopover_volcanoTooltip"),
@@ -307,7 +336,9 @@ output$volcanoTooltip_UI <- renderUI({
                   label = NULL,
                   choices = colnames(fData(rv$current.obj)),
                   selected = rv$widgets$anaDiff$tooltipInfo,
-                  multiple = TRUE, selectize=FALSE,width='300px', size=5),
+                  multiple = TRUE,
+                  selectize = FALSE,
+                  width='300px', size=5),
       actionButton("validTooltipInfo", "Validate tooltip choice", class = actionBtnClass)
     )
   })
@@ -785,7 +816,9 @@ observeEvent(input$showpvalTable, {
 })
 
 
-observeEvent(input$validTooltipInfo,{  rv$widgets$anaDiff$tooltipInfo <- input$tooltipInfo})
+observeEvent(input$validTooltipInfo,{ 
+  rv$widgets$anaDiff$tooltipInfo <- unique(rv$current.obj@experimentData@other$proteinid, input$tooltipInfo)
+  })
 
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
 
