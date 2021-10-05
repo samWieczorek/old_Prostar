@@ -161,7 +161,7 @@ output$downloadMSnSet <- downloadHandler(
       dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
     
       if (rv$typeOfDataset == "peptide"){
-        if (is.null(GetMatAdj(dataToExport))){
+        if (is.null(DAPAR::GetMatAdj(dataToExport))){
           ## Export adjacency matrices
           incProgress(0.7, detail = 'Exporting adjacency matrices')
           dataToExport <- SetMatAdj(dataToExport, ComputeAdjacencyMatrices())

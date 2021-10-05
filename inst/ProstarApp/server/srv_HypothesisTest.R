@@ -13,10 +13,6 @@ rv.ht <- reactiveValues(
 )
 
 resetModuleHypothesisTest <- reactive({  
-  print("resetModuleHypothesisTest <- reactive()")
-  
-  rv.ht$swap.history <- rep(0, ncol(rv$res_AllPairwiseComparisons$logFC))
-  
   
   ## update widgets values (reactive values)
   resetModuleProcess("HypothesisTest")
@@ -32,26 +28,20 @@ resetModuleHypothesisTest <- reactive({
   rv$tempplot$logFCDistr <- NULL
   rvModProcess$moduleHypothesisTestDone = rep(FALSE, 2)
   
-  
-  
-  # for (i in seq_len(ncol(rv$res_AllPairwiseComparisons$logFC)))
-  #   updateCheckboxInput(session, paste0("compkeep", i), value = GetShinyValue('compkeep')[i])
-  # 
-  
+  #rv.ht$swap.history <- NULL
   
   # Get back to previous dataset
-  # if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
-  #     i <- grep("HypothesisTest.", names(rv$dataset))
-  #     rv$dataset <- rv$dataset[1:(i-1)]
-  #     updateSelectInput(session, 
-  #                       'datasets', 
-  #                       choices = names(rv$dataset),
-  #                       selected = names(rv$dataset)[length(names(rv$dataset))]
-  #     )
-  #     
-  #   }
-  #   
-  #   rv$current.obj <- rv$dataset[[length(names(rv$dataset))]] 
+  if (length(grep("HypothesisTest.", names(rv$dataset))) > 0){
+      i <- grep("HypothesisTest.", names(rv$dataset))
+      rv$dataset <- rv$dataset[1:(i-1)]
+      updateSelectInput(session,
+                        'datasets',
+                        choices = names(rv$dataset),
+                        selected = names(rv$dataset)[i-1]
+      )
+
+    }
+
   rv$current.obj <- rv$dataset[[input$datasets]]
 })
 
@@ -71,30 +61,31 @@ observeEvent(input$diffAnaMethod, {
 
 
 observeEvent(input$PerformLogFCPlot, {
-  print('observeEvent(input$PerformLogFCPlot)')
   
   isolate({
-    rv$widgets$hypothesisTest$design<- input$anaDiff_Design
-    rv$widgets$hypothesisTest$th_logFC<- as.numeric(input$seuilLogFC)
+    rv$widgets$hypothesisTest$design <- input$anaDiff_Design
+    rv$widgets$hypothesisTest$th_logFC <- as.numeric(input$seuilLogFC)
     rv$widgets$hypothesisTest$ttest_options <- input$ttest_options   
   
     rv$res_AllPairwiseComparisons <- ComputeComparisons()
     rv.ht$n <- ncol(rv$res_AllPairwiseComparisons$logFC)
    rv.ht$swap.history <- rep(0, rv.ht$n)
   })
-  
+  rvModProcess$moduleHypothesisTestDone[1] <- TRUE
 })
 
 
 
 output$headerInputGroup <- renderUI({
   req(rv$res_AllPairwiseComparisons)
-  fluidRow(
-    column(width = 2, h3(tags$strong('Condition 1'))),
-    column(width = 2, h3(tags$strong('Condition 2'))),
-    column(width = 2, div(id='swap_title', h3(tags$strong('Swap'))))
+  tags$div(
+    style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+    fluidRow(
+    column(width = 2, h4(tags$strong('Condition 1'))),
+    column(width = 2, h4(tags$strong('Condition 2'))),
+    column(width = 2, h4(tags$strong('Swap')))
   )
-    
+  ) 
   
 })
 
@@ -104,7 +95,10 @@ output$cond1_ui <- renderUI({
 req(rv$res_AllPairwiseComparisons)
 lapply(seq_len(rv.ht$n), function(i) {
         ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
-        p(tags$strong(ll[1]))
+        tags$div(
+          style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+          p(gsub('[()]', '', ll[1]))
+        )
       })
 })
 
@@ -114,7 +108,10 @@ output$cond2_ui <- renderUI({
   req(rv$res_AllPairwiseComparisons)
   lapply(seq_len(rv.ht$n), function(i) {
     ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
-  p(tags$strong(gsub('[()]', '', ll[3])))
+    tags$div(
+      style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+      p(tags$strong(gsub('[()]', '', ll[3])))
+    )
  })
 })
 
@@ -122,22 +119,20 @@ output$cond2_ui <- renderUI({
 output$btns_ui <- renderUI({
   req(rv$res_AllPairwiseComparisons)
   lapply(seq_len(rv.ht$n), function(i) {
-    actionButton(paste0('compswap', i), 'Swap comparison', class = actionBtnClass)
+    tags$div(style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+             actionButton(paste0('compswap', i), '',
+                 icon('sync',  lib = "font-awesome"), 
+                 style = "background-color: none; 
+                          position: relative; 
+                          border-width: 0px")
+    )
  })
 })
 
 
 observeEvent(req(sum(GetSwapShinyValue()) > 0), {
   req(rv$res_AllPairwiseComparisons)
- # browser()
-  
-    
-    print("observeEvent(GetSwapShinyValue()")
-    print(GetSwapShinyValue())
-    print(rv.ht$swap.history)
-    #browser()
-    
-    swap <- GetSwapShinyValue()
+  swap <- GetSwapShinyValue()
     
     isolate({
       
@@ -151,8 +146,8 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
 
       # Swap comparisons names
       ll <- unlist(strsplit(current.comp, split = '_'))
-      tmp.cond1 <- ll[1]
-      tmp.cond2 <- gsub('[()]', '', ll[3])
+      tmp.cond1 <- gsub('[( )]', '', ll[1])
+      tmp.cond2 <- gsub('[( )]', '', ll[3])
       tmp.logFC <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_logFC')
       tmp.pval <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_pval')
       colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
@@ -171,7 +166,6 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
 
 GetSwapShinyValue <- reactive({
   req(rv.ht$n)
-  #browser()
   unlist(lapply(seq_len(rv.ht$n),
                 function(x) input[[paste0('compswap', x)]]
   )
@@ -299,6 +293,7 @@ observeEvent(rv$widgets$hypothesisTest$method,{
 
 # Highcharts plot
 output$FoldChangePlot <- renderHighchart({
+  req(rv$res_AllPairwiseComparisons)
  name <- rv$current.obj@experimentData@other$Params$HypothesisTest.protein$HypothesisTest$AllPairwiseCompNames$logFC
   l1 <- length(as.data.frame(Biobase::fData(rv$current.obj)[,name]))
   l2 <- length(rv$res_AllPairwiseComparisons$logFC)
@@ -353,7 +348,7 @@ ComputeComparisons <- reactive({
                                           type = rv$widgets$hypothesisTest$ttest_options)
            })
   rv$widgets$hypothesisTest$listNomsComparaison <- colnames(df$logFC)
-    
+  #  browser()
   
   rvModProcess$moduleHypothesisTestDone[1] <- TRUE
   
@@ -420,9 +415,9 @@ observeEvent(input$ValidTest,{
   #rv.ht$swap
   #browser()
   # Update comparisons results with swap and keep variables
-  rv$res_AllPairwiseComparisons <- UpdateCompResults(rv$res_AllPairwiseComparisons,
-                                                     rv.ht$keep,
-                                                     rv.ht$swap)
+  # rv$res_AllPairwiseComparisons <- UpdateCompResults(rv$res_AllPairwiseComparisons,
+  #                                                    rv.ht$keep,
+  #                                                    rv.ht$swap)
 
   print(str(rv$res_AllPairwiseComparisons))
   
@@ -440,6 +435,6 @@ observeEvent(input$ValidTest,{
   BuildNavbarPage()
   rvModProcess$moduleHypothesisTestDone[2] <- TRUE
   UpdateDatasetWidget(rv$current.obj, name)
-shinyjs::toggleState('ValidTest', FALSE)
+  shinyjs::toggleState('ValidTest', FALSE)
   
 })

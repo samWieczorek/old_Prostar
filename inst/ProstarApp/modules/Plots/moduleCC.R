@@ -121,7 +121,7 @@ mod_cc_server <- function(id, obj, cc){
 output$visNet_CC <- renderVisNetwork({
     req(rvCC$selectedCC)
     local <- cc()[Get_CC_Multi2Any()]
-    Xshared <- GetMatAdj(obj())$matWithSharedPeptides
+    Xshared <- DAPAR::GetMatAdj(obj())$matWithSharedPeptides
     rvCC$selectedCCgraph <- buildGraph(local[[rvCC$selectedCC]], Xshared)
     
     display.CC.visNet(rvCC$selectedCCgraph) %>%

@@ -125,8 +125,7 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
 moduleVolcanoplot <- function(input, output, session,
                               data, 
                               comp, 
-                              tooltip, 
-                              isSwaped){
+                              tooltip){
   
   ns <- session$ns
   
@@ -134,9 +133,8 @@ moduleVolcanoplot <- function(input, output, session,
   output$quantiDT <- renderUI({
     req(input$eventPointClicked)
     
-    #
-     if (DAPAR::GetTypeofData(rv$current.obj) == 'protein'){
-       if (is.null(GetMatAdj(rv$current.obj))){
+    if (DAPAR::GetTypeofData(rv$current.obj) == 'protein'){
+       if (is.null(DAPAR::GetMatAdj(rv$current.obj))){
       shinyBS::bsCollapse(id = ns("collapseVolcanoInfos"), 
                           open = "Protein",
                           multiple = TRUE,
@@ -192,10 +190,8 @@ moduleVolcanoplot <- function(input, output, session,
      m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                         pattern="missing", 
                         level = 'peptide')
-    if (length(which(m)) > 0) 
-      return(NULL)
+    req(length(which(m)) > 0)
      
-    p <- NULL
     p <- data()
     upItemsPVal <- NULL
     upItemsLogFC <- NULL
@@ -233,18 +229,15 @@ moduleVolcanoplot <- function(input, output, session,
   GetSortingIndices <- reactive({
     req(comp())
     
-    condition1 = strsplit(comp(), "_vs_")[[1]][1]
-    condition2 = strsplit(comp(), "_vs_")[[1]][2]
-    if (length(grep("all",condition2))==0) {
+    condition1 = gsub('[()]', '', strsplit(comp(), "_vs_")[[1]][1])
+    condition2 = gsub('[()]', '', strsplit(comp(), "_vs_")[[1]][2])
+    if (length(grep("all",condition2))==0)
       ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
                 which(pData(rv$current.obj)$Condition==condition2))
-    } else {
+    else
       ind <- c( which(pData(rv$current.obj)$Condition==condition1), 
                 c(1:nrow(pData(rv$current.obj)))[-(which(pData(rv$current.obj)$Condition==condition1))])
-    }
-    
     ind
-    
   })
   
   GetBorderIndices <- reactive({
@@ -280,8 +273,8 @@ moduleVolcanoplot <- function(input, output, session,
     data <- getDataForExprs(prev.dataset, rv$settings_nDigits)
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
-    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
-    Xshared <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
+    Xspec <- DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides
+    Xshared <- DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     specificPeptidesIndices <- which(Xspec[,i]==1)
@@ -339,7 +332,7 @@ moduleVolcanoplot <- function(input, output, session,
     data <- data[,c(ind, (ind + ncol(data)/2))]
     
     
-    Xspec <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
+    Xspec <- DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides
     
     i <- which(colnames(Xspec)==prot.indice)
     peptidesIndices <- which(Xspec[,i]==1)
@@ -378,11 +371,10 @@ moduleVolcanoplot <- function(input, output, session,
   ##------------------------------------------------------------------------------
   GetExprsClickedProtein <- reactive({
     req(rv$current.obj)
-    req(comp())
+    req(comp() != 'None')
     req(input$eventPointClicked)
     rv$widgets$hypothesisTest$th_logFC
     rv$widgets$anaDiff$th_pval
-    
     data()
     
     ind <- GetSortingIndices()
@@ -422,22 +414,19 @@ moduleVolcanoplot <- function(input, output, session,
   
   GetDataFor_Infos <- reactive({
     req(comp())
-    
-    
     data <- GetExprsClickedProtein()
-    
     data
   })
   
   ##------------------------------------------------------------------------------
-  output$Infos <- renderDataTable(server=TRUE,{ 
+  output$Infos <- renderDataTable(server = TRUE, { 
     req(comp())
     
     borders_index <- GetBorderIndices()
     data <- GetExprsClickedProtein()
     c.tags <- BuildColorStyles(rv$current.obj)$tags
     c.colors <-  BuildColorStyles(rv$current.obj)$colors
-    
+
    dt <- DT::datatable(data,
                         extensions = c('Scroller'),
                         options = list(initComplete = initComplete(),
@@ -465,14 +454,11 @@ moduleVolcanoplot <- function(input, output, session,
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
     data()$P_Value
-    #data()$logFC
+
     tooltip()
-    isSwaped()
-    #browser()
-    print(paste0("dans volcanoPlot, isSwaped = ", isSwaped()))
     isolate({
-      #if (is.null(rv$widgets$hypothesisTest$th_logFC) || is.na(rv$widgets$hypothesisTest$th_logFC) ){return()}
       if ((length(data()$logFC) == 0)  ){return()}
+      
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                             pattern="missing",
@@ -480,18 +466,18 @@ moduleVolcanoplot <- function(input, output, session,
         )
         if (length(which(m)) > 0)
           return()
-        
-        df <-  data.frame(x=data()$logFC, 
+       # browser()
+        df <-  data.frame(x = data()$logFC, 
                           y = -log10(data()$P_Value),
                           index = 1:nrow(fData(rv$current.obj)))
-        if (length( tooltip()) > 0 && !is.na(tooltip())){
+        if (length( tooltip()) > 0 && !is.na(tooltip()))
           df <- cbind(df,fData(rv$current.obj)[ tooltip()])
-        }
+        
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
-        if (ncol(df) > 3){
+        if (ncol(df) > 3)
           colnames(df)[4:ncol(df)] <- 
             paste("tooltip_", colnames(df)[4:ncol(df)], sep="")
-        }
+
         clickFun <-   
           JS(paste0("function(event) {Shiny.onInputChange('",ns("eventPointClicked"),"', [this.index]+'_'+ [this.series.name]);}"))
         
@@ -501,8 +487,7 @@ moduleVolcanoplot <- function(input, output, session,
                                                            threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                            conditions = cond,
                                                            clickFunction=clickFun,
-                                                           pal = rv$colorsVolcanoplot,
-                                                           swap = isSwaped()
+                                                           pal = rv$colorsVolcanoplot
         )
         
       })

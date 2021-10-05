@@ -17,14 +17,16 @@ convertAnaDiff2DF <- reactive({
 callModule(moduleVolcanoplot,"volcano_Step1", 
            data = reactive({rv$resAnaDiff}),
            comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
-           tooltip = reactive({ rv$widgets$anaDiff$tooltipInfo}),
-           isSwaped = reactive({rv$widgets$anaDiff$swapVolcano}))
+           tooltip = reactive({ rv$widgets$anaDiff$tooltipInfo})
+           #isSwaped = reactive({rv$widgets$anaDiff$swapVolcano})
+           )
 
 callModule(moduleVolcanoplot,"volcano_Step2",
            data = reactive({rv$resAnaDiff}),
            comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
-           tooltip = reactive({rv$widgets$anaDiff$tooltipInfo}),
-           isSwaped = reactive({rv$widgets$anaDiff$swapVolcano}))
+           tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
+           #isSwaped = reactive({rv$widgets$anaDiff$swapVolcano})
+           )
 
 mod_staticDT_server("params_AnaDiff",
              data = reactive({convertAnaDiff2DF()}),
@@ -44,10 +46,10 @@ callModule(moduleProcess, "moduleProcess_AnaDiff",
 
 ######
 resetModuleAnaDiff <- reactive({  
-  if (rv$widgets$anaDiff$swapVolcano == TRUE){
-    rv$resAnaDiff$logFC <- - rv$resAnaDiff$logFC
-    rv$widgets$anaDiff$swapVolcano <- FALSE
-  }
+  # if (rv$widgets$anaDiff$swapVolcano == TRUE){
+  #   rv$resAnaDiff$logFC <- - rv$resAnaDiff$logFC
+  #   rv$widgets$anaDiff$swapVolcano <- FALSE
+  # }
 
   ## update widgets values (reactive values)
   resetModuleProcess("AnaDiff")
@@ -65,7 +67,7 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Comparison = "None"
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
-  rv$widgets$anaDiff$swapVolcano = FALSE
+  #rv$widgets$anaDiff$swapVolcano = FALSE
   rv$widgets$anaDiff$val_vs_percent = "Value"
   rv$widgets$anaDiff$ChooseFilters = "None"
   rv$widgets$anaDiff$seuilNA_percent = 0
@@ -123,18 +125,18 @@ UpdateCompList <- reactive({
       rv$widgets$anaDiff$Condition1 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
       rv$widgets$anaDiff$Condition2 <- strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
       
-      if (input$swapVolcano == FALSE)
+      # if (input$swapVolcano == FALSE)
         rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
                             P_Value = (rv$res_AllPairwiseComparisons$P_Value)[,index],
                             condition1 = rv$widgets$anaDiff$Condition1,
                             condition2 = rv$widgets$anaDiff$Condition2
       )
-      else
-        rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
-                              P_Value = -(rv$res_AllPairwiseComparisons$P_Value)[,index],
-                              condition1 = rv$widgets$anaDiff$Condition2,
-                              condition2 = rv$widgets$anaDiff$Condition1
-        )
+      # # else
+      #   rv$resAnaDiff <- list(logFC = (rv$res_AllPairwiseComparisons$logFC)[,index],
+      #                         P_Value = -(rv$res_AllPairwiseComparisons$P_Value)[,index],
+      #                         condition1 = rv$widgets$anaDiff$Condition1,
+      #                         condition2 = rv$widgets$anaDiff$Condition2
+      #   )
       
       rvModProcess$moduleAnaDiffDone[1] <- TRUE
     }
@@ -156,18 +158,12 @@ output$screenAnaDiff1 <- renderUI({
     tagList(
       tags$div(
         tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
-                  selectInput("selectComparison","Select a comparison",
-                                choices = c("None"="None", GetPairwiseCompChoice()),
+                  selectInput("selectComparison", "Select a comparison",
+                                choices = c("None" = "None", GetPairwiseCompChoice()),
                                 selected = rv$widgets$anaDiff$Comparison,
-                                width='200px')
-                  ),
-        tags$div( style="display:inline-block; vertical-align: top; padding-right: 60px",
-                  hidden(radioButtons("swapVolcano", "Swap volcano", 
-                                     choices=c("Original dataset"=FALSE,
-                                               "Swaped dataset"=TRUE),
-                                     selected=rv$widgets$anaDiff$swapVolcano))
-                 )
-        ),
+                                width = '300px')
+                  )
+         ),
         uiOutput('pushpval_ui'),
 
       tags$hr(),
@@ -176,11 +172,11 @@ output$screenAnaDiff1 <- renderUI({
                   moduleVolcanoplotUI("volcano_Step1")),
         tags$div( style="display:inline-block; vertical-align: top;",
                   tagList(
-                    
                     br(),
-                    uiOutput("volcanoTooltip_UI"))
+                    uiOutput("volcanoTooltip_UI")
+                    )
+                  )
         )
-      )
     )
     
   })
@@ -189,7 +185,7 @@ output$screenAnaDiff1 <- renderUI({
 
 output$pushpval_ui <- renderUI({
   req(rv$widgets$anaDiff$Comparison != 'None')
-  callModule(modulePopover,"modulePopover_pushPVal", 
+  callModule(modulePopover, "modulePopover_pushPVal", 
              data = reactive(list(title=h3("Push p-value"),
                                   content= "This functionality is useful in case of multiple pairwise comparisons (more than 2 conditions): At the filtering step, a given analyte X (either peptide or protein) may have been kept because it contains very few missing values in a given condition (say Cond. A), even though it contains (too) many of them in all other conditions (say Cond B and C only contains “MEC” type missing values). Thanks to the imputation step, these missing values are no longer an issue for the differential analysis, at least from the computational viewpoint. However, statistically speaking, when performing B vs C, the test will rely on too many imputed missing values to derive a meaningful p-value: It may be wiser to consider analyte X as non-differentially abundant, regardless the test result (and thus, to push its p-value to 1). This is just the role of the “P-value push” parameter. It makes it possible to introduce a new filtering step that only applies to each pairwise comparison, and which assigns a p-value of 1 to analytes that, for the considered comparison are assumed meaningless due to too many missing values (before imputation).")))
   
@@ -292,13 +288,13 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = T
 
 
 # Catch a change with swapVolcano, made by the user
-observeEvent(req(input$swapVolcano),{
-  req(rv$resAnaDiff$logFC)
-
-  rv$widgets$anaDiff$swapVolcano <- input$swapVolcano
-  rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
-
-})
+# observeEvent(req(input$swapVolcano),{
+#   req(rv$resAnaDiff$logFC)
+# 
+#   rv$widgets$anaDiff$swapVolcano <- input$swapVolcano
+#   rv$resAnaDiff$logFC <- -rv$resAnaDiff$logFC
+# 
+# })
 
 
 observeEvent(input$selectComparison,ignoreInit = TRUE,{ 
@@ -310,11 +306,11 @@ observeEvent(input$selectComparison,ignoreInit = TRUE,{
   cond1 = rv$widgets$anaDiff$Condition1
   cond2 = rv$widgets$anaDiff$Condition2
   
-  if (isTRUE(rv$widgets$anaDiff$swapVolcano)) {
-    rv_anaDiff$filename = paste0('anaDiff_', cond2,'_vs_', cond1, '.xlsx')
-  } else {
+  # if (isTRUE(rv$widgets$anaDiff$swapVolcano)) {
+  #   rv_anaDiff$filename = paste0('anaDiff_', cond2,'_vs_', cond1, '.xlsx')
+  # } else {
     rv_anaDiff$filename = paste0('anaDiff_', cond1,'_vs_', cond2, '.xlsx')
-  }
+  #}
   
 })
 
@@ -347,7 +343,6 @@ output$volcanoTooltip_UI <- renderUI({
 
 
 GetPairwiseCompChoice <- reactive({
-  print(str(rv$res_AllPairwiseComparisons))
   req(rv$res_AllPairwiseComparisons$logFC)
   ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC), "_logFC"))
   ll
@@ -356,11 +351,11 @@ GetPairwiseCompChoice <- reactive({
 
 
 
-observe({
-  req(rv$widgets$anaDiff$Comparison)
-  #shinyjs::toggle('toto', condition = rv$widgets$anaDiff$Comparison != "None")
-  shinyjs::toggle('swapVolcano', condition = rv$widgets$anaDiff$Comparison != "None")
-})
+# observe({
+#   req(rv$widgets$anaDiff$Comparison)
+#   #shinyjs::toggle('toto', condition = rv$widgets$anaDiff$Comparison != "None")
+#   shinyjs::toggle('swapVolcano', condition = rv$widgets$anaDiff$Comparison != "None")
+# })
 
 
 callModule(modulePopover,"modulePopover_volcanoTooltip", 

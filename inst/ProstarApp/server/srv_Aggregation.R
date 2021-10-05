@@ -206,7 +206,7 @@ observeEvent(rv$widgets$aggregation$includeSharedPeptides, {
 
 
 output$specificPeptideBarplot <- renderUI({
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
     tagList(
       h4("Only specific peptides"),
@@ -216,7 +216,7 @@ output$specificPeptideBarplot <- renderUI({
 })
 
 output$allPeptideBarplot <- renderUI({
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   withProgress(message = 'Rendering plot, pleast wait...',detail = '', value = 1, {
     tagList(
       h4("All (specific & shared) peptides"),
@@ -238,7 +238,7 @@ output$displayNbPeptides <- renderUI({
 
 ########################################################
 RunAggregation <- reactive({
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   rv$widgets$aggregation$includeSharedPeptides
   rv$widgets$aggregation$operator
   rv$widgets$aggregation$considerPeptides
@@ -253,7 +253,7 @@ RunAggregation <- reactive({
 
     ll.agg <- NULL
     if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1")){
-      X <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
+      X <- DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides
       if (rv$widgets$aggregation$includeSharedPeptides == 'Yes1'){
         if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
           ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
@@ -279,7 +279,7 @@ RunAggregation <- reactive({
         }
       }
     } else {
-      X <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
+      X <- DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides
       if (rv$widgets$aggregation$considerPeptides == 'allPeptides') {
         ll.agg <- do.call(paste0('aggregate', rv$widgets$aggregation$operator),
                           list(obj.pep = rv$current.obj,
@@ -384,7 +384,7 @@ output$showValidAggregationBtn_ui <- renderUI({
 ##' @author Samuel Wieczorek
 observeEvent(input$validAggregation,{ 
   
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   req(rv$temp.aggregate$obj.prot)
   req(is.null(rv$temp.aggregate$issues))
   
@@ -393,9 +393,9 @@ observeEvent(input$validAggregation,{
       
       X <- NULL
       if(rv$widgets$aggregation$includeSharedPeptides %in% c("Yes2", "Yes1"))
-        X <- GetMatAdj(rv$current.obj)$matWithSharedPeptides
+        X <- DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides
       else
-        X <- GetMatAdj(rv$current.obj)$matWithUniquePeptides
+        X <- DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides
       
       total <- 60
       delta <- round(total / length(rv$widgets$aggregation$columnsForProteinDataset.box))
@@ -455,10 +455,10 @@ output$ObserverAggregationDone <- renderUI({
 
 
 output$aggregationStats <- DT::renderDataTable (server=TRUE,{
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   req(rv$widgets$aggregation$proteinId != "None")
   
-  res <- getProteinsStats(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
+  res <- getProteinsStats(DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides)
 
   rv$AggregProtStats$nb <- c(res$nbPeptides,
                              res$nbSpecificPeptides,
@@ -485,14 +485,14 @@ output$aggregationStats <- DT::renderDataTable (server=TRUE,{
 })
 
 output$aggregationPlotShared <- renderPlot({
-  req(GetMatAdj(rv$current.obj))
-  GraphPepProt(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
+  req(DAPAR::GetMatAdj(rv$current.obj))
+  GraphPepProt(DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides)
 })
 
 
 output$aggregationPlotUnique <- renderPlot({
-  req(GetMatAdj(rv$current.obj))
-  GraphPepProt(GetMatAdj(rv$current.obj)$matWithUniquePeptides)
+  req(DAPAR::GetMatAdj(rv$current.obj))
+  GraphPepProt(DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides)
 })
 
 

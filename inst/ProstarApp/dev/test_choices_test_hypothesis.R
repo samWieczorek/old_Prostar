@@ -9,7 +9,26 @@ ui <- fluidPage(
     actionButton('go', 'Compute comparisons'),
     actionButton('validate', 'Validate'),
     actionButton('reset', 'Reset'),
-    uiOutput('inputGroup')
+    actionButton('test', '', icon('sync-alt',  lib = "font-awesome", style = "color: grey;"), 
+                 style = " 
+                     background-color: none; 
+                     position: relative; 
+                     left: 3%;
+                     border-radius: 0%;
+                     border-width: 0px"),
+    
+    fluidRow(
+      column(width = 2, h3(tags$strong('Condition 1'))),
+      column(width = 2, h3(tags$strong('Condition 2'))),
+      column(width = 2, div(id='swap_title', h3(tags$strong('Swap'))))
+    ),
+    
+    fluidRow(
+      column(width = 2, uiOutput('cond1_ui')),
+      column(width = 2, uiOutput('cond2_ui')),
+      column(width = 2, uiOutput('btns_ui')
+      )
+    )
   )
 )
 
@@ -27,13 +46,59 @@ server <- shinyServer(function(session, input, output) {
   )
   
   
+  
+  
+  
   observeEvent(input$reset, ignoreInit = TRUE,{
     print("reset")
-    #rv$keep <- NULL
-    #rv$swap <- NULL
     rv$listComp <- NULL
 
    })
+  
+  
+  
+  
+  output$cond1_ui <- renderUI({
+    
+    req(rv$listComp)
+    lapply(seq_len(rv$n), function(i) {
+      ll <- unlist(strsplit(colnames(rv$listComp$logFC)[i], split = '_'))
+     # tags$div( style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+                p(style="vertical-align: middle; padding-bottom: 10px; text-align: center;",gsub('[()]', '', ll[1]))
+                
+     # )
+    })
+  })
+  
+  
+  
+  
+  output$cond2_ui <- renderUI({
+    
+    req(rv$listComp)
+    lapply(seq_len(rv$n), function(i) {
+      ll <- unlist(strsplit(colnames(rv$listComp$logFC)[i], split = '_'))
+      tags$div( style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+                p(gsub('[()]', '', ll[3]))
+      )
+    })
+  })
+  
+  
+  output$btns_ui <- renderUI({
+    req(rv$listComp)
+    lapply(seq_len(rv$n), function(i) {
+      tags$div( style="vertical-align: middle; padding-bottom: 5px;",
+                actionButton(paste0('compswap', i), '',
+                           icon('sync',  lib = "font-awesome"), 
+                           style = "background-color: none; 
+                          position: relative; 
+                          left: 3%;
+                          border-radius: 0%;
+                          border-width: 0px")
+      )
+    })
+  })
   
   
   observeEvent(input$go, ignoreInit = TRUE,{
@@ -47,7 +112,6 @@ server <- shinyServer(function(session, input, output) {
   }, priority = 1000)
   
 
-
   
   output$inputGroup = renderUI({
     print("output$inputGroup = renderUI")
@@ -55,12 +119,7 @@ server <- shinyServer(function(session, input, output) {
     #isolate({
       #browser()
       input_list <- tagList(
-      fluidRow(
-         column(width = 2, h3(tags$strong('Condition 1'))),
-        column(width = 2, h3(tags$strong('Condition 2'))),
-        column(width = 2, div(id='keep_title', h3(tags$strong('Keep')))),
-        column(width = 2, div(id='swap_title', h3(tags$strong('Swap'))))
-      ),
+      
       lapply(seq_len(ncol(rv$listComp$logFC)), function(i) {
         ll <- unlist(strsplit(colnames(rv$listComp$logFC)[i], split = '_'))
         isolate({

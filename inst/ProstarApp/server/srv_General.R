@@ -308,15 +308,15 @@ ComputeAdjacencyMatrices <- reactive({
 
 
 ComputeConnectedComposants <- reactive({
-  req(GetMatAdj(rv$current.obj))
+  req(DAPAR::GetMatAdj(rv$current.obj))
   require(Matrix)
 
   withProgress(message = 'Computing connected components',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
-    ll1 <- get.pep.prot.cc(GetMatAdj(rv$current.obj)$matWithSharedPeptides)
+    ll1 <- get.pep.prot.cc(DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides)
     
     incProgress(2/2, detail = 'with specific and shared peptides')
-    ll2 <- DAPAR::get.pep.prot.cc(GetMatAdj(rv$current.obj)$matWithUniquePeptides)
+    ll2 <- DAPAR::get.pep.prot.cc(DAPAR::GetMatAdj(rv$current.obj)$matWithUniquePeptides)
   })
   
   print("end ComputeConnectedComponents")
@@ -324,7 +324,7 @@ ComputeConnectedComposants <- reactive({
   list(allPep = ll1,
        onlyUniquePep = ll2)
 
-}) %>%  bindCache(GetMatAdj(rv$current.obj))
+}) %>%  bindCache(DAPAR::GetMatAdj(rv$current.obj))
 
 
 
@@ -380,7 +380,7 @@ loadObjectInMemoryFromConverter <- function(){
    
     if (GetTypeofData(rv$current.obj) == "peptide" && !is.null(rv$proteinId) && (rv$proteinId != "")){
      # browser()
-      if (is.null(GetMatAdj(rv$current.obj))){
+      if (is.null(DAPAR::GetMatAdj(rv$current.obj))){
         print("Start computing adjacency matrix")
         incProgress(0.6, detail = 'Compute Adjacency Matrices')
         rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
@@ -760,7 +760,7 @@ resetModuleProcess <- function(moduleName){
             rv$widgets$anaDiff <- list(Comparison = "None",
                                        Condition1 = "",
                                        Condition2 = "",
-                                       swapVolcano = FALSE,
+                                       #swapVolcano = FALSE,
                                        filterType = "None",
                                        filter_th_NA = 0,
                                        calibMethod = 'None',
@@ -791,7 +791,7 @@ resetModuleProcess <- function(moduleName){
             updateSelectInput(session,"nBinsHistpval",selected=rv$widgets$anaDiff$nBinsHistpval)
             updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
-            updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
+            #updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
             updateRadioButtons(session, "tooltipInfo", selected = rv$widgets$anaDiff$tooltipInfo)
             
             rvModProcess$moduleAnaDiffDone =  rep(FALSE,4)
@@ -1118,7 +1118,7 @@ rv <- reactiveValues(
     anaDiff = list(Comparison = "None",
                    Condition1 = "",
                    Condition2 = "",
-                   swapVolcano = FALSE,
+                   #swapVolcano = FALSE,
                    filterType = "None",
                    filter_th_NA = 0,
                    calibMethod = 'None',
