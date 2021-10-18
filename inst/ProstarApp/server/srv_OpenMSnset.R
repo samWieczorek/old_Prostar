@@ -118,7 +118,7 @@ output$infoAboutAggregationTool <- renderUI({
 
 
 ##-- Open a MSnset File --------------------------------------------
-observeEvent(input$loadMSnset,ignoreInit =TRUE,{ 
+observeEvent(input$loadMSnset, ignoreInit =TRUE,{ 
   input$file
   ClearMemory()
   ClearUI()
@@ -190,6 +190,7 @@ observeEvent(input$loadMSnset,ignoreInit =TRUE,{
       #                                     ))
       rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)
       rv$listNomsComparaison <- colnames(rv$res_AllPairwiseComparisons$logFC)
+
     }
     
     

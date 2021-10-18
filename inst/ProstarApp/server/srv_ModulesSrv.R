@@ -378,7 +378,7 @@ moduleVolcanoplot <- function(input, output, session,
     data()
     
     ind <- GetSortingIndices()
-    
+    #browser()
     this.index <- as.integer(strsplit(input$eventPointClicked, "_")[[1]][1])
     this.series.name <- strsplit(input$eventPointClicked, "_")[[1]][2]
     
@@ -388,15 +388,13 @@ moduleVolcanoplot <- function(input, output, session,
     index.g1 <- which((-log10(data()$P_Value) >= rv$widgets$anaDiff$th_pval
     ) & (abs(data()$logFC) >= as.numeric(rv$widgets$hypothesisTest$th_logFC)))
     
-    data.g1 <- data[index.g1,]
-    data.g2 <- data[-index.g1,]
+    data.g1 <- data[index.g1, ]
+    data.g2 <- data[-index.g1, ]
     
     switch (this.series.name,
-            g1=data <- data.g1[this.index+1,],
-            g2 = data <- data.g2[this.index+1,] 
-    )
-    
-     
+            g1 = data <- data.g1[this.index+1, ],
+            g2 = data <- data.g2[this.index+1, ]
+            )
     data
   })
   
@@ -404,9 +402,8 @@ moduleVolcanoplot <- function(input, output, session,
   
   output$Warning_Infos <- renderUI({
     GetDataFor_Infos()
-    if (nrow(GetDataFor_Infos())>153)
+    if (nrow(GetDataFor_Infos()) > 153)
       p(MSG_WARNING_SIZE_DT)
-    
   })
   
   
@@ -454,10 +451,11 @@ moduleVolcanoplot <- function(input, output, session,
     rv$widgets$hypothesisTest$th_logFC
     rv$colorsVolcanoplot
     data()$P_Value
-
+    req(length(data()$logFC) > 0)
     tooltip()
+    
+    #browser()
     isolate({
-      if ((length(data()$logFC) == 0)  ){return()}
       
       withProgress(message = 'Building plot...',detail = '', value = 0, {
         m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
@@ -465,13 +463,14 @@ moduleVolcanoplot <- function(input, output, session,
                             level = DAPAR::GetTypeofData(rv$current.obj)
         )
         if (length(which(m)) > 0)
-          return()
-       # browser()
+          return(NULL)
         df <-  data.frame(x = data()$logFC, 
                           y = -log10(data()$P_Value),
                           index = 1:nrow(fData(rv$current.obj)))
         if (length( tooltip()) > 0 && !is.na(tooltip()))
-          df <- cbind(df,fData(rv$current.obj)[ tooltip()])
+          df <- cbind(df,
+                      fData(rv$current.obj)[ tooltip()]
+                      )
         
         colnames(df) <- gsub(".", "_", colnames(df), fixed=TRUE)
         if (ncol(df) > 3)
@@ -486,9 +485,9 @@ moduleVolcanoplot <- function(input, output, session,
                                                            threshold_logFC = as.numeric(rv$widgets$hypothesisTest$th_logFC),
                                                            threshold_pVal = as.numeric(rv$widgets$anaDiff$th_pval),
                                                            conditions = cond,
-                                                           clickFunction=clickFun,
+                                                           clickFunction = clickFun,
                                                            pal = rv$colorsVolcanoplot
-        )
+                                                           )
         
       })
       

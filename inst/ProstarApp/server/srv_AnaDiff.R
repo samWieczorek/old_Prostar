@@ -18,14 +18,12 @@ callModule(moduleVolcanoplot,"volcano_Step1",
            data = reactive({rv$resAnaDiff}),
            comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
            tooltip = reactive({ rv$widgets$anaDiff$tooltipInfo})
-           #isSwaped = reactive({rv$widgets$anaDiff$swapVolcano})
            )
 
 callModule(moduleVolcanoplot,"volcano_Step2",
            data = reactive({rv$resAnaDiff}),
            comp = reactive({as.character(rv$widgets$anaDiff$Comparison)}),
            tooltip = reactive({rv$widgets$anaDiff$tooltipInfo})
-           #isSwaped = reactive({rv$widgets$anaDiff$swapVolcano})
            )
 
 mod_staticDT_server("params_AnaDiff",
@@ -148,7 +146,7 @@ UpdateCompList <- reactive({
 observe({
   req(rv$current.obj)
   if (is.null(rv$widgets$anaDiff$tooltipInfo))
-    rv$widgets$anaDiff$tooltipInfo<- rv$current.obj@experimentData@other$proteinId
+    rv$widgets$anaDiff$tooltipInfo <- rv$current.obj@experimentData@other$proteinId
   
 })
 

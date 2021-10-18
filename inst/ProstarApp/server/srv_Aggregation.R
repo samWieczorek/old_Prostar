@@ -73,6 +73,7 @@ observeEvent(input$AggregationConsider,ignoreInit = TRUE,{
 
 
 observeEvent(req(input$proteinId),{
+  #browser()
   rv$proteinId <- input$proteinId
   rv$current.obj <- SetMatAdj(rv$current.obj, ComputeAdjacencyMatrices())
   rv$current.obj <- SetCC(rv$current.obj, ComputeConnectedComposants())
@@ -160,8 +161,9 @@ output$warningAgregationMethod <- renderUI({
   req(rv$current.obj)
   
   m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
-                      pattern="missing", 
+                      pattern = "missing", 
                       level = 'peptide')
+  #browser()
   if (length(which(m)) > 0)
   {
     tags$p(style = "color: red;",
@@ -423,7 +425,10 @@ observeEvent(input$validAggregation,{
      # rv$current.obj <- DAPAR::addOriginOfValue(rv$current.obj, NULL)
       
       name <- paste0("Aggregated", ".", rv$typeOfDataset)
-      rv$current.obj <- saveParameters(rv$current.obj, name,"Aggregation",build_ParamsList_Aggregation())
+      rv$current.obj <- saveParameters(rv$current.obj,
+                                       name,
+                                       "Aggregation",
+                                       build_ParamsList_Aggregation())
       
       rv$dataset[[name]] <- rv$current.obj
       rvModProcess$moduleAggregationDone[3] <- TRUE
@@ -526,7 +531,8 @@ output$Aggregation_Step2 <- renderUI({
         selectInput("columnsForProteinDataset.box",
                     label = "",
                     choices = choices,
-                    multiple = TRUE, width='200px',
+                    multiple = TRUE, 
+                    width='200px',
                     #size = 10,
                     selectize = TRUE)
       )
@@ -538,12 +544,8 @@ output$Aggregation_Step2 <- renderUI({
 
 observe({
   rv$widgets$aggregation$columnsForProteinDataset.box
-  
-  if (length(rv$widgets$aggregation$columnsForProteinDataset.box) > 0){
-    rvModProcess$moduleAggregationDone[2] <- TRUE
-  } else {
-    rvModProcess$moduleAggregationDone[2] <- FALSE
-  }
+  ll <- length(rv$widgets$aggregation$columnsForProteinDataset.box) > 0
+  rvModProcess$moduleAggregationDone[2] <- ll
 })
 
 
@@ -578,6 +580,6 @@ output$chooseProteinId <- renderUI({
   
   selectInput("proteinId", 
               "Choose the protein ID",
-              choices = c("None",colnames(Biobase::fData(rv$current.obj))),
+              choices = c("None", colnames(Biobase::fData(rv$current.obj))),
               selected = rv$widgets$aggregation$proteinId)
 })

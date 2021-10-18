@@ -25,6 +25,7 @@ gFiltersList <- c("None" = "None",
 utils::data(Exp1_R25_prot, package='DAPARdata')
 obj <- Exp1_R25_prot[1:10,]
 
+obj <- readRDS('../../../../../../Desktop/Sarah Lennon/test_toto.msnset')
 
 getDataForExprs <- function(obj, digits=NULL){
   

@@ -158,8 +158,14 @@ output$downloadMSnSet <- downloadHandler(
       incProgress(0.5, detail = 'Recording versions')
       dataToExport@experimentData@other$Prostar_Version = installed.packages(lib.loc = Prostar.loc)["Prostar", "Version"]
       dataToExport@experimentData@other$DAPAR_Version = installed.packages(lib.loc = DAPAR.loc)["DAPAR", "Version"]
-      dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
-    
+      
+      
+      if (is.null((rv$dataset[[input$chooseDatasetToExportToMSnset]])@experimentData@other$proteinId))
+        dataToExport@experimentData@other$proteinId = gsub(".", "_", rv$proteinId, fixed=TRUE)
+      else 
+        dataToExport@experimentData@other$proteinId <- (rv$dataset[[input$chooseDatasetToExportToMSnset]])@experimentData@other$proteinId
+      
+      
       if (rv$typeOfDataset == "peptide"){
         if (is.null(DAPAR::GetMatAdj(dataToExport))){
           ## Export adjacency matrices
