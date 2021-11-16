@@ -2,6 +2,7 @@ source(file.path("server", "mod_popover.R"), local = TRUE)$value
 source(file.path("server", "mod_query_metacell.R"), local = TRUE)$value
 source(file.path("server", "mod_filtering_example.R"), local = TRUE)$value
 source(file.path("server", "mod_staticDT.R"), local=TRUE)$value
+source(file.path("server", "mod_volcanoplot.R"),  local = TRUE)$value
 
 
 convertAnaDiff2DF <- reactive({

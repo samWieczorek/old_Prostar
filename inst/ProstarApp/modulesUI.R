@@ -19,23 +19,6 @@ module_Not_a_numericUI <- function(id){
 
 
 
-
-
-moduleVolcanoplotUI <- function(id){
-  ns <- NS(id)
-  tagList(
-          uiOutput(ns("nbSelectedItems")),
-          highchartOutput(ns("volcanoPlot"), width='600px', height='600px'),
-
-    uiOutput(ns("quantiDT"))
-  )
-}
-
-
-
-
-
-
 ########################################################
 ###### -------------------------------------------------
 ########################################################
