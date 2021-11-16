@@ -225,6 +225,7 @@ Get_Dataset_to_Analyze <- reactive({
       rv$current.obj@experimentData@other$names_metacell[ind]
   }
   
+
   datasetToAnalyze
 }) %>% bindCache(rv$current.obj, rv$widgets$anaDiff$Comparison)
 
@@ -260,10 +261,12 @@ observe({
 })
 
 ########################################################
-## Perform missing values filtering
+## Perform missing values filtering (Push p-values)
 ########################################################
 observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE, {
    UpdateCompList()
+  
+  # Store parameters used
   rv$widgets$anaDiff$MetacellTag <- AnaDiff_indices()$params$MetacellTag
   rv$widgets$anaDiff$KeepRemove <-  AnaDiff_indices()$params$KeepRemove
   rv$widgets$anaDiff$ChooseFilters <- AnaDiff_indices()$params$MetacellFilters
@@ -276,12 +279,16 @@ observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = T
   if (as.character(rv$widgets$anaDiff$ChooseFilters) == 'None')
     GetBackToCurrentResAnaDiff()
 
-    #--------------------------------
-    if (!is.null(AnaDiff_indices()$indices) && length(AnaDiff_indices()$indices) < nrow(Get_Dataset_to_Analyze())){
-      rv$resAnaDiff$P_Value[-AnaDiff_indices()$indices] <- 1
+  indices <- AnaDiff_indices()$indices
+  N <- nrow(Get_Dataset_to_Analyze())
+  if (!is.null(indices) && length(indices) < N){
+    switch(rv$widgets$anaDiff$KeepRemove, 
+           keep = rv$resAnaDiff$P_Value[-indices] <- 1,
+           delete = rv$resAnaDiff$P_Value[indices] <- 1
+    )
     }
-
-})
+  
+  })
 
 
 

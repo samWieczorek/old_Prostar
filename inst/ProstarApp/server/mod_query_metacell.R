@@ -199,7 +199,7 @@ mod_query_metacell_server <- function(id,
                        modulePopoverUI(ns("metacell_percent_th_help")),
                        min = 0,
                        max = 100,
-                        step = 1,
+                       step = 1,
                        value = rv.widgets$metacell_percent_th,
                        width='250px')
         )
