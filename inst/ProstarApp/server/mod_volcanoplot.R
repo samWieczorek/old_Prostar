@@ -354,6 +354,8 @@ moduleVolcanoplot <- function(input, output, session,
                             pattern="missing",
                             level = DAPAR::GetTypeofData(rv$current.obj)
         )
+        
+        #browser()
         if (length(which(m)) > 0)
           return(NULL)
         df <-  data.frame(x = data()$logFC, 

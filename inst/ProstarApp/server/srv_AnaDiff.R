@@ -331,7 +331,7 @@ observeEvent(input$selectComparison,ignoreInit = TRUE,{
 output$volcanoTooltip_UI <- renderUI({
   req(rv$widgets$anaDiff$Comparison != "None")
   rv$widgets$anaDiff$tooltipInfo
-  isolate({
+  #isolate({
     tagList(
       modulePopoverUI("modulePopover_volcanoTooltip"),
       selectInput("tooltipInfo",
@@ -343,7 +343,7 @@ output$volcanoTooltip_UI <- renderUI({
                   width='300px', size=5),
       actionButton("validTooltipInfo", "Validate tooltip choice", class = actionBtnClass)
     )
-  })
+  #})
 })
 
 
@@ -818,7 +818,9 @@ observeEvent(input$showpvalTable, {
 
 
 observeEvent(input$validTooltipInfo,{ 
-  rv$widgets$anaDiff$tooltipInfo <- unique(rv$current.obj@experimentData@other$proteinid, input$tooltipInfo)
+  #browser()
+  rv$widgets$anaDiff$tooltipInfo <- c(rv$current.obj@experimentData@other$proteinid, input$tooltipInfo)
+  #browser()
   })
 
 observeEvent(input$downloadAnaDiff,{  rv$widgets$anaDiff$downloadAnaDiff <- input$downloadAnaDiff})
@@ -968,7 +970,10 @@ Get_FDR <- reactive({
 
 output$showFDR <- renderUI({
   req(rv$current.obj)
-  nb <- length(which(GetSelectedItems()[paste0('isDifferential (',as.character(rv$widgets$anaDiff$Comparison),')')]==1))
+  req(GetSelectedItems())
+  #browser()
+  nb <- length(which(GetSelectedItems()[paste0('isDifferential (',
+                                               as.character(rv$widgets$anaDiff$Comparison),')')]==1))
   th <- Get_FDR() * nb
   print(th)
   
@@ -1014,11 +1019,12 @@ output$equivLog10 <- renderText ({
 
 GetSelectedItems <- reactive({
   req(rv$resAnaDiff)
+  
   rv$widgets$anaDiff$downloadAnaDiff
   
   
   t <- NULL
-  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >=rv$widgets$anaDiff$th_pval)
+  upItems1 <- which(-log10(rv$resAnaDiff$P_Value) >= rv$widgets$anaDiff$th_pval)
   upItems2 <- which(abs(rv$resAnaDiff$logFC) >= rv$widgets$hypothesisTest$th_logFC)
   
   if ( rv$widgets$anaDiff$downloadAnaDiff == "All"){
