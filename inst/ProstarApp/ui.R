@@ -13,7 +13,8 @@ source(file.path("server", "mod_staticDT.R"), local=TRUE)$value
 
 theme = shinythemes::shinytheme("cerulean")
 #---------------------------------------------------------------------------------------------------------
-jsResetCode <- "shinyjs.reset = function() {history.go(0)}"
+jsResetCode <- "shinyjs.resetProstar = function() {history.go(0)}"
+jsCode <- "shinyjs.pageCol = function(params){$('body').css('background', params);}"
 
 shinyUI <- fluidPage(
   #theme = "css/ceruleanProstar.css",
@@ -22,7 +23,7 @@ shinyUI <- fluidPage(
   tagList(
     
     shinyjs::useShinyjs(),
-    extendShinyjs(text = jsResetCode, functions = c("reset")),
+    extendShinyjs(text = jsResetCode, functions = c("resetProstar")),
     
     includeCSS("www/progressBar/progressBar.css"),
     tags$head(tags$style(sass(sass_file("www/css/sass-size.scss"),
