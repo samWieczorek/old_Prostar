@@ -1,10 +1,12 @@
-##' Prostar : a GUI for DAPAR
-##' 
-##' @title Prostar
-##' @return A new window in the default internet browser
-##' @author Samuel Wieczorek
-##' @examples
-##' if(interactive()) {Prostar()}
+#' Prostar : a GUI for DAPAR##' 
+#' @title Prostar
+#' @return A new window in the default internet browser
+#' @author Samuel Wieczorek
+#' @examples
+#' if(interactive()) {Prostar()}
+#' 
+#' @export
+#' 
 Prostar <-
 function(){
         G <- .GlobalEnv
