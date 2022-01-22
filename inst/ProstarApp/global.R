@@ -46,7 +46,6 @@ plan(multiprocess)
 
 
 source(file.path(".", "modulesUI.R"),  local = TRUE)$value
-source(file.path(".", "moduleProcessUI.R"),  local = TRUE)$value
 
 
 base_URL <- "http://www.prostar-proteomics.org/md/"

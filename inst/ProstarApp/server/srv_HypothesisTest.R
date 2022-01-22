@@ -117,8 +117,10 @@ output$cond2_ui <- renderUI({
 
 
 output$btns_ui <- renderUI({
-  req(rv$res_AllPairwiseComparisons)
-  lapply(seq_len(rv.ht$n), function(i) {
+  
+    req(rv.ht$n)
+  
+    ll <- lapply(seq_len(rv.ht$n), function(i) {
     tags$div(style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
              actionButton(paste0('compswap', i), '',
                  icon('sync',  lib = "font-awesome"), 
@@ -127,14 +129,17 @@ output$btns_ui <- renderUI({
                           border-width: 0px")
     )
  })
+    ll
+
 })
 
 
-observeEvent(req(sum(GetSwapShinyValue()) > 0), {
-  req(rv$res_AllPairwiseComparisons)
+observeEvent(GetSwapShinyValue(), {
   swap <- GetSwapShinyValue()
-    
+  print(swap)
+   # browser()
     isolate({
+      req(rv$res_AllPairwiseComparisons)
       
   #rv$ht$swap.history <- 
   ind.swap <- which(swap != rv.ht$swap.history)
@@ -166,10 +171,12 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
 
 GetSwapShinyValue <- reactive({
   req(rv.ht$n)
+  #browser()
   unlist(lapply(seq_len(rv.ht$n),
                 function(x) input[[paste0('compswap', x)]]
   )
   )
+
 })
 
 # # Catch an event on any 'swap' checkboxes

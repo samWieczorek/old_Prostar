@@ -761,7 +761,10 @@ resetModuleProcess <- function(moduleName){
             rv$widgets$anaDiff <- list(Comparison = "None",
                                        Condition1 = "",
                                        Condition2 = "",
-                                       #swapVolcano = FALSE,
+                                       val_vs_percent = "Value",
+                                       ChooseFilters = "None",
+                                       seuilNA_percent = 0,
+                                       seuilNA = 0,
                                        filterType = "None",
                                        filter_th_NA = 0,
                                        calibMethod = 'None',
@@ -785,12 +788,12 @@ resetModuleProcess <- function(moduleName){
             #if (!is.null(input$showpvalTable) )updateCheckboxInput(session, 'showpvalTable', value = FALSE)
             updateSelectInput(session, "selectComparison", selected=rv$widgets$anaDiff$Comparison)
             updateSelectInput(session, "AnaDiff_seuilNA", selected = rv$widgets$anaDiff$filter_th_NA)
-            updateRadioButtons(session, "AnaDiff_ChooseFilters", selected=rv$widgets$anaDiff$filterType)
+            updateRadioButtons(session, "AnaDiff_ChooseFilters", selected = rv$widgets$anaDiff$filterType)
             updateSelectInput(session, "tooltipInfo", selected=character(0))
             updateSelectInput(session,"calibrationMethod", selected = rv$widgets$anaDiff$calibMethod)
             updateNumericInput(session,"numericValCalibration",value = rv$widgets$anaDiff$numValCalibMethod)
-            updateSelectInput(session,"nBinsHistpval",selected=rv$widgets$anaDiff$nBinsHistpval)
-            updateTextInput(session, "seuilPVal",  value=rv$widgets$anaDiff$th_pval)
+            updateSelectInput(session,"nBinsHistpval", selected = rv$widgets$anaDiff$nBinsHistpval)
+            updateTextInput(session, "seuilPVal", value = rv$widgets$anaDiff$th_pval)
             updateRadioButtons(session, "downloadAnaDiff", selected="All")
             #updateRadioButtons(session, "swapVolcano", selected = rv$widgets$anaDiff$swapVolcano)
             updateRadioButtons(session, "tooltipInfo", selected = rv$widgets$anaDiff$tooltipInfo)

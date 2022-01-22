@@ -34,14 +34,17 @@ mod_staticDT_server("params_AnaDiff",
 callModule(module_Not_a_numeric,"test_seuilPVal", reactive({rv$widgets$anaDiff$th_pval}))
 
 
-callModule(moduleProcess, "moduleProcess_AnaDiff", 
+moduleProcess.value <- callModule(moduleProcess, "moduleProcess_AnaDiff", 
            isDone = reactive({rvModProcess$moduleAnaDiffDone}), 
            pages = reactive({rvModProcess$moduleAnaDiff}),
            rstFunc = resetModuleAnaDiff,
-           forceReset = reactive({rvModProcess$moduleAnaDiffForceReset}))
+           forceReset = reactive({moduleProcess.value$reset()}))
 
 
-
+observeEvent(moduleProcess.value$reset(), {
+  print("retour de valeur de moduleProcess")
+  print(moduleProcess.value$reset())
+})
 
 ######
 resetModuleAnaDiff <- reactive({  
@@ -49,7 +52,7 @@ resetModuleAnaDiff <- reactive({
   #   rv$resAnaDiff$logFC <- - rv$resAnaDiff$logFC
   #   rv$widgets$anaDiff$swapVolcano <- FALSE
   # }
-
+print('titi')
   ## update widgets values (reactive values)
   resetModuleProcess("AnaDiff")
   
@@ -66,7 +69,6 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Comparison = "None"
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
-  #rv$widgets$anaDiff$swapVolcano = FALSE
   rv$widgets$anaDiff$val_vs_percent = "Value"
   rv$widgets$anaDiff$ChooseFilters = "None"
   rv$widgets$anaDiff$seuilNA_percent = 0
@@ -232,9 +234,6 @@ Get_Dataset_to_Analyze <- reactive({
 
 
 
-
-
-
 AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
                                      obj = reactive({Get_Dataset_to_Analyze()}),
                                      list_tags = reactive({c('None' = 'None',
@@ -248,7 +247,8 @@ AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
                                                            "For every condition" = "AllCond",
                                                            "At least one condition" = "AtLeastOneCond")}),
                                      val_vs_percent = reactive({setNames(nm=c('Count', 'Percentage'))}),
-                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())})
+                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())}),
+                                     reset = reactive({moduleProcess.value$reset()})
                                      )
 #----------------------------------------------------
 
@@ -266,7 +266,6 @@ observe({
 ########################################################
 observeEvent(input$AnaDiff_performFilteringMV, ignoreInit = TRUE, ignoreNULL = TRUE, {
    UpdateCompList()
-  
   # Store parameters used
   rv$widgets$anaDiff$MetacellTag <- AnaDiff_indices()$params$MetacellTag
   rv$widgets$anaDiff$KeepRemove <-  AnaDiff_indices()$params$KeepRemove
@@ -776,17 +775,19 @@ output$screenAnaDiff3 <- renderUI({
 
 output$screenAnaDiff4 <- renderUI({     
   req(as.character(rv$widgets$anaDiff$Comparison) != "None")
+  rvModProcess$moduleAnaDiffDone[4] <- TRUE
   tagList(
-    mod_static_ui("params_AnaDiff")
+    mod_staticDT_ui("params_AnaDiff")
     
   )
+  
 })
 
 output$diffAna_Summary <- renderUI({     
   req(as.character(rv$widgets$anaDiff$Comparison) != "None")
   
   tagList(
-    mod_static_ui("params_AnaDiff")
+    mod_staticDT_ui("params_AnaDiff")
   )
   
 })

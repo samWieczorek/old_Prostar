@@ -35,7 +35,8 @@ mod_query_metacell_server <- function(id,
                                       keep_vs_remove = reactive({NULL}),
                                       filters = reactive({NULL}),
                                       val_vs_percent = reactive({NULL}),
-                                      operator = reactive({NULL})
+                                      operator = reactive({NULL}),
+                                      reset = reactive({NULL})
                                       ) {
   
   rv <- reactiveValues(
@@ -79,6 +80,20 @@ mod_query_metacell_server <- function(id,
         val_vs_percent = 'Count',
         metacellFilter_operator = '<='
       )
+      
+      observeEvent(reset(),{
+        
+        print("toto")
+        rv.widgets$MetacellTag <- "None"
+        rv.widgets$MetacellFilters <- "None"
+        rv.widgets$KeepRemove <- 'delete'
+        rv.widgets$metacell_value_th <- 0
+        rv.widgets$metacell_percent_th <- 0
+        rv.widgets$val_vs_percent <- 'Count'
+        rv.widgets$metacellFilter_operator <- '<='
+        updateSelectInput(session, "chooseMetacellTag", selected = "None")
+        
+      })
       
       observeEvent(input$chooseMetacellTag, { rv.widgets$MetacellTag <- input$chooseMetacellTag})
       observeEvent(input$ChooseKeepRemove, {  rv.widgets$KeepRemove <- input$ChooseKeepRemove})
