@@ -23,12 +23,7 @@ mod_plots_tracking_ui <- function(id){
   tagList(
     shinyjs::useShinyjs(),
     # shinyjs::hidden(actionButton(ns('rst_btn'), 'Reset')),
-    selectInput(ns("typeSelect"), "Type of selection", 
-                choices=c("None"="None",
-                          "Protein list"="ProteinList", 
-                          "Random"="Random", 
-                          "Specific column"="Column"),
-                width=('130px')),
+    uiOutput(ns('typeSelect_ui')),
     shinyjs::hidden(uiOutput(ns("listSelect_UI"))),
     shinyjs::hidden(uiOutput(ns("randomSelect_UI"))),
     shinyjs::hidden(uiOutput(ns("columnSelect_UI")))
@@ -81,6 +76,30 @@ mod_plots_tracking_server <- function(input, output, session,
       rv.track$sync <- slave()
   })
   
+  
+  
+  output$typeSelect_ui <- renderUI({
+    
+    logical.cols <- lapply(colnames(fData(obj())), 
+                           function(x) 
+                             is.logical(fData(obj())[,x]))
+    logical.cols <- which(unlist(logical.cols))
+    
+    
+    .choices <- c("None" = "None",
+                  "Protein list" = "ProteinList", 
+                  "Random" = "Random")
+    if (length(logical.cols) > 0)
+      .choices <- c(.choices, 
+                    "Specific column" = "Column")
+
+    
+    selectInput(ns("typeSelect"), "Type of selection", 
+                choices = .choices,
+                width = '130px')
+    
+    
+  })
   output$listSelect_UI <- renderUI({
 
     selectInput(ns("listSelect"), 
@@ -101,10 +120,15 @@ mod_plots_tracking_server <- function(input, output, session,
   })
   
   output$columnSelect_UI <- renderUI({
-    selectInput(ns("colSelect"), 
-                "Column", 
-                choices = colnames(fData(obj())),
-                selected = rv.track$res$colSelect)
+    logical.cols <- lapply(colnames(fData(obj())), 
+                           function(x) 
+                             is.logical(fData(obj())[,x]))
+    logical.cols <- which(unlist(logical.cols))
+    if (length(logical.cols) > 0)
+      selectInput(ns("colSelect"),
+                  "Column", 
+                  choices = colnames(fData(obj()))[logical.cols ],
+                  selected = rv.track$res$colSelect)
   })
   
   
@@ -232,7 +256,7 @@ mod_plots_tracking_server <- function(input, output, session,
     rv.track$res$randSelect <- input$randSelect
     
     updateSelectInput(session, "listSelect", NULL)
-    updateSelectInput(session, "colSelect", selected=NULL)
+    updateSelectInput(session, "colSelect", selected = NULL)
     
     if (is.null(rv.track$res$randSelect) || rv.track$res$randSelect==''
         || (as.numeric(rv.track$res$randSelect) < 0))
@@ -243,17 +267,16 @@ mod_plots_tracking_server <- function(input, output, session,
     }
   })
   
-  observeEvent(input$colSelect,ignoreNULL = FALSE,{
+  observeEvent(input$colSelect, ignoreNULL = FALSE,{
     if (!is.null(params())) return(NULL)
     rv.track$res$colSelect <- input$colSelect
     
     updateSelectInput(session, "listSelect", NULL)
     updateSelectInput(session, "randSelect", selected='')
-    
     if (is.null(rv.track$res$colSelect))
       rv.track$res$col.indices <- NULL
     else
-      rv.track$res$col.indices <- which(pData(obj())[,rv.track$res$colSelect] == 1)
+      rv.track$res$col.indices <- which(fData(obj())[,rv.track$res$colSelect] == 1)
     
     
   })
