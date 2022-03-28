@@ -13,8 +13,8 @@ Authors@R: c(person(given = "Samuel", family = "Wieczorek",
 	            email = "thomas.burger@cea.fr",
 		    role = "aut"))
 Author: Samuel Wieczorek [cre,aut],
-    Thomas Burger [aut],
-    Enora Fremy [aut]
+        Thomas Burger [aut],
+        Enora Fremy [aut]
 Maintainer: Samuel Wieczorek <samuel.wieczorek@cea.fr>
 Description: This package provides a GUI interface for DAPAR.
 biocViews: Proteomics, MassSpectrometry, Normalization, Preprocessing, ImmunoOncology,  R.utils, GO, GUI
