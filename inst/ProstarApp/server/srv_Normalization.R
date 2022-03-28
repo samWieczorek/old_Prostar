@@ -404,7 +404,7 @@ observeEvent(input$valid.normalization,{
 output$ChooseLegendForNormTabPanel <- renderUI({
   rv$current.obj
   if (is.null(rv$current.obj)){return(NULL)}
-  .names <- colnames(Biobase::pData(rv$current.obj))[-1]
+  .names <- colnames(pData(rv$current.obj))[-1]
   checkboxGroupInput("legendXAxisNormTabPanel",
                      label = "Data to show in legend",
                      choices = .names,
@@ -435,10 +435,10 @@ output$viewComparisonNorm_HC <- renderHighchart({
   if (is.null(obj1) || is.null(obj2))
     return(NULL)
   
-  compareNormalizationD_HC(qDataBefore = Biobase::exprs(obj1),
-                           qDataAfter = Biobase::exprs(obj2),
+  compareNormalizationD_HC(qDataBefore = exprs(obj1),
+                           qDataAfter = exprs(obj2),
                            keyId = fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId],
-                           conds = Biobase::pData(obj1)$Condition,
+                           conds = pData(obj1)$Condition,
                            pal = rv$PlotParams$paletteForConditions,
                            subset.view =   if(rv.norm$sync)
                              GetIndicesOfSelectedProteins_ForNorm()

@@ -104,9 +104,9 @@ getDataForExprs <- function(obj, digits = NULL){
   if (is.null(digits))
     digits <- 2
   
-  test.table <- as.data.frame(round(Biobase::exprs(obj)))
+  test.table <- as.data.frame(round(exprs(obj)))
   if (!is.null(obj@experimentData@other$names_metacell)){ #agregated dataset
-    test.table <- cbind(round(Biobase::exprs(obj), digits = digits), 
+    test.table <- cbind(round(exprs(obj), digits = digits), 
                         DAPAR::GetMetacell(obj))
   } else {
     test.table <- cbind(test.table, 
@@ -124,7 +124,7 @@ getData <- reactive({
   req(rv$settings_nDigits)
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
+  test.table <- round(exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 })
 
@@ -152,9 +152,9 @@ GetDatasetOverview <- reactive({
   nb.empty.lines <- sum(apply(m, 1, all))
   
   
-  val <- c(ncol((Biobase::exprs(rv$current.obj))),
-           length(unique(Biobase::pData(rv$current.obj)$Condition)),
-           nrow((Biobase::exprs(rv$current.obj))),
+  val <- c(ncol((exprs(rv$current.obj))),
+           length(unique(pData(rv$current.obj)$Condition)),
+           nrow((exprs(rv$current.obj))),
            NA.count,
            pourcentage,
            nb.empty.lines)
@@ -171,7 +171,7 @@ data <- eventReactive(rv$current$obj, {
   rv$settings_nDigits
   rv$current$obj
   
-  test.table <- round(Biobase::exprs(rv$current.obj),digits=rv$settings_nDigits)
+  test.table <- round(exprs(rv$current.obj),digits=rv$settings_nDigits)
   test.table
 }, ignoreNULL = FALSE)
 
@@ -342,7 +342,7 @@ Compute_PCA_nbDimensions <- reactive({
   n <- dim(y)[2] 
   
   if (n > nmax){
-    n <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+    n <- length(unique(pData(rv$current.obj)$Condition))
   }
   
   
@@ -368,9 +368,9 @@ loadObjectInMemoryFromConverter <- function(){
     pData(rv$current.obj)$Sample.name <- gsub(".", "_", pData(rv$current.obj)$Sample.name, fixed=TRUE)
     
     #If there are already pVal values, then do no compute them
-    # if (G_logFC_Column %in% names(Biobase::fData(rv$current.obj) )){
-    #     rv$resAnaDiff <- list(logFC = Biobase::fData(rv$current.obj)$logFC,
-    #                           P_Value = Biobase::fData(rv$current.obj)$P_Value)
+    # if (G_logFC_Column %in% names(fData(rv$current.obj) )){
+    #     rv$resAnaDiff <- list(logFC = fData(rv$current.obj)$logFC,
+    #                           P_Value = fData(rv$current.obj)$P_Value)
     #     rv$widgets$hypothesisTest$th_logFC <- rv$current.obj@experimentData@other$threshold_logFC
     #     #rv$widgets$anaDiff$th_pval  <- rv$current.obj@experimentData@other$threshold_p_value
     # }
@@ -1271,19 +1271,19 @@ catchToList <- function(expr) {
 
 retroCompatibility <- reactive({
   req(rv$current.obj)
-  if ("FC" %in% colnames(Biobase::fData(rv$current.obj))){
-    idx <- which(colnames(Biobase::fData(rv$current.obj)) == "FC")
-    names(Biobase::fData(rv$current.obj))[idx] <-"logFC"
+  if ("FC" %in% colnames(fData(rv$current.obj))){
+    idx <- which(colnames(fData(rv$current.obj)) == "FC")
+    names(fData(rv$current.obj))[idx] <-"logFC"
   }
   
-  if ("Experiment" %in% colnames(Biobase::pData(rv$current.obj))){
-    idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Experiment")
-    names(Biobase::pData(rv$current.obj))[idx] <-"Sample.name"
+  if ("Experiment" %in% colnames(pData(rv$current.obj))){
+    idx <- which(colnames(pData(rv$current.obj)) == "Experiment")
+    names(pData(rv$current.obj))[idx] <-"Sample.name"
   }
   
-  if ("Label" %in% colnames(Biobase::pData(rv$current.obj))){
-    idx <- which(colnames(Biobase::pData(rv$current.obj)) == "Label")
-    names(Biobase::pData(rv$current.obj))[idx] <-"Condition"
+  if ("Label" %in% colnames(pData(rv$current.obj))){
+    idx <- which(colnames(pData(rv$current.obj)) == "Label")
+    names(pData(rv$current.obj))[idx] <-"Condition"
   }
 })
 
@@ -1304,7 +1304,7 @@ NeedsUpdate <- reactive({
   PROSTAR.version <- rv$current.obj@experimentData@other$Prostar_Version
   
   if (!is.null(PROSTAR.version) && (compareVersion(PROSTAR.version,"1.12.9") != -1)
-      && (DAPAR::check.design(Biobase::pData(rv$current.obj))$valid))
+      && (DAPAR::check.design(pData(rv$current.obj))$valid))
   {return (FALSE)}
   
   else {

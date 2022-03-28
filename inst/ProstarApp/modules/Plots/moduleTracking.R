@@ -47,7 +47,7 @@ moduleTrackProt <- function(input, output, session, params, reset){
   
   output$listSelect_UI <- renderUI({
     isolate({
-      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      ll <-  fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
       selectInput(ns("listSelect"), "Protein for normalization", choices=ll, multiple = TRUE, width='400px')
     })
   })
@@ -55,14 +55,14 @@ moduleTrackProt <- function(input, output, session, params, reset){
   
   output$randomSelect_UI <- renderUI({
     isolate({
-      ll <-  Biobase::fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
+      ll <-  fData(rv$current.obj)[,rv$current.obj@experimentData@other$proteinId]
       hidden(textInput(ns("randSelect"), "Random", value="1", width=('120px')))
     })
   })
   
   output$columnSelect_UI <- renderUI({
     isolate({
-      ll <-  colnames(Biobase::fData(rv$current.obj))
+      ll <-  colnames(fData(rv$current.obj))
       hidden(selectInput(ns("colSelect"), "Column", choices=ll))
     })
   })

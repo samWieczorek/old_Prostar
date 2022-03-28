@@ -221,7 +221,7 @@ server <- function(input, output, session){
     type <- input$ChooseMetacellFilters
     percent <- input$choose_val_vs_percent == 'Percentage'
     op <- input$choose_metacellFilter_operator
-    conds <-  Biobase::pData(plop_msnset)$Condition
+    conds <-  pData(plop_msnset)$Condition
     
     index <- NULL
     print(index)

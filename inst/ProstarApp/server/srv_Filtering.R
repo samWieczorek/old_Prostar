@@ -467,9 +467,9 @@ getDataForMetacellFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.metacell
   
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.metacell),
+  table <- as.data.frame(round(exprs(rv$deleted.metacell),
                                digits = rv$settings_nDigits))
-  table <- cbind(id = Biobase::fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
+  table <- cbind(id = fData(rv$deleted.metacell)[, GetKeyId(rv$deleted.metacell)],
                  table,
                  DAPAR::GetMetacell(rv$deleted.metacell)
   )
@@ -479,9 +479,9 @@ getDataForMetacellFiltered <- reactive({
 getDataForNumericalFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.numeric
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.numeric),
+  table <- as.data.frame(round(exprs(rv$deleted.numeric),
                                digits = rv$settings_nDigits))
-  table <- cbind(id = Biobase::fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
+  table <- cbind(id = fData(rv$deleted.numeric)[, GetKeyId(rv$deleted.numeric)],
                  table, 
                  DAPAR::GetMetacell(rv$deleted.numeric))
   
@@ -493,9 +493,9 @@ getDataForMVStringFiltered <- reactive({
   req(rv$settings_nDigits)
   rv$deleted.stringBased
   id <- 
-  table <- as.data.frame(round(Biobase::exprs(rv$deleted.stringBased),
+  table <- as.data.frame(round(exprs(rv$deleted.stringBased),
                                digits=rv$settings_nDigits))
-  table <- cbind(id = Biobase::fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
+  table <- cbind(id = fData(rv$deleted.stringBased)[, GetKeyId(rv$deleted.stringBased)],
                  table, 
                  DAPAR::GetMetacell(rv$deleted.stringBased))
   
@@ -517,17 +517,17 @@ GetDataFor_VizualizeFilteredData <- reactive({
                  Metacell = if(!is.null(rv$deleted.metacell))
                    switch(input$ChooseTabAfterFiltering,
                           quantiData =  getDataForMetacellFiltered(),
-                          metaData = Biobase::fData(rv$deleted.metacell)
+                          metaData = fData(rv$deleted.metacell)
                           ),
                  StringBased = if(!is.null(rv$deleted.stringBased))
                    switch(input$ChooseTabAfterFiltering,
                           quantiData = getDataForMVStringFiltered(),
-                          metaData = Biobase::fData(rv$deleted.stringBased)
+                          metaData = fData(rv$deleted.stringBased)
                           ),
                  Numerical = if(!is.null(rv$deleted.numeric))
                    switch(input$ChooseTabAfterFiltering,
                           quantiData = getDataForNumericalFiltered(),
-                          metaData = Biobase::fData(rv$deleted.numeric)
+                          metaData = fData(rv$deleted.numeric)
                           )
                  )
   data

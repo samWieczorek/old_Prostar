@@ -154,7 +154,7 @@ observeEvent(input$loadMSnset, ignoreInit =TRUE,{
      rv$current.obj.name <- DeleteFileExtension(input$file$name)
     rv$typeOfDataset <- rv$current.obj@experimentData@other$typeOfData
     rv$indexNA <- which(is.na(exprs(rv$current.obj)))
-    rv$updateDesign_designChecked <- check.design(Biobase::pData(rv$current.obj))
+    rv$updateDesign_designChecked <- check.design(pData(rv$current.obj))
     colnames(fData(rv$current.obj)) <- gsub(".", "_", colnames(fData(rv$current.obj)), fixed=TRUE)
     names(rv$current.obj@experimentData@other) <- gsub(".", "_", names(rv$current.obj@experimentData@other), fixed=TRUE)
     
@@ -170,8 +170,8 @@ observeEvent(input$loadMSnset, ignoreInit =TRUE,{
       # names.logFC <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$logFC
       # names.P_Value <- rv$current.obj@experimentData@other$Params[[nn[ind]]][['HypothesisTest']]$AllPairwiseCompNames$P_Value
       # 
-      # .logFC <- as.data.frame(Biobase::fData(rv$current.obj)[,names.logFC])
-      # .P_Value <- as.data.frame(Biobase::fData(rv$current.obj)[,names.P_Value])
+      # .logFC <- as.data.frame(fData(rv$current.obj)[,names.logFC])
+      # .P_Value <- as.data.frame(fData(rv$current.obj)[,names.P_Value])
       # names(.logFC) <- names.logFC
       # names(.P_Value) <- names.P_Value
       # 
@@ -183,9 +183,9 @@ observeEvent(input$loadMSnset, ignoreInit =TRUE,{
     ind <-  grep("HypothesisTest",nn)
     #params.tmp <- rv$current.obj@experimentData@other$Params[["HypothesisTest"]]
     if (length(ind)>0){
-      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
+      # rv$res_AllPairwiseComparisons <- list(logFC = setNames(data.frame(fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$logFC]),
       #                                                      params.tmp$AllPairwiseCompNames$logFC),
-      #                                     P_Value = setNames(data.frame(Biobase::fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
+      #                                     P_Value = setNames(data.frame(fData(rv$current.obj)[,params.tmp$AllPairwiseCompNames$P_Value]),
       #                                                        params.tmp$AllPairwiseCompNames$P_Value
       #                                     ))
       rv$res_AllPairwiseComparisons <- Get_AllComparisons(rv$current.obj)

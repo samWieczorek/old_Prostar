@@ -212,7 +212,7 @@ Get_Dataset_to_Analyze <- reactive({
     condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
     ind_virtual_cond2 <- which(pData(rv$current.obj)$Condition != condition1)
     datasetToAnalyze <- rv$current.obj
-    Biobase::pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- 'virtual_cond_2'
+    pData(datasetToAnalyze)$Condition[ind_virtual_cond2] <- 'virtual_cond_2'
   }
   else {
     condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
@@ -1022,11 +1022,11 @@ GetSelectedItems <- reactive({
     significant <- rep(1, length(selectedItems))
   }
   
-  t <- data.frame(id = rownames(Biobase::exprs(rv$current.obj))[selectedItems],
+  t <- data.frame(id = rownames(exprs(rv$current.obj))[selectedItems],
                   logFC = round(rv$resAnaDiff$logFC[selectedItems], digits=rv$settings_nDigits),
                   P_Value = rv$resAnaDiff$P_Value[selectedItems],
                   isDifferential = significant)
-  tmp <- as.data.frame(Biobase::fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo])
+  tmp <- as.data.frame(fData(rv$current.obj)[selectedItems, rv$widgets$anaDiff$tooltipInfo])
   names(tmp) <- rv$widgets$anaDiff$tooltipInfo
   t <- cbind(t, tmp)
   colnames(t)[2:4] <- paste0(colnames(t)[2:4], " (", as.character(rv$widgets$anaDiff$Comparison),')')

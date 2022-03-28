@@ -404,16 +404,16 @@ observeEvent(input$validAggregation,{
       cpt <- 10
       
       for(c in rv$widgets$aggregation$columnsForProteinDataset.box){
-        newCol <- BuildColumnToProteinDataset(peptideData = Biobase::fData(rv$current.obj), 
+        newCol <- BuildColumnToProteinDataset(peptideData = fData(rv$current.obj), 
                                               matAdj = X,
                                               columnName = c, 
-                                              proteinNames = rownames(Biobase::fData(rv$temp.aggregate$obj.prot))
+                                              proteinNames = rownames(fData(rv$temp.aggregate$obj.prot))
                                               )
-        cnames <- colnames(Biobase::fData(rv$temp.aggregate$obj.prot))
-        Biobase::fData(rv$temp.aggregate$obj.prot) <- 
-          data.frame(Biobase::fData(rv$temp.aggregate$obj.prot), newCol)
+        cnames <- colnames(fData(rv$temp.aggregate$obj.prot))
+        fData(rv$temp.aggregate$obj.prot) <- 
+          data.frame(fData(rv$temp.aggregate$obj.prot), newCol)
         
-        colnames(Biobase::fData(rv$temp.aggregate$obj.prot)) <- c(cnames, paste0('agg_',c))
+        colnames(fData(rv$temp.aggregate$obj.prot)) <- c(cnames, paste0('agg_',c))
         
         cpt <- cpt + delta
         incProgress(cpt/100, detail = paste0('Processing column ', c))
@@ -515,8 +515,8 @@ output$Aggregation_Step2 <- renderUI({
   req(rv$current.obj)
   
   #if (rv$current.obj@experimentData@other$typeOfData == typePeptide) {
-  ind <-  match(rv$current.obj@experimentData@other$names_metacell, colnames(Biobase::fData(rv$current.obj)))
-  choices <- setNames(nm = colnames(Biobase::fData(rv$current.obj))[-ind])
+  ind <-  match(rv$current.obj@experimentData@other$names_metacell, colnames(fData(rv$current.obj)))
+  choices <- setNames(nm = colnames(fData(rv$current.obj))[-ind])
 
   tagList(
     uiOutput("displayNbPeptides"),
@@ -558,8 +558,8 @@ observe({
 output$columnsForProteinDataset <- renderUI({
   req(rv$current.obj)
   
-  choices <- colnames(Biobase::fData(rv$current.obj))
-  names(choices) <- colnames(Biobase::fData(rv$current.obj))
+  choices <- colnames(fData(rv$current.obj))
+  names(choices) <- colnames(fData(rv$current.obj))
   
   selectInput("columnsForProteinDataset.box",
               label = "",
@@ -580,6 +580,6 @@ output$chooseProteinId <- renderUI({
   
   selectInput("proteinId", 
               "Choose the protein ID",
-              choices = c("None", colnames(Biobase::fData(rv$current.obj))),
+              choices = c("None", colnames(fData(rv$current.obj))),
               selected = rv$widgets$aggregation$proteinId)
 })

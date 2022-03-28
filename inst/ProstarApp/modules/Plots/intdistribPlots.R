@@ -56,7 +56,7 @@ output$plotintensitylarge <- renderUI({
 output$ChooseLegendForSamples <- renderUI({
   req(rv$current.obj)
   
-  .names <- colnames(Biobase::pData(rv$current.obj))
+  .names <- colnames(pData(rv$current.obj))
   
   
   checkboxGroupInput(ns("legendForSamples"),
@@ -66,5 +66,5 @@ output$ChooseLegendForSamples <- renderUI({
 })
 
 observeEvent(input$legendForSamples, {
-  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(Biobase::pData(rv$current.obj)[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
+  rv$PlotParams$legendForSamples <- as.vector(apply(as.data.frame(pData(rv$current.obj)[,input$legendForSamples]), 1, function(x) paste(x, collapse="_")))
 })

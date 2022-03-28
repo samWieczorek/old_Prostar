@@ -20,7 +20,7 @@ server <- function(input, output, session) {
 
   
   mod_download_btns_server(id = 'test',
-                           df.data = reactive({Biobase::exprs(obj)}), 
+                           df.data = reactive({exprs(obj)}), 
                            name = reactive({'toto'}), 
                            colors = reactive({colors}),
                            df.tags = reactive({GetMetacell(obj)})

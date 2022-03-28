@@ -103,8 +103,8 @@ server <- shinyServer(function(session, input, output) {
   
   observeEvent(input$go, ignoreInit = TRUE,{
     print('tutu')
-    rv$listComp <- DAPAR::limmaCompleteTest(Biobase::exprs(obj),
-                                            Biobase::pData(obj),
+    rv$listComp <- DAPAR::limmaCompleteTest(exprs(obj),
+                                            pData(obj),
                                             'OnevsAll')
     
     rv$n <- ncol(rv$listComp$logFC)

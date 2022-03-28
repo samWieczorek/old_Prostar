@@ -32,7 +32,8 @@ getDataForExprs <- function(obj, digits=NULL){
   if (is.null(digits))
     digits <- 2
   
-   test.table <- cbind(round(Biobase::exprs(obj), digits = digits), DAPAR::GetMetacell(obj))
+   test.table <- cbind(round(exprs(obj), digits = digits), 
+                       DAPAR::GetMetacell(obj))
   return(test.table)
 }
 

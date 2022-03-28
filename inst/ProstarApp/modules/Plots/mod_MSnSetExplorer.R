@@ -96,19 +96,19 @@ mod_MSnSetExplorer_server <- function(id,
   
   
   mod_download_btns_server('pData_DL_btns',
-                           df.data = reactive({Biobase::pData(data())}),
+                           df.data = reactive({pData(data())}),
                            name = reactive({'sampleData'}),
                            colors = reactive({
                              pal <- as.list(palette.conds())
-                             names(pal) <- unique(Biobase::pData(data())$Condition)
+                             names(pal) <- unique(pData(data())$Condition)
                              pal[['blank']] <- 'white'
                              pal
                            }),
                            df.tags = reactive({
-                             tags <- Biobase::pData(data())
+                             tags <- pData(data())
                              tags[,] <- 'blank'
-                             tags$Sample.name <- Biobase::pData(data())$Condition
-                             tags$Condition <- Biobase::pData(data())$Condition
+                             tags$Sample.name <- pData(data())$Condition
+                             tags$Condition <- pData(data())$Condition
                              tags
                            })
   )
@@ -117,7 +117,7 @@ mod_MSnSetExplorer_server <- function(id,
   ##' @author Samuel Wieczorek
   output$viewpData <- DT::renderDataTable(server=TRUE,{
     req(data())
-    data <- as.data.frame(Biobase::pData(data()))
+    data <- as.data.frame(pData(data()))
     dt <- DT::datatable(data,
                         extensions = c('Scroller'),
                         rownames = FALSE,
@@ -147,7 +147,7 @@ mod_MSnSetExplorer_server <- function(id,
   
   
   mod_download_btns_server('fData_DL_btns',
-                           df.data = reactive({Biobase::fData(data())}),
+                           df.data = reactive({fData(data())}),
                            name = reactive({'featureData'}),
                            colors = reactive({NULL}),
                            df.tags = reactive({NULL})
@@ -160,8 +160,8 @@ mod_MSnSetExplorer_server <- function(id,
     req(data())
     
     
-    if ('Significant' %in% colnames(Biobase::fData(data()))){
-      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
+    if ('Significant' %in% colnames(fData(data()))){
+      dat <- DT::datatable(as.data.frame(fData(data())),
                            rownames = TRUE,
                            extensions = c('Scroller', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -182,7 +182,7 @@ mod_MSnSetExplorer_server <- function(id,
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
     } else {
-      dat <- DT::datatable(as.data.frame(Biobase::fData(data())),
+      dat <- DT::datatable(as.data.frame(fData(data())),
                            rownames = TRUE,
                            extensions = c('Scroller', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
@@ -211,8 +211,8 @@ mod_MSnSetExplorer_server <- function(id,
   
   mod_download_btns_server('table_DL_btns',
                            df.data = reactive({
-                             cbind(keyId = Biobase::fData(data())[, GetKeyId(data())],
-                                   round(Biobase::exprs(data()), digits = digits())
+                             cbind(keyId = fData(data())[, GetKeyId(data())],
+                                   round(exprs(data()), digits = digits())
                                    )
                              }),
                            name = reactive({'quantiData'}),
@@ -232,8 +232,8 @@ mod_MSnSetExplorer_server <- function(id,
   #################
   output$table <- DT::renderDataTable(server=TRUE,{
     req(data())
-    df <- cbind(keyId = Biobase::fData(data())[, GetKeyId(data())],
-                round(Biobase::exprs(data()), digits = digits()), 
+    df <- cbind(keyId = fData(data())[, GetKeyId(data())],
+                round(exprs(data()), digits = digits()), 
                 DAPAR::GetMetacell(data())
                 )
     mc <- metacell.def(GetTypeofData(data()))

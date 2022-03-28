@@ -39,7 +39,7 @@ mod_plotsMetacellHistos_server <- function(id, obj, pal, pattern) {
       tmp <- 
         metacellPerLinesHisto_HC(obj = obj(), 
                                  pattern = pattern(),
-                                 indLegend = c(2:length(colnames(Biobase::pData(obj()))))
+                                 indLegend = c(2:length(colnames(pData(obj()))))
                                    )
       #future(createPNGFromWidget(tmp,pattern))
    # })

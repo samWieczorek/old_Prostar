@@ -94,7 +94,7 @@ observeEvent(input$peptideLevel_imp4pLAPALA_distrib,{
 output$screenPepImputation1 <- renderUI({
   #req(rv$current.obj)
   # isolate({
-  nbEmptyLines <- getNumberOfEmptyLines(Biobase::exprs(rv$current.obj))
+  nbEmptyLines <- getNumberOfEmptyLines(exprs(rv$current.obj))
   
   if (nbEmptyLines > 0) {
     tags$p("Your dataset contains empty lines (fully filled with missing values). In order to use
@@ -253,7 +253,7 @@ output$peptideLevel_detQuant_impValues <- renderUI({
 })
 
 output$peptideLevel_TAB_detQuant_impValues <- renderDataTable(server=TRUE,{
-  values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), 
+  values <- getQuantile4Imp(exprs(rv$current.obj), 
                             rv$widgets$peptideImput$pepLevel_detQuantile/100, 
                             rv$widgets$peptideImput$pepLevel_detQuant_factor)
   DT::datatable(round(as.data.frame(t(values$shiftedImpVal)), digits=rv$settings_nDigits),

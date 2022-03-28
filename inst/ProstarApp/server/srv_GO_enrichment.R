@@ -212,8 +212,8 @@ GetDataIndexForAnalysis <- reactive({
     req(rv$current.obj)
     
     index <- NULL
-    if ("Significant" %in% names(Biobase::fData(rv$current.obj) )){
-        index <- which(Biobase::fData(rv$current.obj)$Significant == TRUE)
+    if ("Significant" %in% names(fData(rv$current.obj) )){
+        index <- which(fData(rv$current.obj)$Significant == TRUE)
     }else{
         index <- seq(1:nrow(rv$current.obj))
     }
@@ -229,7 +229,7 @@ output$chooseSourceForProtID <- renderUI({
     
     if (rv$widgets$go$sourceOfProtID == "colInDataset"){
         selectInput("UniprotIDCol", "Protein IDs",
-                    choices = c("", colnames(Biobase::fData(rv$current.obj))),
+                    choices = c("", colnames(fData(rv$current.obj))),
                     selected = rv$widgets$go$UniprotIDCol)
     }
     else  if (rv$widgets$go$sourceOfProtID == "extFile"){
@@ -247,7 +247,7 @@ output$chooseSourceForProtID <- renderUI({
 observeEvent(req(rv$widgets$go$UniprotIDCol),ignoreInit =  TRUE,{ 
     if((rv$widgets$go$UniprotIDCol == "")) {  rv$widgets$go$ProtIDList <- return (NULL)}
     else {
-        rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
+        rv$widgets$go$ProtIDList <- fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
     }
 })
 
@@ -281,7 +281,7 @@ observeEvent(input$mapProtein.GO.button,ignoreInit =  TRUE,{
     require(clusterProfiler)
     isolate({
         rv$widgets$go$gene <- NULL
-        rv$widgets$go$ProtIDList <- Biobase::fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
+        rv$widgets$go$ProtIDList <- fData(rv$current.obj)[,rv$widgets$go$UniprotIDCol]
         index <- GetDataIndexForAnalysis()
         
         tryCatch({
@@ -684,14 +684,14 @@ output$nonIdentifiedProteins <- renderDataTable(server=TRUE,{
 #                        {
 #                            
 #                            text2Log <- paste(
-#                                "ProtIDList <- Biobase::fData(current.obj)[,\"",rv$widgets$go$UniprotIDCol,"]\"\n",
+#                                "ProtIDList <- fData(current.obj)[,\"",rv$widgets$go$UniprotIDCol,"]\"\n",
 #                                "levelIndex <- sort(",rv$widgets$go$GO_level,") \n",
 #                                
 #                                "index <- NULL\n",
-#                                "if (\"Significant.Welch\" %in% names(Biobase::fData(current.obj) )){\n",
-#                                "index <- which(Biobase::fData(current.obj)$Significant.Welch == TRUE)\n",
-#                                "} else if (\"Significant.limma\" %in% names(Biobase::fData(current.obj) )){",
-#                                "index <- which(Biobase::fData(current.obj)$Significant.limma == TRUE)\n",
+#                                "if (\"Significant.Welch\" %in% names(fData(current.obj) )){\n",
+#                                "index <- which(fData(current.obj)$Significant.Welch == TRUE)\n",
+#                                "} else if (\"Significant.limma\" %in% names(fData(current.obj) )){",
+#                                "index <- which(fData(current.obj)$Significant.limma == TRUE)\n",
 #                                "} else{ index <- seq(1:nrow(current.obj))}\n",
 #                                "groupGO_data <- list()\n",
 #                                "for (i in 1:length(levelIndex)){\n",

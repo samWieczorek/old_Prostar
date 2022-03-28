@@ -100,24 +100,24 @@ GetTest <- reactive({
   req(rv$current.obj)
   rv$whichGroup2Color
   
-  nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-  pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
+  nbConds <- length(unique(pData(rv$current.obj)$Condition))
+  pal <- rep('#000000', length(pData(rv$current.obj)$Condition))
   
   
   nbColors <- NULL
   temp <- NULL
   if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color=="Condition")){
-           nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+           nbColors <- length(unique(pData(rv$current.obj)$Condition))
            nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
            nbColors <- max(nbColors,nbConds)
            pal <- NULL
            for(i in 1:nbConds){pal <- c(pal, input[[paste0("customColorCondition_",i)]])}
-           for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-             temp[i] <- pal[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+           for (i in 1:ncol(exprs(rv$current.obj))){
+             temp[i] <- pal[ which(pData(rv$current.obj)$Condition[i] == unique(pData(rv$current.obj)$Condition))]
            }
            
    } else if (rv$whichGroup2Color=="Replicate"){
-       nbColors <- length((Biobase::pData(rv$current.obj)$Condition))
+       nbColors <- length((pData(rv$current.obj)$Condition))
        for(i in 1:nbColors){temp <- c(temp,input[[paste0("customColorCondition_",i)]])}
         }
 
@@ -140,42 +140,42 @@ observeEvent(input$whichGroup2Color,{
 #   req(rv$current.obj)
 #   rv$typeOfPalette
 #    #req(input$typeOfPalette)
-#   pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
+#   pal <- rep('#000000', length(pData(rv$current.obj)$Condition))
 #   
-#   nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+#   nbConds <- length(unique(pData(rv$current.obj)$Condition))
 #   switch(rv$typeOfPalette,
 #     predefined={
 #       if ((rv$whichGroup2Color == "Condition") ){
 #         nbColors <- max(3,nbConds)
 #         palette <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbColors)
 #         temp <- NULL
-#         for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+#         for (i in 1:ncol(exprs(rv$current.obj))){
+#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(pData(rv$current.obj)$Condition))]
 #           }
 #         }  else if (rv$whichGroup2Color == "Replicate"){
-#           nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
+#           nbConds <- length(pData(rv$current.obj)$Condition)
 #           temp <- grDevices::colorRampPalette(brewer.pal(8, rv$choosePalette))(nbConds)
 #           }
 #       },
 #     custom = {
-#       nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-#       pal <- rep('#000000', length(Biobase::pData(rv$current.obj)$Condition))
+#       nbConds <- length(unique(pData(rv$current.obj)$Condition))
+#       pal <- rep('#000000', length(pData(rv$current.obj)$Condition))
 #       
 #       
 #       nbColors <- NULL
 #       temp <- NULL
 #       if (is.null(rv$whichGroup2Color) || (rv$whichGroup2Color=="Condition")){
-#         nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+#         nbColors <- length(unique(pData(rv$current.obj)$Condition))
 #         nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
 #         nbColors <- max(nbColors, nbConds)
 #         palette <- NULL
 #         for(i in 1:nbConds){palette <- c(palette,input[[paste0("customColorCondition_",i)]])}
-#         for (i in 1:ncol(Biobase::exprs(rv$current.obj))){
-#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(Biobase::pData(rv$current.obj)$Condition))]
+#         for (i in 1:ncol(exprs(rv$current.obj))){
+#           temp[i] <- palette[ which(pData(rv$current.obj)$Condition[i] == unique(pData(rv$current.obj)$Condition))]
 #         }
 #         
 #       } else if (rv$whichGroup2Color=="Replicate"){
-#         nbColors <- length((Biobase::pData(rv$current.obj)$Condition))
+#         nbColors <- length((pData(rv$current.obj)$Condition))
 #         for(i in 1:nbColors){temp <- c(temp,input[[paste0("customColorCondition_",i)]])}
 #       }
 #  
@@ -193,8 +193,8 @@ GetPaletteForConditions <- reactive({
   req(rv$current.obj)
   rv$typeOfPalette
   
-  nbConds <- length(Biobase::pData(rv$current.obj)$Condition)
-  nbUniqueConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  nbConds <- length(pData(rv$current.obj)$Condition)
+  nbUniqueConds <- length(unique(pData(rv$current.obj)$Condition))
   
   pal <- rep('#000000', nbUniqueConds)
   
@@ -205,7 +205,7 @@ GetPaletteForConditions <- reactive({
          custom = {
            # nbColors <- NULL
            # temp <- NULL
-           # nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+           # nbColors <- length(unique(pData(rv$current.obj)$Condition))
            # nbColors <-  brewer.pal.info[listBrewerPalettes[1],]$mincolors
            # nbColors <- max(nbColors, nbConds)
            pal <- NULL
@@ -231,12 +231,12 @@ output$customPaletteUI <- renderUI({
   nbColors <- NULL
   switch(rv$whichGroup2Color,
     Condition={
-      nbColors <- length(unique(Biobase::pData(rv$current.obj)$Condition))
-      labels <- unique(Biobase::pData(rv$current.obj)$Condition)
+      nbColors <- length(unique(pData(rv$current.obj)$Condition))
+      labels <- unique(pData(rv$current.obj)$Condition)
     },
     Replicate={
-      nbColors <- length((Biobase::pData(rv$current.obj)$Condition))
-      labels <- Biobase::pData(rv$current.obj)$Condition
+      nbColors <- length((pData(rv$current.obj)$Condition))
+      labels <- pData(rv$current.obj)$Condition
     }
   )
   
@@ -266,11 +266,11 @@ output$displayPalette <- renderHighchart({
   #req(input$chooseNbColors)
   #GetTest()
   rv$PlotParams$paletteForConditions
-  nbConds <- length(unique(Biobase::pData(rv$current.obj)$Condition))
+  nbConds <- length(unique(pData(rv$current.obj)$Condition))
   
   highchart() %>%
     my_hc_chart(chartType = "column") %>%
-    hc_add_series(data = data.frame(y= abs(1+rnorm(ncol(Biobase::exprs(rv$current.obj))))), type="column", colorByPoint = TRUE) %>%
+    hc_add_series(data = data.frame(y= abs(1+rnorm(ncol(exprs(rv$current.obj))))), type="column", colorByPoint = TRUE) %>%
     hc_colors(rv$PlotParams$paletteForConditions) %>%
     hc_plotOptions( column = list(stacking = "normal"),
                     animation=list(duration = 1)) %>%

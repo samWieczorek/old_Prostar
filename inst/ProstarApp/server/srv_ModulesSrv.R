@@ -101,7 +101,7 @@ moduleDetQuantImpValues <- function(input, output, session, quant,factor) {
   output$detQuantValues_DT <- renderDataTable(server=TRUE,{
     req(rv$current.obj, quant(), factor())
     
-    values <- getQuantile4Imp(Biobase::exprs(rv$current.obj), quant()/100, factor())
+    values <- getQuantile4Imp(exprs(rv$current.obj), quant()/100, factor())
     DT::datatable(as.data.frame(t(values$shiftedImpVal)),
                   rownames = FALSE,
                   options = list(initComplete = initComplete(),
@@ -201,7 +201,7 @@ moduleVolcanoplot <- function(input, output, session,
     upItemsPVal <- which(-log10(p$P_Value) >= as.numeric(rv$widgets$anaDiff$th_pval)
     )
     
-    rv$nbTotalAnaDiff <- nrow(Biobase::exprs(rv$current.obj))
+    rv$nbTotalAnaDiff <- nrow(exprs(rv$current.obj))
     rv$nbSelectedAnaDiff <- NULL
     t <- NULL
     
@@ -558,7 +558,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
     isolate({
       pattern <- paste0(GetCurrentObjName(),".boxplot")
       tmp <- boxPlotD_HC(data(), 
-                         conds = Biobase::pData(data())$Condition,
+                         conds = pData(data())$Condition,
                          legend = rv$PlotParams$legendForSamples, 
                          pal = pal())
       #future(createPNGFromWidget(tmp,pattern))
@@ -586,7 +586,7 @@ moduleBoxplot <- function(input, output, session, data, pal) {
       png(outfile)
       pattern <- paste0(GetCurrentObjName(),".violinplot")
       tmp <- DAPAR::violinPlotD(data(), 
-                                conds = Biobase::pData(data())$Condition,
+                                conds = pData(data())$Condition,
                                 legend = rv$PlotParams$legendForSamples, 
                                 pal = pal()
       )

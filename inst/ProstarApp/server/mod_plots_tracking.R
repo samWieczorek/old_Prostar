@@ -85,7 +85,7 @@ mod_plots_tracking_server <- function(input, output, session,
 
     selectInput(ns("listSelect"), 
                 "Protein for normalization", 
-                choices = Biobase::fData(obj())[,keyId()], 
+                choices = fData(obj())[,keyId()], 
                 selected = rv.track$res$listSelect,
                 multiple = TRUE, 
                 width='400px'
@@ -103,7 +103,7 @@ mod_plots_tracking_server <- function(input, output, session,
   output$columnSelect_UI <- renderUI({
     selectInput(ns("colSelect"), 
                 "Column", 
-                choices = colnames(Biobase::fData(obj())),
+                choices = colnames(fData(obj())),
                 selected = rv.track$res$colSelect)
   })
   
@@ -220,7 +220,7 @@ mod_plots_tracking_server <- function(input, output, session,
     if(is.null(rv.track$res$listSelect))
       rv.track$res$list.indices <- NULL
     else
-      rv.track$res$list.indices <-  match(rv.track$res$listSelect, Biobase::fData(obj())[,keyId()])
+      rv.track$res$list.indices <-  match(rv.track$res$listSelect, fData(obj())[,keyId()])
   })
   
   
@@ -253,7 +253,7 @@ mod_plots_tracking_server <- function(input, output, session,
     if (is.null(rv.track$res$colSelect))
       rv.track$res$col.indices <- NULL
     else
-      rv.track$res$col.indices <- which(Biobase::pData(obj())[,rv.track$res$colSelect] == 1)
+      rv.track$res$col.indices <- which(pData(obj())[,rv.track$res$colSelect] == 1)
     
     
   })

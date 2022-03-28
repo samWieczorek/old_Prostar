@@ -97,7 +97,7 @@ pcaPlots <- function(input, output, session, data) {
     n <- dim(y)[2] # If too big, take the number of conditions.
     
     if (n > nmax){
-      n <- length(unique(Biobase::pData(data())$Condition))
+      n <- length(unique(pData(data())$Condition))
     }
     
     ncp <- min(n, nmax)

@@ -88,7 +88,7 @@ mod_cc_server <- function(id, obj, cc){
   output$pepInfo_ui <- renderUI({
     selectInput(ns('pepInfo'), 
                 "Peptide Info", 
-                choices=colnames(Biobase::fData(obj())),
+                choices=colnames(fData(obj())),
                 multiple=TRUE)
   })
   
