@@ -40,8 +40,6 @@ callModule(moduleProcess, "moduleProcess_AnaDiff",
            forceReset = reactive({rvModProcess$moduleAnaDiffForceReset}))
 
 
-
-
 ######
 resetModuleAnaDiff <- reactive({  
   # if (rv$widgets$anaDiff$swapVolcano == TRUE){
@@ -65,7 +63,6 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$Comparison = "None"
   rv$widgets$anaDiff$Condition1 = ""
   rv$widgets$anaDiff$Condition2 = ""
-  #rv$widgets$anaDiff$swapVolcano = FALSE
   rv$widgets$anaDiff$val_vs_percent = "Value"
   rv$widgets$anaDiff$ChooseFilters = "None"
   rv$widgets$anaDiff$seuilNA_percent = 0
@@ -80,11 +77,11 @@ resetModuleAnaDiff <- reactive({
   rv$widgets$anaDiff$downloadAnaDiff = "All"
   rv$widgets$anaDiff$tooltipInfo = rv$current.obj@experimentData@other$proteinId
   
-  
   rv$widgets$anaDiff[sapply(rv$widgets$anaDiff, is.null)] <- NA
   rvModProcess$moduleAnaDiffDone = rep(FALSE, 4)
   
   rv_anaDiff$filename = NULL
+  rv_anaDiff$local.reset <- rv_anaDiff$local.reset + 1
   UpdateCompList()
   ##update dataset to put the previous one
   #rv$current.obj <- rv$dataset[[last(names(rv$dataset))]] 
@@ -95,7 +92,8 @@ resetModuleAnaDiff <- reactive({
 
 
 rv_anaDiff <- reactiveValues(
-  filename = NULL
+  filename = NULL,
+  local.reset = 0
 )
 
 
@@ -203,8 +201,8 @@ output$pushpval_ui <- renderUI({
 # It returns a subset of the current dataset that will be used to filter the data
 # within the 'Push p-value' feature
 Get_Dataset_to_Analyze <- reactive({
-  rv$widgets$anaDiff$Comparison
-  rv$current.obj
+  req(rv$widgets$anaDiff$Comparison)
+  req(rv$current.obj)
 
   datasetToAnalyze <- NULL
   
@@ -246,7 +244,8 @@ AnaDiff_indices <- mod_query_metacell_server(id = 'AnaDiff_query',
                                                            "For every condition" = "AllCond",
                                                            "At least one condition" = "AtLeastOneCond")}),
                                      val_vs_percent = reactive({setNames(nm=c('Count', 'Percentage'))}),
-                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())})
+                                     operator = reactive({setNames(nm=DAPAR::SymFilteringOperators())}),
+                                     reset = reactive({rv_anaDiff$local.reset})
                                      )
 #----------------------------------------------------
 

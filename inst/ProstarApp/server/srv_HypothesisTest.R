@@ -78,56 +78,94 @@ observeEvent(input$PerformLogFCPlot, {
 
 output$headerInputGroup <- renderUI({
   req(rv$res_AllPairwiseComparisons)
-  tags$div(
-    style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
-    fluidRow(
-    column(width = 2, h4(tags$strong('Condition 1'))),
-    column(width = 2, h4(tags$strong('Condition 2'))),
-    column(width = 2, h4(tags$strong('Swap')))
-  )
-  ) 
+  uiOutput('showConds')
+  # tags$div(
+  #   style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+  #   fluidRow(
+  #   column(width = 2, h4(tags$strong('Condition 1'))),
+  #   column(width = 2, h4(tags$strong('Condition 2'))),
+  #   column(width = 2, h4(tags$strong('Swap')))
+  # )
+  # ) 
   
 })
 
-
-output$cond1_ui <- renderUI({
-  
-req(rv$res_AllPairwiseComparisons)
-lapply(seq_len(rv.ht$n), function(i) {
-        ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
-        tags$div(
-          style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
-          p(gsub('[()]', '', ll[1]))
-        )
-      })
-})
-
-
-output$cond2_ui <- renderUI({
-  
+output$showConds <- renderUI({
   req(rv$res_AllPairwiseComparisons)
-  lapply(seq_len(rv.ht$n), function(i) {
-    ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
-    tags$div(
-      style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
-      p(tags$strong(gsub('[()]', '', ll[3])))
+  #n <- ncol(rv$res_AllPairwiseComparisons$logFC)
+  #browser()
+  .style <- "align: center; 
+  display:inline-block; 
+  vertical-align: middle; 
+  padding-right: 50px;
+  padding-bottom: 50px;"
+  
+  
+  input_list <- lapply(seq_len(rv.ht$n), function(i) {
+    ll.conds <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
+    
+    div(
+      div( style = .style,
+           p(gsub('[()]', '', ll.conds[1]))
+      ),
+      div( style = .style,
+           p(gsub('[()]', '', ll.conds[3]))
+      ),
+      div( style = .style,
+           actionButton(paste0('compswap', i), '',
+                        icon('sync',  lib = "font-awesome"), 
+                        style = "border-width: 0px;
+                        padding: 0px", 
+                        width = '30px',
+                        height ='30px',
+                        class = actionBtnClass)
+      )
     )
- })
+  })
+  do.call(tagList, input_list)
 })
 
 
-output$btns_ui <- renderUI({
-  req(rv$res_AllPairwiseComparisons)
-  lapply(seq_len(rv.ht$n), function(i) {
-    tags$div(style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
-             actionButton(paste0('compswap', i), '',
-                 icon('sync',  lib = "font-awesome"), 
-                 style = "background-color: none; 
-                          position: relative; 
-                          border-width: 0px")
-    )
- })
-})
+
+# 
+# output$cond1_ui <- renderUI({
+#   
+# req(rv$res_AllPairwiseComparisons)
+# lapply(seq_len(rv.ht$n), function(i) {
+#         ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
+#         tags$div(
+#           style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+#           p(gsub('[()]', '', ll[1]))
+#         )
+#       })
+# })
+# 
+# 
+# output$cond2_ui <- renderUI({
+#   
+#   req(rv$res_AllPairwiseComparisons)
+#   lapply(seq_len(rv.ht$n), function(i) {
+#     ll <- unlist(strsplit(colnames(rv$res_AllPairwiseComparisons$logFC)[i], split = '_'))
+#     tags$div(
+#       style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+#       p(tags$strong(gsub('[()]', '', ll[3])))
+#     )
+#  })
+# })
+# 
+# 
+# output$btns_ui <- renderUI({
+#   req(rv$res_AllPairwiseComparisons)
+#   lapply(seq_len(rv.ht$n), function(i) {
+#     tags$div(style="vertical-align: middle; padding-bottom: 10px; text-align: center;",
+#              actionButton(paste0('compswap', i), '',
+#                  icon('sync',  lib = "font-awesome"), 
+#                  style = "background-color: none; 
+#                           position: relative; 
+#                           border-width: 0px")
+#     )
+#  })
+# })
 
 
 observeEvent(req(sum(GetSwapShinyValue()) > 0), {
@@ -202,8 +240,8 @@ output$screenHypoTest1 <- renderUI({
   if (NA.count > 0){
     tags$p("Your dataset contains missing values. Before using the differential analysis, you must filter/impute them.")
   } else {
+    shinyjs::useShinyjs()
     tagList(
-      
       tags$div(
         tags$div( style="display:inline-block; vertical-align: middle;padding-right: 20px;",
                   selectInput("anaDiff_Design", "Contrast", 
@@ -234,12 +272,10 @@ output$screenHypoTest1 <- renderUI({
                   
         ),
         tags$div( style="display:inline-block; vertical-align: middle; padding-right: 20px;",
-                  actionButton("PerformLogFCPlot", "Perform log FC plot",class = actionBtnClass )
-                  
-        )
+                  uiOutput('perform_btn')
         
         )
-      ,
+        ),
       tags$hr(),
       uiOutput('headerInputGroup'),
       fluidRow(
@@ -255,6 +291,20 @@ output$screenHypoTest1 <- renderUI({
   })
 })
 
+
+output$perform_btn <- renderUI({
+  rvModProcess$moduleHypothesisTestDone[1]
+  if (rvModProcess$moduleHypothesisTestDone[1])
+    shinyjs::disabled(
+      actionButton("PerformLogFCPlot", 
+                   "Perform log FC plot",
+                   class = actionBtnClass )
+    )
+  else
+    actionButton("PerformLogFCPlot", 
+                 "Perform log FC plot",
+                 class = actionBtnClass )
+})
 
 # Definition of screen 2
 output$screenHypoTest2 <- renderUI({
