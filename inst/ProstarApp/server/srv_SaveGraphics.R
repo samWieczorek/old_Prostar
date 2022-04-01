@@ -6,6 +6,9 @@ output$test2 <- renderUI({
 
 
 GetTreeSelected <- function(toto){
+  if (! requireNamespace("shinyTree", quietly = TRUE)) {
+    stop("Please install shinyTree: BiocManager::install('shinyTree')")
+  }
   tmp <- unlist(shinyTree::get_selected(toto))
   toExclude <- c('MV plots', 'PCA plots')
   tmp <- setdiff(tmp, toExclude)

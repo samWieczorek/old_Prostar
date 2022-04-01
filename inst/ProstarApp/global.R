@@ -12,7 +12,7 @@ DAPAR.loc <- DAPARdata.loc <- Prostar.loc <- NULL
 #DAPARdata.loc <- DAPAR.loc <- Prostar.loc <- "/home/shiny/Rlibs_test"
 library(highcharter)
 library(shinyBS)
-library(shinyTree)
+#library(shinyTree)
 
 loadLibraries <- function(){
   

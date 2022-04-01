@@ -48,7 +48,9 @@ output$infoForNewVersions <- renderUI({
 
 
 output$baseVersions <- renderUI({
-  
+  if (! requireNamespace("BiocManager", quietly = TRUE)) {
+    stop("Please install BiocManager: install.packages('BiocManager')")
+  }
   tagList(
     
     tags$p(R.version.string, style="font-size: 16px"),

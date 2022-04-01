@@ -1,3 +1,7 @@
+if (! requireNamespace("shinyTree", quietly = TRUE)) {
+  stop("Please install shinyTree: BiocManager::install('shinyTree')")
+}
+
 
 mod_staticDT_server("viewProcessingData",
                     data = reactive({BuildParamDataProcessingDT()}),
@@ -13,28 +17,28 @@ mod_staticDT_server("viewProstarVersions",
 
 
 
-output$plotsFor_Original_protein <- renderTree({list("Descr stats"= ll_descrStats)})
+output$plotsFor_Original_protein <- shinyTree::renderTree({list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Original_peptide <- renderTree({list( "Descr stats"= ll_descrStats )})
+output$plotsFor_Original_peptide <- shinyTree::renderTree({list( "Descr stats"= ll_descrStats )})
 
-output$plotsFor_Filtered_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+output$plotsFor_Filtered_protein <- shinyTree::renderTree({ list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Filtered_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
+output$plotsFor_Filtered_peptide <- shinyTree::renderTree({list( "Descr stats"= ll_descrStats)})
 
-output$plotsFor_Normalized_protein <- renderTree({list("Descr stats"= ll_descrStats,"compNorm"="compNorm")})
+output$plotsFor_Normalized_protein <- shinyTree::renderTree({list("Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
-output$plotsFor_Normalized_peptide <- renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
+output$plotsFor_Normalized_peptide <- shinyTree::renderTree({ list( "Descr stats"= ll_descrStats,"compNorm"="compNorm")})
 
-output$plotsFor_Imputed_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
+output$plotsFor_Imputed_protein <- shinyTree::renderTree({ list("Descr stats"= ll_descrStats)})
 
-output$plotsFor_Imputed_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
+output$plotsFor_Imputed_peptide <- shinyTree::renderTree({list( "Descr stats"= ll_descrStats)})
 
-output$plotsFor_HypothesisTest_protein <- renderTree({ list("Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
+output$plotsFor_HypothesisTest_protein <- shinyTree::renderTree({ list("Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
-output$plotsFor_HypothesisTest_peptide <- renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
+output$plotsFor_HypothesisTest_peptide <- shinyTree::renderTree({list( "Descr stats"= ll_descrStats, "logFCDistr" ="logFCDistr" )})
 
-output$plotsFor_Aggregated_protein <- renderTree({ list("Descr stats"= ll_descrStats)})
-output$plotsFor_Aggregated_peptide <- renderTree({list( "Descr stats"= ll_descrStats)})
+output$plotsFor_Aggregated_protein <- shinyTree::renderTree({ list("Descr stats"= ll_descrStats)})
+output$plotsFor_Aggregated_peptide <- shinyTree::renderTree({list( "Descr stats"= ll_descrStats)})
 
 
 

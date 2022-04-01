@@ -5,6 +5,10 @@ mod_staticDT_server("overview_DemoMode",
 
 output$chooseDataset <- renderUI({
  
+  if (! requireNamespace("BiocManager", quietly = TRUE)) {
+    stop("Please install BiocManager: install.packages('BiocManager')")
+  }
+  
   if(!require("DAPARdata", lib.loc=DAPARdata.loc)){
     print("Installing DAPARdata")
     BiocManager::install("DAPARdata")

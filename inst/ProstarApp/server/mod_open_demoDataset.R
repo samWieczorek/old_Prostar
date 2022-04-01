@@ -63,7 +63,6 @@ mod_open_demoDataset_ui <- function(id){
 #' @import DAPARdata2
 #' @importFrom BiocGenerics get
 #' @importFrom utils data
-#' @importFrom BiocManager install
 #' @importFrom shinyjs info
 #' @import QFeatures
 #' 

@@ -201,7 +201,7 @@ output$pushpval_ui <- renderUI({
 # It returns a subset of the current dataset that will be used to filter the data
 # within the 'Push p-value' feature
 Get_Dataset_to_Analyze <- reactive({
-  req(rv$widgets$anaDiff$Comparison)
+  req(rv$widgets$anaDiff$Comparison != 'None')
   req(rv$current.obj)
 
   datasetToAnalyze <- NULL
@@ -215,6 +215,17 @@ Get_Dataset_to_Analyze <- reactive({
   else {
     condition1 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][1]
     condition2 = strsplit(as.character(rv$widgets$anaDiff$Comparison), "_vs_")[[1]][2]
+    
+    if (substr(condition1, 1,1) == '(' && 
+        substr(condition1, nchar(condition1),nchar(condition1)) == ')')
+      condition1 <- sub('^.(.*).$', '\\1', condition1)
+    
+    if (substr(condition2, 1,1) == '(' && 
+        substr(condition2, nchar(condition2), nchar(condition2)) == ')')
+      condition2 <- sub('^.(.*).$', '\\1', condition2)
+    
+    
+    
     ind <- c( which(pData(rv$current.obj)$Condition == condition1), 
               which(pData(rv$current.obj)$Condition == condition2))
     

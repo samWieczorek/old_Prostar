@@ -312,11 +312,11 @@ mod_query_metacell_server <- function(id,
     req(rv.widgets$MetacellTag != 'None')
     req(rv.widgets$MetacellFilters != 'None')
     
+    
     th <- switch(rv.widgets$val_vs_percent,
                  Percentage =  rv.widgets$metacell_percent_th / 100,
                  Count = as.integer(rv.widgets$metacell_value_th)
                  )
-    
     DAPAR::GetIndices_MetacellFiltering(obj = obj(),
                                         level = DAPAR::GetTypeofData(obj()),
                                         pattern = rv.widgets$MetacellTag,

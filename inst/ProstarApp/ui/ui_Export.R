@@ -1,3 +1,7 @@
+if (! requireNamespace("shinyTree", quietly = TRUE)) {
+  stop("Please install shinyTree: BiocManager::install('shinyTree')")
+}
+
 tabPanel("Export",
          value = "ExportTab",
          tabsetPanel(
