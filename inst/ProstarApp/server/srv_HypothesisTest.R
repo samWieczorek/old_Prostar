@@ -228,6 +228,11 @@ GetSwapShinyValue <- reactive({
 # First screen
 output$screenHypoTest1 <- renderUI({
   
+  if (! requireNamespace("shinyBS", quietly = TRUE)) {
+    stop("Please install shinyBS: BiocManager::install('shinyBS')")
+  }
+  
+  
    rv$current.obj
   isolate({
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
@@ -277,13 +282,21 @@ output$screenHypoTest1 <- renderUI({
         )
         ),
       tags$hr(),
-      uiOutput('headerInputGroup'),
-      fluidRow(
-        column(width = 2, uiOutput('cond1_ui')),
-        column(width = 2, uiOutput('cond2_ui')),
-        column(width = 2, uiOutput('btns_ui')
-        )
-      ),
+      
+      
+      
+      shinyBS::bsCollapse(id = "collapseExample",
+                          open = "",
+                          shinyBS::bsCollapsePanel(title = "Swap conditions",
+                                                   uiOutput('headerInputGroup'),
+                                                   fluidRow(
+                                                     column(width = 2, uiOutput('cond1_ui')),
+                                                     column(width = 2, uiOutput('cond2_ui')),
+                                                     column(width = 2, uiOutput('btns_ui')
+                                                     )
+                                                   ),
+                                                   style = "info")
+                          ),
       highchartOutput("FoldChangePlot", height="100%")
     )
     
