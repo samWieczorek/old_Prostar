@@ -144,7 +144,7 @@ GetDatasetOverview <- reactive({
                    Value=rep(0,length(columns)))
   
   m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
-                      pattern="missing", 
+                      pattern = "missing", 
                       level = DAPAR::GetTypeofData(rv$current.obj))
     NA.count<- length(which(m))
     

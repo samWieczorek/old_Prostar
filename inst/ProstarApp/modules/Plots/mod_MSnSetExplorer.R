@@ -131,8 +131,6 @@ mod_MSnSetExplorer_server <- function(id,
                                        scrollX = 200,
                                        scrollY = 500,
                                        scroller = TRUE,
-                                       #columnDefs = list(
-                                       #list(columns.width=c("60px"), columnDefs.targets= c(list(0),list(1),list(2))))
                                        columnDefs = list(list(width='60px',targets= "_all"))
                           )) %>%
       formatStyle(
@@ -177,7 +175,7 @@ mod_MSnSetExplorer_server <- function(id,
                                         columns.searchable = FALSE,
                                         fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
-                                                               columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
+                                                               targets=c(list(0),list(1),list(2)))))) %>%
         formatStyle(columns = 'Significant',
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
@@ -198,7 +196,7 @@ mod_MSnSetExplorer_server <- function(id,
                                         columns.searchable = FALSE,
                                         fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
-                                                               columnDefs.targets=c(list(0),list(1),list(2))))))
+                                                               targets=c(list(0),list(1),list(2))))))
     }
     
     return(dat)

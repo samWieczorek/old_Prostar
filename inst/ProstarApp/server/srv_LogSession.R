@@ -41,7 +41,7 @@ output$logSession <- DT::renderDataTable(server=TRUE,{
                                    autoWidth = FALSE,
                                    columnDefs = list(
                                      list(columns.width=c("60px","60px"),
-                                          columnDefs.targets= c(list(0),list(1))))
+                                          targets= c(list(0),list(1))))
                       ))
   dt
 })

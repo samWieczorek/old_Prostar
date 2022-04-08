@@ -240,6 +240,10 @@ output$displayNbPeptides <- renderUI({
 
 ########################################################
 RunAggregation <- reactive({
+  if (! requireNamespace("foreach", quietly = TRUE)) {
+    stop("Please install foreach: BiocManager::install('foreach')")
+  }
+  
   req(DAPAR::GetMatAdj(rv$current.obj))
   rv$widgets$aggregation$includeSharedPeptides
   rv$widgets$aggregation$operator
@@ -250,7 +254,6 @@ RunAggregation <- reactive({
     incProgress(0.2, detail = 'loading foreach package')
     
     
-    require(foreach)
     incProgress(0.5, detail = 'Aggregation in progress')
 
     ll.agg <- NULL
@@ -418,6 +421,7 @@ observeEvent(input$validAggregation,{
         cpt <- cpt + delta
         incProgress(cpt/100, detail = paste0('Processing column ', c))
       }
+      br
       rv$current.obj <- rv$temp.aggregate$obj.prot
       
 

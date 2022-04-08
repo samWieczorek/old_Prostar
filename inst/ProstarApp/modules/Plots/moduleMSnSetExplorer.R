@@ -163,7 +163,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         columns.searchable=F,
                                         fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
-                                                               columnDefs.targets=c(list(0),list(1),list(2)))))) %>%
+                                                               targets=c(list(0),list(1),list(2)))))) %>%
         formatStyle(columns = 'Significant',
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
@@ -188,7 +188,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         columns.searchable=F,
                                         fixedColumns = list(leftColumns = 1),
                                         columnDefs = list(list(columns.width=c("60px"),
-                                                               columnDefs.targets=c(list(0),list(1),list(2))))))
+                                                               targets=c(list(0),list(1),list(2))))))
     }
     
     return(dat)
