@@ -173,29 +173,25 @@ observeEvent(req(sum(GetSwapShinyValue()) > 0), {
   swap <- GetSwapShinyValue()
     
     isolate({
-      
-  #rv$ht$swap.history <- 
-  ind.swap <- which(swap != rv.ht$swap.history)
-  rv.ht$swap.history <- swap
-  
-  if (length(ind.swap) > 0){
-    for(i in ind.swap){
-      current.comp <- colnames(rv$res_AllPairwiseComparisons$logFC)[i]
+      ind.swap <- which(swap != rv.ht$swap.history)
+      rv.ht$swap.history <- swap
+      if (length(ind.swap) > 0){
+        for(i in ind.swap){
+          current.comp <- colnames(rv$res_AllPairwiseComparisons$logFC)[i]
 
-      # Swap comparisons names
-      ll <- unlist(strsplit(current.comp, split = '_'))
-      tmp.cond1 <- gsub('[( )]', '', ll[1])
-      tmp.cond2 <- gsub('[( )]', '', ll[3])
-      tmp.logFC <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_logFC')
-      tmp.pval <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_pval')
-      colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
-      colnames(rv$res_AllPairwiseComparisons$P_Value)[i] <- tmp.pval
+          # Swap comparisons names
+          ll <- unlist(strsplit(current.comp, split = '_'))
+          tmp.cond1 <- gsub('[( )]', '', ll[1])
+          tmp.cond2 <- gsub('[( )]', '', ll[3])
+          tmp.logFC <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_logFC')
+          tmp.pval <- paste0('(', tmp.cond2, ')_vs_(', tmp.cond1, ')_pval')
+          colnames(rv$res_AllPairwiseComparisons$logFC)[i] <- tmp.logFC
+          colnames(rv$res_AllPairwiseComparisons$P_Value)[i] <- tmp.pval
 
-      # Swap logFC values
-      rv$res_AllPairwiseComparisons$logFC[, i] <- - rv$res_AllPairwiseComparisons$logFC[, i]
-    }
-  }
-
+          # Swap logFC values
+          rv$res_AllPairwiseComparisons$logFC[, i] <- - rv$res_AllPairwiseComparisons$logFC[, i]
+        }
+      }
   })
 })
 

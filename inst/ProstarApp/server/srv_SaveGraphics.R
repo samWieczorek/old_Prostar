@@ -393,13 +393,17 @@ createPNGFromWidget(tempplot, "tempplot_scatterplotEnrichGO.html", gGraphicsFile
 
 ###--------------------------------------------------------------------------
 createPNG_GroupGO <- reactive({
+  if (! requireNamespace("doParallel", quietly = TRUE)) {
+    stop("Please install doParallel: BiocManager::install('doParallel')")
+  }
+  
 l <- length(rv$groupGO_data)
 pngNames <- c(gGraphicsFilenames$GOClassificationImg1,
               gGraphicsFilenames$GOClassificationImg2,
               gGraphicsFilenames$GOClassificationImg3)
     
-require(doParallel)
-registerDoParallel(detectCores()-1 )
+
+doParallel::registerDoParallel(detectCores()-1 )
 foreach(i=1:l) %dopar% {
         tempplot <- barplotGroupGO_HC(rv$groupGO_data[[i]]$ggo_res, 
                                       title = paste("Groups at level ",  rv$groupGO_data[[i]]$level))

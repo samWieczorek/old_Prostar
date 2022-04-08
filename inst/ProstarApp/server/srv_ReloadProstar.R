@@ -1,7 +1,7 @@
 
 
 observeEvent(input$ReloadProstar, {
-  js$reset()
+  js$resetProstar()
 })
 
 
