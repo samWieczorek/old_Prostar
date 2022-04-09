@@ -1,10 +1,11 @@
 #####################################
 moduleTrackProtUI <- function(id){
   ns <- NS(id)
+  
+  
+  
   tagList(
-    selectInput(ns("typeSelect"), "Type of selection", 
-                choices=c("Protein list"="ProteinList", "Random"="Random", "Column"="Column"),
-                width=('130px')),
+    uiOutput(ns('typeSelect_ui')),
     uiOutput(ns("listSelect_UI")),
     uiOutput(ns("randomSelect_UI")),
     uiOutput(ns("columnSelect_UI"))
@@ -31,6 +32,27 @@ moduleTrackProt <- function(input, output, session, params, reset){
   # })
   # 
   
+  
+  
+  output$typeSelect_ui <- renderUI({
+    
+    logical.cols <- lapply(colnames(fData(rv$current.obj)), 
+                           function(x) 
+                             is.logical(fData(rv$current.obj)[,x]))
+    logical.cols <- which(unlist(logical.cols))
+    
+    .choices <- c("Protein list" = "ProteinList", 
+                  "Random" = "Random", 
+                  "Column" = "Column")
+    if (length(logical.cols) > 0)
+      .choices <- c(.choices, 
+                    "Specific column" = "Column")
+    
+    selectInput(ns("typeSelect"), "Type of selection", 
+                choices = .choices,
+                width=('130px'))
+    
+  })
   observe({
     params()
     updateSelectInput(session, "typeSelect", selected=params()$type)

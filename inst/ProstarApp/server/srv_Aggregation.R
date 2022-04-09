@@ -121,7 +121,7 @@ output$screenAggregation1 <- renderUI({
                           c("No" = "No",
                             "Yes (as protein specific)"= "Yes1" ,
                             "Yes (redistribution)" = "Yes2" ),
-                        selected=rv$widgets$aggregation$includeSharedPeptides)),
+                        selected = rv$widgets$aggregation$includeSharedPeptides)),
       div( style="display:inline-block; vertical-align: top; padding-right: 10px;",
            radioButtons("AggregationConsider", "Consider", 
                         choices=c('all peptides'="allPeptides", 
