@@ -14,7 +14,7 @@ ui <- fluidPage(mod_MSnSetExplorer_ui('test'))
 
 server <- function(input, output, session) {
   utils::data(Exp1_R25_prot, package = 'DAPARdata')
-  obj <- Exp1_R25_prot
+  obj <- Exp1_R25_prot[95:100,]
   
   mod_MSnSetExplorer_server(id = 'test',
                            data = reactive({obj}),

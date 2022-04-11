@@ -2,9 +2,20 @@ mod_MSnSetExplorer_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
+#     tags$head(tags$style("
+#   table.dataTable thead th {
+#     padding: 8px 10px !important;
+#   }
+# ")),
     uiOutput(ns("DS_sidebarPanel_tab")),
-    uiOutput(ns("tabToShow"))
-  )
+    fluidRow(
+      column(
+        align = "center",
+        width = 12,
+        uiOutput(ns("tabToShow"))
+      )
+    )
+      )
 }
 
 
@@ -81,14 +92,33 @@ mod_MSnSetExplorer_server <- function(id,
      switch(input$DS_TabsChoice,
            None = return(NULL),
            tabExprs = tagList(
+             
              mod_download_btns_ui(ns('table_DL_btns')),
-             DT::dataTableOutput(ns("table"))),
+             fluidRow(
+               column(
+                 align = "center",
+                 width = 12,
+                 DT::dataTableOutput(ns("table")))
+               )
+             ),
            tabfData = tagList(
              mod_download_btns_ui(ns('fData_DL_btns')),
-             DT::dataTableOutput(ns("viewfData"))),
+             fluidRow(
+               column(
+                 align = "center",
+                 width = 12,
+                 DT::dataTableOutput(ns("viewfData")))
+             )
+             ),
            tabpData = tagList(
              mod_download_btns_ui(ns('pData_DL_btns')),
-             DT::dataTableOutput(ns("viewpData")))
+             fluidRow(
+               column(
+                 align = "center",
+                 width = 12,
+                 DT::dataTableOutput(ns("viewpData")))
+             )
+             )
     )
     
   })
@@ -158,45 +188,70 @@ mod_MSnSetExplorer_server <- function(id,
     req(data())
     
     
+    
     if ('Significant' %in% colnames(fData(data()))){
+      print("got significant")
       dat <- DT::datatable(as.data.frame(fData(data())),
                            rownames = TRUE,
-                           extensions = c('Scroller', 'FixedColumns'),
+                           escape = FALSE,
+                           plugins = "ellipsis",
+                           extensions = c( 'FixedColumns'),
                            options=list(initComplete = initComplete(),
-                                        dom = 'frtip',
+                                        dom = 'rtip',
                                         pageLength = DT_pagelength,
                                         orderClasses = TRUE,
                                         autoWidth=FALSE,
                                         deferRender = TRUE,
                                         bLengthChange = FALSE,
-                                        scrollX = 200,
+                                        scrollX = '100%',
                                         scrollY = 200,
                                         scroller = TRUE,
                                         columns.searchable = FALSE,
                                         fixedColumns = list(leftColumns = 1),
-                                        columnDefs = list(list(columns.width=c("60px"),
-                                                               targets=c(list(0),list(1),list(2)))))) %>%
+                                        columnDefs = list(list(className = 'dt-center',
+                                                               targets = "_all",
+                                                               render = JS("$.fn.dataTable.render.ellipsis( 30 )")
+                                                               
+                                                               # render = JS(
+                                                               #   "function(data, type, row, meta) {",
+                                                               #   "return type === 'display' && data != null && data.length > 30 ?",
+                                                               #   "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+                                                               #   "}")
+                                                               )
+                                                          )
+                                        )
+                           ) %>%
         formatStyle(columns = 'Significant',
                     target = 'row',
                     background = styleEqual(1, 'lightblue'))
     } else {
       dat <- DT::datatable(as.data.frame(fData(data())),
                            rownames = TRUE,
+                           #escape = FALSE,
+                           plugins = "ellipsis",
                            extensions = c('Scroller', 'FixedColumns'),
                            options=list(initComplete = initComplete(),
-                                        dom = 'frtip',
+                                        dom = 'rtip',
                                         pageLength = DT_pagelength,
                                         deferRender = TRUE,
                                         bLengthChange = FALSE,
-                                        scrollX = 200,
+                                        scrollX = TRUE,
                                         scrollY = 600,
                                         scroller = TRUE,
                                         orderClasses = TRUE,
-                                        autoWidth = FALSE,
+                                        autoWidth = TRUE,
                                         columns.searchable = FALSE,
                                         fixedColumns = list(leftColumns = 1),
-                                        columnDefs = list(list(columns.width=c("60px"),
-                                                               targets=c(list(0),list(1),list(2))))))
+                                        columnDefs = list(list(className = 'dt-center',
+                                                               targets='_all', 
+                                                               render = JS("$.fn.dataTable.render.ellipsis( 30 )")
+                                                               # render = JS(
+                                                               #   "function(data, type, row, meta) {",
+                                                               #   "return type === 'display' && data != null && data.length > 30 ?",
+                                                               #   "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+                                                               #   "}")
+                                                               )
+                                                          )))
     }
     
     return(dat)

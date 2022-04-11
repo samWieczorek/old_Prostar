@@ -10,7 +10,13 @@ mod_staticDT_ui <- function(id) {
                     mod_download_btns_ui(ns("DL_btns"))
                 )
                 ),
-              DT::dataTableOutput(ns("StaticDataTable"))
+    fluidRow(
+      column(
+        align = "center",
+        width = 12,
+        DT::dataTableOutput(ns("StaticDataTable"))
+        )
+      )
     )
 }
 
@@ -54,12 +60,25 @@ mod_staticDT_server <- function(id,
      DT::datatable(data(), 
                     escape = FALSE,
                     rownames= FALSE,
+                    plugins = "ellipsis",
                     options=list(
                       #initComplete = initComplete(),
-                      dom = dom
+                      dom = dom,
                       #    server = FALSE,
                       #    autoWidth=TRUE,
-                      #columnDefs = list(list(width='150px',targets= "_all")),
+                      columnDefs = list(
+                        list(
+                          className = 'dt-center',
+                          #width='150px',
+                          targets= "_all",
+                          render = JS("$.fn.dataTable.render.ellipsis( 30 )")
+                          
+                          # render = JS(
+                          #   "function(data, type, row, meta) {",
+                          #   "return type === 'display' && data != null && data.length > 30 ?",
+                          #   "'<span title=\"' + data + '\">' + data.substr(0, 30) + '...</span>' : data;",
+                          #   "}")
+                          ))
                       #ordering = FALSE
                     )
       )
