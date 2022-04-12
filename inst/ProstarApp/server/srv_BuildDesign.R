@@ -277,7 +277,9 @@ observeEvent(input$hot,{ rv$hot <-  hot_to_r(input$hot)})
 
 
 #------------------------------------------------------------------------------
-observeEvent(input$btn_checkDesign,{ rv$designChecked <- DAPAR::check.design(rv$hot)})
+observeEvent(input$btn_checkDesign,{ 
+  rv$designChecked <- DAPAR::check.design(rv$hot)
+  })
 
 #------------------------------------------------------------------------------
 output$checkDesign <- renderUI({
@@ -288,9 +290,15 @@ output$checkDesign <- renderUI({
   if(!isTRUE(rv$conditionsChecked$valid)){return(NULL)}
   switch(isolate({input$chooseExpDesign}),
          FlatDesign = {},
-         twoLevelsDesign = { if (sum(rv$hot$Bio.Rep == "") > 0) {return(NULL)}},
-         threeLevelsDesign = {if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) {return(NULL)}}
-  )
+         twoLevelsDesign = { 
+           if (sum(rv$hot$Bio.Rep == "") > 0) 
+           return(NULL)
+           },
+         threeLevelsDesign = {
+           if ((sum(rv$hot$Bio.Rep == "")+sum(rv$hot$Tech.Rep == "")) > 0) 
+             return(NULL)
+           }
+         )
   
   
   tags$div(
@@ -307,9 +315,12 @@ output$checkDesign <- renderUI({
           shinyjs::enable("createMSnsetButton")
           img <- "images/Ok.png"
           txt <- "Correct design"
-        }else {
+        } else {
           img <- "images/Problem.png"
-          txt <- "Invalid design"}
+          txt <- "Invalid design"
+        }
+        
+        
         tagList(
           tags$div(
             tags$div(style="display:inline-block;",tags$img(src = img, height=25)),
@@ -317,7 +328,14 @@ output$checkDesign <- renderUI({
           ),
           if(!isTRUE(rv$designChecked$valid)){
             shinyjs::disable("createMSnsetButton")
-            tags$p(rv$designChecked$warn)
+            warn.txt <- unique(rv$designChecked$warn)
+            tags$ul(
+              lapply(warn.txt, 
+                    function(x) 
+                      tags$li(x)
+                    )
+            )
+            #tags$p(paste0(rv$designChecked$warn, collapse="<br>"))
           } else {
             shinyjs::enable("createMSnsetButton")
           }
