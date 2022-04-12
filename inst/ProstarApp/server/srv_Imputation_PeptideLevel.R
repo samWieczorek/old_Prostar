@@ -95,13 +95,13 @@ output$screenPepImputation1 <- renderUI({
   #req(rv$current.obj)
   # isolate({
   nbEmptyLines <- getNumberOfEmptyLines(exprs(rv$current.obj))
-  
   if (nbEmptyLines > 0) {
     tags$p("Your dataset contains empty lines (fully filled with missing values). In order to use
              the imputation tool, you must delete them by using the filter tool.")
     
-  }
-  else { 
+  } else if (sum(is.na(exprs(rv$current.obj))) == 0){
+    tags$p("Your dataset does not contains missing values.")
+  } else { 
     tabPanel("Miss. values imputation",
              id = "tabPanelImputation",
              value = "imputation",
@@ -147,9 +147,14 @@ output$screenPepImputation1 <- renderUI({
 
 
 output$screenPepImputation2 <- renderUI({
-  
-  tagList(
-    actionButton("peptideLevel_ValidImputation", "Save imputation", class = actionBtnClass))
+  if (sum(is.na(exprs(rv$current.obj))) == 0){
+    tags$p("Your dataset does not contains missing values.")
+  } else
+    tagList(
+      actionButton("peptideLevel_ValidImputation", 
+                   "Save imputation", 
+                   class = actionBtnClass)
+      )
 })
 
 

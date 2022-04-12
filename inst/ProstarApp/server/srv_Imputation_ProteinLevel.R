@@ -107,7 +107,9 @@ observeEvent(input$MEC_detQuant_factor, {
 
 
 output$screenProtImput1 <- renderUI({
-  
+  if (sum(is.na(exprs(rv$current.obj))) == 0){
+    tags$p("Your dataset does not contain missing values.")
+  } else
   tagList(
     tags$div(
       tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
@@ -278,7 +280,9 @@ output$ImputationStep1Done <- renderUI({
 #                             SCREEN 2
 #------------------------------------------------------------
 output$screenProtImput2 <- renderUI({
-  
+  if (sum(is.na(exprs(rv$current.obj))) == 0){
+    tags$p("Your dataset does not contains missing values.")
+  } else
   tagList(
     uiOutput("warningMECImputation"),
     tags$div(
@@ -437,7 +441,9 @@ output$warningMECImputation<- renderUI({
 #------------------------------------------------------------
 
 output$screenProtImput3 <- renderUI({
-  
+  if (sum(is.na(exprs(rv$current.obj))) == 0){
+    tags$p("Your dataset does not contains missing values.")
+  } else
   tagList(
     tags$div( style="display:inline-block; vertical-align: top; padding-right: 20px;",
               actionButton("ValidImputation","Save imputation", class = actionBtnClass)),
