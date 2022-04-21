@@ -147,14 +147,11 @@ output$screenPepImputation1 <- renderUI({
 
 
 output$screenPepImputation2 <- renderUI({
-  if (sum(is.na(exprs(rv$current.obj))) == 0){
-    tags$p("Your dataset does not contains missing values.")
-  } else
-    tagList(
+  tagList(
       actionButton("peptideLevel_ValidImputation", 
                    "Save imputation", 
                    class = actionBtnClass)
-      )
+  )
 })
 
 

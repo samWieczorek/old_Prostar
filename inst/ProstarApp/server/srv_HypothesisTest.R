@@ -229,7 +229,7 @@ output$screenHypoTest1 <- renderUI({
   }
   
   
-   rv$current.obj
+   req(rv$current.obj)
   isolate({
     m <- match.metacell(DAPAR::GetMetacell(rv$current.obj), 
                         pattern="missing",

@@ -124,7 +124,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                        scrollY = 500,
                                        scroller = TRUE,
                                        #columnDefs = list(
-                                       #list(columns.width=c("60px"), columnDefs.targets= c(list(0),list(1),list(2))))
+                                       #list(width=c("60px"), targets= c(list(0),list(1),list(2))))
                                        columnDefs = list(list(width='60px',targets= "_all"))
                           )) %>%
       formatStyle(
@@ -162,7 +162,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         scroller = TRUE,
                                         columns.searchable=F,
                                         fixedColumns = list(leftColumns = 1),
-                                        columnDefs = list(list(columns.width=c("60px"),
+                                        columnDefs = list(list(width=c("60px"),
                                                                targets=c(list(0),list(1),list(2)))))) %>%
         formatStyle(columns = 'Significant',
                     target = 'row',
@@ -187,7 +187,7 @@ MSnSetExplorer <- function(input, output, session, data) {
                                         autoWidth=FALSE,
                                         columns.searchable=F,
                                         fixedColumns = list(leftColumns = 1),
-                                        columnDefs = list(list(columns.width=c("60px"),
+                                        columnDefs = list(list(width=c("60px"),
                                                                targets=c(list(0),list(1),list(2))))))
     }
     

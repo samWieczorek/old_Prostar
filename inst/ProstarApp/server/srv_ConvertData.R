@@ -837,7 +837,7 @@ observeEvent(input$createMSnsetButton,ignoreInit =  TRUE,{
         l.params <- list(filename = input$filenameToCreate)
         
         loadObjectInMemoryFromConverter()
-        
+
         updateTabsetPanel(session, "tabImport", selected = "Convert")
       },
       # warning = function(w) {

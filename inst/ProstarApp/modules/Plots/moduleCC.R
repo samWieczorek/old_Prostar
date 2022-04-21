@@ -79,6 +79,8 @@ mod_cc_server <- function(id, obj, cc){
   
   )
   
+  
+
   observeEvent(req(input$searchCC), {
     shinyjs::toggle('jiji', condition = input$searchCC=='graphical')
     shinyjs::toggle('CCMultiMulti', condition = input$searchCC=='tabular')
@@ -480,8 +482,8 @@ output$CCDetailed <- renderUI({
   output$OneMultiDT <- renderDataTable(server=TRUE,{
     req(GetCC(obj())$allPep)
     df <- BuildOne2MultiTab()
-      colnames(df) <-c(c('Proteins Ids', 'nPep', 'Peptides Ids'))
-    
+      colnames(df) <-c('Proteins Ids', 'nPep', 'Peptides Ids')
+
   dat <- DT::datatable(df,
                          selection = 'single',
                          rownames=FALSE,
@@ -496,7 +498,8 @@ output$CCDetailed <- renderUI({
                                       scroller = TRUE,
                                        autoWidth = FALSE,
                                       columns.searchable = FALSE,
-                                      columnDefs = list(list(columns.width=c("60px")
+                                      columnDefs = list(list(width=c("60px"),
+                                                             targets = c(list(0),list(1))
                                                              )
                                                         )
                                       )
@@ -591,8 +594,8 @@ output$CCDetailed <- renderUI({
                                       orderClasses = TRUE,
                                       autoWidth=FALSE,
                                       columns.searchable=F,
-                                      columnDefs = list(list(columns.width=c("60px"),
-                                                             columnDefs.targets=c(list(0),list(1),list(2))))))
+                                      columnDefs = list(list(width=c("60px"),
+                                                             targets=c(list(0),list(1),list(2))))))
     
     return(dat)
   })

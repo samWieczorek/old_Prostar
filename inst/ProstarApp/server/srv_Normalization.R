@@ -253,7 +253,8 @@ output$choose_normalizationScaling <- renderUI({
 
 
 observeEvent(rv$widgets$normalization$method,{
-  #req(rv$widgets$normalization$method)
+  req(rv$widgets$normalization$method)
+  req(rv$current.obj)
   #if (rv$widgets$normalization$method == "None"){
    # rv$current.obj <- rv$dataset[[input$datasets]]
  #   return(NULL)

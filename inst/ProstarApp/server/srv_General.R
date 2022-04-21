@@ -314,6 +314,7 @@ ComputeConnectedComposants <- reactive({
 
   withProgress(message = 'Computing connected components',detail = '', value = 0, {
     incProgress(1/2, detail = 'with specific peptides only')
+    #browser()
     ll1 <- get.pep.prot.cc(DAPAR::GetMatAdj(rv$current.obj)$matWithSharedPeptides)
     
     incProgress(2/2, detail = 'with specific and shared peptides')
